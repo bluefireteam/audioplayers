@@ -93,9 +93,9 @@ audioPlayer.setErrorHandler((msg) {
 
 ## iOS
    
-### :warning: Swift project only
+### :warning: Swift project
 
-- :warning: this plugin is written in swift, so to use with in a Flutter/ObjC project, 
+- this plugin is written in swift, so to use with in a Flutter/ObjC project, 
 you need to convert the project to "Current swift syntax" ( Edit/Convert/current swift syntax)  
 
 ## :warning: iOS App Transport Security
