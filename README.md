@@ -11,16 +11,15 @@ A Flutter audio plugin.
   - [x] onComplete
   - [x] onDuration / onCurrentPosition
 
-![screenshot](img/audioplayer.png)
+![screenshot](https://github.com/rxlabz/audioplayer/blob/master/screenshot.png)
 
 ## Usage
 
-[Example](https://github.com/rxlabz/flutter_audio/blob/master/example/lib/main.dart) 
+[Example](https://github.com/rxlabz/audioplayer/blob/master/example/lib/main.dart) 
 
 To use this plugin : 
 
-- add the dependency to your [pubspec.yaml](https://github.com/rxlabz/flutter_audio/blob/master/example/pubspec.yaml) file. This plugin is not yet published on pub.dartlang,
- so the dependency must be added with a local path.
+- add the dependency to your [pubspec.yaml](https://github.com/rxlabz/audioplayer/blob/master/example/pubspec.yaml) file.
 
 ```yaml
   dependencies:
@@ -29,7 +28,7 @@ To use this plugin :
     audioplayer:
 ```
 
-- instantiate a AudioPlayer instance
+- instantiate an AudioPlayer instance
 
 ```dart
 //...
@@ -96,7 +95,8 @@ audioPlayer.setErrorHandler((msg) {
    
 ### :warning: Swift project only
 
-- :warning: this plugin is written in swift, so to use with in a Flutter/ObjC project, it seems to be needed to convert the project to "Current swift syntax" ( Edit/Convert/current swift syntax)  
+- :warning: this plugin is written in swift, so to use with in a Flutter/ObjC project, 
+you need to convert the project to "Current swift syntax" ( Edit/Convert/current swift syntax)  
 
 ## :warning: iOS App Transport Security
 
