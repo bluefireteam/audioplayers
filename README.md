@@ -11,7 +11,7 @@ A Flutter audio plugin.
   - [x] onComplete
   - [x] onDuration / onCurrentPosition
 
-![screenshot](https://github.com/rxlabz/audioplayer/blob/master/screenshot.png)
+![screenshot](https://github.com/rxlabz/audioplayer/blob/master/screenshot.png?raw=true)
 
 ## Usage
 
