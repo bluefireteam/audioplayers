@@ -1,0 +1,22 @@
+PODS:
+  - audioplayer (0.0.1):
+    - Flutter
+  - Flutter (1.0.0)
+
+DEPENDENCIES:
+  - audioplayer (from `/Users/rxlabz/dev/projects/fluttrx_plugins/flutter_audioplayer/ios`)
+  - Flutter (from `/Users/rxlabz/dev/tools/flutter/bin/cache/artifacts/engine/ios`)
+
+EXTERNAL SOURCES:
+  audioplayer:
+    :path: /Users/rxlabz/dev/projects/fluttrx_plugins/flutter_audioplayer/ios
+  Flutter:
+    :path: /Users/rxlabz/dev/tools/flutter/bin/cache/artifacts/engine/ios
+
+SPEC CHECKSUMS:
+  audioplayer: f4462b84216b9c55f02bbbdc7ab60eec7427b2d4
+  Flutter: d674e78c937094a75ac71dd77e921e840bea3dbf
+
+PODFILE CHECKSUM: cc70c01bca487bebd110b87397f017f3b76a89f1
+
+COCOAPODS: 1.2.0
