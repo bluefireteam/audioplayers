@@ -1,8 +1,6 @@
-# flutter audiostream plugin
+# AudioPlayer
 
-:warning: this plugin is not working with the last Flutter plugin API update. For now I'm not able to make this works.
-
-Experimental Flutter audio plugin. 
+A Flutter audio plugin. 
  
 ## Features
  
@@ -13,17 +11,15 @@ Experimental Flutter audio plugin.
   - [x] onComplete
   - [x] onDuration / onCurrentPosition
 
-![screenshot](screenshot.png)
+![screenshot](https://github.com/rxlabz/audioplayer/blob/master/screenshot.png?raw=true)
 
 ## Usage
 
-[Example](https://github.com/rxlabz/flutter_audio/blob/master/example/lib/main.dart) 
+[Example](https://github.com/rxlabz/audioplayer/blob/master/example/lib/main.dart) 
 
 To use this plugin : 
 
-- add the dependency to your [pubspec.yaml](https://github.com/rxlabz/flutter_audio/blob/master/example/pubspec.yaml) file. 
-This plugin is not yet published on pub.dartlang,
- so the dependency must be added with a local path.
+- add the dependency to your [pubspec.yaml](https://github.com/rxlabz/audioplayer/blob/master/example/pubspec.yaml) file.
 
 ```yaml
   dependencies:
@@ -99,9 +95,10 @@ audioPlayer.setErrorHandler((msg) {
    
 ### :warning: Swift project
 
-To use this plugin your xcode project must be converted to **"Current swift current syntax"** ( Edit/Convert/Current Swift syntax... )
+- this plugin is written in swift, so to use with in a Flutter/ObjC project, 
+you need to convert the project to "Current swift syntax" ( Edit/Convert/current swift syntax)  
 
-### :warning: iOS App Transport Security
+## :warning: iOS App Transport Security
 
 By default iOS forbids loading from non-https url. To cancel this restriction edit your .plist and add :
  
@@ -117,3 +114,5 @@ By default iOS forbids loading from non-https url. To cancel this restriction ed
 
 For help getting started with Flutter, view our online
 [documentation](http://flutter.io/).
+
+For help on editing plugin code, view the [documentation](https://flutter.io/platform-plugins/#edit-code).
