@@ -13,6 +13,7 @@ import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 /**
  * AudioplayerPlugin
@@ -39,7 +40,8 @@ public class AudioplayerPlugin implements MethodCallHandler {
   @Override
   public void onMethodCall(MethodCall call, MethodChannel.Result response) {
     if (call.method.equals("play")) {
-      Boolean resPlay = play(call.arguments.toString());
+      String url = ((HashMap) call.arguments()).get("url").toString();
+      Boolean resPlay = play(url);
       response.success(1);
     } else if (call.method.equals("pause")) {
       pause();

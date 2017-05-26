@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.0
+
+- support for local files
+
+## 0.1.0
+
+- update to the current Plugin API
+- move to https://github.com/rxlabz/audioplayer
+
 ## 0.0.2
 
 Separated handlers for position, duration, completion and errors 

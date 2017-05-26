@@ -23,7 +23,8 @@ class AudioPlayer {
     //durationNotifier = new ValueNotifier(new Duration());
   }
 
-  Future<int> play(String url) => _channel.invokeMethod('play', url);
+  Future<int> play(String url, {bool isLocal: false}) =>
+      _channel.invokeMethod('play', {"url": url, "isLocal": isLocal});
 
   Future<int> pause() => _channel.invokeMethod('pause');
 

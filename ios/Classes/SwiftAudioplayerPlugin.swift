@@ -34,7 +34,16 @@ public class SwiftAudioplayerPlugin: NSObject, FlutterPlugin {
     
     switch (call.method) {
     case "play":
-        togglePlay(call.arguments as! String)
+        guard let info:Dictionary = call.arguments as? Dictionary<String, Any> else {
+            result(0)
+            return
+        }
+        guard let url:String = info["url"] as? String, let isLocal:Bool = info["isLocal"] as? Bool else{
+            result(0)
+            return
+        }
+        
+        togglePlay(url, isLocal: isLocal)
     case "pause":
         pause()
     case "stop":
@@ -45,11 +54,11 @@ public class SwiftAudioplayerPlugin: NSObject, FlutterPlugin {
     result(1)
   }
     
-    fileprivate func togglePlay(_ url: String) {
+    fileprivate func togglePlay(_ url: String, isLocal:Bool) {
         print( "togglePlay \(url)" )
         if player == nil {
             if url != lastUrl {
-                playerItem = AVPlayerItem(url: URL(string: url)!)
+                playerItem = AVPlayerItem(url: isLocal ? URL(fileURLWithPath:url): URL(string: url)!)
                 lastUrl = url
                 
                 // soundComplete handler

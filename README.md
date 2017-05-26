@@ -5,11 +5,15 @@ A Flutter audio plugin.
 ## Features
  
 - [x] Android & iOS
-  - [x] play (remote file)
+  - [x] play (remote and local file)
   - [x] stop
   - [x] pause
   - [x] onComplete
   - [x] onDuration / onCurrentPosition
+
+- Supported formats 
+  - [Android](https://developer.android.com/guide/topics/media/media-formats.html)
+  - [iOS](http://www.techotopia.com/index.php/Playing_Audio_on_iOS_8_using_AVAudioPlayer#Supported_Audio_Formats)
 
 ![screenshot](https://github.com/rxlabz/audioplayer/blob/master/screenshot.png?raw=true)
 
@@ -43,7 +47,14 @@ Future play() async {
   final result = await audioPlayer.play(kUrl);
   if (result == 1) setState(() => playerState = PlayerState.playing);
 }
-  
+
+// add a isLocal parameter to play a local file
+Future playLocal() async {
+  final result = await audioPlayer.play(kUrl);
+  if (result == 1) setState(() => playerState = PlayerState.playing);
+}
+
+
 Future pause() async {
   final result = await audioPlayer.pause();
   if (result == 1) setState(() => playerState = PlayerState.paused);
@@ -66,11 +77,11 @@ The dart part of the plugin listen for platform calls :
 
 ```dart
 //...
-audioPlayer.setDurationHandler((d) => setState(() {
+audioPlayer.setDurationHandler((Duration d) => setState(() {
   duration = d;
 }));
 
-audioPlayer.setPositionHandler((p) => setState(() {
+audioPlayer.setPositionHandler((Duration  p) => setState(() {
   position = p;
 }));
 

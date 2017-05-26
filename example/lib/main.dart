@@ -1,7 +1,13 @@
 import 'dart:async';
+import 'dart:io';
+import 'dart:typed_data';
 
-import 'package:flutter/material.dart';
 import 'package:audioplayer/audioplayer.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart';
+import 'package:path_provider/path_provider.dart';
+
+typedef void OnError(Exception exception);
 
 const kUrl = "http://www.rxlabz.com/labz/audio2.mp3";
 const kUrl2 = "http://www.rxlabz.com/labz/audio.mp3";
@@ -23,15 +29,17 @@ class _AudioAppState extends State<AudioApp> {
 
   AudioPlayer audioPlayer;
 
+  String localFilePath;
+
   PlayerState playerState = PlayerState.stopped;
 
   get isPlaying => playerState == PlayerState.playing;
   get isPaused => playerState == PlayerState.paused;
 
   get durationText =>
-    duration != null ? duration.toString().split('.').first : '';
+      duration != null ? duration.toString().split('.').first : '';
   get positionText =>
-    position != null ? position.toString().split('.').first : '';
+      position != null ? position.toString().split('.').first : '';
 
   @override
   void initState() {
@@ -43,14 +51,14 @@ class _AudioAppState extends State<AudioApp> {
     audioPlayer = new AudioPlayer();
 
     audioPlayer.setDurationHandler((d) => setState(() {
-      print('_AudioAppState.initAudioPlayer => d ${d}');
-      duration = d;
-    }));
+          print('_AudioAppState.setDurationHandler => d ${d}');
+          duration = d;
+        }));
 
     audioPlayer.setPositionHandler((p) => setState(() {
-      print('_AudioAppState.initAudioPlayer => p ${p}');
-      position = p;
-    }));
+          print('_AudioAppState.setPositionHandler => p ${p}');
+          position = p;
+        }));
 
     audioPlayer.setCompletionHandler(() {
       onComplete();
@@ -71,6 +79,11 @@ class _AudioAppState extends State<AudioApp> {
 
   Future play() async {
     final result = await audioPlayer.play(kUrl);
+    if (result == 1) setState(() => playerState = PlayerState.playing);
+  }
+
+  Future _playLocal() async{
+    final result = await audioPlayer.play(localFilePath, isLocal: true);
     if (result == 1) setState(() => playerState = PlayerState.playing);
   }
 
@@ -98,55 +111,97 @@ class _AudioAppState extends State<AudioApp> {
     audioPlayer.stop();
   }
 
+  Future<Uint8List> _loadFileBytes(String url, {OnError onError}) async {
+    Uint8List bytes;
+    try {
+      bytes = await readBytes(url);
+    } on ClientException {
+      rethrow;
+    }
+    return bytes;
+  }
+
+  Future _loadFile() async {
+    final bytes = await _loadFileBytes(kUrl,
+        onError: (Exception exception) =>
+            print('_MyHomePageState._loadVideo => exception ${exception}'));
+
+    final dir = await getApplicationDocumentsDirectory();
+    final file = new File('${dir.path}/audio.mp3');
+
+    await file.writeAsBytes(bytes);
+    if (await file.exists())
+      setState(() {
+        localFilePath = file.path;
+      });
+  }
+
   @override
   Widget build(BuildContext context) {
     return new Center(
-      child: new Material(
-        elevation: 2.0,
-        color: Colors.grey[200],
-        child: new Container(
-          padding: new EdgeInsets.all(16.0),
-          child: new Column(mainAxisSize: MainAxisSize.min, children: [
-            new Row(mainAxisSize: MainAxisSize.min, children: [
-              new IconButton(
-                onPressed: isPlaying ? null : () => play(),
-                iconSize: 64.0,
-                icon: new Icon(Icons.play_arrow),
-                color: Colors.cyan),
-              new IconButton(
-                onPressed: isPlaying ? () => pause() : null,
-                iconSize: 64.0,
-                icon: new Icon(Icons.pause),
-                color: Colors.cyan),
-              new IconButton(
-                onPressed: isPlaying || isPaused ? () => stop() : null,
-                iconSize: 64.0,
-                icon: new Icon(Icons.stop),
-                color: Colors.cyan),
-            ]),
-            new Row(mainAxisSize: MainAxisSize.min, children: [
-              new Padding(
-                padding: new EdgeInsets.all(12.0),
-                child: new Stack(children: [
-                  new CircularProgressIndicator(
-                    value: 1.0,
-                    valueColor:
-                    new AlwaysStoppedAnimation(Colors.grey[300])),
-                  new CircularProgressIndicator(
-                    value:
-                    position != null && position.inMilliseconds > 0
-                      ? position.inMilliseconds /
-                      duration.inMilliseconds
-                      : 0.0,
-                    valueColor: new AlwaysStoppedAnimation(Colors.cyan),
-                  ),
-                ])),
-              new Text(
-                position != null
-                  ? "${positionText ?? ''} / ${durationText ?? ''}"
-                  : duration != null ? durationText : '',
-                style: new TextStyle(fontSize: 24.0))
-            ])
-          ]))));
+        child: new Material(
+            elevation: 2.0,
+            color: Colors.grey[200],
+            child: new Column(children: [
+              new Material(
+                  child: new Container(
+                      padding: new EdgeInsets.all(16.0),
+                      child:
+                          new Column(mainAxisSize: MainAxisSize.min, children: [
+                        new Row(mainAxisSize: MainAxisSize.min, children: [
+                          new IconButton(
+                              onPressed: isPlaying ? null : () => play(),
+                              iconSize: 64.0,
+                              icon: new Icon(Icons.play_arrow),
+                              color: Colors.cyan),
+                          new IconButton(
+                              onPressed: isPlaying ? () => pause() : null,
+                              iconSize: 64.0,
+                              icon: new Icon(Icons.pause),
+                              color: Colors.cyan),
+                          new IconButton(
+                              onPressed:
+                                  isPlaying || isPaused ? () => stop() : null,
+                              iconSize: 64.0,
+                              icon: new Icon(Icons.stop),
+                              color: Colors.cyan),
+                        ]),
+                        new Row(mainAxisSize: MainAxisSize.min, children: [
+                          new Padding(
+                              padding: new EdgeInsets.all(12.0),
+                              child: new Stack(children: [
+                                new CircularProgressIndicator(
+                                    value: 1.0,
+                                    valueColor: new AlwaysStoppedAnimation(
+                                        Colors.grey[300])),
+                                new CircularProgressIndicator(
+                                  value: position != null &&
+                                          position.inMilliseconds > 0
+                                      ? position.inMilliseconds /
+                                          duration.inMilliseconds
+                                      : 0.0,
+                                  valueColor:
+                                      new AlwaysStoppedAnimation(Colors.cyan),
+                                ),
+                              ])),
+                          new Text(
+                              position != null
+                                  ? "${positionText ?? ''} / ${durationText ?? ''}"
+                                  : duration != null ? durationText : '',
+                              style: new TextStyle(fontSize: 24.0))
+                        ])
+                      ]))),
+              localFilePath != null ? new Text(localFilePath) : new Container(),
+              new Row(children: [
+                new RaisedButton(
+                  onPressed: () => _loadFile(),
+                  child: new Text('Download'),
+                ),
+                new RaisedButton(
+                  onPressed: () => _playLocal(),
+                  child: new Text('play local'),
+                ),
+              ])
+            ])));
   }
 }

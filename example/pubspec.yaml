@@ -4,13 +4,10 @@ description: Demonstrates how to use the audioplayer plugin.
 dependencies:
   flutter:
     sdk: flutter
+  path_provider:
   audioplayer:
     path: ../
 
-# For information on the generic Dart part of this file, see the
-# following page: https://www.dartlang.org/tools/pub/pubspec
-
-# The following section is specific to Flutter.
 flutter:
 
   # The following line ensures that the Material Icons font is

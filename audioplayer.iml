@@ -8,6 +8,7 @@
       <excludeFolder url="file://$MODULE_DIR$/example/.idea/libraries/packages" />
       <excludeFolder url="file://$MODULE_DIR$/example/.idea/packages" />
       <excludeFolder url="file://$MODULE_DIR$/example/.idea/runConfigurations/packages" />
+      <excludeFolder url="file://$MODULE_DIR$/example/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/example/android/.gradle/3.3/packages" />
       <excludeFolder url="file://$MODULE_DIR$/example/android/.gradle/3.3/taskArtifacts/packages" />
       <excludeFolder url="file://$MODULE_DIR$/example/android/.gradle/3.3/tasks/_app_compileDebugJavaWithJavac/localClassSetAnalysis/packages" />
@@ -43,6 +44,7 @@
       <excludeFolder url="file://$MODULE_DIR$/example/android/gradle/packages" />
       <excludeFolder url="file://$MODULE_DIR$/example/android/gradle/wrapper/packages" />
       <excludeFolder url="file://$MODULE_DIR$/example/android/packages" />
+      <excludeFolder url="file://$MODULE_DIR$/example/build" />
       <excludeFolder url="file://$MODULE_DIR$/example/build/android-profile/packages" />
       <excludeFolder url="file://$MODULE_DIR$/example/build/aot/App.framework/packages" />
       <excludeFolder url="file://$MODULE_DIR$/example/build/aot/packages" />
