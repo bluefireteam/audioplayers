@@ -36,44 +36,40 @@ To use this plugin :
 
 ```dart
 //...
-AudioPlayer audioPlugin = new AudioPlayer();
+AudioPlayer audioPlayer = new AudioPlayer();
 //...
 ```
 
 ### play, pause , stop
 
 ```dart
-Future play() async {
+play() async {
   final result = await audioPlayer.play(kUrl);
   if (result == 1) setState(() => playerState = PlayerState.playing);
 }
 
 // add a isLocal parameter to play a local file
-Future playLocal() async {
+playLocal() async {
   final result = await audioPlayer.play(kUrl);
   if (result == 1) setState(() => playerState = PlayerState.playing);
 }
 
 
-Future pause() async {
+pause() async {
   final result = await audioPlayer.pause();
   if (result == 1) setState(() => playerState = PlayerState.paused);
 }
 
-Future stop() async {
+stop() async {
   final result = await audioPlayer.stop();
-  if (result == 1)
-    setState(() {
-    playerState = PlayerState.stopped;
-    position = new Duration();
-  });
+  if (result == 1) setState(() => playerState = PlayerState.stopped);
 }
 
 ```
 
 ### duration, position, complete, error (temporary api) 
 
-The dart part of the plugin listen for platform calls :
+The Dart part of the plugin listen for platform calls :
 
 ```dart
 //...
