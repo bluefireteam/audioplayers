@@ -109,6 +109,9 @@ By default iOS forbids loading from non-https url. To cancel this restriction ed
     <true/>
 </dict>
 ```
+## Troubleshooting
+
+If you get a MissingPluginException, try to `flutter build apk` on Android, or `flutter build ios`
 
 ## Getting Started
 
