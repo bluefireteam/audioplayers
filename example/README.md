@@ -111,7 +111,8 @@ By default iOS forbids loading from non-https url. To cancel this restriction ed
 ```
 ## Troubleshooting
 
-If you get a MissingPluginException, try to `flutter build apk` on Android, or `flutter build ios`
+- If you get a MissingPluginException, try to `flutter build apk` on Android, or `flutter build ios`
+- to use the plugin in a ObjC iOS project, add 'use_frameworks!' to your podfile cf. [example](https://github.com/rxlabz/audioplayer/blob/master/example/ios/Podfile)
 
 ## Getting Started
 
