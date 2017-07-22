@@ -30,6 +30,8 @@ class AudioPlayer {
 
   Future<int> stop() => _channel.invokeMethod('stop');
 
+  Future<int> seek(double seconds) => _channel.invokeMethod('seek', seconds);
+
   void setDurationHandler(TimeChangeHandler handler) {
     durationHandler = handler;
   }

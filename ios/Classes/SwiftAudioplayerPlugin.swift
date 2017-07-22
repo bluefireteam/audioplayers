@@ -48,6 +48,12 @@ public class SwiftAudioplayerPlugin: NSObject, FlutterPlugin {
         pause()
     case "stop":
         stop()
+    case "seek":
+        guard let sec:Double = call.arguments as? Double else {
+            result(0)
+            return
+        }
+        seek(sec)
     default:
         result(FlutterMethodNotImplemented)
     }
@@ -123,6 +129,11 @@ public class SwiftAudioplayerPlugin: NSObject, FlutterPlugin {
             isPlaying = false
             print("stop")
         }
+    }
+
+    func seek(_ seconds: Double) {
+        let time = CMTime.init(seconds: seconds, preferredTimescale: 1);
+        playerItem?.seek(to: time);
     }
     
     func onSoundComplete(note: Notification) {
