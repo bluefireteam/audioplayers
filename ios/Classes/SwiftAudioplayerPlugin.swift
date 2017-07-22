@@ -48,6 +48,12 @@ public class SwiftAudioplayerPlugin: NSObject, FlutterPlugin {
         pause()
     case "stop":
         stop()
+    case "seek":
+        guard let sec:Double = call.arguments as? Double else {
+            result(0)
+            return
+        }
+        seek(sec)
     default:
         result(FlutterMethodNotImplemented)
     }
@@ -56,25 +62,30 @@ public class SwiftAudioplayerPlugin: NSObject, FlutterPlugin {
     
     fileprivate func togglePlay(_ url: String, isLocal:Bool) {
         print( "togglePlay \(url)" )
-        if player == nil {
-            if url != lastUrl {
-                playerItem = AVPlayerItem(url: isLocal ? URL(fileURLWithPath:url): URL(string: url)!)
-                lastUrl = url
-                
-                // soundComplete handler
-                NotificationCenter.default.addObserver(
-                    forName: Notification.Name.AVPlayerItemDidPlayToEndTime,
-                    object: playerItem,
-                    queue: nil, using: onSoundComplete)
-                
+        if url != lastUrl {
+            playerItem?.removeObserver(self, forKeyPath: #keyPath(player.currentItem.status))
+            NotificationCenter.default.removeObserver(onSoundComplete)
+
+            playerItem = AVPlayerItem(url: isLocal ? URL(fileURLWithPath:url): URL(string: url)!)
+            lastUrl = url
+
+            // soundComplete handler
+            NotificationCenter.default.addObserver(
+                forName: Notification.Name.AVPlayerItemDidPlayToEndTime,
+                object: playerItem,
+                queue: nil, using: onSoundComplete)
+
+            if let p = player{
+                p.replaceCurrentItem(with: playerItem)
+            } else {
                 player = AVPlayer(playerItem: playerItem)
-                
-                // is sound ready
-                player!.currentItem?.addObserver(self, forKeyPath: #keyPath(player.currentItem.status), context: nil)
-                
+
                 // stream player position
                 player!.addPeriodicTimeObserver(forInterval: CMTime(seconds: 0.2, preferredTimescale: CMTimeScale(NSEC_PER_SEC)), queue: nil, using: onTimeInterval)
             }
+
+            // is sound ready
+            player!.currentItem?.addObserver(self, forKeyPath: #keyPath(player.currentItem.status), context: nil)
         }
         
         if isPlaying == true {
@@ -118,6 +129,11 @@ public class SwiftAudioplayerPlugin: NSObject, FlutterPlugin {
             isPlaying = false
             print("stop")
         }
+    }
+
+    func seek(_ seconds: Double) {
+        let time = CMTime.init(seconds: seconds, preferredTimescale: 1);
+        playerItem?.seek(to: time);
     }
     
     func onSoundComplete(note: Notification) {

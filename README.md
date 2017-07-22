@@ -8,6 +8,7 @@ A Flutter audio plugin.
   - [x] play (remote and local file)
   - [x] stop
   - [x] pause
+  - [x] seek
   - [x] onComplete
   - [x] onDuration / onCurrentPosition
 
@@ -40,7 +41,7 @@ AudioPlayer audioPlayer = new AudioPlayer();
 //...
 ```
 
-### play, pause , stop
+### play, pause , stop, seek
 
 ```dart
 play() async {
@@ -64,6 +65,9 @@ stop() async {
   final result = await audioPlayer.stop();
   if (result == 1) setState(() => playerState = PlayerState.stopped);
 }
+
+// seek 5 seconds from the beginning
+audioPlayer.seek(5.0);
 
 ```
 

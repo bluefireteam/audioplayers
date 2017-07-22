@@ -49,16 +49,26 @@ public class AudioplayerPlugin implements MethodCallHandler {
     } else if (call.method.equals("stop")) {
       stop();
       response.success(1);
+    } else if (call.method.equals("seek")) {
+      double position = call.arguments();
+      seek(position);
+      response.success(1);
     } else {
       response.notImplemented();
     }
   }
 
+  private void seek(double position) {
+    mediaPlayer.seekTo((int) (position * 1000));
+  }
+
   private void stop() {
     handler.removeCallbacks(sendData);
-    mediaPlayer.stop();
-    mediaPlayer.release();
-    mediaPlayer = null;
+    if (mediaPlayer != null) {
+      mediaPlayer.stop();
+      mediaPlayer.release();
+      mediaPlayer = null;
+    }
   }
 
   private void pause() {
