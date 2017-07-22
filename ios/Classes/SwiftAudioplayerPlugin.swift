@@ -56,25 +56,30 @@ public class SwiftAudioplayerPlugin: NSObject, FlutterPlugin {
     
     fileprivate func togglePlay(_ url: String, isLocal:Bool) {
         print( "togglePlay \(url)" )
-        if player == nil {
-            if url != lastUrl {
-                playerItem = AVPlayerItem(url: isLocal ? URL(fileURLWithPath:url): URL(string: url)!)
-                lastUrl = url
-                
-                // soundComplete handler
-                NotificationCenter.default.addObserver(
-                    forName: Notification.Name.AVPlayerItemDidPlayToEndTime,
-                    object: playerItem,
-                    queue: nil, using: onSoundComplete)
-                
+        if url != lastUrl {
+            playerItem?.removeObserver(self, forKeyPath: #keyPath(player.currentItem.status))
+            NotificationCenter.default.removeObserver(onSoundComplete)
+
+            playerItem = AVPlayerItem(url: isLocal ? URL(fileURLWithPath:url): URL(string: url)!)
+            lastUrl = url
+
+            // soundComplete handler
+            NotificationCenter.default.addObserver(
+                forName: Notification.Name.AVPlayerItemDidPlayToEndTime,
+                object: playerItem,
+                queue: nil, using: onSoundComplete)
+
+            if let p = player{
+                p.replaceCurrentItem(with: playerItem)
+            } else {
                 player = AVPlayer(playerItem: playerItem)
-                
-                // is sound ready
-                player!.currentItem?.addObserver(self, forKeyPath: #keyPath(player.currentItem.status), context: nil)
-                
+
                 // stream player position
                 player!.addPeriodicTimeObserver(forInterval: CMTime(seconds: 0.2, preferredTimescale: CMTimeScale(NSEC_PER_SEC)), queue: nil, using: onTimeInterval)
             }
+
+            // is sound ready
+            player!.currentItem?.addObserver(self, forKeyPath: #keyPath(player.currentItem.status), context: nil)
         }
         
         if isPlaying == true {
