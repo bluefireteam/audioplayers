@@ -5,7 +5,7 @@ dependencies:
   flutter:
     sdk: flutter
   path_provider:
-  audioplayer:
+  audioplayers:
     path: ../
 
 flutter:
