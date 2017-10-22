@@ -2,35 +2,35 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:uuid/uuid.dart';
 
 typedef void TimeChangeHandler(Duration duration);
 typedef void ErrorHandler(String message);
 
 class AudioPlayer {
-  static const MethodChannel _channel =
-      const MethodChannel('bz.rxla.flutter/audio');
+  static final MethodChannel _channel = const MethodChannel('bz.rxla.flutter/audio')..setMethodCallHandler(platformCallHandler);
+  static final uuid = new Uuid();
+  static final players = new Map<String, AudioPlayer>();
 
   TimeChangeHandler durationHandler;
   TimeChangeHandler positionHandler;
   VoidCallback completionHandler;
   ErrorHandler errorHandler;
-
-  // TODO ? use a notifier ?...
-  //ValueNotifier<Duration> durationNotifier;
+  String playerId;
 
   AudioPlayer() {
-    _channel.setMethodCallHandler(platformCallHandler);
-    //durationNotifier = new ValueNotifier(new Duration());
+    playerId = uuid.v4();
+    players[playerId] = this;
   }
 
   Future<int> play(String url, {bool isLocal: false}) =>
-      _channel.invokeMethod('play', {"url": url, "isLocal": isLocal});
+      _channel.invokeMethod('play', {"playerId": playerId, "url": url, "isLocal": isLocal});
 
-  Future<int> pause() => _channel.invokeMethod('pause');
+  Future<int> pause() => _channel.invokeMethod('pause', {"playerId": playerId});
 
-  Future<int> stop() => _channel.invokeMethod('stop');
+  Future<int> stop() => _channel.invokeMethod('stop', {"playerId": playerId});
 
-  Future<int> seek(double seconds) => _channel.invokeMethod('seek', seconds);
+  Future<int> seek(double seconds) => _channel.invokeMethod('seek', {"playerId": playerId, "position": seconds});
 
   void setDurationHandler(TimeChangeHandler handler) {
     durationHandler = handler;
@@ -48,29 +48,32 @@ class AudioPlayer {
     errorHandler = handler;
   }
 
-  Future platformCallHandler(MethodCall call) async {
+  static Future platformCallHandler(MethodCall call) async {
     print("_platformCallHandler call ${call.method} ${call.arguments}");
+    String playerId = (call.arguments as Map)['playerId'];
+    AudioPlayer player = players[playerId];
+    dynamic value = (call.arguments as Map)['value'];
     switch (call.method) {
       case "audio.onDuration":
-        final duration = new Duration(milliseconds: call.arguments);
-        if (durationHandler != null) {
-          durationHandler(duration);
+        final duration = new Duration(milliseconds: value);
+        if (player.durationHandler != null) {
+          player.durationHandler(duration);
         }
         //durationNotifier.value = duration;
         break;
       case "audio.onCurrentPosition":
-        if (positionHandler != null) {
-          positionHandler(new Duration(milliseconds: call.arguments));
+        if (player.positionHandler != null) {
+          player.positionHandler(new Duration(milliseconds: value));
         }
         break;
       case "audio.onComplete":
-        if (completionHandler != null) {
-          completionHandler();
+        if (player.completionHandler != null) {
+          player.completionHandler();
         }
         break;
       case "audio.onError":
-        if (errorHandler != null) {
-          errorHandler(call.arguments);
+        if (player.errorHandler != null) {
+          player.errorHandler(value);
         }
         break;
       default:

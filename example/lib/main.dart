@@ -9,8 +9,8 @@ import 'package:path_provider/path_provider.dart';
 
 typedef void OnError(Exception exception);
 
-const kUrl = "http://www.rxlabz.com/labz/audio2.mp3";
 const kUrl2 = "http://www.rxlabz.com/labz/audio.mp3";
+const kUrl1 = "http://www.rxlabz.com/labz/audio2.mp3";
 
 void main() {
   runApp(new MaterialApp(home: new Scaffold(body: new AudioApp())));
@@ -45,6 +45,7 @@ class _AudioAppState extends State<AudioApp> {
   void initState() {
     super.initState();
     initAudioPlayer();
+    new AudioPlayer().play(kUrl2);
   }
 
   void initAudioPlayer() {
@@ -78,7 +79,7 @@ class _AudioAppState extends State<AudioApp> {
   }
 
   Future play() async {
-    final result = await audioPlayer.play(kUrl);
+    final result = await audioPlayer.play(kUrl1);
     if (result == 1) setState(() => playerState = PlayerState.playing);
   }
 
@@ -122,7 +123,7 @@ class _AudioAppState extends State<AudioApp> {
   }
 
   Future _loadFile() async {
-    final bytes = await _loadFileBytes(kUrl,
+    final bytes = await _loadFileBytes(kUrl1,
         onError: (Exception exception) =>
             print('_MyHomePageState._loadVideo => exception ${exception}'));
 
