@@ -1,5 +1,9 @@
 # Changelog
 
+## audiplayers 0.1.0
+
+- support for multiple audios simultaneously
+
 ## 0.2.0
 
 - support for local files

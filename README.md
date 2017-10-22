@@ -1,4 +1,14 @@
-# AudioPlayer
+# AudioPlayers
+
+This is a fork of [rxlabz's audioplayer](https://github.com/rxlabz/audioplayer), with the single difference that it supports playing multiple audios at the same time.
+
+Currently just for Android, help for iOS testing is appreciated.
+
+It has the exact same API, but now you can create several new AudioPlayers, each will be handled individually.
+
+Before you could only ever have one instance of the player, otherwise one would override the other.
+
+# Original Readme
 
 A Flutter audio plugin. 
  
