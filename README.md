@@ -13,7 +13,7 @@ Just import the fork, which is named `audioplayers` (mind the 's'), instead of t
 ```
   dependencies:
     ...
-    audioplayers: ^0.1.0
+    audioplayers: ^0.2.0
 ```
 
 # Original Readme
