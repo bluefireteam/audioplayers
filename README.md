@@ -8,6 +8,14 @@ It has the exact same API, but now you can create several new AudioPlayers, each
 
 Before you could only ever have one instance of the player, otherwise one would override the other.
 
+Just import the fork, which is named `audioplayers` (mind the 's'), instead of the original:
+
+```
+  dependencies:
+    ...
+    audioplayers: ^0.1.0
+```
+
 # Original Readme
 
 A Flutter audio plugin. 
