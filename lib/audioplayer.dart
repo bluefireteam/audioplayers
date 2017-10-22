@@ -11,6 +11,7 @@ class AudioPlayer {
   static final MethodChannel _channel = const MethodChannel('bz.rxla.flutter/audio')..setMethodCallHandler(platformCallHandler);
   static final uuid = new Uuid();
   static final players = new Map<String, AudioPlayer>();
+  static var logEnabled = true;
 
   TimeChangeHandler durationHandler;
   TimeChangeHandler positionHandler;
@@ -48,18 +49,22 @@ class AudioPlayer {
     errorHandler = handler;
   }
 
+  static void log(String param) {
+    if (logEnabled) {
+      print(param);
+    }
+  }
+
   static Future platformCallHandler(MethodCall call) async {
-    print("_platformCallHandler call ${call.method} ${call.arguments}");
+    log("_platformCallHandler call ${call.method} ${call.arguments}");
     String playerId = (call.arguments as Map)['playerId'];
     AudioPlayer player = players[playerId];
     dynamic value = (call.arguments as Map)['value'];
     switch (call.method) {
       case "audio.onDuration":
-        final duration = new Duration(milliseconds: value);
         if (player.durationHandler != null) {
-          player.durationHandler(duration);
+          player.durationHandler(new Duration(milliseconds: value));
         }
-        //durationNotifier.value = duration;
         break;
       case "audio.onCurrentPosition":
         if (player.positionHandler != null) {
@@ -77,7 +82,7 @@ class AudioPlayer {
         }
         break;
       default:
-        print('Unknowm method ${call.method} ');
+        log('Unknowm method ${call.method} ');
     }
   }
 }
