@@ -25,8 +25,6 @@ static NSMutableDictionary * players;
   FlutterResult _result;
   
 }
-CMTime duration;
-CMTime position;
 NSString *lastUrl;
 NSMutableSet *observers;
 NSMutableSet *timeobservers;
@@ -185,9 +183,8 @@ FlutterMethodChannel *_channel;
   NSMutableDictionary * playerInfo = players[playerId];
   AVPlayer *player = playerInfo[@"player"];
 
-  CMTime d = [[player currentItem] duration ];
-  NSLog(@"ios -> updateDuration...%f", CMTimeGetSeconds(d));
-  duration = d;
+  CMTime duration = [[player currentItem] duration ];
+  NSLog(@"ios -> updateDuration...%f", CMTimeGetSeconds(duration));
   if(CMTimeGetSeconds(duration)>0){
     NSLog(@"ios -> invokechannel");
    int mseconds= CMTimeGetSeconds(duration)*1000;
