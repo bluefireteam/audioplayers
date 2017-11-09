@@ -1,28 +1,28 @@
 PODS:
-  - audioplayer (0.0.1):
+  - audioplayers (0.0.1):
     - Flutter
   - Flutter (1.0.0)
   - path_provider (0.0.1):
     - Flutter
 
 DEPENDENCIES:
-  - audioplayer (from `/Users/rxlabz/dev/projects/fluttrx_plugins/audioplayer/ios`)
-  - Flutter (from `/Users/rxlabz/dev/tools/flutter/bin/cache/artifacts/engine/ios`)
-  - path_provider (from `/Users/rxlabz/.pub-cache/hosted/pub.dartlang.org/path_provider-0.2.1+1/ios`)
+  - audioplayers (from `/Users/fernando/dev/audioplayer/ios`)
+  - Flutter (from `/Users/fernando/opt/flutter/bin/cache/artifacts/engine/ios`)
+  - path_provider (from `/Users/fernando/.pub-cache/hosted/pub.dartlang.org/path_provider-0.2.1+1/ios`)
 
 EXTERNAL SOURCES:
-  audioplayer:
-    :path: /Users/rxlabz/dev/projects/fluttrx_plugins/audioplayer/ios
+  audioplayers:
+    :path: /Users/fernando/dev/audioplayer/ios
   Flutter:
-    :path: /Users/rxlabz/dev/tools/flutter/bin/cache/artifacts/engine/ios
+    :path: /Users/fernando/opt/flutter/bin/cache/artifacts/engine/ios
   path_provider:
-    :path: /Users/rxlabz/.pub-cache/hosted/pub.dartlang.org/path_provider-0.2.1+1/ios
+    :path: /Users/fernando/.pub-cache/hosted/pub.dartlang.org/path_provider-0.2.1+1/ios
 
 SPEC CHECKSUMS:
-  audioplayer: f4462b84216b9c55f02bbbdc7ab60eec7427b2d4
+  audioplayers: aaa5981f4e2fad5c3cee4b5c60fb6d440154047e
   Flutter: d674e78c937094a75ac71dd77e921e840bea3dbf
   path_provider: f96fff6166a8867510d2c25fdcc346327cc4b259
 
 PODFILE CHECKSUM: cc70c01bca487bebd110b87397f017f3b76a89f1
 
-COCOAPODS: 1.2.0
+COCOAPODS: 1.3.1
