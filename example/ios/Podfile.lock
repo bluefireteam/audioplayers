@@ -7,14 +7,14 @@ PODS:
 
 DEPENDENCIES:
   - audioplayers (from `/Users/fernando/dev/audioplayer/ios`)
-  - Flutter (from `/Users/fernando/opt/flutter/bin/cache/artifacts/engine/ios-release`)
+  - Flutter (from `/Users/fernando/opt/flutter/bin/cache/artifacts/engine/ios`)
   - path_provider (from `/Users/fernando/.pub-cache/hosted/pub.dartlang.org/path_provider-0.2.1+1/ios`)
 
 EXTERNAL SOURCES:
   audioplayers:
     :path: /Users/fernando/dev/audioplayer/ios
   Flutter:
-    :path: /Users/fernando/opt/flutter/bin/cache/artifacts/engine/ios-release
+    :path: /Users/fernando/opt/flutter/bin/cache/artifacts/engine/ios
   path_provider:
     :path: /Users/fernando/.pub-cache/hosted/pub.dartlang.org/path_provider-0.2.1+1/ios
 

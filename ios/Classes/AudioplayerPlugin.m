@@ -25,8 +25,6 @@ static NSMutableDictionary * players;
   FlutterResult _result;
   
 }
-NSString *lastUrl;
-NSMutableSet *observers;
 NSMutableSet *timeobservers;
 FlutterMethodChannel *_channel;
 
@@ -109,44 +107,35 @@ FlutterMethodChannel *_channel;
 {
   NSMutableDictionary * playerInfo = players[playerId];
   AVPlayer *player = playerInfo[@"player"];
+  NSMutableSet *observers = playerInfo[@"observers"];
   AVPlayerItem *playerItem;
   
-    
-    
   NSLog(@"togglePlay %@",url );
     
-  if (![url isEqualToString:lastUrl]) {
+  if (!playerInfo || ![url isEqualToString:playerInfo[@"url"]]) {
+
     [playerItem removeObserver:self
                     forKeyPath:@"player.currentItem.status"];
-    
-    // removeOnSoundComplete
-    // [[ NSNotificationCenter defaultCenter] removeObserver:self];
-    for (id ob in observers)
-      [[NSNotificationCenter defaultCenter] removeObserver:ob];
-    observers = nil;
     
     if( isLocal ){
       playerItem = [[ AVPlayerItem alloc]initWithURL:[NSURL fileURLWithPath:url]];
     } else {
       playerItem = [[ AVPlayerItem alloc] initWithURL:[NSURL URLWithString:url ]];
     }
-    lastUrl = url;
     
-    id anobserver = [[ NSNotificationCenter defaultCenter ] addObserverForName: AVPlayerItemDidPlayToEndTimeNotification
-                                                                        object: playerItem
-                                                                         queue: nil
-                                                                    usingBlock:^(NSNotification* note){
-                                                                       [self onSoundComplete:playerId];
-                                                                    }];
-    [observers addObject:anobserver];
-    
+
     if (playerInfo){
-        NSLog(@"here1");
+      [playerInfo setObject:url forKey:@"url"];
+        
+      for (id ob in observers)
+         [[NSNotificationCenter defaultCenter] removeObserver:ob];
+      [observers removeAllObjects];
+    
       [ player replaceCurrentItemWithPlayerItem: playerItem ];
     } else {
-        NSLog(@"here2");
       player = [[ AVPlayer alloc ] initWithPlayerItem: playerItem ];
-      playerInfo = [@{@"player": player, @"isPlaying": @false} mutableCopy];
+      observers = [[NSMutableSet alloc] init];
+      playerInfo = [@{@"player": player, @"url": url, @"isPlaying": @false, @"observers": observers} mutableCopy];
       players[playerId] = playerInfo;
       
       // stream player position
@@ -158,6 +147,15 @@ FlutterMethodChannel *_channel;
         [timeobservers addObject:@{@"player":player, @"observer":timeObserver}];
     }
     
+    
+    id anobserver = [[ NSNotificationCenter defaultCenter ] addObserverForName: AVPlayerItemDidPlayToEndTimeNotification
+                                                                        object: playerItem
+                                                                         queue: nil
+                                                                    usingBlock:^(NSNotification* note){
+                                                                        [self onSoundComplete:playerId];
+                                                                    }];
+    [observers addObject:anobserver];
+  
     // is sound ready
     [[player currentItem] addObserver:self
                            forKeyPath:@"player.currentItem.status"
@@ -166,10 +164,8 @@ FlutterMethodChannel *_channel;
   }
   
   if ([playerInfo[@"isPlaying"] boolValue]){
-      NSLog(@"here3");
     [ self pause:playerId ];
   } else {
-      NSLog(@"here4");
     [ self updateDuration:playerId ];
     [ player play];
     [playerInfo setObject:@true forKey:@"isPlaying"];
@@ -274,9 +270,13 @@ FlutterMethodChannel *_channel;
     [value[@"player"] removeTimeObserver:value[@"observer"]];
   timeobservers = nil;
   
-  for (id ob in observers)
-    [[NSNotificationCenter defaultCenter] removeObserver:ob];
-  observers = nil;
+  for (NSString* playerId in players) {
+      NSMutableDictionary * playerInfo = players[playerId];
+      NSMutableSet * observers = playerInfo[@"observers"];
+      for (id ob in observers)
+        [[NSNotificationCenter defaultCenter] removeObserver:ob];
+  }
+  players = nil;
 }
 
 

@@ -294,7 +294,7 @@
 			);
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-Runner/Pods-Runner-frameworks.sh",
-				"${PODS_ROOT}/../../../../../opt/flutter/bin/cache/artifacts/engine/ios-release/Flutter.framework",
+				"${PODS_ROOT}/../../../../../opt/flutter/bin/cache/artifacts/engine/ios/Flutter.framework",
 				"${BUILT_PRODUCTS_DIR}/audioplayers/audioplayers.framework",
 				"${BUILT_PRODUCTS_DIR}/path_provider/path_provider.framework",
 			);
