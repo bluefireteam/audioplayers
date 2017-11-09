@@ -1,5 +1,9 @@
 # Changelog
 
+## audiplayers 0.3.0
+
+- working on iOS (thanks @feroult <3)
+
 ## audiplayers 0.2.0
 
 - adding disable log option

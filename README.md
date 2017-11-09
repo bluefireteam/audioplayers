@@ -13,7 +13,7 @@ Just import the fork, which is named `audioplayers` (mind the 's'), instead of t
 ```
   dependencies:
     ...
-    audioplayers: ^0.2.0
+    audioplayers: ^0.3.0
 ```
 
 Also, in `0.2.0`, I've added the ability to disable logs with:
