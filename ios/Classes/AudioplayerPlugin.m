@@ -9,16 +9,15 @@ static FlutterMethodChannel *channel;
 static AVPlayer *player;
 //static AVPlayerItem *playerItem;
 
-//static NSDictionary players = 
-
+static NSMutableDictionary * players;
 
 @interface AudioplayerPlugin()
--(void) pause;
--(void) stop;
--(void) seek: (CMTime) time;
--(void) onSoundComplete;
--(void) updateDuration;
--(void) onTimeInterval: (CMTime) time;
+-(void) pause: (NSString *) playerId;
+-(void) stop: (NSString *) playerId;
+-(void) seek: (NSString *) playerId time: (CMTime) time;
+-(void) onSoundComplete: (NSString *) playerId;
+-(void) updateDuration: (NSString *) playerId;
+-(void) onTimeInterval: (NSString *) playerId time: (CMTime) time;
 
 
 @end
@@ -50,6 +49,7 @@ FlutterMethodChannel *_channel;
 - (id)init {
   self = [super init];
   if (self) {
+      players = [[NSMutableDictionary alloc] init];
   }
   return self;
 }
@@ -60,6 +60,9 @@ FlutterMethodChannel *_channel;
   
   typedef void (^CaseBlock)();
   
+  NSString * playerId = call.arguments[@"playerId"];
+  NSLog(@"iOS => playerId %@", playerId);
+    
   // Squint and this looks like a proper switch!
   NSDictionary *methods = @{
                             @"play":
@@ -72,17 +75,17 @@ FlutterMethodChannel *_channel;
                                   result(0);
                                 int isLocal = [call.arguments[@"isLocal"]intValue] ;
                                 NSLog(@"isLocal: %d %@",isLocal, call.arguments[@"isLocal"] );
-                                [self togglePlay:url isLocal:isLocal];
+                                [self togglePlay:playerId url:url isLocal:isLocal];
                               },
                             @"pause":
                               ^{
                                 NSLog(@"pause");
-                                [self pause];
+                                [self pause:playerId];
                               },
                             @"stop":
                               ^{
                                 NSLog(@"stop");
-                                [self stop];
+                                [self stop:playerId];
                               },
                             @"seek":
                               ^{
@@ -91,7 +94,7 @@ FlutterMethodChannel *_channel;
                                   result(0);
                                 } else {
                                   double seconds = [call.arguments[@"seconds"] doubleValue];
-                                  [self seek: CMTimeMakeWithSeconds(seconds,1)];
+                                  [self seek:playerId time:CMTimeMakeWithSeconds(seconds,1)];
                                 }
                               }
                             };
@@ -105,12 +108,14 @@ FlutterMethodChannel *_channel;
 }
 
 
--(void) togglePlay: (NSString*) url isLocal: (int) isLocal
+-(void) togglePlay: (NSString*) playerId
+               url: (NSString*) url
+           isLocal: (int) isLocal
 {
   AVPlayerItem *playerItem;
     
-  // NSString *uuid = [[NSUUID UUID] UUIDString];
   NSLog(@"togglePlay %@",url );
+    
   if (![url isEqualToString:lastUrl]) {
     [playerItem removeObserver:self
                     forKeyPath:@"player.currentItem.status"];
@@ -132,7 +137,7 @@ FlutterMethodChannel *_channel;
                                                                         object: playerItem
                                                                          queue: nil
                                                                     usingBlock:^(NSNotification* note){
-                                                                      [self onSoundComplete];
+                                                                       [self onSoundComplete:playerId];
                                                                     }];
     [observers addObject:anobserver];
     
@@ -145,7 +150,7 @@ FlutterMethodChannel *_channel;
       CMTime interval = CMTimeMakeWithSeconds(0.2, NSEC_PER_SEC);
       id timeObserver = [ player  addPeriodicTimeObserverForInterval: interval queue: nil usingBlock:^(CMTime time){
         //NSLog(@"time interval: %f",CMTimeGetSeconds(time));
-        [self onTimeInterval: time];
+        [self onTimeInterval:playerId time:time];
       }];
       [timeobservers addObject:timeObserver];
       
@@ -155,13 +160,14 @@ FlutterMethodChannel *_channel;
     [[player currentItem] addObserver:self
                            forKeyPath:@"player.currentItem.status"
                               options:0
-                              context:nil];
+                              context:(void*)playerId];
   }
   
   if (isPlaying == true ){
-    pause();
+//    pause(playerId);
+    [ self pause:playerId ];
   } else {
-    [self updateDuration];
+    [ self updateDuration:playerId ];
     [ player play];
     isPlaying = true;
   }
@@ -169,8 +175,9 @@ FlutterMethodChannel *_channel;
 
 
 
--(void) updateDuration
+-(void) updateDuration: (NSString *) playerId
 {
+  NSLog(@"playerId: %@", playerId);
   CMTime d = [[player currentItem] duration ];
   NSLog(@"ios -> updateDuration...%f", CMTimeGetSeconds(d));
   duration = d;
@@ -183,39 +190,41 @@ FlutterMethodChannel *_channel;
 
 
 
--(void) onTimeInterval: (CMTime) time {
+-(void) onTimeInterval: (NSString *) playerId
+                  time: (CMTime) time {
   NSLog(@"ios -> onTimeInterval...");
   int mseconds =  CMTimeGetSeconds(time)*1000;
   [_channel invokeMethod:@"audio.onCurrentPosition" arguments:@(mseconds)];
 }
 
 
--(void) pause {
+-(void) pause: (NSString *) playerId {
   [ player pause ];
   isPlaying = false;
 }
 
 
--(void) stop {
+-(void) stop: (NSString *) playerId {
   if(isPlaying){
-    [ self pause ];
-    [ self seek: CMTimeMake(0, 1) ];
+    [ self pause:playerId ];
+    [ self seek:playerId time:CMTimeMake(0, 1) ];
     isPlaying = false;
     NSLog(@"stop");
   }
 }
 
 
--(void) seek: (CMTime) time {
+-(void) seek: (NSString *) playerId
+        time: (CMTime) time {
   [[player currentItem] seekToTime:time];
 }
 
 
--(void) onSoundComplete {
+-(void) onSoundComplete: (NSString *) playerId {
   NSLog(@"ios -> onSoundComplete...");
   isPlaying = false;
-  [ self pause ];
-  [ self seek: CMTimeMakeWithSeconds(0,1)];
+  [ self pause:playerId ];
+  [ self seek:playerId time:CMTimeMakeWithSeconds(0,1)];
   [ _channel invokeMethod:@"audio.onComplete" arguments: nil];
 }
 
@@ -225,11 +234,14 @@ FlutterMethodChannel *_channel;
                        change:(NSDictionary *)change
                       context:(void *)context {
   
+    
+    
   if ([keyPath isEqualToString: @"player.currentItem.status"]) {
     NSLog(@"player status: %ld",(long)[[player currentItem] status ]);
     // Do something with the status…
     if ([[player currentItem] status ] == AVPlayerItemStatusReadyToPlay) {
-      [self updateDuration];
+      NSString *playerId = (__bridge NSString*)context;
+      [self updateDuration:playerId];
     } else if ([[player currentItem] status ] == AVPlayerItemStatusFailed) {
       [_channel invokeMethod:@"audio.onError" arguments:@"AVPlayerItemStatus.failed" ];
     }
