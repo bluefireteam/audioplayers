@@ -11,7 +11,7 @@ class AudioPlayer {
   static final MethodChannel _channel = const MethodChannel('bz.rxla.flutter/audio')..setMethodCallHandler(platformCallHandler);
   static final uuid = new Uuid();
   static final players = new Map<String, AudioPlayer>();
-  static var logEnabled = true;
+  static var logEnabled = false;
 
   TimeChangeHandler durationHandler;
   TimeChangeHandler positionHandler;
@@ -24,8 +24,8 @@ class AudioPlayer {
     players[playerId] = this;
   }
 
-  Future<int> play(String url, {bool isLocal: false}) =>
-      _channel.invokeMethod('play', {"playerId": playerId, "url": url, "isLocal": isLocal});
+  Future<int> play(String url, {bool isLocal: false, double volume: 1.0}) =>
+      _channel.invokeMethod('play', {"playerId": playerId, "url": url, "isLocal": isLocal, 'volume': volume});
 
   Future<int> pause() => _channel.invokeMethod('pause', {"playerId": playerId});
 
