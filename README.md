@@ -2,7 +2,7 @@
 
 This is a fork of [rxlabz's audioplayer](https://github.com/rxlabz/audioplayer), with the single difference that it supports playing multiple audios at the same time.
 
-Currently just for Android, help for iOS testing is appreciated.
+As of `0.3.0`, working for iOS as well! Thanks, @feroult!
 
 It has the exact same API, but now you can create several new AudioPlayers, each will be handled individually.
 
@@ -21,6 +21,8 @@ Also, in `0.2.0`, I've added the ability to disable logs with:
 ```
     AudioPlayer.logEnabled = false;
 ```
+
+In `0.3.0`, it supports iOS as well!
 
 # Original Readme
 
