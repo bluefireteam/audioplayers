@@ -172,7 +172,7 @@ FlutterMethodChannel *_channel;
     [ self pause:playerId ];
   } else {
     [ self updateDuration:playerId ];
-    player.volume = volume;
+    [ player setVolume:volume ];
     [ player play];
     [playerInfo setObject:@true forKey:@"isPlaying"];
   }
