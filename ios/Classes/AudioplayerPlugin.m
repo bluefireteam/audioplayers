@@ -66,9 +66,13 @@ FlutterMethodChannel *_channel;
                                   result(0);
                                 if (call.arguments[@"isLocal"]==nil)
                                   result(0);
+                                if (call.arguments[@"volume"]==nil)
+                                  result(0);
                                 int isLocal = [call.arguments[@"isLocal"]intValue] ;
+                                float volume = (float)[call.arguments[@"volume"] doubleValue] ;
                                 NSLog(@"isLocal: %d %@",isLocal, call.arguments[@"isLocal"] );
-                                [self togglePlay:playerId url:url isLocal:isLocal];
+                                NSLog(@"volume: %f %@",volume, call.arguments[@"volume"] );
+                                [self togglePlay:playerId url:url isLocal:isLocal volume:volume];
                               },
                             @"pause":
                               ^{
@@ -104,6 +108,7 @@ FlutterMethodChannel *_channel;
 -(void) togglePlay: (NSString*) playerId
                url: (NSString*) url
            isLocal: (int) isLocal
+            volume: (float) volume
 {
   NSMutableDictionary * playerInfo = players[playerId];
   AVPlayer *player = playerInfo[@"player"];
@@ -167,6 +172,7 @@ FlutterMethodChannel *_channel;
     [ self pause:playerId ];
   } else {
     [ self updateDuration:playerId ];
+    player.volume = volume;
     [ player play];
     [playerInfo setObject:@true forKey:@"isPlaying"];
   }
