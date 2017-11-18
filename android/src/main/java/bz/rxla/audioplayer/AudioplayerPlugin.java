@@ -43,7 +43,8 @@ public class AudioplayerPlugin implements MethodCallHandler {
         String playerId = ((HashMap) call.arguments()).get("playerId").toString();
         if (call.method.equals("play")) {
             String url = ((HashMap) call.arguments()).get("url").toString();
-            Boolean resPlay = play(playerId, url);
+            double volume = (double)((HashMap) call.arguments()).get("volume");
+            Boolean resPlay = play(playerId, url, (float)volume);
             response.success(1);
         } else if (call.method.equals("pause")) {
             pause(playerId);
@@ -83,7 +84,7 @@ public class AudioplayerPlugin implements MethodCallHandler {
         handler.removeCallbacks(sendData);
     }
 
-    private Boolean play(final String playerId, String url) {
+    private Boolean play(final String playerId, String url, float volume) {
         MediaPlayer mediaPlayer = mediaPlayers.get(playerId);
         if (mediaPlayer == null) {
             mediaPlayer = new MediaPlayer();
@@ -107,6 +108,7 @@ public class AudioplayerPlugin implements MethodCallHandler {
 
         channel.invokeMethod("audio.onDuration", buildArguments(playerId, mediaPlayer.getDuration()));
 
+        mediaPlayer.setVolume(volume, volume);
         mediaPlayer.start();
 
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
