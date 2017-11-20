@@ -1,8 +1,6 @@
 # AudioPlayers
 
-This is a fork of [rxlabz's audioplayer](https://github.com/rxlabz/audioplayer), with the single difference that it supports playing multiple audios at the same time.
-
-Currently just for Android, help for iOS testing is appreciated.
+This is a fork of [rxlabz's audioplayer](https://github.com/rxlabz/audioplayer), with the difference that it supports playing multiple audios at the same time, and exposes volume controls.
 
 It has the exact same API, but now you can create several new AudioPlayers, each will be handled individually.
 
@@ -13,7 +11,7 @@ Just import the fork, which is named `audioplayers` (mind the 's'), instead of t
 ```
   dependencies:
     ...
-    audioplayers: ^0.2.0
+    audioplayers: ^0.4.0
 ```
 
 Also, in `0.2.0`, I've added the ability to disable logs with:
@@ -21,6 +19,10 @@ Also, in `0.2.0`, I've added the ability to disable logs with:
 ```
     AudioPlayer.logEnabled = false;
 ```
+
+In `0.3.0`, it supports iOS as well (thanks, @feroult)
+
+In `0.4.0`, volume control support was added (thanks, @pauldemarco)
 
 # Original Readme
 

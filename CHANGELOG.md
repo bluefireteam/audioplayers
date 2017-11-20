@@ -1,10 +1,18 @@
 # Changelog
 
-## audiplayers 0.2.0
+## audioplayers 0.4.0
+
+- volume controls
+
+## audioplayers 0.3.0
+
+- working on iOS (thanks @feroult <3)
+
+## audioplayers 0.2.0
 
 - adding disable log option
 
-## audiplayers 0.1.0
+## audioplayers 0.1.0
 
 - support for multiple audios simultaneously
 
