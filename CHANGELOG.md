@@ -1,5 +1,9 @@
 # Changelog
 
+## audioplayers 0.4.1
+
+- fix `seek` for iOS
+
 ## audioplayers 0.4.0
 
 - volume controls

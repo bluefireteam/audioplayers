@@ -11,7 +11,7 @@ Just import the fork, which is named `audioplayers` (mind the 's'), instead of t
 ```
   dependencies:
     ...
-    audioplayers: ^0.4.0
+    audioplayers: ^0.4.1
 ```
 
 Also, in `0.2.0`, I've added the ability to disable logs with:
@@ -23,6 +23,8 @@ Also, in `0.2.0`, I've added the ability to disable logs with:
 In `0.3.0`, it supports iOS as well (thanks, @feroult)
 
 In `0.4.0`, volume control support was added (thanks, @pauldemarco)
+
+In `0.4.1`, a bug in iOS regard the seek functionality was fixed (thanks, @cosmok)
 
 # Original Readme
 
