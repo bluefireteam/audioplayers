@@ -87,10 +87,11 @@ FlutterMethodChannel *_channel;
                             @"seek":
                               ^{
                                 NSLog(@"seek");
-                                if(!call.arguments[@"seconds"]){
+                                if(!call.arguments[@"position"]){
                                   result(0);
                                 } else {
-                                  double seconds = [call.arguments[@"seconds"] doubleValue];
+                                  double seconds = [call.arguments[@"position"] doubleValue];
+                                  NSLog(@"Seeking to: %f seconds", seconds);
                                   [self seek:playerId time:CMTimeMakeWithSeconds(seconds,1)];
                                 }
                               }
