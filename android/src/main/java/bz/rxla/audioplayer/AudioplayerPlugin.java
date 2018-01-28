@@ -81,9 +81,9 @@ public class AudioplayerPlugin implements MethodCallHandler {
                             pause(entry.getKey());
                         }
                         break;
-                     case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
-                         Log.e(TAG, "AUDIOFOCUS_CAN_DUCK");
-                         break;
+                    case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+                        Log.e(TAG, "AUDIOFOCUS_CAN_DUCK");
+                        break;
                     case AudioManager.AUDIOFOCUS_REQUEST_FAILED:
                         Log.e(TAG, "AUDIOFOCUS_REQUEST_FAILED");
                         break;
@@ -99,8 +99,8 @@ public class AudioplayerPlugin implements MethodCallHandler {
         String playerId = ((HashMap) call.arguments()).get("playerId").toString();
         if (call.method.equals("play")) {
             String url = ((HashMap) call.arguments()).get("url").toString();
-            double volume = (double)((HashMap) call.arguments()).get("volume");
-            Boolean resPlay = play(playerId, url, (float)volume);
+            double volume = (double) ((HashMap) call.arguments()).get("volume");
+            Boolean resPlay = play(playerId, url, (float) volume);
             response.success(1);
         } else if (call.method.equals("pause")) {
             pause(playerId);
@@ -125,7 +125,7 @@ public class AudioplayerPlugin implements MethodCallHandler {
     private void stop(String playerId) {
         handler.removeCallbacks(sendData);
         MediaPlayer mediaPlayer = mediaPlayers.get(playerId);
-        if (mediaPlayer != null &&  mAudioFocusGranted && mediaPlayerState.get(playerId) == "playing") {
+        if (mediaPlayer != null && mAudioFocusGranted && mediaPlayerState.get(playerId) == "playing") {
             mediaPlayer.stop();
             mediaPlayer.release();
             mediaPlayers.remove(playerId);
