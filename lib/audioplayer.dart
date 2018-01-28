@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 
 typedef void TimeChangeHandler(Duration duration);
 typedef void ErrorHandler(String message);
+typedef void PausedHandler();
 
 class AudioPlayer {
   static final MethodChannel _channel = const MethodChannel('bz.rxla.flutter/audio')..setMethodCallHandler(platformCallHandler);
@@ -17,6 +18,8 @@ class AudioPlayer {
   TimeChangeHandler positionHandler;
   VoidCallback completionHandler;
   ErrorHandler errorHandler;
+  PausedHandler pausedHandler;
+
   String playerId;
 
   AudioPlayer() {
@@ -49,6 +52,10 @@ class AudioPlayer {
     errorHandler = handler;
   }
 
+  void setPausedHandler(PausedHandler handler) {
+      pausedHandler = handler;
+  }
+
   static void log(String param) {
     if (logEnabled) {
       print(param);
@@ -76,6 +83,11 @@ class AudioPlayer {
           player.completionHandler();
         }
         break;
+        case "audio.onPaused":
+            if (player.pausedHandler != null) {
+                player.pausedHandler();
+            }
+            break;
       case "audio.onError":
         if (player.errorHandler != null) {
           player.errorHandler(value);
