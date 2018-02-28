@@ -1,5 +1,9 @@
 # Changelog
 
+## audioplayers 0.5.0
+
+- improves Android performance by not calling `prepare` on the main thread
+
 ## audioplayers 0.4.1
 
 - fix `seek` for iOS
