@@ -88,14 +88,16 @@ public class AudioplayerPlugin implements MethodCallHandler, MediaPlayer.OnPrepa
         MediaPlayer mediaPlayer = mediaPlayers.get(playerId);
         if (mediaPlayer == null) {
             mediaPlayer = new MediaPlayer();
+            mediaPlayers.put(playerId, mediaPlayer);
             mediaPlayer.setOnPreparedListener(this);
             mediaPlayer.setOnCompletionListener(this);
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            mediaPlayers.put(playerId, mediaPlayer);
+            mediaPlayer.setDataSource(url);
+            mediaPlayer.setVolume(volume, volume);
+            mediaPlayer.prepareAsync();
+        } else {
+            mediaPlayer.start();
         }
-        mediaPlayer.setDataSource(url);
-        mediaPlayer.setVolume(volume, volume);
-        mediaPlayer.prepareAsync();
     }
 
     private void pause(final String playerId) {
