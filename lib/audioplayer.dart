@@ -25,13 +25,22 @@ class AudioPlayer {
   }
 
   Future<int> play(String url, {bool isLocal: false, double volume: 1.0}) =>
-      _channel.invokeMethod('play', {"playerId": playerId, "url": url, "isLocal": isLocal, 'volume': volume});
+      _channel.invokeMethod('play', {
+        "playerId": playerId,
+        "url": url,
+        "isLocal": isLocal,
+        'volume': volume
+      }).then((result) => (result as int));
 
-  Future<int> pause() => _channel.invokeMethod('pause', {"playerId": playerId});
+  Future<int> pause() => _channel.invokeMethod(
+      'pause', {"playerId": playerId}).then((result) => (result as int));
 
-  Future<int> stop() => _channel.invokeMethod('stop', {"playerId": playerId});
+  Future<int> stop() => _channel.invokeMethod(
+      'stop', {"playerId": playerId}).then((result) => (result as int));
 
-  Future<int> seek(double seconds) => _channel.invokeMethod('seek', {"playerId": playerId, "position": seconds});
+  Future<int> seek(double seconds) => _channel.invokeMethod(
+      'seek', {"playerId": playerId, "position": seconds}).then(
+        (result) => (result as int));
 
   void setDurationHandler(TimeChangeHandler handler) {
     durationHandler = handler;
