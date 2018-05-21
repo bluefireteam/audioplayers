@@ -1,5 +1,9 @@
 # Changelog
 
+## audioplayers 0.5.1
+
+- fix for dart 2 (thanks to @efortuna)
+
 ## audioplayers 0.5.0
 
 - improves Android performance by not calling `prepare` on the main thread

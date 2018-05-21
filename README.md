@@ -11,7 +11,7 @@ Just import the fork, which is named `audioplayers` (mind the 's'), instead of t
 ```
   dependencies:
     ...
-    audioplayers: ^0.5.0
+    audioplayers: ^0.5.1
 ```
 
 Also, in `0.2.0`, I've added the ability to disable logs with:
@@ -27,6 +27,8 @@ In `0.4.0`, volume control support was added (thanks, @pauldemarco)
 In `0.4.1`, a bug in iOS regard the seek functionality was fixed (thanks, @cosmok)
 
 In `0.5.0`, there was a huge change on Android code to improve performance (thanks, @the4thfloor)
+
+In `0.5.1`, there was a fix to work with Dart 2 (thanks, @efortuna)
 
 # Original Readme
 
