@@ -81,7 +81,8 @@ public class AudioplayerPlugin implements MethodCallHandler, MediaPlayer.OnPrepa
         mediaPlayer.stop();
         mediaPlayer.reset();
         mediaPlayer.release();
-        removePlayer(mediaPlayer);
+        String key = removePlayer(mediaPlayer);
+        channel.invokeMethod("audio.onComplete", buildArguments(key, true));
     }
 
     private void play(final String playerId, final String url, final float volume) throws IOException {
@@ -117,20 +118,23 @@ public class AudioplayerPlugin implements MethodCallHandler, MediaPlayer.OnPrepa
     private void stop(final String playerId) {
         MediaPlayer mediaPlayer = mediaPlayers.get(playerId);
         if (mediaPlayer != null) {
-            onCompletion(mediaPlayer);
+            mediaPlayer.stop();
+            mediaPlayer.reset();
+            mediaPlayer.release();
+            removePlayer(mediaPlayer);
         }
     }
 
-    private void removePlayer(final MediaPlayer mediaPlayer) {
+    private String removePlayer(final MediaPlayer mediaPlayer) {
         final Iterator<Map.Entry<String, MediaPlayer>> iterator = mediaPlayers.entrySet().iterator();
         while (iterator.hasNext()) {
             final Map.Entry<String, MediaPlayer> next = iterator.next();
             if (next.getValue() == mediaPlayer) {
                 iterator.remove();
-                channel.invokeMethod("audio.onComplete", buildArguments(next.getKey(), true));
-                break;
+                return next.getKey();
             }
         }
+        return null;
     }
 
     private void sendPositionUpdates() {
