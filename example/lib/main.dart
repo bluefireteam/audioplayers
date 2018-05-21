@@ -41,11 +41,11 @@ class _AudioAppState extends State<AudioApp> {
     audioPlayer = new AudioPlayer();
 
     audioPlayer.setDurationHandler((d) => setState(() {
-          print('_AudioAppState.setDurationHandler => d ${d}');
+          print('_AudioAppState.setDurationHandler => d $d');
         }));
 
     audioPlayer.setPositionHandler((p) => setState(() {
-          print('_AudioAppState.setPositionHandler => p ${p}');
+          print('_AudioAppState.setPositionHandler => p $p');
         }));
 
     audioPlayer.setErrorHandler((msg) {
@@ -73,7 +73,7 @@ class _AudioAppState extends State<AudioApp> {
 
   Future _loadFile() async {
     final bytes = await _loadFileBytes(kUrl1,
-        onError: (Exception exception) => print('_MyHomePageState._loadVideo => exception ${exception}'));
+        onError: (Exception exception) => print('_MyHomePageState._loadVideo => exception $exception'));
 
     final dir = await getApplicationDocumentsDirectory();
     final file = new File('${dir.path}/audio.mp3');
