@@ -4,7 +4,8 @@ analyzer:
     enableStrictCallChecks: true
     enableSuperMixins: true
   strong-mode: true
-
+  exclude:
+    - example/**
 # Source of linter options:
 # http://dart-lang.github.io/linter/lints/options/options.html
 
