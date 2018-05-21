@@ -73,7 +73,8 @@ class _AudioAppState extends State<AudioApp> {
 
   Future _loadFile() async {
     final bytes = await _loadFileBytes(kUrl1,
-        onError: (Exception exception) => print('_MyHomePageState._loadVideo => exception $exception'));
+        onError: (Exception exception) =>
+            print('_MyHomePageState._loadVideo => exception $exception'));
 
     final dir = await getApplicationDocumentsDirectory();
     final file = new File('${dir.path}/audio.mp3');

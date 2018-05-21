@@ -8,7 +8,9 @@ typedef void TimeChangeHandler(Duration duration);
 typedef void ErrorHandler(String message);
 
 class AudioPlayer {
-  static final MethodChannel _channel = const MethodChannel('bz.rxla.flutter/audio')..setMethodCallHandler(platformCallHandler);
+  static final MethodChannel _channel =
+      const MethodChannel('bz.rxla.flutter/audio')
+        ..setMethodCallHandler(platformCallHandler);
   static final uuid = new Uuid();
   static final players = new Map<String, AudioPlayer>();
   static var logEnabled = false;
@@ -38,9 +40,9 @@ class AudioPlayer {
   Future<int> stop() => _channel.invokeMethod(
       'stop', {"playerId": playerId}).then((result) => (result as int));
 
-  Future<int> seek(double seconds) => _channel.invokeMethod(
-      'seek', {"playerId": playerId, "position": seconds}).then(
-        (result) => (result as int));
+  Future<int> seek(double seconds) => _channel
+      .invokeMethod('seek', {"playerId": playerId, "position": seconds}).then(
+          (result) => (result as int));
 
   void setDurationHandler(TimeChangeHandler handler) {
     durationHandler = handler;
