@@ -1,5 +1,9 @@
 # Changelog
 
+## audioplayers 0.5.2
+
+- don't call the onClomplete hook when you manually stop the audio
+
 ## audioplayers 0.5.1
 
 - fix for dart 2 (thanks to @efortuna)
