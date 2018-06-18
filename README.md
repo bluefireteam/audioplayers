@@ -83,7 +83,7 @@ play() async {
 
 // add a isLocal parameter to play a local file
 playLocal() async {
-  final result = await audioPlayer.play(kUrl);
+  final result = await audioPlayer.play(kUrl, isLocal: true));
   if (result == 1) setState(() => playerState = PlayerState.playing);
 }
 
