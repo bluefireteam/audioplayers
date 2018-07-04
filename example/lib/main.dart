@@ -62,42 +62,49 @@ class _ExampleAppState extends State<ExampleApp> {
   Widget localFile() {
     return _tab([
       Text('File: $kUrl1'),
-      RaisedButton(child: Text('Download File to your Device'), onPressed: () => _loadFile()),
+      RaisedButton(
+          child: Text('Download File to your Device'),
+          onPressed: () => _loadFile()),
       Text('Current local file path: $localFilePath'),
-      localFilePath == null ? Container() : PlayerWidget(url: localFilePath, isLocal: true),
+      localFilePath == null
+          ? Container()
+          : PlayerWidget(url: localFilePath, isLocal: true),
     ]);
   }
 
   Widget localAsset() {
     return _tab([
       Text('Play Local Asset \'audio.mp3\':'),
-      RaisedButton(child: Text('Play'), onPressed: () => audioCache.play('audio.mp3')),
+      RaisedButton(
+          child: Text('Play'), onPressed: () => audioCache.play('audio.mp3')),
       Text('Loop Local Asset \'audio.mp3\':'),
-      RaisedButton(child: Text('Loop'), onPressed: () => audioCache.loop('audio.mp3')),
+      RaisedButton(
+          child: Text('Loop'), onPressed: () => audioCache.loop('audio.mp3')),
       Text('Play Local Asset \'audio2.mp3\':'),
-      RaisedButton(child: Text('Play'), onPressed: () => audioCache.play('audio2.mp3')),
+      RaisedButton(
+          child: Text('Play'), onPressed: () => audioCache.play('audio2.mp3')),
     ]);
   }
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-        length: 3,
-        child: Scaffold(
-          appBar: AppBar(
-            bottom: TabBar(
-              tabs: [
-                Tab(text: 'Remote Url'),
-                Tab(text: 'Local File'),
-                Tab(text: 'Local Asset'),
-              ],
-            ),
-            title: Text('audioplayers Example'),
+      length: 3,
+      child: Scaffold(
+        appBar: AppBar(
+          bottom: TabBar(
+            tabs: [
+              Tab(text: 'Remote Url'),
+              Tab(text: 'Local File'),
+              Tab(text: 'Local Asset'),
+            ],
           ),
-          body: TabBarView(
-            children: [ remoteUrl(), localFile(), localAsset() ],
-          ),
+          title: Text('audioplayers Example'),
         ),
+        body: TabBarView(
+          children: [remoteUrl(), localFile(), localAsset()],
+        ),
+      ),
     );
   }
 }

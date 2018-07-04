@@ -3,7 +3,6 @@ import 'package:test/test.dart';
 import 'package:audioplayers/audioplayers.dart';
 
 void main() {
-
   List<MethodCall> calls = [];
   const channel = const MethodChannel('xyz.luan/audioplayers');
   channel.setMockMethodCallHandler((MethodCall call) {
@@ -57,9 +56,8 @@ void main() {
       expect(calls[0].method, 'play');
       calls.clear();
 
-      await AudioPlayer.platformCallHandler(new MethodCall('audio.onComplete', {
-        'playerId': playerId
-      }));
+      await AudioPlayer.platformCallHandler(
+          new MethodCall('audio.onComplete', {'playerId': playerId}));
 
       expect(calls, hasLength(1));
       expect(calls[0].method, 'play');

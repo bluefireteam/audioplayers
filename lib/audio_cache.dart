@@ -12,12 +12,11 @@ import 'audioplayers.dart';
 /// Flutter can only play audios on device folders, so this first copies files to a temporary folder and the plays then.
 /// You can pre-cache your audio, or clear the cache, as desired.
 class AudioCache {
-
   /// A reference to the loaded files.
   Map<String, File> loadedFiles = {};
 
   /// This is the path inside your assets folder where your files lie.
-  /// 
+  ///
   /// For example, Flame uses the prefix 'audio/' (must include the slash!).
   /// Your files will be found at assets/<prefix><fileName>
   String prefix;
@@ -45,7 +44,7 @@ class AudioCache {
     return await rootBundle.load('assets/$prefix$fileName');
   }
 
-  Future<File> _fetchToMemory(String fileName) async {
+  Future<File> fetchToMemory(String fileName) async {
     final file = new File('${(await getTemporaryDirectory()).path}/$fileName');
     return await file
         .writeAsBytes((await _fetchAsset(fileName)).buffer.asUint8List());
@@ -63,7 +62,7 @@ class AudioCache {
   /// Also retruns a [Future] to access that file.
   Future<File> load(String fileName) async {
     if (!loadedFiles.containsKey(fileName)) {
-      loadedFiles[fileName] = await _fetchToMemory(fileName);
+      loadedFiles[fileName] = await fetchToMemory(fileName);
     }
     return loadedFiles[fileName];
   }

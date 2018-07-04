@@ -107,12 +107,12 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     _audioPlayer = new AudioPlayer();
 
     _audioPlayer.durationHandler = (d) => setState(() {
-      _duration = d;
-    });
+          _duration = d;
+        });
 
     _audioPlayer.positionHandler = (p) => setState(() {
-      _position = p;
-    });
+          _position = p;
+        });
 
     _audioPlayer.completionHandler = () {
       _onComplete();
