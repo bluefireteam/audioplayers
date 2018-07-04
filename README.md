@@ -167,12 +167,12 @@ You can check a list of supported formats below:
 
 ## iOS
    
-### :warning: Swift project
+### Swift project
 
 - this plugin is written in swift, so to use with in a Flutter/ObjC project, 
 you need to convert the project to "Current swift syntax" ( Edit/Convert/current swift syntax)  
 
-## :warning: iOS App Transport Security
+### :warning: iOS App Transport Security
 
 By default iOS forbids loading from non-https url. To cancel this restriction edit your .plist and add :
  
