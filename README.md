@@ -1,138 +1,169 @@
 # AudioPlayers
 
-This is a fork of [rxlabz's audioplayer](https://github.com/rxlabz/audioplayer), with the difference that it supports playing multiple audios at the same time, and exposes volume controls.
+A Flutter plugin to play multiple simultaneously audio files, works for Android and iOS.
 
-It has the exact same API, but now you can create several new AudioPlayers, each will be handled individually.
-
-Before you could only ever have one instance of the player, otherwise one would override the other.
-
-Just import the fork, which is named `audioplayers` (mind the 's'), instead of the original:
-
-```
-  dependencies:
-    ...
-    audioplayers: ^0.5.2
-```
-
-Also, in `0.2.0`, I've added the ability to disable logs with:
-
-```
-    AudioPlayer.logEnabled = false;
-```
-
-In `0.3.0`, it supports iOS as well (thanks, @feroult)
-
-In `0.4.0`, volume control support was added (thanks, @pauldemarco)
-
-In `0.4.1`, a bug in iOS regard the seek functionality was fixed (thanks, @cosmok)
-
-In `0.5.0`, there was a huge change on Android code to improve performance (thanks, @the4thfloor)
-
-In `0.5.1`, there was a fix to work with Dart 2 (thanks, @efortuna)
-
-# Original Readme
-
-A Flutter audio plugin. 
- 
-## Features
- 
-- [x] Android & iOS
-  - [x] play (remote and local file)
-  - [x] stop
-  - [x] pause
-  - [x] seek
-  - [x] onComplete
-  - [x] onDuration / onCurrentPosition
-
-- Supported formats 
-  - [Android](https://developer.android.com/guide/topics/media/media-formats.html)
-  - [iOS](http://www.techotopia.com/index.php/Playing_Audio_on_iOS_8_using_AVAudioPlayer#Supported_Audio_Formats)
-
-![screenshot](https://github.com/rxlabz/audioplayer/blob/master/screenshot.png?raw=true)
+![tab1](example/tab1.jpg) ![tab2](example/tab2.jpg) ![tab3](example/tab3.jpg)
 
 ## Usage
 
-[Example](https://github.com/rxlabz/audioplayer/blob/master/example/lib/main.dart) 
-
-To use this plugin : 
-
-- add the dependency to your [pubspec.yaml](https://github.com/rxlabz/audioplayer/blob/master/example/pubspec.yaml) file.
-
-```yaml
-  dependencies:
-    flutter:
-      sdk: flutter
-    audioplayer:
-```
-
-- instantiate an AudioPlayer instance
+An `AudioPlayer` instance can play a single audio at a time. To create it, simply call the constructor:
 
 ```dart
-//...
-AudioPlayer audioPlayer = new AudioPlayer();
-//...
+    AudioPlayer audioPlayer = new AudioPlayer();
 ```
 
-### play, pause , stop, seek
+You can create multiple instances to play audio simultaneously.
+
+For all methods that return a `Future<int>`: that's the status of the operation. If `1`, the operation was successful. Otherwise it's the platform native error code.
+
+Logs are disable by default! To debug, run:
 
 ```dart
-play() async {
-  final result = await audioPlayer.play(kUrl);
-  if (result == 1) setState(() => playerState = PlayerState.playing);
-}
-
-// add a isLocal parameter to play a local file
-playLocal() async {
-  final result = await audioPlayer.play(kUrl, isLocal: true);
-  if (result == 1) setState(() => playerState = PlayerState.playing);
-}
-
-
-pause() async {
-  final result = await audioPlayer.pause();
-  if (result == 1) setState(() => playerState = PlayerState.paused);
-}
-
-stop() async {
-  final result = await audioPlayer.stop();
-  if (result == 1) setState(() => playerState = PlayerState.stopped);
-}
-
-// seek 5 seconds from the beginning
-audioPlayer.seek(5.0);
-
+  AudioPlayer.logEnabled = true;
 ```
 
-### duration, position, complete, error (temporary api) 
+### Playing Audio
 
-The Dart part of the plugin listen for platform calls :
+In order to play audio, use either the `play` or `loop` commands (loop just keeps replaying after finished).
+
+There are three possible sources of audio:
+
+ - Remote file on the Internet
+ - Local file on the user's device
+ - Local asset from your Flutter project
+
+Both for Remote Files or Local Files, use either the `play` or the `loop` commands (loop just keeps replaying after finished), just setting appropriately the flag `isLocal`.
+
+For Local Assets, you have to use the `AudioCache` class (see below).
+
+To play a Remote File, just call `play` with the url (the `isLocal` parameter is false by default):
 
 ```dart
-//...
-audioPlayer.setDurationHandler((Duration d) => setState(() {
-  duration = d;
-}));
-
-audioPlayer.setPositionHandler((Duration  p) => setState(() {
-  position = p;
-}));
-
-audioPlayer.setCompletionHandler(() {
-  onComplete();
-  setState(() {
-    position = duration;
-  });
-});
-
-audioPlayer.setErrorHandler((msg) {
-  print('audioPlayer error : $msg');
-  setState(() {
-    playerState = PlayerState.stopped;
-    duration = new Duration(seconds: 0);
-    position = new Duration(seconds: 0);
-  });
-});
+  play() async {
+    int result = await audioPlayer.play(url);
+    if (result == 1) {
+      // success
+    }
+  }
 ```
+
+For a Local File, add the `isLocal` parameter:
+
+```dart
+  playLocal() async {
+    int result = await audioPlayer.play(localPath, isLocal: true);
+  }
+```
+
+To play on a loop, call the loop method, instead of play (same signature):
+
+
+```dart
+  loopLocal() async {
+    int result = await audioPlayer.loop(localPath, isLocal: true);
+  }
+```
+
+Loop will actually set a Completion Handler to replay your audio (so don't forget to clear it if you use the same player for something else!).
+
+The `isLocal` flag is required only because iOS makes a difference about it (Android doesn't care either way).
+
+There is also an optional named `double volume` parameter, that defaults to `1.0`. It can be bumped as desired.
+
+### Controlling
+
+After playing, you can control the audio with pause, stop and seek commands.
+
+Pause will pause the audio but keep the cursor where it was. Subsequently calling play will resume from this point.
+
+```dart
+  int result = await audioPlayer.pause();
+```
+
+Stop will stop the audio and reset the cursor. Subsequently calling play will resume from the beginning.
+
+```dart
+  int result = await audioPlayer.stop();
+```
+
+Finally, use seek to jump through your audio:
+
+```dart
+  int result = await audioPlayer.seek(new Duration(milliseconds: 1200));
+```
+
+### Handlers
+
+You can register callbacks for several event handlers, like so:
+
+### Duration Handler
+
+This handler returns the duration of the file, when it's available (it might take a while because it's being downloaded or buffered).
+
+```dart
+  player.durationHandler = (Duration d) {
+    print('Max duration: $d');
+    setState(() => duration = d);
+  };
+```
+
+### Position Handler
+
+This handler updates the current position of the audio. You can use it to make a progress bar, for instance.
+
+```dart
+  player.positionHandler = (Duration  p) => {
+    print('Current position: $d');
+    setState(() => duration = d);
+  };
+```
+
+### Completion Handler
+
+This handler is called when the audio finishes playing; it's used in the loop method, for instance.
+
+It does not fire when you interrupt the audio with pause or stop.
+
+```dart
+  player.completionHandler = () {
+    onComplete();
+    setState(() {
+      position = duration;
+    });
+  };
+```
+
+### Error Handler
+
+This is called when an unexpected error is thrown in the native code.
+
+```dart
+  player.errorHandler = (msg) {
+    print('audioPlayer error : $msg');
+    setState(() {
+      playerState = PlayerState.stopped;
+      duration = new Duration(seconds: 0);
+      position = new Duration(seconds: 0);
+    });
+  };
+```
+
+### AudioCache
+
+In order to play Local Assets, you must use the `AudioCache` class.
+
+Flutter does not provide an easy way to play audio on your assets, but this class helps a lot. It actually copies the asset to a temporary folder in the device, where it is then played as a Local File.
+
+It works as a cache because it keep track of the copied files so that you can replay then without delay.
+
+You can find the full documentation for this class [here](doc/audio_cache.md).
+
+## Supported Formats
+
+You can check a list of supported formats below:
+
+ - [Android](https://developer.android.com/guide/topics/media/media-formats.html)
+ - [iOS](http://www.techotopia.com/index.php/Playing_Audio_on_iOS_8_using_AVAudioPlayer#Supported_Audio_Formats)
 
 ## iOS
    
@@ -153,9 +184,8 @@ By default iOS forbids loading from non-https url. To cancel this restriction ed
 </dict>
 ```
 
-## Getting Started
+## Credits
 
-For help getting started with Flutter, view our online
-[documentation](http://flutter.io/).
+This was originally a fork of [rxlabz's audioplayer](https://github.com/rxlabz/audioplayer), but since we have diverged and added more features.  
 
-For help on editing plugin code, view the [documentation](https://flutter.io/platform-plugins/#edit-code).
+Thanks for @rxlabz for the amazing work!  

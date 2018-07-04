@@ -11,3 +11,4 @@ pubspec.lock
 .classpath
 .project
 .settings
+.vscode

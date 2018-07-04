@@ -1,7 +1,7 @@
-package bz.rxla.audioplayer;
+package xyz.luan.audioplayers;
 
-import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.AudioAttributes;
 import android.os.Handler;
 
 import java.io.IOException;
@@ -15,23 +15,19 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
 
-/**
- * AudioplayerPlugin
- */
-public class AudioplayerPlugin implements MethodCallHandler, MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
+public class AudioplayersPlugin implements MethodCallHandler, MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
 
-    private final MethodChannel            channel;
+    private final MethodChannel channel;
     private final Map<String, MediaPlayer> mediaPlayers = new HashMap<>();
-    private final Handler                  handler      = new Handler();
-    private       Runnable                 positionUpdates;
-
+    private final Handler handler = new Handler();
+    private Runnable positionUpdates;
 
     public static void registerWith(final Registrar registrar) {
-        final MethodChannel channel = new MethodChannel(registrar.messenger(), "bz.rxla.flutter/audio");
-        channel.setMethodCallHandler(new AudioplayerPlugin(channel));
+        final MethodChannel channel = new MethodChannel(registrar.messenger(), "xyz.luan/audioplayers");
+        channel.setMethodCallHandler(new AudioplayersPlugin(channel));
     }
 
-    private AudioplayerPlugin(final MethodChannel channel) {
+    private AudioplayersPlugin(final MethodChannel channel) {
         this.channel = channel;
         this.channel.setMethodCallHandler(this);
     }
@@ -92,7 +88,11 @@ public class AudioplayerPlugin implements MethodCallHandler, MediaPlayer.OnPrepa
             mediaPlayers.put(playerId, mediaPlayer);
             mediaPlayer.setOnPreparedListener(this);
             mediaPlayer.setOnCompletionListener(this);
-            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            mediaPlayer.setAudioAttributes(new AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_MEDIA)
+                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                .build()
+            );
             mediaPlayer.setDataSource(url);
             mediaPlayer.setVolume(volume, volume);
             mediaPlayer.prepareAsync();
@@ -159,35 +159,34 @@ public class AudioplayerPlugin implements MethodCallHandler, MediaPlayer.OnPrepa
 
     private static final class UpdateCallback implements Runnable {
 
-        private final WeakReference<Map<String, MediaPlayer>> _mediaPlayers;
-        private final WeakReference<MethodChannel>            _channel;
-        private final WeakReference<Handler>                  _handler;
-        private final WeakReference<AudioplayerPlugin>        _audioplayerPlugin;
+        private final WeakReference<Map<String, MediaPlayer>> mediaPlayers;
+        private final WeakReference<MethodChannel> channel;
+        private final WeakReference<Handler> handler;
+        private final WeakReference<AudioplayersPlugin> audioplayersPlugin;
 
         UpdateCallback(final Map<String, MediaPlayer> mediaPlayers,
                        final MethodChannel channel,
                        final Handler handler,
-                       final AudioplayerPlugin audioplayerPlugin) {
-            _mediaPlayers = new WeakReference<>(mediaPlayers);
-            _channel = new WeakReference<>(channel);
-            _handler = new WeakReference<>(handler);
-            _audioplayerPlugin = new WeakReference<>(audioplayerPlugin);
+                       final AudioplayersPlugin audioplayersPlugin) {
+            this.mediaPlayers = new WeakReference<>(mediaPlayers);
+            this.channel = new WeakReference<>(channel);
+            this.handler = new WeakReference<>(handler);
+            this.audioplayersPlugin = new WeakReference<>(audioplayersPlugin);
         }
 
         @Override
         public void run() {
+            final Map<String, MediaPlayer> mediaPlayers = this.mediaPlayers.get();
+            final MethodChannel channel = this.channel.get();
+            final Handler handler = this.handler.get();
+            final AudioplayersPlugin audioplayersPlugin = this.audioplayersPlugin.get();
 
-            final Map<String, MediaPlayer> mediaPlayers = _mediaPlayers.get();
-            final MethodChannel channel = _channel.get();
-            final Handler handler = _handler.get();
-            final AudioplayerPlugin audioplayerPlugin = _audioplayerPlugin.get();
-
-            if (mediaPlayers == null || channel == null || handler == null || audioplayerPlugin == null) {
+            if (mediaPlayers == null || channel == null || handler == null || audioplayersPlugin == null) {
                 return;
             }
 
             if (mediaPlayers.isEmpty()) {
-                audioplayerPlugin.stopPositionUpdates();
+                audioplayersPlugin.stopPositionUpdates();
                 return;
             }
 

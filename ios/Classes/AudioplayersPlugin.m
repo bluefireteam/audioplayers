@@ -4,7 +4,7 @@
 #import <AVFoundation/AVFoundation.h>
 
 //#import <audioplayer/audioplayer-Swift.h>
-static NSString *const CHANNEL_NAME = @"bz.rxla.flutter/audio";
+static NSString *const CHANNEL_NAME = @"xyz.luan/audioplayers";
 static FlutterMethodChannel *channel;
 
 static NSMutableDictionary * players;

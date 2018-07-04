@@ -1,4 +1,4 @@
-group 'bz.rxla.audioplayer'
+group 'xyz.luan.audioplayers'
 version '1.0-SNAPSHOT'
 
 buildscript {
@@ -30,5 +30,13 @@ android {
     }
     lintOptions {
         disable 'InvalidPackage'
+    }
+}
+
+allprojects {
+    gradle.projectsEvaluated {
+        tasks.withType(JavaCompile) {
+            options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+        }
     }
 }

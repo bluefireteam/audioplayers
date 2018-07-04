@@ -1,5 +1,16 @@
 # Changelog
 
+## audioplayers 0.6.0
+
+- Major Refactoring!
+- Renaming everything to audioplayers (mind the s)
+- Better logging
+- Added AudioCache (imported from Flame)
+- Aadding tests!
+- Adding better example
+- Greatly improving README
+- Lots of other minor tweaks
+
 ## audioplayers 0.5.2
 
 - don't call the onClomplete hook when you manually stop the audio
