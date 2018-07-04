@@ -1,4 +1,4 @@
 #import <Flutter/Flutter.h>
 
-@interface AudioplayerPlugin : NSObject<FlutterPlugin>
+@interface AudioplayersPlugin : NSObject<FlutterPlugin>
 @end
