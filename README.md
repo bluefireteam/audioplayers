@@ -165,16 +165,9 @@ You can check a list of supported formats below:
  - [Android](https://developer.android.com/guide/topics/media/media-formats.html)
  - [iOS](http://www.techotopia.com/index.php/Playing_Audio_on_iOS_8_using_AVAudioPlayer#Supported_Audio_Formats)
 
-## iOS
-   
-### Swift project
+## :warning: iOS App Transport Security
 
-- this plugin is written in swift, so to use with in a Flutter/ObjC project, 
-you need to convert the project to "Current swift syntax" ( Edit/Convert/current swift syntax)  
-
-### :warning: iOS App Transport Security
-
-By default iOS forbids loading from non-https url. To cancel this restriction edit your .plist and add :
+By default iOS forbids loading from non-https url. To cancel this restriction you must edit your `.plist` and add:
  
 ```xml
 <key>NSAppTransportSecurity</key>
