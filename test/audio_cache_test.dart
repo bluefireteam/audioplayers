@@ -13,7 +13,8 @@ class MyAudioCache extends AudioCache {
 }
 
 void main() {
-  const MethodChannel _channel = const MethodChannel('plugins.flutter.io/path_provider');
+  const MethodChannel _channel =
+      const MethodChannel('plugins.flutter.io/path_provider');
   _channel.setMockMethodCallHandler((c) async => '/tmp');
 
   group('AudioCache', () {
