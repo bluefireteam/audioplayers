@@ -6,7 +6,7 @@
 - Renaming everything to audioplayers (mind the s)
 - Better logging
 - Added AudioCache (imported from Flame)
-- Aadding tests!
+- Adding tests!
 - Adding better example
 - Greatly improving README
 - Lots of other minor tweaks

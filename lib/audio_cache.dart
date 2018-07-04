@@ -21,7 +21,13 @@ class AudioCache {
   /// Your files will be found at assets/<prefix><fileName>
   String prefix;
 
-  AudioCache([this.prefix = ""]);
+  /// This is an instance of AudioPlayer that, if present, will always be used.
+  ///
+  /// If not set, the AudioCache will create and return a new instance of AudioPlayer every call, allowing for simultaneous calls.
+  /// If this is set, every call will overwrite previous calls.
+  AudioPlayer fixedPlayer;
+
+  AudioCache({this.prefix = "", this.fixedPlayer = null});
 
   /// Clear the cache of the file [fileName].
   ///
@@ -67,15 +73,20 @@ class AudioCache {
     return loadedFiles[fileName];
   }
 
+  AudioPlayer _player() {
+    return fixedPlayer ?? new AudioPlayer();
+  }
+
   /// Plays the given [fileName].
   ///
-  /// If the file is already cached, it plays imediatelly. Otherwise, first waits for the file to load.
-  /// It creates a new instance of [AudioPlayer], so it does not affect other audios playing.
-  /// The instance is returned, to allow later access.
+  /// If the file is already cached, it plays imediatelly. Otherwise, first waits for the file to load (might take a few milliseconds).
+  /// It creates a new instance of [AudioPlayer], so it does not affect other audios playing (unless you specify a [fixedPlayer], in which case it always use the same).
+  /// The instance is returned, to allow later access (either way).
   Future<AudioPlayer> play(String fileName, {double volume = 1.0}) async {
     File file = await load(fileName);
-    return await new AudioPlayer()
-      ..play(file.path, isLocal: true, volume: volume);
+    AudioPlayer player = _player();
+    await player.play(file.path, isLocal: true, volume: volume);
+    return player;
   }
 
   /// Like [play], but loops the audio (starts over once finished).
@@ -84,11 +95,11 @@ class AudioCache {
   /// The instance of [AudioPlayer] created is returned, so you can use it to stop the playback as desired.
   Future<AudioPlayer> loop(String fileName, {double volume = 1.0}) async {
     File file = await load(fileName);
-    AudioPlayer player = new AudioPlayer();
+    AudioPlayer player = _player();
     player.completionHandler = () {
       player.play(file.path, isLocal: true, volume: volume);
     };
-    return await player
-      ..play(file.path, isLocal: true);
+    player.play(file.path, isLocal: true, volume: volume);
+    return player;
   }
 }
