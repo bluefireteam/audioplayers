@@ -1,7 +1,7 @@
 #!/bin/bash
 
 dartanalyzer .
-dartfmt -w .
+flutter format .
 flutter test
 
 dartdoc

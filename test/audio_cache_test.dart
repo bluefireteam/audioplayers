@@ -9,7 +9,8 @@ import 'package:test/test.dart';
 class MyAudioCache extends AudioCache {
   List<String> called = [];
 
-  MyAudioCache({String prefix = "", AudioPlayer fixedPlayer = null}) : super(prefix: prefix, fixedPlayer: fixedPlayer);
+  MyAudioCache({String prefix = "", AudioPlayer fixedPlayer = null})
+      : super(prefix: prefix, fixedPlayer: fixedPlayer);
 
   @override
   Future<File> fetchToMemory(String fileName) async {
