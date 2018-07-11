@@ -81,7 +81,7 @@ public class AudioplayersPlugin implements MethodCallHandler, MediaPlayer.OnPrep
         channel.invokeMethod("audio.onComplete", buildArguments(key, true));
     }
 
-    private void play(final String playerId, final String url, final float volume) throws IOException {
+    private synchronized void play(final String playerId, final String url, final float volume) throws IOException {
         MediaPlayer mediaPlayer = mediaPlayers.get(playerId);
         if (mediaPlayer == null) {
             mediaPlayer = new MediaPlayer();
@@ -93,29 +93,31 @@ public class AudioplayersPlugin implements MethodCallHandler, MediaPlayer.OnPrep
                 .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
                 .build()
             );
-            mediaPlayer.setDataSource(url);
-            mediaPlayer.setVolume(volume, volume);
-            mediaPlayer.prepareAsync();
         } else {
-            mediaPlayer.start();
+            mediaPlayer.stop();
+            mediaPlayer.reset();
         }
+
+        mediaPlayer.setVolume(volume, volume);
+        mediaPlayer.setDataSource(url);
+        mediaPlayer.prepareAsync();
     }
 
-    private void pause(final String playerId) {
+    private synchronized void pause(final String playerId) {
         MediaPlayer mediaPlayer = mediaPlayers.get(playerId);
         if (mediaPlayer != null) {
             mediaPlayer.pause();
         }
     }
 
-    private void seek(final String playerId, final double position) {
+    private synchronized void seek(final String playerId, final double position) {
         MediaPlayer mediaPlayer = mediaPlayers.get(playerId);
         if (mediaPlayer != null) {
             mediaPlayer.seekTo((int) (position * 1000));
         }
     }
 
-    private void stop(final String playerId) {
+    private synchronized void stop(final String playerId) {
         MediaPlayer mediaPlayer = mediaPlayers.get(playerId);
         if (mediaPlayer != null) {
             mediaPlayer.stop();
