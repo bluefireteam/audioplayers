@@ -137,7 +137,9 @@ public class AudioplayersPlugin implements MethodCallHandler {
             final AudioplayersPlugin audioplayersPlugin = this.audioplayersPlugin.get();
 
             if (mediaPlayers == null || channel == null || handler == null || audioplayersPlugin == null) {
-                audioplayersPlugin.stopPositionUpdates();
+                if (audioplayersPlugin != null) {
+                    audioplayersPlugin.stopPositionUpdates();
+                }
                 return;
             }
 
