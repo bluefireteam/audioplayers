@@ -1,0 +1,173 @@
+package xyz.luan.audioplayers;
+
+import android.media.MediaPlayer;
+import android.media.AudioAttributes;
+import android.os.Handler;
+
+import java.io.IOException;
+import java.lang.ref.WeakReference;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Objects;
+
+import io.flutter.plugin.common.MethodCall;
+import io.flutter.plugin.common.MethodChannel;
+import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
+import io.flutter.plugin.common.PluginRegistry.Registrar;
+
+public class WrappedMediaPlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
+
+    private String playerId;
+
+    private String url;
+    private double volume = 1.0;
+    private boolean loop = false;
+
+    private boolean released = true;
+    private boolean prepared = false;
+    private boolean playing = false;
+
+    private MediaPlayer player;
+    private AudioplayersPlugin ref;
+
+    public WrappedMediaPlayer(AudioplayersPlugin ref, String playerId) {
+        this.ref = ref;
+        this.playerId = playerId;
+    }
+
+    public void setUrl(String url) {
+        if (!Objects.equals(this.url, url)) {
+            this.url = url;
+            
+            if (this.released) {
+                this.player = createPlayer();
+                this.released = false;
+            } else if (this.prepared) {
+                this.player.reset();
+                this.prepared = false;
+            }
+
+            this.setSource(url);
+            this.player.prepareAsync();
+        }
+    }
+
+    public String getUrl() {
+        return this.url;
+    }
+
+    public void setVolume(double volume) {
+        if (this.volume != volume) {
+            this.volume = volume;
+            if (!this.released) {
+                this.player.setVolume((float) volume, (float) volume);
+            }
+        }
+    }
+
+    public double getVolume() {
+        return this.volume;
+    }
+
+    public boolean isPlaying() {
+        return this.playing;
+    }
+
+    public boolean isActuallyPlaying() {
+        return this.playing && this.prepared;
+    }
+
+    public void play() {
+        if (!this.playing) {
+            this.playing = true;
+            if (this.released) {
+                this.released = false;
+                this.player = createPlayer();
+                this.setSource(url);
+                this.player.prepareAsync();
+            } else if (this.prepared) {
+                this.player.start();
+                this.ref.handleIsPlaying(this);
+            }
+        }
+    }
+
+    public void stop() {
+        if (this.released) {
+            return;
+        }
+        if (this.playing) {
+            this.player.stop();
+        }
+        this.player.reset();
+        this.player.release();
+        this.player = null;
+        this.prepared = false;
+        this.playing = false;
+        this.released = true;
+    }
+
+    public void pause() {
+        if (this.playing) {
+            this.playing = false;
+            this.player.pause();
+        }
+    }
+
+    private void setSource(String url) {
+        try {
+            this.player.setDataSource(url);
+        } catch (IOException ex) {
+            throw new RuntimeException("Unable to access resource", ex);
+        }
+    }
+
+    public void seek(double position) {
+        this.player.seekTo((int) (position * 1000));
+    }
+
+    public int getDuration() {
+        return this.player.getDuration();
+    }
+
+    public int getCurrentPosition() {
+        return this.player.getCurrentPosition();
+    }
+
+    public String getPlayerId() {
+        return this.playerId;
+    }
+
+    @Override
+    public void onPrepared(final MediaPlayer mediaPlayer) {
+        this.prepared = true;
+        if (this.playing) {
+            this.player.start();
+            ref.handleIsPlaying(this);
+        }
+    }
+
+    @Override
+    public void onCompletion(final MediaPlayer mediaPlayer) {
+        if (loop) {
+            this.player.start();
+        } else {
+            this.stop();
+        }
+        ref.handleCompletion(this);
+    }
+
+    private MediaPlayer createPlayer() {
+        MediaPlayer player = new MediaPlayer();
+        player.setOnPreparedListener(this);
+        player.setOnCompletionListener(this);
+        player.setAudioAttributes(new AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_MEDIA)
+            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+            .build()
+        );
+        player.setVolume((float) volume, (float) volume);
+        return player;
+    }
+}
