@@ -2,7 +2,7 @@
 
 A Flutter plugin to play multiple simultaneously audio files, works for Android and iOS.
 
-<img width="200" src="example/tab1.jpg"> <img width="200" src="example/tab2.jpg"> <img width="200" src="example/tab3.jpg">
+!(example/tab1s.jpg) !(example/tab2s.jpg) !(example/tab3s.jpg)
 
 ## Usage
 
@@ -24,15 +24,13 @@ Logs are disable by default! To debug, run:
 
 ### Playing Audio
 
-In order to play audio, use either the `play` or `loop` commands (loop just keeps replaying after finished).
-
 There are three possible sources of audio:
 
  - Remote file on the Internet
  - Local file on the user's device
  - Local asset from your Flutter project
 
-Both for Remote Files or Local Files, use either the `play` or the `loop` commands (loop just keeps replaying after finished), just setting appropriately the flag `isLocal`.
+Both for Remote Files or Local Files, use the `play` method, just setting appropriately the flag `isLocal`.
 
 For Local Assets, you have to use the `AudioCache` class (see below).
 
@@ -55,20 +53,11 @@ For a Local File, add the `isLocal` parameter:
   }
 ```
 
-To play on a loop, call the loop method, instead of play (same signature):
-
-
-```dart
-  loopLocal() async {
-    int result = await audioPlayer.loop(localPath, isLocal: true);
-  }
-```
-
-Loop will actually set a Completion Handler to replay your audio (so don't forget to clear it if you use the same player for something else!).
-
 The `isLocal` flag is required only because iOS makes a difference about it (Android doesn't care either way).
 
-There is also an optional named `double volume` parameter, that defaults to `1.0`. It can be bumped as desired.
+There is also an optional named `double volume` parameter, that defaults to `1.0`. It can go from `0.0` (mute) to `1.0` (max), varying linearly.
+
+The volume can also be changed at any time using the `setVolume` method.
 
 ### Controlling
 
@@ -91,6 +80,41 @@ Finally, use seek to jump through your audio:
 ```dart
   int result = await audioPlayer.seek(new Duration(milliseconds: 1200));
 ```
+
+Also, you can resume (like play, but without new parameters):
+
+```dart
+  int result = await audioPlayer.resume();
+```
+
+### Finer Control
+
+By default, the player will be release once the playback is finished or the stop method is called.
+
+This is because on Android, a MediaPlayer instance can be quite resource-heavy, and keep it unreleased would cause performance issues if you play lots of different audios.
+
+On iOS this doesn't apply, so release does nothing.
+
+You can change the Release Mode to determine the actual behavior of the MediaPlayer once finished/stopped. There are three options:
+
+* RELEASE: default mode, will release after stop/completed.
+* STOP: will never release; calling play should be faster.
+* LOOP: will never release; after completed, it will start playing again on loop.
+
+If you are not on RELEASE mode, you should call the release method yourself; for example:
+
+```dart
+  await audioPlayer.setUrl('clicking.mp3'); // prepare the player with this audio but do not start playing
+  await audioPlayer.setReleaseMode(ReleaseMode.STOP); // set release mode so that it never releases
+
+  // on button click
+  await audioPlayer.resume(); // quickly plays the sound, will not release
+
+  // on exiting screen
+  await audioPlayer.release(); // manually release when no longer needed
+```
+
+Despite the complex state diagram of Android's MediaPlayer, an AudioPlayer instance should never have an invalid state. Even if it's released, if resume is called, the data will be fetch again.
 
 ### Handlers
 

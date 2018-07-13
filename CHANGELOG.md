@@ -1,5 +1,14 @@
 # Changelog
 
+## audioplayers 0.7.0
+
+- Improved lifecycle handling for android
+- Big performance boots
+- Allows for finer control of releasing (with setReleaseMode, setUrl, resume, release)
+- Allows for setting the volume at any time (with setVolume)
+- Added LOOP as a ReleaseMode options, making it significantly faster
+- Some other refactorings
+
 ## audioplayers 0.6.0
 
 - Major Refactoring!

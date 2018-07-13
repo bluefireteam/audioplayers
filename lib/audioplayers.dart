@@ -7,8 +7,27 @@ import 'package:uuid/uuid.dart';
 typedef void TimeChangeHandler(Duration duration);
 typedef void ErrorHandler(String message);
 
+/// This enum contains the options that can happen after the playback finishes or the [stop] method is called.
+/// 
+/// Pass it as a parameter to [setReleaseMode] method.
 enum ReleaseMode {
-  RELEASE, LOOP, STOP
+
+  /// This will release all resources when finished or stopped, just like if [release] was called.
+  /// 
+  /// On Android, the MediaPlayer is quite resource-intensive, and this will let it go. Data will be buffered again when needed (if it's a remote file, it will be downloaded again).
+  /// On iOS, works just like STOP.
+  /// This is the default option.
+  RELEASE,
+
+  /// This not only keeps the data buffered, but keeps playing on loop after completion.
+  /// 
+  /// When [stop] is called, it will not start again (obviously), but won't release either.
+  LOOP,
+
+  /// This will just stop the playback but keep all resources intact.
+  /// 
+  /// Use it if you intend on playing again later.
+  STOP
 }
 
 /// This represents a single AudioPlayer, that can play one audio at a time (per instance).
@@ -63,14 +82,6 @@ class AudioPlayer {
         .then((result) => (result as int));
   }
 
-  /// Play audio on a loop.
-  ///
-  /// It will actually set a Completion Handler to replay your audio (so don't forget to clear it if you use the same player for something else!).
-  Future<int> loop(String url, {bool isLocal: false, double volume: 1.0}) {
-    completionHandler = () => play(url, isLocal: isLocal, volume: volume);
-    return play(url, isLocal: true, volume: volume);
-  }
-
   /// Play audio. Url can be a remote url (isLocal = false) or a local file system path (isLocal = true).
   Future<int> play(String url, {bool isLocal: false, double volume: 1.0}) {
     return _invokeMethod(
@@ -83,8 +94,12 @@ class AudioPlayer {
   /// Stop the currently playing audio (resumes from the beginning).
   Future<int> stop() => _invokeMethod('stop');
 
+  /// Resumes the currently paused or stopped audio (like calling play but without changing the parameters).
   Future<int> resume() => _invokeMethod('resume');
 
+  /// Release the resources associated with this media player.
+  /// 
+  /// It will be prepared again if needed.
   Future<int> release() => _invokeMethod('release');
 
   /// Move the cursor to the desired position.
@@ -94,14 +109,23 @@ class AudioPlayer {
     return _invokeMethod('seek', {'position': positionInSeconds});
   }
 
+  /// Sets the volume (ampliutde). 0.0 is mute and 1.0 is max, the rest is linear interpolation.
   Future<int> setVolume(double volume) {
     return _invokeMethod('setVolume', {'volume': volume});
   }
 
+  /// This configures the behavior when the playback finishes or the stop command is issued.
+  /// 
+  /// STOP mode is the simplest, nothing happens (just stops).
+  /// RELEASE mode is the default, it releases all resources on Android (like calling release method). On iOS there is no such concept.
+  /// LOOP will start playing again forever, without releasing.
   Future<int> setReleaseMode(ReleaseMode releaseMode) {
     return _invokeMethod('setReleaseMode', {'releaseMode': releaseMode.toString()});
   }
 
+  /// Changes the url (source), without resuming playback (like play would do).
+  /// 
+  /// This will keep the resource prepared (on Android) for when resume is called.
   Future<int> setUrl(String url, {bool isLocal: false}) {
     return _invokeMethod('setUrl', {'url': url, 'isLocal': isLocal });
   }

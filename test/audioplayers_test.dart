@@ -44,24 +44,5 @@ void main() {
       expect(calls[0].arguments['playerId'], player1Id);
       calls.clear();
     });
-
-    test('#loop', () async {
-      calls.clear();
-      AudioPlayer player = new AudioPlayer();
-
-      await player.loop('music');
-      String playerId = calls[0].arguments['playerId'];
-
-      expect(calls, hasLength(1));
-      expect(calls[0].method, 'play');
-      calls.clear();
-
-      await AudioPlayer.platformCallHandler(
-          new MethodCall('audio.onComplete', {'playerId': playerId}));
-
-      expect(calls, hasLength(1));
-      expect(calls[0].method, 'play');
-      calls.clear();
-    });
   });
 }

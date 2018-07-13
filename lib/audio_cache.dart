@@ -91,14 +91,11 @@ class AudioCache {
 
   /// Like [play], but loops the audio (starts over once finished).
   ///
-  /// It adds a completion handler that starts to play again once finished.
   /// The instance of [AudioPlayer] created is returned, so you can use it to stop the playback as desired.
   Future<AudioPlayer> loop(String fileName, {double volume = 1.0}) async {
     File file = await load(fileName);
     AudioPlayer player = _player();
-    player.completionHandler = () {
-      player.play(file.path, isLocal: true, volume: volume);
-    };
+    player.setReleaseMode(ReleaseMode.LOOP);
     player.play(file.path, isLocal: true, volume: volume);
     return player;
   }
