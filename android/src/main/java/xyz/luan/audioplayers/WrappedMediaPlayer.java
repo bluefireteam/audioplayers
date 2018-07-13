@@ -49,6 +49,8 @@ public class WrappedMediaPlayer implements MediaPlayer.OnPreparedListener, Media
             }
 
             this.setSource(url);
+            this.player.setVolume((float) volume, (float) volume);
+            this.player.setLooping(this.releaseMode == ReleaseMode.LOOP);
             this.player.prepareAsync();
         }
     }
