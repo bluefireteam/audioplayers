@@ -120,7 +120,7 @@ Despite the complex state diagram of Android's MediaPlayer, an AudioPlayer insta
 
 You can register callbacks for several event handlers, like so:
 
-### Duration Handler
+#### Duration Handler
 
 This handler returns the duration of the file, when it's available (it might take a while because it's being downloaded or buffered).
 
@@ -131,7 +131,7 @@ This handler returns the duration of the file, when it's available (it might tak
   };
 ```
 
-### Position Handler
+#### Position Handler
 
 This handler updates the current position of the audio. You can use it to make a progress bar, for instance.
 
@@ -142,7 +142,7 @@ This handler updates the current position of the audio. You can use it to make a
   };
 ```
 
-### Completion Handler
+#### Completion Handler
 
 This handler is called when the audio finishes playing; it's used in the loop method, for instance.
 
@@ -157,7 +157,7 @@ It does not fire when you interrupt the audio with pause or stop.
   };
 ```
 
-### Error Handler
+#### Error Handler
 
 This is called when an unexpected error is thrown in the native code.
 
