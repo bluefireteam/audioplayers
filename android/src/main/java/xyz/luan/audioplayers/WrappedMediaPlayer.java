@@ -158,7 +158,12 @@ public class WrappedMediaPlayer implements MediaPlayer.OnPreparedListener, Media
     }
 
     public void setReleaseMode(ReleaseMode releaseMode) {
-        this.releaseMode = releaseMode;
+        if (this.releaseMode != releaseMode) {
+            this.releaseMode = releaseMode;
+            if (!this.released) {
+                this.player.setLooping(releaseMode == ReleaseMode.LOOP);
+            }
+        }
     }
 
     public ReleaseMode getReleaseMode() {
@@ -176,9 +181,7 @@ public class WrappedMediaPlayer implements MediaPlayer.OnPreparedListener, Media
 
     @Override
     public void onCompletion(final MediaPlayer mediaPlayer) {
-        if (releaseMode == ReleaseMode.LOOP) {
-            this.player.start();
-        } else {
+        if (releaseMode != ReleaseMode.LOOP) {
             this.stop();
         }
         ref.handleCompletion(this);
@@ -194,6 +197,7 @@ public class WrappedMediaPlayer implements MediaPlayer.OnPreparedListener, Media
             .build()
         );
         player.setVolume((float) volume, (float) volume);
+        player.setLooping(this.releaseMode == ReleaseMode.LOOP);
         return player;
     }
 }
