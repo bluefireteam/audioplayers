@@ -7,6 +7,10 @@ import 'package:uuid/uuid.dart';
 typedef void TimeChangeHandler(Duration duration);
 typedef void ErrorHandler(String message);
 
+enum ReleaseMode {
+  RELEASE, LOOP, STOP
+}
+
 /// This represents a single AudioPlayer, that can play one audio at a time (per instance).
 ///
 /// It features methods to play, loop, pause, stop, seek the audio, and some useful hooks for handlers and callbacks.
@@ -64,7 +68,7 @@ class AudioPlayer {
   /// It will actually set a Completion Handler to replay your audio (so don't forget to clear it if you use the same player for something else!).
   Future<int> loop(String url, {bool isLocal: false, double volume: 1.0}) {
     completionHandler = () => play(url, isLocal: isLocal, volume: volume);
-    return play(url, isLocal: true);
+    return play(url, isLocal: true, volume: volume);
   }
 
   /// Play audio. Url can be a remote url (isLocal = false) or a local file system path (isLocal = true).
@@ -79,11 +83,27 @@ class AudioPlayer {
   /// Stop the currently playing audio (resumes from the beginning).
   Future<int> stop() => _invokeMethod('stop');
 
+  Future<int> resume() => _invokeMethod('resume');
+
+  Future<int> release() => _invokeMethod('release');
+
   /// Move the cursor to the desired position.
   Future<int> seek(Duration position) {
     double positionInSeconds =
         position.inMicroseconds / Duration.microsecondsPerSecond;
     return _invokeMethod('seek', {'position': positionInSeconds});
+  }
+
+  Future<int> setVolume(double volume) {
+    return _invokeMethod('setVolume', {'volume': volume});
+  }
+
+  Future<int> setReleaseMode(ReleaseMode releaseMode) {
+    return _invokeMethod('setReleaseMode', {'releaseMode': releaseMode.toString()});
+  }
+
+  Future<int> setUrl(String url, {bool isLocal: false}) {
+    return _invokeMethod('setUrl', {'url': url, 'isLocal': isLocal });
   }
 
   static void _log(String param) {

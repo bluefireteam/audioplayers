@@ -22,7 +22,7 @@ public class WrappedMediaPlayer implements MediaPlayer.OnPreparedListener, Media
 
     private String url;
     private double volume = 1.0;
-    private boolean loop = false;
+    private ReleaseMode releaseMode = ReleaseMode.RELEASE;
 
     private boolean released = true;
     private boolean prepared = false;
@@ -97,15 +97,33 @@ public class WrappedMediaPlayer implements MediaPlayer.OnPreparedListener, Media
         if (this.released) {
             return;
         }
+
+        if (releaseMode != ReleaseMode.RELEASE) {
+            if (this.playing) {
+                this.playing = false;
+                this.player.pause();
+                this.player.seekTo(0);
+            }
+        } else {
+            this.release();
+        }
+    }
+
+    public void release() {
+        if (this.released) {
+            return;
+        }
+
         if (this.playing) {
             this.player.stop();
         }
         this.player.reset();
         this.player.release();
         this.player = null;
+
         this.prepared = false;
-        this.playing = false;
         this.released = true;
+        this.playing = false;
     }
 
     public void pause() {
@@ -139,6 +157,14 @@ public class WrappedMediaPlayer implements MediaPlayer.OnPreparedListener, Media
         return this.playerId;
     }
 
+    public void setReleaseMode(ReleaseMode releaseMode) {
+        this.releaseMode = releaseMode;
+    }
+
+    public ReleaseMode getReleaseMode() {
+        return this.releaseMode;
+    }
+
     @Override
     public void onPrepared(final MediaPlayer mediaPlayer) {
         this.prepared = true;
@@ -150,7 +176,7 @@ public class WrappedMediaPlayer implements MediaPlayer.OnPreparedListener, Media
 
     @Override
     public void onCompletion(final MediaPlayer mediaPlayer) {
-        if (loop) {
+        if (releaseMode == ReleaseMode.LOOP) {
             this.player.start();
         } else {
             this.stop();

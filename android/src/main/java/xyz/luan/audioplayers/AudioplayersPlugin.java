@@ -50,31 +50,57 @@ public class AudioplayersPlugin implements MethodCallHandler {
         final String playerId = call.argument("playerId");
         final WrappedMediaPlayer player = getPlayer(playerId);
         switch (call.method) {
-            case "play":
+            case "play": {
                 final String url = call.argument("url");
                 final double volume = call.argument("volume");
                 player.setUrl(url);
                 player.setVolume(volume);
                 player.play();
-                response.success(1);
                 break;
-            case "pause":
+            }
+            case "resume": {
+                player.play();
+                break;
+            }
+            case "pause": {
                 player.pause();
-                response.success(1);
                 break;
-            case "stop":
+            }
+            case "stop": {
                 player.stop();
-                response.success(1);
                 break;
-            case "seek":
+            }
+            case "release": {
+                player.release();
+                break;
+            }
+            case "seek": {
                 double position = call.argument("position");
                 player.seek(position);
-                response.success(1);
                 break;
-            default:
+            }
+            case "setVolume": {
+                final double volume = call.argument("volume");
+                player.setVolume(volume);
+                break;
+            }
+            case "setUrl": {
+                final String url = call.argument("url");
+                player.setUrl(url);
+                break;
+            }
+            case "setReleaseMode": {
+                final String releaseModeName = call.argument("releaseMode");
+                final ReleaseMode releaseMode = ReleaseMode.valueOf(releaseModeName.substring("ReleaseMode.".length()));
+                player.setReleaseMode(releaseMode);
+                break;
+            }
+            default: {
                 response.notImplemented();
-                break;
+                return;
+            }
         }
+        response.success(1);
     }
 
     private WrappedMediaPlayer getPlayer(String playerId) {
