@@ -192,7 +192,7 @@ You can check a list of supported formats below:
 ## :warning: iOS App Transport Security
 
 By default iOS forbids loading from non-https url. To cancel this restriction you must edit your `.plist` and add:
- 
+
 ```xml
 <key>NSAppTransportSecurity</key>
 <dict>
@@ -203,6 +203,6 @@ By default iOS forbids loading from non-https url. To cancel this restriction yo
 
 ## Credits
 
-This was originally a fork of [rxlabz's audioplayer](https://github.com/rxlabz/audioplayer), but since we have diverged and added more features.  
+This was originally a fork of [rxlabz's audioplayer](https://github.com/rxlabz/audioplayer), but since we have diverged and added more features.
 
-Thanks for @rxlabz for the amazing work!  
+Thanks for @rxlabz for the amazing work!
