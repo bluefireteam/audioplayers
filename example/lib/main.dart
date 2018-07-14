@@ -46,7 +46,9 @@ class _ExampleAppState extends State<ExampleApp> {
       child: Container(
         padding: EdgeInsets.all(16.0),
         child: Column(
-          children: children.map((w) => Container(child: w, padding: EdgeInsets.all(6.0))).toList(),
+          children: children
+              .map((w) => Container(child: w, padding: EdgeInsets.all(6.0)))
+              .toList(),
         ),
       ),
     );
@@ -54,9 +56,8 @@ class _ExampleAppState extends State<ExampleApp> {
 
   Widget _btn(String txt, VoidCallback onPressed) {
     return ButtonTheme(
-      minWidth: 48.0,
-      child: RaisedButton(child: Text(txt), onPressed: onPressed)
-    );
+        minWidth: 48.0,
+        child: RaisedButton(child: Text(txt), onPressed: onPressed));
   }
 
   Widget remoteUrl() {
@@ -104,16 +105,17 @@ class _ExampleAppState extends State<ExampleApp> {
         Row(children: [
           _btn('STOP', () => advancedPlayer.setReleaseMode(ReleaseMode.STOP)),
           _btn('LOOP', () => advancedPlayer.setReleaseMode(ReleaseMode.LOOP)),
-          _btn('RELEASE', () => advancedPlayer.setReleaseMode(ReleaseMode.RELEASE)),
+          _btn('RELEASE',
+              () => advancedPlayer.setReleaseMode(ReleaseMode.RELEASE)),
         ], mainAxisAlignment: MainAxisAlignment.spaceEvenly),
       ]),
       new Column(children: [
         Text('Volume'),
         Row(children: [
-          _btn('0.0',  () => advancedPlayer.setVolume(0.0)),
-          _btn('0.5',  () => advancedPlayer.setVolume(0.5)),
-          _btn('1.0',  () => advancedPlayer.setVolume(1.0)),
-          _btn('2.0',  () => advancedPlayer.setVolume(2.0)),
+          _btn('0.0', () => advancedPlayer.setVolume(0.0)),
+          _btn('0.5', () => advancedPlayer.setVolume(0.5)),
+          _btn('1.0', () => advancedPlayer.setVolume(1.0)),
+          _btn('2.0', () => advancedPlayer.setVolume(2.0)),
         ], mainAxisAlignment: MainAxisAlignment.spaceEvenly),
       ]),
       new Column(children: [

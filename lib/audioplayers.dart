@@ -8,24 +8,23 @@ typedef void TimeChangeHandler(Duration duration);
 typedef void ErrorHandler(String message);
 
 /// This enum contains the options that can happen after the playback finishes or the [stop] method is called.
-/// 
+///
 /// Pass it as a parameter to [setReleaseMode] method.
 enum ReleaseMode {
-
   /// This will release all resources when finished or stopped, just like if [release] was called.
-  /// 
+  ///
   /// On Android, the MediaPlayer is quite resource-intensive, and this will let it go. Data will be buffered again when needed (if it's a remote file, it will be downloaded again).
   /// On iOS, works just like STOP.
   /// This is the default option.
   RELEASE,
 
   /// This not only keeps the data buffered, but keeps playing on loop after completion.
-  /// 
+  ///
   /// When [stop] is called, it will not start again (obviously), but won't release either.
   LOOP,
 
   /// This will just stop the playback but keep all resources intact.
-  /// 
+  ///
   /// Use it if you intend on playing again later.
   STOP
 }
@@ -98,7 +97,7 @@ class AudioPlayer {
   Future<int> resume() => _invokeMethod('resume');
 
   /// Release the resources associated with this media player.
-  /// 
+  ///
   /// It will be prepared again if needed.
   Future<int> release() => _invokeMethod('release');
 
@@ -115,19 +114,20 @@ class AudioPlayer {
   }
 
   /// This configures the behavior when the playback finishes or the stop command is issued.
-  /// 
+  ///
   /// STOP mode is the simplest, nothing happens (just stops).
   /// RELEASE mode is the default, it releases all resources on Android (like calling release method). On iOS there is no such concept.
   /// LOOP will start playing again forever, without releasing.
   Future<int> setReleaseMode(ReleaseMode releaseMode) {
-    return _invokeMethod('setReleaseMode', {'releaseMode': releaseMode.toString()});
+    return _invokeMethod(
+        'setReleaseMode', {'releaseMode': releaseMode.toString()});
   }
 
   /// Changes the url (source), without resuming playback (like play would do).
-  /// 
+  ///
   /// This will keep the resource prepared (on Android) for when resume is called.
   Future<int> setUrl(String url, {bool isLocal: false}) {
-    return _invokeMethod('setUrl', {'url': url, 'isLocal': isLocal });
+    return _invokeMethod('setUrl', {'url': url, 'isLocal': isLocal});
   }
 
   static void _log(String param) {
