@@ -135,19 +135,19 @@ FlutterMethodChannel *_channel;
   AVPlayer *player = playerInfo[@"player"];
   NSMutableSet *observers = playerInfo[@"observers"];
   AVPlayerItem *playerItem;
-
-  NSLog(@"setUrl %@",url );
+    
+  NSLog(@"setUrl %@", url);
 
   if (!playerInfo || ![url isEqualToString:playerInfo[@"url"]]) {
-    [ playerItem removeObserver:self forKeyPath:@"player.currentItem.status" ];
-
     if (isLocal) {
       playerItem = [ [ AVPlayerItem alloc ] initWithURL:[ NSURL fileURLWithPath:url ]];
     } else {
       playerItem = [ [ AVPlayerItem alloc ] initWithURL:[ NSURL URLWithString:url ]];
     }
-
+      
     if (playerInfo) {
+      [[player currentItem] removeObserver:self forKeyPath:@"player.currentItem.status" ];
+
       [ playerInfo setObject:url forKey:@"url" ];
 
       for (id ob in observers) {
@@ -168,7 +168,7 @@ FlutterMethodChannel *_channel;
       }];
         [timeobservers addObject:@{@"player":player, @"observer":timeObserver}];
     }
-
+      
     id anobserver = [[ NSNotificationCenter defaultCenter ] addObserverForName: AVPlayerItemDidPlayToEndTimeNotification
                                                                         object: playerItem
                                                                          queue: nil
@@ -176,8 +176,9 @@ FlutterMethodChannel *_channel;
                                                                         [self onSoundComplete:playerId];
                                                                     }];
     [observers addObject:anobserver];
+      
     // is sound ready
-    [[player currentItem] addObserver:self
+    [playerItem addObserver:self
                           forKeyPath:@"player.currentItem.status"
                           options:0
                           context:(void*)playerId];
@@ -249,7 +250,7 @@ FlutterMethodChannel *_channel;
 -(void) setLooping: (bool) looping
         playerId:  (NSString *) playerId {
   NSMutableDictionary *playerInfo = players[playerId];
-  [playerInfo setObject:@(looping) forKey:@"isPlaying"];
+  [playerInfo setObject:@(looping) forKey:@"looping"];
 }
 
 -(void) stop: (NSString *) playerId {
