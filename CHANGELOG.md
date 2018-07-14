@@ -1,5 +1,8 @@
 # Changelog
 
+## audioplayers 0.7.1
+- Formatting
+
 ## audioplayers 0.7.0
 
 - Improved lifecycle handling for android
