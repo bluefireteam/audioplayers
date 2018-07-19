@@ -107,6 +107,7 @@ FlutterMethodChannel *_channel;
                           isLocal:isLocal 
                           playerId:playerId 
                           onReady:^(NSString * playerId) {
+                            result(@(1));
                           }         
                     ];                    
                   },
@@ -131,7 +132,9 @@ FlutterMethodChannel *_channel;
     NSLog(@"not implemented");
     result(FlutterMethodNotImplemented);
   }
-  result(@(1));
+  if(![call.method isEqualToString:@"setUrl"]) {
+    result(@(1));
+  }
 }
 
 -(void) initPlayerInfo: (NSString *) playerId {
@@ -204,6 +207,10 @@ FlutterMethodChannel *_channel;
                           options:0
                           context:(void*)playerId];
       
+  } else {
+    if ([[player currentItem] status ] == AVPlayerItemStatusReadyToPlay) {
+      onReady(playerId);
+    }
   }
 }
 
