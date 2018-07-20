@@ -1,5 +1,8 @@
 # Changelog
 
+## audioplayers 0.7.2
+- Bug fixes for iOS
+
 ## audioplayers 0.7.1
 - Formatting
 
