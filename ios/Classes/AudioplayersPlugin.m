@@ -21,6 +21,8 @@ static NSMutableDictionary * players;
   FlutterResult _result;
 }
 
+typedef void (^VoidCallback)(NSString * playerId);
+
 NSMutableSet *timeobservers;
 FlutterMethodChannel *_channel;
 
@@ -44,7 +46,7 @@ FlutterMethodChannel *_channel;
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
   NSString * playerId = call.arguments[@"playerId"];
   NSLog(@"iOS => call %@, playerId %@", call.method, playerId);
-    
+
   typedef void (^CaseBlock)();
 
   // Squint and this looks like a proper switch!
@@ -101,7 +103,13 @@ FlutterMethodChannel *_channel;
                     NSLog(@"setUrl");
                     NSString *url = call.arguments[@"url"];
                     int isLocal = [call.arguments[@"isLocal"]intValue];
-                    [self setUrl:url isLocal:isLocal playerId:playerId ];
+                    [ self setUrl:url 
+                          isLocal:isLocal 
+                          playerId:playerId 
+                          onReady:^(NSString * playerId) {
+                            result(@(1));
+                          }         
+                    ];                    
                   },
                 @"setVolume":
                   ^{
@@ -118,18 +126,28 @@ FlutterMethodChannel *_channel;
                   }
                 };
 
+  [ self initPlayerInfo:playerId ];
   CaseBlock c = methods[call.method];
   if (c) c(); else {
     NSLog(@"not implemented");
     result(FlutterMethodNotImplemented);
   }
-  result(@(1));
+  if(![call.method isEqualToString:@"setUrl"]) {
+    result(@(1));
+  }
 }
 
+-(void) initPlayerInfo: (NSString *) playerId {
+  NSMutableDictionary * playerInfo = players[playerId];
+  if (!playerInfo) {
+    players[playerId] = [@{@"isPlaying": @false, @"volume": @(1.0), @"looping": @(false)} mutableCopy];
+  }
+}
 
 -(void) setUrl: (NSString*) url
        isLocal: (bool) isLocal
-               playerId: (NSString*) playerId
+       playerId: (NSString*) playerId
+       onReady:(VoidCallback)onReady
 {
   NSMutableDictionary * playerInfo = players[playerId];
   AVPlayer *player = playerInfo[@"player"];
@@ -145,7 +163,7 @@ FlutterMethodChannel *_channel;
       playerItem = [ [ AVPlayerItem alloc ] initWithURL:[ NSURL URLWithString:url ]];
     }
       
-    if (playerInfo) {
+    if (playerInfo[@"url"]) {
       [[player currentItem] removeObserver:self forKeyPath:@"player.currentItem.status" ];
 
       [ playerInfo setObject:url forKey:@"url" ];
@@ -158,8 +176,13 @@ FlutterMethodChannel *_channel;
     } else {
       player = [[ AVPlayer alloc ] initWithPlayerItem: playerItem ];
       observers = [[NSMutableSet alloc] init];
-      playerInfo = [@{@"player": player, @"url": url, @"isPlaying": @false, @"observers": observers, @"volume": @(1.0), @"looping": @(false)} mutableCopy];
-      players[playerId] = playerInfo;
+
+      [ playerInfo setObject:player forKey:@"player" ];
+      [ playerInfo setObject:url forKey:@"url" ];
+      [ playerInfo setObject:observers forKey:@"observers" ];
+
+      // playerInfo = [@{@"player": player, @"url": url, @"isPlaying": @false, @"observers": observers, @"volume": @(1.0), @"looping": @(false)} mutableCopy];
+      // players[playerId] = playerInfo;
 
       // stream player position
       CMTime interval = CMTimeMakeWithSeconds(0.2, NSEC_PER_SEC);
@@ -178,11 +201,16 @@ FlutterMethodChannel *_channel;
     [observers addObject:anobserver];
       
     // is sound ready
+    [playerInfo setObject:onReady forKey:@"onReady"];
     [playerItem addObserver:self
                           forKeyPath:@"player.currentItem.status"
                           options:0
                           context:(void*)playerId];
       
+  } else {
+    if ([[player currentItem] status ] == AVPlayerItemStatusReadyToPlay) {
+      onReady(playerId);
+    }
   }
 }
 
@@ -190,15 +218,18 @@ FlutterMethodChannel *_channel;
          url: (NSString*) url
      isLocal: (int) isLocal
       volume: (float) volume
-{
-    NSMutableDictionary * playerInfo = players[playerId];
-    AVPlayer *player = playerInfo[@"player"];
-    
-    [ self setUrl:url isLocal:isLocal playerId:playerId ];
-  [ self updateDuration:playerId ];
-  [ player setVolume:volume ];
-  [ player play];
-  [playerInfo setObject:@true forKey:@"isPlaying"];
+{    
+  [ self setUrl:url 
+         isLocal:isLocal 
+         playerId:playerId 
+         onReady:^(NSString * playerId) {
+           NSMutableDictionary * playerInfo = players[playerId];
+           AVPlayer *player = playerInfo[@"player"];
+           [ player setVolume:volume ];
+           [ player play];
+           [ playerInfo setObject:@true forKey:@"isPlaying" ];
+         }    
+  ];
 }
 
 -(void) updateDuration: (NSString *) playerId
@@ -206,7 +237,7 @@ FlutterMethodChannel *_channel;
   NSMutableDictionary * playerInfo = players[playerId];
   AVPlayer *player = playerInfo[@"player"];
 
-  CMTime duration = [[player currentItem] duration ];
+  CMTime duration = [ [player currentItem] duration ];
   NSLog(@"ios -> updateDuration...%f", CMTimeGetSeconds(duration));
   if(CMTimeGetSeconds(duration)>0){
     NSLog(@"ios -> invokechannel");
@@ -298,6 +329,12 @@ FlutterMethodChannel *_channel;
     // Do something with the status…
     if ([[player currentItem] status ] == AVPlayerItemStatusReadyToPlay) {
       [self updateDuration:playerId];
+
+      VoidCallback onReady = playerInfo[@"onReady"];
+      if (onReady != nil) {
+        [playerInfo removeObjectForKey:@"onReady"];  
+        onReady(playerId);
+      }
     } else if ([[player currentItem] status ] == AVPlayerItemStatusFailed) {
       [_channel invokeMethod:@"audio.onError" arguments:@{@"playerId": playerId, @"value": @"AVPlayerItemStatus.failed"}];
     }
@@ -323,6 +360,7 @@ FlutterMethodChannel *_channel;
   }
   players = nil;
 }
+
 
 @end
 
