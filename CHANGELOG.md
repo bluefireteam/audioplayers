@@ -1,5 +1,9 @@
 # Changelog
 
+## audioplayers 0.7.3
+- Support Android SDK 16-20 (thanks, @sroddy)
+- Avoid restarting a looping player if is stopped (thanks, @sroddy)
+
 ## audioplayers 0.7.2
 - Bug fixes for iOS
 

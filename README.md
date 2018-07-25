@@ -10,7 +10,7 @@ This was orginally forked from [rxlabz's audioplayer](https://github.com/rxlabz/
 
 ```yaml
 dependencies:
-  audioplayers: ^0.7.2
+  audioplayers: ^0.7.3
 ```
 
 ## Usage
