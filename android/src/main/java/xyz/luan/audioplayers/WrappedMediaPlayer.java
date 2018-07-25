@@ -1,7 +1,9 @@
 package xyz.luan.audioplayers;
 
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.AudioAttributes;
+import android.os.Build;
 import android.os.Handler;
 
 import java.io.IOException;
@@ -9,7 +11,6 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Objects;
 
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -37,7 +38,7 @@ public class WrappedMediaPlayer implements MediaPlayer.OnPreparedListener, Media
     }
 
     public void setUrl(String url) {
-        if (!Objects.equals(this.url, url)) {
+        if (!objectEquals(this.url, url)) {
             this.url = url;
             
             if (this.released) {
@@ -193,13 +194,21 @@ public class WrappedMediaPlayer implements MediaPlayer.OnPreparedListener, Media
         MediaPlayer player = new MediaPlayer();
         player.setOnPreparedListener(this);
         player.setOnCompletionListener(this);
-        player.setAudioAttributes(new AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_MEDIA)
-            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-            .build()
-        );
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            player.setAudioAttributes(new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .build()
+            );
+        } else {
+            player.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        }
         player.setVolume((float) volume, (float) volume);
         player.setLooping(this.releaseMode == ReleaseMode.LOOP);
         return player;
+    }
+
+    private static boolean objectEquals(Object o1, Object o2) {
+        return o1 == null && o2 == null || o1 != null && o1.equals(o2);
     }
 }
