@@ -305,6 +305,10 @@ FlutterMethodChannel *_channel;
   NSLog(@"ios -> onSoundComplete...");
   NSMutableDictionary * playerInfo = players[playerId];
 
+  if (![playerInfo[@"isPlaying"] boolValue]) {
+    return;
+  }
+
   [ self pause:playerId ];
   [ self seek:playerId time:CMTimeMakeWithSeconds(0,1) ];
 
