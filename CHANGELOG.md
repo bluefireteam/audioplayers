@@ -1,5 +1,8 @@
 # Changelog
 
+## audioplayers 0.7.4
+- Some more fixes to work without errors with Dart 2 stronger types
+
 ## audioplayers 0.7.3
 - Support Android SDK 16-20 (thanks, @sroddy)
 - Avoid restarting a looping player if is stopped (thanks, @sroddy)
