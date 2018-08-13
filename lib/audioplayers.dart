@@ -136,7 +136,7 @@ class AudioPlayer {
     }
   }
 
-  static Future platformCallHandler(MethodCall call) async {
+  static Future<void> platformCallHandler(MethodCall call) async {
     _log('_platformCallHandler call ${call.method} ${call.arguments}');
     String playerId = (call.arguments as Map)['playerId'];
     AudioPlayer player = players[playerId];
@@ -144,22 +144,22 @@ class AudioPlayer {
     switch (call.method) {
       case 'audio.onDuration':
         if (player.durationHandler != null) {
-          await player.durationHandler(new Duration(milliseconds: value));
+          player.durationHandler(new Duration(milliseconds: value));
         }
         break;
       case 'audio.onCurrentPosition':
         if (player.positionHandler != null) {
-          await player.positionHandler(new Duration(milliseconds: value));
+          player.positionHandler(new Duration(milliseconds: value));
         }
         break;
       case 'audio.onComplete':
         if (player.completionHandler != null) {
-          await player.completionHandler();
+          player.completionHandler();
         }
         break;
       case 'audio.onError':
         if (player.errorHandler != null) {
-          await player.errorHandler(value);
+          player.errorHandler(value);
         }
         break;
       default:

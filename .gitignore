@@ -7,7 +7,6 @@
 build/
 ios/.generated/
 packages
-pubspec.lock
 .classpath
 .project
 .settings
