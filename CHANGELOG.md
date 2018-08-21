@@ -1,5 +1,8 @@
 # Changelog
 
+## audioplayers 0.7.5
+- Fix SDK constraint for Dart 2.1 (thanks @snoofer and @sroddy)
+
 ## audioplayers 0.7.4
 - Some more fixes to work without errors with Dart 2 stronger types
 
