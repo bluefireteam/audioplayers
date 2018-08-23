@@ -13,7 +13,7 @@ To play an audio, just run:
 ```dart
     import 'package:audioplayers/audio_cache.dart';
 
-    static const AudioCache player = new AudioCache();
+    static AudioCache player = new AudioCache();
 
     player.play('explosion.mp3');
 ```
@@ -22,20 +22,24 @@ This will play the `explosion.mp3` file in your projects `asset` folder.
 
 The file structure would be something like this:
 
+```
 .
 └── assets
     └── explosion.mp3
+```
 
 Don't forget to add these files to your `pubspec.yaml` file:
 
+```
 flutter:
   assets:
-    - assets/explosion.mp3
+   - assets/explosion.mp3
+```
 
 You can optionally pass a prefix to the constructor if all your musics are in a specific folder inside the assets folder. [Flame](https://github.com/luanpotter/flame), for instance, uses the 'audio/' prefix:
 
 ```dart
-    AudioCache player = new AudioPlayer('audio/');
+    AudioCache player = new AudioCache(prefix: 'audio/');
     player.play('explosion.mp3');
     // now this file will be loaded from assets/audio/explosion.mp3
 ```
