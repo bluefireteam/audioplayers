@@ -190,10 +190,8 @@ public class WrappedMediaPlayer implements MediaPlayer.OnPreparedListener, Media
         ref.handleCompletion(this);
     }
 
-    private MediaPlayer createPlayer() {
-        MediaPlayer player = new MediaPlayer();
-        player.setOnPreparedListener(this);
-        player.setOnCompletionListener(this);
+    @SuppressWarnings("deprecation")
+    private void setAttributes(MediaPlayer player) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             player.setAudioAttributes(new AudioAttributes.Builder()
                     .setUsage(AudioAttributes.USAGE_MEDIA)
@@ -201,8 +199,16 @@ public class WrappedMediaPlayer implements MediaPlayer.OnPreparedListener, Media
                     .build()
             );
         } else {
+            // This method is deprecated but must be used on older devices
             player.setAudioStreamType(AudioManager.STREAM_MUSIC);
         }
+    }
+
+    private MediaPlayer createPlayer() {
+        MediaPlayer player = new MediaPlayer();
+        player.setOnPreparedListener(this);
+        player.setOnCompletionListener(this);
+        setAttributes(player);
         player.setVolume((float) volume, (float) volume);
         player.setLooping(this.releaseMode == ReleaseMode.LOOP);
         return player;
