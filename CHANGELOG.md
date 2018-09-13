@@ -1,5 +1,8 @@
 # Changelog
 
+## audioplayers 0.7.6
+- Fix the nefarious bug of 'sound only playing through headphones' (thanks so much, @tsun424)
+
 ## audioplayers 0.7.5
 - Fix SDK constraint for Dart 2.1 (thanks @snoofer and @sroddy)
 
