@@ -218,7 +218,14 @@ FlutterMethodChannel *_channel;
          url: (NSString*) url
      isLocal: (int) isLocal
       volume: (float) volume
-{    
+{
+  NSError *error = nil;
+  BOOL success = [[AVAudioSession sharedInstance]
+                  setCategory:AVAudioSessionCategoryPlayback
+                  error:&error];
+  if (!success) {
+    NSLog(@"Error setting speaker: %@", error);
+  }
   [ self setUrl:url 
          isLocal:isLocal 
          playerId:playerId 
