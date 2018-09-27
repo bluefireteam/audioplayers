@@ -1,5 +1,8 @@
 # Changelog
 
+## audioplayers 0.7.7
+- Fix bug when using nested files with audio cache (thanks @hotstu for reporting and @eclewlow for fixing)
+
 ## audioplayers 0.7.6
 - Fix the nefarious bug of 'sound only playing through headphones' (thanks so much, @tsun424)
 
