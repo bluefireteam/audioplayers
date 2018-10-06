@@ -4,7 +4,6 @@
 #import <AVFoundation/AVFoundation.h>
 
 static NSString *const CHANNEL_NAME = @"xyz.luan/audioplayers";
-static FlutterMethodChannel *channel;
 
 static NSMutableDictionary * players;
 
@@ -24,7 +23,7 @@ static NSMutableDictionary * players;
 typedef void (^VoidCallback)(NSString * playerId);
 
 NSMutableSet *timeobservers;
-FlutterMethodChannel *_channel;
+FlutterMethodChannel *_channel_audioplayer;
 
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
   FlutterMethodChannel* channel = [FlutterMethodChannel
@@ -32,7 +31,7 @@ FlutterMethodChannel *_channel;
                                    binaryMessenger:[registrar messenger]];
   AudioplayersPlugin* instance = [[AudioplayersPlugin alloc] init];
   [registrar addMethodCallDelegate:instance channel:channel];
-  _channel = channel;
+  _channel_audioplayer = channel;
 }
 
 - (id)init {
@@ -249,7 +248,7 @@ FlutterMethodChannel *_channel;
   if(CMTimeGetSeconds(duration)>0){
     NSLog(@"ios -> invokechannel");
    int mseconds= CMTimeGetSeconds(duration)*1000;
-    [_channel invokeMethod:@"audio.onDuration" arguments:@{@"playerId": playerId, @"value": @(mseconds)}];
+    [_channel_audioplayer invokeMethod:@"audio.onDuration" arguments:@{@"playerId": playerId, @"value": @(mseconds)}];
   }
 }
 
@@ -258,7 +257,7 @@ FlutterMethodChannel *_channel;
   NSLog(@"ios -> onTimeInterval...");
   int mseconds =  CMTimeGetSeconds(time)*1000;
     NSLog(@"asdff %@ - %d", playerId, mseconds);
-  [_channel invokeMethod:@"audio.onCurrentPosition" arguments:@{@"playerId": playerId, @"value": @(mseconds)}];
+  [_channel_audioplayer invokeMethod:@"audio.onCurrentPosition" arguments:@{@"playerId": playerId, @"value": @(mseconds)}];
     NSLog(@"asdff end");
 }
 
@@ -323,7 +322,7 @@ FlutterMethodChannel *_channel;
     [ self resume:playerId ];
   }
 
-  [ _channel invokeMethod:@"audio.onComplete" arguments:@{@"playerId": playerId}];
+  [ _channel_audioplayer invokeMethod:@"audio.onComplete" arguments:@{@"playerId": playerId}];
 }
 
 -(void)observeValueForKeyPath:(NSString *)keyPath
@@ -347,7 +346,7 @@ FlutterMethodChannel *_channel;
         onReady(playerId);
       }
     } else if ([[player currentItem] status ] == AVPlayerItemStatusFailed) {
-      [_channel invokeMethod:@"audio.onError" arguments:@{@"playerId": playerId, @"value": @"AVPlayerItemStatus.failed"}];
+      [_channel_audioplayer invokeMethod:@"audio.onError" arguments:@{@"playerId": playerId, @"value": @"AVPlayerItemStatus.failed"}];
     }
   } else {
     // Any unrecognized context must belong to super
