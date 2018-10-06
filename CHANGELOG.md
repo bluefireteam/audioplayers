@@ -1,5 +1,8 @@
 # Changelog
 
+## audioplayers 0.7.8
+- Fix bug regarding name clash with other plugins (thanks @imtaehyun)
+
 ## audioplayers 0.7.7
 - Fix bug when using nested files with audio cache (thanks @hotstu for reporting and @eclewlow for fixing)
 
