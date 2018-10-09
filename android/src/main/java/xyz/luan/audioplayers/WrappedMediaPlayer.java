@@ -29,7 +29,7 @@ public class WrappedMediaPlayer implements MediaPlayer.OnPreparedListener, Media
     private boolean prepared = false;
     private boolean playing = false;
 
-    private double shouldSeekTo;
+    private double shouldSeekTo = -1;
 
     private MediaPlayer player;
     private AudioplayersPlugin ref;
@@ -187,9 +187,9 @@ public class WrappedMediaPlayer implements MediaPlayer.OnPreparedListener, Media
             this.player.start();
             ref.handleIsPlaying(this);
         }
-        if (this.shouldSeekTo != null) {
+        if (this.shouldSeekTo >= 0) {
             this.player.seekTo((int) (this.shouldSeekTo * 1000));
-            this.shouldSeekTo = null;
+            this.shouldSeekTo = -1;
         }
     }
 
