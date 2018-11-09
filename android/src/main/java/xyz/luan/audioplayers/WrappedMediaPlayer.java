@@ -29,6 +29,8 @@ public class WrappedMediaPlayer implements MediaPlayer.OnPreparedListener, Media
     private boolean prepared = false;
     private boolean playing = false;
 
+    private double shouldSeekTo = -1;
+
     private MediaPlayer player;
     private AudioplayersPlugin ref;
 
@@ -144,8 +146,13 @@ public class WrappedMediaPlayer implements MediaPlayer.OnPreparedListener, Media
         }
     }
 
+    // seek operations cannot be called until after
+    // the player is ready.
     public void seek(double position) {
-        this.player.seekTo((int) (position * 1000));
+        if (this.prepared)
+            this.player.seekTo((int) (position * 1000));
+        else
+            this.shouldSeekTo = position;
     }
 
     public int getDuration() {
@@ -179,6 +186,10 @@ public class WrappedMediaPlayer implements MediaPlayer.OnPreparedListener, Media
         if (this.playing) {
             this.player.start();
             ref.handleIsPlaying(this);
+        }
+        if (this.shouldSeekTo >= 0) {
+            this.player.seekTo((int) (this.shouldSeekTo * 1000));
+            this.shouldSeekTo = -1;
         }
     }
 

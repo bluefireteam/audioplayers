@@ -252,13 +252,14 @@ FlutterMethodChannel *_channel_audioplayer;
   }
 }
 
+// No need to spam the logs with every time interval update
 -(void) onTimeInterval: (NSString *) playerId
                   time: (CMTime) time {
-  NSLog(@"ios -> onTimeInterval...");
-  int mseconds =  CMTimeGetSeconds(time)*1000;
-    NSLog(@"asdff %@ - %d", playerId, mseconds);
-  [_channel_audioplayer invokeMethod:@"audio.onCurrentPosition" arguments:@{@"playerId": playerId, @"value": @(mseconds)}];
-    NSLog(@"asdff end");
+    // NSLog(@"ios -> onTimeInterval...");
+    int mseconds =  CMTimeGetSeconds(time)*1000;
+    // NSLog(@"asdff %@ - %d", playerId, mseconds);
+    [_channel_audioplayer invokeMethod:@"audio.onCurrentPosition" arguments:@{@"playerId": playerId, @"value": @(mseconds)}];
+    //    NSLog(@"asdff end");
 }
 
 -(void) pause: (NSString *) playerId {
