@@ -22,6 +22,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   String url;
   bool isLocal;
   AudioPlayer _audioPlayer;
+  AudioPlayerState _audioPlayerState;
   Duration _duration;
   Duration _position;
 
@@ -99,6 +100,9 @@ class _PlayerWidgetState extends State<PlayerWidget> {
             ),
           ],
         ),
+        new Text(
+          "State: $_audioPlayerState"
+        )
       ],
     );
   }
@@ -127,6 +131,12 @@ class _PlayerWidgetState extends State<PlayerWidget> {
         _playerState = PlayerState.stopped;
         _duration = new Duration(seconds: 0);
         _position = new Duration(seconds: 0);
+      });
+    };
+
+    _audioPlayer.audioPlayerStateChangeHandler = (AudioPlayerState state) {
+      setState(() {
+        _audioPlayerState = state;
       });
     };
   }
