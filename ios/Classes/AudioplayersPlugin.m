@@ -225,6 +225,8 @@ FlutterMethodChannel *_channel_audioplayer;
   if (!success) {
     NSLog(@"Error setting speaker: %@", error);
   }
+  [[AVAudioSession sharedInstance] setActive:YES error:&error];
+
   [ self setUrl:url 
          isLocal:isLocal 
          playerId:playerId 
