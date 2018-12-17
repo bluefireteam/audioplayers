@@ -82,9 +82,9 @@ class AudioPlayer {
   }
 
   /// Play audio. Url can be a remote url (isLocal = false) or a local file system path (isLocal = true).
-  Future<int> play(String url, {bool isLocal: false, double volume: 1.0}) {
+  Future<int> play(String url, {bool isLocal: false, bool isMusic: true, double volume: 1.0}) {
     return _invokeMethod(
-        'play', {'url': url, 'isLocal': isLocal, 'volume': volume});
+        'play', {'url': url, 'isLocal': isLocal, 'isMusic': isMusic, 'volume': volume});
   }
 
   /// Pause the currently playing audio (resumes from this point).

@@ -83,21 +83,24 @@ class AudioCache {
   /// If the file is already cached, it plays imediatelly. Otherwise, first waits for the file to load (might take a few milliseconds).
   /// It creates a new instance of [AudioPlayer], so it does not affect other audios playing (unless you specify a [fixedPlayer], in which case it always use the same).
   /// The instance is returned, to allow later access (either way).
-  Future<AudioPlayer> play(String fileName, {double volume = 1.0}) async {
+  Future<AudioPlayer> play(String fileName,
+      {double volume = 1.0, bool isMusic = true}) async {
     File file = await load(fileName);
     AudioPlayer player = _player();
-    await player.play(file.path, isLocal: true, volume: volume);
+    await player.play(file.path,
+        isLocal: true, isMusic: isMusic, volume: volume);
     return player;
   }
 
   /// Like [play], but loops the audio (starts over once finished).
   ///
   /// The instance of [AudioPlayer] created is returned, so you can use it to stop the playback as desired.
-  Future<AudioPlayer> loop(String fileName, {double volume = 1.0}) async {
+  Future<AudioPlayer> loop(String fileName,
+      {double volume = 1.0, bool isMusic = true}) async {
     File file = await load(fileName);
     AudioPlayer player = _player();
     player.setReleaseMode(ReleaseMode.LOOP);
-    player.play(file.path, isLocal: true, volume: volume);
+    player.play(file.path, isLocal: true, isMusic: isMusic, volume: volume);
     return player;
   }
 }

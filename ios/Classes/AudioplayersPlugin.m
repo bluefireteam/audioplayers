@@ -60,11 +60,15 @@ FlutterMethodChannel *_channel_audioplayer;
                       result(0);
                     if (call.arguments[@"volume"]==nil)
                       result(0);
+                    if (call.arguments[@"isMusic"]==nil)
+                          result(0);
                     int isLocal = [call.arguments[@"isLocal"]intValue] ;
+                    int isMusic = [call.arguments[@"isMusic"]intValue] ;
                     float volume = (float)[call.arguments[@"volume"] doubleValue] ;
                     NSLog(@"isLocal: %d %@",isLocal, call.arguments[@"isLocal"] );
+                    NSLog(@"isMusic: %d %@",isMusic, call.arguments[@"isMusic"] );
                     NSLog(@"volume: %f %@",volume, call.arguments[@"volume"] );
-                    [self play:playerId url:url isLocal:isLocal volume:volume];
+                    [self play:playerId url:url isLocal:isLocal volume:volume isMusic:isMusic];
                   },
                 @"pause":
                   ^{
@@ -217,14 +221,27 @@ FlutterMethodChannel *_channel_audioplayer;
          url: (NSString*) url
      isLocal: (int) isLocal
       volume: (float) volume
+    isMusic : (int) isMusic
 {
   NSError *error = nil;
+    if (isMusic)
+    {
   BOOL success = [[AVAudioSession sharedInstance]
                   setCategory:AVAudioSessionCategoryPlayback
                   error:&error];
   if (!success) {
     NSLog(@"Error setting speaker: %@", error);
   }
+    }
+    else
+    {
+        BOOL success = [[AVAudioSession sharedInstance]
+                        setCategory:AVAudioSessionCategorySoloAmbient
+                        error:&error];
+        if (!success) {
+            NSLog(@"Error setting speaker: %@", error);
+        }
+    }
   [[AVAudioSession sharedInstance] setActive:YES error:&error];
 
   [ self setUrl:url 
