@@ -64,7 +64,7 @@ class AudioPlayer {
   AudioPlayerState get state => _audioPlayerState;
 
   void set state (AudioPlayerState state) {
-    if(audioPlayerStateChangeHandler != null){
+    if(audioPlayerStateChangeHandler != null) {
       audioPlayerStateChangeHandler(state);
     }
     _audioPlayerState = state;
