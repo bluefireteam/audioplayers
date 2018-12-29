@@ -111,7 +111,7 @@ class AudioPlayer {
     int result = await _invokeMethod(
         'play', {'url': url, 'isLocal': isLocal, 'volume': volume});
 
-    if(result == 1){
+    if(result == 1) {
       state = AudioPlayerState.PLAYING;
     }
 
@@ -121,7 +121,7 @@ class AudioPlayer {
   /// Pause the currently playing audio (resumes from this point).
   Future<int> pause() async {
     int result = await _invokeMethod('pause');
-    if(result == 1){
+    if(result == 1) {
       state = AudioPlayerState.PAUSED;
     }
     return result;
@@ -130,7 +130,7 @@ class AudioPlayer {
   /// Stop the currently playing audio (resumes from the beginning).
   Future<int> stop() async {
     int result = await _invokeMethod('stop');
-    if(result == 1){
+    if(result == 1) {
       state = AudioPlayerState.STOPPED;
     }
     return result;
@@ -139,7 +139,7 @@ class AudioPlayer {
   /// Resumes the currently paused or stopped audio (like calling play but without changing the parameters).
   Future<int> resume() async {
     int result = await _invokeMethod('resume');
-    if(result == 1){
+    if(result == 1) {
       state = AudioPlayerState.PLAYING;
     }
     return result;
@@ -150,7 +150,7 @@ class AudioPlayer {
   /// It will be prepared again if needed.
   Future<int> release() async {
     int result = await _invokeMethod('release');
-    if(result == 1){
+    if(result == 1) {
       state = AudioPlayerState.STOPPED;
     }
     return result;
