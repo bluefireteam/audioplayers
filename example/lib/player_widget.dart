@@ -100,9 +100,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
             ),
           ],
         ),
-        new Text(
-          "State: $_audioPlayerState"
-        )
+        new Text("State: $_audioPlayerState")
       ],
     );
   }

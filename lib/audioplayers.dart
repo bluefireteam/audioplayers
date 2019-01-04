@@ -8,7 +8,6 @@ typedef void TimeChangeHandler(Duration duration);
 typedef void ErrorHandler(String message);
 typedef void AudioPlayerStateChangeHandler(AudioPlayerState state);
 
-
 /// This enum contains the options that can happen after the playback finishes or the [stop] method is called.
 ///
 /// Pass it as a parameter to [setReleaseMode] method.
@@ -31,15 +30,12 @@ enum ReleaseMode {
   STOP
 }
 
-
-
 enum AudioPlayerState {
   STOPPED,
   PLAYING,
   PAUSED,
   COMPLETED,
 }
-
 
 /// This represents a single AudioPlayer, that can play one audio at a time (per instance).
 ///
@@ -63,7 +59,7 @@ class AudioPlayer {
 
   AudioPlayerState get state => _audioPlayerState;
 
-  void set state (AudioPlayerState state) {
+  void set state(AudioPlayerState state) {
     if (audioPlayerStateChangeHandler != null) {
       audioPlayerStateChangeHandler(state);
     }
@@ -107,7 +103,8 @@ class AudioPlayer {
   }
 
   /// Play audio. Url can be a remote url (isLocal = false) or a local file system path (isLocal = true).
-  Future<int> play(String url, {bool isLocal: false, double volume: 1.0}) async {
+  Future<int> play(String url,
+      {bool isLocal: false, double volume: 1.0}) async {
     int result = await _invokeMethod(
         'play', {'url': url, 'isLocal': isLocal, 'volume': volume});
 
