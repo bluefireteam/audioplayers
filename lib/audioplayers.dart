@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 
 typedef void TimeChangeHandler(Duration duration);
 typedef void ErrorHandler(String message);
+typedef void AudioPlayerStateChangeHandler(AudioPlayerState state);
 
 /// This enum contains the options that can happen after the playback finishes or the [stop] method is called.
 ///
@@ -29,6 +30,13 @@ enum ReleaseMode {
   STOP
 }
 
+enum AudioPlayerState {
+  STOPPED,
+  PLAYING,
+  PAUSED,
+  COMPLETED,
+}
+
 /// This represents a single AudioPlayer, that can play one audio at a time (per instance).
 ///
 /// It features methods to play, loop, pause, stop, seek the audio, and some useful hooks for handlers and callbacks.
@@ -47,11 +55,24 @@ class AudioPlayer {
   /// This enables more verbose logging, if desired.
   static bool logEnabled = false;
 
+  AudioPlayerState _audioPlayerState = null;
+
+  AudioPlayerState get state => _audioPlayerState;
+
+  void set state(AudioPlayerState state) {
+    if (audioPlayerStateChangeHandler != null) {
+      audioPlayerStateChangeHandler(state);
+    }
+    _audioPlayerState = state;
+  }
+
   /// This handler returns the duration of the file, when it's available (it might take a while because it's being downloaded or buffered).
   TimeChangeHandler durationHandler;
 
   /// This handler updates the current position of the audio. You can use it to make a progress bar, for instance.
   TimeChangeHandler positionHandler;
+
+  AudioPlayerStateChangeHandler audioPlayerStateChangeHandler;
 
   /// This handler is called when the audio finishes playing; it's used in the loop method, for instance.
   ///
@@ -82,24 +103,55 @@ class AudioPlayer {
   }
 
   /// Play audio. Url can be a remote url (isLocal = false) or a local file system path (isLocal = true).
-  Future<int> play(String url, {bool isLocal: false, double volume: 1.0}) {
-    return _invokeMethod(
+  Future<int> play(String url,
+      {bool isLocal: false, double volume: 1.0}) async {
+    int result = await _invokeMethod(
         'play', {'url': url, 'isLocal': isLocal, 'volume': volume});
+
+    if (result == 1) {
+      state = AudioPlayerState.PLAYING;
+    }
+
+    return result;
   }
 
   /// Pause the currently playing audio (resumes from this point).
-  Future<int> pause() => _invokeMethod('pause');
+  Future<int> pause() async {
+    int result = await _invokeMethod('pause');
+    if (result == 1) {
+      state = AudioPlayerState.PAUSED;
+    }
+    return result;
+  }
 
   /// Stop the currently playing audio (resumes from the beginning).
-  Future<int> stop() => _invokeMethod('stop');
+  Future<int> stop() async {
+    int result = await _invokeMethod('stop');
+    if (result == 1) {
+      state = AudioPlayerState.STOPPED;
+    }
+    return result;
+  }
 
   /// Resumes the currently paused or stopped audio (like calling play but without changing the parameters).
-  Future<int> resume() => _invokeMethod('resume');
+  Future<int> resume() async {
+    int result = await _invokeMethod('resume');
+    if (result == 1) {
+      state = AudioPlayerState.PLAYING;
+    }
+    return result;
+  }
 
   /// Release the resources associated with this media player.
   ///
   /// It will be prepared again if needed.
-  Future<int> release() => _invokeMethod('release');
+  Future<int> release() async {
+    int result = await _invokeMethod('release');
+    if (result == 1) {
+      state = AudioPlayerState.STOPPED;
+    }
+    return result;
+  }
 
   /// Move the cursor to the desired position.
   Future<int> seek(Duration position) {
@@ -153,11 +205,13 @@ class AudioPlayer {
         }
         break;
       case 'audio.onComplete':
+        player.state = AudioPlayerState.COMPLETED;
         if (player.completionHandler != null) {
           player.completionHandler();
         }
         break;
       case 'audio.onError':
+        player.state = AudioPlayerState.STOPPED;
         if (player.errorHandler != null) {
           player.errorHandler(value);
         }
