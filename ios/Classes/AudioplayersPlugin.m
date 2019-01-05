@@ -252,7 +252,7 @@ FlutterMethodChannel *_channel_audioplayer;
   NSMutableDictionary * playerInfo = players[playerId];
   AVPlayer *player = playerInfo[@"player"];
 
-  CMTime duration = [ [player currentItem] duration ];
+  CMTime duration = [[[player currentItem]  asset] duration];
   NSLog(@"ios -> updateDuration...%f", CMTimeGetSeconds(duration));
   if(CMTimeGetSeconds(duration)>0){
     NSLog(@"ios -> invokechannel");
