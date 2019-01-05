@@ -140,13 +140,13 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   }
 
   Future<int> _play() async {
-    final startPosition = (_position != null
+    final playPosition = (_position != null
         && _duration != null
         && _position.inMilliseconds > 0
         && _position.inMilliseconds < _duration.inMilliseconds)
         ? _position
         : Duration.zero;
-    final result = await _audioPlayer.play(url, isLocal: isLocal, position: startPosition);
+    final result = await _audioPlayer.play(url, isLocal: isLocal, position: playPosition);
     if (result == 1) setState(() => _playerState = PlayerState.playing);
     return result;
   }
