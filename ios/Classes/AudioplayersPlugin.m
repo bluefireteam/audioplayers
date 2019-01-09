@@ -60,11 +60,16 @@ FlutterMethodChannel *_channel_audioplayer;
                       result(0);
                     if (call.arguments[@"volume"]==nil)
                       result(0);
+                    if (call.arguments[@"position"]==nil)
+                      result(0);
                     int isLocal = [call.arguments[@"isLocal"]intValue] ;
                     float volume = (float)[call.arguments[@"volume"] doubleValue] ;
+                    double seconds = [call.arguments[@"position"] doubleValue] ;
+                    CMTime time = CMTimeMakeWithSeconds(seconds,1);
                     NSLog(@"isLocal: %d %@",isLocal, call.arguments[@"isLocal"] );
                     NSLog(@"volume: %f %@",volume, call.arguments[@"volume"] );
-                    [self play:playerId url:url isLocal:isLocal volume:volume];
+                    NSLog(@"position: %f %@", seconds, call.arguments[@"positions"] );
+                    [self play:playerId url:url isLocal:isLocal volume:volume time:time];
                   },
                 @"pause":
                   ^{
@@ -217,6 +222,7 @@ FlutterMethodChannel *_channel_audioplayer;
          url: (NSString*) url
      isLocal: (int) isLocal
       volume: (float) volume
+        time: (CMTime) time
 {
   NSError *error = nil;
   BOOL success = [[AVAudioSession sharedInstance]
@@ -234,6 +240,7 @@ FlutterMethodChannel *_channel_audioplayer;
            NSMutableDictionary * playerInfo = players[playerId];
            AVPlayer *player = playerInfo[@"player"];
            [ player setVolume:volume ];
+           [ player seekToTime:time ];
            [ player play];
            [ playerInfo setObject:@true forKey:@"isPlaying" ];
          }    
