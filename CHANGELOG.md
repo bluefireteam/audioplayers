@@ -1,5 +1,12 @@
 # Changelog
 
+## audioplayers 0.8.0
+- Allow setting seek position in play function (thanks @rob-patchett)
+- Get duration from the underlaying asset instead of from AVPlayerItem (thanks @andressade)
+- Adding player state (thanks @renancaraujo)
+- Set the audio session to active (thanks @benwicks)
+- Delay seek operations on Android until player is ready (thanks @jeffmikels)
+
 ## audioplayers 0.7.8
 - Fix bug regarding name clash with other plugins (thanks @imtaehyun)
 
