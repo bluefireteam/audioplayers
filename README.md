@@ -13,6 +13,10 @@ dependencies:
   audioplayers: ^0.8.0
 ```
 
+## Discord channel
+
+We have created a channel for audioplayers help on Fireslime's discord, join it [here](https://discord.gg/ny7eThk)
+
 ## Usage
 
 An `AudioPlayer` instance can play a single audio at a time. To create it, simply call the constructor:
