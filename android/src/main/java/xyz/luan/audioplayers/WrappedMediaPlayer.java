@@ -43,7 +43,7 @@ public class WrappedMediaPlayer implements MediaPlayer.OnPreparedListener, Media
     public void setUrl(String url) {
         if (!objectEquals(this.url, url)) {
             this.url = url;
-            
+
             if (this.released) {
                 this.player = createPlayer();
                 this.released = false;
@@ -76,13 +76,19 @@ public class WrappedMediaPlayer implements MediaPlayer.OnPreparedListener, Media
         return this.volume;
     }
 
-    public void setRate(double rate) {
+    public int setRate(double rate) {
         if (this.rate != rate) {
             this.rate = rate;
             if (!this.released) {
                 this.player.setPlaybackParams(this.player.getPlaybackParams().setSpeed((float) rate));
+                this.playing = rate != 0;
+                if(this.playing) {
+                    this.ref.handleIsPlaying(this);
+                }
+                return this.playing? 1 : 3;
             }
         }
+        return 2;
     }
 
     public double getRate() {
@@ -108,6 +114,7 @@ public class WrappedMediaPlayer implements MediaPlayer.OnPreparedListener, Media
             } else if (this.prepared) {
                 this.player.start();
                 this.ref.handleIsPlaying(this);
+                this.player.setPlaybackParams(this.player.getPlaybackParams().setSpeed((float) rate));
             }
         }
     }
@@ -200,6 +207,7 @@ public class WrappedMediaPlayer implements MediaPlayer.OnPreparedListener, Media
         if (this.playing) {
             this.player.start();
             ref.handleIsPlaying(this);
+            this.player.setPlaybackParams(this.player.getPlaybackParams().setSpeed((float) rate));
         }
         if (this.shouldSeekTo >= 0) {
             this.player.seekTo((int) (this.shouldSeekTo * 1000));
@@ -219,9 +227,9 @@ public class WrappedMediaPlayer implements MediaPlayer.OnPreparedListener, Media
     private void setAttributes(MediaPlayer player) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             player.setAudioAttributes(new AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_MEDIA)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                    .build()
+                .setUsage(AudioAttributes.USAGE_MEDIA)
+                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                .build()
             );
         } else {
             // This method is deprecated but must be used on older devices

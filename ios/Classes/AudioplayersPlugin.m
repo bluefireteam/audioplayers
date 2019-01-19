@@ -137,6 +137,15 @@ FlutterMethodChannel *_channel_audioplayer;
                         NSLog(@"setRate");
                         float rate = (float)[call.arguments[@"rate"] doubleValue];
                         [self setRate:rate playerId:playerId];
+                        if(players[playerId][@"url"]) {
+                          if(rate == 0) {
+                            result(@(3));
+                          } else {
+                            result(@(1));
+                          }
+                        } else {
+                          result(@(2));
+                        }
                     },
                 };
 
@@ -146,7 +155,7 @@ FlutterMethodChannel *_channel_audioplayer;
     NSLog(@"not implemented");
     result(FlutterMethodNotImplemented);
   }
-  if(![call.method isEqualToString:@"setUrl"]) {
+  if(![call.method isEqualToString:@"setUrl"] || ![call.method isEqualToString:@"setRate"]) {
     result(@(1));
   }
 }

@@ -49,6 +49,7 @@ public class AudioplayersPlugin implements MethodCallHandler {
     private void handleMethodCall(final MethodCall call, final MethodChannel.Result response) {
         final String playerId = call.argument("playerId");
         final WrappedMediaPlayer player = getPlayer(playerId);
+        int result = 1;
         switch (call.method) {
             case "play": {
                 final String url = call.argument("url");
@@ -90,7 +91,7 @@ public class AudioplayersPlugin implements MethodCallHandler {
             }
             case "setRate": {
                 final double rate = call.argument("rate");
-                player.setRate(rate);
+                result = player.setRate(rate);
                 break;
             }
             case "setUrl": {
@@ -109,7 +110,7 @@ public class AudioplayersPlugin implements MethodCallHandler {
                 return;
             }
         }
-        response.success(1);
+        response.success(result);
     }
 
     private WrappedMediaPlayer getPlayer(String playerId) {

@@ -184,8 +184,23 @@ class AudioPlayer {
   }
 
   /// Sets the play rate. rate value greater than 1.0 is faster and to slow playback use less than 1.0.
-  Future<int> setRate(double rate) {
-    return _invokeMethod('setRate', {'rate': rate});
+  ///
+  /// If result is
+  ///   1: playing state will change to PLAYING
+  ///   2: will not change current status
+  ///   3: rate == 0, will change to PAUSED
+  Future<int> setRate(double rate) async {
+    var result = await _invokeMethod('setRate', {'rate': rate});
+    if(result == 1) {
+      if(state != AudioPlayerState.PLAYING) {
+        state = AudioPlayerState.PLAYING;
+      }
+    } else if(result == 3) {
+      if(state != AudioPlayerState.PAUSED) {
+        state = AudioPlayerState.PAUSED;
+      }
+    }
+    return result;
   }
 
   static void _log(String param) {
