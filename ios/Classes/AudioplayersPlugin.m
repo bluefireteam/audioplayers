@@ -62,14 +62,18 @@ FlutterMethodChannel *_channel_audioplayer;
                       result(0);
                     if (call.arguments[@"position"]==nil)
                       result(0);
+                    if (call.arguments[@"rate"]==nil)
+                      result(0);
                     int isLocal = [call.arguments[@"isLocal"]intValue] ;
                     float volume = (float)[call.arguments[@"volume"] doubleValue] ;
                     double seconds = [call.arguments[@"position"] doubleValue] ;
+                    float rate = (float)[call.arguments[@"rate"] doubleValue] ;
                     CMTime time = CMTimeMakeWithSeconds(seconds,1);
                     NSLog(@"isLocal: %d %@",isLocal, call.arguments[@"isLocal"] );
                     NSLog(@"volume: %f %@",volume, call.arguments[@"volume"] );
                     NSLog(@"position: %f %@", seconds, call.arguments[@"positions"] );
-                    [self play:playerId url:url isLocal:isLocal volume:volume time:time];
+                    NSLog(@"rate: %f %@", rate, call.arguments[@"rate"] );
+                    [self play:playerId url:url isLocal:isLocal volume:volume time:time rate:rate];
                   },
                 @"pause":
                   ^{
@@ -127,7 +131,13 @@ FlutterMethodChannel *_channel_audioplayer;
                     NSString *releaseMode = call.arguments[@"releaseMode"];
                     bool looping = [releaseMode hasSuffix:@"LOOP"];
                     [self setLooping:looping playerId:playerId];
-                  }
+                  },
+                @"setRate":
+                    ^{
+                        NSLog(@"setRate");
+                        float rate = (float)[call.arguments[@"rate"] doubleValue];
+                        [self setRate:rate playerId:playerId];
+                    },
                 };
 
   [ self initPlayerInfo:playerId ];
@@ -144,7 +154,7 @@ FlutterMethodChannel *_channel_audioplayer;
 -(void) initPlayerInfo: (NSString *) playerId {
   NSMutableDictionary * playerInfo = players[playerId];
   if (!playerInfo) {
-    players[playerId] = [@{@"isPlaying": @false, @"volume": @(1.0), @"looping": @(false)} mutableCopy];
+    players[playerId] = [@{@"isPlaying": @false, @"volume": @(1.0), @"looping": @(false), @"rate": @(1.0)} mutableCopy];
   }
 }
 
@@ -223,6 +233,7 @@ FlutterMethodChannel *_channel_audioplayer;
      isLocal: (int) isLocal
       volume: (float) volume
         time: (CMTime) time
+        rate: (float) rate
 {
   NSError *error = nil;
   BOOL success = [[AVAudioSession sharedInstance]
@@ -242,6 +253,7 @@ FlutterMethodChannel *_channel_audioplayer;
            [ player setVolume:volume ];
            [ player seekToTime:time ];
            [ player play];
+           [ player setRate:rate ];
            [ playerInfo setObject:@true forKey:@"isPlaying" ];
          }    
   ];
@@ -298,6 +310,14 @@ FlutterMethodChannel *_channel_audioplayer;
         playerId:  (NSString *) playerId {
   NSMutableDictionary *playerInfo = players[playerId];
   [playerInfo setObject:@(looping) forKey:@"looping"];
+}
+
+-(void) setRate: (float) rate
+         playerId:  (NSString *) playerId {
+    NSMutableDictionary *playerInfo = players[playerId];
+    AVPlayer *player = playerInfo[@"player"];
+    playerInfo[@"rate"] = @(rate);
+    [ player setRate:rate ];
 }
 
 -(void) stop: (NSString *) playerId {

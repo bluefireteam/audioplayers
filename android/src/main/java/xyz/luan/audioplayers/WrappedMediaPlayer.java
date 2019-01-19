@@ -23,6 +23,7 @@ public class WrappedMediaPlayer implements MediaPlayer.OnPreparedListener, Media
 
     private String url;
     private double volume = 1.0;
+    private double rate = 1.0;
     private ReleaseMode releaseMode = ReleaseMode.RELEASE;
 
     private boolean released = true;
@@ -73,6 +74,19 @@ public class WrappedMediaPlayer implements MediaPlayer.OnPreparedListener, Media
 
     public double getVolume() {
         return this.volume;
+    }
+
+    public void setRate(double rate) {
+        if (this.rate != rate) {
+            this.rate = rate;
+            if (!this.released) {
+                this.player.setPlaybackParams(this.player.getPlaybackParams().setSpeed((float) rate));
+            }
+        }
+    }
+
+    public double getRate() {
+        return this.rate;
     }
 
     public boolean isPlaying() {

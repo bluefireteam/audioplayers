@@ -127,6 +127,16 @@ class _ExampleAppState extends State<ExampleApp> {
           _btn('release', () => advancedPlayer.release()),
         ], mainAxisAlignment: MainAxisAlignment.spaceEvenly),
       ]),
+      new Column(children: [
+        Text('Rate'),
+        Row(children: [
+          _btn('0.1', () => advancedPlayer.setRate(0.1)),
+          _btn('0.5', () => advancedPlayer.setRate(0.5)),
+          _btn('1.0', () => advancedPlayer.setRate(1.0)),
+          _btn('2.0', () => advancedPlayer.setRate(2.0)),
+          _btn('3.0', () => advancedPlayer.setRate(3.0)),
+        ], mainAxisAlignment: MainAxisAlignment.spaceEvenly),
+      ]),
     ]);
   }
 
