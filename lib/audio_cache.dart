@@ -41,7 +41,9 @@ class AudioCache {
     loadedFiles.clear();
   }
 
-  /// Disable [AudioPlayer] logs (enable only if debuggin, otherwise they can be quite overwhelming).
+  /// Disable [AudioPlayer] logs (enable only if debugging, otherwise they can be quite overwhelming).
+  ///
+  /// TODO: there are still some logs on the android native side that we could not get rid of, if you'd like to help, please send us a PR!
   void disableLog() {
     AudioPlayer.logEnabled = false;
   }
@@ -82,7 +84,7 @@ class AudioCache {
   ///
   /// If the file is already cached, it plays imediatelly. Otherwise, first waits for the file to load (might take a few milliseconds).
   /// It creates a new instance of [AudioPlayer], so it does not affect other audios playing (unless you specify a [fixedPlayer], in which case it always use the same).
-  /// The instance is returned, to allow later access (either way).
+  /// The instance is returned, to allow later access (either way), like pausing and resuming.
   Future<AudioPlayer> play(String fileName, {double volume = 1.0}) async {
     File file = await load(fileName);
     AudioPlayer player = _player();
