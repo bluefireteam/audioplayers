@@ -1,5 +1,12 @@
 # Changelog
 
+## next
+- **Breaking change**. Migrate from the deprecated original Android Support
+  Library to AndroidX. This shouldn't result in any functional changes, but it
+  requires any Android apps using this plugin to [also
+  migrate](https://developer.android.com/jetpack/androidx/migrate) if they're
+  using the original support library.
+
 ## audioplayers 0.10.1
 - Seek and play now works with milliseconds instead of second (thanks, @catoldcui and @erickzanardo)
 
@@ -15,6 +22,8 @@
 
 ## audioplayers 0.8.1
 - Fix for duration when playing a stream
+- Added respectSilence flag in audioplayers, or isNotification for play methos in audio_cache
+  False by default, to use player for local notification. Silent when device is in silent mode.
 
 ## audioplayers 0.8.0
 - Allow setting seek position in play function (thanks @rob-patchett)
