@@ -91,6 +91,13 @@ class _ExampleAppState extends State<ExampleApp> {
     ]);
   }
 
+  Widget notification() {
+    return _tab([
+      Text('Play notification sound: \'messenger.mp3\':'),
+      _btn('Play', () => audioCache.play('messenger.mp3', isNotification: true)),
+    ]);
+  }
+
   Widget advanced() {
     return _tab([
       Column(children: [
@@ -141,13 +148,14 @@ class _ExampleAppState extends State<ExampleApp> {
               Tab(text: 'Remote Url'),
               Tab(text: 'Local File'),
               Tab(text: 'Local Asset'),
+              Tab(text: 'Notification'),
               Tab(text: 'Advanced'),
             ],
           ),
           title: Text('audioplayers Example'),
         ),
         body: TabBarView(
-          children: [remoteUrl(), localFile(), localAsset(), advanced()],
+          children: [remoteUrl(), localFile(), localAsset(), notification(), advanced()],
         ),
       ),
     );
