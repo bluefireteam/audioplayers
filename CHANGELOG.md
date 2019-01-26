@@ -1,5 +1,15 @@
 # Changelog
 
+## audioplayers 0.8.1
+
+- **Breaking change**. Migrate from the deprecated original Android Support
+  Library to AndroidX. This shouldn't result in any functional changes, but it
+  requires any Android apps using this plugin to [also
+  migrate](https://developer.android.com/jetpack/androidx/migrate) if they're
+  using the original support library.
+- Added respectSilence flag in audioplayers, or isNotification for play methos in audio_cache
+  False by default, to use player for local notification. Silent when device is in silent mode.
+
 ## audioplayers 0.8.0
 - Allow setting seek position in play function (thanks @rob-patchett)
 - Get duration from the underlaying asset instead of from AVPlayerItem (thanks @andressade)
