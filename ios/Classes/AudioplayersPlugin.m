@@ -55,21 +55,24 @@ FlutterMethodChannel *_channel_audioplayer;
                     NSLog(@"play!");
                     NSString *url = call.arguments[@"url"];
                     if (url == nil)
-                      result(0);
-                    if (call.arguments[@"isLocal"]==nil)
-                      result(0);
-                    if (call.arguments[@"volume"]==nil)
-                      result(0);
-                    if (call.arguments[@"position"]==nil)
-                      result(0);
+                        result(0);
+                    if (call.arguments[@"isLocal"] == nil)
+                        result(0);
+                    if (call.arguments[@"volume"] == nil)
+                        result(0);
+                    if (call.arguments[@"position"] == nil)
+                        result(0);
+                    if (call.arguments[@"respectSilence"] == nil)
+                        result(0);
                     int isLocal = [call.arguments[@"isLocal"]intValue] ;
                     float volume = (float)[call.arguments[@"volume"] doubleValue] ;
                     double seconds = [call.arguments[@"position"] doubleValue] ;
+                    bool respectSilence = [call.arguments[@"respectSilence"]boolValue] ;
                     CMTime time = CMTimeMakeWithSeconds(seconds,1);
-                    NSLog(@"isLocal: %d %@",isLocal, call.arguments[@"isLocal"] );
-                    NSLog(@"volume: %f %@",volume, call.arguments[@"volume"] );
+                    NSLog(@"isLocal: %d %@", isLocal, call.arguments[@"isLocal"] );
+                    NSLog(@"volume: %f %@", volume, call.arguments[@"volume"] );
                     NSLog(@"position: %f %@", seconds, call.arguments[@"positions"] );
-                    [self play:playerId url:url isLocal:isLocal volume:volume time:time];
+                    [self play:playerId url:url isLocal:isLocal volume:volume time:time isNotification:respectSilence];
                   },
                 @"pause":
                   ^{
@@ -223,11 +226,18 @@ FlutterMethodChannel *_channel_audioplayer;
      isLocal: (int) isLocal
       volume: (float) volume
         time: (CMTime) time
+      isNotification: (bool) respectSilence
 {
-  NSError *error = nil;
-  BOOL success = [[AVAudioSession sharedInstance]
-                  setCategory:AVAudioSessionCategoryPlayback
-                  error:&error];
+    NSError *error = nil;
+    AVAudioSessionCategory category;
+    if (respectSilence) {
+        category = AVAudioSessionCategoryAmbient;
+    } else {
+        category = AVAudioSessionCategoryPlayback;
+    }
+    BOOL success = [[AVAudioSession sharedInstance]
+                    setCategory: category
+                    error:&error];
   if (!success) {
     NSLog(@"Error setting speaker: %@", error);
   }

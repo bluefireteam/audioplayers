@@ -27,7 +27,12 @@ class AudioCache {
   /// If this is set, every call will overwrite previous calls.
   AudioPlayer fixedPlayer;
 
-  AudioCache({this.prefix = "", this.fixedPlayer = null});
+  /// This flag should be set to true, if player is used for playing internal notifications
+  ///
+  /// This flag will have influence of stream type. And will respect silent mode if set to true
+  bool respectSilence;
+
+  AudioCache({this.prefix = "", this.fixedPlayer = null, this.respectSilence = false});
 
   /// Clear the cache of the file [fileName].
   ///
@@ -55,8 +60,7 @@ class AudioCache {
   Future<File> fetchToMemory(String fileName) async {
     final file = new File('${(await getTemporaryDirectory()).path}/$fileName');
     await file.create(recursive: true);
-    return await file
-        .writeAsBytes((await _fetchAsset(fileName)).buffer.asUint8List());
+    return await file.writeAsBytes((await _fetchAsset(fileName)).buffer.asUint8List());
   }
 
   /// Load all the [fileNames] provided to the cache.
@@ -85,21 +89,31 @@ class AudioCache {
   /// If the file is already cached, it plays imediatelly. Otherwise, first waits for the file to load (might take a few milliseconds).
   /// It creates a new instance of [AudioPlayer], so it does not affect other audios playing (unless you specify a [fixedPlayer], in which case it always use the same).
   /// The instance is returned, to allow later access (either way), like pausing and resuming.
-  Future<AudioPlayer> play(String fileName, {double volume = 1.0}) async {
+  Future<AudioPlayer> play(String fileName, {double volume = 1.0, bool isNotification}) async {
     File file = await load(fileName);
     AudioPlayer player = _player();
-    await player.play(file.path, isLocal: true, volume: volume);
+    await player.play(
+      file.path,
+      isLocal: true,
+      volume: volume,
+      respectSilence: isNotification ?? respectSilence,
+    );
     return player;
   }
 
   /// Like [play], but loops the audio (starts over once finished).
   ///
   /// The instance of [AudioPlayer] created is returned, so you can use it to stop the playback as desired.
-  Future<AudioPlayer> loop(String fileName, {double volume = 1.0}) async {
+  Future<AudioPlayer> loop(String fileName, {double volume = 1.0, bool isNotification}) async {
     File file = await load(fileName);
     AudioPlayer player = _player();
     player.setReleaseMode(ReleaseMode.LOOP);
-    player.play(file.path, isLocal: true, volume: volume);
+    player.play(
+      file.path,
+      isLocal: true,
+      volume: volume,
+      respectSilence: isNotification ?? respectSilence,
+    );
     return player;
   }
 }
