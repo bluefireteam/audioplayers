@@ -84,7 +84,10 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                     valueColor: new AlwaysStoppedAnimation(Colors.grey[300]),
                   ),
                   new CircularProgressIndicator(
-                    value: _position != null && _position.inMilliseconds > 0
+                    value: (_position != null
+                        && _duration != null
+                        && _position.inMilliseconds > 0
+                        && _position.inMilliseconds < _duration.inMilliseconds)
                         ? _position.inMilliseconds / _duration.inMilliseconds
                         : 0.0,
                     valueColor: new AlwaysStoppedAnimation(Colors.cyan),
