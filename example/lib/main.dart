@@ -13,6 +13,7 @@ typedef void OnError(Exception exception);
 
 const kUrl1 = 'http://www.rxlabz.com/labz/audio.mp3';
 const kUrl2 = 'http://www.rxlabz.com/labz/audio2.mp3';
+const kUrl3 = 'http://bbcmedia.ic.llnwd.net/stream/bbcmedia_radio1xtra_mf_p';
 
 void main() {
   runApp(new MaterialApp(home: new ExampleApp()));
@@ -61,12 +62,25 @@ class _ExampleAppState extends State<ExampleApp> {
   }
 
   Widget remoteUrl() {
-    return _tab([
-      Text('Sample 1 ($kUrl1)'),
-      PlayerWidget(url: kUrl1),
-      Text('Sample 2 ($kUrl2)'),
-      PlayerWidget(url: kUrl2),
-    ]);
+    return SingleChildScrollView(
+      child: _tab([
+        Text(
+          'Sample 1 ($kUrl1)',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        PlayerWidget(url: kUrl1),
+        Text(
+          'Sample 2 ($kUrl2)',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        PlayerWidget(url: kUrl2),
+        Text(
+          'Sample 3 ($kUrl3)',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        PlayerWidget(url: kUrl3),
+      ]),
+    );
   }
 
   Widget localFile() {
@@ -98,6 +112,7 @@ class _ExampleAppState extends State<ExampleApp> {
         Row(children: [
           _btn('Audio 1', () => advancedPlayer.setUrl(kUrl1)),
           _btn('Audio 2', () => advancedPlayer.setUrl(kUrl2)),
+          _btn('Stream', () => advancedPlayer.setUrl(kUrl3)),
         ], mainAxisAlignment: MainAxisAlignment.spaceEvenly),
       ]),
       Column(children: [
