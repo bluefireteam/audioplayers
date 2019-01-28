@@ -53,7 +53,7 @@ public class AudioplayersPlugin implements MethodCallHandler {
             case "play": {
                 final String url = call.argument("url");
                 final double volume = call.argument("volume");
-                final double position = call.argument("position");
+                final Double position = call.argument("position");
                 final boolean respectSilence = call.argument("respectSilence");
                 player.configAttributes(respectSilence);
                 player.setVolume(volume);
