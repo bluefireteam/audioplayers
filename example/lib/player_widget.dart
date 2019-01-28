@@ -43,8 +43,9 @@ class _PlayerWidgetState extends State<PlayerWidget> {
 
   @override
   void dispose() {
-    super.dispose();
+    _audioPlayer.audioPlayerStateChangeHandler = null;
     _audioPlayer.stop();
+    super.dispose();
   }
 
   @override
@@ -84,7 +85,10 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                     valueColor: new AlwaysStoppedAnimation(Colors.grey[300]),
                   ),
                   new CircularProgressIndicator(
-                    value: _position != null && _position.inMilliseconds > 0
+                    value: (_position != null
+                        && _duration != null
+                        && _position.inMilliseconds > 0
+                        && _position.inMilliseconds < _duration.inMilliseconds)
                         ? _position.inMilliseconds / _duration.inMilliseconds
                         : 0.0,
                     valueColor: new AlwaysStoppedAnimation(Colors.cyan),
@@ -133,6 +137,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     };
 
     _audioPlayer.audioPlayerStateChangeHandler = (AudioPlayerState state) {
+      if (!mounted) return;
       setState(() {
         _audioPlayerState = state;
       });
@@ -145,7 +150,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
         && _position.inMilliseconds > 0
         && _position.inMilliseconds < _duration.inMilliseconds)
         ? _position
-        : Duration.zero;
+        : null;
     final result = await _audioPlayer.play(url, isLocal: isLocal, position: playPosition);
     if (result == 1) setState(() => _playerState = PlayerState.playing);
     return result;

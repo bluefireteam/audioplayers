@@ -46,7 +46,7 @@ FlutterMethodChannel *_channel_audioplayer;
   NSString * playerId = call.arguments[@"playerId"];
   NSLog(@"iOS => call %@, playerId %@", call.method, playerId);
 
-  typedef void (^CaseBlock)();
+  typedef void (^CaseBlock)(void);
 
   // Squint and this looks like a proper switch!
   NSDictionary *methods = @{
@@ -66,7 +66,7 @@ FlutterMethodChannel *_channel_audioplayer;
                         result(0);
                     int isLocal = [call.arguments[@"isLocal"]intValue] ;
                     float volume = (float)[call.arguments[@"volume"] doubleValue] ;
-                    double seconds = [call.arguments[@"position"] doubleValue] ;
+                    double seconds = call.arguments[@"position"] == [NSNull null] ? 0.0 : [call.arguments[@"position"] doubleValue] ;
                     bool respectSilence = [call.arguments[@"respectSilence"]boolValue] ;
                     CMTime time = CMTimeMakeWithSeconds(seconds,1);
                     NSLog(@"isLocal: %d %@", isLocal, call.arguments[@"isLocal"] );

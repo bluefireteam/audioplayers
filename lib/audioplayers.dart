@@ -106,11 +106,12 @@ class AudioPlayer {
     Duration position: Duration.zero,
     bool respectSilence: false,
   }) async {
+    final double positionInSeconds = position == null ? null : position.inSeconds.toDouble();
     int result = await _invokeMethod('play', {
       'url': url,
       'isLocal': isLocal,
       'volume': volume,
-      'position': position.inMicroseconds / Duration.microsecondsPerSecond,
+      'position': positionInSeconds,
       'respectSilence': respectSilence,
     });
 
