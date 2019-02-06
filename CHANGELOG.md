@@ -1,5 +1,8 @@
 # Changelog
 
+## audioplayers 0.8.1
+- Fix for duration when playing a stream
+
 ## audioplayers 0.8.0
 - Allow setting seek position in play function (thanks @rob-patchett)
 - Get duration from the underlaying asset instead of from AVPlayerItem (thanks @andressade)
