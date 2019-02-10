@@ -1,5 +1,8 @@
 # Changelog
 
+## audioplayers 0.8.2
+- Update path_provider version (thanks, @apiraino)
+
 ## audioplayers 0.8.1
 - Fix for duration when playing a stream
 
