@@ -53,12 +53,14 @@ public class AudioplayersPlugin implements MethodCallHandler {
             case "play": {
                 final String url = call.argument("url");
                 final double volume = call.argument("volume");
-                final double position = call.argument("position");
+                final Double position = call.argument("position");
                 final boolean respectSilence = call.argument("respectSilence");
                 player.configAttributes(respectSilence);
                 player.setVolume(volume);
                 player.setUrl(url);
-                player.seek(position);
+                if (position != null) {
+                    player.seek(position);
+                }
                 player.play();
                 break;
             }
@@ -79,7 +81,7 @@ public class AudioplayersPlugin implements MethodCallHandler {
                 break;
             }
             case "seek": {
-                final double position = call.argument("position");
+                final Double position = call.argument("position");
                 player.seek(position);
                 break;
             }
