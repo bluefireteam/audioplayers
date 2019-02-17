@@ -62,12 +62,12 @@ class AudioPlayer {
 
   StreamSink get durationSink => _durationController.sink;
 
-  final StreamController<Duration> _completionController =
+  final StreamController<void> _completionController =
       new StreamController.broadcast();
 
   StreamSink get completionSink => _completionController.sink;
 
-  final StreamController<Duration> _errorController =
+  final StreamController<String> _errorController =
       new StreamController.broadcast();
 
   StreamSink get errorSink => _errorController.sink;
@@ -122,7 +122,7 @@ class AudioPlayer {
   VoidCallback completionHandler;
 
   /// This is called when an unexpected error is thrown in the native code.
-  Stream<void> get onPlayerError => _errorController.stream;
+  Stream<String> get onPlayerError => _errorController.stream;
   @deprecated
   ErrorHandler errorHandler;
 
