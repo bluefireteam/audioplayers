@@ -50,27 +50,21 @@ class AudioPlayer {
   final StreamController<AudioPlayerState> _playerStateController =
       new StreamController.broadcast();
 
-  StreamSink get playerStateSink => _playerStateController.sink;
 
   final StreamController<Duration> _positionController =
       new StreamController.broadcast();
 
-  StreamSink get positionSink => _positionController.sink;
 
   final StreamController<Duration> _durationController =
       new StreamController.broadcast();
 
-  StreamSink get durationSink => _durationController.sink;
 
   final StreamController<void> _completionController =
       new StreamController.broadcast();
 
-  StreamSink get completionSink => _completionController.sink;
 
   final StreamController<String> _errorController =
       new StreamController.broadcast();
-
-  StreamSink get errorSink => _errorController.sink;
 
   /// This is a reference map with all the players created by the application.
   ///
@@ -107,8 +101,8 @@ class AudioPlayer {
   @deprecated
   TimeChangeHandler durationHandler;
 
-  /// This handler updates the current position of the audio. You can use it to make a progress bar, for instance.
   @deprecated
+  /// This handler updates the current position of the audio. You can use it to make a progress bar, for instance.
   TimeChangeHandler positionHandler;
 
   @deprecated
@@ -246,28 +240,28 @@ class AudioPlayer {
     switch (call.method) {
       case 'audio.onDuration':
         Duration newDuration = new Duration(milliseconds: value);
-        player.positionSink.add(newDuration);
+        player._positionController.add(newDuration);
         if (player.durationHandler != null) {
           player.durationHandler(newDuration);
         }
         break;
       case 'audio.onCurrentPosition':
         Duration newDuration = new Duration(milliseconds: value);
-        player.positionSink.add(newDuration);
+        player._positionController.add(newDuration);
         if (player.positionHandler != null) {
           player.positionHandler(newDuration);
         }
         break;
       case 'audio.onComplete':
         player.state = AudioPlayerState.COMPLETED;
-        player.completionSink.add(null);
+        player._completionController.add(null);
         if (player.completionHandler != null) {
           player.completionHandler();
         }
         break;
       case 'audio.onError':
         player.state = AudioPlayerState.STOPPED;
-        player.errorSink.add(value);
+        player._errorController.add(value);
         if (player.errorHandler != null) {
           player.errorHandler(value);
         }
