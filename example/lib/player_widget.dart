@@ -27,6 +27,11 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   Duration _position;
 
   PlayerState _playerState = PlayerState.stopped;
+  StreamSubscription _durationSubscription;
+  StreamSubscription _positionSubscription;
+  StreamSubscription _playerCompleteSubscription;
+  StreamSubscription _playerErrorSubscription;
+  StreamSubscription _playerStateSubscription;
 
   get _isPlaying => _playerState == PlayerState.playing;
   get _isPaused => _playerState == PlayerState.paused;
@@ -43,8 +48,12 @@ class _PlayerWidgetState extends State<PlayerWidget> {
 
   @override
   void dispose() {
-    _audioPlayer.audioPlayerStateChangeHandler = null;
     _audioPlayer.stop();
+    _durationSubscription?.cancel();
+    _positionSubscription?.cancel();
+    _playerCompleteSubscription?.cancel();
+    _playerErrorSubscription?.cancel();
+    _playerStateSubscription?.cancel();
     super.dispose();
   }
 
@@ -112,38 +121,37 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   void _initAudioPlayer() {
     _audioPlayer = new AudioPlayer();
 
-    _audioPlayer.durationHandler = (d) => setState(() {
-          _duration = d;
-        });
+    _durationSubscription = _audioPlayer.onDurationChanged.listen((duration) => setState(() {
+          _duration = duration;
+        }));
 
-    _audioPlayer.positionHandler = (p) => setState(() {
+    _positionSubscription = _audioPlayer.onAudioPositionChanged.listen((p) => setState(() {
           _position = p;
-        });
+        }));
 
-    _audioPlayer.completionHandler = () {
+    _playerCompleteSubscription = _audioPlayer.onPlayerCompletion.listen((event) {
       _onComplete();
       setState(() {
         _position = _duration;
       });
-    };
+    });
 
-    _audioPlayer.errorHandler = (msg) {
+    _playerErrorSubscription = _audioPlayer.onPlayerError.listen((msg){
       print('audioPlayer error : $msg');
       setState(() {
         _playerState = PlayerState.stopped;
         _duration = new Duration(seconds: 0);
         _position = new Duration(seconds: 0);
       });
-    };
+    });
 
-    _audioPlayer.audioPlayerStateChangeHandler = (AudioPlayerState state) {
+    _audioPlayer.onPlayerStateChanged.listen((state) {
       if (!mounted) return;
       setState(() {
         _audioPlayerState = state;
       });
-    };
-  }
-
+    });
+}
   Future<int> _play() async {
     final playPosition = (_position != null
         && _duration != null

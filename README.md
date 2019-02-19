@@ -129,60 +129,60 @@ If you are not on RELEASE mode, you should call the release method yourself; for
 
 Despite the complex state diagram of Android's MediaPlayer, an AudioPlayer instance should never have an invalid state. Even if it's released, if resume is called, the data will be fetch again.
 
-### Handlers
+### Streams
 
-You can register callbacks for several event handlers, like so:
+The AudioPlayer supports subscribing to events like so:
 
-#### Duration Handler
+#### Duration Event
 
-This handler returns the duration of the file, when it's available (it might take a while because it's being downloaded or buffered).
+This event returns the duration of the file, when it's available (it might take a while because it's being downloaded or buffered).
 
 ```dart
-  player.durationHandler = (Duration d) {
+  player.onDurationChanged.listen((Duration d) {
     print('Max duration: $d');
     setState(() => duration = d);
-  };
+  });
 ```
 
-#### Position Handler
+#### Position Event
 
-This handler updates the current position of the audio. You can use it to make a progress bar, for instance.
+This Event updates the current position of the audio. You can use it to make a progress bar, for instance.
 
 ```dart
-  player.positionHandler = (Duration  p) => {
+  player.onPositionChanged.listen((Duration  p) => {
     print('Current position: $d');
     setState(() => duration = d);
-  };
+  });
 ```
 
-#### Completion Handler
+#### Completion Event
 
-This handler is called when the audio finishes playing; it's used in the loop method, for instance.
+This Event is called when the audio finishes playing; it's used in the loop method, for instance.
 
 It does not fire when you interrupt the audio with pause or stop.
 
 ```dart
-  player.completionHandler = () {
+  player.onPlayerCompletion.listen((event) {
     onComplete();
     setState(() {
       position = duration;
     });
-  };
+  });
 ```
 
-#### Error Handler
+#### Error Event
 
 This is called when an unexpected error is thrown in the native code.
 
 ```dart
-  player.errorHandler = (msg) {
+  player.onPlayerError.listen((msg) {
     print('audioPlayer error : $msg');
     setState(() {
       playerState = PlayerState.stopped;
       duration = new Duration(seconds: 0);
       position = new Duration(seconds: 0);
     });
-  };
+  });
 ```
 
 ### AudioCache

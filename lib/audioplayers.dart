@@ -47,6 +47,25 @@ class AudioPlayer {
 
   static final _uuid = new Uuid();
 
+  final StreamController<AudioPlayerState> _playerStateController =
+      new StreamController.broadcast();
+
+
+  final StreamController<Duration> _positionController =
+      new StreamController.broadcast();
+
+
+  final StreamController<Duration> _durationController =
+      new StreamController.broadcast();
+
+
+  final StreamController<void> _completionController =
+      new StreamController.broadcast();
+
+
+  final StreamController<String> _errorController =
+      new StreamController.broadcast();
+
   /// This is a reference map with all the players created by the application.
   ///
   /// This is used to route messages to and from the channel (there is only one channel).
@@ -60,26 +79,45 @@ class AudioPlayer {
   AudioPlayerState get state => _audioPlayerState;
 
   void set state(AudioPlayerState state) {
+    _playerStateController.add(state);
     if (audioPlayerStateChangeHandler != null) {
       audioPlayerStateChangeHandler(state);
     }
     _audioPlayerState = state;
   }
 
+  /// Stream for subscribing to player state change events.
+  Stream<AudioPlayerState> get onPlayerStateChanged =>
+      _playerStateController.stream;
+
+  /// Stream for subscribing to audio position change events. Roughly fires
+  /// every 200 milliseconds. Will continously update the position of the
+  /// playback if the status is [AudioPlayerState.PLAYING].
+  Stream<Duration> get onAudioPositionChanged => _positionController.stream;
+
   /// This handler returns the duration of the file, when it's available (it might take a while because it's being downloaded or buffered).
+  Stream<Duration> get onDurationChanged => _durationController.stream;
+
+  @deprecated
   TimeChangeHandler durationHandler;
 
+  @deprecated
   /// This handler updates the current position of the audio. You can use it to make a progress bar, for instance.
   TimeChangeHandler positionHandler;
 
+  @deprecated
   AudioPlayerStateChangeHandler audioPlayerStateChangeHandler;
 
   /// This handler is called when the audio finishes playing; it's used in the loop method, for instance.
   ///
   /// It does not fire when you interrupt the audio with pause or stop.
+  Stream<void> get onPlayerCompletion => _completionController.stream;
+  @deprecated
   VoidCallback completionHandler;
 
   /// This is called when an unexpected error is thrown in the native code.
+  Stream<String> get onPlayerError => _errorController.stream;
+  @deprecated
   ErrorHandler errorHandler;
 
   /// This is a unique ID generated for this instance of audioplayer.
@@ -105,9 +143,14 @@ class AudioPlayer {
   /// Play audio. Url can be a remote url (isLocal = false) or a local file system path (isLocal = true).
   Future<int> play(String url,
       {bool isLocal: false, double volume: 1.0, Duration position}) async {
-    final double positionInSeconds = position == null ? null : position.inSeconds.toDouble();
-    int result = await _invokeMethod(
-        'play', {'url': url, 'isLocal': isLocal, 'volume': volume, 'position': positionInSeconds});
+    final double positionInSeconds =
+        position == null ? null : position.inSeconds.toDouble();
+    int result = await _invokeMethod('play', {
+      'url': url,
+      'isLocal': isLocal,
+      'volume': volume,
+      'position': positionInSeconds
+    });
 
     if (result == 1) {
       state = AudioPlayerState.PLAYING;
@@ -196,23 +239,29 @@ class AudioPlayer {
     dynamic value = (call.arguments as Map)['value'];
     switch (call.method) {
       case 'audio.onDuration':
+        Duration newDuration = new Duration(milliseconds: value);
+        player._positionController.add(newDuration);
         if (player.durationHandler != null) {
-          player.durationHandler(new Duration(milliseconds: value));
+          player.durationHandler(newDuration);
         }
         break;
       case 'audio.onCurrentPosition':
+        Duration newDuration = new Duration(milliseconds: value);
+        player._positionController.add(newDuration);
         if (player.positionHandler != null) {
-          player.positionHandler(new Duration(milliseconds: value));
+          player.positionHandler(newDuration);
         }
         break;
       case 'audio.onComplete':
         player.state = AudioPlayerState.COMPLETED;
+        player._completionController.add(null);
         if (player.completionHandler != null) {
           player.completionHandler();
         }
         break;
       case 'audio.onError':
         player.state = AudioPlayerState.STOPPED;
+        player._errorController.add(value);
         if (player.errorHandler != null) {
           player.errorHandler(value);
         }
