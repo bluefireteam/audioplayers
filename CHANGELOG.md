@@ -1,5 +1,8 @@
 # Changelog
 
+## audioplayers bleeding_edge
+- Improved callbacks using Streams to allow for multiple subscibers (thanks, @LucasCLuk)
+
 ## audioplayers 0.8.2
 - Update path_provider version (thanks, @apiraino)
 
