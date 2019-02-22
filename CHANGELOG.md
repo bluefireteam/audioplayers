@@ -1,7 +1,8 @@
 # Changelog
 
-## audioplayers bleeding_edge
+## audioplayers 0.9.0
 - Improved callbacks using Streams to allow for multiple subscibers (thanks, @LucasCLuk)
+- Update uuid version to 2.0.0 (thanks, @BeMacized)
 
 ## audioplayers 0.8.2
 - Update path_provider version (thanks, @apiraino)
