@@ -41,9 +41,8 @@ enum AudioPlayerState {
 ///
 /// It features methods to play, loop, pause, stop, seek the audio, and some useful hooks for handlers and callbacks.
 class AudioPlayer {
-  static final MethodChannel _channel =
-      const MethodChannel('xyz.luan/audioplayers')
-        ..setMethodCallHandler(platformCallHandler);
+  static final MethodChannel _channel = const MethodChannel('xyz.luan/audioplayers')
+    ..setMethodCallHandler(platformCallHandler);
 
   static final _uuid = new Uuid();
 
@@ -131,25 +130,27 @@ class AudioPlayer {
     players[playerId] = this;
   }
 
-  Future<int> _invokeMethod(String method,
-      [Map<String, dynamic> arguments = const {}]) {
+  Future<int> _invokeMethod(String method, [Map<String, dynamic> arguments = const {}]) {
     Map<String, dynamic> withPlayerId = Map.of(arguments);
     withPlayerId['playerId'] = playerId;
-    return _channel
-        .invokeMethod(method, withPlayerId)
-        .then((result) => (result as int));
+    return _channel.invokeMethod(method, withPlayerId).then((result) => (result as int));
   }
 
   /// Play audio. Url can be a remote url (isLocal = false) or a local file system path (isLocal = true).
-  Future<int> play(String url,
-      {bool isLocal: false, double volume: 1.0, Duration position}) async {
-    final double positionInSeconds =
-        position == null ? null : position.inSeconds.toDouble();
+  Future<int> play(
+    String url, {
+    bool isLocal: false,
+    double volume: 1.0,
+    Duration position: Duration.zero,
+    bool respectSilence: false,
+  }) async {
+    final double positionInSeconds = position == null ? null : position.inSeconds.toDouble();
     int result = await _invokeMethod('play', {
       'url': url,
       'isLocal': isLocal,
       'volume': volume,
-      'position': positionInSeconds
+      'position': positionInSeconds,
+      'respectSilence': respectSilence,
     });
 
     if (result == 1) {
@@ -199,8 +200,7 @@ class AudioPlayer {
 
   /// Move the cursor to the desired position.
   Future<int> seek(Duration position) {
-    double positionInSeconds =
-        position.inMicroseconds / Duration.microsecondsPerSecond;
+    double positionInSeconds = position.inMicroseconds / Duration.microsecondsPerSecond;
     return _invokeMethod('seek', {'position': positionInSeconds});
   }
 
@@ -215,8 +215,7 @@ class AudioPlayer {
   /// RELEASE mode is the default, it releases all resources on Android (like calling release method). On iOS there is no such concept.
   /// LOOP will start playing again forever, without releasing.
   Future<int> setReleaseMode(ReleaseMode releaseMode) {
-    return _invokeMethod(
-        'setReleaseMode', {'releaseMode': releaseMode.toString()});
+    return _invokeMethod('setReleaseMode', {'releaseMode': releaseMode.toString()});
   }
 
   /// Changes the url (source), without resuming playback (like play would do).
