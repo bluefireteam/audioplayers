@@ -118,7 +118,6 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
 
     @Override
     void configAttributes(boolean respectSilence) {
-
     }
 
     @Override
@@ -131,12 +130,12 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
 
     @Override
     int getDuration() {
-        return 0;
+        throw unsupportedOperation("getDuration");
     }
 
     @Override
     int getCurrentPosition() {
-        return 0;
+        throw unsupportedOperation("getCurrentPosition");
     }
 
     @Override
@@ -146,7 +145,7 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
 
     @Override
     void seek(double position) {
-
+        throw unsupportedOperation("seek");
     }
 
     private static SoundPool createSoundPool() {
@@ -156,6 +155,11 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
                     .build();
             return new SoundPool.Builder().setAudioAttributes(attrs).build();
         }
+        return unsafeBuildLegacySoundPool();
+    }
+
+    @SuppressWarnings("deprecation")
+    private static SoundPool unsafeBuildLegacySoundPool() {
         return new SoundPool(1, AudioManager.STREAM_MUSIC, 1);
     }
 
@@ -174,6 +178,16 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
         }
     }
 
+    @Override
+    public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
+        if (soundId == sampleId) {
+            this.loading = false;
+            if (this.playing) {
+                start();
+            }
+        }
+    }
+
     private String getAudioPath(String url) {
         if (url.startsWith("/")) {
             return url;
@@ -182,10 +196,6 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
     }
 
     private File loadTempFileFromNetwork(String url) {
-        StrictMode.ThreadPolicy policy =
-                new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
-
         FileOutputStream fileOutputStream = null;
         try {
             byte[] bytes = downloadUrl(URI.create(url).toURL());
@@ -233,14 +243,8 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
         return outputStream.toByteArray();
     }
 
-
-    @Override
-    public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
-        if (soundId == sampleId) {
-            this.loading = false;
-            if (this.playing) {
-                start();
-            }
-        }
+    private UnsupportedOperationException unsupportedOperation(String message) {
+        return new UnsupportedOperationException("LOW_LATENCY mode does not support: " + message);
     }
+
 }
