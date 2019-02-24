@@ -29,13 +29,17 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
 
     private String url;
 
-    private double volume;
+    private float volume = 1.0f;
 
     private Integer soundId;
 
     private Integer streamId;
 
     private boolean playing = false;
+
+    private boolean paused = false;
+
+    private boolean looping = false;
 
     private boolean loading = false;
 
@@ -62,17 +66,26 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
 
     @Override
     void stop() {
-
+        if (this.playing) {
+            soundPool.stop(this.streamId);
+            this.playing = false;
+        }
+        this.paused = false;
     }
 
     @Override
     void release() {
-
+        this.stop();
+        soundPool.unload(this.soundId);
     }
 
     @Override
     void pause() {
-
+        if (this.playing) {
+            soundPool.pause(this.streamId);
+            this.playing = false;
+            this.paused = true;
+        }
     }
 
     @Override
@@ -100,7 +113,10 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
 
     @Override
     void setVolume(double volume) {
-        this.volume = volume;
+        this.volume = (float) volume;
+        if (this.playing) {
+            soundPool.setVolume(this.streamId, this.volume, this.volume);
+        }
     }
 
     @Override
@@ -110,7 +126,10 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
 
     @Override
     void setReleaseMode(ReleaseMode releaseMode) {
-
+        this.looping = releaseMode == ReleaseMode.LOOP;
+        if (this.playing) {
+            soundPool.setLoop(streamId, this.looping ? -1 : 0);
+        }
     }
 
     @Override
@@ -144,13 +163,18 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
     }
 
     private void start() {
-        this.streamId = soundPool.play(soundId,
-                (float) this.volume,
-                (float) this.volume,
-                0,
-                0,
-                1.0f);
-
+        if (this.paused) {
+            soundPool.resume(this.streamId);
+            this.paused = false;
+        } else {
+            this.streamId = soundPool.play(
+                    soundId,
+                    this.volume,
+                    this.volume,
+                    0,
+                    this.looping ? -1 : 0,
+                    1.0f);
+        }
     }
 
     private String getAudioPath(String url) {
@@ -215,9 +239,11 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
 
     @Override
     public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
-        if (this.playing && soundId == sampleId) {
+        if (soundId == sampleId) {
             this.loading = false;
-            start();
+            if (this.playing) {
+                start();
+            }
         }
     }
 }
