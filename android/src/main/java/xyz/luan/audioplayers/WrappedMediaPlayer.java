@@ -35,7 +35,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
      */
 
     @Override
-    void setUrl(String url) {
+    void setUrl(String url, boolean isLocal) {
         if (!objectEquals(this.url, url)) {
             this.url = url;
             if (this.released) {

@@ -1,7 +1,6 @@
 package xyz.luan.audioplayers;
 
 import android.os.Handler;
-import android.os.StrictMode;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
@@ -53,10 +52,10 @@ public class AudioplayersPlugin implements MethodCallHandler {
                 final double volume = call.argument("volume");
                 final Double position = call.argument("position");
                 final boolean respectSilence = call.argument("respectSilence");
-                final boolean isLocal = call.argument("respectSilence");
+                final boolean isLocal = call.argument("isLocal");
                 player.configAttributes(respectSilence);
                 player.setVolume(volume);
-                player.setUrl(url);
+                player.setUrl(url, isLocal);
                 if (position != null) {
                     player.seek(position);
                 }
@@ -91,7 +90,8 @@ public class AudioplayersPlugin implements MethodCallHandler {
             }
             case "setUrl": {
                 final String url = call.argument("url");
-                player.setUrl(url);
+                final boolean isLocal = call.argument("isLocal");
+                player.setUrl(url, isLocal);
                 break;
             }
             case "setReleaseMode": {

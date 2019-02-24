@@ -9,18 +9,21 @@ enum PlayerState { stopped, playing, paused }
 class PlayerWidget extends StatefulWidget {
   final String url;
   final bool isLocal;
+  final PlayerMode mode;
 
-  PlayerWidget({@required this.url, this.isLocal = false});
+  PlayerWidget({@required this.url, this.isLocal = false, this.mode = PlayerMode.MEDIA_PLAYER});
 
   @override
   State<StatefulWidget> createState() {
-    return new _PlayerWidgetState(url, isLocal);
+    return new _PlayerWidgetState(url, isLocal, mode);
   }
 }
 
 class _PlayerWidgetState extends State<PlayerWidget> {
   String url;
   bool isLocal;
+  PlayerMode mode;
+
   AudioPlayer _audioPlayer;
   AudioPlayerState _audioPlayerState;
   Duration _duration;
@@ -38,7 +41,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   get _durationText => _duration?.toString()?.split('.')?.first ?? '';
   get _positionText => _position?.toString()?.split('.')?.first ?? '';
 
-  _PlayerWidgetState(this.url, this.isLocal);
+  _PlayerWidgetState(this.url, this.isLocal, this.mode);
 
   @override
   void initState() {
@@ -119,7 +122,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   }
 
   void _initAudioPlayer() {
-    _audioPlayer = new AudioPlayer();
+    _audioPlayer = new AudioPlayer(mode: mode);
 
     _durationSubscription = _audioPlayer.onDurationChanged.listen((duration) => setState(() {
           _duration = duration;

@@ -79,6 +79,11 @@ class _ExampleAppState extends State<ExampleApp> {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         PlayerWidget(url: kUrl3),
+        Text(
+          'Sample 4 (Low Latency mode) ($kUrl1)',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        PlayerWidget(url: kUrl1, mode: PlayerMode.LOW_LATENCY),
       ]),
     );
   }

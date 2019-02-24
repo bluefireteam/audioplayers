@@ -4,7 +4,6 @@ import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Build;
-import android.os.StrictMode;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -86,7 +85,7 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
     }
 
     @Override
-    void setUrl(final String url) {
+    void setUrl(final String url, final boolean isLocal) {
         if (this.url != null && this.url.equals(url)) {
             return;
         }
@@ -103,7 +102,7 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
         new Thread(new Runnable() {
             @Override
             public void run() {
-                self.soundId = soundPool.load(getAudioPath(url), 1);
+                self.soundId = soundPool.load(getAudioPath(url, isLocal), 1);
             }
         }).start();
     }
@@ -188,8 +187,8 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
         }
     }
 
-    private String getAudioPath(String url) {
-        if (url.startsWith("/")) {
+    private String getAudioPath(String url, boolean isLocal) {
+        if (isLocal) {
             return url;
         }
         return loadTempFileFromNetwork(url).getAbsolutePath();

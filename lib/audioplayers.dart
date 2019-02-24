@@ -43,7 +43,8 @@ enum PlayerMode {
   // Use this mode for long media files or streams.  
   MEDIA_PLAYER,
   // Use this mode for shorter audio files to reduce impacts on visuals or UI performance.
-  // Note that not all features will available in this mode.
+  // In this mode the backend won't fire any duration or position updates.
+  // Also, it is not possible to use the seek method to set the audio a specific position.
   LOW_LATENCY
 }
 
@@ -100,7 +101,7 @@ class AudioPlayer {
       _playerStateController.stream;
 
   /// Stream for subscribing to audio position change events. Roughly fires
-  /// every 200 milliseconds. Will continously update the position of the
+  /// every 200 milliseconds. Will continuously update the position of the
   /// playback if the status is [AudioPlayerState.PLAYING].
   Stream<Duration> get onAudioPositionChanged => _positionController.stream;
 

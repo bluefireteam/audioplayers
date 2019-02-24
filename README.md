@@ -30,7 +30,10 @@ To use the low latency API, better for gaming sounds, use:
 ```dart
     AudioPlayer audioPlayer = new AudioPlayer(mode: PlayerMode.LOW_LATENCY);
 ```
-Note that some features won't work in this mode.
+
+In this mode the backend won't fire any duration or position updates.
+Also, it is not possible to use the seek method to set the audio a specific position.
+
 
 You can create multiple instances to play audio simultaneously.
 
