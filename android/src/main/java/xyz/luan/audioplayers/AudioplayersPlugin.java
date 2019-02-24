@@ -1,6 +1,7 @@
 package xyz.luan.audioplayers;
 
 import android.os.Handler;
+import android.os.StrictMode;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
