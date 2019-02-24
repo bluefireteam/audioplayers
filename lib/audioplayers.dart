@@ -239,7 +239,7 @@ class AudioPlayer {
     switch (call.method) {
       case 'audio.onDuration':
         Duration newDuration = new Duration(milliseconds: value);
-        player._positionController.add(newDuration);
+        player._durationController.add(newDuration);
         if (player.durationHandler != null) {
           player.durationHandler(newDuration);
         }
