@@ -7,7 +7,7 @@ import android.os.Build;
 
 import java.io.IOException;
 
-public class WrappedMediaPlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
+public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
 
     private String playerId;
 
@@ -34,6 +34,7 @@ public class WrappedMediaPlayer implements MediaPlayer.OnPreparedListener, Media
      * Setter methods
      */
 
+    @Override
     void setUrl(String url) {
         if (!objectEquals(this.url, url)) {
             this.url = url;
@@ -52,6 +53,7 @@ public class WrappedMediaPlayer implements MediaPlayer.OnPreparedListener, Media
         }
     }
 
+    @Override
     void setVolume(double volume) {
         if (this.volume != volume) {
             this.volume = volume;
@@ -61,6 +63,7 @@ public class WrappedMediaPlayer implements MediaPlayer.OnPreparedListener, Media
         }
     }
 
+    @Override
     void configAttributes(boolean respectSilence) {
         if (this.respectSilence != respectSilence) {
             this.respectSilence = respectSilence;
@@ -70,6 +73,7 @@ public class WrappedMediaPlayer implements MediaPlayer.OnPreparedListener, Media
         }
     }
 
+    @Override
     void setReleaseMode(ReleaseMode releaseMode) {
         if (this.releaseMode != releaseMode) {
             this.releaseMode = releaseMode;
@@ -83,34 +87,22 @@ public class WrappedMediaPlayer implements MediaPlayer.OnPreparedListener, Media
      * Getter methods
      */
 
-    String getUrl() {
-        return this.url;
-    }
-
+    @Override
     int getDuration() {
         return this.player.getDuration();
     }
 
+    @Override
     int getCurrentPosition() {
         return this.player.getCurrentPosition();
     }
 
+    @Override
     String getPlayerId() {
         return this.playerId;
     }
 
-    ReleaseMode getReleaseMode() {
-        return this.releaseMode;
-    }
-
-    double getVolume() {
-        return this.volume;
-    }
-
-    boolean isPlaying() {
-        return this.playing;
-    }
-
+    @Override
     boolean isActuallyPlaying() {
         return this.playing && this.prepared;
     }
@@ -119,6 +111,7 @@ public class WrappedMediaPlayer implements MediaPlayer.OnPreparedListener, Media
      * Playback handling methods
      */
 
+    @Override
     void play() {
         if (!this.playing) {
             this.playing = true;
@@ -134,6 +127,7 @@ public class WrappedMediaPlayer implements MediaPlayer.OnPreparedListener, Media
         }
     }
 
+    @Override
     void stop() {
         if (this.released) {
             return;
@@ -150,6 +144,7 @@ public class WrappedMediaPlayer implements MediaPlayer.OnPreparedListener, Media
         }
     }
 
+    @Override
     void release() {
         if (this.released) {
             return;
@@ -167,6 +162,7 @@ public class WrappedMediaPlayer implements MediaPlayer.OnPreparedListener, Media
         this.playing = false;
     }
 
+    @Override
     void pause() {
         if (this.playing) {
             this.playing = false;
@@ -176,6 +172,7 @@ public class WrappedMediaPlayer implements MediaPlayer.OnPreparedListener, Media
 
     // seek operations cannot be called until after
     // the player is ready.
+    @Override
     void seek(double position) {
         if (this.prepared)
             this.player.seekTo((int) (position * 1000));
@@ -244,7 +241,4 @@ public class WrappedMediaPlayer implements MediaPlayer.OnPreparedListener, Media
         }
     }
 
-    private static boolean objectEquals(Object o1, Object o2) {
-        return o1 == null && o2 == null || o1 != null && o1.equals(o2);
-    }
 }

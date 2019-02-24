@@ -37,6 +37,16 @@ enum AudioPlayerState {
   COMPLETED,
 }
 
+// This enum contains the options for the player mode.
+// Right now, both modes have the same implementation backend on iOS.
+enum PlayerMode {
+  // Use this mode for long media files or streams.  
+  MEDIA_PLAYER,
+  // Use this mode for shorter audio files to reduce impacts on visuals or UI performance.
+  // Note that not all features will available in this mode.
+  LOW_LATENCY
+}
+
 /// This represents a single AudioPlayer, that can play one audio at a time (per instance).
 ///
 /// It features methods to play, loop, pause, stop, seek the audio, and some useful hooks for handlers and callbacks.
@@ -124,6 +134,9 @@ class AudioPlayer {
   /// It's used to route messages via the single channel properly.
   String playerId;
 
+  // This is the player mode.
+  PlayerMode mode;
+
   /// Creates a new instance and assigns it with a new random unique id.
   AudioPlayer() {
     playerId = _uuid.v4();
@@ -133,6 +146,7 @@ class AudioPlayer {
   Future<int> _invokeMethod(String method, [Map<String, dynamic> arguments = const {}]) {
     Map<String, dynamic> withPlayerId = Map.of(arguments);
     withPlayerId['playerId'] = playerId;
+    withPlayerId['mode'] = mode.toString();
     return _channel.invokeMethod(method, withPlayerId).then((result) => (result as int));
   }
 
