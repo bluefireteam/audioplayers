@@ -13,13 +13,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
-import java.util.logging.Logger;
 
 import static java.io.File.createTempFile;
 
 public class WrappedSoundPool extends Player implements SoundPool.OnLoadCompleteListener {
-
-    private static final Logger LOGGER = Logger.getLogger(WrappedSoundPool.class.getCanonicalName());
 
     private static SoundPool soundPool = createSoundPool();
 

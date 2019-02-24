@@ -138,7 +138,7 @@ class AudioPlayer {
   PlayerMode mode;
 
   /// Creates a new instance and assigns it with a new random unique id.
-  AudioPlayer(this.mode: PlayerMode.LOW_LATENCY) {
+  AudioPlayer({this.mode: PlayerMode.MEDIA_PLAYER}) {
     playerId = _uuid.v4();
     players[playerId] = this;
   }

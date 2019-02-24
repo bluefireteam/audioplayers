@@ -108,12 +108,12 @@ public class AudioplayersPlugin implements MethodCallHandler {
     }
 
     private Player getPlayer(String playerId, String mode) {
+        LOGGER.finer("player mode = " + mode);
         if (!mediaPlayers.containsKey(playerId)) {
-//            Player player =
-//                    mode.equalsIgnoreCase("MEDIA_PLAYER") ?
-//                            new WrappedMediaPlayer(this, playerId) :
-//                            new WrappedSoundPool(this, playerId);
-            Player player = new WrappedSoundPool(this, playerId);
+            Player player =
+                    mode.equalsIgnoreCase("MEDIA_PLAYER") ?
+                            new WrappedMediaPlayer(this, playerId) :
+                            new WrappedSoundPool(this, playerId);
             mediaPlayers.put(playerId, player);
         }
         return mediaPlayers.get(playerId);

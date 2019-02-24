@@ -102,6 +102,9 @@ class _ExampleAppState extends State<ExampleApp> {
       _btn('Loop', () => audioCache.loop('audio.mp3')),
       Text('Play Local Asset \'audio2.mp3\':'),
       _btn('Play', () => audioCache.play('audio2.mp3')),
+      Text('Play Local Asset In Low Latency \'audio.mp3\':'),
+      _btn('Play', () => audioCache.play('audio.mp3', mode: PlayerMode.LOW_LATENCY)),
+
     ]);
   }
 
