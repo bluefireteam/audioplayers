@@ -46,6 +46,7 @@ public class AudioplayersPlugin implements MethodCallHandler {
         final String playerId = call.argument("playerId");
         final String mode = call.argument("mode");
         final Player player = getPlayer(playerId, mode);
+        LOGGER.info("playerId="+playerId + ", mode=" + mode);
         switch (call.method) {
             case "play": {
                 final String url = call.argument("url");
@@ -56,7 +57,7 @@ public class AudioplayersPlugin implements MethodCallHandler {
                 player.configAttributes(respectSilence);
                 player.setVolume(volume);
                 player.setUrl(url, isLocal);
-                if (position != null) {
+                if (position != null && !mode.equals("PlayerMode.LOW_LATENCY")) {
                     player.seek(position);
                 }
                 player.play();
@@ -109,10 +110,9 @@ public class AudioplayersPlugin implements MethodCallHandler {
     }
 
     private Player getPlayer(String playerId, String mode) {
-        LOGGER.finer("player mode = " + mode);
         if (!mediaPlayers.containsKey(playerId)) {
             Player player =
-                    mode.equalsIgnoreCase("MEDIA_PLAYER") ?
+                    mode.equalsIgnoreCase("PlayerMode.MEDIA_PLAYER") ?
                             new WrappedMediaPlayer(this, playerId) :
                             new WrappedSoundPool(this, playerId);
             mediaPlayers.put(playerId, player);
@@ -184,12 +184,16 @@ public class AudioplayersPlugin implements MethodCallHandler {
                 if (!player.isActuallyPlaying()) {
                     continue;
                 }
-                nonePlaying = false;
-                final String key = player.getPlayerId();
-                final int duration = player.getDuration();
-                final int time = player.getCurrentPosition();
-                channel.invokeMethod("audio.onDuration", buildArguments(key, duration));
-                channel.invokeMethod("audio.onCurrentPosition", buildArguments(key, time));
+                try {
+                    nonePlaying = false;
+                    final String key = player.getPlayerId();
+                    final int duration = player.getDuration();
+                    final int time = player.getCurrentPosition();
+                    channel.invokeMethod("audio.onDuration", buildArguments(key, duration));
+                    channel.invokeMethod("audio.onCurrentPosition", buildArguments(key, time));
+                } catch(UnsupportedOperationException e) {
+
+                }
             }
 
             if (nonePlaying) {
