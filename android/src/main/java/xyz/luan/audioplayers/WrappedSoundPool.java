@@ -51,9 +51,6 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
 
     @Override
     void play() {
-        if (this.playing) {
-            return;
-        }
         if (!this.loading) {
             start();
         }
@@ -139,7 +136,7 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
 
     @Override
     boolean isActuallyPlaying() {
-        return this.playing;
+        return false;
     }
 
     @Override

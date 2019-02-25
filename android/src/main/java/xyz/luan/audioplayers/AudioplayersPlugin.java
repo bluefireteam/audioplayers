@@ -46,7 +46,6 @@ public class AudioplayersPlugin implements MethodCallHandler {
         final String playerId = call.argument("playerId");
         final String mode = call.argument("mode");
         final Player player = getPlayer(playerId, mode);
-        LOGGER.info("playerId="+playerId + ", mode=" + mode);
         switch (call.method) {
             case "play": {
                 final String url = call.argument("url");
