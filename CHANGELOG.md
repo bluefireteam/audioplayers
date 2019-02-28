@@ -1,5 +1,8 @@
 # Changelog
 
+## audioplayers 0.10.0
+- Added a low latency api for android (thanks, @feroult)
+
 ## audioplayers 0.9.0
 - Improved callbacks using Streams to allow for multiple subscibers (thanks, @LucasCLuk)
 - Update uuid version to 2.0.0 (thanks, @BeMacized)
