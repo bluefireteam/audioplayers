@@ -32,7 +32,7 @@ class AudioCache {
   /// This flag will have influence of stream type. And will respect silent mode if set to true
   bool respectSilence;
 
-  AudioCache({this.prefix = "", this.fixedPlayer = null, this.respectSilence = false});
+  AudioCache({this.prefix = "", this.fixedPlayer, this.respectSilence = false});
 
   /// Clear the cache of the file [fileName].
   ///

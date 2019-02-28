@@ -40,7 +40,7 @@ enum AudioPlayerState {
 // This enum contains the options for the player mode.
 // Right now, both modes have the same implementation backend on iOS.
 enum PlayerMode {
-  // Use this mode for long media files or streams.  
+  // Use this mode for long media files or streams.
   MEDIA_PLAYER,
   // Use this mode for shorter audio files to reduce impacts on visuals or UI performance.
   // In this mode the backend won't fire any duration or position updates.
@@ -84,7 +84,7 @@ class AudioPlayer {
   /// This enables more verbose logging, if desired.
   static bool logEnabled = false;
 
-  AudioPlayerState _audioPlayerState = null;
+  AudioPlayerState _audioPlayerState;
 
   AudioPlayerState get state => _audioPlayerState;
 
