@@ -25,6 +25,16 @@ An `AudioPlayer` instance can play a single audio at a time. To create it, simpl
     AudioPlayer audioPlayer = new AudioPlayer();
 ```
 
+To use the low latency API, better for gaming sounds, use:
+
+```dart
+    AudioPlayer audioPlayer = new AudioPlayer(mode: PlayerMode.LOW_LATENCY);
+```
+
+In this mode the backend won't fire any duration or position updates.
+Also, it is not possible to use the seek method to set the audio a specific position.
+
+
 You can create multiple instances to play audio simultaneously.
 
 For all methods that return a `Future<int>`: that's the status of the operation. If `1`, the operation was successful. Otherwise it's the platform native error code.
