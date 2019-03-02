@@ -1,8 +1,11 @@
 package xyz.luan.audioplayers;
 
+import android.content.Context;
+
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.AudioFocusRequest;
 import android.os.Build;
 
 import java.io.IOException;
@@ -25,9 +28,32 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     private MediaPlayer player;
     private AudioplayersPlugin ref;
 
-    WrappedMediaPlayer(AudioplayersPlugin ref, String playerId) {
+    WrappedMediaPlayer(AudioplayersPlugin ref, String playerId, Context context) {
         this.ref = ref;
         this.playerId = playerId;
+        this.context = context;
+
+        this.mAudioManager = (AudioManager) context.getSystemService(context.AUDIO_SERVICE);
+        this.buildAudioFocusRequest();
+    }
+
+    private void buildAudioFocusRequest(){
+        // build audio focus request for Android O or above
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            this.mAudioFocusRequest = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+                .setAudioAttributes(this.getAttributes()).setAcceptsDelayedFocusGain(true)
+                .setOnAudioFocusChangeListener(new AudioManager.OnAudioFocusChangeListener() {
+                    public void onAudioFocusChange(int focusChange) {
+                        if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
+                            pause();
+                        } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
+                            pause();
+                        } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
+                            play();
+                        }
+                    }
+                }).build();
+        }
     }
 
     /**
@@ -113,6 +139,19 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
 
     @Override
     void play() {
+        int focusRequest = 0;
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // Android O or above request audio focus
+            focusRequest = this.mAudioManager.requestAudioFocus(this.mAudioFocusRequest);
+        } else {
+            // Android O below request audio focus
+            focusRequest = this.mAudioManager.requestAudioFocus(this.afChangeListener, AudioManager.STREAM_MUSIC,
+                    AudioManager.AUDIOFOCUS_GAIN);
+        }
+        if (focusRequest == AudioManager.AUDIOFOCUS_REQUEST_FAILED) {
+            return;
+        }
+        
         if (!this.playing) {
             this.playing = true;
             if (this.released) {
@@ -239,6 +278,12 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
             // This method is deprecated but must be used on older devices
             player.setAudioStreamType(respectSilence ? AudioManager.STREAM_RING : AudioManager.STREAM_MUSIC);
         }
+    }
+    
+    @SuppressWarnings("deprecation")
+    private AudioAttributes getAttributes(){
+        return new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA)
+        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build();
     }
 
 }
