@@ -19,7 +19,7 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
 import io.flutter.plugin.common.PluginRegistry.PluginRegistrantCallback;
 
-public class AudioplayersPlugin implements MethodCallHandler {
+public class AudioplayersPlugin implements MethodCallHandler{
 
     private static final Logger LOGGER = Logger.getLogger(AudioplayersPlugin.class.getCanonicalName());
 
