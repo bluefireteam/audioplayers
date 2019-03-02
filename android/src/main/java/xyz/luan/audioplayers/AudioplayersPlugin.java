@@ -1,5 +1,10 @@
 package xyz.luan.audioplayers;
 
+import android.app.Activity;
+import android.content.Context;
+import android.media.MediaPlayer;
+import android.media.AudioAttributes;
+
 import android.os.Handler;
 
 import java.lang.ref.WeakReference;
@@ -12,23 +17,33 @@ import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
+import io.flutter.plugin.common.PluginRegistry.PluginRegistrantCallback;
 
 public class AudioplayersPlugin implements MethodCallHandler {
 
     private static final Logger LOGGER = Logger.getLogger(AudioplayersPlugin.class.getCanonicalName());
 
     private final MethodChannel channel;
+    private final Context context;
+    private final Activity activity;
+    private static PluginRegistrantCallback mCallback;
     private final Map<String, Player> mediaPlayers = new HashMap<>();
     private final Handler handler = new Handler();
     private Runnable positionUpdates;
 
     public static void registerWith(final Registrar registrar) {
         final MethodChannel channel = new MethodChannel(registrar.messenger(), "xyz.luan/audioplayers");
-        channel.setMethodCallHandler(new AudioplayersPlugin(channel));
+        channel.setMethodCallHandler(new AudioplayersPlugin(channel, registrar.context(), registrar.activity()));
+    }
+    
+    public static void setPluginRegistrant(PluginRegistrantCallback callback){
+        mCallback = callback;
     }
 
     private AudioplayersPlugin(final MethodChannel channel) {
         this.channel = channel;
+        this.context = context;
+        this.activity = activity;
         this.channel.setMethodCallHandler(this);
     }
 
