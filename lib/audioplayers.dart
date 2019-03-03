@@ -156,7 +156,7 @@ class AudioPlayer {
     String url, {
     bool isLocal: false,
     double volume: 1.0,
-    Duration position: Duration.zero,
+    Duration position: null, // Must be null by default to be compatible with radio streams
     bool respectSilence: false,
   }) async {
     final double positionInSeconds = position == null ? null : position.inSeconds.toDouble();
