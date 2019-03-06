@@ -46,7 +46,7 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
 
     @Override
     String getPlayerId() {
-        return null;
+        return playerId;
     }
 
     @Override
@@ -146,10 +146,13 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
 
     private static SoundPool createSoundPool() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            AudioAttributes attrs = new AudioAttributes.Builder().setLegacyStreamType(AudioManager.STREAM_MUSIC)
-                    .setUsage(AudioAttributes.USAGE_MEDIA)
+            AudioAttributes attrs = new AudioAttributes.Builder().setLegacyStreamType(AudioManager.USE_DEFAULT_STREAM_TYPE)
+                    .setUsage(AudioAttributes.USAGE_GAME)
                     .build();
-            return new SoundPool.Builder().setAudioAttributes(attrs).build();
+            return new SoundPool.Builder()
+                    .setAudioAttributes(attrs)
+                    .setMaxStreams(100)
+                    .build();
         }
         return unsafeBuildLegacySoundPool();
     }
