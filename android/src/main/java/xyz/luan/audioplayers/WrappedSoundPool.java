@@ -140,7 +140,7 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
     }
 
     @Override
-    void seek(double position) {
+    void seek(int position) {
         throw unsupportedOperation("seek");
     }
 

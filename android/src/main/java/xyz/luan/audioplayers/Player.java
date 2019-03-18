@@ -33,5 +33,5 @@ abstract class Player {
     /**
      * Seek operations cannot be called until after the player is ready.
      */
-    abstract void seek(double position);
+    abstract void seek(int position);
 }

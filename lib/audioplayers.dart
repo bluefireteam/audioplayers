@@ -159,7 +159,7 @@ class AudioPlayer {
     Duration position: null, // Must be null by default to be compatible with radio streams
     bool respectSilence: false,
   }) async {
-    final double positionInMilliseconds = position == null ? null : position.inMilliseconds.toDouble();
+    final int positionInMilliseconds = position == null ? null : position.inMilliseconds;
     int result = await _invokeMethod('play', {
       'url': url,
       'isLocal': isLocal,
@@ -215,7 +215,7 @@ class AudioPlayer {
 
   /// Move the cursor to the desired position.
   Future<int> seek(Duration position) {
-    return _invokeMethod('seek', {'position': position.inMilliseconds.toDouble()});
+    return _invokeMethod('seek', { 'position': position.inMilliseconds });
   }
 
   /// Sets the volume (ampliutde). 0.0 is mute and 1.0 is max, the rest is linear interpolation.
