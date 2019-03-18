@@ -160,6 +160,15 @@ class _ExampleAppState extends State<ExampleApp> {
           _btn('release', () => advancedPlayer.release()),
         ], mainAxisAlignment: MainAxisAlignment.spaceEvenly),
       ]),
+      new Column(children: [
+        Text('Seek in milliseconds'),
+        Row(children: [
+          _btn('100ms', () => advancedPlayer.seek(Duration(milliseconds: 100))),
+          _btn('500ms', () => advancedPlayer.seek(Duration(milliseconds: 500))),
+          _btn('1s', () => advancedPlayer.seek(Duration(seconds: 1))),
+          _btn('1.5s', () => advancedPlayer.seek(Duration(milliseconds: 1500))),
+        ], mainAxisAlignment: MainAxisAlignment.spaceEvenly),
+      ]),
     ]);
   }
 
