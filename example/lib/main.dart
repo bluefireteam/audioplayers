@@ -108,18 +108,19 @@ class _ExampleAppState extends State<ExampleApp> {
       Text('Play Local Asset \'audio2.mp3\':'),
       _btn('Play', () => audioCache.play('audio2.mp3')),
       Text('Play Local Asset In Low Latency \'audio.mp3\':'),
-      _btn('Play', () => audioCache.play('audio.mp3', mode: PlayerMode.LOW_LATENCY)),
+      _btn('Play',
+          () => audioCache.play('audio.mp3', mode: PlayerMode.LOW_LATENCY)),
       Text('Play Local Asset In Low Latency \'audio2.mp3\':'),
-      _btn('Play', () => audioCache.play('audio2.mp3', mode: PlayerMode.LOW_LATENCY)),
-
-
+      _btn('Play',
+          () => audioCache.play('audio2.mp3', mode: PlayerMode.LOW_LATENCY)),
     ]);
   }
 
   Widget notification() {
     return _tab([
       Text('Play notification sound: \'messenger.mp3\':'),
-      _btn('Play', () => audioCache.play('messenger.mp3', isNotification: true)),
+      _btn(
+          'Play', () => audioCache.play('messenger.mp3', isNotification: true)),
     ]);
   }
 
@@ -190,7 +191,13 @@ class _ExampleAppState extends State<ExampleApp> {
           title: Text('audioplayers Example'),
         ),
         body: TabBarView(
-          children: [remoteUrl(), localFile(), localAsset(), notification(), advanced()],
+          children: [
+            remoteUrl(),
+            localFile(),
+            localAsset(),
+            notification(),
+            advanced()
+          ],
         ),
       ),
     );

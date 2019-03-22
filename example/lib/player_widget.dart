@@ -11,7 +11,10 @@ class PlayerWidget extends StatefulWidget {
   final bool isLocal;
   final PlayerMode mode;
 
-  PlayerWidget({@required this.url, this.isLocal = false, this.mode = PlayerMode.MEDIA_PLAYER});
+  PlayerWidget(
+      {@required this.url,
+      this.isLocal = false,
+      this.mode = PlayerMode.MEDIA_PLAYER});
 
   @override
   State<StatefulWidget> createState() {
@@ -97,10 +100,10 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                     valueColor: new AlwaysStoppedAnimation(Colors.grey[300]),
                   ),
                   new CircularProgressIndicator(
-                    value: (_position != null
-                        && _duration != null
-                        && _position.inMilliseconds > 0
-                        && _position.inMilliseconds < _duration.inMilliseconds)
+                    value: (_position != null &&
+                            _duration != null &&
+                            _position.inMilliseconds > 0 &&
+                            _position.inMilliseconds < _duration.inMilliseconds)
                         ? _position.inMilliseconds / _duration.inMilliseconds
                         : 0.0,
                     valueColor: new AlwaysStoppedAnimation(Colors.cyan),
@@ -124,22 +127,25 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   void _initAudioPlayer() {
     _audioPlayer = new AudioPlayer(mode: mode);
 
-    _durationSubscription = _audioPlayer.onDurationChanged.listen((duration) => setState(() {
-          _duration = duration;
-        }));
+    _durationSubscription =
+        _audioPlayer.onDurationChanged.listen((duration) => setState(() {
+              _duration = duration;
+            }));
 
-    _positionSubscription = _audioPlayer.onAudioPositionChanged.listen((p) => setState(() {
-          _position = p;
-        }));
+    _positionSubscription =
+        _audioPlayer.onAudioPositionChanged.listen((p) => setState(() {
+              _position = p;
+            }));
 
-    _playerCompleteSubscription = _audioPlayer.onPlayerCompletion.listen((event) {
+    _playerCompleteSubscription =
+        _audioPlayer.onPlayerCompletion.listen((event) {
       _onComplete();
       setState(() {
         _position = _duration;
       });
     });
 
-    _playerErrorSubscription = _audioPlayer.onPlayerError.listen((msg){
+    _playerErrorSubscription = _audioPlayer.onPlayerError.listen((msg) {
       print('audioPlayer error : $msg');
       setState(() {
         _playerState = PlayerState.stopped;
@@ -154,15 +160,17 @@ class _PlayerWidgetState extends State<PlayerWidget> {
         _audioPlayerState = state;
       });
     });
-}
+  }
+
   Future<int> _play() async {
-    final playPosition = (_position != null
-        && _duration != null
-        && _position.inMilliseconds > 0
-        && _position.inMilliseconds < _duration.inMilliseconds)
+    final playPosition = (_position != null &&
+            _duration != null &&
+            _position.inMilliseconds > 0 &&
+            _position.inMilliseconds < _duration.inMilliseconds)
         ? _position
         : null;
-    final result = await _audioPlayer.play(url, isLocal: isLocal, position: playPosition);
+    final result =
+        await _audioPlayer.play(url, isLocal: isLocal, position: playPosition);
     if (result == 1) setState(() => _playerState = PlayerState.playing);
     return result;
   }

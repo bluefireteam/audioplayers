@@ -60,7 +60,8 @@ class AudioCache {
   Future<File> fetchToMemory(String fileName) async {
     final file = new File('${(await getTemporaryDirectory()).path}/$fileName');
     await file.create(recursive: true);
-    return await file.writeAsBytes((await _fetchAsset(fileName)).buffer.asUint8List());
+    return await file
+        .writeAsBytes((await _fetchAsset(fileName)).buffer.asUint8List());
   }
 
   /// Load all the [fileNames] provided to the cache.
@@ -89,7 +90,10 @@ class AudioCache {
   /// If the file is already cached, it plays imediatelly. Otherwise, first waits for the file to load (might take a few milliseconds).
   /// It creates a new instance of [AudioPlayer], so it does not affect other audios playing (unless you specify a [fixedPlayer], in which case it always use the same).
   /// The instance is returned, to allow later access (either way), like pausing and resuming.
-  Future<AudioPlayer> play(String fileName, {double volume = 1.0, bool isNotification, PlayerMode mode = PlayerMode.MEDIA_PLAYER}) async {
+  Future<AudioPlayer> play(String fileName,
+      {double volume = 1.0,
+      bool isNotification,
+      PlayerMode mode = PlayerMode.MEDIA_PLAYER}) async {
     File file = await load(fileName);
     AudioPlayer player = _player(mode);
     await player.play(
@@ -104,7 +108,10 @@ class AudioCache {
   /// Like [play], but loops the audio (starts over once finished).
   ///
   /// The instance of [AudioPlayer] created is returned, so you can use it to stop the playback as desired.
-  Future<AudioPlayer> loop(String fileName, {double volume = 1.0, bool isNotification, PlayerMode mode = PlayerMode.MEDIA_PLAYER}) async {
+  Future<AudioPlayer> loop(String fileName,
+      {double volume = 1.0,
+      bool isNotification,
+      PlayerMode mode = PlayerMode.MEDIA_PLAYER}) async {
     File file = await load(fileName);
     AudioPlayer player = _player(mode);
     player.setReleaseMode(ReleaseMode.LOOP);
