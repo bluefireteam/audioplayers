@@ -1,5 +1,8 @@
 # Changelog
 
+## audioplayers 0.10.1
+- Seek and play now works with milliseconds instead of second (thanks, @catoldcui and @erickzanardo)
+
 ## audioplayers 0.10.0
 - Added a low latency api for android (thanks, @feroult)
 
