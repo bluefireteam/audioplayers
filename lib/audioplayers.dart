@@ -87,9 +87,7 @@ class AudioPlayer {
 
   set state(AudioPlayerState state) {
     _playerStateController.add(state);
-    if (audioPlayerStateChangeHandler != null) {
-      audioPlayerStateChangeHandler(state);
-    }
+    audioPlayerStateChangeHandler?.call(state);
     _audioPlayerState = state;
   }
 
@@ -161,8 +159,7 @@ class AudioPlayer {
         null, // Must be null by default to be compatible with radio streams
     bool respectSilence: false,
   }) async {
-    final int positionInMilliseconds =
-        position == null ? null : position.inMilliseconds;
+    final int positionInMilliseconds = position?.inMilliseconds;
     int result = await _invokeMethod('play', {
       'url': url,
       'isLocal': isLocal,
@@ -258,30 +255,22 @@ class AudioPlayer {
       case 'audio.onDuration':
         Duration newDuration = new Duration(milliseconds: value);
         player._durationController.add(newDuration);
-        if (player.durationHandler != null) {
-          player.durationHandler(newDuration);
-        }
+        player.durationHandler?.call(newDuration);
         break;
       case 'audio.onCurrentPosition':
         Duration newDuration = new Duration(milliseconds: value);
         player._positionController.add(newDuration);
-        if (player.positionHandler != null) {
-          player.positionHandler(newDuration);
-        }
+        player.positionHandler?.call(newDuration);
         break;
       case 'audio.onComplete':
         player.state = AudioPlayerState.COMPLETED;
         player._completionController.add(null);
-        if (player.completionHandler != null) {
-          player.completionHandler();
-        }
+        player.completionHandler?.call();
         break;
       case 'audio.onError':
         player.state = AudioPlayerState.STOPPED;
         player._errorController.add(value);
-        if (player.errorHandler != null) {
-          player.errorHandler(value);
-        }
+        player.errorHandler?.call(value);
         break;
       default:
         _log('Unknowm method ${call.method} ');
