@@ -9,7 +9,7 @@ import 'audioplayers.dart';
 
 /// This class represents a cache for Local Assets to be played.
 ///
-/// Flutter can only play audios on device folders, so this first one copies files to a temporary folder and then plays them.
+/// Flutter can only play audios on device folders, so first this class copies the files to a temporary folder, and then plays them.
 /// You can pre-cache your audio, or clear the cache, as desired.
 class AudioCache {
   /// A reference to the loaded files.
@@ -36,7 +36,7 @@ class AudioCache {
 
   /// Clears the cache of the file [fileName].
   ///
-  /// Does nothing if there was no cache at all.
+  /// Does nothing if the file was not on cache.
   void clear(String fileName) {
     loadedFiles.remove(fileName);
   }
