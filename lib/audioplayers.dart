@@ -38,7 +38,7 @@ enum AudioPlayerState {
 }
 
 // This enum contains the options for the player mode.
-// Right now, both modes have the same implementation backend on iOS.
+// Right now, both modes have the same backend implementation on iOS.
 enum PlayerMode {
   // Use this mode for long media files or streams.
   MEDIA_PLAYER,
@@ -87,9 +87,7 @@ class AudioPlayer {
 
   set state(AudioPlayerState state) {
     _playerStateController.add(state);
-    if (audioPlayerStateChangeHandler != null) {
-      audioPlayerStateChangeHandler(state);
-    }
+    audioPlayerStateChangeHandler?.call(state);
     _audioPlayerState = state;
   }
 
@@ -152,7 +150,7 @@ class AudioPlayer {
         .then((result) => (result as int));
   }
 
-  /// Play audio. Url can be a remote url (isLocal = false) or a local file system path (isLocal = true).
+  /// Plays audio. Url can be a remote url (isLocal = false) or a local file system path (isLocal = true).
   Future<int> play(
     String url, {
     bool isLocal: false,
@@ -161,8 +159,7 @@ class AudioPlayer {
         null, // Must be null by default to be compatible with radio streams
     bool respectSilence: false,
   }) async {
-    final int positionInMilliseconds =
-        position == null ? null : position.inMilliseconds;
+    final int positionInMilliseconds = position?.inMilliseconds;
     int result = await _invokeMethod('play', {
       'url': url,
       'isLocal': isLocal,
@@ -178,7 +175,7 @@ class AudioPlayer {
     return result;
   }
 
-  /// Pause the currently playing audio (resumes from this point).
+  /// Pauses the currently playing audio (resumes from this point).
   Future<int> pause() async {
     int result = await _invokeMethod('pause');
     if (result == 1) {
@@ -187,7 +184,7 @@ class AudioPlayer {
     return result;
   }
 
-  /// Stop the currently playing audio (resumes from the beginning).
+  /// Stops the currently playing audio (resumes from the beginning).
   Future<int> stop() async {
     int result = await _invokeMethod('stop');
     if (result == 1) {
@@ -205,7 +202,7 @@ class AudioPlayer {
     return result;
   }
 
-  /// Release the resources associated with this media player.
+  /// Releases the resources associated with this media player.
   ///
   /// It will be prepared again if needed.
   Future<int> release() async {
@@ -216,12 +213,12 @@ class AudioPlayer {
     return result;
   }
 
-  /// Move the cursor to the desired position.
+  /// Moves the cursor to the desired position.
   Future<int> seek(Duration position) {
     return _invokeMethod('seek', {'position': position.inMilliseconds});
   }
 
-  /// Sets the volume (ampliutde). 0.0 is mute and 1.0 is max, the rest is linear interpolation.
+  /// Sets the volume (amplitude). 0.0 is mute and 1.0 is max, the rest is linear interpolation.
   Future<int> setVolume(double volume) {
     return _invokeMethod('setVolume', {'volume': volume});
   }
@@ -258,33 +255,25 @@ class AudioPlayer {
       case 'audio.onDuration':
         Duration newDuration = new Duration(milliseconds: value);
         player._durationController.add(newDuration);
-        if (player.durationHandler != null) {
-          player.durationHandler(newDuration);
-        }
+        player.durationHandler?.call(newDuration);
         break;
       case 'audio.onCurrentPosition':
         Duration newDuration = new Duration(milliseconds: value);
         player._positionController.add(newDuration);
-        if (player.positionHandler != null) {
-          player.positionHandler(newDuration);
-        }
+        player.positionHandler?.call(newDuration);
         break;
       case 'audio.onComplete':
         player.state = AudioPlayerState.COMPLETED;
         player._completionController.add(null);
-        if (player.completionHandler != null) {
-          player.completionHandler();
-        }
+        player.completionHandler?.call();
         break;
       case 'audio.onError':
         player.state = AudioPlayerState.STOPPED;
         player._errorController.add(value);
-        if (player.errorHandler != null) {
-          player.errorHandler(value);
-        }
+        player.errorHandler?.call(value);
         break;
       default:
-        _log('Unknowm method ${call.method} ');
+        _log('Unknown method ${call.method} ');
     }
   }
 }
