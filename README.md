@@ -19,7 +19,7 @@ We have created a channel for audioplayers help on Fireslime's discord, join it 
 
 ## Troubshooting
 
-Before opening an issue, please refer to the [troubleshoot guide](troubleshoot.md)
+Before opening an issue, please refer to the [troubleshoot guide](troubleshooting.md)
 
 ## Usage
 
