@@ -11,8 +11,8 @@ import 'player_widget.dart';
 
 typedef void OnError(Exception exception);
 
-const kUrl1 = 'http://www.rxlabz.com/labz/audio.mp3';
-const kUrl2 = 'http://www.rxlabz.com/labz/audio2.mp3';
+const kUrl1 = 'https://luan.xyz/files/audio/ambient_c_motion.mp3';
+const kUrl2 = 'https://luan.xyz/files/audio/nasa_on_a_mission.mp3';
 const kUrl3 = 'http://bbcmedia.ic.llnwd.net/stream/bbcmedia_radio1xtra_mf_p';
 
 void main() {
