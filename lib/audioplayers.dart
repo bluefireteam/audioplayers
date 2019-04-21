@@ -87,7 +87,8 @@ class AudioPlayer {
 
   set state(AudioPlayerState state) {
     _playerStateController.add(state);
-    audioPlayerStateChangeHandler?.call(state);
+    audioPlayerStateChangeHandler // ignore: deprecated_member_use_from_same_package
+        ?.call(state);
     _audioPlayerState = state;
   }
 
@@ -248,29 +249,36 @@ class AudioPlayer {
 
   static Future<void> platformCallHandler(MethodCall call) async {
     _log('_platformCallHandler call ${call.method} ${call.arguments}');
-    String playerId = (call.arguments as Map)['playerId'];
+    String playerId = (call.arguments as Map)['playerId'] as String;
     AudioPlayer player = players[playerId];
     dynamic value = (call.arguments as Map)['value'];
     switch (call.method) {
       case 'audio.onDuration':
         Duration newDuration = new Duration(milliseconds: value);
         player._durationController.add(newDuration);
-        player.durationHandler?.call(newDuration);
+        player
+            .durationHandler // ignore: deprecated_member_use_from_same_package
+            ?.call(newDuration);
         break;
       case 'audio.onCurrentPosition':
         Duration newDuration = new Duration(milliseconds: value);
         player._positionController.add(newDuration);
-        player.positionHandler?.call(newDuration);
+        player
+            .positionHandler // ignore: deprecated_member_use_from_same_package
+            ?.call(newDuration);
         break;
       case 'audio.onComplete':
         player.state = AudioPlayerState.COMPLETED;
         player._completionController.add(null);
-        player.completionHandler?.call();
+        player
+            .completionHandler // ignore: deprecated_member_use_from_same_package
+            ?.call();
         break;
       case 'audio.onError':
         player.state = AudioPlayerState.STOPPED;
         player._errorController.add(value);
-        player.errorHandler?.call(value);
+        player.errorHandler // ignore: deprecated_member_use_from_same_package
+            ?.call(value);
         break;
       default:
         _log('Unknown method ${call.method} ');
