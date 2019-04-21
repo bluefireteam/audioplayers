@@ -17,6 +17,10 @@ dependencies:
 
 We have created a channel for audioplayers help on Fireslime's discord, join it [here](https://discord.gg/ny7eThk)
 
+## Troubshooting
+
+Before opening an issue, please refer to the [troubleshoot.md](troubleshoot guide)
+
 ## Usage
 
 An `AudioPlayer` instance can play a single audio at a time. To create it, simply call the constructor:
