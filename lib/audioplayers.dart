@@ -8,6 +8,8 @@ typedef void TimeChangeHandler(Duration duration);
 typedef void ErrorHandler(String message);
 typedef void AudioPlayerStateChangeHandler(AudioPlayerState state);
 
+typedef StreamController CreateStreamController();
+
 /// This enum contains the options that can happen after the playback finishes or the [stop] method is called.
 ///
 /// Pass it as a parameter to [setReleaseMode] method.
@@ -58,20 +60,46 @@ class AudioPlayer {
 
   static final _uuid = new Uuid();
 
-  final StreamController<AudioPlayerState> _playerStateController =
-      new StreamController.broadcast();
+  final StreamController<AudioPlayerState> _playerStateController = createPlayerStateController();
 
-  final StreamController<Duration> _positionController =
-      new StreamController.broadcast();
+  final StreamController<Duration> _positionController = createPositionController();
 
-  final StreamController<Duration> _durationController =
-      new StreamController.broadcast();
+  final StreamController<Duration> _durationController = createDurationController();
 
-  final StreamController<void> _completionController =
-      new StreamController.broadcast();
+  final StreamController<void> _completionController = createCompletionController();
 
-  final StreamController<String> _errorController =
-      new StreamController.broadcast();
+  final StreamController<String> _errorController = createErrorController();
+
+  /// Use the variables below to provide your own [StreamController] to [AudioPlayer]. Useful to
+  /// send data to the [Stream] without really calling the native code (Android/iOS), which gives
+  /// you the possibility of mocking this class.
+  ///
+  /// Usage example:
+  ///
+  /// ``` dart
+  /// var myPlayerStateController = StreamController<AudioPlayerState>.broadcast();
+  /// AudioPlayer.createPlayerStateController = () => myPlayerStateController;
+  ///
+  /// var audioPlayer = AudioPlayerMock();
+  /// myPlayerStateController.add(AudioPlayerState.PLAYING);
+  /// ```
+  ///
+  /// WARNING: You must set theses variables BEFORE instantiating [AudioPlayer], since the
+  /// [StreamController]s are created and assigned only once (at instantiation).
+
+  static CreateStreamController createPlayerStateController =
+      () => StreamController<AudioPlayerState>.broadcast();
+
+  static CreateStreamController createPositionController =
+      () => StreamController<Duration>.broadcast();
+
+  static CreateStreamController createDurationController =
+      () => StreamController<Duration>.broadcast();
+
+  static CreateStreamController createCompletionController =
+      () => StreamController<void>.broadcast();
+
+  static CreateStreamController createErrorController = () => StreamController<String>.broadcast();
 
   /// This is a reference map with all the players created by the application.
   ///
