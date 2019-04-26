@@ -4,11 +4,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
 
+typedef StreamController CreateStreamController();
 typedef void TimeChangeHandler(Duration duration);
 typedef void ErrorHandler(String message);
 typedef void AudioPlayerStateChangeHandler(AudioPlayerState state);
-
-typedef StreamController CreateStreamController();
 
 /// This enum contains the options that can happen after the playback finishes or the [stop] method is called.
 ///
@@ -60,15 +59,20 @@ class AudioPlayer {
 
   static final _uuid = new Uuid();
 
-  final StreamController<AudioPlayerState> _playerStateController = createPlayerStateController();
+  final StreamController<AudioPlayerState> _playerStateController =
+      createPlayerStateController();
 
-  final StreamController<Duration> _positionController = createPositionController();
+  final StreamController<Duration> _positionController = 
+      createPositionController();
 
-  final StreamController<Duration> _durationController = createDurationController();
+  final StreamController<Duration> _durationController = 
+      createDurationController();
 
-  final StreamController<void> _completionController = createCompletionController();
+  final StreamController<void> _completionController =
+      createCompletionController();
 
-  final StreamController<String> _errorController = createErrorController();
+  final StreamController<String> _errorController = 
+      createErrorController();
 
   /// Use the variables below to provide your own [StreamController] to [AudioPlayer]. Useful to
   /// send data to the [Stream] without really calling the native code (Android/iOS), which gives
@@ -99,7 +103,8 @@ class AudioPlayer {
   static CreateStreamController createCompletionController =
       () => StreamController<void>.broadcast();
 
-  static CreateStreamController createErrorController = () => StreamController<String>.broadcast();
+  static CreateStreamController createErrorController = 
+      () => StreamController<String>.broadcast();
 
   /// This is a reference map with all the players created by the application.
   ///
