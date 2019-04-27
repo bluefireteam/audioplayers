@@ -75,7 +75,7 @@ class AudioPlayer {
       createErrorController();
 
   /// Use the variables below to provide your own [StreamController] to [AudioPlayer]. Useful to
-  /// send data to the [Stream] without really calling the native code (Android/iOS), which gives
+  /// send data to the [Stream]s without really calling the native code (Android/iOS), which gives
   /// you the possibility of mocking this class.
   ///
   /// Usage example:
@@ -88,7 +88,7 @@ class AudioPlayer {
   /// myPlayerStateController.add(AudioPlayerState.PLAYING);
   /// ```
   ///
-  /// WARNING: You must set theses variables BEFORE instantiating [AudioPlayer], since the
+  /// WARNING: You must set these variables BEFORE instantiating [AudioPlayer], since the
   /// [StreamController]s are created and assigned only once (at instantiation).
 
   static CreateStreamController createPlayerStateController =
