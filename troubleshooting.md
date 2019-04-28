@@ -1,8 +1,8 @@
-This file describes some common pitfalls and how to solve them, please always refer to this before opening an issue.
+This file describes some common pitfalls and how to solve them. Please always refer to this before opening an issue.
 
 ## Both platforms
 
- - Asset not available/not found when playing local files. Flutter requires that files are specified on your pubspec.yaml file, under flutter > assets. Also keep in mind that `AudioCache` class will look for files under the `assets` folder.
+ - Asset not available/not found when playing local files. Flutter requires that files are specified on your pubspec.yaml file, under flutter > assets, check [this](https://github.com/luanpotter/bgug/blob/master/pubspec.yaml#L89) for an example. Also keep in mind that `AudioCache` class will look for files under the `assets` folder and this class must be used to play local files.
 
 ## Android
 
