@@ -17,6 +17,12 @@ dependencies:
 
 We have created a channel for audioplayers help on Fireslime's discord, join it [here](https://discord.gg/ny7eThk)
 
+## Support us
+
+You can support us by becoming a patron on Patreon, any support is much appreciated.
+
+[![Patreon](https://c5.patreon.com/external/logo/become_a_patron_button.png)](https://www.patreon.com/fireslime)
+
 ## Troubshooting
 
 Before opening an issue, please refer to the [troubleshoot guide](troubleshooting.md)
