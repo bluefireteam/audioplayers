@@ -6,17 +6,17 @@ PODS:
     - Flutter
 
 DEPENDENCIES:
-  - audioplayers (from `/Users/erick/projetos/audioplayers/ios`)
+  - audioplayers (from `/Users/erick/projects/audioplayers/ios`)
   - Flutter (from `/Users/erick/flutter/bin/cache/artifacts/engine/ios`)
-  - "path_provider (from `/Users/erick/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider-0.5.0+1/ios`)"
+  - path_provider (from `/Users/erick/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider-1.1.0/ios`)
 
 EXTERNAL SOURCES:
   audioplayers:
-    :path: "/Users/erick/projetos/audioplayers/ios"
+    :path: "/Users/erick/projects/audioplayers/ios"
   Flutter:
     :path: "/Users/erick/flutter/bin/cache/artifacts/engine/ios"
   path_provider:
-    :path: "/Users/erick/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider-0.5.0+1/ios"
+    :path: "/Users/erick/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider-1.1.0/ios"
 
 SPEC CHECKSUMS:
   audioplayers: def111f6a23e00d9d103563b07de5e44a727bd3c

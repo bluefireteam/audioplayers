@@ -1,5 +1,9 @@
 # Changelog
 
+## audioplayers 0.12.0
+ - Update to path_provider 1.1.0
+ - Upgrade to Swift 5 in example project setting (thanks @jerryzhoujw)
+
 ## audioplayers 0.11.0
 - **Breaking change**. Migrate from the deprecated original Android Support
   Library to AndroidX. This shouldn't result in any functional changes, but it
