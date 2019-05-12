@@ -84,7 +84,7 @@ class AudioPlayer {
       StreamController<void>.broadcast();
 
   final StreamController<String> _errorController =
-      StreamController<void>.broadcast();
+      StreamController<String>.broadcast();
 
   /// Reference [Map] with all the players created by the application.
   ///
