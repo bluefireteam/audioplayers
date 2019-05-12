@@ -9,28 +9,31 @@ typedef void TimeChangeHandler(Duration duration);
 typedef void ErrorHandler(String message);
 typedef void AudioPlayerStateChangeHandler(AudioPlayerState state);
 
-/// This enum contains the options that can happen after the playback finishes or the [stop] method is called.
-///
-/// Pass it as a parameter to [setReleaseMode] method.
+/// This enum is meant to be used as a parameter of [setReleaseMode] method.
+/// It represents the behaviour of [AudioPlayer] when an audio is finished or
+/// stopped.
 enum ReleaseMode {
-  /// This will release all resources when finished or stopped, just like if [release] was called.
+  /// Releases all resources, just like calling [release] method.
   ///
-  /// On Android, the MediaPlayer is quite resource-intensive, and this will let it go. Data will be buffered again when needed (if it's a remote file, it will be downloaded again).
-  /// On iOS, works just like STOP.
-  /// This is the default option.
+  /// In Android, the media player is quite resource-intensive, and this will
+  /// let it go. Data will be buffered again when needed (if it's a remote file,
+  /// it will be downloaded again).
+  /// In iOS, works just like [stop] method.
+  ///
+  /// This is the default behaviour.
   RELEASE,
 
-  /// This not only keeps the data buffered, but keeps playing on loop after completion.
-  ///
-  /// When [stop] is called, it will not start again (obviously), but won't release either.
+  /// Keeps buffered data and plays again after completion, creating a loop.
+  /// Notice that calling [stop] method is not enough to release the resources
+  /// when this mode is being used.
   LOOP,
 
-  /// This will just stop the playback but keep all resources intact.
-  ///
-  /// Use it if you intend on playing again later.
+  /// Stops audio playback but keep all resources intact.
+  /// Use this if you intend to play again later.
   STOP
 }
 
+/// Self explanatory. Indicates the state of the audio player.
 enum AudioPlayerState {
   STOPPED,
   PLAYING,
@@ -38,20 +41,29 @@ enum AudioPlayerState {
   COMPLETED,
 }
 
-// This enum contains the options for the player mode.
-// Right now, both modes have the same backend implementation on iOS.
+/// This enum is meant to be used as a parameter of the [AudioPlayer]'s
+/// constructor. It represents the general mode of the [AudioPlayer].
+///
+// In iOS, both modes have the same backend implementation.
 enum PlayerMode {
-  // Use this mode for long media files or streams.
+  /// Ideal for long media files or streams.
   MEDIA_PLAYER,
-  // Use this mode for shorter audio files to reduce impacts on visuals or UI performance.
-  // In this mode the backend won't fire any duration or position updates.
-  // Also, it is not possible to use the seek method to set the audio a specific position.
+
+  /// Ideal for short audio files, since it reduces the impacts on visuals or
+  /// UI performance.
+  ///
+  /// In this mode the backend won't fire any duration or position updates.
+  /// Also, it is not possible to use the seek method to set the audio a
+  /// specific position.
   LOW_LATENCY
 }
 
-/// This represents a single AudioPlayer, that can play one audio at a time (per instance).
+/// This represents a single AudioPlayer, which can play one audio at a time.
+/// To play several audios at the same time, you must create several instances
+/// of this class.
 ///
-/// It features methods to play, loop, pause, stop, seek the audio, and some useful hooks for handlers and callbacks.
+/// It holds methods to play, loop, pause, stop, seek the audio, and some useful
+/// hooks for handlers and callbacks.
 class AudioPlayer {
   static final MethodChannel _channel =
       const MethodChannel('xyz.luan/audioplayers')
@@ -74,12 +86,13 @@ class AudioPlayer {
   final StreamController<String> _errorController =
       StreamController<void>.broadcast();
 
-  /// This is a reference map with all the players created by the application.
+  /// Reference [Map] with all the players created by the application.
   ///
-  /// This is used to route messages to and from the channel (there is only one channel).
-  static final players = new Map<String, AudioPlayer>();
+  /// This is used to exchange messages with the [MethodChannel]
+  /// (there is only one).
+  static final players = Map<String, AudioPlayer>();
 
-  /// This enables more verbose logging, if desired.
+  /// Enables more verbose logging.
   static bool logEnabled = false;
 
   AudioPlayerState _audioPlayerState;
@@ -93,54 +106,90 @@ class AudioPlayer {
     _audioPlayerState = state;
   }
 
-  /// Stream for subscribing to player state change events.
+  /// Stream of changes on player state.
   Stream<AudioPlayerState> get onPlayerStateChanged =>
       _playerStateController.stream;
 
-  /// Stream for subscribing to audio position change events. Roughly fires
-  /// every 200 milliseconds. Will continuously update the position of the
-  /// playback if the status is [AudioPlayerState.PLAYING].
+  /// Stream of changes on audio position.
+  ///
+  /// Roughly fires every 200 milliseconds. Will continuously update the
+  /// position of the playback if the status is [AudioPlayerState.PLAYING].
+  ///
+  /// You can use it on a progress bar, for instance.
   Stream<Duration> get onAudioPositionChanged => _positionController.stream;
 
-  /// Stream for subscribing to audio position change events. Roughly fires
-  /// every 200 milliseconds. Will continuously update the position of the
-  /// playback if the status is [AudioPlayerState.PLAYING].
+  /// Stream of changes on audio duration.
+  ///
+  /// An event is going to be sent as soon as the audio duration is available
+  /// (it might take a while to download or buffer it).
   Stream<Duration> get onDurationChanged => _durationController.stream;
 
-  /// This handler is called when the audio finishes playing; it's used in the loop method, for instance.
+  /// Stream of player completions.
   ///
-  /// It does not fire when you interrupt the audio with pause or stop.
+  /// Events are sent every time an audio is finished, therefore no event is
+  /// sent when an audio is paused or stopped.
+  ///
+  /// [ReleaseMode.LOOP] also sends events to this stream.
   Stream<void> get onPlayerCompletion => _completionController.stream;
 
-  /// This is called when an unexpected error is thrown in the native code.
+  /// Stream of player errors.
+  ///
+  /// Events are sent when an unexpected error is thrown in the native code.
   Stream<String> get onPlayerError => _errorController.stream;
 
+  /// Handler of changes on player state.
   @deprecated
   AudioPlayerStateChangeHandler audioPlayerStateChangeHandler;
 
-  /// This handler updates the current position of the audio. You can use it to make a progress bar, for instance.
+  /// Handler of changes on player position.
+  ///
+  /// Will continuously update the position of the playback if the status is
+  /// [AudioPlayerState.PLAYING].
+  ///
+  /// You can use it on a progress bar, for instance.
+  ///
+  /// This is deprecated. Use [onAudioPositionChanged] instead.
   @deprecated
   TimeChangeHandler positionHandler;
 
-  /// This handler returns the duration of the file, when it's available (it might take a while because it's being downloaded or buffered).
+  /// Handler of changes on audio duration.
+  ///
+  /// An event is going to be sent as soon as the audio duration is available
+  /// (it might take a while to download or buffer it).
+  ///
+  /// This is deprecated. Use [onDurationChanged] instead.
   @deprecated
   TimeChangeHandler durationHandler;
 
+  /// Handler of player completions.
+  ///
+  /// Events are sent every time an audio is finished, therefore no event is
+  /// sent when an audio is paused or stopped.
+  ///
+  /// [ReleaseMode.LOOP] also sends events to this stream.
+  ///
+  /// This is deprecated. Use [onPlayerCompletion] instead.
   @deprecated
   VoidCallback completionHandler;
 
+  /// Handler of player errors.
+  ///
+  /// Events are sent when an unexpected error is thrown in the native code.
+  ///
+  /// This is deprecated. Use [onPlayerError] instead.
   @deprecated
   ErrorHandler errorHandler;
 
-  /// This is a unique ID generated for this instance of audioplayer.
+  /// An unique ID generated for this instance of [AudioPlayer].
   ///
-  /// It's used to route messages via the single channel properly.
+  /// This is used to properly exchange messages with the [MethodChannel].
   String playerId;
 
-  // This is the player mode.
+  /// Current mode of the audio player. Can be updated at any time, but is going
+  /// to take effect only at the next time you play the audio.
   PlayerMode mode;
 
-  /// Creates a new instance and assigns it with a new random unique id.
+  /// Creates a new instance and assigns an unique id to it.
   AudioPlayer({this.mode = PlayerMode.MEDIA_PLAYER}) {
     playerId = _uuid.v4();
     players[playerId] = this;
@@ -156,7 +205,10 @@ class AudioPlayer {
         .then((result) => (result as int));
   }
 
-  /// Plays audio. Url can be a remote url (isLocal = false) or a local file system path (isLocal = true).
+  /// Plays an audio.
+  ///
+  /// If [isLocal] is true, [url] must be a local file system path.
+  /// If [isLocal] is true, [url] must be a remote URL.
   Future<int> play(
     String url, {
     bool isLocal: false,
@@ -181,7 +233,10 @@ class AudioPlayer {
     return result;
   }
 
-  /// Pauses the currently playing audio (resumes from this point).
+  /// Pauses the audio that is currently playing.
+  ///
+  /// If you call [resume] later, the audio will resume from the point that it
+  /// has been paused.
   Future<int> pause() async {
     int result = await _invokeMethod('pause');
     if (result == 1) {
@@ -190,7 +245,10 @@ class AudioPlayer {
     return result;
   }
 
-  /// Stops the currently playing audio (resumes from the beginning).
+  /// Stops the audio that is currently playing.
+  ///
+  /// The position is going to be reset and you will no longer be able to resume
+  /// from the last point.
   Future<int> stop() async {
     int result = await _invokeMethod('stop');
     if (result == 1) {
@@ -199,7 +257,8 @@ class AudioPlayer {
     return result;
   }
 
-  /// Resumes the currently paused or stopped audio (like calling play but without changing the parameters).
+  /// Resumes the audio that has been paused or stopped, just like calling
+  /// [play], but without changing the parameters.
   Future<int> resume() async {
     int result = await _invokeMethod('resume');
     if (result == 1) {
@@ -210,7 +269,8 @@ class AudioPlayer {
 
   /// Releases the resources associated with this media player.
   ///
-  /// It will be prepared again if needed.
+  /// The resources are going to be fetched or buffered again as soon as you
+  /// call [play] or [setUrl].
   Future<int> release() async {
     int result = await _invokeMethod('release');
     if (result == 1) {
@@ -224,24 +284,28 @@ class AudioPlayer {
     return _invokeMethod('seek', {'position': position.inMilliseconds});
   }
 
-  /// Sets the volume (amplitude). 0.0 is mute and 1.0 is max, the rest is linear interpolation.
+  /// Sets the volume (amplitude).
+  ///
+  /// 0 is mute and 1 is the max volume. The values between 0 and 1 are linearly
+  /// interpolated.
   Future<int> setVolume(double volume) {
     return _invokeMethod('setVolume', {'volume': volume});
   }
 
-  /// This configures the behavior when the playback finishes or the stop command is issued.
+  /// Sets the release mode.
   ///
-  /// STOP mode is the simplest, nothing happens (just stops).
-  /// RELEASE mode is the default, it releases all resources on Android (like calling release method). On iOS there is no such concept.
-  /// LOOP will start playing again forever, without releasing.
+  /// Check [ReleaseMode]'s doc to understand the difference between the modes.
   Future<int> setReleaseMode(ReleaseMode releaseMode) {
     return _invokeMethod(
         'setReleaseMode', {'releaseMode': releaseMode.toString()});
   }
 
-  /// Changes the url (source), without resuming playback (like play would do).
+  /// Sets the URL.
   ///
-  /// This will keep the resource prepared (on Android) for when resume is called.
+  /// Unlike [play], the playback will not resume.
+  ///
+  /// The resources will start being fetched or buffered as soon as you call
+  /// this method.
   Future<int> setUrl(String url, {bool isLocal: false}) {
     return _invokeMethod('setUrl', {'url': url, 'isLocal': isLocal});
   }
