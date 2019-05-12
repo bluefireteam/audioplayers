@@ -191,15 +191,21 @@ class AudioPlayer {
 
   /// Creates a new instance and assigns an unique id to it.
   AudioPlayer({this.mode = PlayerMode.MEDIA_PLAYER}) {
+    this.mode ??= PlayerMode.MEDIA_PLAYER;
     playerId = _uuid.v4();
     players[playerId] = this;
   }
 
-  Future<int> _invokeMethod(String method,
-      [Map<String, dynamic> arguments = const {}]) {
-    Map<String, dynamic> withPlayerId = Map.of(arguments);
-    withPlayerId['playerId'] = playerId;
-    withPlayerId['mode'] = mode.toString();
+  Future<int> _invokeMethod(
+    String method, [
+    Map<String, dynamic> arguments,
+  ]) {
+    arguments ??= const {};
+
+    final Map<String, dynamic> withPlayerId = Map.of(arguments)
+      ..['playerId'] = playerId
+      ..['mode'] = mode.toString();
+
     return _channel
         .invokeMethod(method, withPlayerId)
         .then((result) => (result as int));
@@ -211,18 +217,22 @@ class AudioPlayer {
   /// If [isLocal] is true, [url] must be a remote URL.
   Future<int> play(
     String url, {
-    bool isLocal: false,
-    double volume: 1.0,
-    Duration position:
-        null, // Must be null by default to be compatible with radio streams
-    bool respectSilence: false,
+    bool isLocal = false,
+    double volume = 1.0,
+
+    /// [position] be null by default to be compatible with radio streams.
+    Duration position = null,
+    bool respectSilence = false,
   }) async {
-    final int positionInMilliseconds = position?.inMilliseconds;
-    int result = await _invokeMethod('play', {
+    isLocal ??= false;
+    volume ??= 1.0;
+    respectSilence ??= false;
+
+    final int result = await _invokeMethod('play', {
       'url': url,
       'isLocal': isLocal,
       'volume': volume,
-      'position': positionInMilliseconds,
+      'position': position?.inMilliseconds,
       'respectSilence': respectSilence,
     });
 
@@ -238,10 +248,12 @@ class AudioPlayer {
   /// If you call [resume] later, the audio will resume from the point that it
   /// has been paused.
   Future<int> pause() async {
-    int result = await _invokeMethod('pause');
+    final int result = await _invokeMethod('pause');
+
     if (result == 1) {
       state = AudioPlayerState.PAUSED;
     }
+
     return result;
   }
 
@@ -250,20 +262,24 @@ class AudioPlayer {
   /// The position is going to be reset and you will no longer be able to resume
   /// from the last point.
   Future<int> stop() async {
-    int result = await _invokeMethod('stop');
+    final int result = await _invokeMethod('stop');
+
     if (result == 1) {
       state = AudioPlayerState.STOPPED;
     }
+
     return result;
   }
 
   /// Resumes the audio that has been paused or stopped, just like calling
   /// [play], but without changing the parameters.
   Future<int> resume() async {
-    int result = await _invokeMethod('resume');
+    final int result = await _invokeMethod('resume');
+
     if (result == 1) {
       state = AudioPlayerState.PLAYING;
     }
+
     return result;
   }
 
@@ -272,10 +288,12 @@ class AudioPlayer {
   /// The resources are going to be fetched or buffered again as soon as you
   /// call [play] or [setUrl].
   Future<int> release() async {
-    int result = await _invokeMethod('release');
+    final int result = await _invokeMethod('release');
+
     if (result == 1) {
       state = AudioPlayerState.STOPPED;
     }
+
     return result;
   }
 
@@ -297,7 +315,9 @@ class AudioPlayer {
   /// Check [ReleaseMode]'s doc to understand the difference between the modes.
   Future<int> setReleaseMode(ReleaseMode releaseMode) {
     return _invokeMethod(
-        'setReleaseMode', {'releaseMode': releaseMode.toString()});
+      'setReleaseMode',
+      {'releaseMode': releaseMode.toString()},
+    );
   }
 
   /// Sets the URL.
@@ -310,47 +330,48 @@ class AudioPlayer {
     return _invokeMethod('setUrl', {'url': url, 'isLocal': isLocal});
   }
 
-  static void _log(String param) {
-    if (logEnabled) {
-      print(param);
-    }
-  }
-
   static Future<void> platformCallHandler(MethodCall call) async {
-    _log('_platformCallHandler call ${call.method} ${call.arguments}');
-    String playerId = (call.arguments as Map)['playerId'] as String;
-    AudioPlayer player = players[playerId];
-    dynamic value = (call.arguments as Map)['value'];
+    final Map<String, dynamic> callArgs = call.arguments as Map;
+
+    _log('_platformCallHandler call ${call.method} ${callArgs}');
+
+    final playerId = callArgs['playerId'] as String;
+    final AudioPlayer player = players[playerId];
+    final value = callArgs['value'];
+
     switch (call.method) {
       case 'audio.onDuration':
-        Duration newDuration = new Duration(milliseconds: value);
+        Duration newDuration = Duration(milliseconds: value);
         player._durationController.add(newDuration);
-        player
-            .durationHandler // ignore: deprecated_member_use_from_same_package
-            ?.call(newDuration);
+        // ignore: deprecated_member_use_from_same_package
+        player.durationHandler?.call(newDuration);
         break;
       case 'audio.onCurrentPosition':
-        Duration newDuration = new Duration(milliseconds: value);
+        Duration newDuration = Duration(milliseconds: value);
         player._positionController.add(newDuration);
-        player
-            .positionHandler // ignore: deprecated_member_use_from_same_package
-            ?.call(newDuration);
+        // ignore: deprecated_member_use_from_same_package
+        player.positionHandler?.call(newDuration);
         break;
       case 'audio.onComplete':
         player.state = AudioPlayerState.COMPLETED;
         player._completionController.add(null);
-        player
-            .completionHandler // ignore: deprecated_member_use_from_same_package
-            ?.call();
+        // ignore: deprecated_member_use_from_same_package
+        player.completionHandler?.call();
         break;
       case 'audio.onError':
         player.state = AudioPlayerState.STOPPED;
         player._errorController.add(value);
-        player.errorHandler // ignore: deprecated_member_use_from_same_package
-            ?.call(value);
+        // ignore: deprecated_member_use_from_same_package
+        player.errorHandler?.call(value);
         break;
       default:
         _log('Unknown method ${call.method} ');
+    }
+  }
+
+  static void _log(String param) {
+    if (logEnabled) {
+      print(param);
     }
   }
 }
