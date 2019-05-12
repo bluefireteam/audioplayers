@@ -60,51 +60,19 @@ class AudioPlayer {
   static final _uuid = new Uuid();
 
   final StreamController<AudioPlayerState> _playerStateController =
-      createPlayerStateController();
+      StreamController<AudioPlayerState>.broadcast();
 
-  final StreamController<Duration> _positionController = 
-      createPositionController();
+  final StreamController<Duration> _positionController =
+      StreamController<Duration>.broadcast();
 
-  final StreamController<Duration> _durationController = 
-      createDurationController();
+  final StreamController<Duration> _durationController =
+      StreamController<Duration>.broadcast();
 
   final StreamController<void> _completionController =
-      createCompletionController();
+      StreamController<void>.broadcast();
 
-  final StreamController<String> _errorController = 
-      createErrorController();
-
-  /// Use the variables below to provide your own [StreamController] to [AudioPlayer]. Useful to
-  /// send data to the [Stream]s without really calling the native code (Android/iOS), which gives
-  /// you the possibility of mocking this class.
-  ///
-  /// Usage example:
-  ///
-  /// ``` dart
-  /// var myPlayerStateController = StreamController<AudioPlayerState>.broadcast();
-  /// AudioPlayer.createPlayerStateController = () => myPlayerStateController;
-  ///
-  /// var audioPlayer = AudioPlayerMock();
-  /// myPlayerStateController.add(AudioPlayerState.PLAYING);
-  /// ```
-  ///
-  /// WARNING: You must set these variables BEFORE instantiating [AudioPlayer], since the
-  /// [StreamController]s are created and assigned only once (at instantiation).
-
-  static CreateStreamController createPlayerStateController =
-      () => StreamController<AudioPlayerState>.broadcast();
-
-  static CreateStreamController createPositionController =
-      () => StreamController<Duration>.broadcast();
-
-  static CreateStreamController createDurationController =
-      () => StreamController<Duration>.broadcast();
-
-  static CreateStreamController createCompletionController =
-      () => StreamController<void>.broadcast();
-
-  static CreateStreamController createErrorController = 
-      () => StreamController<String>.broadcast();
+  final StreamController<String> _errorController =
+      StreamController<void>.broadcast();
 
   /// This is a reference map with all the players created by the application.
   ///
@@ -120,8 +88,8 @@ class AudioPlayer {
 
   set state(AudioPlayerState state) {
     _playerStateController.add(state);
-    audioPlayerStateChangeHandler // ignore: deprecated_member_use_from_same_package
-        ?.call(state);
+    // ignore: deprecated_member_use_from_same_package
+    audioPlayerStateChangeHandler?.call(state);
     _audioPlayerState = state;
   }
 
@@ -134,29 +102,33 @@ class AudioPlayer {
   /// playback if the status is [AudioPlayerState.PLAYING].
   Stream<Duration> get onAudioPositionChanged => _positionController.stream;
 
-  /// This handler returns the duration of the file, when it's available (it might take a while because it's being downloaded or buffered).
+  /// Stream for subscribing to audio position change events. Roughly fires
+  /// every 200 milliseconds. Will continuously update the position of the
+  /// playback if the status is [AudioPlayerState.PLAYING].
   Stream<Duration> get onDurationChanged => _durationController.stream;
-
-  @deprecated
-  TimeChangeHandler durationHandler;
-
-  @deprecated
-
-  /// This handler updates the current position of the audio. You can use it to make a progress bar, for instance.
-  TimeChangeHandler positionHandler;
-
-  @deprecated
-  AudioPlayerStateChangeHandler audioPlayerStateChangeHandler;
 
   /// This handler is called when the audio finishes playing; it's used in the loop method, for instance.
   ///
   /// It does not fire when you interrupt the audio with pause or stop.
   Stream<void> get onPlayerCompletion => _completionController.stream;
-  @deprecated
-  VoidCallback completionHandler;
 
   /// This is called when an unexpected error is thrown in the native code.
   Stream<String> get onPlayerError => _errorController.stream;
+
+  @deprecated
+  AudioPlayerStateChangeHandler audioPlayerStateChangeHandler;
+
+  /// This handler updates the current position of the audio. You can use it to make a progress bar, for instance.
+  @deprecated
+  TimeChangeHandler positionHandler;
+
+  /// This handler returns the duration of the file, when it's available (it might take a while because it's being downloaded or buffered).
+  @deprecated
+  TimeChangeHandler durationHandler;
+
+  @deprecated
+  VoidCallback completionHandler;
+
   @deprecated
   ErrorHandler errorHandler;
 
