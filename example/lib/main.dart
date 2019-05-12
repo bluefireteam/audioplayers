@@ -25,14 +25,14 @@ class ExampleApp extends StatefulWidget {
 }
 
 class _ExampleAppState extends State<ExampleApp> {
-  AudioCache audioCache = new AudioCache();
-  AudioPlayer advancedPlayer = new AudioPlayer();
+  AudioCache audioCache = AudioCache();
+  AudioPlayer advancedPlayer = AudioPlayer();
   String localFilePath;
 
   Future _loadFile() async {
     final bytes = await readBytes(kUrl1);
     final dir = await getApplicationDocumentsDirectory();
-    final file = new File('${dir.path}/audio.mp3');
+    final file = File('${dir.path}/audio.mp3');
 
     await file.writeAsBytes(bytes);
     if (await file.exists()) {

@@ -12,7 +12,7 @@ void main() {
   group('AudioPlayer', () {
     test('#play', () async {
       calls.clear();
-      AudioPlayer player = new AudioPlayer();
+      AudioPlayer player = AudioPlayer();
       await player.play('internet.com/file.mp3');
       expect(calls, hasLength(1));
       expect(calls[0].method, 'play');
@@ -21,8 +21,8 @@ void main() {
 
     test('multiple players', () async {
       calls.clear();
-      AudioPlayer player1 = new AudioPlayer();
-      AudioPlayer player2 = new AudioPlayer();
+      AudioPlayer player1 = AudioPlayer();
+      AudioPlayer player2 = AudioPlayer();
 
       await player1.play('internet.com/file.mp3');
       String player1Id = calls[0].arguments['playerId'];
