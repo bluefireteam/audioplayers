@@ -10,6 +10,7 @@ typedef void ErrorHandler(String message);
 typedef void AudioPlayerStateChangeHandler(AudioPlayerState state);
 
 /// This enum is meant to be used as a parameter of [setReleaseMode] method.
+///
 /// It represents the behaviour of [AudioPlayer] when an audio is finished or
 /// stopped.
 enum ReleaseMode {
@@ -219,9 +220,8 @@ class AudioPlayer {
     String url, {
     bool isLocal = false,
     double volume = 1.0,
-
-    /// [position] be null by default to be compatible with radio streams.
-    Duration position = null,
+    // position must be null by default to be compatible with radio streams
+    Duration position,
     bool respectSilence = false,
   }) async {
     isLocal ??= false;
@@ -373,5 +373,17 @@ class AudioPlayer {
     if (logEnabled) {
       print(param);
     }
+  }
+
+  /// Closes all [StreamController]s.
+  ///
+  /// You must call this method when your [AudioPlayer] is not going to be
+  /// used anymore.
+  dispose() {
+    if (!_playerStateController.isClosed) _playerStateController.close();
+    if (!_positionController.isClosed) _positionController.close();
+    if (!_durationController.isClosed) _durationController.close();
+    if (!_completionController.isClosed) _completionController.close();
+    if (!_errorController.isClosed) _errorController.close();
   }
 }
