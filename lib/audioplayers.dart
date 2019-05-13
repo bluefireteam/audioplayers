@@ -377,8 +377,8 @@ class AudioPlayer {
 
   /// Closes all [StreamController]s.
   ///
-  /// You must call this method when your [AudioPlayer] is not going to be
-  /// used anymore.
+  /// You must call this method when your [AudioPlayer] instance is not going to
+  /// be used anymore.
   dispose() {
     if (!_playerStateController.isClosed) _playerStateController.close();
     if (!_positionController.isClosed) _positionController.close();
