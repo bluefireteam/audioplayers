@@ -25,6 +25,9 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     private MediaPlayer player;
     private AudioplayersPlugin ref;
 
+    static private int buffered = 0;
+
+
     WrappedMediaPlayer(AudioplayersPlugin ref, String playerId) {
         this.ref = ref;
         this.playerId = playerId;
@@ -93,6 +96,11 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     }
 
     @Override
+    int getBufferedProgress() {
+        return WrappedMediaPlayer.buffered;
+    }
+
+    @Override
     int getCurrentPosition() {
         return this.player.getCurrentPosition();
     }
@@ -125,6 +133,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
                 this.ref.handleIsPlaying(this);
             }
         }
+        WrappedMediaPlayer.buffered = 0;
     }
 
     @Override
@@ -205,6 +214,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         ref.handleCompletion(this);
     }
 
+
     /**
      * Internal logic. Private methods
      */
@@ -216,6 +226,16 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         setAttributes(player);
         player.setVolume((float) volume, (float) volume);
         player.setLooping(this.releaseMode == ReleaseMode.LOOP);
+
+
+        player.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
+            public void onBufferingUpdate(MediaPlayer mp, int percent) 
+            {
+                WrappedMediaPlayer.buffered = percent;
+            }
+
+        });
+        
         return player;
     }
 

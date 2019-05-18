@@ -130,6 +130,11 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
     }
 
     @Override
+    int getBufferedProgress() {
+        return -11;
+    }
+
+    @Override
     int getCurrentPosition() {
         throw unsupportedOperation("getCurrentPosition");
     }

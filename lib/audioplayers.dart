@@ -267,6 +267,11 @@ class AudioPlayer {
         'setReleaseMode', {'releaseMode': releaseMode.toString()});
   }
 
+
+  Future<int> getBufferedProgress() {
+    return _invokeMethod('getBufferedProgress');
+  }
+
   /// Changes the url (source), without resuming playback (like play would do).
   ///
   /// This will keep the resource prepared (on Android) for when resume is called.

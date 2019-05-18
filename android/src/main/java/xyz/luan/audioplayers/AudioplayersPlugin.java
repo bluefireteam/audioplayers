@@ -100,6 +100,11 @@ public class AudioplayersPlugin implements MethodCallHandler {
                 player.setReleaseMode(releaseMode);
                 break;
             }
+            case "getBufferedProgress": {
+                int percent = player.getBufferedProgress();
+                response.success(percent);
+                return;
+            }
             default: {
                 response.notImplemented();
                 return;

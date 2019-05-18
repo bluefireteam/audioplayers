@@ -30,6 +30,8 @@ abstract class Player {
 
     abstract boolean isActuallyPlaying();
 
+    abstract int getBufferedProgress();
+
     /**
      * Seek operations cannot be called until after the player is ready.
      */
