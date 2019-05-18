@@ -32,13 +32,13 @@ Before opening an issue, please refer to the [troubleshoot guide](troubleshootin
 An `AudioPlayer` instance can play a single audio at a time. To create it, simply call the constructor:
 
 ```dart
-    AudioPlayer audioPlayer = new AudioPlayer();
+    AudioPlayer audioPlayer = AudioPlayer();
 ```
 
 To use the low latency API, better for gaming sounds, use:
 
 ```dart
-    AudioPlayer audioPlayer = new AudioPlayer(mode: PlayerMode.LOW_LATENCY);
+    AudioPlayer audioPlayer = AudioPlayer(mode: PlayerMode.LOW_LATENCY);
 ```
 
 In this mode the backend won't fire any duration or position updates.
@@ -111,7 +111,7 @@ Stop will stop the audio and reset the cursor. Subsequently calling play will re
 Finally, use seek to jump through your audio:
 
 ```dart
-  int result = await audioPlayer.seek(new Duration(milliseconds: 1200));
+  int result = await audioPlayer.seek(Duration(milliseconds: 1200));
 ```
 
 Also, you can resume (like play, but without new parameters):
@@ -210,8 +210,8 @@ This is called when an unexpected error is thrown in the native code.
     print('audioPlayer error : $msg');
     setState(() {
       playerState = PlayerState.stopped;
-      duration = new Duration(seconds: 0);
-      position = new Duration(seconds: 0);
+      duration = Duration(seconds: 0);
+      position = Duration(seconds: 0);
     });
   });
 ```

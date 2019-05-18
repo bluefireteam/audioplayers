@@ -125,7 +125,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   }
 
   void _initAudioPlayer() {
-    _audioPlayer = new AudioPlayer(mode: mode);
+    _audioPlayer = AudioPlayer(mode: mode);
 
     _durationSubscription =
         _audioPlayer.onDurationChanged.listen((duration) => setState(() {
@@ -149,8 +149,8 @@ class _PlayerWidgetState extends State<PlayerWidget> {
       print('audioPlayer error : $msg');
       setState(() {
         _playerState = PlayerState.stopped;
-        _duration = new Duration(seconds: 0);
-        _position = new Duration(seconds: 0);
+        _duration = Duration(seconds: 0);
+        _position = Duration(seconds: 0);
       });
     });
 
@@ -186,7 +186,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     if (result == 1) {
       setState(() {
         _playerState = PlayerState.stopped;
-        _position = new Duration();
+        _position = Duration();
       });
     }
     return result;

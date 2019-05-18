@@ -13,7 +13,7 @@ To play an audio, just run:
 ```dart
     import 'package:audioplayers/audio_cache.dart';
 
-    static AudioCache player = new AudioCache();
+    static AudioCache player = AudioCache();
 
     player.play('explosion.mp3');
 ```
@@ -39,7 +39,7 @@ flutter:
 You can optionally pass a prefix to the constructor if all your musics are in a specific folder inside the assets folder. [Flame](https://github.com/luanpotter/flame), for instance, uses the 'audio/' prefix:
 
 ```dart
-    AudioCache player = new AudioCache(prefix: 'audio/');
+    AudioCache player = AudioCache(prefix: 'audio/');
     player.play('explosion.mp3');
     // now this file will be loaded from assets/audio/explosion.mp3
 ```

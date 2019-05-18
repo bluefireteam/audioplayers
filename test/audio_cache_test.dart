@@ -29,7 +29,7 @@ void main() {
 
   group('AudioCache', () {
     test('sets cache', () async {
-      MyAudioCache player = new MyAudioCache();
+      MyAudioCache player = MyAudioCache();
       await player.load('audio.mp3');
       expect(player.loadedFiles['audio.mp3'], isNotNull);
       expect(player.called, hasLength(1));
@@ -40,9 +40,9 @@ void main() {
     });
 
     test('fixedPlayer vs non fixedPlayer', () async {
-      MyAudioCache fixed = new MyAudioCache(fixedPlayer: new AudioPlayer());
+      MyAudioCache fixed = MyAudioCache(fixedPlayer: AudioPlayer());
       String fixedId = fixed.fixedPlayer.playerId;
-      MyAudioCache regular = new MyAudioCache();
+      MyAudioCache regular = MyAudioCache();
 
       AudioPlayer a1 = await fixed.play('audio.mp3');
       expect(a1.playerId, fixedId);
