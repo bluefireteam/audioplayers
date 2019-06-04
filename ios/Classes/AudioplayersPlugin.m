@@ -71,7 +71,7 @@ FlutterMethodChannel *_channel_audioplayer;
                     CMTime time = CMTimeMakeWithSeconds(milliseconds / 1000,NSEC_PER_SEC);
                     NSLog(@"isLocal: %d %@", isLocal, call.arguments[@"isLocal"] );
                     NSLog(@"volume: %f %@", volume, call.arguments[@"volume"] );
-                      NSLog(@"position: %d %@", milliseconds, call.arguments[@"positions"] );
+                    NSLog(@"position: %d %@", milliseconds, call.arguments[@"positions"] );
                     [self play:playerId url:url isLocal:isLocal volume:volume time:time isNotification:respectSilence];
                   },
                 @"pause":
@@ -356,7 +356,7 @@ FlutterMethodChannel *_channel_audioplayer;
 
     NSLog(@"player status: %ld",(long)[[player currentItem] status ]);
 
-    // Do something with the status…
+    // Do something with the status...
     if ([[player currentItem] status ] == AVPlayerItemStatusReadyToPlay) {
       [self updateDuration:playerId];
 

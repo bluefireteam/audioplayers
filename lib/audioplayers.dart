@@ -331,8 +331,15 @@ class AudioPlayer {
   }
 
   static Future<void> platformCallHandler(MethodCall call) async {
-    final Map<String, dynamic> callArgs = call.arguments as Map;
+    try {
+      _doHandlePlatformCall(call);
+    } catch (ex) {
+      _log('Unexpected error: $ex');
+    }
+  }
 
+  static Future<void> _doHandlePlatformCall(MethodCall call) async {
+    final Map<dynamic, dynamic> callArgs = call.arguments as Map;
     _log('_platformCallHandler call ${call.method} ${callArgs}');
 
     final playerId = callArgs['playerId'] as String;
