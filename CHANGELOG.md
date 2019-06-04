@@ -1,5 +1,9 @@
 # Changelog
 
+## audioplayers 0.12.1
+ - Fixes bug where the stream handlers were not called due to exception on the handler
+ - Proper error message when errors in the dart handler occurs
+
 ## audioplayers 0.12.0
  - Update to path_provider 1.1.0
  - Upgrade to Swift 5 in example project setting (thanks @jerryzhoujw)
