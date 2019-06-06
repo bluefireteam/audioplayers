@@ -222,7 +222,7 @@ In order to play Local Assets, you must use the `AudioCache` class.
 
 Flutter does not provide an easy way to play audio on your assets, but this class helps a lot. It actually copies the asset to a temporary folder in the device, where it is then played as a Local File.
 
-It works as a cache because it keep track of the copied files so that you can replay then without delay.
+It works as a cache because it keeps track of the copied files so that you can replay them without delay.
 
 You can find the full documentation for this class [here](doc/audio_cache.md).
 
