@@ -4,7 +4,7 @@ In order to play Local Assets, you must use the `AudioCache` class.
 
 Flutter does not provide an easy way to play audio on your assets, but this class helps a lot. It actually copies the asset to a temporary folder in the device, where it is then played as a Local File.
 
-It works as a cache because it keep track of the copied files so that you can replay then without delay; you can also pre-load files.
+It works as a cache because it keeps track of the copied files so that you can replay them without delay; you can also pre-load files.
 
 Each instance has its own independent cache, so, if you want to optimize your load times, create a singleton.
 
@@ -18,7 +18,7 @@ To play an audio, just run:
     player.play('explosion.mp3');
 ```
 
-This will play the `explosion.mp3` file in your projects `asset` folder.
+This will play the `explosion.mp3` file in your project's `asset` folder.
 
 The file structure would be something like this:
 
@@ -36,7 +36,7 @@ flutter:
    - assets/explosion.mp3
 ```
 
-You can optionally pass a prefix to the constructor if all your musics are in a specific folder inside the assets folder. [Flame](https://github.com/luanpotter/flame), for instance, uses the 'audio/' prefix:
+You can optionally pass a prefix to the constructor if all your music is in a specific folder inside the assets folder. [Flame](https://github.com/luanpotter/flame), for instance, this example uses the 'audio/' prefix:
 
 ```dart
     AudioCache player = AudioCache(prefix: 'audio/');
@@ -44,7 +44,7 @@ You can optionally pass a prefix to the constructor if all your musics are in a 
     // now this file will be loaded from assets/audio/explosion.mp3
 ```
 
-If you want to play indefinitely, just use `loop` function:
+If you want to play indefinitely, just use the `loop` function:
 
 ```dart
     player.loop('music.mp3');
@@ -56,7 +56,7 @@ Finally, you can pre-load your audios. Audios need to be copied the first time t
     player.load('explosion.mp3');
 ```
 
-You can load all your audios in beginning so that they always play smoothly; to load multiple audios, use the `loadAll` method:
+You can load all your audios in the beginning so that they always play smoothly; to load multiple audios, use the `loadAll` method:
 
 ```dart
     player.loadAll(['explosion.mp3', 'music.mp3'])
@@ -72,7 +72,7 @@ There is also a `clearAll` method, that clears the whole cache.
 
 This might be useful if, for instance, your game has multiple levels and each has a different soundtrack.
 
-Both load methods return a `Future` for the `File`s loaded.
+Both load methods return a `Future` for the loaded `File`.
 
 Both on `play` and `loop` you can pass an additional optional double parameter, the `volume` (defaults to `1.0`).
 
