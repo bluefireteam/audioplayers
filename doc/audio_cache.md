@@ -72,7 +72,7 @@ There is also a `clearAll` method, that clears the whole cache.
 
 This might be useful if, for instance, your game has multiple levels and each has a different soundtrack.
 
-Both load methods return a `Future` for the loaded `File`.
+Both load methods return a `Future` for the loaded `File`s.
 
 Both on `play` and `loop` you can pass an additional optional double parameter, the `volume` (defaults to `1.0`).
 
