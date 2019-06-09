@@ -36,7 +36,7 @@ flutter:
    - assets/explosion.mp3
 ```
 
-You can optionally pass a prefix to the constructor if all your music is in a specific folder inside the assets folder. [Flame](https://github.com/luanpotter/flame), for instance, this example uses the 'audio/' prefix:
+You can optionally pass a prefix to the constructor if all of your audios are in a specific folder inside the assets folder. [Flame](https://github.com/luanpotter/flame), for instance, uses the 'audio/' prefix:
 
 ```dart
     AudioCache player = AudioCache(prefix: 'audio/');
