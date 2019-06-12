@@ -47,18 +47,14 @@ class _ExampleAppState extends State<ExampleApp> {
       child: Container(
         padding: EdgeInsets.all(16.0),
         child: Column(
-          children: children
-              .map((w) => Container(child: w, padding: EdgeInsets.all(6.0)))
-              .toList(),
+          children: children.map((w) => Container(child: w, padding: EdgeInsets.all(6.0))).toList(),
         ),
       ),
     );
   }
 
   Widget _btn(String txt, VoidCallback onPressed) {
-    return ButtonTheme(
-        minWidth: 48.0,
-        child: RaisedButton(child: Text(txt), onPressed: onPressed));
+    return ButtonTheme(minWidth: 48.0, child: RaisedButton(child: Text(txt), onPressed: onPressed));
   }
 
   Widget remoteUrl() {
@@ -93,9 +89,7 @@ class _ExampleAppState extends State<ExampleApp> {
       Text('File: $kUrl1'),
       _btn('Download File to your Device', () => _loadFile()),
       Text('Current local file path: $localFilePath'),
-      localFilePath == null
-          ? Container()
-          : PlayerWidget(url: localFilePath, isLocal: true),
+      localFilePath == null ? Container() : PlayerWidget(url: localFilePath, isLocal: true),
     ]);
   }
 
@@ -108,19 +102,46 @@ class _ExampleAppState extends State<ExampleApp> {
       Text('Play Local Asset \'audio2.mp3\':'),
       _btn('Play', () => audioCache.play('audio2.mp3')),
       Text('Play Local Asset In Low Latency \'audio.mp3\':'),
-      _btn('Play',
-          () => audioCache.play('audio.mp3', mode: PlayerMode.LOW_LATENCY)),
+      _btn('Play', () => audioCache.play('audio.mp3', mode: PlayerMode.LOW_LATENCY)),
       Text('Play Local Asset In Low Latency \'audio2.mp3\':'),
-      _btn('Play',
-          () => audioCache.play('audio2.mp3', mode: PlayerMode.LOW_LATENCY)),
+      _btn('Play', () => audioCache.play('audio2.mp3', mode: PlayerMode.LOW_LATENCY)),
+      getLocalFileDuration(),
     ]);
+  }
+
+  Future<int> _getDuration() async {
+    File audiofile = await audioCache.load('audio2.mp3');
+    await advancedPlayer.setUrl(
+      audiofile.path,
+      isLocal: true,
+    );
+    int duration = await Future.delayed(Duration(seconds: 2), () => advancedPlayer.getDuration());
+    return duration;
+  }
+
+  getLocalFileDuration() {
+    return FutureBuilder<int>(
+      future: _getDuration(),
+      builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.none:
+            return Text('No Connection...');
+          case ConnectionState.active:
+          case ConnectionState.waiting:
+            return Text('Awaiting result...');
+          case ConnectionState.done:
+            if (snapshot.hasError) return Text('Error: ${snapshot.error}');
+            return Text('audio2.mp3 duration is: ${Duration(milliseconds: snapshot.data)}');
+        }
+        return null; // unreachable
+      },
+    );
   }
 
   Widget notification() {
     return _tab([
       Text('Play notification sound: \'messenger.mp3\':'),
-      _btn(
-          'Play', () => audioCache.play('messenger.mp3', isNotification: true)),
+      _btn('Play', () => audioCache.play('messenger.mp3', isNotification: true)),
     ]);
   }
 
@@ -139,8 +160,7 @@ class _ExampleAppState extends State<ExampleApp> {
         Row(children: [
           _btn('STOP', () => advancedPlayer.setReleaseMode(ReleaseMode.STOP)),
           _btn('LOOP', () => advancedPlayer.setReleaseMode(ReleaseMode.LOOP)),
-          _btn('RELEASE',
-              () => advancedPlayer.setReleaseMode(ReleaseMode.RELEASE)),
+          _btn('RELEASE', () => advancedPlayer.setReleaseMode(ReleaseMode.RELEASE)),
         ], mainAxisAlignment: MainAxisAlignment.spaceEvenly),
       ]),
       new Column(children: [
@@ -191,13 +211,7 @@ class _ExampleAppState extends State<ExampleApp> {
           title: Text('audioplayers Example'),
         ),
         body: TabBarView(
-          children: [
-            remoteUrl(),
-            localFile(),
-            localAsset(),
-            notification(),
-            advanced()
-          ],
+          children: [remoteUrl(), localFile(), localAsset(), notification(), advanced()],
         ),
       ),
     );
