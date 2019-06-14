@@ -12,8 +12,10 @@ static NSMutableDictionary * players;
 -(void) stop: (NSString *) playerId;
 -(void) seek: (NSString *) playerId time: (CMTime) time;
 -(void) onSoundComplete: (NSString *) playerId;
+-(void) setRate: (double)rate :(NSString *) playerId;
 -(void) updateDuration: (NSString *) playerId;
 -(void) onTimeInterval: (NSString *) playerId time: (CMTime) time;
+@property double rate;
 @end
 
 @implementation AudioplayersPlugin {
@@ -64,6 +66,7 @@ FlutterMethodChannel *_channel_audioplayer;
                         result(0);
                     if (call.arguments[@"respectSilence"] == nil)
                         result(0);
+
                     int isLocal = [call.arguments[@"isLocal"]intValue] ;
                     float volume = (float)[call.arguments[@"volume"] doubleValue] ;
                     int milliseconds = call.arguments[@"position"] == [NSNull null] ? 0.0 : [call.arguments[@"position"] intValue] ;
@@ -73,6 +76,7 @@ FlutterMethodChannel *_channel_audioplayer;
                     NSLog(@"volume: %f %@", volume, call.arguments[@"volume"] );
                     NSLog(@"position: %d %@", milliseconds, call.arguments[@"positions"] );
                     [self play:playerId url:url isLocal:isLocal volume:volume time:time isNotification:respectSilence];
+
                   },
                 @"pause":
                   ^{
@@ -93,6 +97,12 @@ FlutterMethodChannel *_channel_audioplayer;
                     ^{
                         NSLog(@"release");
                         [self stop:playerId];
+                    },
+                @"setRate":
+                    ^{
+                        NSNumber* rateNumber = call.arguments[@"rate"];
+                        double rate = [rateNumber doubleValue];
+                        [self setRate: rate:playerId];
                     },
                 @"seek":
                   ^{
@@ -213,6 +223,8 @@ FlutterMethodChannel *_channel_audioplayer;
                           forKeyPath:@"player.currentItem.status"
                           options:0
                           context:(void*)playerId];
+
+
       
   } else {
     if ([[player currentItem] status ] == AVPlayerItemStatusReadyToPlay) {
@@ -253,8 +265,13 @@ FlutterMethodChannel *_channel_audioplayer;
            [ player seekToTime:time ];
            [ player play];
            [ playerInfo setObject:@true forKey:@"isPlaying" ];
+           NSLog(@"setRate %f",self.rate);
+           player.automaticallyWaitsToMinimizeStalling = NO;
+           player.rate = self.rate;
+
          }    
   ];
+
 }
 
 -(void) updateDuration: (NSString *) playerId
@@ -375,6 +392,11 @@ FlutterMethodChannel *_channel_audioplayer;
                            change:change
                           context:context];
   }
+}
+
+
+- (void)setRate:(double)rate :(NSString *) playerId {
+   self.rate=rate;
 }
 
 - (void)dealloc {

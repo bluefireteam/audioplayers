@@ -126,7 +126,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
 
   void _initAudioPlayer() {
     _audioPlayer = AudioPlayer(mode: mode);
-
+    _setRate(0.6);
     _durationSubscription =
         _audioPlayer.onDurationChanged.listen((duration) => setState(() {
               _duration = duration;
@@ -178,6 +178,11 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   Future<int> _pause() async {
     final result = await _audioPlayer.pause();
     if (result == 1) setState(() => _playerState = PlayerState.paused);
+    return result;
+  }
+
+  Future<int> _setRate(double rate) async {
+    final result = await _audioPlayer.setRate(rate);
     return result;
   }
 
