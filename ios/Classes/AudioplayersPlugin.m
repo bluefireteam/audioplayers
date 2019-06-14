@@ -118,6 +118,13 @@ FlutterMethodChannel *_channel_audioplayer;
                           }
                     ];
                   },
+                @"getDuration":
+                    ^{
+                        
+                        int duration = [self getDuration:playerId];
+                        NSLog(@"getDuration: %i ", duration);
+                        result(@(duration));
+                    },
                 @"setVolume":
                   ^{
                     NSLog(@"setVolume");
@@ -269,6 +276,15 @@ FlutterMethodChannel *_channel_audioplayer;
    int mseconds= CMTimeGetSeconds(duration)*1000;
     [_channel_audioplayer invokeMethod:@"audio.onDuration" arguments:@{@"playerId": playerId, @"value": @(mseconds)}];
   }
+}
+
+-(int) getDuration: (NSString *) playerId {
+    NSMutableDictionary * playerInfo = players[playerId];
+    AVPlayer *player = playerInfo[@"player"];
+    
+   CMTime duration = [[[player currentItem]  asset] duration];
+    int mseconds= CMTimeGetSeconds(duration)*1000;
+    return mseconds;
 }
 
 // No need to spam the logs with every time interval update
