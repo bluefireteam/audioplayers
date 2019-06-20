@@ -123,6 +123,10 @@ public class AudioplayersPlugin implements MethodCallHandler {
         startPositionUpdates();
     }
 
+    public void handleDuration(Player player) {
+        channel.invokeMethod("audio.onDuration", buildArguments(player.getPlayerId(), player.getDuration()));
+    }
+
     public void handleCompletion(Player player) {
         channel.invokeMethod("audio.onComplete", buildArguments(player.getPlayerId(), true));
     }
