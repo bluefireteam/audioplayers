@@ -1,5 +1,9 @@
 # Changelog
 
+## audioplayers 0.13.0
+ - Call onDurationChanged after setUrl() to be consistent with ios version (thanks @subhash279)
+ - Adding getDuration feature iOS/Android (thanks @alecorsino)
+
 ## audioplayers 0.12.1
  - Fixes bug where the stream handlers were not called due to exception on the handler
  - Proper error message when errors in the dart handler occurs
