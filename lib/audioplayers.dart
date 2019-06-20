@@ -330,6 +330,15 @@ class AudioPlayer {
     return _invokeMethod('setUrl', {'url': url, 'isLocal': isLocal});
   }
 
+  /// Get audio duration after setting url.
+  /// Use it in conjunction with setUrl.
+  ///
+  /// It will be available as soon as the audio duration is available
+  /// (it might take a while to download or buffer it if file is not local).
+  Future<int> getDuration() {
+    return _invokeMethod('getDuration');
+  }
+
   static Future<void> platformCallHandler(MethodCall call) async {
     try {
       _doHandlePlatformCall(call);

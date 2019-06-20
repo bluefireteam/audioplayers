@@ -94,6 +94,11 @@ public class AudioplayersPlugin implements MethodCallHandler {
                 player.setUrl(url, isLocal);
                 break;
             }
+            case "getDuration": {
+
+                response.success(player.getDuration());
+                return;
+            }
             case "setReleaseMode": {
                 final String releaseModeName = call.argument("releaseMode");
                 final ReleaseMode releaseMode = ReleaseMode.valueOf(releaseModeName.substring("ReleaseMode.".length()));
