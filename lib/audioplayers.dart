@@ -395,11 +395,14 @@ class AudioPlayer {
   ///
   /// You must call this method when your [AudioPlayer] instance is not going to
   /// be used anymore.
-  dispose() {
-    if (!_playerStateController.isClosed) _playerStateController.close();
-    if (!_positionController.isClosed) _positionController.close();
-    if (!_durationController.isClosed) _durationController.close();
-    if (!_completionController.isClosed) _completionController.close();
-    if (!_errorController.isClosed) _errorController.close();
-  }
+  Future<void> dispose() async {
+    List<Future> futures = [];
+
+    if (!_playerStateController.isClosed) futures.add(_playerStateController.close());
+    if (!_positionController.isClosed) futures.add(_positionController.close());
+    if (!_durationController.isClosed) futures.add(_durationController.close());
+    if (!_completionController.isClosed) futures.add(_completionController.close());
+    if (!_errorController.isClosed) futures.add(_errorController.close());
+
+  await Future.wait(futures);
 }
