@@ -3,13 +3,15 @@ package xyz.luan.audioplayers;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.os.Build;
 import android.os.PowerManager;
 import android.content.Context;
+import android.os.Build;
 
 import java.io.IOException;
+import android.util.Log;
 
-public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
+public class WrappedMediaPlayer extends Player
+        implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
 
     private String playerId;
 
@@ -77,9 +79,9 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         if (this.stayAwake != stayAwake) {
             this.stayAwake = stayAwake;
             if (!this.released) {
-                if(this.stayAwake){
-                    this.player.setWakeMode(context,PowerManager.PARTIAL_WAKE_LOCK);
-                }
+                if (this.stayAwake) {
+                    this.player.setWakeMode(context, PowerManager.PARTIAL_WAKE_LOCK);
+                } 
             }
         }
     }
@@ -243,10 +245,9 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     private void setAttributes(MediaPlayer player) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             player.setAudioAttributes(new AudioAttributes.Builder()
-                    .setUsage(respectSilence ? AudioAttributes.USAGE_NOTIFICATION_RINGTONE : AudioAttributes.USAGE_MEDIA)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                    .build()
-            );
+                    .setUsage(
+                            respectSilence ? AudioAttributes.USAGE_NOTIFICATION_RINGTONE : AudioAttributes.USAGE_MEDIA)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build());
         } else {
             // This method is deprecated but must be used on older devices
             player.setAudioStreamType(respectSilence ? AudioManager.STREAM_RING : AudioManager.STREAM_MUSIC);
