@@ -3,22 +3,17 @@ package xyz.luan.audioplayers;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.os.PowerManager;
-import android.content.Context;
 import android.os.Build;
 
 import java.io.IOException;
-import android.util.Log;
 
-public class WrappedMediaPlayer extends Player
-        implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
+public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
 
     private String playerId;
 
     private String url;
     private double volume = 1.0;
     private boolean respectSilence;
-    private boolean stayAwake;
     private ReleaseMode releaseMode = ReleaseMode.RELEASE;
 
     private boolean released = true;
@@ -69,13 +64,14 @@ public class WrappedMediaPlayer extends Player
     }
 
     @Override
-    void configAttributes(boolean respectSilence, boolean stayAwake, Context context) {
+    void configAttributes(boolean respectSilence) {
         if (this.respectSilence != respectSilence) {
             this.respectSilence = respectSilence;
             if (!this.released) {
                 setAttributes(player);
             }
         }
+<<<<<<< HEAD
         if (this.stayAwake != stayAwake) {
             this.stayAwake = stayAwake;
             if (!this.released) {
@@ -84,6 +80,8 @@ public class WrappedMediaPlayer extends Player
                 } 
             }
         }
+=======
+>>>>>>> parent of e1bc6b8... added stay awake mode (keeps the media player from removing it self)
     }
 
     @Override
@@ -245,9 +243,10 @@ public class WrappedMediaPlayer extends Player
     private void setAttributes(MediaPlayer player) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             player.setAudioAttributes(new AudioAttributes.Builder()
-                    .setUsage(
-                            respectSilence ? AudioAttributes.USAGE_NOTIFICATION_RINGTONE : AudioAttributes.USAGE_MEDIA)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build());
+                    .setUsage(respectSilence ? AudioAttributes.USAGE_NOTIFICATION_RINGTONE : AudioAttributes.USAGE_MEDIA)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .build()
+            );
         } else {
             // This method is deprecated but must be used on older devices
             player.setAudioStreamType(respectSilence ? AudioManager.STREAM_RING : AudioManager.STREAM_MUSIC);

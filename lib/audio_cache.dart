@@ -93,8 +93,7 @@ class AudioCache {
   Future<AudioPlayer> play(String fileName,
       {double volume = 1.0,
       bool isNotification,
-      PlayerMode mode = PlayerMode.MEDIA_PLAYER,
-      bool stayAwake}) async {
+      PlayerMode mode = PlayerMode.MEDIA_PLAYER}) async {
     File file = await load(fileName);
     AudioPlayer player = _player(mode);
     await player.play(
@@ -102,7 +101,6 @@ class AudioCache {
       isLocal: true,
       volume: volume,
       respectSilence: isNotification ?? respectSilence,
-      stayAwake: stayAwake,
     );
     return player;
   }
@@ -113,8 +111,7 @@ class AudioCache {
   Future<AudioPlayer> loop(String fileName,
       {double volume = 1.0,
       bool isNotification,
-      PlayerMode mode = PlayerMode.MEDIA_PLAYER,
-      bool stayAwake}) async {
+      PlayerMode mode = PlayerMode.MEDIA_PLAYER}) async {
     File file = await load(fileName);
     AudioPlayer player = _player(mode);
     player.setReleaseMode(ReleaseMode.LOOP);
@@ -123,7 +120,6 @@ class AudioCache {
       isLocal: true,
       volume: volume,
       respectSilence: isNotification ?? respectSilence,
-      stayAwake: stayAwake,
     );
     return player;
   }
