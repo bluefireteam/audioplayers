@@ -81,10 +81,7 @@ public class WrappedMediaPlayer extends Player
             if (!this.released) {
                 if (this.stayAwake) {
                     this.player.setWakeMode(context, PowerManager.PARTIAL_WAKE_LOCK);
-                    Log.d("a", "PARTIAL_WAKE_LOCK");
-                } else {
-                    Log.d("a", "FULL_WAKE_LOCK");
-                }
+                } 
             }
         }
     }
