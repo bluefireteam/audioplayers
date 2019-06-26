@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
+import android.content.Context;
 
 import static java.io.File.createTempFile;
 
@@ -113,7 +114,7 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
     }
 
     @Override
-    void configAttributes(boolean respectSilence) {
+    void configAttributes(boolean respectSilence,boolean setWakeMode,Context context) {
     }
 
     @Override
