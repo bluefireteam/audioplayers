@@ -1,7 +1,6 @@
 package xyz.luan.audioplayers;
 
 import android.content.Context;
-
 abstract class Player {
 
     protected static boolean objectEquals(Object o1, Object o2) {

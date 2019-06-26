@@ -1,6 +1,7 @@
 package xyz.luan.audioplayers;
 
 import android.os.Handler;
+import android.app.Activity;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
@@ -12,7 +13,6 @@ import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
-import android.app.Activity;
 
 public class AudioplayersPlugin implements MethodCallHandler {
 
@@ -26,10 +26,10 @@ public class AudioplayersPlugin implements MethodCallHandler {
 
     public static void registerWith(final Registrar registrar) {
         final MethodChannel channel = new MethodChannel(registrar.messenger(), "xyz.luan/audioplayers");
-        channel.setMethodCallHandler(new AudioplayersPlugin(channel, registrar.activity()));
+        channel.setMethodCallHandler(new AudioplayersPlugin(channel,registrar.activity()));
     }
 
-    private AudioplayersPlugin(final MethodChannel channel, Activity activity) {
+    private AudioplayersPlugin(final MethodChannel channel,Activity activity) {
         this.channel = channel;
         this.channel.setMethodCallHandler(this);
         this.activity = activity;
@@ -50,77 +50,79 @@ public class AudioplayersPlugin implements MethodCallHandler {
         final String mode = call.argument("mode");
         final Player player = getPlayer(playerId, mode);
         switch (call.method) {
-        case "play": {
-            final String url = call.argument("url");
-            final double volume = call.argument("volume");
-            final Integer position = call.argument("position");
-            final boolean respectSilence = call.argument("respectSilence");
-            final boolean isLocal = call.argument("isLocal");
-            final boolean stayAwake = call.argument("stayAwake");
-            player.configAttributes(respectSilence, stayAwake, activity.getApplicationContext());
-            player.setVolume(volume);
-            player.setUrl(url, isLocal);
-            if (position != null && !mode.equals("PlayerMode.LOW_LATENCY")) {
-                player.seek(position);
+            case "play": {
+                final String url = call.argument("url");
+                final double volume = call.argument("volume");
+                final Integer position = call.argument("position");
+                final boolean respectSilence = call.argument("respectSilence");
+                final boolean isLocal = call.argument("isLocal");
+                final boolean stayAwake = call.argument("stayAwake");
+                player.configAttributes(respectSilence,stayAwake,activity.getApplicationContext());
+                player.setVolume(volume);
+                player.setUrl(url, isLocal);
+                if (position != null && !mode.equals("PlayerMode.LOW_LATENCY")) {
+                    player.seek(position);
+                }
+                player.play();
+                break;
             }
-            player.play();
-            break;
-        }
-        case "resume": {
-            player.play();
-            break;
-        }
-        case "pause": {
-            player.pause();
-            break;
-        }
-        case "stop": {
-            player.stop();
-            break;
-        }
-        case "release": {
-            player.release();
-            break;
-        }
-        case "seek": {
-            final Integer position = call.argument("position");
-            player.seek(position);
-            break;
-        }
-        case "setVolume": {
-            final double volume = call.argument("volume");
-            player.setVolume(volume);
-            break;
-        }
-        case "setUrl": {
-            final String url = call.argument("url");
-            final boolean isLocal = call.argument("isLocal");
-            player.setUrl(url, isLocal);
-            break;
-        }
-        case "getDuration": {
+            case "resume": {
+                player.play();
+                break;
+            }
+            case "pause": {
+                player.pause();
+                break;
+            }
+            case "stop": {
+                player.stop();
+                break;
+            }
+            case "release": {
+                player.release();
+                break;
+            }
+            case "seek": {
+                final Integer position = call.argument("position");
+                player.seek(position);
+                break;
+            }
+            case "setVolume": {
+                final double volume = call.argument("volume");
+                player.setVolume(volume);
+                break;
+            }
+            case "setUrl": {
+                final String url = call.argument("url");
+                final boolean isLocal = call.argument("isLocal");
+                player.setUrl(url, isLocal);
+                break;
+            }
+            case "getDuration": {
 
-            response.success(player.getDuration());
-            return;
-        }
-        case "setReleaseMode": {
-            final String releaseModeName = call.argument("releaseMode");
-            final ReleaseMode releaseMode = ReleaseMode.valueOf(releaseModeName.substring("ReleaseMode.".length()));
-            player.setReleaseMode(releaseMode);
-            break;
-        }
-        default: {
-            response.notImplemented();
-            return;
-        }
+                response.success(player.getDuration());
+                return;
+            }
+            case "setReleaseMode": {
+                final String releaseModeName = call.argument("releaseMode");
+                final ReleaseMode releaseMode = ReleaseMode.valueOf(releaseModeName.substring("ReleaseMode.".length()));
+                player.setReleaseMode(releaseMode);
+                break;
+            }
+            default: {
+                response.notImplemented();
+                return;
+            }
         }
         response.success(1);
     }
 
     private Player getPlayer(String playerId, String mode) {
         if (!mediaPlayers.containsKey(playerId)) {
-            Player player = mode.equalsIgnoreCase("PlayerMode.MEDIA_PLAYER") ? new WrappedMediaPlayer(this, playerId)
-                    : new WrappedSoundPool(this, playerId);
+            Player player =
+                    mode.equalsIgnoreCase("PlayerMode.MEDIA_PLAYER") ?
+                            new WrappedMediaPlayer(this, playerId) :
+                            new WrappedSoundPool(this, playerId);
             mediaPlayers.put(playerId, player);
         }
         return mediaPlayers.get(playerId);
@@ -165,8 +167,10 @@ public class AudioplayersPlugin implements MethodCallHandler {
         private final WeakReference<Handler> handler;
         private final WeakReference<AudioplayersPlugin> audioplayersPlugin;
 
-        private UpdateCallback(final Map<String, Player> mediaPlayers, final MethodChannel channel,
-                final Handler handler, final AudioplayersPlugin audioplayersPlugin) {
+        private UpdateCallback(final Map<String, Player> mediaPlayers,
+                               final MethodChannel channel,
+                               final Handler handler,
+                               final AudioplayersPlugin audioplayersPlugin) {
             this.mediaPlayers = new WeakReference<>(mediaPlayers);
             this.channel = new WeakReference<>(channel);
             this.handler = new WeakReference<>(handler);
@@ -199,7 +203,7 @@ public class AudioplayersPlugin implements MethodCallHandler {
                     final int time = player.getCurrentPosition();
                     channel.invokeMethod("audio.onDuration", buildArguments(key, duration));
                     channel.invokeMethod("audio.onCurrentPosition", buildArguments(key, time));
-                } catch (UnsupportedOperationException e) {
+                } catch(UnsupportedOperationException e) {
 
                 }
             }
