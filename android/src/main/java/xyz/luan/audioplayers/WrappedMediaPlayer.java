@@ -4,6 +4,8 @@ import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Build;
+import android.os.PowerManager;
+import android.content.Context;
 
 import java.io.IOException;
 
@@ -14,6 +16,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     private String url;
     private double volume = 1.0;
     private boolean respectSilence;
+    private boolean stayAwake;
     private ReleaseMode releaseMode = ReleaseMode.RELEASE;
 
     private boolean released = true;
@@ -64,24 +67,21 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     }
 
     @Override
-    void configAttributes(boolean respectSilence) {
+    void configAttributes(boolean respectSilence, boolean stayAwake, Context context) {
         if (this.respectSilence != respectSilence) {
             this.respectSilence = respectSilence;
             if (!this.released) {
                 setAttributes(player);
             }
         }
-<<<<<<< HEAD
         if (this.stayAwake != stayAwake) {
             this.stayAwake = stayAwake;
             if (!this.released) {
-                if (this.stayAwake) {
-                    this.player.setWakeMode(context, PowerManager.PARTIAL_WAKE_LOCK);
-                } 
+                if(this.stayAwake){
+                    this.player.setWakeMode(context,PowerManager.PARTIAL_WAKE_LOCK);
+                }
             }
         }
-=======
->>>>>>> parent of e1bc6b8... added stay awake mode (keeps the media player from removing it self)
     }
 
     @Override

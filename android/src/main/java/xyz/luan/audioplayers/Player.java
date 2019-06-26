@@ -1,5 +1,6 @@
 package xyz.luan.audioplayers;
 
+import android.content.Context;
 abstract class Player {
 
     protected static boolean objectEquals(Object o1, Object o2) {
@@ -20,7 +21,7 @@ abstract class Player {
 
     abstract void setVolume(double volume);
 
-    abstract void configAttributes(boolean respectSilence);
+    abstract void configAttributes(boolean respectSilence,boolean stayAwake,Context context);
 
     abstract void setReleaseMode(ReleaseMode releaseMode);
 
