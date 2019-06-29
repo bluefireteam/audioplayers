@@ -236,7 +236,7 @@ class AudioPlayer {
       'volume': volume,
       'position': position?.inMilliseconds,
       'respectSilence': respectSilence,
-      'stayAwake' : stayAwake,
+      'stayAwake': stayAwake,
     });
 
     if (result == 1) {

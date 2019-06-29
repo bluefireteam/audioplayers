@@ -26,10 +26,10 @@ public class AudioplayersPlugin implements MethodCallHandler {
 
     public static void registerWith(final Registrar registrar) {
         final MethodChannel channel = new MethodChannel(registrar.messenger(), "xyz.luan/audioplayers");
-        channel.setMethodCallHandler(new AudioplayersPlugin(channel,registrar.activity()));
+        channel.setMethodCallHandler(new AudioplayersPlugin(channel, registrar.activity()));
     }
 
-    private AudioplayersPlugin(final MethodChannel channel,Activity activity) {
+    private AudioplayersPlugin(final MethodChannel channel, Activity activity) {
         this.channel = channel;
         this.channel.setMethodCallHandler(this);
         this.activity = activity;
@@ -57,7 +57,7 @@ public class AudioplayersPlugin implements MethodCallHandler {
                 final boolean respectSilence = call.argument("respectSilence");
                 final boolean isLocal = call.argument("isLocal");
                 final boolean stayAwake = call.argument("stayAwake");
-                player.configAttributes(respectSilence,stayAwake,activity.getApplicationContext());
+                player.configAttributes(respectSilence, stayAwake, activity.getApplicationContext());
                 player.setVolume(volume);
                 player.setUrl(url, isLocal);
                 if (position != null && !mode.equals("PlayerMode.LOW_LATENCY")) {

@@ -76,10 +76,8 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         }
         if (this.stayAwake != stayAwake) {
             this.stayAwake = stayAwake;
-            if (!this.released) {
-                if(this.stayAwake){
-                    this.player.setWakeMode(context,PowerManager.PARTIAL_WAKE_LOCK);
-                }
+            if (!this.released && this.stayAwake) {
+                this.player.setWakeMode(context, PowerManager.PARTIAL_WAKE_LOCK);
             }
         }
     }

@@ -102,7 +102,7 @@ class AudioCache {
       isLocal: true,
       volume: volume,
       respectSilence: isNotification ?? respectSilence,
-      stayAwake:stayAwake,
+      stayAwake: stayAwake,
     );
     return player;
   }
@@ -123,7 +123,7 @@ class AudioCache {
       isLocal: true,
       volume: volume,
       respectSilence: isNotification ?? respectSilence,
-      stayAwake:stayAwake,
+      stayAwake: stayAwake,
     );
     return player;
   }
