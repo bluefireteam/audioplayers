@@ -4,6 +4,8 @@ import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Build;
+import android.os.PowerManager;
+import android.content.Context;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -113,7 +115,7 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
     }
 
     @Override
-    void configAttributes(boolean respectSilence) {
+    void configAttributes(boolean respectSilence, boolean setWakeMode, Context context) {
     }
 
     @Override

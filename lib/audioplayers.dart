@@ -223,10 +223,12 @@ class AudioPlayer {
     // position must be null by default to be compatible with radio streams
     Duration position,
     bool respectSilence = false,
+    bool stayAwake = false,
   }) async {
     isLocal ??= false;
     volume ??= 1.0;
     respectSilence ??= false;
+    stayAwake ??= false;
 
     final int result = await _invokeMethod('play', {
       'url': url,
@@ -234,6 +236,7 @@ class AudioPlayer {
       'volume': volume,
       'position': position?.inMilliseconds,
       'respectSilence': respectSilence,
+      'stayAwake': stayAwake,
     });
 
     if (result == 1) {

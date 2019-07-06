@@ -1,6 +1,7 @@
 package xyz.luan.audioplayers;
 
 import android.os.Handler;
+import android.app.Activity;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
@@ -21,15 +22,17 @@ public class AudioplayersPlugin implements MethodCallHandler {
     private final Map<String, Player> mediaPlayers = new HashMap<>();
     private final Handler handler = new Handler();
     private Runnable positionUpdates;
+    private final Activity activity;
 
     public static void registerWith(final Registrar registrar) {
         final MethodChannel channel = new MethodChannel(registrar.messenger(), "xyz.luan/audioplayers");
-        channel.setMethodCallHandler(new AudioplayersPlugin(channel));
+        channel.setMethodCallHandler(new AudioplayersPlugin(channel, registrar.activity()));
     }
 
-    private AudioplayersPlugin(final MethodChannel channel) {
+    private AudioplayersPlugin(final MethodChannel channel, Activity activity) {
         this.channel = channel;
         this.channel.setMethodCallHandler(this);
+        this.activity = activity;
     }
 
     @Override
@@ -53,7 +56,8 @@ public class AudioplayersPlugin implements MethodCallHandler {
                 final Integer position = call.argument("position");
                 final boolean respectSilence = call.argument("respectSilence");
                 final boolean isLocal = call.argument("isLocal");
-                player.configAttributes(respectSilence);
+                final boolean stayAwake = call.argument("stayAwake");
+                player.configAttributes(respectSilence, stayAwake, activity.getApplicationContext());
                 player.setVolume(volume);
                 player.setUrl(url, isLocal);
                 if (position != null && !mode.equals("PlayerMode.LOW_LATENCY")) {
