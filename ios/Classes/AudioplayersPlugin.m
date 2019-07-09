@@ -287,6 +287,15 @@ FlutterMethodChannel *_channel_audioplayer;
     return mseconds;
 }
 
+-(int) getCurrentPosition: (NSString *) playerId {
+    NSMutableDictionary * playerInfo = players[playerId];
+    AVPlayer *player = playerInfo[@"player"];
+    
+    CMTime duration = [player currentTime];
+    int mseconds= CMTimeGetSeconds(duration)*1000;
+    return mseconds;
+}
+
 // No need to spam the logs with every time interval update
 -(void) onTimeInterval: (NSString *) playerId
                   time: (CMTime) time {
