@@ -401,11 +401,14 @@ class AudioPlayer {
   Future<void> dispose() async {
     List<Future> futures = [];
 
-    if (!_playerStateController.isClosed) futures.add(_playerStateController.close());
+    if (!_playerStateController.isClosed)
+      futures.add(_playerStateController.close());
     if (!_positionController.isClosed) futures.add(_positionController.close());
     if (!_durationController.isClosed) futures.add(_durationController.close());
-    if (!_completionController.isClosed) futures.add(_completionController.close());
+    if (!_completionController.isClosed)
+      futures.add(_completionController.close());
     if (!_errorController.isClosed) futures.add(_errorController.close());
 
-  await Future.wait(futures);
+    await Future.wait(futures);
+  }
 }
