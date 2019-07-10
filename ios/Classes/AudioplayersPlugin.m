@@ -125,6 +125,12 @@ FlutterMethodChannel *_channel_audioplayer;
                         NSLog(@"getDuration: %i ", duration);
                         result(@(duration));
                     },
+				@"getCurrentPosition":
+                    ^{
+                        int currentPosition = [self getCurrentPosition:playerId];
+                        NSLog(@"getCurrentPosition: %i ", currentPosition);
+                        result(@(currentPosition));
+                    },
                 @"setVolume":
                   ^{
                     NSLog(@"setVolume");
