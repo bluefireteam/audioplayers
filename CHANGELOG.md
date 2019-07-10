@@ -1,5 +1,11 @@
 # Changelog
 
+## audioplayers 0.13.1
+ - Added stayAwake feature (thanks, @danielR2001)
+ - Improved dispose method (thanks, @hugocbpassos)
+ - Added getCurrentPosition (thanks, @hariom08)
+ - Some bug fixes and small changes
+
 ## audioplayers 0.13.0
  - Call onDurationChanged after setUrl() to be consistent with ios version (thanks @subhash279)
  - Adding getDuration feature iOS/Android (thanks @alecorsino)
