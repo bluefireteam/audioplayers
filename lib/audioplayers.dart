@@ -412,5 +412,6 @@ class AudioPlayer {
     if (!_completionController.isClosed) futures.add(_completionController.close());
     if (!_errorController.isClosed) futures.add(_errorController.close());
 
-  await Future.wait(futures);
+    await Future.wait(futures);
+  }
 }
