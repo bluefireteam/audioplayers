@@ -181,7 +181,7 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
 
     @Override
     public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
-        if (soundId == sampleId) {
+        if (soundId != null && soundId == sampleId) {
             this.loading = false;
             if (this.playing) {
                 start();
