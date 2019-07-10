@@ -125,6 +125,12 @@ FlutterMethodChannel *_channel_audioplayer;
                         NSLog(@"getDuration: %i ", duration);
                         result(@(duration));
                     },
+				@"getCurrentPosition":
+                    ^{
+                        int currentPosition = [self getCurrentPosition:playerId];
+                        NSLog(@"getCurrentPosition: %i ", currentPosition);
+                        result(@(currentPosition));
+                    },
                 @"setVolume":
                   ^{
                     NSLog(@"setVolume");
@@ -283,6 +289,15 @@ FlutterMethodChannel *_channel_audioplayer;
     AVPlayer *player = playerInfo[@"player"];
     
    CMTime duration = [[[player currentItem]  asset] duration];
+    int mseconds= CMTimeGetSeconds(duration)*1000;
+    return mseconds;
+}
+
+-(int) getCurrentPosition: (NSString *) playerId {
+    NSMutableDictionary * playerInfo = players[playerId];
+    AVPlayer *player = playerInfo[@"player"];
+    
+    CMTime duration = [player currentTime];
     int mseconds= CMTimeGetSeconds(duration)*1000;
     return mseconds;
 }
