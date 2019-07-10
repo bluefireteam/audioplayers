@@ -341,7 +341,7 @@ class AudioPlayer {
   Future<int> getDuration() {
     return _invokeMethod('getDuration');
   }
-  
+
   // Gets audio current playing position
   Future<int> getCurrentPosition() async {
     return _invokeMethod('getCurrentPosition');
@@ -357,7 +357,7 @@ class AudioPlayer {
 
   static Future<void> _doHandlePlatformCall(MethodCall call) async {
     final Map<dynamic, dynamic> callArgs = call.arguments as Map;
-    _log('_platformCallHandler call ${call.method} ${callArgs}');
+    _log('_platformCallHandler call ${call.method} $callArgs');
 
     final playerId = callArgs['playerId'] as String;
     final AudioPlayer player = players[playerId];
