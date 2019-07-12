@@ -215,7 +215,7 @@ class AudioPlayer {
   /// Plays an audio.
   ///
   /// If [isLocal] is true, [url] must be a local file system path.
-  /// If [isLocal] is true, [url] must be a remote URL.
+  /// If [isLocal] is false, [url] must be a remote URL.
   Future<int> play(
     String url, {
     bool isLocal = false,
