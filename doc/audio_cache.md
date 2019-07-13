@@ -14,6 +14,8 @@ To play an audio, just run:
     import 'package:audioplayers/audio_cache.dart';
 
     static AudioCache player = AudioCache();
+    //for dart 2.0, use this instead
+    //final player = AudioCache();
 
     player.play('explosion.mp3');
 ```
