@@ -99,12 +99,20 @@ class _ExampleAppState extends State<ExampleApp> {
       _btn('Play', () => audioCache.play('audio.mp3')),
       Text('Loop Local Asset \'audio.mp3\':'),
       _btn('Loop', () => audioCache.loop('audio.mp3')),
-      Text('Play Local Asset \'audio2.mp3\':'),
-      _btn('Play', () => audioCache.play('audio2.mp3')),
       Text('Play Local Asset In Low Latency \'audio.mp3\':'),
       _btn('Play', () => audioCache.play('audio.mp3', mode: PlayerMode.LOW_LATENCY)),
-      Text('Play Local Asset In Low Latency \'audio2.mp3\':'),
-      _btn('Play', () => audioCache.play('audio2.mp3', mode: PlayerMode.LOW_LATENCY)),
+      Text('Play multiple files (default):'),
+      _btn('Play parallel', () async {
+        await audioCache.play('hello.mp3');
+        await audioCache.play('world.mp3');
+      }),
+      Text('PlaySync() sequential'),
+      _btn('Play sequential', () async {
+        await audioCache.playSync('hello.mp3');
+        await audioCache.playSync('world.mp3');
+      }),
+      Text('PlayAll() files:'),
+      _btn('Play', () => audioCache.playAll(['hello.mp3', 'world.mp3'])),
       getLocalFileDuration(),
     ]);
   }

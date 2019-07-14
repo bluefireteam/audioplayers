@@ -81,8 +81,29 @@ class AudioCache {
     return loadedFiles[fileName];
   }
 
-  AudioPlayer _player(PlayerMode mode) {
-    return fixedPlayer ?? new AudioPlayer(mode: mode);
+  AudioPlayer _player(PlayerMode mode, [localInstance]) {
+    return localInstance ?? fixedPlayer ?? new AudioPlayer(mode: mode);
+  }
+
+  Future<AudioPlayer> _play({
+      File file,        // either file object
+      String fileName,  // or file name
+      double volume = 1.0,
+      bool isNotification,
+      PlayerMode mode = PlayerMode.MEDIA_PLAYER,
+      bool stayAwake,
+      AudioPlayer player}) async {
+
+    if (file == null) file = await load(fileName);
+    if (player == null) player = _player(mode);
+    await player.play(
+      file.path,
+      isLocal: true,
+      volume: volume,
+      respectSilence: isNotification ?? respectSilence,
+      stayAwake: stayAwake,
+    );
+    return player;
   }
 
   /// Plays the given [fileName].
@@ -96,15 +117,92 @@ class AudioCache {
       PlayerMode mode = PlayerMode.MEDIA_PLAYER,
       bool stayAwake}) async {
     File file = await load(fileName);
-    AudioPlayer player = _player(mode);
-    await player.play(
-      file.path,
-      isLocal: true,
+    return _play(
+      file: file,
       volume: volume,
-      respectSilence: isNotification ?? respectSilence,
-      stayAwake: stayAwake,
+      isNotification: isNotification,
+      mode: mode,
+      stayAwake: stayAwake
     );
-    return player;
+  }
+
+  /// Like [play], but waits until audio has finished playing
+  Future<AudioPlayer> playSync(String fileName,
+      {double volume = 1.0,
+      bool isNotification,
+      bool stayAwake}) async {
+    Completer<AudioPlayer> c = new Completer();
+    StreamSubscription completionListener;
+
+    AudioPlayer playerInstance = await play(fileName,
+      volume: volume,
+      isNotification: isNotification,
+      // force mode to get completion event
+      mode: PlayerMode.MEDIA_PLAYER,
+      stayAwake: stayAwake
+    );
+
+    completionListener = playerInstance.onPlayerCompletion.listen((_) {
+      completionListener.cancel();
+      c.complete(playerInstance);
+    });
+
+    return c.future;
+  }
+
+  /// Like [play], but plays multiple files in sequence.
+  ///
+  /// The instance is returned immediately, to allow later access like pausing and resuming.
+  Future<AudioPlayer> playAll(List<String> fileNames,
+      {double volume = 1.0,
+      bool isNotification,
+      bool stayAwake}) async {
+    if (fileNames.length == 0) return new Future.value(null);
+    AudioPlayer playerInstance;
+    StreamSubscription completionListener;
+
+
+// Simpler impl. -- but doesn't allow stopping the sequence.
+//
+//    await loadAll(fileNames);
+//    /// Also returns a list of [Future]s for those files.
+//    return Future.wait(fileNames.map((fileName) {
+//      return playSync(fileName,
+//        volume: volume,
+//        isNotification: isNotification,
+//        stayAwake: stayAwake
+//      );
+//    }));
+//  }
+
+
+    // inner function
+    playNext() async {
+      playerInstance = await _play(
+        fileName: fileNames.removeAt(0),
+        volume: volume,
+        isNotification: isNotification,
+        // force mode to get completion event
+        mode: PlayerMode.MEDIA_PLAYER,
+        stayAwake: stayAwake,
+        // re-use same player instance
+        player: playerInstance,
+      );
+    };
+
+    // pre-load all files
+    await loadAll(fileNames);
+    await playNext();
+
+    completionListener = playerInstance.onPlayerCompletion.listen((_){
+      if (fileNames.length > 0) {
+        playNext();
+      } else {
+        completionListener.cancel();
+      }
+    });
+
+    return playerInstance;
   }
 
   /// Like [play], but loops the audio (starts over once finished).
@@ -115,15 +213,14 @@ class AudioCache {
       bool isNotification,
       PlayerMode mode = PlayerMode.MEDIA_PLAYER,
       bool stayAwake}) async {
-    File file = await load(fileName);
     AudioPlayer player = _player(mode);
     player.setReleaseMode(ReleaseMode.LOOP);
-    player.play(
-      file.path,
-      isLocal: true,
+    _play(
+      fileName: fileName,
       volume: volume,
-      respectSilence: isNotification ?? respectSilence,
+      isNotification: isNotification,
       stayAwake: stayAwake,
+      player: player
     );
     return player;
   }
