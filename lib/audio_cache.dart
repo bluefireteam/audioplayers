@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart';
+import 'package:meta/meta.dart';
 
 import 'audioplayers.dart';
 
@@ -81,11 +82,12 @@ class AudioCache {
     return loadedFiles[fileName];
   }
 
-  AudioPlayer _player(PlayerMode mode, [localInstance]) {
-    return localInstance ?? fixedPlayer ?? new AudioPlayer(mode: mode);
+  AudioPlayer _player(PlayerMode mode) {
+    return fixedPlayer ?? new AudioPlayer(mode: mode);
   }
 
-  Future<AudioPlayer> _play({
+  @visibleForTesting
+  Future<AudioPlayer> inner_play({
       File file,        // either file object
       String fileName,  // or file name
       double volume = 1.0,
@@ -117,7 +119,7 @@ class AudioCache {
       PlayerMode mode = PlayerMode.MEDIA_PLAYER,
       bool stayAwake}) async {
     File file = await load(fileName);
-    return _play(
+    return inner_play(
       file: file,
       volume: volume,
       isNotification: isNotification,
@@ -161,24 +163,9 @@ class AudioCache {
     AudioPlayer playerInstance;
     StreamSubscription completionListener;
 
-
-// Simpler impl. -- but doesn't allow stopping the sequence.
-//
-//    await loadAll(fileNames);
-//    /// Also returns a list of [Future]s for those files.
-//    return Future.wait(fileNames.map((fileName) {
-//      return playSync(fileName,
-//        volume: volume,
-//        isNotification: isNotification,
-//        stayAwake: stayAwake
-//      );
-//    }));
-//  }
-
-
     // inner function
     playNext() async {
-      playerInstance = await _play(
+      playerInstance = await inner_play(
         fileName: fileNames.removeAt(0),
         volume: volume,
         isNotification: isNotification,
@@ -195,7 +182,7 @@ class AudioCache {
     await playNext();
 
     completionListener = playerInstance.onPlayerCompletion.listen((_){
-      if (fileNames.length > 0) {
+      if (fileNames.length > 0 && playerInstance.state != AudioPlayerState.STOPPED) {
         playNext();
       } else {
         completionListener.cancel();
@@ -215,7 +202,7 @@ class AudioCache {
       bool stayAwake}) async {
     AudioPlayer player = _player(mode);
     player.setReleaseMode(ReleaseMode.LOOP);
-    _play(
+    inner_play(
       fileName: fileName,
       volume: volume,
       isNotification: isNotification,
