@@ -224,11 +224,13 @@ class AudioPlayer {
     Duration position,
     bool respectSilence = false,
     bool stayAwake = false,
+    bool respectAudioFocus = false,
   }) async {
     isLocal ??= false;
     volume ??= 1.0;
     respectSilence ??= false;
     stayAwake ??= false;
+    respectAudioFocus ??= false;
 
     final int result = await _invokeMethod('play', {
       'url': url,
@@ -237,6 +239,7 @@ class AudioPlayer {
       'position': position?.inMilliseconds,
       'respectSilence': respectSilence,
       'stayAwake': stayAwake,
+      'respectAudioFocus': respectAudioFocus,
     });
 
     if (result == 1) {

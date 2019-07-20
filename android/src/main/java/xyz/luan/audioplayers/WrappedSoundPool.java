@@ -115,7 +115,7 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
     }
 
     @Override
-    void configAttributes(boolean respectSilence, boolean setWakeMode, Context context) {
+    void configAttributes(boolean respectSilence, boolean setWakeMode, Context context, boolean isRespectingAudioFocus) {
     }
 
     @Override
@@ -146,6 +146,11 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
         throw unsupportedOperation("seek");
     }
 
+    @Override
+    boolean isRespectingAudioFocus() {
+        return false;
+    }
+    
     private static SoundPool createSoundPool() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             AudioAttributes attrs = new AudioAttributes.Builder().setLegacyStreamType(AudioManager.USE_DEFAULT_STREAM_TYPE)

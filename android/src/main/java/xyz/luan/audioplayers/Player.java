@@ -21,7 +21,7 @@ abstract class Player {
 
     abstract void setVolume(double volume);
 
-    abstract void configAttributes(boolean respectSilence, boolean stayAwake, Context context);
+    abstract void configAttributes(boolean respectSilence, boolean stayAwake, Context context, boolean isRespectingAudioFocus);
 
     abstract void setReleaseMode(ReleaseMode releaseMode);
 
@@ -31,6 +31,7 @@ abstract class Player {
 
     abstract boolean isActuallyPlaying();
 
+    abstract boolean isRespectingAudioFocus();
     /**
      * Seek operations cannot be called until after the player is ready.
      */

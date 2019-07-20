@@ -73,6 +73,9 @@ If you want to play audio for a long period of time, you need to set appropriate
 If you pass `setAwake` as true you need to add this permission to your app manifest: 
 `<uses-permission android:name="android.permission.WAKE_LOCK" />`.
 
+If you want your audio player to pause when interrupted by other apps that produce audio (like youtube, Instagram, etc`), 
+then you need to set appropriately the flag `respectAudioFocus`. If the app is interrupted by an app with long duration audio then your audio player will pause, but if interrupted by an app with short duration audio it will pause until audio of that particular app stops and then resume your audio player.
+
 ```dart
   play() async {
     int result = await audioPlayer.play(url);
