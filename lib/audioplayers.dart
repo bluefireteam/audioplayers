@@ -305,6 +305,11 @@ class AudioPlayer {
     return _invokeMethod('seek', {'position': position.inMilliseconds});
   }
 
+  /// set play Rate
+  Future<int> setRate(double rate) {
+    return _invokeMethod('setRate', {'rate': rate});
+  }
+
   /// Sets the volume (amplitude).
   ///
   /// 0 is mute and 1 is the max volume. The values between 0 and 1 are linearly

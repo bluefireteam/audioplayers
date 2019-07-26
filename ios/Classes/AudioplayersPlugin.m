@@ -12,8 +12,10 @@ static NSMutableDictionary * players;
 -(void) stop: (NSString *) playerId;
 -(void) seek: (NSString *) playerId time: (CMTime) time;
 -(void) onSoundComplete: (NSString *) playerId;
+-(void) setRate: (double)rate :(NSString *) playerId;
 -(void) updateDuration: (NSString *) playerId;
 -(void) onTimeInterval: (NSString *) playerId time: (CMTime) time;
+@property double rate;
 @end
 
 @implementation AudioplayersPlugin {
@@ -93,6 +95,12 @@ FlutterMethodChannel *_channel_audioplayer;
                     ^{
                         NSLog(@"release");
                         [self stop:playerId];
+                    },
+                @"setRate":
+                    ^{
+                        NSNumber* rateNumber = call.arguments[@"rate"];
+                        double rate = [rateNumber doubleValue];
+                        [self setRate: rate:playerId];
                     },
                 @"seek":
                   ^{
@@ -255,7 +263,7 @@ FlutterMethodChannel *_channel_audioplayer;
     NSLog(@"Error setting speaker: %@", error);
   }
   [[AVAudioSession sharedInstance] setActive:YES error:&error];
-
+  __weak AudioplayersPlugin *self_ = self;
   [ self setUrl:url 
          isLocal:isLocal 
          playerId:playerId 
@@ -266,6 +274,9 @@ FlutterMethodChannel *_channel_audioplayer;
            [ player seekToTime:time ];
            [ player play];
            [ playerInfo setObject:@true forKey:@"isPlaying" ];
+           
+           [ self_ setRate: self_.rate:playerId];
+
          }    
   ];
 }
@@ -324,6 +335,7 @@ FlutterMethodChannel *_channel_audioplayer;
   NSMutableDictionary * playerInfo = players[playerId];
   AVPlayer *player = playerInfo[@"player"];
   [player play];
+  [self setRate: self.rate:playerId];
   [playerInfo setObject:@true forKey:@"isPlaying"];
 }
 
@@ -407,6 +419,20 @@ FlutterMethodChannel *_channel_audioplayer;
                           context:context];
   }
 }
+
+
+- (void)setRate:(double)rate :(NSString *) playerId  {
+    if(rate==0)return;
+    self.rate=rate;
+    NSLog(@"setRate %f",self.rate);
+    NSMutableDictionary * playerInfo = players[playerId];
+    AVPlayer *player = playerInfo[@"player"];
+    if(player != nil){
+        player.currentItem.audioTimePitchAlgorithm = AVAudioTimePitchAlgorithmTimeDomain;
+        player.rate = self.rate;
+    }
+}
+
 
 - (void)dealloc {
   for (id value in timeobservers)

@@ -126,7 +126,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
 
   void _initAudioPlayer() {
     _audioPlayer = AudioPlayer(mode: mode);
-
+    _audioPlayer.setRate(0.6);
     _durationSubscription =
         _audioPlayer.onDurationChanged.listen((duration) => setState(() {
               _duration = duration;
