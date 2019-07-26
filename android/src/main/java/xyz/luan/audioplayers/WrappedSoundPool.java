@@ -6,6 +6,7 @@ import android.media.SoundPool;
 import android.os.Build;
 import android.os.PowerManager;
 import android.content.Context;
+import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -111,7 +112,10 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
     @Override
     void setRate(double rate) {
         this.rate=(float)rate;
-        soundPool.setRate(this.streamId,(float) rate);
+        if(this.streamId!=null) {
+            Log.d("setRate","setRate="+rate+" and streamId="+this.streamId);
+            soundPool.setRate(this.streamId, (float) rate);
+        }
     }
 
     @Override

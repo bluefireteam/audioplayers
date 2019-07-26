@@ -144,7 +144,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
                 this.player.start();
                 this.ref.handleIsPlaying(this);
             }
-            setRate(rate);
+
         }
     }
 
@@ -217,6 +217,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
             this.player.seekTo(this.shouldSeekTo);
             this.shouldSeekTo = -1;
         }
+        setRate(rate);
     }
 
     @Override
