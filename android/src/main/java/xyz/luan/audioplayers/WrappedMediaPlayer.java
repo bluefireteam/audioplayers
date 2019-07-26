@@ -61,12 +61,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     void setRate(double rate) {
         this.rate = (float) rate;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (player.isPlaying()) {
-                player.setPlaybackParams(player.getPlaybackParams().setSpeed((float) rate));
-            } else {
-                player.setPlaybackParams(player.getPlaybackParams().setSpeed((float) rate));
-                player.pause();
-            }
+            player.setPlaybackParams(player.getPlaybackParams().setSpeed((float) rate));
         }
     }
 
