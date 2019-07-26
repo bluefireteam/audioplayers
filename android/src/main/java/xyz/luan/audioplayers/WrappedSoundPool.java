@@ -41,6 +41,8 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
 
     private boolean loading = false;
 
+    private float rate=1.0f;
+
     WrappedSoundPool(AudioplayersPlugin ref, String playerId) {
         this.ref = ref;
         this.playerId = playerId;
@@ -107,6 +109,12 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
     }
 
     @Override
+    void setRate(double rate) {
+        this.rate=(float)rate;
+        soundPool.setRate(this.streamId,(float) rate);
+    }
+
+    @Override
     void setVolume(double volume) {
         this.volume = (float) volume;
         if (this.playing) {
@@ -165,6 +173,7 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
     }
 
     private void start() {
+        setRate(rate);
         if (this.paused) {
             soundPool.resume(this.streamId);
             this.paused = false;

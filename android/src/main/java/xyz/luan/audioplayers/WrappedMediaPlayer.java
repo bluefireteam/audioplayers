@@ -27,6 +27,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
 
     private MediaPlayer player;
     private AudioplayersPlugin ref;
+    private float rate = 1;
 
     WrappedMediaPlayer(AudioplayersPlugin ref, String playerId) {
         this.ref = ref;
@@ -53,6 +54,19 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
             this.player.setVolume((float) volume, (float) volume);
             this.player.setLooping(this.releaseMode == ReleaseMode.LOOP);
             this.player.prepareAsync();
+        }
+    }
+
+    @Override
+    void setRate(double rate) {
+        this.rate = (float) rate;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (player.isPlaying()) {
+                player.setPlaybackParams(player.getPlaybackParams().setSpeed((float) rate));
+            } else {
+                player.setPlaybackParams(player.getPlaybackParams().setSpeed((float) rate));
+                player.pause();
+            }
         }
     }
 
@@ -197,6 +211,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     public void onPrepared(final MediaPlayer mediaPlayer) {
         this.prepared = true;
         ref.handleDuration(this);
+        setRate(rate);
         if (this.playing) {
             this.player.start();
             ref.handleIsPlaying(this);
