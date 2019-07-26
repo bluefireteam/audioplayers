@@ -60,7 +60,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     @Override
     void setRate(double rate) {
         this.rate = (float) rate;
-        if (player!=null&&Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (player != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             player.setPlaybackParams(player.getPlaybackParams().setSpeed((float) rate));
         }
     }
@@ -139,10 +139,10 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
                 this.setSource(url);
                 this.player.prepareAsync();
             } else if (this.prepared) {
-                setRate(rate);
                 this.player.start();
                 this.ref.handleIsPlaying(this);
             }
+            setRate(rate);
         }
     }
 
