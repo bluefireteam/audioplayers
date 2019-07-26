@@ -6,6 +6,7 @@ import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.PowerManager;
 import android.content.Context;
+import android.util.Log;
 
 import java.io.IOException;
 
@@ -60,6 +61,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     @Override
     void setRate(double rate) {
         this.rate = (float) rate;
+        Log.d("setRat","rate="+this.rate);
         if (player != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             player.setPlaybackParams(player.getPlaybackParams().setSpeed((float) rate));
         }
