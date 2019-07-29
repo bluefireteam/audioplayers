@@ -23,7 +23,7 @@ You can support us by becoming a patron on Patreon, any support is much apprecia
 
 [![Patreon](https://c5.patreon.com/external/logo/become_a_patron_button.png)](https://www.patreon.com/fireslime)
 
-## Troubshooting
+## Troubleshooting
 
 Before opening an issue, please refer to the [troubleshoot guide](troubleshooting.md)
 
