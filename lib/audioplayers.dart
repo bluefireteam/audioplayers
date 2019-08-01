@@ -302,6 +302,7 @@ class AudioPlayer {
 
   /// Moves the cursor to the desired position.
   Future<int> seek(Duration position) {
+    _positionController.add(position);
     return _invokeMethod('seek', {'position': position.inMilliseconds});
   }
 
