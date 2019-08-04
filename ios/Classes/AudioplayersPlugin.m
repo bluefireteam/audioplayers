@@ -2,6 +2,7 @@
 #import <UIKit/UIKit.h>
 #import <AVKit/AVKit.h>
 #import <AVFoundation/AVFoundation.h>
+#import <MediaPlayer/MediaPlayer.h>
 
 static NSString *const CHANNEL_NAME = @"xyz.luan/audioplayers";
 
@@ -16,6 +17,7 @@ static NSMutableDictionary * players;
 -(void) updateDuration: (NSString *) playerId;
 -(void) onTimeInterval: (NSString *) playerId time: (CMTime) time;
 @property double rate;
+@property NSString * playerId ;
 @end
 
 @implementation AudioplayersPlugin {
@@ -45,8 +47,8 @@ FlutterMethodChannel *_channel_audioplayer;
 }
 
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-  NSString * playerId = call.arguments[@"playerId"];
-  NSLog(@"iOS => call %@, playerId %@", call.method, playerId);
+  self.playerId = call.arguments[@"playerId"];
+  NSLog(@"iOS => call %@, playerId %@", call.method, self.playerId);
 
   typedef void (^CaseBlock)(void);
 
@@ -74,33 +76,33 @@ FlutterMethodChannel *_channel_audioplayer;
                     NSLog(@"isLocal: %d %@", isLocal, call.arguments[@"isLocal"] );
                     NSLog(@"volume: %f %@", volume, call.arguments[@"volume"] );
                     NSLog(@"position: %d %@", milliseconds, call.arguments[@"positions"] );
-                    [self play:playerId url:url isLocal:isLocal volume:volume time:time isNotification:respectSilence];
+                    [self play:self.playerId url:url isLocal:isLocal volume:volume time:time isNotification:respectSilence];
                   },
                 @"pause":
                   ^{
                     NSLog(@"pause");
-                    [self pause:playerId];
+                    [self pause:self.playerId];
                   },
                 @"resume":
                   ^{
                     NSLog(@"resume");
-                    [self resume:playerId];
+                    [self resume:self.playerId];
                   },
                 @"stop":
                   ^{
                     NSLog(@"stop");
-                    [self stop:playerId];
+                    [self stop:self.playerId];
                   },
                 @"release":
                     ^{
                         NSLog(@"release");
-                        [self stop:playerId];
+                        [self stop:self.playerId];
                     },
                 @"setRate":
                     ^{
                         NSNumber* rateNumber = call.arguments[@"rate"];
                         double rate = [rateNumber doubleValue];
-                        [self setRate: rate:playerId];
+                        [self setRate: rate:self.playerId];
                     },
                 @"seek":
                   ^{
@@ -110,7 +112,7 @@ FlutterMethodChannel *_channel_audioplayer;
                     } else {
                       int milliseconds = [call.arguments[@"position"] intValue];
                       NSLog(@"Seeking to: %d milliseconds", milliseconds);
-                      [self seek:playerId time:CMTimeMakeWithSeconds(milliseconds / 1000,NSEC_PER_SEC)];
+                      [self seek:self.playerId time:CMTimeMakeWithSeconds(milliseconds / 1000,NSEC_PER_SEC)];
                     }
                   },
                 @"setUrl":
@@ -120,7 +122,7 @@ FlutterMethodChannel *_channel_audioplayer;
                     int isLocal = [call.arguments[@"isLocal"]intValue];
                     [ self setUrl:url
                           isLocal:isLocal
-                          playerId:playerId
+                          playerId:self.playerId
                           onReady:^(NSString * playerId) {
                             result(@(1));
                           }
@@ -129,13 +131,13 @@ FlutterMethodChannel *_channel_audioplayer;
                 @"getDuration":
                     ^{
                         
-                        int duration = [self getDuration:playerId];
+                        int duration = [self getDuration:self.playerId];
                         NSLog(@"getDuration: %i ", duration);
                         result(@(duration));
                     },
 				@"getCurrentPosition":
                     ^{
-                        int currentPosition = [self getCurrentPosition:playerId];
+                        int currentPosition = [self getCurrentPosition:self.playerId];
                         NSLog(@"getCurrentPosition: %i ", currentPosition);
                         result(@(currentPosition));
                     },
@@ -143,18 +145,18 @@ FlutterMethodChannel *_channel_audioplayer;
                   ^{
                     NSLog(@"setVolume");
                     float volume = (float)[call.arguments[@"volume"] doubleValue];
-                    [self setVolume:volume playerId:playerId];
+                    [self setVolume:volume playerId:self.playerId];
                   },
                 @"setReleaseMode":
                   ^{
                     NSLog(@"setReleaseMode");
                     NSString *releaseMode = call.arguments[@"releaseMode"];
                     bool looping = [releaseMode hasSuffix:@"LOOP"];
-                    [self setLooping:looping playerId:playerId];
+                    [self setLooping:looping playerId:self.playerId];
                   }
                 };
 
-  [ self initPlayerInfo:playerId ];
+  [ self initPlayerInfo:self.playerId ];
   CaseBlock c = methods[call.method];
   if (c) c(); else {
     NSLog(@"not implemented");
@@ -174,51 +176,89 @@ FlutterMethodChannel *_channel_audioplayer;
 
 -(void) setUrl: (NSString*) url
        isLocal: (bool) isLocal
-       playerId: (NSString*) playerId
+      playerId: (NSString*) playerId
        onReady:(VoidCallback)onReady
 {
-  NSMutableDictionary * playerInfo = players[playerId];
-  AVPlayer *player = playerInfo[@"player"];
-  NSMutableSet *observers = playerInfo[@"observers"];
-  AVPlayerItem *playerItem;
+    NSMutableDictionary * playerInfo = players[playerId];
+    AVPlayer *player = playerInfo[@"player"];
+    NSMutableSet *observers = playerInfo[@"observers"];
+    AVPlayerItem *playerItem;
     
-  NSLog(@"setUrl %@", url);
-
-  if (!playerInfo || ![url isEqualToString:playerInfo[@"url"]]) {
-    if (isLocal) {
-      playerItem = [ [ AVPlayerItem alloc ] initWithURL:[ NSURL fileURLWithPath:url ]];
-    } else {
-      playerItem = [ [ AVPlayerItem alloc ] initWithURL:[ NSURL URLWithString:url ]];
-    }
-      
-    if (playerInfo[@"url"]) {
-      [[player currentItem] removeObserver:self forKeyPath:@"player.currentItem.status" ];
-
-      [ playerInfo setObject:url forKey:@"url" ];
-
-      for (id ob in observers) {
-         [ [ NSNotificationCenter defaultCenter ] removeObserver:ob ];
-      }
-      [ observers removeAllObjects ];
-      [ player replaceCurrentItemWithPlayerItem: playerItem ];
-    } else {
-      player = [[ AVPlayer alloc ] initWithPlayerItem: playerItem ];
-      observers = [[NSMutableSet alloc] init];
-
-      [ playerInfo setObject:player forKey:@"player" ];
-      [ playerInfo setObject:url forKey:@"url" ];
-      [ playerInfo setObject:observers forKey:@"observers" ];
-
-      // playerInfo = [@{@"player": player, @"url": url, @"isPlaying": @false, @"observers": observers, @"volume": @(1.0), @"looping": @(false)} mutableCopy];
-      // players[playerId] = playerInfo;
-
-      // stream player position
-      CMTime interval = CMTimeMakeWithSeconds(0.2, NSEC_PER_SEC);
-      id timeObserver = [ player  addPeriodicTimeObserverForInterval: interval queue: nil usingBlock:^(CMTime time){
-        [self onTimeInterval:playerId time:time];
-      }];
-        [timeobservers addObject:@{@"player":player, @"observer":timeObserver}];
-    }
+    NSLog(@"setUrl %@", url);
+    
+    if (!playerInfo || ![url isEqualToString:playerInfo[@"url"]]) {
+        if (isLocal) {
+            playerItem = [ [ AVPlayerItem alloc ] initWithURL:[ NSURL fileURLWithPath:url ]];
+        } else {
+            playerItem = [ [ AVPlayerItem alloc ] initWithURL:[ NSURL URLWithString:url ]];
+        }
+        
+        if (playerInfo[@"url"]) {
+            [[player currentItem] removeObserver:self forKeyPath:@"player.currentItem.status" ];
+            
+            [ playerInfo setObject:url forKey:@"url" ];
+            
+            for (id ob in observers) {
+                [ [ NSNotificationCenter defaultCenter ] removeObserver:ob ];
+            }
+            [ observers removeAllObjects ];
+            [ player replaceCurrentItemWithPlayerItem: playerItem ];
+        } else {
+            player = [[ AVPlayer alloc ] initWithPlayerItem: playerItem ];
+            observers = [[NSMutableSet alloc] init];
+            
+            [ playerInfo setObject:player forKey:@"player" ];
+            [ playerInfo setObject:url forKey:@"url" ];
+            [ playerInfo setObject:observers forKey:@"observers" ];
+            
+            // playerInfo = [@{@"player": player, @"url": url, @"isPlaying": @false, @"observers": observers, @"volume": @(1.0), @"looping": @(false)} mutableCopy];
+            // players[playerId] = playerInfo;
+            
+            // stream player position
+            CMTime interval = CMTimeMakeWithSeconds(0.2, NSEC_PER_SEC);
+            id timeObserver = [ player  addPeriodicTimeObserverForInterval: interval queue: nil usingBlock:^(CMTime time){
+                [self onTimeInterval:playerId time:time];
+            }];
+            [timeobservers addObject:@{@"player":player, @"observer":timeObserver}];
+            
+            
+            
+            
+            
+            // 直接使用sharedCommandCenter来获取MPRemoteCommandCenter的shared实例
+            MPRemoteCommandCenter *commandCenter = [MPRemoteCommandCenter sharedCommandCenter];
+            // 启用播放命令 (锁屏界面和上拉快捷功能菜单处的播放按钮触发的命令)
+            commandCenter.playCommand.enabled = YES;
+            // 为播放命令添加响应事件, 在点击后触发
+            [commandCenter.playCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
+                [self resume:playerId];
+                return MPRemoteCommandHandlerStatusSuccess;
+            }];
+            // 播放, 暂停, 上下曲的命令默认都是启用状态, 即enabled默认为YES
+            [commandCenter.pauseCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
+                //点击了暂停
+                [self pause:playerId];
+                return MPRemoteCommandHandlerStatusSuccess;
+            }];
+            [commandCenter.previousTrackCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
+                //点击了上一首
+                
+                return MPRemoteCommandHandlerStatusSuccess;
+            }];
+            [commandCenter.nextTrackCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
+                //点击了下一首
+                
+                return MPRemoteCommandHandlerStatusSuccess;
+            }];
+            // 启用耳机的播放/暂停命令 (耳机上的播放按钮触发的命令)
+            commandCenter.togglePlayPauseCommand.enabled = YES;
+            // 为耳机的按钮操作添加相关的响应事件
+            [commandCenter.togglePlayPauseCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
+                // 进行播放/暂停的相关操作 (耳机的播放/暂停按钮)
+                
+                return MPRemoteCommandHandlerStatusSuccess;
+            }];
+        }
       
     id anobserver = [[ NSNotificationCenter defaultCenter ] addObserverForName: AVPlayerItemDidPlayToEndTimeNotification
                                                                         object: playerItem
