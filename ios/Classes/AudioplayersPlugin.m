@@ -239,13 +239,14 @@ FlutterMethodChannel *_channel_audioplayer;
             commandCenter.playCommand.enabled = YES;
             // 为播放命令添加响应事件, 在点击后触发
             [commandCenter.playCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
-                [self resume:playerId];
+                [self resume:[array lastObject]];
                 return MPRemoteCommandHandlerStatusSuccess;
             }];
             // 播放, 暂停, 上下曲的命令默认都是启用状态, 即enabled默认为YES
             [commandCenter.pauseCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
                 //点击了暂停
-                [self pause:playerId];
+                
+                [self pause:[array lastObject]];
                 return MPRemoteCommandHandlerStatusSuccess;
             }];
             [commandCenter.previousTrackCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
