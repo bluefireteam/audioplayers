@@ -9,7 +9,7 @@ import android.content.Context;
 
 import java.io.IOException;
 
-public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
+public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnSeekCompleteListener {
 
     private String playerId;
 
@@ -215,6 +215,11 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         ref.handleCompletion(this);
     }
 
+    @Override
+    public void onSeekComplete(final MediaPlayer mediaPlayer) {
+        ref.handleSeekComplete(this);
+    }
+
     /**
      * Internal logic. Private methods
      */
@@ -223,6 +228,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         MediaPlayer player = new MediaPlayer();
         player.setOnPreparedListener(this);
         player.setOnCompletionListener(this);
+        player.setOnSeekCompleteListener(this);
         setAttributes(player);
         player.setVolume((float) volume, (float) volume);
         player.setLooping(this.releaseMode == ReleaseMode.LOOP);
