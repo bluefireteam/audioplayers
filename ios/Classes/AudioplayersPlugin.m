@@ -25,7 +25,7 @@ static NSMutableDictionary * players;
 }
 
 typedef void (^VoidCallback)(NSString * playerId);
-
+NSMutableArray *array;
 NSMutableSet *timeobservers;
 FlutterMethodChannel *_channel_audioplayer;
 
@@ -36,6 +36,7 @@ FlutterMethodChannel *_channel_audioplayer;
   AudioplayersPlugin* instance = [[AudioplayersPlugin alloc] init];
   [registrar addMethodCallDelegate:instance channel:channel];
   _channel_audioplayer = channel;
+  array = [[NSMutableArray alloc]init];
 }
 
 - (id)init {
@@ -49,7 +50,7 @@ FlutterMethodChannel *_channel_audioplayer;
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
   self.playerId = call.arguments[@"playerId"];
   NSLog(@"iOS => call %@, playerId %@", call.method, self.playerId);
-
+    
   typedef void (^CaseBlock)(void);
 
   // Squint and this looks like a proper switch!
@@ -77,6 +78,9 @@ FlutterMethodChannel *_channel_audioplayer;
                     NSLog(@"volume: %f %@", volume, call.arguments[@"volume"] );
                     NSLog(@"position: %d %@", milliseconds, call.arguments[@"positions"] );
                     [self play:self.playerId url:url isLocal:isLocal volume:volume time:time isNotification:respectSilence];
+                      if(![array containsObject:self.playerId]){
+                          [array addObject:self.playerId];
+                      }
                   },
                 @"pause":
                   ^{
@@ -92,11 +96,15 @@ FlutterMethodChannel *_channel_audioplayer;
                   ^{
                     NSLog(@"stop");
                     [self stop:self.playerId];
+                    
+                    [array removeObject:self.playerId];
+                      
                   },
                 @"release":
                     ^{
                         NSLog(@"release");
                         [self stop:self.playerId];
+                        [array removeObject:self.playerId];
                     },
                 @"setRate":
                     ^{
