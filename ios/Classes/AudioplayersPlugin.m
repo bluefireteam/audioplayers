@@ -4,6 +4,8 @@
 #import <AVFoundation/AVFoundation.h>
 
 static NSString *const CHANNEL_NAME = @"xyz.luan/audioplayers";
+NSString *const AudioplayersPluginStop = @"AudioplayersPluginStop";
+
 
 static NSMutableDictionary * players;
 
@@ -24,6 +26,7 @@ typedef void (^VoidCallback)(NSString * playerId);
 
 NSMutableSet *timeobservers;
 FlutterMethodChannel *_channel_audioplayer;
+bool _isDealloc = false;
 
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
   FlutterMethodChannel* channel = [FlutterMethodChannel
@@ -37,9 +40,16 @@ FlutterMethodChannel *_channel_audioplayer;
 - (id)init {
   self = [super init];
   if (self) {
+      _isDealloc = false;
       players = [[NSMutableDictionary alloc] init];
+      [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(needStop) name:AudioplayersPluginStop object:nil];
   }
   return self;
+}
+    
+- (void)needStop {
+    _isDealloc = true;
+    [self destory];
 }
 
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
@@ -124,12 +134,6 @@ FlutterMethodChannel *_channel_audioplayer;
                         int duration = [self getDuration:playerId];
                         NSLog(@"getDuration: %i ", duration);
                         result(@(duration));
-                    },
-				@"getCurrentPosition":
-                    ^{
-                        int currentPosition = [self getCurrentPosition:playerId];
-                        NSLog(@"getCurrentPosition: %i ", currentPosition);
-                        result(@(currentPosition));
                     },
                 @"setVolume":
                   ^{
@@ -293,22 +297,18 @@ FlutterMethodChannel *_channel_audioplayer;
     return mseconds;
 }
 
--(int) getCurrentPosition: (NSString *) playerId {
-    NSMutableDictionary * playerInfo = players[playerId];
-    AVPlayer *player = playerInfo[@"player"];
-    
-    CMTime duration = [player currentTime];
-    int mseconds= CMTimeGetSeconds(duration)*1000;
-    return mseconds;
-}
-
 // No need to spam the logs with every time interval update
 -(void) onTimeInterval: (NSString *) playerId
                   time: (CMTime) time {
     // NSLog(@"ios -> onTimeInterval...");
+    if (_isDealloc) {
+        return;
+    }
     int mseconds =  CMTimeGetSeconds(time)*1000;
     // NSLog(@"asdff %@ - %d", playerId, mseconds);
+    
     [_channel_audioplayer invokeMethod:@"audio.onCurrentPosition" arguments:@{@"playerId": playerId, @"value": @(mseconds)}];
+    
     //    NSLog(@"asdff end");
 }
 
@@ -408,18 +408,22 @@ FlutterMethodChannel *_channel_audioplayer;
   }
 }
 
-- (void)dealloc {
-  for (id value in timeobservers)
+- (void)destory {
+    for (id value in timeobservers)
     [value[@"player"] removeTimeObserver:value[@"observer"]];
-  timeobservers = nil;
-
-  for (NSString* playerId in players) {
-      NSMutableDictionary * playerInfo = players[playerId];
-      NSMutableSet * observers = playerInfo[@"observers"];
-      for (id ob in observers)
+    timeobservers = nil;
+    
+    for (NSString* playerId in players) {
+        NSMutableDictionary * playerInfo = players[playerId];
+        NSMutableSet * observers = playerInfo[@"observers"];
+        for (id ob in observers)
         [[NSNotificationCenter defaultCenter] removeObserver:ob];
-  }
-  players = nil;
+    }
+    players = nil;
+}
+    
+- (void)dealloc {
+    [self destory];
 }
 
 
