@@ -3,6 +3,7 @@ package xyz.luan.audioplayers;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.AudioFocusRequest;
 import android.os.Build;
 import android.os.PowerManager;
 import android.content.Context;
@@ -93,6 +94,15 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     }
 
     @Override
+    public void onAudioFocusChange(int focusChange) {
+        switch (focusChange) {
+            case AudioManager.AUDIOFOCUS_GAIN:
+                actuallyPlay();
+                break;
+        }
+    }
+
+    @Override
     void setReleaseMode(ReleaseMode releaseMode) {
         if (this.releaseMode != releaseMode) {
             this.releaseMode = releaseMode;
@@ -143,12 +153,12 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
                     new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
                             .setAudioAttributes(mAudioAttributes)
                             .setAcceptsDelayedFocusGain(true)
-                            .setOnAudioFocusChangeListener(this);
+                            .setOnAudioFocusChangeListener(this)
                .build();
+            am.requestAudioFocus(mAudioFocusRequest);
         } else {
             actuallyPlay();
         }
-
     }
 
     void actuallyPlay() {
@@ -165,18 +175,6 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
             }
         }
     }
-
-
-    @Override
-    public void onAudioFocusChange(int focusChange) {
-        switch (focusChange) {
-            case AudioManager.AUDIOFOCUS_GAIN:
-                actuallyPlay();
-                break;
-        }
-    }
-}
-
 
     @Override
     void stop() {
