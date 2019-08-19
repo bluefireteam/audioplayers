@@ -250,7 +250,7 @@ FlutterMethodChannel *_channel_audioplayer;
     }
     BOOL success = [[AVAudioSession sharedInstance]
                     setCategory: category
-		    withOptions: @[AVAudioSessionCategoryOptionDuckOthers]
+		    withOptions: AVAudioSessionCategoryOptionDuckOthers
                     error:&error];
   if (!success) {
     NSLog(@"Error setting speaker: %@", error);
