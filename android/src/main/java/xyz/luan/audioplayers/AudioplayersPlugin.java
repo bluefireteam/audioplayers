@@ -57,6 +57,7 @@ public class AudioplayersPlugin implements MethodCallHandler {
                 final boolean respectSilence = call.argument("respectSilence");
                 final boolean isLocal = call.argument("isLocal");
                 final boolean stayAwake = call.argument("stayAwake");
+                final boolean duckAudio = call.argument("duckAudio");
                 player.configAttributes(respectSilence, stayAwake, activity.getApplicationContext());
                 player.setVolume(volume);
                 player.setUrl(url, isLocal);

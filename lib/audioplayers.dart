@@ -224,6 +224,7 @@ class AudioPlayer {
     Duration position,
     bool respectSilence = false,
     bool stayAwake = false,
+    bool duckAudio = false
   }) async {
     isLocal ??= false;
     volume ??= 1.0;
@@ -234,6 +235,7 @@ class AudioPlayer {
       'url': url,
       'isLocal': isLocal,
       'volume': volume,
+      'duckAudio':duckAudio,
       'position': position?.inMilliseconds,
       'respectSilence': respectSilence,
       'stayAwake': stayAwake,

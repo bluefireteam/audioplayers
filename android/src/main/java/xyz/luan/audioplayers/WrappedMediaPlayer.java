@@ -17,11 +17,13 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     private double volume = 1.0;
     private boolean respectSilence;
     private boolean stayAwake;
+    private boolean duckAudio;
     private ReleaseMode releaseMode = ReleaseMode.RELEASE;
 
     private boolean released = true;
     private boolean prepared = false;
     private boolean playing = false;
+    private Context context;
 
     private int shouldSeekTo = -1;
 
@@ -67,9 +69,16 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     }
 
     @Override
-    void configAttributes(boolean respectSilence, boolean stayAwake, Context context) {
+    void configAttributes(boolean respectSilence, boolean stayAwake, boolean duckAudio, Context context) {
+        this.context = context;
         if (this.respectSilence != respectSilence) {
             this.respectSilence = respectSilence;
+            if (!this.released) {
+                setAttributes(player);
+            }
+        }
+        if (this.duckAudio != duckAudio) {
+            this.duckAudio = duckAudio;
             if (!this.released) {
                 setAttributes(player);
             }
@@ -122,6 +131,22 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
 
     @Override
     void play() {
+        if (this.duckAudio) {
+            AudioManager am = context.getSystemService(Context.AUDIO_SERVICE);
+            int result = am.requestAudioFocus(afChangeListener,
+                    AudioManager.STREAM_NOTIFICATION,
+                    AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK);
+            if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+                // start playing the sound
+                actuallyPlay();
+            }
+        } else {
+            actuallyPlay();
+        }
+
+    }
+
+    void actuallyPlay() {
         if (!this.playing) {
             this.playing = true;
             if (this.released) {
@@ -138,6 +163,10 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
 
     @Override
     void stop() {
+        if(this.duckAudio) {
+            AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+            audioManager.abandonAudioFocus(afChangeListener);
+        }
         if (this.released) {
             return;
         }
@@ -169,6 +198,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         this.prepared = false;
         this.released = true;
         this.playing = false;
+        this.context = null;
     }
 
     @Override

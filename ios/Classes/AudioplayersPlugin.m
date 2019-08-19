@@ -68,11 +68,12 @@ FlutterMethodChannel *_channel_audioplayer;
                     float volume = (float)[call.arguments[@"volume"] doubleValue] ;
                     int milliseconds = call.arguments[@"position"] == [NSNull null] ? 0.0 : [call.arguments[@"position"] intValue] ;
                     bool respectSilence = [call.arguments[@"respectSilence"]boolValue] ;
+                    bool duckAudio = [call.arguments[@"duckAudio"]boolValue] ;
                     CMTime time = CMTimeMakeWithSeconds(milliseconds / 1000,NSEC_PER_SEC);
                     NSLog(@"isLocal: %d %@", isLocal, call.arguments[@"isLocal"] );
                     NSLog(@"volume: %f %@", volume, call.arguments[@"volume"] );
                     NSLog(@"position: %d %@", milliseconds, call.arguments[@"positions"] );
-                    [self play:playerId url:url isLocal:isLocal volume:volume time:time isNotification:respectSilence];
+                    [self play:playerId url:url isLocal:isLocal volume:volume time:time isNotification:respectSilence duckAudio:duckAudio];
                   },
                 @"pause":
                   ^{
@@ -240,6 +241,7 @@ FlutterMethodChannel *_channel_audioplayer;
       volume: (float) volume
         time: (CMTime) time
       isNotification: (bool) respectSilence
+      duckAudio: (bool) duckAudio
 {
     NSError *error = nil;
     AVAudioSessionCategory category;
@@ -248,10 +250,18 @@ FlutterMethodChannel *_channel_audioplayer;
     } else {
         category = AVAudioSessionCategoryPlayback;
     }
-    BOOL success = [[AVAudioSession sharedInstance]
-                    setCategory: category
-		    withOptions: AVAudioSessionCategoryOptionDuckOthers
-                    error:&error];
+    BOOL success = false;
+    if(duckAudio) {
+    success = [[AVAudioSession sharedInstance]
+                        setCategory: category
+    		    withOptions: AVAudioSessionCategoryOptionDuckOthers
+                        error:&error];
+    } else {
+    success = [[AVAudioSession sharedInstance]
+                        setCategory: category
+                        error:&error];
+    }
+
   if (!success) {
     NSLog(@"Error setting speaker: %@", error);
   }
