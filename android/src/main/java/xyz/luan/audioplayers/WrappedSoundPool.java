@@ -115,7 +115,7 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
     }
 
     @Override
-    void configAttributes(boolean respectSilence, boolean setWakeMode, Context context) {
+    void configAttributes(boolean respectSilence, boolean setWakeMode, boolean duckAudio, Context context) {
     }
 
     @Override
