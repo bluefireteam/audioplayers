@@ -9,7 +9,7 @@ import android.content.Context;
 
 import java.io.IOException;
 
-public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
+public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, AudioManager.OnAudioFocusChangeListener {
 
     private String playerId;
 
@@ -134,13 +134,17 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     void play() {
         if (this.duckAudio) {
             AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-            int result = am.requestAudioFocus(afChangeListener,
-                    AudioManager.STREAM_NOTIFICATION,
-                    AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK);
-            if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-                // start playing the sound
-                actuallyPlay();
-            }
+            AudioAttributes mAudioAttributes =
+                    new AudioAttributes.Builder()
+                            .setUsage(AudioAttributes.USAGE_MEDIA)
+                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                            .build();
+            AudioFocusRequest mAudioFocusRequest =
+                    new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
+                            .setAudioAttributes(mAudioAttributes)
+                            .setAcceptsDelayedFocusGain(true)
+                            .setOnAudioFocusChangeListener(this);
+               .build();
         } else {
             actuallyPlay();
         }
@@ -162,11 +166,23 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         }
     }
 
+
+    @Override
+    public void onAudioFocusChange(int focusChange) {
+        switch (focusChange) {
+            case AudioManager.AUDIOFOCUS_GAIN:
+                actuallyPlay();
+                break;
+        }
+    }
+}
+
+
     @Override
     void stop() {
         if(this.duckAudio) {
             AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-            audioManager.abandonAudioFocus(afChangeListener);
+            audioManager.abandonAudioFocus(this);
         }
         if (this.released) {
             return;
