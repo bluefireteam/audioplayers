@@ -375,6 +375,8 @@ FlutterMethodChannel *_channel_audioplayer;
   }
 
   [ _channel_audioplayer invokeMethod:@"audio.onComplete" arguments:@{@"playerId": playerId}];
+  NSError *error = nil;
+  [[AVAudioSession sharedInstance] setActive:NO error:&error];
 }
 
 -(void)observeValueForKeyPath:(NSString *)keyPath
