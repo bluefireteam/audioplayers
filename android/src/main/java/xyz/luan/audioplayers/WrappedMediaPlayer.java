@@ -29,6 +29,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
 
     private MediaPlayer player;
     private AudioplayersPlugin ref;
+    private AudioManager.OnAudioFocusChangeListener afChangeListener;
 
     WrappedMediaPlayer(AudioplayersPlugin ref, String playerId) {
         this.ref = ref;
@@ -132,7 +133,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     @Override
     void play() {
         if (this.duckAudio) {
-            AudioManager am = context.getSystemService(Context.AUDIO_SERVICE);
+            AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
             int result = am.requestAudioFocus(afChangeListener,
                     AudioManager.STREAM_NOTIFICATION,
                     AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK);
