@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+ - Handling plugin dealloc and onTimeInterval crashs (thanks @chedechao111)
+
 ## audioplayers 0.13.1
  - Added stayAwake feature (thanks, @danielR2001)
  - Improved dispose method (thanks, @hugocbpassos)
