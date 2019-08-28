@@ -147,7 +147,6 @@ public class AudioplayersPlugin implements MethodCallHandler {
     }
 
     public void handleSeekComplete(Player player) {
-        //channel.invokeMethod("audio.onSeekComplete", buildArguments(player.getPlayerId(), true));
         this.seekFinish = true;
     }
 
