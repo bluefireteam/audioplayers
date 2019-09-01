@@ -183,6 +183,34 @@ bool _isDealloc = false;
   }
 }
 
+-(void) setNotification: (NSString *) title 
+        albumTitle:  (NSString *) albumTitle
+        artist:  (NSString *) artist
+        imageUrl:  (NSString *) imageUrl
+        duration:  (int) duration
+        elapsedTime:  (int) elapsedTime {
+  NSMutableDictionary *playingInfo = [NSMutableDictionary dictionary];
+  playingInfo[MPMediaItemPropertyTitle] = title;
+  playingInfo[MPMediaItemPropertyAlbumTitle] = albumTitle;
+  playingInfo[MPMediaItemPropertyArtist] = artist;
+  
+  NSURL *url = [[NSURL alloc] initWithString:imageUrl];
+  UIImage *artworkImage = [UIImage imageWithData:[NSData dataWithContentsOfURL:url]];
+  if(artworkImage)
+  {
+      MPMediaItemArtwork *albumArt = [[MPMediaItemArtwork alloc] initWithImage: artworkImage];
+      playingInfo[MPMediaItemPropertyArtwork] = albumArt;
+  }
+
+  playingInfo[MPMediaItemPropertyPlaybackDuration] = [NSNumber numberWithInt: duration];
+  playingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = [NSNumber numberWithInt: elapsedTime];
+
+  playingInfo[MPNowPlayingInfoPropertyPlaybackRate] = @(1);
+                    NSLog(@"setNotification 5");
+
+  [MPNowPlayingInfoCenter defaultCenter].nowPlayingInfo = playingInfo;
+}
+
 -(void) setUrl: (NSString*) url
        isLocal: (bool) isLocal
        isNotification: (bool) respectSilence
