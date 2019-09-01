@@ -183,6 +183,7 @@ bool _isDealloc = false;
     
   NSLog(@"setUrl %@", url);
 
+  // code moved from play() to setUrl() to fix the bug of audio not playing in ios background
   NSError *error = nil;
   AVAudioSessionCategory category;
   if (respectSilence) {
