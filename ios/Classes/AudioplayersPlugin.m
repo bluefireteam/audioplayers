@@ -371,6 +371,15 @@ bool _isDealloc = false;
     // NSLog(@"asdff %@ - %d", playerId, mseconds);
     
     [_channel_audioplayer invokeMethod:@"audio.onCurrentPosition" arguments:@{@"playerId": playerId, @"value": @(mseconds)}];
+
+
+    NSMutableDictionary *playingInfo = [NSMutableDictionary dictionary];
+    playingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = [NSNumber numberWithInt: mseconds];
+
+    playingInfo[MPNowPlayingInfoPropertyPlaybackRate] = @(1);
+                    NSLog(@"setNotification 5 interval");
+
+    [MPNowPlayingInfoCenter defaultCenter].nowPlayingInfo = playingInfo;
     
     //    NSLog(@"asdff end");
 }
