@@ -29,6 +29,14 @@ NSMutableSet *timeobservers;
 FlutterMethodChannel *_channel_audioplayer;
 bool _isDealloc = false;
 
+MPNowPlayingInfoCenter *_infoCenter;
+NSString *_title; 
+NSString *_albumTitle;
+NSString *_artist;
+NSString *_imageUrl;
+int _duration;
+// int _elapsedTime;
+
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
   FlutterMethodChannel* channel = [FlutterMethodChannel
                                    methodChannelWithName:CHANNEL_NAME
@@ -190,12 +198,27 @@ bool _isDealloc = false;
         imageUrl:  (NSString *) imageUrl
         duration:  (int) duration
         elapsedTime:  (int) elapsedTime {
-  NSMutableDictionary *playingInfo = [NSMutableDictionary dictionary];
-  playingInfo[MPMediaItemPropertyTitle] = title;
-  playingInfo[MPMediaItemPropertyAlbumTitle] = albumTitle;
-  playingInfo[MPMediaItemPropertyArtist] = artist;
   
-  NSURL *url = [[NSURL alloc] initWithString:imageUrl];
+  _title = title;
+  _albumTitle = albumTitle;
+  _artist = artist;
+  _imageUrl = imageUrl;
+  _duration = duration;
+  // _elapsedTime = elapsedTime;
+
+  _infoCenter = [MPNowPlayingInfoCenter defaultCenter];
+  
+  [ self updateNotification:elapsedTime ];
+}
+
+-(void) updateNotification: (int) elapsedTime {
+  
+  NSMutableDictionary *playingInfo = [NSMutableDictionary dictionary];
+  playingInfo[MPMediaItemPropertyTitle] = _title;
+  playingInfo[MPMediaItemPropertyAlbumTitle] = _albumTitle;
+  playingInfo[MPMediaItemPropertyArtist] = _artist;
+  
+  NSURL *url = [[NSURL alloc] initWithString:_imageUrl];
   UIImage *artworkImage = [UIImage imageWithData:[NSData dataWithContentsOfURL:url]];
   if(artworkImage)
   {
@@ -203,13 +226,15 @@ bool _isDealloc = false;
       playingInfo[MPMediaItemPropertyArtwork] = albumArt;
   }
 
-  playingInfo[MPMediaItemPropertyPlaybackDuration] = [NSNumber numberWithInt: duration];
+  playingInfo[MPMediaItemPropertyPlaybackDuration] = [NSNumber numberWithInt: _duration];
   playingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = [NSNumber numberWithInt: elapsedTime];
 
   playingInfo[MPNowPlayingInfoPropertyPlaybackRate] = @(1);
                     NSLog(@"setNotification 5");
 
-  [MPNowPlayingInfoCenter defaultCenter].nowPlayingInfo = playingInfo;
+  if(_infoCenter != nil) {
+    _infoCenter.nowPlayingInfo = playingInfo;
+  }
 }
 
 -(void) setUrl: (NSString*) url
@@ -373,13 +398,13 @@ bool _isDealloc = false;
     [_channel_audioplayer invokeMethod:@"audio.onCurrentPosition" arguments:@{@"playerId": playerId, @"value": @(mseconds)}];
 
 
-    NSMutableDictionary *playingInfo = [NSMutableDictionary dictionary];
-    playingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = [NSNumber numberWithInt: mseconds];
+    // NSMutableDictionary *playingInfo = [NSMutableDictionary dictionary];
+    // playingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = [NSNumber numberWithInt: mseconds];
 
-    playingInfo[MPNowPlayingInfoPropertyPlaybackRate] = @(1);
-                    NSLog(@"setNotification 5 interval");
+    // playingInfo[MPNowPlayingInfoPropertyPlaybackRate] = @(1);
+    //                 NSLog(@"setNotification 5 interval");
 
-    [MPNowPlayingInfoCenter defaultCenter].nowPlayingInfo = playingInfo;
+    // [MPNowPlayingInfoCenter defaultCenter].nowPlayingInfo = playingInfo;
     
     //    NSLog(@"asdff end");
 }
