@@ -324,6 +324,26 @@ class AudioPlayer {
     );
   }
 
+  /// Sets the notification bar for lock screen and notification area in ios for now.
+  ///
+  /// Specify atleast title
+  Future<dynamic> setNotification(
+      {String title,
+      String albumTitle = '',
+      String artist = '',
+      String imageUrl = '',
+      Duration duration,
+      Duration elapsedTime}) {
+    return _invokeMethod('setNotification', {
+      'title': title,
+      'albumTitle': albumTitle,
+      'artist': artist,
+      'imageUrl': imageUrl,
+      'duration': duration != null ? duration.inSeconds : 0,
+      'elapsedTime': elapsedTime != null ? elapsedTime.inSeconds : 0
+    });
+  }
+
   /// Sets the URL.
   ///
   /// Unlike [play], the playback will not resume.
