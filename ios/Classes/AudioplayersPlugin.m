@@ -1,6 +1,7 @@
 #import "AudioplayersPlugin.h"
 #import <UIKit/UIKit.h>
 #import <AVKit/AVKit.h>
+#import <MediaPlayer/MediaPlayer.h>
 #import <AVFoundation/AVFoundation.h>
 
 static NSString *const CHANNEL_NAME = @"xyz.luan/audioplayers";
