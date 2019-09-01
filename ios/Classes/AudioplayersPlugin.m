@@ -120,8 +120,10 @@ bool _isDealloc = false;
                     NSLog(@"setUrl");
                     NSString *url = call.arguments[@"url"];
                     int isLocal = [call.arguments[@"isLocal"]intValue];
+                    bool respectSilence = [call.arguments[@"respectSilence"]boolValue] ;
                     [ self setUrl:url
                           isLocal:isLocal
+                          isNotification:respectSilence
                           playerId:playerId
                           onReady:^(NSString * playerId) {
                             result(@(1));
@@ -170,6 +172,7 @@ bool _isDealloc = false;
 
 -(void) setUrl: (NSString*) url
        isLocal: (bool) isLocal
+       isNotification: (bool) respectSilence
        playerId: (NSString*) playerId
        onReady:(VoidCallback)onReady
 {
@@ -179,6 +182,22 @@ bool _isDealloc = false;
   AVPlayerItem *playerItem;
     
   NSLog(@"setUrl %@", url);
+
+  NSError *error = nil;
+  AVAudioSessionCategory category;
+  if (respectSilence) {
+      category = AVAudioSessionCategoryAmbient;
+  } else {
+      category = AVAudioSessionCategoryPlayback;
+  }
+  BOOL success = [[AVAudioSession sharedInstance]
+                  setCategory: category
+                  error:&error];
+  if (!success) {
+    NSLog(@"Error setting speaker: %@", error);
+  }
+  [[AVAudioSession sharedInstance] setActive:YES error:&error];
+  
 
   if (!playerInfo || ![url isEqualToString:playerInfo[@"url"]]) {
     if (isLocal) {
@@ -245,23 +264,24 @@ bool _isDealloc = false;
         time: (CMTime) time
       isNotification: (bool) respectSilence
 {
-    NSError *error = nil;
-    AVAudioSessionCategory category;
-    if (respectSilence) {
-        category = AVAudioSessionCategoryAmbient;
-    } else {
-        category = AVAudioSessionCategoryPlayback;
-    }
-    BOOL success = [[AVAudioSession sharedInstance]
-                    setCategory: category
-                    error:&error];
-  if (!success) {
-    NSLog(@"Error setting speaker: %@", error);
-  }
-  [[AVAudioSession sharedInstance] setActive:YES error:&error];
+  //   NSError *error = nil;
+  //   AVAudioSessionCategory category;
+  //   if (respectSilence) {
+  //       category = AVAudioSessionCategoryAmbient;
+  //   } else {
+  //       category = AVAudioSessionCategoryPlayback;
+  //   }
+  //   BOOL success = [[AVAudioSession sharedInstance]
+  //                   setCategory: category
+  //                   error:&error];
+  // if (!success) {
+  //   NSLog(@"Error setting speaker: %@", error);
+  // }
+  // [[AVAudioSession sharedInstance] setActive:YES error:&error];
 
   [ self setUrl:url 
          isLocal:isLocal 
+         isNotification:respectSilence
          playerId:playerId 
          onReady:^(NSString * playerId) {
            NSMutableDictionary * playerInfo = players[playerId];
