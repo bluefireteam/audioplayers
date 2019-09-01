@@ -143,6 +143,19 @@ bool _isDealloc = false;
                     float volume = (float)[call.arguments[@"volume"] doubleValue];
                     [self setVolume:volume playerId:playerId];
                   },
+                @"setNotification":
+                  ^{
+                    NSLog(@"setNotification");
+                    NSString *title = call.arguments[@"title"];
+                    NSString *albumTitle = call.arguments[@"albumTitle"];
+                    NSString *artist = call.arguments[@"artist"];
+                    NSString *imageUrl = call.arguments[@"imageUrl"];
+
+                    int duration = [call.arguments[@"duration"] intValue];
+                    int elapsedTime = [call.arguments[@"elapsedTime"] intValue];
+
+                    [self setNotification:title albumTitle:albumTitle artist:artist imageUrl:imageUrl duration:duration elapsedTime:elapsedTime];
+                  },
                 @"setReleaseMode":
                   ^{
                     NSLog(@"setReleaseMode");
