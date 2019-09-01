@@ -392,19 +392,15 @@ int _duration;
     if (_isDealloc) {
         return;
     }
-    int mseconds =  CMTimeGetSeconds(time)*1000;
+    int seconds = CMTimeGetSeconds(time);
+    int mseconds =  seconds*1000;
     // NSLog(@"asdff %@ - %d", playerId, mseconds);
     
     [_channel_audioplayer invokeMethod:@"audio.onCurrentPosition" arguments:@{@"playerId": playerId, @"value": @(mseconds)}];
 
-
-    // NSMutableDictionary *playingInfo = [NSMutableDictionary dictionary];
-    // playingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = [NSNumber numberWithInt: mseconds];
-
-    // playingInfo[MPNowPlayingInfoPropertyPlaybackRate] = @(1);
-    //                 NSLog(@"setNotification 5 interval");
-
-    // [MPNowPlayingInfoCenter defaultCenter].nowPlayingInfo = playingInfo;
+    // if(_infoCenter != nil) {
+    //   [ self updateNotification:seconds ];
+    // }
     
     //    NSLog(@"asdff end");
 }
