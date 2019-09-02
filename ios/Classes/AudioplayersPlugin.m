@@ -367,6 +367,8 @@ int _duration;
         time: (CMTime) time
       isNotification: (bool) respectSilence
 {
+  // ***** this code is moved to setUrl() to fix the bug of audio not playing in ios background
+  //
   //   NSError *error = nil;
   //   AVAudioSessionCategory category;
   //   if (respectSilence) {
@@ -432,12 +434,6 @@ int _duration;
     // NSLog(@"asdff %@ - %d", playerId, mseconds);
     
     [_channel_audioplayer invokeMethod:@"audio.onCurrentPosition" arguments:@{@"playerId": playerId, @"value": @(mseconds)}];
-
-    // if(_infoCenter != nil) {
-    //   [ self updateNotification:seconds ];
-    // }
-    
-    //    NSLog(@"asdff end");
 }
 
 -(void) pause: (NSString *) playerId {
