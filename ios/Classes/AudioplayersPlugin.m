@@ -29,6 +29,7 @@ NSMutableSet *timeobservers;
 FlutterMethodChannel *_channel_audioplayer;
 bool _isDealloc = false;
 
+NSString *_currentPlayerId; // to be used for notifications command center
 MPNowPlayingInfoCenter *_infoCenter;
 NSString *_title; 
 NSString *_albumTitle;
@@ -163,7 +164,7 @@ int _duration;
                     int duration = [call.arguments[@"duration"] intValue];
                     int elapsedTime = [call.arguments[@"elapsedTime"] intValue];
 
-                    [self setNotification:title albumTitle:albumTitle artist:artist imageUrl:imageUrl duration:duration elapsedTime:elapsedTime];
+                    [self setNotification:title albumTitle:albumTitle artist:artist imageUrl:imageUrl duration:duration elapsedTime:elapsedTime playerId:playerId];
                   },
                 @"setReleaseMode":
                   ^{
@@ -197,7 +198,8 @@ int _duration;
         artist:  (NSString *) artist
         imageUrl:  (NSString *) imageUrl
         duration:  (int) duration
-        elapsedTime:  (int) elapsedTime {
+        elapsedTime:  (int) elapsedTime
+        playerId: (NSString*) playerId {
   
   _title = title;
   _albumTitle = albumTitle;
@@ -235,11 +237,28 @@ int _duration;
 -(void)skipBackwardEvent: (MPSkipIntervalCommandEvent *)skipEvent
 {
     NSLog(@"Skip backward by %f", skipEvent.interval);
+    NSMutableDictionary * playerInfo = players[_currentPlayerId];
+    AVPlayer *player = playerInfo[@"player"];
+    AVPlayerItem *currentItem = player.currentItem;
+    CMTime currentTime = currentItem.currentTime;
+    CMTime newTime = CMTimeSubtract(currentItem.currentTime, CMTimeMakeWithSeconds(skipEvent.interval, NSEC_PER_SEC));
+    // if CMTime is negative, set it to zero
+    if(CMTimeGetSeconds(newTime) < 0){
+      [ self seek:_currentPlayerId time:CMTimeMakeWithSeconds(0,1) ];
+    } else {
+      [ self seek:_currentPlayerId time:newTime ];
+    }
 }
 
 -(void)skipForwardEvent: (MPSkipIntervalCommandEvent *)skipEvent
 {
     NSLog(@"Skip forward by %f", skipEvent.interval);
+    NSMutableDictionary * playerInfo = players[_currentPlayerId];
+    AVPlayer *player = playerInfo[@"player"];
+    AVPlayerItem *currentItem = player.currentItem;
+    CMTime currentTime = currentItem.currentTime;
+    CMTime newTime = CMTimeAdd(currentItem.currentTime, CMTimeMakeWithSeconds(skipEvent.interval, NSEC_PER_SEC));
+    [ self seek:_currentPlayerId time:newTime ];
 }
 -(void)playOrPauseEvent: (MPSkipIntervalCommandEvent *)playOrPauseEvent
 {
@@ -280,6 +299,7 @@ int _duration;
 {
   NSMutableDictionary * playerInfo = players[playerId];
   AVPlayer *player = playerInfo[@"player"];
+  _currentPlayerId = playerId; // to be used for notifications command center
   NSMutableSet *observers = playerInfo[@"observers"];
   AVPlayerItem *playerItem;
     
