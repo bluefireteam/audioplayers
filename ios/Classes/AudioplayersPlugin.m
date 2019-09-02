@@ -31,6 +31,8 @@ bool _isDealloc = false;
 
 NSString *_currentPlayerId; // to be used for notifications command center
 MPNowPlayingInfoCenter *_infoCenter;
+MPRemoteCommandCenter *remoteCommandCenter;
+
 NSString *_title; 
 NSString *_albumTitle;
 NSString *_artist;
@@ -218,29 +220,31 @@ int _duration;
   
   [ self updateNotification:elapsedTime ];
 
-  MPRemoteCommandCenter *rcc = [MPRemoteCommandCenter sharedCommandCenter];
+  if(remoteCommandCenter == nil){
+    remoteCommandCenter = [MPRemoteCommandCenter sharedCommandCenter];
 
-  MPSkipIntervalCommand *skipBackwardIntervalCommand = [rcc skipBackwardCommand];
-  [skipBackwardIntervalCommand setEnabled:YES];
-  [skipBackwardIntervalCommand addTarget:self action:@selector(skipBackwardEvent:)];
-  skipBackwardIntervalCommand.preferredIntervals = @[@(backwardSkipInterval)];  // Set your own interval
+    MPSkipIntervalCommand *skipBackwardIntervalCommand = [remoteCommandCenter skipBackwardCommand];
+    [skipBackwardIntervalCommand setEnabled:YES];
+    [skipBackwardIntervalCommand addTarget:self action:@selector(skipBackwardEvent:)];
+    skipBackwardIntervalCommand.preferredIntervals = @[@(backwardSkipInterval)];  // Set your own interval
 
-  MPSkipIntervalCommand *skipForwardIntervalCommand = [rcc skipForwardCommand];
-  skipForwardIntervalCommand.preferredIntervals = @[@(forwardSkipInterval)];  // Max 99
-  [skipForwardIntervalCommand setEnabled:YES];
-  [skipForwardIntervalCommand addTarget:self action:@selector(skipForwardEvent:)];
+    MPSkipIntervalCommand *skipForwardIntervalCommand = [remoteCommandCenter skipForwardCommand];
+    skipForwardIntervalCommand.preferredIntervals = @[@(forwardSkipInterval)];  // Max 99
+    [skipForwardIntervalCommand setEnabled:YES];
+    [skipForwardIntervalCommand addTarget:self action:@selector(skipForwardEvent:)];
 
-  MPRemoteCommand *pauseCommand = [rcc pauseCommand];
-  [pauseCommand setEnabled:YES];
-  [pauseCommand addTarget:self action:@selector(playOrPauseEvent:)];
-  //    
-  MPRemoteCommand *playCommand = [rcc playCommand];
-  [playCommand setEnabled:YES];
-  [playCommand addTarget:self action:@selector(playOrPauseEvent:)];
+    MPRemoteCommand *pauseCommand = [remoteCommandCenter pauseCommand];
+    [pauseCommand setEnabled:YES];
+    [pauseCommand addTarget:self action:@selector(playOrPauseEvent:)];
+    //    
+    MPRemoteCommand *playCommand = [remoteCommandCenter playCommand];
+    [playCommand setEnabled:YES];
+    [playCommand addTarget:self action:@selector(playOrPauseEvent:)];
 
-  MPRemoteCommand *togglePlayPauseCommand = [rcc togglePlayPauseCommand];
-  [togglePlayPauseCommand setEnabled:YES];
-  [togglePlayPauseCommand addTarget:self action:@selector(playOrPauseEvent:)];
+    MPRemoteCommand *togglePlayPauseCommand = [remoteCommandCenter togglePlayPauseCommand];
+    [togglePlayPauseCommand setEnabled:YES];
+    [togglePlayPauseCommand addTarget:self action:@selector(playOrPauseEvent:)];
+  }
 
 }
 
@@ -282,6 +286,7 @@ int _duration;
 
     NSMutableDictionary * playerInfo = players[_currentPlayerId];
     AVPlayer *player = playerInfo[@"player"];
+    NSLog(@"timeControlStatus: %d", player.timeControlStatus );
     if (player.timeControlStatus == AVPlayerTimeControlStatusPlaying) {
         //player is playing and pause it
         [ self pause:_currentPlayerId ];
