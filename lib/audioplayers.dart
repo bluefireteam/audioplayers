@@ -324,6 +324,14 @@ class AudioPlayer {
     );
   }
 
+  /// Sets the playback rate
+  ///
+  /// ios has limits between 0.5 and 2x
+  /// not sure if that's changed recently.
+  Future<int> setPlaybackRate({double playbackRate = 1.0}) {
+    return _invokeMethod('setPlaybackRate', {'playbackRate': playbackRate});
+  }
+
   /// Sets the notification bar for lock screen and notification area in ios for now.
   ///
   /// Specify atleast title

@@ -39,6 +39,7 @@ NSString *_artist;
 NSString *_imageUrl;
 int _duration;
 // int _elapsedTime;
+float _playbackRate = 1.0;
 
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
   FlutterMethodChannel* channel = [FlutterMethodChannel
@@ -154,6 +155,12 @@ int _duration;
                     NSLog(@"setVolume");
                     float volume = (float)[call.arguments[@"volume"] doubleValue];
                     [self setVolume:volume playerId:playerId];
+                  },
+                @"setPlaybackRate":
+                  ^{
+                    NSLog(@"setPlaybackRate");
+                    float playbackRate = (float)[call.arguments[@"playbackRate"] doubleValue];
+                    [self setPlaybackRate:playbackRate playerId:playerId];
                   },
                 @"setNotification":
                   ^{
@@ -315,8 +322,8 @@ int _duration;
   playingInfo[MPMediaItemPropertyPlaybackDuration] = [NSNumber numberWithInt: _duration];
   playingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = [NSNumber numberWithInt: elapsedTime];
 
-  playingInfo[MPNowPlayingInfoPropertyPlaybackRate] = @(1);
-                    NSLog(@"setNotification 5");
+  playingInfo[MPNowPlayingInfoPropertyPlaybackRate] = @(_playbackRate);
+  NSLog(@"setNotification done");
 
   if(_infoCenter != nil) {
     _infoCenter.nowPlayingInfo = playingInfo;
@@ -509,6 +516,25 @@ int _duration;
   AVPlayer *player = playerInfo[@"player"];
   playerInfo[@"volume"] = @(volume);
   [ player setVolume:volume ];
+}
+
+-(void) setPlaybackRate: (float) playbackRate 
+        playerId:  (NSString *) playerId {
+  NSLog(@"ios -> calling setPlaybackRate");
+  
+  NSMutableDictionary *playerInfo = players[playerId];
+  AVPlayer *player = playerInfo[@"player"];
+  // playerInfo[@"volume"] = @(volume);
+  _playbackRate = playbackRate;
+  [ player setRate:playbackRate ];
+
+  if(_infoCenter != nil) {
+    // NSMutableDictionary * playerInfo = players[playerId];
+    // AVPlayer *player = playerInfo[@"player"];
+    AVPlayerItem *currentItem = player.currentItem;
+    CMTime currentTime = currentItem.currentTime;
+    [ self updateNotification:CMTimeGetSeconds(currentTime) ];
+  }
 }
 
 -(void) setLooping: (bool) looping
