@@ -209,6 +209,41 @@ int _duration;
   _infoCenter = [MPNowPlayingInfoCenter defaultCenter];
   
   [ self updateNotification:elapsedTime ];
+
+  MPRemoteCommandCenter *rcc = [MPRemoteCommandCenter sharedCommandCenter];
+
+  MPSkipIntervalCommand *skipBackwardIntervalCommand = [rcc skipBackwardCommand];
+  [skipBackwardIntervalCommand setEnabled:YES];
+  [skipBackwardIntervalCommand addTarget:self action:@selector(skipBackwardEvent:)];
+  skipBackwardIntervalCommand.preferredIntervals = @[@(30)];  // Set your own interval
+
+  MPSkipIntervalCommand *skipForwardIntervalCommand = [rcc skipForwardCommand];
+  skipForwardIntervalCommand.preferredIntervals = @[@(30)];  // Max 99
+  [skipForwardIntervalCommand setEnabled:YES];
+  [skipForwardIntervalCommand addTarget:self action:@selector(skipForwardEvent:)];
+
+  MPRemoteCommand *pauseCommand = [rcc pauseCommand];
+  [pauseCommand setEnabled:YES];
+  [pauseCommand addTarget:self action:@selector(playOrPauseEvent:)];
+  //    
+  MPRemoteCommand *playCommand = [rcc playCommand];
+  [playCommand setEnabled:YES];
+  [playCommand addTarget:self action:@selector(playOrPauseEvent:)];
+
+}
+
+-(void)skipBackwardEvent: (MPSkipIntervalCommandEvent *)skipEvent
+{
+    NSLog(@"Skip backward by %f", skipEvent.interval);
+}
+
+-(void)skipForwardEvent: (MPSkipIntervalCommandEvent *)skipEvent
+{
+    NSLog(@"Skip forward by %f", skipEvent.interval);
+}
+-(void)playOrPauseEvent: (MPSkipIntervalCommandEvent *)playOrPauseEvent
+{
+    NSLog(@"playOrPauseEvent backward by ");
 }
 
 -(void) updateNotification: (int) elapsedTime {
@@ -449,6 +484,11 @@ int _duration;
   NSMutableDictionary * playerInfo = players[playerId];
   AVPlayer *player = playerInfo[@"player"];
   [[player currentItem] seekToTime:time];
+
+  int seconds = CMTimeGetSeconds(time);
+  if(_infoCenter != nil) {
+    [ self updateNotification:seconds ];
+  }
 }
 
 -(void) onSoundComplete: (NSString *) playerId {
