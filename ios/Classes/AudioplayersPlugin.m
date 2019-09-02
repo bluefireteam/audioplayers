@@ -257,8 +257,13 @@ int _duration;
     AVPlayer *player = playerInfo[@"player"];
     AVPlayerItem *currentItem = player.currentItem;
     CMTime currentTime = currentItem.currentTime;
+    CMTime maxDuration = currentItem.duration;
     CMTime newTime = CMTimeAdd(currentItem.currentTime, CMTimeMakeWithSeconds(skipEvent.interval, NSEC_PER_SEC));
-    [ self seek:_currentPlayerId time:newTime ];
+    if(newTime > maxDuration) {
+      [ self seek:_currentPlayerId time:maxDuration ];
+    } else {
+      [ self seek:_currentPlayerId time:newTime ];
+    }
 }
 -(void)playOrPauseEvent: (MPSkipIntervalCommandEvent *)playOrPauseEvent
 {
