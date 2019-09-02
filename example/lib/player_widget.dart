@@ -132,16 +132,19 @@ class _PlayerWidgetState extends State<PlayerWidget> {
         _duration = duration;
       });
 
-      // set atleast title to see the notification bar on ios.
-      _audioPlayer.setNotification(
-          title: 'App Name',
-          artist: 'Artist or blank',
-          albumTitle: 'Name or blank',
-          imageUrl: 'url or blank',
-          forwardSkipInterval: const Duration(seconds: 30), // default is 30s
-          backwardSkipInterval: const Duration(seconds: 30), // default is 30s
-          duration: duration,
-          elapsedTime: Duration(seconds: 0));
+      // implemented for ios, android will be done in next few weeks
+      if (Theme.of(context).platform == TargetPlatform.iOS) {
+        // set atleast title to see the notification bar on ios.
+        _audioPlayer.setNotification(
+            title: 'App Name',
+            artist: 'Artist or blank',
+            albumTitle: 'Name or blank',
+            imageUrl: 'url or blank',
+            forwardSkipInterval: const Duration(seconds: 30), // default is 30s
+            backwardSkipInterval: const Duration(seconds: 30), // default is 30s
+            duration: duration,
+            elapsedTime: Duration(seconds: 0));
+      }
     });
 
     _positionSubscription =
@@ -184,6 +187,15 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     final result =
         await _audioPlayer.play(url, isLocal: isLocal, position: playPosition);
     if (result == 1) setState(() => _playerState = PlayerState.playing);
+
+    // implemented for ios, android will be done in next few weeks
+    if (Theme.of(context).platform == TargetPlatform.iOS) {
+      // default playback rate is 1.0
+      // this should be called after _audioPlayer.play() or _audioPlayer.resume()
+      // this can also be called everytime the user wants to change playback rate in the UI
+      _audioPlayer.setPlaybackRate(playbackRate: 1.0);
+    }
+
     return result;
   }
 
