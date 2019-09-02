@@ -241,7 +241,7 @@ int _duration;
     AVPlayer *player = playerInfo[@"player"];
     AVPlayerItem *currentItem = player.currentItem;
     CMTime currentTime = currentItem.currentTime;
-    CMTime newTime = CMTimeSubtract(currentItem.currentTime, CMTimeMakeWithSeconds(skipEvent.interval, NSEC_PER_SEC));
+    CMTime newTime = CMTimeSubtract(currentTime, CMTimeMakeWithSeconds(skipEvent.interval, NSEC_PER_SEC));
     // if CMTime is negative, set it to zero
     if(CMTimeGetSeconds(newTime) < 0){
       [ self seek:_currentPlayerId time:CMTimeMakeWithSeconds(0,1) ];
@@ -258,8 +258,9 @@ int _duration;
     AVPlayerItem *currentItem = player.currentItem;
     CMTime currentTime = currentItem.currentTime;
     CMTime maxDuration = currentItem.duration;
-    CMTime newTime = CMTimeAdd(currentItem.currentTime, CMTimeMakeWithSeconds(skipEvent.interval, NSEC_PER_SEC));
-    if(newTime > maxDuration) {
+    CMTime newTime = CMTimeAdd(currentTime, CMTimeMakeWithSeconds(skipEvent.interval, NSEC_PER_SEC));
+    // if CMTime is more than max duration, limit it
+    if(CMTimeGetSeconds(newTime) > CMTimeGetSeconds(maxDuration)) {
       [ self seek:_currentPlayerId time:maxDuration ];
     } else {
       [ self seek:_currentPlayerId time:newTime ];
@@ -267,7 +268,18 @@ int _duration;
 }
 -(void)playOrPauseEvent: (MPSkipIntervalCommandEvent *)playOrPauseEvent
 {
-    NSLog(@"playOrPauseEvent backward by ");
+    NSLog(@"playOrPauseEvent");
+
+    NSMutableDictionary * playerInfo = players[_currentPlayerId];
+    AVPlayer *player = playerInfo[@"player"];
+    if (player.timeControlStatus == AVPlayerTimeControlStatusPlaying) {
+        //player is playing and pause it
+        [ self pause:_currentPlayerId ];
+    }
+    else if (player.timeControlStatus == AVPlayerTimeControlStatusPaused) {
+        //player is paused and resume it
+        [ self resume:_currentPlayerId ];
+    }
 }
 
 -(void) updateNotification: (int) elapsedTime {
