@@ -507,6 +507,7 @@ float _playbackRate = 1.0;
   NSMutableDictionary * playerInfo = players[playerId];
   AVPlayer *player = playerInfo[@"player"];
   [player play];
+  [ player setRate:_playbackRate ];
   [playerInfo setObject:@true forKey:@"isPlaying"];
 }
 
