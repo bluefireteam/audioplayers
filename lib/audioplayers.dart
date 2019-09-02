@@ -324,7 +324,7 @@ class AudioPlayer {
     );
   }
 
-  /// Sets the playback rate
+  /// Sets the playback rate - call this after first calling play() or resume()
   ///
   /// ios has limits between 0.5 and 2x
   /// not sure if that's changed recently.

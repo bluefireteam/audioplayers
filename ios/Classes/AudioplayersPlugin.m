@@ -293,7 +293,6 @@ float _playbackRate = 1.0;
 
     NSMutableDictionary * playerInfo = players[_currentPlayerId];
     AVPlayer *player = playerInfo[@"player"];
-    NSLog(@"timeControlStatus: %d", player.timeControlStatus );
     if (player.timeControlStatus == AVPlayerTimeControlStatusPlaying) {
         //player is playing and pause it
         [ self pause:_currentPlayerId ];

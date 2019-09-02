@@ -127,10 +127,22 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   void _initAudioPlayer() {
     _audioPlayer = AudioPlayer(mode: mode);
 
-    _durationSubscription =
-        _audioPlayer.onDurationChanged.listen((duration) => setState(() {
-              _duration = duration;
-            }));
+    _durationSubscription = _audioPlayer.onDurationChanged.listen((duration) {
+      setState(() {
+        _duration = duration;
+      });
+
+      // set atleast title to see the notification bar on ios.
+      _audioPlayer.setNotification(
+          title: 'App Name',
+          artist: 'Artist or blank',
+          albumTitle: 'Name or blank',
+          imageUrl: 'url or blank',
+          forwardSkipInterval: const Duration(seconds: 30), // default is 30s
+          backwardSkipInterval: const Duration(seconds: 30), // default is 30s
+          duration: duration,
+          elapsedTime: Duration(seconds: 0));
+    });
 
     _positionSubscription =
         _audioPlayer.onAudioPositionChanged.listen((p) => setState(() {
