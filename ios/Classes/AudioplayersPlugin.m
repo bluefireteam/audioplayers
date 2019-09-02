@@ -161,10 +161,14 @@ int _duration;
                     NSString *artist = call.arguments[@"artist"];
                     NSString *imageUrl = call.arguments[@"imageUrl"];
 
+                    int forwardSkipInterval = [call.arguments[@"forwardSkipInterval"] intValue];
+                    int backwardSkipInterval = [call.arguments[@"backwardSkipInterval"] intValue];
                     int duration = [call.arguments[@"duration"] intValue];
                     int elapsedTime = [call.arguments[@"elapsedTime"] intValue];
 
-                    [self setNotification:title albumTitle:albumTitle artist:artist imageUrl:imageUrl duration:duration elapsedTime:elapsedTime playerId:playerId];
+                    [self setNotification:title albumTitle:albumTitle artist:artist imageUrl:imageUrl 
+                          forwardSkipInterval:forwardSkipInterval backwardSkipInterval:backwardSkipInterval 
+                          duration:duration elapsedTime:elapsedTime playerId:playerId];
                   },
                 @"setReleaseMode":
                   ^{
@@ -197,6 +201,8 @@ int _duration;
         albumTitle:  (NSString *) albumTitle
         artist:  (NSString *) artist
         imageUrl:  (NSString *) imageUrl
+        forwardSkipInterval:  (int) forwardSkipInterval
+        backwardSkipInterval:  (int) backwardSkipInterval
         duration:  (int) duration
         elapsedTime:  (int) elapsedTime
         playerId: (NSString*) playerId {
@@ -217,10 +223,10 @@ int _duration;
   MPSkipIntervalCommand *skipBackwardIntervalCommand = [rcc skipBackwardCommand];
   [skipBackwardIntervalCommand setEnabled:YES];
   [skipBackwardIntervalCommand addTarget:self action:@selector(skipBackwardEvent:)];
-  skipBackwardIntervalCommand.preferredIntervals = @[@(30)];  // Set your own interval
+  skipBackwardIntervalCommand.preferredIntervals = @[@(backwardSkipInterval)];  // Set your own interval
 
   MPSkipIntervalCommand *skipForwardIntervalCommand = [rcc skipForwardCommand];
-  skipForwardIntervalCommand.preferredIntervals = @[@(30)];  // Max 99
+  skipForwardIntervalCommand.preferredIntervals = @[@(forwardSkipInterval)];  // Max 99
   [skipForwardIntervalCommand setEnabled:YES];
   [skipForwardIntervalCommand addTarget:self action:@selector(skipForwardEvent:)];
 
@@ -231,6 +237,10 @@ int _duration;
   MPRemoteCommand *playCommand = [rcc playCommand];
   [playCommand setEnabled:YES];
   [playCommand addTarget:self action:@selector(playOrPauseEvent:)];
+
+  MPRemoteCommand *togglePlayPauseCommand = [rcc togglePlayPauseCommand];
+  [togglePlayPauseCommand setEnabled:YES];
+  [togglePlayPauseCommand addTarget:self action:@selector(playOrPauseEvent:)];
 
 }
 

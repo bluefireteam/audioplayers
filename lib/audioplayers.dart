@@ -332,6 +332,8 @@ class AudioPlayer {
       String albumTitle = '',
       String artist = '',
       String imageUrl = '',
+      Duration forwardSkipInterval = const Duration(seconds: 30),
+      Duration backwardSkipInterval = const Duration(seconds: 30),
       Duration duration,
       Duration elapsedTime}) {
     return _invokeMethod('setNotification', {
@@ -339,8 +341,10 @@ class AudioPlayer {
       'albumTitle': albumTitle,
       'artist': artist,
       'imageUrl': imageUrl,
-      'duration': duration != null ? duration.inSeconds : 0,
-      'elapsedTime': elapsedTime != null ? elapsedTime.inSeconds : 0
+      'forwardSkipInterval': forwardSkipInterval?.inSeconds ?? 30,
+      'backwardSkipInterval': backwardSkipInterval?.inSeconds ?? 30,
+      'duration': duration?.inSeconds ?? 0,
+      'elapsedTime': elapsedTime?.inSeconds ?? 0
     });
   }
 
