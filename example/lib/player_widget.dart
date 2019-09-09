@@ -18,7 +18,7 @@ class PlayerWidget extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    return new _PlayerWidgetState(url, isLocal, mode);
+    return _PlayerWidgetState(url, isLocal, mode);
   }
 }
 
@@ -65,61 +65,61 @@ class _PlayerWidgetState extends State<PlayerWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return new Column(
+    return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        new Row(
+        Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            new IconButton(
+            IconButton(
                 onPressed: _isPlaying ? null : () => _play(),
                 iconSize: 64.0,
-                icon: new Icon(Icons.play_arrow),
+                icon: Icon(Icons.play_arrow),
                 color: Colors.cyan),
-            new IconButton(
+            IconButton(
                 onPressed: _isPlaying ? () => _pause() : null,
                 iconSize: 64.0,
-                icon: new Icon(Icons.pause),
+                icon: Icon(Icons.pause),
                 color: Colors.cyan),
-            new IconButton(
+            IconButton(
                 onPressed: _isPlaying || _isPaused ? () => _stop() : null,
                 iconSize: 64.0,
-                icon: new Icon(Icons.stop),
+                icon: Icon(Icons.stop),
                 color: Colors.cyan),
           ],
         ),
-        new Row(
+        Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            new Padding(
-              padding: new EdgeInsets.all(12.0),
-              child: new Stack(
+            Padding(
+              padding: EdgeInsets.all(12.0),
+              child: Stack(
                 children: [
-                  new CircularProgressIndicator(
-                    value: 1.0,
-                    valueColor: new AlwaysStoppedAnimation(Colors.grey[300]),
-                  ),
-                  new CircularProgressIndicator(
+                  Slider(
+                    onChanged: (v) {
+                      final Position = v * _duration.inMilliseconds;
+                      _audioPlayer
+                          .seek(Duration(milliseconds: Position.round()));
+                    },
                     value: (_position != null &&
                             _duration != null &&
                             _position.inMilliseconds > 0 &&
                             _position.inMilliseconds < _duration.inMilliseconds)
                         ? _position.inMilliseconds / _duration.inMilliseconds
                         : 0.0,
-                    valueColor: new AlwaysStoppedAnimation(Colors.cyan),
                   ),
                 ],
               ),
             ),
-            new Text(
+            Text(
               _position != null
                   ? '${_positionText ?? ''} / ${_durationText ?? ''}'
                   : _duration != null ? _durationText : '',
-              style: new TextStyle(fontSize: 24.0),
+              style: TextStyle(fontSize: 24.0),
             ),
           ],
         ),
-        new Text("State: $_audioPlayerState")
+        Text("State: $_audioPlayerState")
       ],
     );
   }
