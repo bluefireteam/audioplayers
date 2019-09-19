@@ -12,7 +12,7 @@ NSString *const AudioplayersPluginStop = @"AudioplayersPluginStop";
 static NSMutableDictionary * players;
 
 @interface AudioplayersPlugin()
--(NSObject<PlayerProtocol> *) initPlayer: (NSString*)playerId mode:(NSString*)mode;
+-(NSObject<PlayerProtocol> *) initPlayer: (NSString*)playerId mode:(NSString*)mode local:(bool)local;
 -(void) onSoundComplete: (NSString *) playerId;
 -(void) updateDuration: (NSString *) playerId;
 -(void) onTimeInterval: (NSString *) playerId time: (CMTime) time;
@@ -56,8 +56,10 @@ bool _isDealloc = false;
   NSString * playerId = call.arguments[@"playerId"];
   NSLog(@"iOS => call %@, playerId %@", call.method, playerId);
   NSString *mode = call.arguments[@"mode"];
+  int isLocal = [call.arguments[@"isLocal"] intValue];
+  NSLog(@"Player local value: %d", isLocal);
   typedef void (^CaseBlock)(void);
-  NSObject<PlayerProtocol> *player = [self initPlayer:playerId mode:mode];
+  NSObject<PlayerProtocol> *player = [self initPlayer:playerId mode:mode local:isLocal];
   NSLog(@"Player created!");
 
   // Squint and this looks like a proper switch!
@@ -76,10 +78,9 @@ bool _isDealloc = false;
             result(0);
         if (call.arguments[@"respectSilence"] == nil)
             result(0);
-        int isLocal = [call.arguments[@"isLocal"] intValue] ;
-        double volume = (float)[call.arguments[@"volume"] doubleValue] ;
-        int milliseconds = call.arguments[@"position"] == [NSNull null] ? 0 : [call.arguments[@"position"] intValue] ;
-        bool respectSilence = [call.arguments[@"respectSilence"] boolValue] ;
+        double volume = (float)[call.arguments[@"volume"] doubleValue];
+        int milliseconds = call.arguments[@"position"] == [NSNull null] ? 0 : [call.arguments[@"position"] intValue];
+        bool respectSilence = [call.arguments[@"respectSilence"] boolValue];
         CMTime time = CMTimeMakeWithSeconds(milliseconds / 1000,NSEC_PER_SEC);
         [self setSessionCategory: [call.arguments[@"respectSilence"] boolValue]];
         NSLog(@"going to setNewURL");
@@ -158,12 +159,14 @@ bool _isDealloc = false;
   }
 }
 
-- (NSObject<PlayerProtocol> *) initPlayer: (NSString*)playerId mode:(NSString*)mode {
+- (NSObject<PlayerProtocol> *) initPlayer: (NSString*)playerId mode:(NSString*)mode local:(bool)local {
   NSObject<PlayerProtocol> *player = players[playerId];
   if (player == nil) {
-    if ([mode caseInsensitiveCompare:@"PlayerMode.MEDIA_PLAYER"] == NSOrderedSame) {
+    if ([mode caseInsensitiveCompare:@"PlayerMode.MEDIA_PLAYER"] == NSOrderedSame || !local) {
+      NSLog(@"AVPlayer mode: %@, local: %d", mode, local);
       player = [[WrappedAVPlayer alloc] init];
     } else {
+      NSLog(@"AVAudioPlayer mode: %@, local: %d", mode, local);
       player = [[WrappedAVAudioPlayer alloc] init];
     }
     players[playerId] = player;

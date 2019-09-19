@@ -117,7 +117,6 @@ class AudioCache {
       bool stayAwake}) async {
     File file = await load(fileName);
     AudioPlayer player = _player(mode);
-    player.setReleaseMode(ReleaseMode.LOOP);
     player.play(
       file.path,
       isLocal: true,
@@ -125,6 +124,7 @@ class AudioCache {
       respectSilence: isNotification ?? respectSilence,
       stayAwake: stayAwake,
     );
+    player.setReleaseMode(ReleaseMode.LOOP);
     return player;
   }
 }
