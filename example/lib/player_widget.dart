@@ -128,9 +128,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     _audioPlayer = AudioPlayer(mode: mode);
 
     _durationSubscription = _audioPlayer.onDurationChanged.listen((duration) {
-      setState(() {
-        _duration = duration;
-      });
+      setState(() => _duration = duration);
 
       // TODO implemented for iOS, waiting for android impl
       if (Theme.of(context).platform == TargetPlatform.iOS) {

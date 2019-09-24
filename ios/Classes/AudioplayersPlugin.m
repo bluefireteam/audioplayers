@@ -458,7 +458,6 @@ float _playbackRate = 1.0;
     }
     int seconds = CMTimeGetSeconds(time);
     int mseconds = seconds*1000;
-    // NSLog(@"asdff %@ - %d", playerId, mseconds);
     
     [_channel_audioplayer invokeMethod:@"audio.onCurrentPosition" arguments:@{@"playerId": playerId, @"value": @(mseconds)}];
 }
