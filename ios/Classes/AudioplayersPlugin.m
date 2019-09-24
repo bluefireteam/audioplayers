@@ -214,7 +214,6 @@ float _playbackRate = 1.0;
         duration:  (int) duration
         elapsedTime:  (int) elapsedTime
         playerId: (NSString*) playerId {
-  
   _title = title;
   _albumTitle = albumTitle;
   _artist = artist;
