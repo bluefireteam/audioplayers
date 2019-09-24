@@ -132,7 +132,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
         _duration = duration;
       });
 
-      // implemented for ios, android will be done in next few weeks
+      // TODO implemented for iOS, waiting for android impl
       if (Theme.of(context).platform == TargetPlatform.iOS) {
         // set atleast title to see the notification bar on ios.
         _audioPlayer.setNotification(
@@ -188,7 +188,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
         await _audioPlayer.play(url, isLocal: isLocal, position: playPosition);
     if (result == 1) setState(() => _playerState = PlayerState.playing);
 
-    // implemented for ios, android will be done in next few weeks
+    // TODO implemented for iOS, waiting for android impl
     if (Theme.of(context).platform == TargetPlatform.iOS) {
       // default playback rate is 1.0
       // this should be called after _audioPlayer.play() or _audioPlayer.resume()

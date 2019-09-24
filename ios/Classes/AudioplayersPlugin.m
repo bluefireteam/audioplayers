@@ -38,7 +38,6 @@ NSString *_albumTitle;
 NSString *_artist;
 NSString *_imageUrl;
 int _duration;
-// int _elapsedTime;
 float _playbackRate = 1.0;
 
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
@@ -221,13 +220,12 @@ float _playbackRate = 1.0;
   _artist = artist;
   _imageUrl = imageUrl;
   _duration = duration;
-  // _elapsedTime = elapsedTime;
 
   _infoCenter = [MPNowPlayingInfoCenter defaultCenter];
   
   [ self updateNotification:elapsedTime ];
 
-  if(remoteCommandCenter == nil){
+  if (remoteCommandCenter == nil) {
     remoteCommandCenter = [MPRemoteCommandCenter sharedCommandCenter];
 
     MPSkipIntervalCommand *skipBackwardIntervalCommand = [remoteCommandCenter skipBackwardCommand];
@@ -243,7 +241,7 @@ float _playbackRate = 1.0;
     MPRemoteCommand *pauseCommand = [remoteCommandCenter pauseCommand];
     [pauseCommand setEnabled:YES];
     [pauseCommand addTarget:self action:@selector(playOrPauseEvent:)];
-    //    
+    
     MPRemoteCommand *playCommand = [remoteCommandCenter playCommand];
     [playCommand setEnabled:YES];
     [playCommand addTarget:self action:@selector(playOrPauseEvent:)];
@@ -252,11 +250,9 @@ float _playbackRate = 1.0;
     [togglePlayPauseCommand setEnabled:YES];
     [togglePlayPauseCommand addTarget:self action:@selector(playOrPauseEvent:)];
   }
-
 }
 
--(void)skipBackwardEvent: (MPSkipIntervalCommandEvent *)skipEvent
-{
+-(void) skipBackwardEvent: (MPSkipIntervalCommandEvent *) skipEvent {
     NSLog(@"Skip backward by %f", skipEvent.interval);
     NSMutableDictionary * playerInfo = players[_currentPlayerId];
     AVPlayer *player = playerInfo[@"player"];
@@ -264,15 +260,14 @@ float _playbackRate = 1.0;
     CMTime currentTime = currentItem.currentTime;
     CMTime newTime = CMTimeSubtract(currentTime, CMTimeMakeWithSeconds(skipEvent.interval, NSEC_PER_SEC));
     // if CMTime is negative, set it to zero
-    if(CMTimeGetSeconds(newTime) < 0){
+    if (CMTimeGetSeconds(newTime) < 0) {
       [ self seek:_currentPlayerId time:CMTimeMakeWithSeconds(0,1) ];
     } else {
       [ self seek:_currentPlayerId time:newTime ];
     }
 }
 
--(void)skipForwardEvent: (MPSkipIntervalCommandEvent *)skipEvent
-{
+-(void) skipForwardEvent: (MPSkipIntervalCommandEvent *) skipEvent {
     NSLog(@"Skip forward by %f", skipEvent.interval);
     NSMutableDictionary * playerInfo = players[_currentPlayerId];
     AVPlayer *player = playerInfo[@"player"];
@@ -281,30 +276,27 @@ float _playbackRate = 1.0;
     CMTime maxDuration = currentItem.duration;
     CMTime newTime = CMTimeAdd(currentTime, CMTimeMakeWithSeconds(skipEvent.interval, NSEC_PER_SEC));
     // if CMTime is more than max duration, limit it
-    if(CMTimeGetSeconds(newTime) > CMTimeGetSeconds(maxDuration)) {
+    if (CMTimeGetSeconds(newTime) > CMTimeGetSeconds(maxDuration)) {
       [ self seek:_currentPlayerId time:maxDuration ];
     } else {
       [ self seek:_currentPlayerId time:newTime ];
     }
 }
--(void)playOrPauseEvent: (MPSkipIntervalCommandEvent *)playOrPauseEvent
-{
+-(void) playOrPauseEvent: (MPSkipIntervalCommandEvent *) playOrPauseEvent {
     NSLog(@"playOrPauseEvent");
 
     NSMutableDictionary * playerInfo = players[_currentPlayerId];
     AVPlayer *player = playerInfo[@"player"];
     if (player.timeControlStatus == AVPlayerTimeControlStatusPlaying) {
-        //player is playing and pause it
+        // player is playing and pause it
         [ self pause:_currentPlayerId ];
-    }
-    else if (player.timeControlStatus == AVPlayerTimeControlStatusPaused) {
-        //player is paused and resume it
+    } else if (player.timeControlStatus == AVPlayerTimeControlStatusPaused) {
+        // player is paused and resume it
         [ self resume:_currentPlayerId ];
     }
 }
 
 -(void) updateNotification: (int) elapsedTime {
-  
   NSMutableDictionary *playingInfo = [NSMutableDictionary dictionary];
   playingInfo[MPMediaItemPropertyTitle] = _title;
   playingInfo[MPMediaItemPropertyAlbumTitle] = _albumTitle;
@@ -312,7 +304,7 @@ float _playbackRate = 1.0;
   
   NSURL *url = [[NSURL alloc] initWithString:_imageUrl];
   UIImage *artworkImage = [UIImage imageWithData:[NSData dataWithContentsOfURL:url]];
-  if(artworkImage)
+  if (artworkImage)
   {
       MPMediaItemArtwork *albumArt = [[MPMediaItemArtwork alloc] initWithImage: artworkImage];
       playingInfo[MPMediaItemPropertyArtwork] = albumArt;
@@ -324,7 +316,7 @@ float _playbackRate = 1.0;
   playingInfo[MPNowPlayingInfoPropertyPlaybackRate] = @(_playbackRate);
   NSLog(@"setNotification done");
 
-  if(_infoCenter != nil) {
+  if (_infoCenter != nil) {
     _infoCenter.nowPlayingInfo = playingInfo;
   }
 }
@@ -345,12 +337,7 @@ float _playbackRate = 1.0;
 
   // code moved from play() to setUrl() to fix the bug of audio not playing in ios background
   NSError *error = nil;
-  AVAudioSessionCategory category;
-  if (respectSilence) {
-      category = AVAudioSessionCategoryAmbient;
-  } else {
-      category = AVAudioSessionCategoryPlayback;
-  }
+  AVAudioSessionCategory category = respectSilence ? AVAudioSessionCategoryAmbient : AVAudioSessionCategoryPlayback;
   BOOL success = [[AVAudioSession sharedInstance]
                   setCategory: category
                   error:&error];
@@ -425,23 +412,6 @@ float _playbackRate = 1.0;
         time: (CMTime) time
       isNotification: (bool) respectSilence
 {
-  // ***** this code is moved to setUrl() to fix the bug of audio not playing in ios background
-  //
-  //   NSError *error = nil;
-  //   AVAudioSessionCategory category;
-  //   if (respectSilence) {
-  //       category = AVAudioSessionCategoryAmbient;
-  //   } else {
-  //       category = AVAudioSessionCategoryPlayback;
-  //   }
-  //   BOOL success = [[AVAudioSession sharedInstance]
-  //                   setCategory: category
-  //                   error:&error];
-  // if (!success) {
-  //   NSLog(@"Error setting speaker: %@", error);
-  // }
-  // [[AVAudioSession sharedInstance] setActive:YES error:&error];
-
   [ self setUrl:url 
          isLocal:isLocal 
          isNotification:respectSilence
@@ -488,7 +458,7 @@ float _playbackRate = 1.0;
         return;
     }
     int seconds = CMTimeGetSeconds(time);
-    int mseconds =  seconds*1000;
+    int mseconds = seconds*1000;
     // NSLog(@"asdff %@ - %d", playerId, mseconds);
     
     [_channel_audioplayer invokeMethod:@"audio.onCurrentPosition" arguments:@{@"playerId": playerId, @"value": @(mseconds)}];
@@ -524,13 +494,10 @@ float _playbackRate = 1.0;
   
   NSMutableDictionary *playerInfo = players[playerId];
   AVPlayer *player = playerInfo[@"player"];
-  // playerInfo[@"volume"] = @(volume);
   _playbackRate = playbackRate;
   [ player setRate:playbackRate ];
 
-  if(_infoCenter != nil) {
-    // NSMutableDictionary * playerInfo = players[playerId];
-    // AVPlayer *player = playerInfo[@"player"];
+  if (_infoCenter != nil) {
     AVPlayerItem *currentItem = player.currentItem;
     CMTime currentTime = currentItem.currentTime;
     [ self updateNotification:CMTimeGetSeconds(currentTime) ];
@@ -560,7 +527,7 @@ float _playbackRate = 1.0;
   [[player currentItem] seekToTime:time];
 
   int seconds = CMTimeGetSeconds(time);
-  if(_infoCenter != nil) {
+  if (_infoCenter != nil) {
     [ self updateNotification:seconds ];
   }
 }
