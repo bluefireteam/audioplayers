@@ -119,6 +119,7 @@ class AudioPlayer {
   Stream<AudioPlayerState> get onPlayerStateChanged =>
       _playerStateController.stream;
 
+  /// Stream of changes on player state coming from notification area in iOS.
   Stream<AudioPlayerState> get onNotificationPlayerStateChanged =>
       _notificationPlayerStateController.stream;
 
@@ -411,7 +412,6 @@ class AudioPlayer {
 
     switch (call.method) {
       case 'audio.onNotificationPlayerStateChanged':
-        print('onNotificationPlayerStateChanged 0 : ' + value.toString());
         final int isPlaying = value;
         if (isPlaying == 1) {
           player.notificationState = AudioPlayerState.PLAYING;
