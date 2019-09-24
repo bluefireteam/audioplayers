@@ -75,6 +75,9 @@ class AudioPlayer {
   final StreamController<AudioPlayerState> _playerStateController =
       StreamController<AudioPlayerState>.broadcast();
 
+  final StreamController<AudioPlayerState> _notificationPlayerStateController =
+      StreamController<AudioPlayerState>.broadcast();
+
   final StreamController<Duration> _positionController =
       StreamController<Duration>.broadcast();
 
@@ -107,9 +110,17 @@ class AudioPlayer {
     _audioPlayerState = state;
   }
 
+  set notificationState(AudioPlayerState state) {
+    _notificationPlayerStateController.add(state);
+    _audioPlayerState = state;
+  }
+
   /// Stream of changes on player state.
   Stream<AudioPlayerState> get onPlayerStateChanged =>
       _playerStateController.stream;
+
+  Stream<AudioPlayerState> get onNotificationPlayerStateChanged =>
+      _notificationPlayerStateController.stream;
 
   /// Stream of changes on audio position.
   ///
@@ -362,8 +373,10 @@ class AudioPlayer {
   ///
   /// The resources will start being fetched or buffered as soon as you call
   /// this method.
-  Future<int> setUrl(String url, {bool isLocal: false, bool respectSilence = false}) {
-    return _invokeMethod('setUrl', {'url': url, 'isLocal': isLocal, 'respectSilence': respectSilence});
+  Future<int> setUrl(String url,
+      {bool isLocal: false, bool respectSilence = false}) {
+    return _invokeMethod('setUrl',
+        {'url': url, 'isLocal': isLocal, 'respectSilence': respectSilence});
   }
 
   /// Get audio duration after setting url.
@@ -397,6 +410,14 @@ class AudioPlayer {
     final value = callArgs['value'];
 
     switch (call.method) {
+      case 'audio.onNotificationPlayerStateChanged':
+        final bool isPlaying = value;
+        if (isPlaying) {
+          player.notificationState = AudioPlayerState.PLAYING;
+        } else {
+          player.notificationState = AudioPlayerState.PAUSED;
+        }
+        break;
       case 'audio.onDuration':
         Duration newDuration = Duration(milliseconds: value);
         player._durationController.add(newDuration);
@@ -441,6 +462,8 @@ class AudioPlayer {
 
     if (!_playerStateController.isClosed)
       futures.add(_playerStateController.close());
+    if (!_notificationPlayerStateController.isClosed)
+      futures.add(_notificationPlayerStateController.close());
     if (!_positionController.isClosed) futures.add(_positionController.close());
     if (!_durationController.isClosed) futures.add(_durationController.close());
     if (!_completionController.isClosed)

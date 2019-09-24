@@ -289,9 +289,11 @@ float _playbackRate = 1.0;
     if (player.timeControlStatus == AVPlayerTimeControlStatusPlaying) {
         // player is playing and pause it
         [ self pause:_currentPlayerId ];
+        [_channel_audioplayer invokeMethod:@"audio.onNotificationPlayerStateChanged" arguments:@{@"playerId": _currentPlayerId, @"value": @(false)}];
     } else if (player.timeControlStatus == AVPlayerTimeControlStatusPaused) {
         // player is paused and resume it
         [ self resume:_currentPlayerId ];
+        [_channel_audioplayer invokeMethod:@"audio.onNotificationPlayerStateChanged" arguments:@{@"playerId": playerId, @"value": @(true)}];
     }
 }
 
