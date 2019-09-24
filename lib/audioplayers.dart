@@ -411,10 +411,11 @@ class AudioPlayer {
 
     switch (call.method) {
       case 'audio.onNotificationPlayerStateChanged':
-        final bool isPlaying = value;
-        if (isPlaying) {
+        print('onNotificationPlayerStateChanged 0 : ' + value.toString());
+        final int isPlaying = value;
+        if (isPlaying == 1) {
           player.notificationState = AudioPlayerState.PLAYING;
-        } else {
+        } else if (isPlaying == 0) {
           player.notificationState = AudioPlayerState.PAUSED;
         }
         break;
