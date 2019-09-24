@@ -324,14 +324,46 @@ class AudioPlayer {
     );
   }
 
+  /// Sets the playback rate - call this after first calling play() or resume(). Works only on iOS for now
+  ///
+  /// iOS has limits between 0.5 and 2x
+  /// not sure if that's changed recently.
+  Future<int> setPlaybackRate({double playbackRate = 1.0}) {
+    return _invokeMethod('setPlaybackRate', {'playbackRate': playbackRate});
+  }
+
+  /// Sets the notification bar for lock screen and notification area in iOS for now.
+  ///
+  /// Specify atleast title
+  Future<dynamic> setNotification(
+      {String title,
+      String albumTitle = '',
+      String artist = '',
+      String imageUrl = '',
+      Duration forwardSkipInterval = const Duration(seconds: 30),
+      Duration backwardSkipInterval = const Duration(seconds: 30),
+      Duration duration,
+      Duration elapsedTime}) {
+    return _invokeMethod('setNotification', {
+      'title': title,
+      'albumTitle': albumTitle,
+      'artist': artist,
+      'imageUrl': imageUrl,
+      'forwardSkipInterval': forwardSkipInterval?.inSeconds ?? 30,
+      'backwardSkipInterval': backwardSkipInterval?.inSeconds ?? 30,
+      'duration': duration?.inSeconds ?? 0,
+      'elapsedTime': elapsedTime?.inSeconds ?? 0
+    });
+  }
+
   /// Sets the URL.
   ///
   /// Unlike [play], the playback will not resume.
   ///
   /// The resources will start being fetched or buffered as soon as you call
   /// this method.
-  Future<int> setUrl(String url, {bool isLocal: false}) {
-    return _invokeMethod('setUrl', {'url': url, 'isLocal': isLocal});
+  Future<int> setUrl(String url, {bool isLocal: false, bool respectSilence = false}) {
+    return _invokeMethod('setUrl', {'url': url, 'isLocal': isLocal, 'respectSilence': respectSilence});
   }
 
   /// Get audio duration after setting url.
