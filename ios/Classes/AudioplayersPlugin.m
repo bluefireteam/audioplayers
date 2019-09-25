@@ -286,15 +286,17 @@ float _playbackRate = 1.0;
 
     NSMutableDictionary * playerInfo = players[_currentPlayerId];
     AVPlayer *player = playerInfo[@"player"];
+    bool _isPlaying;
     if (player.timeControlStatus == AVPlayerTimeControlStatusPlaying) {
         // player is playing and pause it
         [ self pause:_currentPlayerId ];
-        [_channel_audioplayer invokeMethod:@"audio.onNotificationPlayerStateChanged" arguments:@{@"playerId": _currentPlayerId, @"value": @(0)}];
+        _isPlaying = false;
     } else if (player.timeControlStatus == AVPlayerTimeControlStatusPaused) {
         // player is paused and resume it
         [ self resume:_currentPlayerId ];
-        [_channel_audioplayer invokeMethod:@"audio.onNotificationPlayerStateChanged" arguments:@{@"playerId": _currentPlayerId, @"value": @(1)}];
+        _isPlaying = true;
     }
+    [_channel_audioplayer invokeMethod:@"audio.onNotificationPlayerStateChanged" arguments:@{@"playerId": _currentPlayerId, @"value": @(_isPlaying)}];
 }
 
 -(void) updateNotification: (int) elapsedTime {

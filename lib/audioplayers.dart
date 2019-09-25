@@ -412,12 +412,8 @@ class AudioPlayer {
 
     switch (call.method) {
       case 'audio.onNotificationPlayerStateChanged':
-        final int isPlaying = value;
-        if (isPlaying == 1) {
-          player.notificationState = AudioPlayerState.PLAYING;
-        } else if (isPlaying == 0) {
-          player.notificationState = AudioPlayerState.PAUSED;
-        }
+        final bool isPlaying = value;
+        player.notificationState = isPlaying ? AudioPlayerState.PLAYING :  AudioPlayerState.PAUSED;
         break;
       case 'audio.onDuration':
         Duration newDuration = Duration(milliseconds: value);
