@@ -155,6 +155,12 @@ float _playbackRate = 1.0;
                     float volume = (float)[call.arguments[@"volume"] doubleValue];
                     [self setVolume:volume playerId:playerId];
                   },
+                @"getCurrentPosition":
+                  ^{
+                      int currentPosition = [self getCurrentPosition:playerId];
+                      NSLog(@"getCurrentPosition: %i ", currentPosition);
+                      result(@(currentPosition));
+                  },
                 @"setPlaybackRate":
                   ^{
                     NSLog(@"setPlaybackRate");
@@ -445,6 +451,15 @@ float _playbackRate = 1.0;
     AVPlayer *player = playerInfo[@"player"];
     
    CMTime duration = [[[player currentItem]  asset] duration];
+    int mseconds= CMTimeGetSeconds(duration)*1000;
+    return mseconds;
+}
+
+-(int) getCurrentPosition: (NSString *) playerId {
+    NSMutableDictionary * playerInfo = players[playerId];
+    AVPlayer *player = playerInfo[@"player"];
+
+    CMTime duration = [player currentTime];
     int mseconds= CMTimeGetSeconds(duration)*1000;
     return mseconds;
 }
