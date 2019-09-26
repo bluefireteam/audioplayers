@@ -17,6 +17,7 @@ static NSMutableDictionary * players;
 -(void) onSoundComplete: (NSString *) playerId;
 -(void) updateDuration: (NSString *) playerId;
 -(void) onTimeInterval: (NSString *) playerId time: (CMTime) time;
+@property NSString * playerId ;
 @end
 
 @implementation AudioplayersPlugin {
@@ -24,7 +25,7 @@ static NSMutableDictionary * players;
 }
 
 typedef void (^VoidCallback)(NSString * playerId);
-
+NSMutableArray *array;
 NSMutableSet *timeobservers;
 FlutterMethodChannel *_channel_audioplayer;
 bool _isDealloc = false;
@@ -47,6 +48,7 @@ float _playbackRate = 1.0;
   AudioplayersPlugin* instance = [[AudioplayersPlugin alloc] init];
   [registrar addMethodCallDelegate:instance channel:channel];
   _channel_audioplayer = channel;
+  array = [[NSMutableArray alloc]init];
 }
 
 - (id)init {
@@ -65,7 +67,7 @@ float _playbackRate = 1.0;
 }
 
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-  NSString * playerId = call.arguments[@"playerId"];
+  self.playerId = call.arguments[@"playerId"];
   NSLog(@"iOS => call %@, playerId %@", call.method, playerId);
 
   typedef void (^CaseBlock)(void);
@@ -380,6 +382,42 @@ float _playbackRate = 1.0;
         [self onTimeInterval:playerId time:time];
       }];
         [timeobservers addObject:@{@"player":player, @"observer":timeObserver}];
+
+
+            // 直接使用sharedCommandCenter来获取MPRemoteCommandCenter的shared实例
+            MPRemoteCommandCenter *commandCenter = [MPRemoteCommandCenter sharedCommandCenter];
+            // 启用播放命令 (锁屏界面和上拉快捷功能菜单处的播放按钮触发的命令)
+            commandCenter.playCommand.enabled = YES;
+            // 为播放命令添加响应事件, 在点击后触发
+            [commandCenter.playCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
+                [self resume:[array lastObject]];
+                return MPRemoteCommandHandlerStatusSuccess;
+            }];
+            // 播放, 暂停, 上下曲的命令默认都是启用状态, 即enabled默认为YES
+            [commandCenter.pauseCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
+                //点击了暂停
+
+                [self pause:[array lastObject]];
+                return MPRemoteCommandHandlerStatusSuccess;
+            }];
+            [commandCenter.previousTrackCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
+                //点击了上一首
+
+                return MPRemoteCommandHandlerStatusSuccess;
+            }];
+            [commandCenter.nextTrackCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
+                //点击了下一首
+
+                return MPRemoteCommandHandlerStatusSuccess;
+            }];
+            // 启用耳机的播放/暂停命令 (耳机上的播放按钮触发的命令)
+            commandCenter.togglePlayPauseCommand.enabled = YES;
+            // 为耳机的按钮操作添加相关的响应事件
+            [commandCenter.togglePlayPauseCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
+                // 进行播放/暂停的相关操作 (耳机的播放/暂停按钮)
+
+                return MPRemoteCommandHandlerStatusSuccess;
+            }];
     }
       
     id anobserver = [[ NSNotificationCenter defaultCenter ] addObserverForName: AVPlayerItemDidPlayToEndTimeNotification
