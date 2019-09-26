@@ -6,6 +6,7 @@ import android.media.SoundPool;
 import android.os.Build;
 import android.os.PowerManager;
 import android.content.Context;
+import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -40,6 +41,8 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
     private boolean looping = false;
 
     private boolean loading = false;
+
+    private float rate=1.0f;
 
     WrappedSoundPool(AudioplayersPlugin ref, String playerId) {
         this.ref = ref;
@@ -107,6 +110,15 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
     }
 
     @Override
+    void setRate(double rate) {
+        this.rate=(float)rate;
+        if(this.streamId!=null) {
+            Log.d("setRate","setRate="+rate+" and streamId="+this.streamId);
+            soundPool.setRate(this.streamId, (float) rate);
+        }
+    }
+
+    @Override
     void setVolume(double volume) {
         this.volume = (float) volume;
         if (this.playing) {
@@ -165,6 +177,7 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
     }
 
     private void start() {
+        setRate(rate);
         if (this.paused) {
             soundPool.resume(this.streamId);
             this.paused = false;

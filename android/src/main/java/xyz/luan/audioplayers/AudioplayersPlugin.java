@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import io.flutter.Log;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
@@ -23,6 +24,7 @@ public class AudioplayersPlugin implements MethodCallHandler {
     private final Handler handler = new Handler();
     private Runnable positionUpdates;
     private final Activity activity;
+
 
     public static void registerWith(final Registrar registrar) {
         final MethodChannel channel = new MethodChannel(registrar.messenger(), "xyz.luan/audioplayers");
@@ -85,6 +87,12 @@ public class AudioplayersPlugin implements MethodCallHandler {
             case "seek": {
                 final Integer position = call.argument("position");
                 player.seek(position);
+                break;
+            }
+            case "setPlaybackRate": {
+                final double rate = call.argument("rate");
+                Logger.getLogger("audioplayers").info("setRate="+rate);
+                player.setRate(rate);
                 break;
             }
             case "setVolume": {
