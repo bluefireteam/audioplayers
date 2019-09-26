@@ -191,9 +191,9 @@ class AudioPlayer {
   PlayerMode mode;
 
   /// Creates a new instance and assigns an unique id to it.
-  AudioPlayer({this.mode = PlayerMode.MEDIA_PLAYER}) {
+  AudioPlayer({this.mode = PlayerMode.MEDIA_PLAYER, this.playerId}) {
     this.mode ??= PlayerMode.MEDIA_PLAYER;
-    playerId = _uuid.v4();
+    this.playerId ??= _uuid.v4();
     players[playerId] = this;
   }
 

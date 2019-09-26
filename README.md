@@ -44,7 +44,6 @@ To use the low latency API, better for gaming sounds, use:
 In this mode the backend won't fire any duration or position updates.
 Also, it is not possible to use the seek method to set the audio a specific position.
 
-
 You can create multiple instances to play audio simultaneously.
 
 For all methods that return a `Future<int>`: that's the status of the operation. If `1`, the operation was successful. Otherwise it's the platform native error code.
@@ -59,9 +58,9 @@ Logs are disable by default! To debug, run:
 
 There are three possible sources of audio:
 
- - Remote file on the Internet
- - Local file on the user's device
- - Local asset from your Flutter project
+- Remote file on the Internet
+- Local file on the user's device
+- Local asset from your Flutter project
 
 Both for Remote Files or Local Files, use the `play` method, just setting appropriately the flag `isLocal`.
 
@@ -70,7 +69,7 @@ For Local Assets, you have to use the `AudioCache` class (see below).
 To play a Remote File, just call `play` with the url (the `isLocal` parameter is false by default):
 
 If you want to play audio for a long period of time, you need to set appropriately the flag `stayAwake`,
-If you pass `setAwake` as true you need to add this permission to your app manifest: 
+If you pass `setAwake` as true you need to add this permission to your app manifest:
 `<uses-permission android:name="android.permission.WAKE_LOCK" />`.
 
 ```dart
@@ -134,9 +133,9 @@ On iOS this doesn't apply, so release does nothing.
 
 You can change the Release Mode to determine the actual behavior of the MediaPlayer once finished/stopped. There are three options:
 
-* RELEASE: default mode, will release after stop/completed.
-* STOP: will never release; calling play should be faster.
-* LOOP: will never release; after completed, it will start playing again on loop.
+- RELEASE: default mode, will release after stop/completed.
+- STOP: will never release; calling play should be faster.
+- LOOP: will never release; after completed, it will start playing again on loop.
 
 If you are not on RELEASE mode, you should call the release method yourself; for example:
 
@@ -230,12 +229,20 @@ It works as a cache because it keeps track of the copied files so that you can r
 
 You can find the full documentation for this class [here](doc/audio_cache.md).
 
+### playerId
+
+By default, each time you initialize a new instance of AudioPlayer a unique playerId is generated and assigned using [uuid package](https://pub.dev/packages/uuid), this is designed this way to play multiple audio files simultaneously, if you want to play using the same instance that was created before simply pass your playerId when creating a new AudioPlayer instance.
+
+```dart
+final audioPlayer = AudioPlayer(playerId: 'my_unique_playerId');
+```
+
 ## Supported Formats
 
 You can check a list of supported formats below:
 
- - [Android](https://developer.android.com/guide/topics/media/media-formats.html)
- - [iOS](http://www.techotopia.com/index.php/Playing_Audio_on_iOS_8_using_AVAudioPlayer#Supported_Audio_Formats)
+- [Android](https://developer.android.com/guide/topics/media/media-formats.html)
+- [iOS](http://www.techotopia.com/index.php/Playing_Audio_on_iOS_8_using_AVAudioPlayer#Supported_Audio_Formats)
 
 ## :warning: iOS App Transport Security
 
