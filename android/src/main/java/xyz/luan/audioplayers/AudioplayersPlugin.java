@@ -90,7 +90,7 @@ public class AudioplayersPlugin implements MethodCallHandler {
                 break;
             }
             case "setPlaybackRate": {
-                final double rate = call.argument("rate");
+                final double rate = call.argument("playbackRate");
                 Logger.getLogger("audioplayers").info("setRate="+rate);
                 player.setRate(rate);
                 break;
