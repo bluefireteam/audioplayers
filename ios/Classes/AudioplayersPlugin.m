@@ -17,7 +17,6 @@ static NSMutableDictionary * players;
 -(void) onSoundComplete: (NSString *) playerId;
 -(void) updateDuration: (NSString *) playerId;
 -(void) onTimeInterval: (NSString *) playerId time: (CMTime) time;
-@property NSString * playerId ;
 @end
 
 @implementation AudioplayersPlugin {
@@ -67,7 +66,7 @@ float _playbackRate = 1.0;
 }
 
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-  self.playerId = call.arguments[@"playerId"];
+  NSString * playerId = call.arguments[@"playerId"];
   NSLog(@"iOS => call %@, playerId %@", call.method, playerId);
 
   typedef void (^CaseBlock)(void);
@@ -97,6 +96,9 @@ float _playbackRate = 1.0;
                     NSLog(@"volume: %f %@", volume, call.arguments[@"volume"] );
                     NSLog(@"position: %d %@", milliseconds, call.arguments[@"positions"] );
                     [self play:playerId url:url isLocal:isLocal volume:volume time:time isNotification:respectSilence];
+                  if(![array containsObject:playerId]){
+                                            [array addObject:playerId];
+                                        }
                   },
                 @"pause":
                   ^{
@@ -112,11 +114,13 @@ float _playbackRate = 1.0;
                   ^{
                     NSLog(@"stop");
                     [self stop:playerId];
+                    [array removeObject:playerId];
                   },
                 @"release":
                     ^{
                         NSLog(@"release");
                         [self stop:playerId];
+                        [array removeObject:playerId];
                     },
                 @"seek":
                   ^{
