@@ -234,8 +234,7 @@ You can find the full documentation for this class [here](doc/audio_cache.md).
 By default, each time you initialize a new instance of AudioPlayer a unique playerId is generated and assigned using [uuid package](https://pub.dev/packages/uuid), this is designed this way to play multiple audio files simultaneously, if you want to play using the same instance that was created before simply pass your playerId when creating a new AudioPlayer instance.
 
 ```dart
-final audioPlayer = AudioPlayer(mode: mode, playerId: 'my_unique_playerId');
-
+final audioPlayer = AudioPlayer(playerId: 'my_unique_playerId');
 ```
 
 ## Supported Formats
