@@ -460,8 +460,7 @@ float _playbackRate = 1.0;
     AVPlayer *player = playerInfo[@"player"];
 
     CMTime duration = [player currentTime];
-    int mseconds= CMTimeGetSeconds(duration)*1000;
-    return mseconds;
+    return CMTimeGetSeconds(duration) * 1000;
 }
 
 // No need to spam the logs with every time interval update
