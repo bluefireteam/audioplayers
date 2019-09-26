@@ -6,7 +6,6 @@ import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.PowerManager;
 import android.content.Context;
-import android.util.Log;
 
 import java.io.IOException;
 
@@ -28,7 +27,6 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
 
     private MediaPlayer player;
     private AudioplayersPlugin ref;
-    private float rate = 1;
 
     WrappedMediaPlayer(AudioplayersPlugin ref, String playerId) {
         this.ref = ref;
@@ -55,15 +53,6 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
             this.player.setVolume((float) volume, (float) volume);
             this.player.setLooping(this.releaseMode == ReleaseMode.LOOP);
             this.player.prepareAsync();
-        }
-    }
-
-    @Override
-    void setRate(double rate) {
-        this.rate = (float) rate;
-        Log.d("setRat","rate="+this.rate);
-        if (player != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            player.setPlaybackParams(player.getPlaybackParams().setSpeed((float) rate));
         }
     }
 
@@ -144,7 +133,6 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
                 this.player.start();
                 this.ref.handleIsPlaying(this);
             }
-
         }
     }
 
@@ -217,7 +205,6 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
             this.player.seekTo(this.shouldSeekTo);
             this.shouldSeekTo = -1;
         }
-        setRate(rate);
     }
 
     @Override
