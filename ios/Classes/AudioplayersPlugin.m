@@ -257,7 +257,7 @@ float _playbackRate = 1.0;
   }
 }
 
--(void) skipBackwardEvent: (MPSkipIntervalCommandEvent *) skipEvent {
+-(MPRemoteCommandHandlerStatus) skipBackwardEvent: (MPSkipIntervalCommandEvent *) skipEvent {
     NSLog(@"Skip backward by %f", skipEvent.interval);
     NSMutableDictionary * playerInfo = players[_currentPlayerId];
     AVPlayer *player = playerInfo[@"player"];
@@ -270,9 +270,10 @@ float _playbackRate = 1.0;
     } else {
       [ self seek:_currentPlayerId time:newTime ];
     }
+    return MPRemoteCommandHandlerStatusSuccess;
 }
 
--(void) skipForwardEvent: (MPSkipIntervalCommandEvent *) skipEvent {
+-(MPRemoteCommandHandlerStatus) skipForwardEvent: (MPSkipIntervalCommandEvent *) skipEvent {
     NSLog(@"Skip forward by %f", skipEvent.interval);
     NSMutableDictionary * playerInfo = players[_currentPlayerId];
     AVPlayer *player = playerInfo[@"player"];
@@ -286,8 +287,9 @@ float _playbackRate = 1.0;
     } else {
       [ self seek:_currentPlayerId time:newTime ];
     }
+    return MPRemoteCommandHandlerStatusSuccess;
 }
--(void) playOrPauseEvent: (MPSkipIntervalCommandEvent *) playOrPauseEvent {
+-(MPRemoteCommandHandlerStatus) playOrPauseEvent: (MPSkipIntervalCommandEvent *) playOrPauseEvent {
     NSLog(@"playOrPauseEvent");
 
     NSMutableDictionary * playerInfo = players[_currentPlayerId];
@@ -299,6 +301,7 @@ float _playbackRate = 1.0;
         // player is paused and resume it
         [ self resume:_currentPlayerId ];
     }
+    return MPRemoteCommandHandlerStatusSuccess;
 }
 
 -(void) updateNotification: (int) elapsedTime {
