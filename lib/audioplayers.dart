@@ -84,6 +84,9 @@ class AudioPlayer {
   final StreamController<void> _completionController =
       StreamController<void>.broadcast();
 
+  final StreamController<void> _seekCompleteController =
+  StreamController<void>.broadcast();
+
   final StreamController<String> _errorController =
       StreamController<String>.broadcast();
 
@@ -133,6 +136,11 @@ class AudioPlayer {
   /// [ReleaseMode.LOOP] also sends events to this stream.
   Stream<void> get onPlayerCompletion => _completionController.stream;
 
+  /// Stream of seek completions.
+  ///
+  /// An event is going to be sent as soon as the audio seek is finished.
+  Stream<void> get onSeekComplete => _seekCompleteController.stream;
+
   /// Stream of player errors.
   ///
   /// Events are sent when an unexpected error is thrown in the native code.
@@ -172,6 +180,14 @@ class AudioPlayer {
   /// This is deprecated. Use [onPlayerCompletion] instead.
   @deprecated
   VoidCallback completionHandler;
+
+  /// Handler of seek completion.
+  ///
+  /// An event is going to be sent as soon as the audio seek is finished.
+  ///
+  /// This is deprecated. Use [onSeekComplete] instead.
+  @deprecated
+  VoidCallback seekCompleteHandler;
 
   /// Handler of player errors.
   ///
@@ -415,6 +431,10 @@ class AudioPlayer {
         // ignore: deprecated_member_use_from_same_package
         player.completionHandler?.call();
         break;
+      case 'audio.onSeekComplete':
+        player._seekCompleteController.add(null);
+        player.seekCompleteHandler?.call();
+        break;
       case 'audio.onError':
         player.state = AudioPlayerState.STOPPED;
         player._errorController.add(value);
@@ -445,6 +465,7 @@ class AudioPlayer {
     if (!_durationController.isClosed) futures.add(_durationController.close());
     if (!_completionController.isClosed)
       futures.add(_completionController.close());
+    if (!_seekCompleteController.isClosed) futures.add(_seekCompleteController.close());
     if (!_errorController.isClosed) futures.add(_errorController.close());
 
     await Future.wait(futures);
