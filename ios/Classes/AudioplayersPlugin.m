@@ -88,6 +88,17 @@ float _playbackRate = 1.0;
 
   // Squint and this looks like a proper switch!
   NSDictionary *methods = @{
+                @"startHeadlessService":
+                  ^{
+                    NSLog(@"startHeadlessService");
+                    if (call.arguments[@"handleKey"] == nil)
+                        result(0);
+                    NSLog(@"startHeadlessService not nil");
+                    // NSLog(@"call.arguments[@"handleKey"]");
+                    // _updateHandleKey = [call.arguments[@"handleKey"][0] longLongValue];
+                    NSLog(@"startHeadlessService not nil 2");
+                    [self startHeadlessService:[call.arguments[@"handleKey"][0] longValue]];
+                  },
                 @"play":
                   ^{
                     NSLog(@"play!");
