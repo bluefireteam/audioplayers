@@ -370,7 +370,7 @@ float _playbackRate = 1.0;
         _isPlaying = true;
     }
     [_channel_audioplayer invokeMethod:@"audio.onNotificationPlayerStateChanged" arguments:@{@"playerId": _currentPlayerId, @"value": @(_isPlaying)}];
-    [_callbackChannel invokeMethod:@"audio.onNotificationPlayerStateChanged" arguments:@{@"playerId": _currentPlayerId, @"updateHandleMonitorKey": @(_updateHandleMonitorKey), @"value": @(_isPlaying)}];
+    [_callbackChannel invokeMethod:@"audio.onNotificationBackgroundPlayerStateChanged" arguments:@{@"playerId": _currentPlayerId, @"updateHandleMonitorKey": @(_updateHandleMonitorKey), @"value": @(_isPlaying)}];
 }
 
 -(void) updateNotification: (int) elapsedTime {

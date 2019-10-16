@@ -110,7 +110,7 @@ void _backgroundCallbackDispatcher() {
     // break;
 
     final Map<dynamic, dynamic> callArgs = call.arguments as Map;
-    if (call.method == 'audio.onNotificationPlayerStateChanged') {
+    if (call.method == 'audio.onNotificationBackgroundPlayerStateChanged') {
       print('inside setMethodCallHandler 011 ');
       onAudioChangeBackgroundEvent ??= _performCallbackLookup();
       // final Location location =
