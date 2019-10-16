@@ -123,7 +123,7 @@ void _backgroundCallbackDispatcher() {
       // player.notificationState =
       //     isPlaying ? AudioPlayerState.PLAYING : AudioPlayerState.PAUSED;
       print('in onAudioChangeBackgroundEvent 2');
-      onAudioChangeBackgroundEvent(callArgs['value']);
+      onAudioChangeBackgroundEvent(isPlaying);
     } else {
       assert(false, "No handler defined for method type: '${call.method}'");
     }
