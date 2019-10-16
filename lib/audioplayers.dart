@@ -98,18 +98,8 @@ void _backgroundCallbackDispatcher() {
 
     final Map<dynamic, dynamic> callArgs = call.arguments as Map;
     if (call.method == 'audio.onNotificationBackgroundPlayerStateChanged') {
-      print('inside setMethodCallHandler 011 ');
       onAudioChangeBackgroundEvent ??= _performCallbackLookup();
-      // final Location location =
-      //     Location(args[1], args[2], args[3], args[4], args[5]);
-      // onLocationEvent(location);
-      print('in onAudioChangeBackgroundEvent');
-      // final playerId = callArgs['playerId'] as String;
-      // final AudioPlayer player = players[playerId];
       final bool isPlaying = callArgs['value'];
-      // player.notificationState =
-      //     isPlaying ? AudioPlayerState.PLAYING : AudioPlayerState.PAUSED;
-      print('in onAudioChangeBackgroundEvent 2');
       onAudioChangeBackgroundEvent(isPlaying);
     } else {
       assert(false, "No handler defined for method type: '${call.method}'");
@@ -269,14 +259,9 @@ class AudioPlayer {
     // Start the headless location service. The parameter here is a handle to
     // a callback managed by the Flutter engine, which allows for us to pass
     // references to our callbacks between isolates.
-    print("Starting LocationBackgroundPlugin service");
     final CallbackHandle handle =
         PluginUtilities.getCallbackHandle(_backgroundCallbackDispatcher);
     assert(handle != null, 'Unable to lookup callback.');
-    print("handle not null ");
-    print(<dynamic>[handle.toRawHandle()]);
-    // _channel.invokeMethod<void>(
-    //     'startHeadlessService', <dynamic>[handle.toRawHandle()]);
     _invokeMethod('startHeadlessService', {
       'handleKey': <dynamic>[handle.toRawHandle()]
     });
@@ -307,12 +292,6 @@ class AudioPlayer {
       throw ArgumentError.notNull('callback');
     }
     final CallbackHandle handle = PluginUtilities.getCallbackHandle(callback);
-    // return _channel.invokeMethod<bool>(_kMonitorLocationChanges, <dynamic>[
-    //   handle.toRawHandle(),
-    //   pauseLocationUpdatesAutomatically,
-    //   showsBackgroundLocationIndicator,
-    //   activityType.index
-    // ]);
 
     await _invokeMethod('monitorNotificationStateChanges', {
       'handleMonitorKey': <dynamic>[handle.toRawHandle()]
