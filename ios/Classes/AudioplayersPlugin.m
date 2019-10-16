@@ -31,6 +31,7 @@ bool _isDealloc = false;
 
 FlutterEngine *_headlessEngine;
 FlutterMethodChannel *_callbackChannel;
+NSObject<FlutterPluginRegistrar> *_registrar;
 
 NSString *_currentPlayerId; // to be used for notifications command center
 MPNowPlayingInfoCenter *_infoCenter;
@@ -44,6 +45,7 @@ int _duration;
 float _playbackRate = 1.0;
 
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
+  _registrar = registrar;
   FlutterMethodChannel* channel = [FlutterMethodChannel
                                    methodChannelWithName:CHANNEL_NAME
                                    binaryMessenger:[registrar messenger]];
