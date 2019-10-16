@@ -62,7 +62,8 @@ float _playbackRate = 1.0;
       players = [[NSMutableDictionary alloc] init];
       [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(needStop) name:AudioplayersPluginStop object:nil];
 
-      NSLog(@"startHeadlessService -2");
+      // this methos is used to listen to audio playpause event
+      // from the notification area in the background.
       _headlessEngine = [[FlutterEngine alloc] initWithName:@"AudioPlayerIsolate"
                                                     project:nil];
       // This is the method channel used to communicate with
@@ -70,7 +71,6 @@ float _playbackRate = 1.0;
       // Note: we don't add a MethodCallDelegate for this channel now since our
       // BinaryMessenger needs to be initialized first, which is done in
       // `startHeadlessService` below.
-      NSLog(@"startHeadlessService -22");
       _callbackChannel = [FlutterMethodChannel
           methodChannelWithName:@"xyz.luan/audioplayers_callback"
                 binaryMessenger:_headlessEngine];
@@ -87,26 +87,20 @@ float _playbackRate = 1.0;
 // events. `handle` is the handle to the callback dispatcher which we specified
 // in the Dart portion of the plugin.
 - (void)startHeadlessService:(int64_t)handle {
-  // [self setCallbackDispatcherHandle:handle]; //// commented for now as its related to persistance
-
   // Lookup the information for our callback dispatcher from the callback cache.
   // This cache is populated when `PluginUtilities.getCallbackHandle` is called
   // and the resulting handle maps to a `FlutterCallbackInformation` object.
   // This object contains information needed by the engine to start a headless
   // runner, which includes the callback name as well as the path to the file
   // containing the callback.
-  NSLog(@"startHeadlessService -1");
-  NSLog(@"handle");
   FlutterCallbackInformation *info = [FlutterCallbackCache lookupCallbackInformation:handle];
   NSAssert(info != nil, @"failed to find callback");
   NSString *entrypoint = info.callbackName;
   NSString *uri = info.callbackLibraryPath;
-  NSLog(@"startHeadlessService 0");
 
   // Here we actually launch the background isolate to start executing our
   // callback dispatcher, `_backgroundCallbackDispatcher`, in Dart.
   [_headlessEngine runWithEntrypoint:entrypoint libraryURI:uri];
-  NSLog(@"startHeadlessService 1");
 
   // The headless runner needs to be initialized before we can register it as a
   // MethodCallDelegate or else we get an illegal memory access. If we don't
