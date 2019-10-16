@@ -68,33 +68,26 @@ enum PlayerMode {
 // MethodChannels to open a persistent communication channel to trigger
 // callbacks.
 void _backgroundCallbackDispatcher() {
-  const String kOnLocationEvent = 'onLocationEvent';
   const MethodChannel _channel =
       MethodChannel('xyz.luan/audioplayers_callback');
 
   // Setup Flutter state needed for MethodChannels.
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Reference to the onLocationEvent callback.
-  Function onLocationEvent;
+  // Reference to the onAudioChangeBackgroundEvent callback.
   Function onAudioChangeBackgroundEvent;
 
-  print('inside setMethodCallHandler 000 ');
   // This is where the magic happens and we handle background events from the
-  // native portion of the plugin. Here we massage the location data into a
-  // `Location` object which we then pass to the provided callback.
+  // native portion of the plugin. Here we message the audio notification data 
+  // which we then pass to the provided callback.
   _channel.setMethodCallHandler((MethodCall call) async {
-    final dynamic args = call.arguments;
-    print('inside setMethodCallHandler 0 ');
     Function _performCallbackLookup() {
-      final CallbackHandle handle =
-          CallbackHandle.fromRawHandle(call.arguments['updateHandleMonitorKey']);
-      print('inside setMethodCallHandler 1');
+      final CallbackHandle handle = CallbackHandle.fromRawHandle(
+          call.arguments['updateHandleMonitorKey']);
 
       // PluginUtilities.getCallbackFromHandle performs a lookup based on the
       // handle we retrieved earlier.
       final Function closure = PluginUtilities.getCallbackFromHandle(handle);
-      print('inside setMethodCallHandler 2');
 
       if (closure == null) {
         print('Fatal Error: Callback lookup failed!');
@@ -102,12 +95,6 @@ void _backgroundCallbackDispatcher() {
       }
       return closure;
     }
-
-    // case 'audio.onNotificationPlayerStateChanged':
-    //   final bool isPlaying = value;
-    //   player.notificationState =
-    //       isPlaying ? AudioPlayerState.PLAYING : AudioPlayerState.PAUSED;
-    // break;
 
     final Map<dynamic, dynamic> callArgs = call.arguments as Map;
     if (call.method == 'audio.onNotificationBackgroundPlayerStateChanged') {
@@ -314,7 +301,8 @@ class AudioPlayer {
   ///
   /// `callback` is invoked on a background isolate and will not have direct
   /// access to the state held by the main isolate (or any other isolate).
-  Future<bool> monitorNotificationStateChanges(void Function(bool value) callback) async {
+  Future<bool> monitorNotificationStateChanges(
+      void Function(bool value) callback) async {
     if (callback == null) {
       throw ArgumentError.notNull('callback');
     }
@@ -522,7 +510,8 @@ class AudioPlayer {
     switch (call.method) {
       case 'audio.onNotificationPlayerStateChanged':
         final bool isPlaying = value;
-        player.notificationState = isPlaying ? AudioPlayerState.PLAYING :  AudioPlayerState.PAUSED;
+        player.notificationState =
+            isPlaying ? AudioPlayerState.PLAYING : AudioPlayerState.PAUSED;
         break;
       case 'audio.onDuration':
         Duration newDuration = Duration(milliseconds: value);
