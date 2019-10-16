@@ -80,6 +80,38 @@ float _playbackRate = 1.0;
     [self destory];
 }
 
+// Initializes and starts the background isolate which will process location
+// events. `handle` is the handle to the callback dispatcher which we specified
+// in the Dart portion of the plugin.
+- (void)startHeadlessService:(int64_t)handle {
+  // [self setCallbackDispatcherHandle:handle]; //// commented for now as its related to persistance
+
+  // Lookup the information for our callback dispatcher from the callback cache.
+  // This cache is populated when `PluginUtilities.getCallbackHandle` is called
+  // and the resulting handle maps to a `FlutterCallbackInformation` object.
+  // This object contains information needed by the engine to start a headless
+  // runner, which includes the callback name as well as the path to the file
+  // containing the callback.
+  NSLog(@"startHeadlessService -1");
+  NSLog(@"handle");
+  FlutterCallbackInformation *info = [FlutterCallbackCache lookupCallbackInformation:handle];
+  NSAssert(info != nil, @"failed to find callback");
+  NSString *entrypoint = info.callbackName;
+  NSString *uri = info.callbackLibraryPath;
+  NSLog(@"startHeadlessService 0");
+
+  // Here we actually launch the background isolate to start executing our
+  // callback dispatcher, `_backgroundCallbackDispatcher`, in Dart.
+  [_headlessEngine runWithEntrypoint:entrypoint libraryURI:uri];
+  NSLog(@"startHeadlessService 1");
+
+  // The headless runner needs to be initialized before we can register it as a
+  // MethodCallDelegate or else we get an illegal memory access. If we don't
+  // want to make calls from `_backgroundCallDispatcher` back to native code,
+  // we don't need to add a MethodCallDelegate for this channel.
+  [_registrar addMethodCallDelegate:self channel:_callbackChannel];
+}
+
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
   NSString * playerId = call.arguments[@"playerId"];
   NSLog(@"iOS => call %@, playerId %@", call.method, playerId);
