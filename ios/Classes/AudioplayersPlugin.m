@@ -29,6 +29,9 @@ NSMutableSet *timeobservers;
 FlutterMethodChannel *_channel_audioplayer;
 bool _isDealloc = false;
 
+FlutterEngine *_headlessEngine;
+FlutterMethodChannel *_callbackChannel;
+
 NSString *_currentPlayerId; // to be used for notifications command center
 MPNowPlayingInfoCenter *_infoCenter;
 MPRemoteCommandCenter *remoteCommandCenter;
@@ -55,6 +58,19 @@ float _playbackRate = 1.0;
       _isDealloc = false;
       players = [[NSMutableDictionary alloc] init];
       [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(needStop) name:AudioplayersPluginStop object:nil];
+
+      NSLog(@"startHeadlessService -2");
+      _headlessEngine = [[FlutterEngine alloc] initWithName:@"AudioPlayerIsolate"
+                                                    project:nil];
+      // This is the method channel used to communicate with
+      // `_backgroundCallbackDispatcher` defined in the Dart portion of our plugin.
+      // Note: we don't add a MethodCallDelegate for this channel now since our
+      // BinaryMessenger needs to be initialized first, which is done in
+      // `startHeadlessService` below.
+      NSLog(@"startHeadlessService -22");
+      _callbackChannel = [FlutterMethodChannel
+          methodChannelWithName:@"xyz.luan/audioplayers_callback"
+                binaryMessenger:_headlessEngine];
   }
   return self;
 }
