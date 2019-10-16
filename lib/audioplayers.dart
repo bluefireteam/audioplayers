@@ -310,6 +310,29 @@ class AudioPlayer {
         .then((result) => (result as int));
   }
 
+  /// Start getting significant location updates through `callback`.
+  ///
+  /// `callback` is invoked on a background isolate and will not have direct
+  /// access to the state held by the main isolate (or any other isolate).
+  Future<bool> monitorNotificationStateChanges(void Function(bool value) callback) async {
+    if (callback == null) {
+      throw ArgumentError.notNull('callback');
+    }
+    final CallbackHandle handle = PluginUtilities.getCallbackHandle(callback);
+    // return _channel.invokeMethod<bool>(_kMonitorLocationChanges, <dynamic>[
+    //   handle.toRawHandle(),
+    //   pauseLocationUpdatesAutomatically,
+    //   showsBackgroundLocationIndicator,
+    //   activityType.index
+    // ]);
+
+    await _invokeMethod('monitorNotificationStateChanges', {
+      'handleMonitorKey': <dynamic>[handle.toRawHandle()]
+    });
+
+    return true;
+  }
+
   /// Plays an audio.
   ///
   /// If [isLocal] is true, [url] must be a local file system path.
