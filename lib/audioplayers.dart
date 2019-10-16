@@ -4,6 +4,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
 
+// Required for PluginUtilities.
+import 'dart:ui';
+import 'package:flutter/material.dart';
+
 typedef StreamController CreateStreamController();
 typedef void TimeChangeHandler(Duration duration);
 typedef void ErrorHandler(String message);
@@ -57,6 +61,73 @@ enum PlayerMode {
   /// Also, it is not possible to use the seek method to set the audio a
   /// specific position.
   LOW_LATENCY
+}
+
+// When we start the background service isolate, we only ever enter it once.
+// To communicate between the native plugin and this entrypoint, we'll use
+// MethodChannels to open a persistent communication channel to trigger
+// callbacks.
+void _backgroundCallbackDispatcher() {
+  const String kOnLocationEvent = 'onLocationEvent';
+  const MethodChannel _channel =
+      MethodChannel('xyz.luan/audioplayers_callback');
+
+  // Setup Flutter state needed for MethodChannels.
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Reference to the onLocationEvent callback.
+  Function onLocationEvent;
+  Function onAudioChangeBackgroundEvent;
+
+  print('inside setMethodCallHandler 000 ');
+  // This is where the magic happens and we handle background events from the
+  // native portion of the plugin. Here we massage the location data into a
+  // `Location` object which we then pass to the provided callback.
+  _channel.setMethodCallHandler((MethodCall call) async {
+    final dynamic args = call.arguments;
+    print('inside setMethodCallHandler 0 ');
+    Function _performCallbackLookup() {
+      final CallbackHandle handle =
+          CallbackHandle.fromRawHandle(call.arguments['updateHandleMonitorKey']);
+      print('inside setMethodCallHandler 1');
+
+      // PluginUtilities.getCallbackFromHandle performs a lookup based on the
+      // handle we retrieved earlier.
+      final Function closure = PluginUtilities.getCallbackFromHandle(handle);
+      print('inside setMethodCallHandler 2');
+
+      if (closure == null) {
+        print('Fatal Error: Callback lookup failed!');
+        // exit(-1);
+      }
+      return closure;
+    }
+
+    // case 'audio.onNotificationPlayerStateChanged':
+    //   final bool isPlaying = value;
+    //   player.notificationState =
+    //       isPlaying ? AudioPlayerState.PLAYING : AudioPlayerState.PAUSED;
+    // break;
+
+    final Map<dynamic, dynamic> callArgs = call.arguments as Map;
+    if (call.method == 'audio.onNotificationPlayerStateChanged') {
+      print('inside setMethodCallHandler 011 ');
+      onAudioChangeBackgroundEvent ??= _performCallbackLookup();
+      // final Location location =
+      //     Location(args[1], args[2], args[3], args[4], args[5]);
+      // onLocationEvent(location);
+      print('in onAudioChangeBackgroundEvent');
+      // final playerId = callArgs['playerId'] as String;
+      // final AudioPlayer player = players[playerId];
+      final bool isPlaying = callArgs['value'];
+      // player.notificationState =
+      //     isPlaying ? AudioPlayerState.PLAYING : AudioPlayerState.PAUSED;
+      print('in onAudioChangeBackgroundEvent 2');
+      onAudioChangeBackgroundEvent(callArgs['value']);
+    } else {
+      assert(false, "No handler defined for method type: '${call.method}'");
+    }
+  });
 }
 
 /// This represents a single AudioPlayer, which can play one audio at a time.
@@ -207,6 +278,21 @@ class AudioPlayer {
     this.mode ??= PlayerMode.MEDIA_PLAYER;
     playerId = _uuid.v4();
     players[playerId] = this;
+
+    // Start the headless location service. The parameter here is a handle to
+    // a callback managed by the Flutter engine, which allows for us to pass
+    // references to our callbacks between isolates.
+    print("Starting LocationBackgroundPlugin service");
+    final CallbackHandle handle =
+        PluginUtilities.getCallbackHandle(_backgroundCallbackDispatcher);
+    assert(handle != null, 'Unable to lookup callback.');
+    print("handle not null ");
+    print(<dynamic>[handle.toRawHandle()]);
+    // _channel.invokeMethod<void>(
+    //     'startHeadlessService', <dynamic>[handle.toRawHandle()]);
+    _invokeMethod('startHeadlessService', {
+      'handleKey': <dynamic>[handle.toRawHandle()]
+    });
   }
 
   Future<int> _invokeMethod(
