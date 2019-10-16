@@ -32,6 +32,7 @@ bool _isDealloc = false;
 FlutterEngine *_headlessEngine;
 FlutterMethodChannel *_callbackChannel;
 NSObject<FlutterPluginRegistrar> *_registrar;
+int64_t _updateHandleMonitorKey;
 
 NSString *_currentPlayerId; // to be used for notifications command center
 MPNowPlayingInfoCenter *_infoCenter;
@@ -132,6 +133,17 @@ float _playbackRate = 1.0;
                     // _updateHandleKey = [call.arguments[@"handleKey"][0] longLongValue];
                     NSLog(@"startHeadlessService not nil 2");
                     [self startHeadlessService:[call.arguments[@"handleKey"][0] longValue]];
+                  },
+                @"monitorNotificationStateChanges":
+                  ^{
+                    NSLog(@"monitorNotificationStateChanges");
+                    if (call.arguments[@"handleMonitorKey"] == nil)
+                        result(0);
+                    NSLog(@"monitorNotificationStateChanges not nil");
+                    // NSLog(@"call.arguments[@"handleMonitorKey"]");
+                    _updateHandleMonitorKey = [call.arguments[@"handleMonitorKey"][0] longLongValue];
+                    NSLog(@"monitorNotificationStateChanges not nil 2");
+                    // [self startHeadlessService:[call.arguments[@"handleMonitorKey"][0] longValue]];
                   },
                 @"play":
                   ^{
