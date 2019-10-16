@@ -29,6 +29,25 @@ class _ExampleAppState extends State<ExampleApp> {
   AudioCache audioCache = AudioCache();
   AudioPlayer advancedPlayer = AudioPlayer();
   String localFilePath;
+  AudioPlayer audioPlayer1, audioPlayer2;
+
+  @override
+  initState() {
+    super.initState();
+    _loadAudio();
+  }
+
+  Future _loadAudio() async {
+    var audios = await audioCache.loadAll(['audio.mp3', 'audio2.mp3']);
+    audioPlayer1 = new AudioPlayer(mode: PlayerMode.LOW_LATENCY);
+    audioPlayer2 = new AudioPlayer(mode: PlayerMode.LOW_LATENCY);
+    await audioPlayer1
+        .setUrl(audios[0].path, isLocal: true)
+        .then((_) => print('done1'));
+    await audioPlayer2
+        .setUrl(audios[1].path, isLocal: true)
+        .then((_) => print('done2'));
+  }
 
   Future _loadFile() async {
     final bytes = await readBytes(kUrl1);
@@ -90,10 +109,18 @@ class _ExampleAppState extends State<ExampleApp> {
       Text('Play Local Asset \'audio2.mp3\':'),
       _btn(txt: 'Play', onPressed: () => audioCache.play('audio2.mp3')),
       Text('Play Local Asset In Low Latency \'audio.mp3\':'),
+//      _btn(
+//          txt: 'Play',
+//          onPressed: () =>
+//              audioCache.play('audio.mp3', mode: PlayerMode.LOW_LATENCY)),
       _btn(
           txt: 'Play',
-          onPressed: () =>
-              audioCache.play('audio.mp3', mode: PlayerMode.LOW_LATENCY)),
+          onPressed: () async {
+            await audioPlayer1.resume();
+            sleep(Duration(milliseconds: 100));
+            await audioPlayer1.resume();
+            await audioPlayer2.resume();
+          }),
       Text('Play Local Asset In Low Latency \'audio2.mp3\':'),
       _btn(
           txt: 'Play',

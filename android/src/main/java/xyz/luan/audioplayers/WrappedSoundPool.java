@@ -6,6 +6,7 @@ import android.media.SoundPool;
 import android.os.Build;
 import android.os.PowerManager;
 import android.content.Context;
+import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -14,12 +15,32 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Collections;
 
 import static java.io.File.createTempFile;
 
-public class WrappedSoundPool extends Player implements SoundPool.OnLoadCompleteListener {
+public class WrappedSoundPool extends Player {
 
     private static SoundPool soundPool = createSoundPool();
+    static {
+        soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
+            public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
+                Log.d("WSP", "Loaded " + sampleId);
+                WrappedSoundPool player = soundIdToPlayer.get(sampleId);
+                if (player != null) {
+                    player.loading = false;
+                    if (player.playing) {
+                        player.start();
+                    }
+                }
+            }
+        });
+    }
+
+    private static Map<Integer, WrappedSoundPool> soundIdToPlayer = Collections.synchronizedMap(new HashMap<Integer, WrappedSoundPool>());
+
 
     private final AudioplayersPlugin ref;
 
@@ -71,7 +92,11 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
     @Override
     void release() {
         this.stop();
-        soundPool.unload(this.soundId);
+        if (this.soundId != null) {
+            soundPool.unload(this.soundId);
+            soundIdToPlayer.remove(this.soundId);
+            this.soundId = null;
+        }
     }
 
     @Override
@@ -88,20 +113,21 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
         if (this.url != null && this.url.equals(url)) {
             return;
         }
+
         if (this.soundId != null) {
-            soundPool.unload(this.soundId);
-        } else {
-            soundPool.setOnLoadCompleteListener(this);
+            release();
         }
+
         this.url = url;
         this.loading = true;
 
-        final WrappedSoundPool self = this;
-
+        // TODO Not sure that start a thread for each load is the sane way to go.
         new Thread(new Runnable() {
             @Override
             public void run() {
+                final WrappedSoundPool self = WrappedSoundPool.this;
                 self.soundId = soundPool.load(getAudioPath(url, isLocal), 1);
+                soundIdToPlayer.put(self.soundId, self);
             }
         }).start();
     }
@@ -176,16 +202,6 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
                     0,
                     this.looping ? -1 : 0,
                     1.0f);
-        }
-    }
-
-    @Override
-    public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
-        if (soundId != null && soundId == sampleId) {
-            this.loading = false;
-            if (this.playing) {
-                start();
-            }
         }
     }
 
