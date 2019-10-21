@@ -308,7 +308,7 @@ float _playbackRate = 1.0;
   }
 }
 
--(void) skipBackwardEvent: (MPSkipIntervalCommandEvent *) skipEvent {
+-(MPRemoteCommandHandlerStatus) skipBackwardEvent: (MPSkipIntervalCommandEvent *) skipEvent {
     NSLog(@"Skip backward by %f", skipEvent.interval);
     NSMutableDictionary * playerInfo = players[_currentPlayerId];
     AVPlayer *player = playerInfo[@"player"];
@@ -321,9 +321,10 @@ float _playbackRate = 1.0;
     } else {
       [ self seek:_currentPlayerId time:newTime ];
     }
+    return MPRemoteCommandHandlerStatusSuccess;
 }
 
--(void) skipForwardEvent: (MPSkipIntervalCommandEvent *) skipEvent {
+-(MPRemoteCommandHandlerStatus) skipForwardEvent: (MPSkipIntervalCommandEvent *) skipEvent {
     NSLog(@"Skip forward by %f", skipEvent.interval);
     NSMutableDictionary * playerInfo = players[_currentPlayerId];
     AVPlayer *player = playerInfo[@"player"];
@@ -337,8 +338,9 @@ float _playbackRate = 1.0;
     } else {
       [ self seek:_currentPlayerId time:newTime ];
     }
+    return MPRemoteCommandHandlerStatusSuccess;
 }
--(void) playOrPauseEvent: (MPSkipIntervalCommandEvent *) playOrPauseEvent {
+-(MPRemoteCommandHandlerStatus) playOrPauseEvent: (MPSkipIntervalCommandEvent *) playOrPauseEvent {
     NSLog(@"playOrPauseEvent");
 
     NSMutableDictionary * playerInfo = players[_currentPlayerId];
@@ -355,6 +357,7 @@ float _playbackRate = 1.0;
     }
     [_channel_audioplayer invokeMethod:@"audio.onNotificationPlayerStateChanged" arguments:@{@"playerId": _currentPlayerId, @"value": @(_isPlaying)}];
     [_callbackChannel invokeMethod:@"audio.onNotificationBackgroundPlayerStateChanged" arguments:@{@"playerId": _currentPlayerId, @"updateHandleMonitorKey": @(_updateHandleMonitorKey), @"value": @(_isPlaying)}];
+    return MPRemoteCommandHandlerStatusSuccess;
 }
 
 -(void) updateNotification: (int) elapsedTime {
