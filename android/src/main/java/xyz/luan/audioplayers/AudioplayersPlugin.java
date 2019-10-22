@@ -1,7 +1,7 @@
 package xyz.luan.audioplayers;
 
+import android.content.Context;
 import android.os.Handler;
-import android.app.Activity;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
@@ -19,21 +19,21 @@ public class AudioplayersPlugin implements MethodCallHandler {
     private static final Logger LOGGER = Logger.getLogger(AudioplayersPlugin.class.getCanonicalName());
 
     private final MethodChannel channel;
+    private final Context context;
     private final Map<String, Player> mediaPlayers = new HashMap<>();
     private final Handler handler = new Handler();
     private Runnable positionUpdates;
-    private final Activity activity;
     private boolean seekFinish;
 
     public static void registerWith(final Registrar registrar) {
         final MethodChannel channel = new MethodChannel(registrar.messenger(), "xyz.luan/audioplayers");
-        channel.setMethodCallHandler(new AudioplayersPlugin(channel, registrar.activity()));
+        channel.setMethodCallHandler(new AudioplayersPlugin(channel, registrar.activeContext()));
     }
 
-    private AudioplayersPlugin(final MethodChannel channel, Activity activity) {
+    private AudioplayersPlugin(final MethodChannel channel, Context context) {
         this.channel = channel;
         this.channel.setMethodCallHandler(this);
-        this.activity = activity;
+        this.context = context;
         this.seekFinish = false;
     }
 
@@ -59,7 +59,7 @@ public class AudioplayersPlugin implements MethodCallHandler {
                 final boolean respectSilence = call.argument("respectSilence");
                 final boolean isLocal = call.argument("isLocal");
                 final boolean stayAwake = call.argument("stayAwake");
-                player.configAttributes(respectSilence, stayAwake, activity.getApplicationContext());
+                player.configAttributes(respectSilence, stayAwake, context);
                 player.setVolume(volume);
                 player.setUrl(url, isLocal);
                 if (position != null && !mode.equals("PlayerMode.LOW_LATENCY")) {
@@ -230,4 +230,3 @@ public class AudioplayersPlugin implements MethodCallHandler {
         }
     }
 }
-
