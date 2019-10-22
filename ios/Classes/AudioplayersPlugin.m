@@ -29,6 +29,11 @@ NSMutableSet *timeobservers;
 FlutterMethodChannel *_channel_audioplayer;
 bool _isDealloc = false;
 
+FlutterEngine *_headlessEngine;
+FlutterMethodChannel *_callbackChannel;
+NSObject<FlutterPluginRegistrar> *_registrar;
+int64_t _updateHandleMonitorKey;
+
 NSString *_currentPlayerId; // to be used for notifications command center
 MPNowPlayingInfoCenter *_infoCenter;
 MPRemoteCommandCenter *remoteCommandCenter;
@@ -41,6 +46,7 @@ int _duration;
 float _playbackRate = 1.0;
 
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
+  _registrar = registrar;
   FlutterMethodChannel* channel = [FlutterMethodChannel
                                    methodChannelWithName:CHANNEL_NAME
                                    binaryMessenger:[registrar messenger]];
@@ -55,6 +61,19 @@ float _playbackRate = 1.0;
       _isDealloc = false;
       players = [[NSMutableDictionary alloc] init];
       [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(needStop) name:AudioplayersPluginStop object:nil];
+
+      // this methos is used to listen to audio playpause event
+      // from the notification area in the background.
+      _headlessEngine = [[FlutterEngine alloc] initWithName:@"AudioPlayerIsolate"
+                                                    project:nil];
+      // This is the method channel used to communicate with
+      // `_backgroundCallbackDispatcher` defined in the Dart portion of our plugin.
+      // Note: we don't add a MethodCallDelegate for this channel now since our
+      // BinaryMessenger needs to be initialized first, which is done in
+      // `startHeadlessService` below.
+      _callbackChannel = [FlutterMethodChannel
+          methodChannelWithName:@"xyz.luan/audioplayers_callback"
+                binaryMessenger:_headlessEngine];
   }
   return self;
 }
@@ -62,6 +81,32 @@ float _playbackRate = 1.0;
 - (void)needStop {
     _isDealloc = true;
     [self destory];
+}
+
+// Initializes and starts the background isolate which will process location
+// events. `handle` is the handle to the callback dispatcher which we specified
+// in the Dart portion of the plugin.
+- (void)startHeadlessService:(int64_t)handle {
+  // Lookup the information for our callback dispatcher from the callback cache.
+  // This cache is populated when `PluginUtilities.getCallbackHandle` is called
+  // and the resulting handle maps to a `FlutterCallbackInformation` object.
+  // This object contains information needed by the engine to start a headless
+  // runner, which includes the callback name as well as the path to the file
+  // containing the callback.
+  FlutterCallbackInformation *info = [FlutterCallbackCache lookupCallbackInformation:handle];
+  NSAssert(info != nil, @"failed to find callback");
+  NSString *entrypoint = info.callbackName;
+  NSString *uri = info.callbackLibraryPath;
+
+  // Here we actually launch the background isolate to start executing our
+  // callback dispatcher, `_backgroundCallbackDispatcher`, in Dart.
+  [_headlessEngine runWithEntrypoint:entrypoint libraryURI:uri];
+
+  // The headless runner needs to be initialized before we can register it as a
+  // MethodCallDelegate or else we get an illegal memory access. If we don't
+  // want to make calls from `_backgroundCallDispatcher` back to native code,
+  // we don't need to add a MethodCallDelegate for this channel.
+  [_registrar addMethodCallDelegate:self channel:_callbackChannel];
 }
 
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
@@ -72,6 +117,18 @@ float _playbackRate = 1.0;
 
   // Squint and this looks like a proper switch!
   NSDictionary *methods = @{
+                @"startHeadlessService":
+                  ^{
+                    if (call.arguments[@"handleKey"] == nil)
+                        result(0);
+                    [self startHeadlessService:[call.arguments[@"handleKey"][0] longValue]];
+                  },
+                @"monitorNotificationStateChanges":
+                  ^{
+                    if (call.arguments[@"handleMonitorKey"] == nil)
+                        result(0);
+                    _updateHandleMonitorKey = [call.arguments[@"handleMonitorKey"][0] longLongValue];
+                  },
                 @"play":
                   ^{
                     NSLog(@"play!");
@@ -257,7 +314,7 @@ float _playbackRate = 1.0;
   }
 }
 
--(void) skipBackwardEvent: (MPSkipIntervalCommandEvent *) skipEvent {
+-(MPRemoteCommandHandlerStatus) skipBackwardEvent: (MPSkipIntervalCommandEvent *) skipEvent {
     NSLog(@"Skip backward by %f", skipEvent.interval);
     NSMutableDictionary * playerInfo = players[_currentPlayerId];
     AVPlayer *player = playerInfo[@"player"];
@@ -270,9 +327,10 @@ float _playbackRate = 1.0;
     } else {
       [ self seek:_currentPlayerId time:newTime ];
     }
+    return MPRemoteCommandHandlerStatusSuccess;
 }
 
--(void) skipForwardEvent: (MPSkipIntervalCommandEvent *) skipEvent {
+-(MPRemoteCommandHandlerStatus) skipForwardEvent: (MPSkipIntervalCommandEvent *) skipEvent {
     NSLog(@"Skip forward by %f", skipEvent.interval);
     NSMutableDictionary * playerInfo = players[_currentPlayerId];
     AVPlayer *player = playerInfo[@"player"];
@@ -286,19 +344,26 @@ float _playbackRate = 1.0;
     } else {
       [ self seek:_currentPlayerId time:newTime ];
     }
+    return MPRemoteCommandHandlerStatusSuccess;
 }
--(void) playOrPauseEvent: (MPSkipIntervalCommandEvent *) playOrPauseEvent {
+-(MPRemoteCommandHandlerStatus) playOrPauseEvent: (MPSkipIntervalCommandEvent *) playOrPauseEvent {
     NSLog(@"playOrPauseEvent");
 
     NSMutableDictionary * playerInfo = players[_currentPlayerId];
     AVPlayer *player = playerInfo[@"player"];
+    bool _isPlaying;
     if (player.timeControlStatus == AVPlayerTimeControlStatusPlaying) {
         // player is playing and pause it
         [ self pause:_currentPlayerId ];
+        _isPlaying = false;
     } else if (player.timeControlStatus == AVPlayerTimeControlStatusPaused) {
         // player is paused and resume it
         [ self resume:_currentPlayerId ];
+        _isPlaying = true;
     }
+    [_channel_audioplayer invokeMethod:@"audio.onNotificationPlayerStateChanged" arguments:@{@"playerId": _currentPlayerId, @"value": @(_isPlaying)}];
+    [_callbackChannel invokeMethod:@"audio.onNotificationBackgroundPlayerStateChanged" arguments:@{@"playerId": _currentPlayerId, @"updateHandleMonitorKey": @(_updateHandleMonitorKey), @"value": @(_isPlaying)}];
+    return MPRemoteCommandHandlerStatusSuccess;
 }
 
 -(void) updateNotification: (int) elapsedTime {
@@ -553,9 +618,9 @@ float _playbackRate = 1.0;
   }
 
   [ self pause:playerId ];
-  [ self seek:playerId time:CMTimeMakeWithSeconds(0,1) ];
 
   if ([ playerInfo[@"looping"] boolValue]) {
+    [ self seek:playerId time:CMTimeMakeWithSeconds(0,1) ];
     [ self resume:playerId ];
   }
 
