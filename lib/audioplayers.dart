@@ -4,6 +4,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
 
+// Required for PluginUtilities.
+import 'dart:ui';
+import 'package:flutter/material.dart';
+
 typedef StreamController CreateStreamController();
 typedef void TimeChangeHandler(Duration duration);
 typedef void ErrorHandler(String message);
@@ -59,6 +63,50 @@ enum PlayerMode {
   LOW_LATENCY
 }
 
+// When we start the background service isolate, we only ever enter it once.
+// To communicate between the native plugin and this entrypoint, we'll use
+// MethodChannels to open a persistent communication channel to trigger
+// callbacks.
+void _backgroundCallbackDispatcher() {
+  const MethodChannel _channel =
+      MethodChannel('xyz.luan/audioplayers_callback');
+
+  // Setup Flutter state needed for MethodChannels.
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Reference to the onAudioChangeBackgroundEvent callback.
+  Function onAudioChangeBackgroundEvent;
+
+  // This is where the magic happens and we handle background events from the
+  // native portion of the plugin. Here we message the audio notification data 
+  // which we then pass to the provided callback.
+  _channel.setMethodCallHandler((MethodCall call) async {
+    Function _performCallbackLookup() {
+      final CallbackHandle handle = CallbackHandle.fromRawHandle(
+          call.arguments['updateHandleMonitorKey']);
+
+      // PluginUtilities.getCallbackFromHandle performs a lookup based on the
+      // handle we retrieved earlier.
+      final Function closure = PluginUtilities.getCallbackFromHandle(handle);
+
+      if (closure == null) {
+        print('Fatal Error: Callback lookup failed!');
+        // exit(-1);
+      }
+      return closure;
+    }
+
+    final Map<dynamic, dynamic> callArgs = call.arguments as Map;
+    if (call.method == 'audio.onNotificationBackgroundPlayerStateChanged') {
+      onAudioChangeBackgroundEvent ??= _performCallbackLookup();
+      final bool isPlaying = callArgs['value'];
+      onAudioChangeBackgroundEvent(isPlaying);
+    } else {
+      assert(false, "No handler defined for method type: '${call.method}'");
+    }
+  });
+}
+
 /// This represents a single AudioPlayer, which can play one audio at a time.
 /// To play several audios at the same time, you must create several instances
 /// of this class.
@@ -73,6 +121,9 @@ class AudioPlayer {
   static final _uuid = Uuid();
 
   final StreamController<AudioPlayerState> _playerStateController =
+      StreamController<AudioPlayerState>.broadcast();
+
+  final StreamController<AudioPlayerState> _notificationPlayerStateController =
       StreamController<AudioPlayerState>.broadcast();
 
   final StreamController<Duration> _positionController =
@@ -110,9 +161,18 @@ class AudioPlayer {
     _audioPlayerState = state;
   }
 
+  set notificationState(AudioPlayerState state) {
+    _notificationPlayerStateController.add(state);
+    _audioPlayerState = state;
+  }
+
   /// Stream of changes on player state.
   Stream<AudioPlayerState> get onPlayerStateChanged =>
       _playerStateController.stream;
+
+  /// Stream of changes on player state coming from notification area in iOS.
+  Stream<AudioPlayerState> get onNotificationPlayerStateChanged =>
+      _notificationPlayerStateController.stream;
 
   /// Stream of changes on audio position.
   ///
@@ -211,6 +271,16 @@ class AudioPlayer {
     this.mode ??= PlayerMode.MEDIA_PLAYER;
     this.playerId ??= _uuid.v4();
     players[playerId] = this;
+
+    // Start the headless location service. The parameter here is a handle to
+    // a callback managed by the Flutter engine, which allows for us to pass
+    // references to our callbacks between isolates.
+    final CallbackHandle handle =
+        PluginUtilities.getCallbackHandle(_backgroundCallbackDispatcher);
+    assert(handle != null, 'Unable to lookup callback.');
+    _invokeMethod('startHeadlessService', {
+      'handleKey': <dynamic>[handle.toRawHandle()]
+    });
   }
 
   Future<int> _invokeMethod(
@@ -226,6 +296,24 @@ class AudioPlayer {
     return _channel
         .invokeMethod(method, withPlayerId)
         .then((result) => (result as int));
+  }
+
+  /// Start getting significant location updates through `callback`.
+  ///
+  /// `callback` is invoked on a background isolate and will not have direct
+  /// access to the state held by the main isolate (or any other isolate).
+  Future<bool> monitorNotificationStateChanges(
+      void Function(bool value) callback) async {
+    if (callback == null) {
+      throw ArgumentError.notNull('callback');
+    }
+    final CallbackHandle handle = PluginUtilities.getCallbackHandle(callback);
+
+    await _invokeMethod('monitorNotificationStateChanges', {
+      'handleMonitorKey': <dynamic>[handle.toRawHandle()]
+    });
+
+    return true;
   }
 
   /// Plays an audio.
@@ -378,8 +466,10 @@ class AudioPlayer {
   ///
   /// The resources will start being fetched or buffered as soon as you call
   /// this method.
-  Future<int> setUrl(String url, {bool isLocal: false, bool respectSilence = false}) {
-    return _invokeMethod('setUrl', {'url': url, 'isLocal': isLocal, 'respectSilence': respectSilence});
+  Future<int> setUrl(String url,
+      {bool isLocal: false, bool respectSilence = false}) {
+    return _invokeMethod('setUrl',
+        {'url': url, 'isLocal': isLocal, 'respectSilence': respectSilence});
   }
 
   /// Get audio duration after setting url.
@@ -413,6 +503,11 @@ class AudioPlayer {
     final value = callArgs['value'];
 
     switch (call.method) {
+      case 'audio.onNotificationPlayerStateChanged':
+        final bool isPlaying = value;
+        player.notificationState =
+            isPlaying ? AudioPlayerState.PLAYING : AudioPlayerState.PAUSED;
+        break;
       case 'audio.onDuration':
         Duration newDuration = Duration(milliseconds: value);
         player._durationController.add(newDuration);
@@ -461,6 +556,8 @@ class AudioPlayer {
 
     if (!_playerStateController.isClosed)
       futures.add(_playerStateController.close());
+    if (!_notificationPlayerStateController.isClosed)
+      futures.add(_notificationPlayerStateController.close());
     if (!_positionController.isClosed) futures.add(_positionController.close());
     if (!_durationController.isClosed) futures.add(_durationController.close());
     if (!_completionController.isClosed)

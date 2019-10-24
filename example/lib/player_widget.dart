@@ -173,6 +173,11 @@ class _PlayerWidgetState extends State<PlayerWidget> {
         _audioPlayerState = state;
       });
     });
+
+    _audioPlayer.onNotificationPlayerStateChanged.listen((state) {
+      if (!mounted) return;
+      setState(() => _audioPlayerState = state);
+    });
   }
 
   Future<int> _play() async {
