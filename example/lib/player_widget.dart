@@ -191,13 +191,10 @@ class _PlayerWidgetState extends State<PlayerWidget> {
         await _audioPlayer.play(url, isLocal: isLocal, position: playPosition);
     if (result == 1) setState(() => _playerState = PlayerState.playing);
 
-    // TODO implemented for iOS, waiting for android impl
-    if (Theme.of(context).platform == TargetPlatform.iOS) {
-      // default playback rate is 1.0
-      // this should be called after _audioPlayer.play() or _audioPlayer.resume()
-      // this can also be called everytime the user wants to change playback rate in the UI
-      _audioPlayer.setPlaybackRate(playbackRate: 1.0);
-    }
+    // default playback rate is 1.0
+    // this should be called after _audioPlayer.play() or _audioPlayer.resume()
+    // this can also be called everytime the user wants to change playback rate in the UI
+    _audioPlayer.setPlaybackRate(playbackRate: 1.0);
 
     return result;
   }
