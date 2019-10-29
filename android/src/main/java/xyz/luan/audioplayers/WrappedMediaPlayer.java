@@ -15,6 +15,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
 
     private String url;
     private double volume = 1.0;
+    private float rate = 1.0f;
     private boolean respectSilence;
     private boolean stayAwake;
     private ReleaseMode releaseMode = ReleaseMode.RELEASE;
@@ -63,6 +64,14 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
             if (!this.released) {
                 this.player.setVolume((float) volume, (float) volume);
             }
+        }
+    }
+
+    @Override
+    void setRate(double rate) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && this.player != null && this.rate != rate) {
+            this.rate = (float) rate;
+            this.player.setPlaybackParams(player.getPlaybackParams().setSpeed(this.rate));
         }
     }
 

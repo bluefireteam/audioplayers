@@ -78,7 +78,7 @@ void _backgroundCallbackDispatcher() {
   Function onAudioChangeBackgroundEvent;
 
   // This is where the magic happens and we handle background events from the
-  // native portion of the plugin. Here we message the audio notification data 
+  // native portion of the plugin. Here we message the audio notification data
   // which we then pass to the provided callback.
   _channel.setMethodCallHandler((MethodCall call) async {
     Function _performCallbackLookup() {
@@ -136,7 +136,7 @@ class AudioPlayer {
       StreamController<void>.broadcast();
 
   final StreamController<void> _seekCompleteController =
-  StreamController<void>.broadcast();
+      StreamController<void>.broadcast();
 
   final StreamController<String> _errorController =
       StreamController<String>.broadcast();
@@ -428,7 +428,7 @@ class AudioPlayer {
     );
   }
 
-  /// Sets the playback rate - call this after first calling play() or resume(). Works only on iOS for now
+  /// Sets the playback rate - call this after first calling play() or resume().
   ///
   /// iOS has limits between 0.5 and 2x
   /// not sure if that's changed recently.
@@ -562,7 +562,8 @@ class AudioPlayer {
     if (!_durationController.isClosed) futures.add(_durationController.close());
     if (!_completionController.isClosed)
       futures.add(_completionController.close());
-    if (!_seekCompleteController.isClosed) futures.add(_seekCompleteController.close());
+    if (!_seekCompleteController.isClosed)
+      futures.add(_seekCompleteController.close());
     if (!_errorController.isClosed) futures.add(_errorController.close());
 
     await Future.wait(futures);

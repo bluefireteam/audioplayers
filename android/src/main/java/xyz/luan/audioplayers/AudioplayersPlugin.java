@@ -100,8 +100,12 @@ public class AudioplayersPlugin implements MethodCallHandler {
                 player.setUrl(url, isLocal);
                 break;
             }
+            case "setPlaybackRate": {
+                final double rate = call.argument("playbackRate");
+                player.setRate(rate);
+                break;
+            }
             case "getDuration": {
-
                 response.success(player.getDuration());
                 return;
             }
