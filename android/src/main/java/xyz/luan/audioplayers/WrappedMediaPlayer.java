@@ -69,7 +69,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
 
     @Override
     void setRate(double rate) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && this.player != null && this.rate != rate) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && this.player != null) {
             this.rate = (float) rate;
             this.player.setPlaybackParams(this.player.getPlaybackParams().setSpeed(this.rate));
         }
