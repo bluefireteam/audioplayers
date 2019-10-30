@@ -1,5 +1,11 @@
 # Changelog
 
+## [next]
+
+## audioplayers 0.13.2
+ - Handling plugin dealloc and onTimeInterval crashs (thanks @chedechao111)
+ - Audio position update when the audio is paused (thanks @bjornjacobs)
+
 ## audioplayers 0.13.1
  - Added stayAwake feature (thanks, @danielR2001)
  - Improved dispose method (thanks, @hugocbpassos)

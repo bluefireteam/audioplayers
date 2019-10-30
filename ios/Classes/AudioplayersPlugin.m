@@ -1,9 +1,12 @@
 #import "AudioplayersPlugin.h"
 #import <UIKit/UIKit.h>
 #import <AVKit/AVKit.h>
+#import <MediaPlayer/MediaPlayer.h>
 #import <AVFoundation/AVFoundation.h>
 
 static NSString *const CHANNEL_NAME = @"xyz.luan/audioplayers";
+NSString *const AudioplayersPluginStop = @"AudioplayersPluginStop";
+
 
 static NSMutableDictionary * players;
 
@@ -24,8 +27,26 @@ typedef void (^VoidCallback)(NSString * playerId);
 
 NSMutableSet *timeobservers;
 FlutterMethodChannel *_channel_audioplayer;
+bool _isDealloc = false;
+
+FlutterEngine *_headlessEngine;
+FlutterMethodChannel *_callbackChannel;
+NSObject<FlutterPluginRegistrar> *_registrar;
+int64_t _updateHandleMonitorKey;
+
+NSString *_currentPlayerId; // to be used for notifications command center
+MPNowPlayingInfoCenter *_infoCenter;
+MPRemoteCommandCenter *remoteCommandCenter;
+
+NSString *_title; 
+NSString *_albumTitle;
+NSString *_artist;
+NSString *_imageUrl;
+int _duration;
+float _playbackRate = 1.0;
 
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
+  _registrar = registrar;
   FlutterMethodChannel* channel = [FlutterMethodChannel
                                    methodChannelWithName:CHANNEL_NAME
                                    binaryMessenger:[registrar messenger]];
@@ -37,9 +58,55 @@ FlutterMethodChannel *_channel_audioplayer;
 - (id)init {
   self = [super init];
   if (self) {
+      _isDealloc = false;
       players = [[NSMutableDictionary alloc] init];
+      [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(needStop) name:AudioplayersPluginStop object:nil];
+
+      // this methos is used to listen to audio playpause event
+      // from the notification area in the background.
+      _headlessEngine = [[FlutterEngine alloc] initWithName:@"AudioPlayerIsolate"
+                                                    project:nil];
+      // This is the method channel used to communicate with
+      // `_backgroundCallbackDispatcher` defined in the Dart portion of our plugin.
+      // Note: we don't add a MethodCallDelegate for this channel now since our
+      // BinaryMessenger needs to be initialized first, which is done in
+      // `startHeadlessService` below.
+      _callbackChannel = [FlutterMethodChannel
+          methodChannelWithName:@"xyz.luan/audioplayers_callback"
+                binaryMessenger:_headlessEngine];
   }
   return self;
+}
+    
+- (void)needStop {
+    _isDealloc = true;
+    [self destory];
+}
+
+// Initializes and starts the background isolate which will process location
+// events. `handle` is the handle to the callback dispatcher which we specified
+// in the Dart portion of the plugin.
+- (void)startHeadlessService:(int64_t)handle {
+  // Lookup the information for our callback dispatcher from the callback cache.
+  // This cache is populated when `PluginUtilities.getCallbackHandle` is called
+  // and the resulting handle maps to a `FlutterCallbackInformation` object.
+  // This object contains information needed by the engine to start a headless
+  // runner, which includes the callback name as well as the path to the file
+  // containing the callback.
+  FlutterCallbackInformation *info = [FlutterCallbackCache lookupCallbackInformation:handle];
+  NSAssert(info != nil, @"failed to find callback");
+  NSString *entrypoint = info.callbackName;
+  NSString *uri = info.callbackLibraryPath;
+
+  // Here we actually launch the background isolate to start executing our
+  // callback dispatcher, `_backgroundCallbackDispatcher`, in Dart.
+  [_headlessEngine runWithEntrypoint:entrypoint libraryURI:uri];
+
+  // The headless runner needs to be initialized before we can register it as a
+  // MethodCallDelegate or else we get an illegal memory access. If we don't
+  // want to make calls from `_backgroundCallDispatcher` back to native code,
+  // we don't need to add a MethodCallDelegate for this channel.
+  [_registrar addMethodCallDelegate:self channel:_callbackChannel];
 }
 
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
@@ -50,6 +117,18 @@ FlutterMethodChannel *_channel_audioplayer;
 
   // Squint and this looks like a proper switch!
   NSDictionary *methods = @{
+                @"startHeadlessService":
+                  ^{
+                    if (call.arguments[@"handleKey"] == nil)
+                        result(0);
+                    [self startHeadlessService:[call.arguments[@"handleKey"][0] longValue]];
+                  },
+                @"monitorNotificationStateChanges":
+                  ^{
+                    if (call.arguments[@"handleMonitorKey"] == nil)
+                        result(0);
+                    _updateHandleMonitorKey = [call.arguments[@"handleMonitorKey"][0] longLongValue];
+                  },
                 @"play":
                   ^{
                     NSLog(@"play!");
@@ -111,8 +190,10 @@ FlutterMethodChannel *_channel_audioplayer;
                     NSLog(@"setUrl");
                     NSString *url = call.arguments[@"url"];
                     int isLocal = [call.arguments[@"isLocal"]intValue];
+                    bool respectSilence = [call.arguments[@"respectSilence"]boolValue] ;
                     [ self setUrl:url
                           isLocal:isLocal
+                          isNotification:respectSilence
                           playerId:playerId
                           onReady:^(NSString * playerId) {
                             result(@(1));
@@ -126,17 +207,40 @@ FlutterMethodChannel *_channel_audioplayer;
                         NSLog(@"getDuration: %i ", duration);
                         result(@(duration));
                     },
-				@"getCurrentPosition":
-                    ^{
-                        int currentPosition = [self getCurrentPosition:playerId];
-                        NSLog(@"getCurrentPosition: %i ", currentPosition);
-                        result(@(currentPosition));
-                    },
                 @"setVolume":
                   ^{
                     NSLog(@"setVolume");
                     float volume = (float)[call.arguments[@"volume"] doubleValue];
                     [self setVolume:volume playerId:playerId];
+                  },
+                @"getCurrentPosition":
+                  ^{
+                      int currentPosition = [self getCurrentPosition:playerId];
+                      NSLog(@"getCurrentPosition: %i ", currentPosition);
+                      result(@(currentPosition));
+                  },
+                @"setPlaybackRate":
+                  ^{
+                    NSLog(@"setPlaybackRate");
+                    float playbackRate = (float)[call.arguments[@"playbackRate"] doubleValue];
+                    [self setPlaybackRate:playbackRate playerId:playerId];
+                  },
+                @"setNotification":
+                  ^{
+                    NSLog(@"setNotification");
+                    NSString *title = call.arguments[@"title"];
+                    NSString *albumTitle = call.arguments[@"albumTitle"];
+                    NSString *artist = call.arguments[@"artist"];
+                    NSString *imageUrl = call.arguments[@"imageUrl"];
+
+                    int forwardSkipInterval = [call.arguments[@"forwardSkipInterval"] intValue];
+                    int backwardSkipInterval = [call.arguments[@"backwardSkipInterval"] intValue];
+                    int duration = [call.arguments[@"duration"] intValue];
+                    int elapsedTime = [call.arguments[@"elapsedTime"] intValue];
+
+                    [self setNotification:title albumTitle:albumTitle artist:artist imageUrl:imageUrl 
+                          forwardSkipInterval:forwardSkipInterval backwardSkipInterval:backwardSkipInterval 
+                          duration:duration elapsedTime:elapsedTime playerId:playerId];
                   },
                 @"setReleaseMode":
                   ^{
@@ -165,17 +269,154 @@ FlutterMethodChannel *_channel_audioplayer;
   }
 }
 
+-(void) setNotification: (NSString *) title 
+        albumTitle:  (NSString *) albumTitle
+        artist:  (NSString *) artist
+        imageUrl:  (NSString *) imageUrl
+        forwardSkipInterval:  (int) forwardSkipInterval
+        backwardSkipInterval:  (int) backwardSkipInterval
+        duration:  (int) duration
+        elapsedTime:  (int) elapsedTime
+        playerId: (NSString*) playerId {
+  _title = title;
+  _albumTitle = albumTitle;
+  _artist = artist;
+  _imageUrl = imageUrl;
+  _duration = duration;
+
+  _infoCenter = [MPNowPlayingInfoCenter defaultCenter];
+  
+  [ self updateNotification:elapsedTime ];
+
+  if (remoteCommandCenter == nil) {
+    remoteCommandCenter = [MPRemoteCommandCenter sharedCommandCenter];
+
+    MPSkipIntervalCommand *skipBackwardIntervalCommand = [remoteCommandCenter skipBackwardCommand];
+    [skipBackwardIntervalCommand setEnabled:YES];
+    [skipBackwardIntervalCommand addTarget:self action:@selector(skipBackwardEvent:)];
+    skipBackwardIntervalCommand.preferredIntervals = @[@(backwardSkipInterval)];  // Set your own interval
+
+    MPSkipIntervalCommand *skipForwardIntervalCommand = [remoteCommandCenter skipForwardCommand];
+    skipForwardIntervalCommand.preferredIntervals = @[@(forwardSkipInterval)];  // Max 99
+    [skipForwardIntervalCommand setEnabled:YES];
+    [skipForwardIntervalCommand addTarget:self action:@selector(skipForwardEvent:)];
+
+    MPRemoteCommand *pauseCommand = [remoteCommandCenter pauseCommand];
+    [pauseCommand setEnabled:YES];
+    [pauseCommand addTarget:self action:@selector(playOrPauseEvent:)];
+    
+    MPRemoteCommand *playCommand = [remoteCommandCenter playCommand];
+    [playCommand setEnabled:YES];
+    [playCommand addTarget:self action:@selector(playOrPauseEvent:)];
+
+    MPRemoteCommand *togglePlayPauseCommand = [remoteCommandCenter togglePlayPauseCommand];
+    [togglePlayPauseCommand setEnabled:YES];
+    [togglePlayPauseCommand addTarget:self action:@selector(playOrPauseEvent:)];
+  }
+}
+
+-(MPRemoteCommandHandlerStatus) skipBackwardEvent: (MPSkipIntervalCommandEvent *) skipEvent {
+    NSLog(@"Skip backward by %f", skipEvent.interval);
+    NSMutableDictionary * playerInfo = players[_currentPlayerId];
+    AVPlayer *player = playerInfo[@"player"];
+    AVPlayerItem *currentItem = player.currentItem;
+    CMTime currentTime = currentItem.currentTime;
+    CMTime newTime = CMTimeSubtract(currentTime, CMTimeMakeWithSeconds(skipEvent.interval, NSEC_PER_SEC));
+    // if CMTime is negative, set it to zero
+    if (CMTimeGetSeconds(newTime) < 0) {
+      [ self seek:_currentPlayerId time:CMTimeMakeWithSeconds(0,1) ];
+    } else {
+      [ self seek:_currentPlayerId time:newTime ];
+    }
+    return MPRemoteCommandHandlerStatusSuccess;
+}
+
+-(MPRemoteCommandHandlerStatus) skipForwardEvent: (MPSkipIntervalCommandEvent *) skipEvent {
+    NSLog(@"Skip forward by %f", skipEvent.interval);
+    NSMutableDictionary * playerInfo = players[_currentPlayerId];
+    AVPlayer *player = playerInfo[@"player"];
+    AVPlayerItem *currentItem = player.currentItem;
+    CMTime currentTime = currentItem.currentTime;
+    CMTime maxDuration = currentItem.duration;
+    CMTime newTime = CMTimeAdd(currentTime, CMTimeMakeWithSeconds(skipEvent.interval, NSEC_PER_SEC));
+    // if CMTime is more than max duration, limit it
+    if (CMTimeGetSeconds(newTime) > CMTimeGetSeconds(maxDuration)) {
+      [ self seek:_currentPlayerId time:maxDuration ];
+    } else {
+      [ self seek:_currentPlayerId time:newTime ];
+    }
+    return MPRemoteCommandHandlerStatusSuccess;
+}
+-(MPRemoteCommandHandlerStatus) playOrPauseEvent: (MPSkipIntervalCommandEvent *) playOrPauseEvent {
+    NSLog(@"playOrPauseEvent");
+
+    NSMutableDictionary * playerInfo = players[_currentPlayerId];
+    AVPlayer *player = playerInfo[@"player"];
+    bool _isPlaying;
+    if (player.timeControlStatus == AVPlayerTimeControlStatusPlaying) {
+        // player is playing and pause it
+        [ self pause:_currentPlayerId ];
+        _isPlaying = false;
+    } else if (player.timeControlStatus == AVPlayerTimeControlStatusPaused) {
+        // player is paused and resume it
+        [ self resume:_currentPlayerId ];
+        _isPlaying = true;
+    }
+    [_channel_audioplayer invokeMethod:@"audio.onNotificationPlayerStateChanged" arguments:@{@"playerId": _currentPlayerId, @"value": @(_isPlaying)}];
+    [_callbackChannel invokeMethod:@"audio.onNotificationBackgroundPlayerStateChanged" arguments:@{@"playerId": _currentPlayerId, @"updateHandleMonitorKey": @(_updateHandleMonitorKey), @"value": @(_isPlaying)}];
+    return MPRemoteCommandHandlerStatusSuccess;
+}
+
+-(void) updateNotification: (int) elapsedTime {
+  NSMutableDictionary *playingInfo = [NSMutableDictionary dictionary];
+  playingInfo[MPMediaItemPropertyTitle] = _title;
+  playingInfo[MPMediaItemPropertyAlbumTitle] = _albumTitle;
+  playingInfo[MPMediaItemPropertyArtist] = _artist;
+  
+  NSURL *url = [[NSURL alloc] initWithString:_imageUrl];
+  UIImage *artworkImage = [UIImage imageWithData:[NSData dataWithContentsOfURL:url]];
+  if (artworkImage)
+  {
+      MPMediaItemArtwork *albumArt = [[MPMediaItemArtwork alloc] initWithImage: artworkImage];
+      playingInfo[MPMediaItemPropertyArtwork] = albumArt;
+  }
+
+  playingInfo[MPMediaItemPropertyPlaybackDuration] = [NSNumber numberWithInt: _duration];
+  playingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = [NSNumber numberWithInt: elapsedTime];
+
+  playingInfo[MPNowPlayingInfoPropertyPlaybackRate] = @(_playbackRate);
+  NSLog(@"setNotification done");
+
+  if (_infoCenter != nil) {
+    _infoCenter.nowPlayingInfo = playingInfo;
+  }
+}
+
 -(void) setUrl: (NSString*) url
        isLocal: (bool) isLocal
+       isNotification: (bool) respectSilence
        playerId: (NSString*) playerId
        onReady:(VoidCallback)onReady
 {
   NSMutableDictionary * playerInfo = players[playerId];
   AVPlayer *player = playerInfo[@"player"];
+  _currentPlayerId = playerId; // to be used for notifications command center
   NSMutableSet *observers = playerInfo[@"observers"];
   AVPlayerItem *playerItem;
     
   NSLog(@"setUrl %@", url);
+
+  // code moved from play() to setUrl() to fix the bug of audio not playing in ios background
+  NSError *error = nil;
+  AVAudioSessionCategory category = respectSilence ? AVAudioSessionCategoryAmbient : AVAudioSessionCategoryPlayback;
+  BOOL success = [[AVAudioSession sharedInstance]
+                  setCategory: category
+                  error:&error];
+  if (!success) {
+    NSLog(@"Error setting speaker: %@", error);
+  }
+  [[AVAudioSession sharedInstance] setActive:YES error:&error];
+  
 
   if (!playerInfo || ![url isEqualToString:playerInfo[@"url"]]) {
     if (isLocal) {
@@ -269,6 +510,7 @@ FlutterMethodChannel *_channel_audioplayer;
 
   [ self setUrl:url 
          isLocal:isLocal 
+         isNotification:respectSilence
          playerId:playerId 
          onReady:^(NSString * playerId) {
            NSMutableDictionary * playerInfo = players[playerId];
@@ -307,20 +549,22 @@ FlutterMethodChannel *_channel_audioplayer;
 -(int) getCurrentPosition: (NSString *) playerId {
     NSMutableDictionary * playerInfo = players[playerId];
     AVPlayer *player = playerInfo[@"player"];
-    
+
     CMTime duration = [player currentTime];
-    int mseconds= CMTimeGetSeconds(duration)*1000;
-    return mseconds;
+    return CMTimeGetSeconds(duration) * 1000;
 }
 
 // No need to spam the logs with every time interval update
 -(void) onTimeInterval: (NSString *) playerId
                   time: (CMTime) time {
     // NSLog(@"ios -> onTimeInterval...");
-    int mseconds =  CMTimeGetSeconds(time)*1000;
-    // NSLog(@"asdff %@ - %d", playerId, mseconds);
+    if (_isDealloc) {
+        return;
+    }
+    int seconds = CMTimeGetSeconds(time);
+    int mseconds = seconds*1000;
+    
     [_channel_audioplayer invokeMethod:@"audio.onCurrentPosition" arguments:@{@"playerId": playerId, @"value": @(mseconds)}];
-    //    NSLog(@"asdff end");
 }
 
 -(void) pause: (NSString *) playerId {
@@ -335,6 +579,7 @@ FlutterMethodChannel *_channel_audioplayer;
   NSMutableDictionary * playerInfo = players[playerId];
   AVPlayer *player = playerInfo[@"player"];
   [player play];
+  [ player setRate:_playbackRate ];
   [playerInfo setObject:@true forKey:@"isPlaying"];
 }
 
@@ -344,6 +589,22 @@ FlutterMethodChannel *_channel_audioplayer;
   AVPlayer *player = playerInfo[@"player"];
   playerInfo[@"volume"] = @(volume);
   [ player setVolume:volume ];
+}
+
+-(void) setPlaybackRate: (float) playbackRate 
+        playerId:  (NSString *) playerId {
+  NSLog(@"ios -> calling setPlaybackRate");
+  
+  NSMutableDictionary *playerInfo = players[playerId];
+  AVPlayer *player = playerInfo[@"player"];
+  _playbackRate = playbackRate;
+  [ player setRate:playbackRate ];
+
+  if (_infoCenter != nil) {
+    AVPlayerItem *currentItem = player.currentItem;
+    CMTime currentTime = currentItem.currentTime;
+    [ self updateNotification:CMTimeGetSeconds(currentTime) ];
+  }
 }
 
 -(void) setLooping: (bool) looping
@@ -367,6 +628,11 @@ FlutterMethodChannel *_channel_audioplayer;
   NSMutableDictionary * playerInfo = players[playerId];
   AVPlayer *player = playerInfo[@"player"];
   [[player currentItem] seekToTime:time];
+
+  int seconds = CMTimeGetSeconds(time);
+  if (_infoCenter != nil) {
+    [ self updateNotification:seconds ];
+  }
 }
 
 -(void) onSoundComplete: (NSString *) playerId {
@@ -378,9 +644,9 @@ FlutterMethodChannel *_channel_audioplayer;
   }
 
   [ self pause:playerId ];
-  [ self seek:playerId time:CMTimeMakeWithSeconds(0,1) ];
 
   if ([ playerInfo[@"looping"] boolValue]) {
+    [ self seek:playerId time:CMTimeMakeWithSeconds(0,1) ];
     [ self resume:playerId ];
   }
 
@@ -421,18 +687,22 @@ FlutterMethodChannel *_channel_audioplayer;
   }
 }
 
-- (void)dealloc {
-  for (id value in timeobservers)
+- (void)destory {
+    for (id value in timeobservers)
     [value[@"player"] removeTimeObserver:value[@"observer"]];
-  timeobservers = nil;
-
-  for (NSString* playerId in players) {
-      NSMutableDictionary * playerInfo = players[playerId];
-      NSMutableSet * observers = playerInfo[@"observers"];
-      for (id ob in observers)
+    timeobservers = nil;
+    
+    for (NSString* playerId in players) {
+        NSMutableDictionary * playerInfo = players[playerId];
+        NSMutableSet * observers = playerInfo[@"observers"];
+        for (id ob in observers)
         [[NSNotificationCenter defaultCenter] removeObserver:ob];
-  }
-  players = nil;
+    }
+    players = nil;
+}
+    
+- (void)dealloc {
+    [self destory];
 }
 
 

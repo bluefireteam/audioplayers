@@ -23,6 +23,7 @@ public class AudioplayersPlugin implements MethodCallHandler {
     private final Handler handler = new Handler();
     private Runnable positionUpdates;
     private final Activity activity;
+    private boolean seekFinish;
 
     public static void registerWith(final Registrar registrar) {
         final MethodChannel channel = new MethodChannel(registrar.messenger(), "xyz.luan/audioplayers");
@@ -33,6 +34,7 @@ public class AudioplayersPlugin implements MethodCallHandler {
         this.channel = channel;
         this.channel.setMethodCallHandler(this);
         this.activity = activity;
+        this.seekFinish = false;
     }
 
     @Override
@@ -145,6 +147,10 @@ public class AudioplayersPlugin implements MethodCallHandler {
         channel.invokeMethod("audio.onComplete", buildArguments(player.getPlayerId(), true));
     }
 
+    public void handleSeekComplete(Player player) {
+        this.seekFinish = true;
+    }
+
     private void startPositionUpdates() {
         if (positionUpdates != null) {
             return;
@@ -208,7 +214,11 @@ public class AudioplayersPlugin implements MethodCallHandler {
                     final int time = player.getCurrentPosition();
                     channel.invokeMethod("audio.onDuration", buildArguments(key, duration));
                     channel.invokeMethod("audio.onCurrentPosition", buildArguments(key, time));
-                } catch(UnsupportedOperationException e) {
+                    if (audioplayersPlugin.seekFinish) {
+                        channel.invokeMethod("audio.onSeekComplete", buildArguments(player.getPlayerId(), true));
+                        audioplayersPlugin.seekFinish = false;
+                    }
+                } catch (UnsupportedOperationException e) {
 
                 }
             }
@@ -221,3 +231,4 @@ public class AudioplayersPlugin implements MethodCallHandler {
         }
     }
 }
+
