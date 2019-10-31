@@ -51,12 +51,12 @@
     else {
         _url = newUrl;
         AVPlayerItem *playerItem;
-        if (isLocal) {
+        //if (isLocal) {
             playerItem = [[AVPlayerItem alloc] initWithURL:[NSURL fileURLWithPath:_url]];
-        }
-        else {
-            playerItem = [[AVPlayerItem alloc] initWithURL:[NSURL URLWithString:_url]];
-        }
+        //}
+        //else {
+        //    playerItem = [[AVPlayerItem alloc] initWithURL:[NSURL URLWithString:_url]];
+        //}
         if (_player) {
             [_player replaceCurrentItemWithPlayerItem:playerItem];
         } else {
@@ -71,12 +71,12 @@
     else {
         _url = newUrl;
         AVPlayerItem *playerItem;
-        if (isLocal) {
+        //if (isLocal) {
             playerItem = [[AVPlayerItem alloc] initWithURL:[NSURL fileURLWithPath:_url]];
-        }
-        else {
-            playerItem = [[AVPlayerItem alloc] initWithURL:[NSURL URLWithString:_url]];
-        }
+        //}
+        //else {
+        //    playerItem = [[AVPlayerItem alloc] initWithURL:[NSURL URLWithString:_url]];
+        //}
         if (_player) {
             [_player replaceCurrentItemWithPlayerItem:playerItem];
         } else {

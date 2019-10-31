@@ -162,11 +162,12 @@ bool _isDealloc = false;
 - (NSObject<PlayerProtocol> *) initPlayer: (NSString*)playerId mode:(NSString*)mode local:(bool)local {
   NSObject<PlayerProtocol> *player = players[playerId];
   if (player == nil) {
+    // Remote files and non-low-latency files will use the AVPlayer class
     if ([mode caseInsensitiveCompare:@"PlayerMode.MEDIA_PLAYER"] == NSOrderedSame || !local) {
-      NSLog(@"AVPlayer mode: %@, local: %d", mode, local);
+      NSLog(@"Creating AVPlayer mode: %@, local: %d", mode, local);
       player = [[WrappedAVPlayer alloc] init];
-    } else {
-      NSLog(@"AVAudioPlayer mode: %@, local: %d", mode, local);
+    } else { // Only files which are local AND low-latency will use the AVAudioPlayer class
+      NSLog(@"Creating AVAudioPlayer mode: %@, local: %d", mode, local);
       player = [[WrappedAVAudioPlayer alloc] init];
     }
     players[playerId] = player;
@@ -192,14 +193,13 @@ bool _isDealloc = false;
 }
 
 
--(void) updateDuration: (NSString *) playerId
-{
+-(void) updateDuration: (NSString *) playerId {
   NSMutableDictionary * playerInfo = players[playerId];
   AVAudioPlayer *player = playerInfo[@"player"];
 
   NSTimeInterval duration = player.duration;
   NSLog(@"ios -> updateDuration...%f", duration);
-  if(duration>0){
+  if(duration > 0){
     NSLog(@"ios -> invokechannel");
    //int mseconds= duration*1000;
     //[_channel_audioplayer invokeMethod:@"audio.onDuration" arguments:@{@"playerId": playerId, @"value": @(mseconds)}];

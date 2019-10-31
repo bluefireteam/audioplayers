@@ -70,7 +70,7 @@
 }
 - (void) setVolume: (double) newVol {
     NSLog(@"VOLUME!!!");
-    if (_player) [_player setVolume:newVol fadeDuration:0.0];
+    if (_player) [_player setVolume:newVol fadeDuration:0.01];
 }
 - (void) setLooping: (bool) newLoop {
     _looping = newLoop;
