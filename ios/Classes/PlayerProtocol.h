@@ -15,7 +15,7 @@
 - (void) seek: (NSTimeInterval) time;
 - (int) getDuration;
 - (void) setNewURL: (NSString*) newUrl;
-- (void) setNewURL: (NSString*) newUrl onReady:(void(^)())onReady;
+- (void) setNewURL: (NSString*) newUrl onReady:(void(^)(NSObject<PlayerProtocol> *p))onReady;
 - (void) setVolume: (double) newVol;
 - (void) setLooping: (bool) newLoop;
 - (bool) isPlaying;

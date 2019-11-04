@@ -8,6 +8,6 @@
 @property (nonatomic, strong) NSString* playerId;
 @property (nonatomic, strong) NSString* url;
 @property (nonatomic, strong) NSMutableSet* observers;
-@property bool looping;
+@property (nonatomic) bool looping;
 
 @end

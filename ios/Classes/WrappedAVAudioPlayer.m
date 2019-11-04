@@ -52,10 +52,10 @@
         [_player prepareToPlay];
     }
 }
-- (void) setNewURL: (NSString*) newUrl onReady:(void(^)())onReady {
+- (void) setNewURL: (NSString*) newUrl onReady:(void(^)(NSObject<PlayerProtocol> *p))onReady {
     NSLog(@"URL with CALLBACK!!!  %@", newUrl);
     if (_player && [_url isEqualToString: newUrl]) {
-        onReady();
+        onReady(self);
     }
     else {
         _url = newUrl;
@@ -65,12 +65,12 @@
         _player.delegate = self;
         BOOL ready = [_player prepareToPlay];
         [self setLooping:_looping];
-        if (ready) onReady();
+        if (ready) onReady(self);
     }
 }
 - (void) setVolume: (double) newVol {
     NSLog(@"VOLUME!!!");
-    if (_player) [_player setVolume:newVol fadeDuration:0.01];
+    if (_player) [_player setVolume:newVol fadeDuration:0.2];
 }
 - (void) setLooping: (bool) newLoop {
     _looping = newLoop;

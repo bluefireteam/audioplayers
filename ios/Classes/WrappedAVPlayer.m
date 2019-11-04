@@ -64,9 +64,9 @@
         }
     }
 }
-- (void) setNewURL: (NSString*) newUrl onReady:(void(^)())onReady {
+- (void) setNewURL: (NSString*) newUrl onReady:(void(^)(NSObject<PlayerProtocol> *p))onReady {
     if (_player && [newUrl isEqualToString:_url]) {
-        onReady();
+        onReady(self);
     }
     else {
         _url = newUrl;
@@ -82,7 +82,7 @@
         } else {
             _player = [[AVPlayer alloc] initWithPlayerItem:playerItem];
         }
-        onReady();
+        onReady(self);
     }
 }
 - (void) setVolume: (double) newVol {

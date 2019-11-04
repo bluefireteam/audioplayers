@@ -84,11 +84,11 @@ bool _isDealloc = false;
         CMTime time = CMTimeMakeWithSeconds(milliseconds / 1000,NSEC_PER_SEC);
         [self setSessionCategory: [call.arguments[@"respectSilence"] boolValue]];
         NSLog(@"going to setNewURL");
-        [player setNewURL: url onReady:^(){
+        [player setNewURL: url onReady:^(NSObject<PlayerProtocol> *p){
           NSLog(@"going to setVolume");
-          [player setVolume: volume];
+          [p setVolume: volume];
           NSLog(@"going to play");
-          [player play];
+          [p play];
         }];
       },
     @"pause":
