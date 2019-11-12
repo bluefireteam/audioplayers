@@ -58,8 +58,7 @@ class AudioCache {
   }
 
   Future<File> fetchToMemory(String fileName) async {
-//    final file = File('${(await getTemporaryDirectory()).path}/$fileName'); // This requires extra permissions on a real device.
-    final file = File('${(await getApplicationSupportDirectory()).path}/$fileName');
+    final file = File('${(await getTemporaryDirectory()).path}/$fileName');
     await file.create(recursive: true);
     return await file.writeAsBytes((await _fetchAsset(fileName)).buffer.asUint8List());
   }
