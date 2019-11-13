@@ -75,7 +75,7 @@ void _backgroundCallbackDispatcher() {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Reference to the onAudioChangeBackgroundEvent callback.
-  Function onAudioChangeBackgroundEvent;
+  Function(AudioPlayerState) onAudioChangeBackgroundEvent;
 
   // This is where the magic happens and we handle background events from the
   // native portion of the plugin. Here we message the audio notification data 
@@ -99,8 +99,14 @@ void _backgroundCallbackDispatcher() {
     final Map<dynamic, dynamic> callArgs = call.arguments as Map;
     if (call.method == 'audio.onNotificationBackgroundPlayerStateChanged') {
       onAudioChangeBackgroundEvent ??= _performCallbackLookup();
-      final bool isPlaying = callArgs['value'];
-      onAudioChangeBackgroundEvent(isPlaying);
+      final String playerState = callArgs['value'];
+      if (playerState == 'playing') {
+        onAudioChangeBackgroundEvent(AudioPlayerState.PLAYING);
+      } else if (playerState == 'paused') {
+        onAudioChangeBackgroundEvent(AudioPlayerState.PAUSED);
+      } else if (playerState == 'completed') {
+        onAudioChangeBackgroundEvent(AudioPlayerState.COMPLETED);
+      }
     } else {
       assert(false, "No handler defined for method type: '${call.method}'");
     }
