@@ -346,17 +346,20 @@ float _playbackRate = 1.0;
     NSMutableDictionary * playerInfo = players[_currentPlayerId];
     AVPlayer *player = playerInfo[@"player"];
     bool _isPlaying;
+    NSString *playerState;
     if (player.timeControlStatus == AVPlayerTimeControlStatusPlaying) {
         // player is playing and pause it
         [ self pause:_currentPlayerId ];
         _isPlaying = false;
+        playerState = @"paused";
     } else if (player.timeControlStatus == AVPlayerTimeControlStatusPaused) {
         // player is paused and resume it
         [ self resume:_currentPlayerId ];
         _isPlaying = true;
+        playerState = @"playing";
     }
     [_channel_audioplayer invokeMethod:@"audio.onNotificationPlayerStateChanged" arguments:@{@"playerId": _currentPlayerId, @"value": @(_isPlaying)}];
-    [_callbackChannel invokeMethod:@"audio.onNotificationBackgroundPlayerStateChanged" arguments:@{@"playerId": _currentPlayerId, @"updateHandleMonitorKey": @(_updateHandleMonitorKey), @"value": @(_isPlaying)}];
+    [_callbackChannel invokeMethod:@"audio.onNotificationBackgroundPlayerStateChanged" arguments:@{@"playerId": _currentPlayerId, @"updateHandleMonitorKey": @(_updateHandleMonitorKey), @"value": playerState}];
     return MPRemoteCommandHandlerStatusSuccess;
 }
 
@@ -611,6 +614,7 @@ float _playbackRate = 1.0;
   }
 
   [ _channel_audioplayer invokeMethod:@"audio.onComplete" arguments:@{@"playerId": playerId}];
+  [_callbackChannel invokeMethod:@"audio.onNotificationBackgroundPlayerStateChanged" arguments:@{@"playerId": playerId, @"updateHandleMonitorKey": @(_updateHandleMonitorKey), @"value": @"completed"}];
 }
 
 -(void)observeValueForKeyPath:(NSString *)keyPath
