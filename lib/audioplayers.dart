@@ -256,7 +256,7 @@ class AudioPlayer {
     playerId = _uuid.v4();
     players[playerId] = this;
 
-    // Start the headless location service. The parameter here is a handle to
+    // Start the headless audio service. The parameter here is a handle to
     // a callback managed by the Flutter engine, which allows for us to pass
     // references to our callbacks between isolates.
     final CallbackHandle handle =
@@ -282,12 +282,12 @@ class AudioPlayer {
         .then((result) => (result as int));
   }
 
-  /// Start getting significant location updates through `callback`.
+  /// Start getting significant audio updates through `callback`.
   ///
   /// `callback` is invoked on a background isolate and will not have direct
   /// access to the state held by the main isolate (or any other isolate).
   Future<bool> monitorNotificationStateChanges(
-      void Function(bool value) callback) async {
+      void Function(AudioPlayerState value) callback) async {
     if (callback == null) {
       throw ArgumentError.notNull('callback');
     }

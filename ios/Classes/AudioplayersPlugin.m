@@ -83,7 +83,7 @@ float _playbackRate = 1.0;
     [self destory];
 }
 
-// Initializes and starts the background isolate which will process location
+// Initializes and starts the background isolate which will process audio
 // events. `handle` is the handle to the callback dispatcher which we specified
 // in the Dart portion of the plugin.
 - (void)startHeadlessService:(int64_t)handle {
