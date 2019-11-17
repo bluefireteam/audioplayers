@@ -75,7 +75,7 @@ void _backgroundCallbackDispatcher() {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Reference to the onAudioChangeBackgroundEvent callback.
-  Function onAudioChangeBackgroundEvent;
+  Function(AudioPlayerState) onAudioChangeBackgroundEvent;
 
   // This is where the magic happens and we handle background events from the
   // native portion of the plugin. Here we message the audio notification data 
@@ -99,8 +99,14 @@ void _backgroundCallbackDispatcher() {
     final Map<dynamic, dynamic> callArgs = call.arguments as Map;
     if (call.method == 'audio.onNotificationBackgroundPlayerStateChanged') {
       onAudioChangeBackgroundEvent ??= _performCallbackLookup();
-      final bool isPlaying = callArgs['value'];
-      onAudioChangeBackgroundEvent(isPlaying);
+      final String playerState = callArgs['value'];
+      if (playerState == 'playing') {
+        onAudioChangeBackgroundEvent(AudioPlayerState.PLAYING);
+      } else if (playerState == 'paused') {
+        onAudioChangeBackgroundEvent(AudioPlayerState.PAUSED);
+      } else if (playerState == 'completed') {
+        onAudioChangeBackgroundEvent(AudioPlayerState.COMPLETED);
+      }
     } else {
       assert(false, "No handler defined for method type: '${call.method}'");
     }
@@ -272,7 +278,7 @@ class AudioPlayer {
     this.playerId ??= _uuid.v4();
     players[playerId] = this;
 
-    // Start the headless location service. The parameter here is a handle to
+    // Start the headless audio service. The parameter here is a handle to
     // a callback managed by the Flutter engine, which allows for us to pass
     // references to our callbacks between isolates.
     final CallbackHandle handle =
@@ -298,12 +304,12 @@ class AudioPlayer {
         .then((result) => (result as int));
   }
 
-  /// Start getting significant location updates through `callback`.
+  /// Start getting significant audio updates through `callback`.
   ///
   /// `callback` is invoked on a background isolate and will not have direct
   /// access to the state held by the main isolate (or any other isolate).
   Future<bool> monitorNotificationStateChanges(
-      void Function(bool value) callback) async {
+      void Function(AudioPlayerState value) callback) async {
     if (callback == null) {
       throw ArgumentError.notNull('callback');
     }
