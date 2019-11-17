@@ -411,9 +411,9 @@ float _playbackRate = 1.0;
   // code moved from play() to setUrl() to fix the bug of audio not playing in ios background
   NSError *error = nil;
   AVAudioSessionCategory category = respectSilence ? AVAudioSessionCategoryAmbient : AVAudioSessionCategoryPlayback;
-  BOOL success = [[AVAudioSession sharedInstance]
-                  setCategory: category
-                  error:&error];
+    
+  BOOL success = [[AVAudioSession sharedInstance] setCategory:category withOptions:AVAudioSessionCategoryOptionMixWithOthers error:&error];
+    
   if (!success) {
     NSLog(@"Error setting speaker: %@", error);
   }
