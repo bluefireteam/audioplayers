@@ -1,5 +1,6 @@
 package xyz.luan.audioplayers;
 
+import android.media.MediaDataSource;
 import android.content.Context;
 abstract class Player {
 
@@ -18,6 +19,8 @@ abstract class Player {
     abstract void pause();
 
     abstract void setUrl(String url, boolean isLocal);
+
+    abstract void setDataSource(MediaDataSource mediaDataSource);
 
     abstract void setVolume(double volume);
 

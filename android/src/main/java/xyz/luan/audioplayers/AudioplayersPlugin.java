@@ -1,7 +1,7 @@
 package xyz.luan.audioplayers;
 
-import android.content.Context;
 import android.os.Handler;
+import android.app.Activity;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
@@ -22,19 +22,17 @@ public class AudioplayersPlugin implements MethodCallHandler {
     private final Map<String, Player> mediaPlayers = new HashMap<>();
     private final Handler handler = new Handler();
     private Runnable positionUpdates;
-    private final Context context;
-    private boolean seekFinish;
+    private final Activity activity;
 
     public static void registerWith(final Registrar registrar) {
         final MethodChannel channel = new MethodChannel(registrar.messenger(), "xyz.luan/audioplayers");
-        channel.setMethodCallHandler(new AudioplayersPlugin(channel, registrar.activeContext()));
+        channel.setMethodCallHandler(new AudioplayersPlugin(channel, registrar.activity()));
     }
 
-    private AudioplayersPlugin(final MethodChannel channel, Context context) {
+    private AudioplayersPlugin(final MethodChannel channel, Activity activity) {
         this.channel = channel;
         this.channel.setMethodCallHandler(this);
-        this.context = context;
-        this.seekFinish = false;
+        this.activity = activity;
     }
 
     @Override
@@ -59,9 +57,24 @@ public class AudioplayersPlugin implements MethodCallHandler {
                 final boolean respectSilence = call.argument("respectSilence");
                 final boolean isLocal = call.argument("isLocal");
                 final boolean stayAwake = call.argument("stayAwake");
-                player.configAttributes(respectSilence, stayAwake, context.getApplicationContext());
+                player.configAttributes(respectSilence, stayAwake, activity.getApplicationContext());
                 player.setVolume(volume);
                 player.setUrl(url, isLocal);
+                if (position != null && !mode.equals("PlayerMode.LOW_LATENCY")) {
+                    player.seek(position);
+                }
+                player.play();
+                break;
+            }
+            case "play_bytes": {
+                final byte[] bytes = call.argument("bytes");
+                final double volume = call.argument("volume");
+                final Integer position = call.argument("position");
+                final boolean respectSilence = call.argument("respectSilence");
+                final boolean stayAwake = call.argument("stayAwake");
+                player.configAttributes(respectSilence, stayAwake, activity.getApplicationContext());
+                player.setVolume(volume);
+                player.setDataSource(new ByteDataSource(bytes));
                 if (position != null && !mode.equals("PlayerMode.LOW_LATENCY")) {
                     player.seek(position);
                 }
@@ -146,10 +159,6 @@ public class AudioplayersPlugin implements MethodCallHandler {
         channel.invokeMethod("audio.onComplete", buildArguments(player.getPlayerId(), true));
     }
 
-    public void handleSeekComplete(Player player) {
-        this.seekFinish = true;
-    }
-
     private void startPositionUpdates() {
         if (positionUpdates != null) {
             return;
@@ -213,11 +222,7 @@ public class AudioplayersPlugin implements MethodCallHandler {
                     final int time = player.getCurrentPosition();
                     channel.invokeMethod("audio.onDuration", buildArguments(key, duration));
                     channel.invokeMethod("audio.onCurrentPosition", buildArguments(key, time));
-                    if (audioplayersPlugin.seekFinish) {
-                        channel.invokeMethod("audio.onSeekComplete", buildArguments(player.getPlayerId(), true));
-                        audioplayersPlugin.seekFinish = false;
-                    }
-                } catch (UnsupportedOperationException e) {
+                } catch(UnsupportedOperationException e) {
 
                 }
             }
@@ -230,4 +235,3 @@ public class AudioplayersPlugin implements MethodCallHandler {
         }
     }
 }
-

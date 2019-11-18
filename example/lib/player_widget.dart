@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 
 enum PlayerState { stopped, playing, paused }
 
@@ -173,11 +175,6 @@ class _PlayerWidgetState extends State<PlayerWidget> {
         _audioPlayerState = state;
       });
     });
-
-    _audioPlayer.onNotificationPlayerStateChanged.listen((state) {
-      if (!mounted) return;
-      setState(() => _audioPlayerState = state);
-    });
   }
 
   Future<int> _play() async {
@@ -187,8 +184,16 @@ class _PlayerWidgetState extends State<PlayerWidget> {
             _position.inMilliseconds < _duration.inMilliseconds)
         ? _position
         : null;
-    final result =
-        await _audioPlayer.play(url, isLocal: isLocal, position: playPosition);
+
+    var result = 0;
+
+    if (!isLocal) {
+      var bytes = await readBytes(url);
+      result = await _audioPlayer.play_bytes(bytes, position: playPosition);
+    }
+    else {
+      result = await _audioPlayer.play(url, isLocal: isLocal, position: playPosition);
+    }
     if (result == 1) setState(() => _playerState = PlayerState.playing);
 
     // TODO implemented for iOS, waiting for android impl

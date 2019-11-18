@@ -8,7 +8,7 @@ dependencies:
   path_provider: ^1.1.0
   audioplayers:
     path: ../
-  provider: ^3.0.0+1
+
 flutter:
   uses-material-design: true
 

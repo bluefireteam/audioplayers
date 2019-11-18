@@ -185,7 +185,7 @@ This Event returns the current player state. You can use it to show if player pl
 ```dart
   player.onPlayerStateChanged.listen((AudioPlayerState s) => {
     print('Current player state: $s');
-    setState(() => playerState = s);
+    setState(() => palyerState = s);
   });
 ```
 

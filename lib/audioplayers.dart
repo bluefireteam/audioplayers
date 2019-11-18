@@ -1,12 +1,9 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
-
-// Required for PluginUtilities.
-import 'dart:ui';
-import 'package:flutter/material.dart';
 
 typedef StreamController CreateStreamController();
 typedef void TimeChangeHandler(Duration duration);
@@ -63,56 +60,6 @@ enum PlayerMode {
   LOW_LATENCY
 }
 
-// When we start the background service isolate, we only ever enter it once.
-// To communicate between the native plugin and this entrypoint, we'll use
-// MethodChannels to open a persistent communication channel to trigger
-// callbacks.
-void _backgroundCallbackDispatcher() {
-  const MethodChannel _channel =
-      MethodChannel('xyz.luan/audioplayers_callback');
-
-  // Setup Flutter state needed for MethodChannels.
-  WidgetsFlutterBinding.ensureInitialized();
-
-  // Reference to the onAudioChangeBackgroundEvent callback.
-  Function(AudioPlayerState) onAudioChangeBackgroundEvent;
-
-  // This is where the magic happens and we handle background events from the
-  // native portion of the plugin. Here we message the audio notification data 
-  // which we then pass to the provided callback.
-  _channel.setMethodCallHandler((MethodCall call) async {
-    Function _performCallbackLookup() {
-      final CallbackHandle handle = CallbackHandle.fromRawHandle(
-          call.arguments['updateHandleMonitorKey']);
-
-      // PluginUtilities.getCallbackFromHandle performs a lookup based on the
-      // handle we retrieved earlier.
-      final Function closure = PluginUtilities.getCallbackFromHandle(handle);
-
-      if (closure == null) {
-        print('Fatal Error: Callback lookup failed!');
-        // exit(-1);
-      }
-      return closure;
-    }
-
-    final Map<dynamic, dynamic> callArgs = call.arguments as Map;
-    if (call.method == 'audio.onNotificationBackgroundPlayerStateChanged') {
-      onAudioChangeBackgroundEvent ??= _performCallbackLookup();
-      final String playerState = callArgs['value'];
-      if (playerState == 'playing') {
-        onAudioChangeBackgroundEvent(AudioPlayerState.PLAYING);
-      } else if (playerState == 'paused') {
-        onAudioChangeBackgroundEvent(AudioPlayerState.PAUSED);
-      } else if (playerState == 'completed') {
-        onAudioChangeBackgroundEvent(AudioPlayerState.COMPLETED);
-      }
-    } else {
-      assert(false, "No handler defined for method type: '${call.method}'");
-    }
-  });
-}
-
 /// This represents a single AudioPlayer, which can play one audio at a time.
 /// To play several audios at the same time, you must create several instances
 /// of this class.
@@ -129,9 +76,6 @@ class AudioPlayer {
   final StreamController<AudioPlayerState> _playerStateController =
       StreamController<AudioPlayerState>.broadcast();
 
-  final StreamController<AudioPlayerState> _notificationPlayerStateController =
-      StreamController<AudioPlayerState>.broadcast();
-
   final StreamController<Duration> _positionController =
       StreamController<Duration>.broadcast();
 
@@ -140,9 +84,6 @@ class AudioPlayer {
 
   final StreamController<void> _completionController =
       StreamController<void>.broadcast();
-
-  final StreamController<void> _seekCompleteController =
-  StreamController<void>.broadcast();
 
   final StreamController<String> _errorController =
       StreamController<String>.broadcast();
@@ -167,18 +108,9 @@ class AudioPlayer {
     _audioPlayerState = state;
   }
 
-  set notificationState(AudioPlayerState state) {
-    _notificationPlayerStateController.add(state);
-    _audioPlayerState = state;
-  }
-
   /// Stream of changes on player state.
   Stream<AudioPlayerState> get onPlayerStateChanged =>
       _playerStateController.stream;
-
-  /// Stream of changes on player state coming from notification area in iOS.
-  Stream<AudioPlayerState> get onNotificationPlayerStateChanged =>
-      _notificationPlayerStateController.stream;
 
   /// Stream of changes on audio position.
   ///
@@ -201,11 +133,6 @@ class AudioPlayer {
   ///
   /// [ReleaseMode.LOOP] also sends events to this stream.
   Stream<void> get onPlayerCompletion => _completionController.stream;
-
-  /// Stream of seek completions.
-  ///
-  /// An event is going to be sent as soon as the audio seek is finished.
-  Stream<void> get onSeekComplete => _seekCompleteController.stream;
 
   /// Stream of player errors.
   ///
@@ -247,14 +174,6 @@ class AudioPlayer {
   @deprecated
   VoidCallback completionHandler;
 
-  /// Handler of seek completion.
-  ///
-  /// An event is going to be sent as soon as the audio seek is finished.
-  ///
-  /// This is deprecated. Use [onSeekComplete] instead.
-  @deprecated
-  VoidCallback seekCompleteHandler;
-
   /// Handler of player errors.
   ///
   /// Events are sent when an unexpected error is thrown in the native code.
@@ -277,16 +196,6 @@ class AudioPlayer {
     this.mode ??= PlayerMode.MEDIA_PLAYER;
     this.playerId ??= _uuid.v4();
     players[playerId] = this;
-
-    // Start the headless audio service. The parameter here is a handle to
-    // a callback managed by the Flutter engine, which allows for us to pass
-    // references to our callbacks between isolates.
-    final CallbackHandle handle =
-        PluginUtilities.getCallbackHandle(_backgroundCallbackDispatcher);
-    assert(handle != null, 'Unable to lookup callback.');
-    _invokeMethod('startHeadlessService', {
-      'handleKey': <dynamic>[handle.toRawHandle()]
-    });
   }
 
   Future<int> _invokeMethod(
@@ -304,22 +213,35 @@ class AudioPlayer {
         .then((result) => (result as int));
   }
 
-  /// Start getting significant audio updates through `callback`.
+    /// Plays an audio.
   ///
-  /// `callback` is invoked on a background isolate and will not have direct
-  /// access to the state held by the main isolate (or any other isolate).
-  Future<bool> monitorNotificationStateChanges(
-      void Function(AudioPlayerState value) callback) async {
-    if (callback == null) {
-      throw ArgumentError.notNull('callback');
-    }
-    final CallbackHandle handle = PluginUtilities.getCallbackHandle(callback);
+  /// If [isLocal] is true, [url] must be a local file system path.
+  /// If [isLocal] is false, [url] must be a remote URL.
+  Future<int> play_bytes(
+    Uint8List bytes, {
+    double volume = 1.0,
+    // position must be null by default to be compatible with radio streams
+    Duration position,
+    bool respectSilence = false,
+    bool stayAwake = false,
+  }) async {
+    volume ??= 1.0;
+    respectSilence ??= false;
+    stayAwake ??= false;
 
-    await _invokeMethod('monitorNotificationStateChanges', {
-      'handleMonitorKey': <dynamic>[handle.toRawHandle()]
+    final int result = await _invokeMethod('play_bytes', {
+      'bytes': bytes,
+      'volume': volume,
+      'position': position?.inMilliseconds,
+      'respectSilence': respectSilence,
+      'stayAwake': stayAwake,
     });
 
-    return true;
+    if (result == 1) {
+      state = AudioPlayerState.PLAYING;
+    }
+
+    return result;
   }
 
   /// Plays an audio.
@@ -472,10 +394,8 @@ class AudioPlayer {
   ///
   /// The resources will start being fetched or buffered as soon as you call
   /// this method.
-  Future<int> setUrl(String url,
-      {bool isLocal: false, bool respectSilence = false}) {
-    return _invokeMethod('setUrl',
-        {'url': url, 'isLocal': isLocal, 'respectSilence': respectSilence});
+  Future<int> setUrl(String url, {bool isLocal: false, bool respectSilence = false}) {
+    return _invokeMethod('setUrl', {'url': url, 'isLocal': isLocal, 'respectSilence': respectSilence});
   }
 
   /// Get audio duration after setting url.
@@ -509,11 +429,6 @@ class AudioPlayer {
     final value = callArgs['value'];
 
     switch (call.method) {
-      case 'audio.onNotificationPlayerStateChanged':
-        final bool isPlaying = value;
-        player.notificationState =
-            isPlaying ? AudioPlayerState.PLAYING : AudioPlayerState.PAUSED;
-        break;
       case 'audio.onDuration':
         Duration newDuration = Duration(milliseconds: value);
         player._durationController.add(newDuration);
@@ -531,10 +446,6 @@ class AudioPlayer {
         player._completionController.add(null);
         // ignore: deprecated_member_use_from_same_package
         player.completionHandler?.call();
-        break;
-      case 'audio.onSeekComplete':
-        player._seekCompleteController.add(null);
-        player.seekCompleteHandler?.call();
         break;
       case 'audio.onError':
         player.state = AudioPlayerState.STOPPED;
@@ -562,13 +473,10 @@ class AudioPlayer {
 
     if (!_playerStateController.isClosed)
       futures.add(_playerStateController.close());
-    if (!_notificationPlayerStateController.isClosed)
-      futures.add(_notificationPlayerStateController.close());
     if (!_positionController.isClosed) futures.add(_positionController.close());
     if (!_durationController.isClosed) futures.add(_durationController.close());
     if (!_completionController.isClosed)
       futures.add(_completionController.close());
-    if (!_seekCompleteController.isClosed) futures.add(_seekCompleteController.close());
     if (!_errorController.isClosed) futures.add(_errorController.close());
 
     await Future.wait(futures);

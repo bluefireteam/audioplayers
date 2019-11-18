@@ -3,13 +3,14 @@ package xyz.luan.audioplayers;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.MediaDataSource;
 import android.os.Build;
 import android.os.PowerManager;
 import android.content.Context;
 
 import java.io.IOException;
 
-public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnSeekCompleteListener {
+public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
 
     private String playerId;
 
@@ -54,6 +55,24 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
             this.player.setLooping(this.releaseMode == ReleaseMode.LOOP);
             this.player.prepareAsync();
         }
+    }
+
+    @Override
+    void setDataSource(MediaDataSource mediaDataSource) {
+        // if (!objectEquals(this.url, url)) {
+        // this.url = url;
+        if (this.released) {
+            this.player = createPlayer();
+            this.released = false;
+        } else if (this.prepared) {
+            this.player.reset();
+            this.prepared = false;
+        }
+
+        this.setMediaSource(mediaDataSource);
+        this.player.setVolume((float) volume, (float) volume);
+        this.player.setLooping(this.releaseMode == ReleaseMode.LOOP);
+        this.player.prepareAsync();
     }
 
     @Override
@@ -215,11 +234,6 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         ref.handleCompletion(this);
     }
 
-    @Override
-    public void onSeekComplete(final MediaPlayer mediaPlayer) {
-        ref.handleSeekComplete(this);
-    }
-
     /**
      * Internal logic. Private methods
      */
@@ -228,7 +242,6 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         MediaPlayer player = new MediaPlayer();
         player.setOnPreparedListener(this);
         player.setOnCompletionListener(this);
-        player.setOnSeekCompleteListener(this);
         setAttributes(player);
         player.setVolume((float) volume, (float) volume);
         player.setLooping(this.releaseMode == ReleaseMode.LOOP);
@@ -239,6 +252,14 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         try {
             this.player.setDataSource(url);
         } catch (IOException ex) {
+            throw new RuntimeException("Unable to access resource", ex);
+        }
+    }
+
+    private void setMediaSource(MediaDataSource mediaDataSource) {
+        try {
+            this.player.setDataSource(mediaDataSource);
+        } catch (Exception ex) {
             throw new RuntimeException("Unable to access resource", ex);
         }
     }
