@@ -351,7 +351,7 @@ const float _defaultPlaybackRate = 1.0;
 
     NSMutableDictionary * playerInfo = players[_currentPlayerId];
     AVPlayer *player = playerInfo[@"player"];
-    bool _isPlaying;
+    bool _isPlaying = false;
     if (player.timeControlStatus == AVPlayerTimeControlStatusPlaying) {
         // player is playing and pause it
         [ self pause:_currentPlayerId ];
@@ -549,8 +549,9 @@ const float _defaultPlaybackRate = 1.0;
 -(void) resume: (NSString *) playerId {
   NSMutableDictionary * playerInfo = players[playerId];
   AVPlayer *player = playerInfo[@"player"];
+  float playbackRate = [ playerInfo[@"rate"] floatValue];
   [player play];
-  [ player setRate:playerInfo[@"rate"] ];
+  [ player setRate:playbackRate ];
   [playerInfo setObject:@true forKey:@"isPlaying"];
 }
 
