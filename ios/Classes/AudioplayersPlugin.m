@@ -43,7 +43,7 @@ NSString *_albumTitle;
 NSString *_artist;
 NSString *_imageUrl;
 int _duration;
-float _playbackRate = 1.0;
+const float _defaultPlaybackRate = 1.0;
 
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
   _registrar = registrar;
@@ -264,7 +264,7 @@ float _playbackRate = 1.0;
 -(void) initPlayerInfo: (NSString *) playerId {
   NSMutableDictionary * playerInfo = players[playerId];
   if (!playerInfo) {
-    players[playerId] = [@{@"isPlaying": @false, @"volume": @(1.0), @"looping": @(false)} mutableCopy];
+    players[playerId] = [@{@"isPlaying": @false, @"volume": @(1.0), @"rate": @(_defaultPlaybackRate), @"looping": @(false)} mutableCopy];
   }
 }
 
@@ -383,7 +383,7 @@ float _playbackRate = 1.0;
   playingInfo[MPMediaItemPropertyPlaybackDuration] = [NSNumber numberWithInt: _duration];
   playingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = [NSNumber numberWithInt: elapsedTime];
 
-  playingInfo[MPNowPlayingInfoPropertyPlaybackRate] = @(_playbackRate);
+  playingInfo[MPNowPlayingInfoPropertyPlaybackRate] = @(_defaultPlaybackRate);
   NSLog(@"setNotification done");
 
   if (_infoCenter != nil) {
@@ -441,9 +441,6 @@ float _playbackRate = 1.0;
       [ playerInfo setObject:player forKey:@"player" ];
       [ playerInfo setObject:url forKey:@"url" ];
       [ playerInfo setObject:observers forKey:@"observers" ];
-
-      // playerInfo = [@{@"player": player, @"url": url, @"isPlaying": @false, @"observers": observers, @"volume": @(1.0), @"looping": @(false)} mutableCopy];
-      // players[playerId] = playerInfo;
 
       // stream player position
       CMTime interval = CMTimeMakeWithSeconds(0.2, NSEC_PER_SEC);
@@ -553,6 +550,7 @@ float _playbackRate = 1.0;
   NSMutableDictionary * playerInfo = players[playerId];
   AVPlayer *player = playerInfo[@"player"];
   [player play];
+  [ player setRate:playerInfo[@"rate"] ];
   [playerInfo setObject:@true forKey:@"isPlaying"];
 }
 
@@ -570,7 +568,7 @@ float _playbackRate = 1.0;
   
   NSMutableDictionary *playerInfo = players[playerId];
   AVPlayer *player = playerInfo[@"player"];
-  _playbackRate = playbackRate;
+  playerInfo[@"rate"] = @(playbackRate);
   [ player setRate:playbackRate ];
 
   if (_infoCenter != nil) {
