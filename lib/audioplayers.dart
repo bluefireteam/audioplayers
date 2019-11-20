@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -343,6 +344,34 @@ class AudioPlayer {
     final int result = await _invokeMethod('play', {
       'url': url,
       'isLocal': isLocal,
+      'volume': volume,
+      'position': position?.inMilliseconds,
+      'respectSilence': respectSilence,
+      'stayAwake': stayAwake,
+    });
+
+    if (result == 1) {
+      state = AudioPlayerState.PLAYING;
+    }
+
+    return result;
+  }
+
+    /// Plays an audio file directly from a byte array.
+  Future<int> play_bytes(
+    Uint8List bytes, {
+    double volume = 1.0,
+    // position must be null by default to be compatible with radio streams
+    Duration position,
+    bool respectSilence = false,
+    bool stayAwake = false,
+  }) async {
+    volume ??= 1.0;
+    respectSilence ??= false;
+    stayAwake ??= false;
+
+    final int result = await _invokeMethod('play_bytes', {
+      'bytes': bytes,
       'volume': volume,
       'position': position?.inMilliseconds,
       'respectSilence': respectSilence,

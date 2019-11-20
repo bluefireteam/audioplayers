@@ -2,6 +2,7 @@ package xyz.luan.audioplayers;
 
 import android.media.AudioAttributes;
 import android.media.AudioManager;
+import android.media.MediaDataSource;
 import android.media.SoundPool;
 import android.os.Build;
 import android.os.PowerManager;
@@ -137,6 +138,11 @@ public class WrappedSoundPool extends Player {
             this.playing = false;
             this.paused = true;
         }
+    }
+
+    @Override
+    void setDataSource(MediaDataSource mediaDataSource) {
+        // Not yet implemented
     }
 
     @Override

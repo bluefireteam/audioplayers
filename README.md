@@ -4,6 +4,8 @@ A Flutter plugin to play multiple simultaneously audio files, works for Android 
 
 ![](example/tab1s.jpg) ![](example/tab2s.jpg) ![](example/tab3s.jpg)
 
+Important: This requires a minimum API target of 23 for Android due to the usage of MediaDataSource
+
 ## Install
 
 This was orginally forked from [rxlabz's audioplayer](https://github.com/rxlabz/audioplayer), but the name was changed to `audioplayers` (mind the 's'); so, to add the dependency:
