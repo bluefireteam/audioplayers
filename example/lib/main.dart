@@ -83,6 +83,13 @@ class _ExampleAppState extends State<ExampleApp> {
     return _tab(children: [
       Text('Play Local Asset \'audio.mp3\':'),
       _btn(txt: 'Play', onPressed: () => audioCache.play('audio.mp3')),
+      Text('Play Local Asset (via byte source) \'audio.mp3\':'),
+      _btn(
+          txt: 'Play',
+          onPressed: () async {
+            var bytes = await (await audioCache.load('audio.mp3')).readAsBytes();
+            audioCache.play_bytes(bytes);
+          }),
       Text('Loop Local Asset \'audio.mp3\':'),
       _btn(txt: 'Loop', onPressed: () => audioCache.loop('audio.mp3')),
       Text('Play Local Asset \'audio2.mp3\':'),
