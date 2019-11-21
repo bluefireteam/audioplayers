@@ -117,11 +117,13 @@ public class WrappedSoundPool extends Player implements SoundPool.OnLoadComplete
     }
 
     @Override
-    void setRate(double rate) {
+    int setRate(double rate) {
         this.rate = (float) rate;
         if (this.streamId != null) {
             soundPool.setRate(this.streamId, this.rate);
+            return 1;
         }
+        return 0;
     }
 
     @Override

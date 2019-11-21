@@ -21,7 +21,7 @@ abstract class Player {
 
     abstract void setVolume(double volume);
 
-    abstract void setRate(double rate);
+    abstract int setRate(double rate);
 
     abstract void configAttributes(boolean respectSilence, boolean stayAwake, Context context);
 

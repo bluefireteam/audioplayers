@@ -1,5 +1,6 @@
 package xyz.luan.audioplayers;
 
+import android.os.Build;
 import android.os.Handler;
 import android.app.Activity;
 
@@ -102,8 +103,12 @@ public class AudioplayersPlugin implements MethodCallHandler {
             }
             case "setPlaybackRate": {
                 final double rate = call.argument("playbackRate");
-                player.setRate(rate);
-                break;
+                final int result = player.setRate(rate);
+                if (result == -1) {
+                    LOGGER.log(Level.WARNING, "Warning! The method 'setRate' is available only on Android SDK version " + Build.VERSION_CODES.M + " or higher!");
+                }
+                response.success(result);
+                return;
             }
             case "getDuration": {
                 response.success(player.getDuration());
