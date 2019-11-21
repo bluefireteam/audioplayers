@@ -257,6 +257,27 @@ class _AdvancedState extends State<Advanced> {
           ], mainAxisAlignment: MainAxisAlignment.spaceEvenly),
         ]),
         new Column(children: [
+          Text('Rate'),
+          Row(children: [
+            _btn(
+                txt: '0.5',
+                onPressed: () =>
+                    widget.advancedPlayer.setPlaybackRate(playbackRate: 0.5)),
+            _btn(
+                txt: '1.0',
+                onPressed: () =>
+                    widget.advancedPlayer.setPlaybackRate(playbackRate: 1.0)),
+            _btn(
+                txt: '1.5',
+                onPressed: () =>
+                    widget.advancedPlayer.setPlaybackRate(playbackRate: 1.5)),
+            _btn(
+                txt: '2.0',
+                onPressed: () =>
+                    widget.advancedPlayer.setPlaybackRate(playbackRate: 2.0)),
+          ], mainAxisAlignment: MainAxisAlignment.spaceEvenly),
+        ]),
+        new Column(children: [
           Text('Control'),
           Row(children: [
             _btn(
