@@ -2,6 +2,13 @@
 
 ## [next]
 
+## audioplayers 0.13.3
+ - audio notification area fixes
+ - fix when other apps are playing sounds
+ - fix android race condition
+ - Support for registering plugin in background enviroment
+ - fix typos and docs
+
 ## audioplayers 0.13.2
  - Handling plugin dealloc and onTimeInterval crashs (thanks @chedechao111)
  - Audio position update when the audio is paused (thanks @bjornjacobs)
