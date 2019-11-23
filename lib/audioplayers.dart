@@ -279,6 +279,8 @@ class AudioPlayer {
     this.playerId ??= _uuid.v4();
     players[playerId] = this;
 
+    /// Implemented on iOS. 
+    /// TODO: Implement on Android
     if (Platform.isIOS) {
       // Start the headless audio service. The parameter here is a handle to
       // a callback managed by the Flutter engine, which allows for us to pass
