@@ -506,6 +506,14 @@ class AudioPlayer {
 
     final playerId = callArgs['playerId'] as String;
     final AudioPlayer player = players[playerId];
+
+    if (!kReleaseMode && player == null) {
+      final oldPlayer = AudioPlayer(playerId: playerId);
+      await oldPlayer.release();
+      oldPlayer.dispose();
+      return;
+    }
+
     final value = callArgs['value'];
 
     switch (call.method) {
