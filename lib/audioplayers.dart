@@ -278,20 +278,6 @@ class AudioPlayer {
     this.mode ??= PlayerMode.MEDIA_PLAYER;
     this.playerId ??= _uuid.v4();
     players[playerId] = this;
-
-    /// Implemented on iOS. 
-    /// TODO: Implement on Android
-    if (Platform.isIOS) {
-      // Start the headless audio service. The parameter here is a handle to
-      // a callback managed by the Flutter engine, which allows for us to pass
-      // references to our callbacks between isolates.
-      final CallbackHandle handle =
-          PluginUtilities.getCallbackHandle(_backgroundCallbackDispatcher);
-      assert(handle != null, 'Unable to lookup callback.');
-      _invokeMethod('startHeadlessService', {
-        'handleKey': <dynamic>[handle.toRawHandle()]
-      });
-    }
   }
 
   Future<int> _invokeMethod(
@@ -307,6 +293,22 @@ class AudioPlayer {
     return _channel
         .invokeMethod(method, withPlayerId)
         .then((result) => (result as int));
+  }
+
+  /// this should be called after initiating AudioPlayer only if you want to
+  /// listen for notification changes in the background
+  void startHeadlessService() {
+    // Start the headless audio service. The parameter here is a handle to
+    // a callback managed by the Flutter engine, which allows for us to pass
+    // references to our callbacks between isolates.
+    final CallbackHandle handle =
+        PluginUtilities.getCallbackHandle(_backgroundCallbackDispatcher);
+    assert(handle != null, 'Unable to lookup callback.');
+    _invokeMethod('startHeadlessService', {
+      'handleKey': <dynamic>[handle.toRawHandle()]
+    });
+
+    return;
   }
 
   /// Start getting significant audio updates through `callback`.
