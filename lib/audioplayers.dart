@@ -279,6 +279,18 @@ class AudioPlayer {
     this.mode ??= PlayerMode.MEDIA_PLAYER;
     this.playerId ??= _uuid.v4();
     players[playerId] = this;
+
+    if(defaultTargetPlatform == TargetPlatform.iOS){
+      // Start the headless audio service. The parameter here is a handle to
+      // a callback managed by the Flutter engine, which allows for us to pass
+      // references to our callbacks between isolates.
+      final CallbackHandle handle =
+          PluginUtilities.getCallbackHandle(_backgroundCallbackDispatcher);
+      assert(handle != null, 'Unable to lookup callback.');
+      _invokeMethod('startHeadlessService', {
+        'handleKey': <dynamic>[handle.toRawHandle()]
+      });
+    }
   }
 
   Future<int> _invokeMethod(
