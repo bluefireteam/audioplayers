@@ -8,6 +8,7 @@
  - fix android race condition
  - Support for registering plugin in background enviroment
  - fix typos and docs
+ - Background notification updates on iOS
 
 ## audioplayers 0.13.2
  - Handling plugin dealloc and onTimeInterval crashs (thanks @chedechao111)
