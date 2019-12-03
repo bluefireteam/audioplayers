@@ -1,6 +1,7 @@
 # Changelog
 
 ## [next]
+ - Background notification updates on iOS
 
 ## audioplayers 0.13.3
  - audio notification area fixes
