@@ -507,10 +507,11 @@ class AudioPlayer {
     final playerId = callArgs['playerId'] as String;
     final AudioPlayer player = players[playerId];
 
-    if (!kReleaseMode && player == null) {
+    if (!kReleaseMode && Platform.isAndroid && player == null) {
       final oldPlayer = AudioPlayer(playerId: playerId);
       await oldPlayer.release();
       oldPlayer.dispose();
+      players.remove(playerId);
       return;
     }
 
