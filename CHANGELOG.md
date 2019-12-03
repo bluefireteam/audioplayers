@@ -1,6 +1,7 @@
 # Changelog
 
 ## [next]
+ - fixing missing cleanup on hot restart
 
 ## audioplayers 0.13.3
  - audio notification area fixes
