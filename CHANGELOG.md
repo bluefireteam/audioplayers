@@ -1,6 +1,8 @@
 # Changelog
 
 ## [next]
+
+## audioplayers 0.13.4
  - fixing missing cleanup on hot restart on Android
  - Background notification updates on iOS
 
