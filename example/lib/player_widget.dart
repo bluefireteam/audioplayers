@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
@@ -126,6 +127,9 @@ class _PlayerWidgetState extends State<PlayerWidget> {
 
   void _initAudioPlayer() {
     _audioPlayer = AudioPlayer(mode: mode);
+    if (Platform.isIOS) {
+      _audioPlayer.startHeadlessService();
+    }
 
     _durationSubscription = _audioPlayer.onDurationChanged.listen((duration) {
       setState(() => _duration = duration);
