@@ -33,6 +33,7 @@ FlutterEngine *_headlessEngine;
 FlutterMethodChannel *_callbackChannel;
 NSObject<FlutterPluginRegistrar> *_registrar;
 int64_t _updateHandleMonitorKey;
+bool headlessServiceInitialized = false;
 
 NSString *_currentPlayerId; // to be used for notifications command center
 MPNowPlayingInfoCenter *_infoCenter;
@@ -100,7 +101,7 @@ float _playbackRate = 1.0;
 
   // Here we actually launch the background isolate to start executing our
   // callback dispatcher, `_backgroundCallbackDispatcher`, in Dart.
-  [_headlessEngine runWithEntrypoint:entrypoint libraryURI:uri];
+  headlessServiceInitialized = [_headlessEngine runWithEntrypoint:entrypoint libraryURI:uri];
 
   // The headless runner needs to be initialized before we can register it as a
   // MethodCallDelegate or else we get an illegal memory access. If we don't
@@ -628,7 +629,9 @@ float _playbackRate = 1.0;
   }
 
   [ _channel_audioplayer invokeMethod:@"audio.onComplete" arguments:@{@"playerId": playerId}];
-  [_callbackChannel invokeMethod:@"audio.onNotificationBackgroundPlayerStateChanged" arguments:@{@"playerId": playerId, @"updateHandleMonitorKey": @(_updateHandleMonitorKey), @"value": @"completed"}];
+  if (headlessServiceInitialized) {
+      [_callbackChannel invokeMethod:@"audio.onNotificationBackgroundPlayerStateChanged" arguments:@{@"playerId": playerId, @"updateHandleMonitorKey": @(_updateHandleMonitorKey), @"value": @"completed"}];
+  }
 }
 
 -(void)observeValueForKeyPath:(NSString *)keyPath
