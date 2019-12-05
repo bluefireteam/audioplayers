@@ -33,6 +33,7 @@ FlutterEngine *_headlessEngine;
 FlutterMethodChannel *_callbackChannel;
 NSObject<FlutterPluginRegistrar> *_registrar;
 int64_t _updateHandleMonitorKey;
+bool headlessServiceInitialized = false;
 
 NSString *_currentPlayerId; // to be used for notifications command center
 MPNowPlayingInfoCenter *_infoCenter;
@@ -62,7 +63,7 @@ float _playbackRate = 1.0;
       players = [[NSMutableDictionary alloc] init];
       [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(needStop) name:AudioplayersPluginStop object:nil];
 
-      // this methos is used to listen to audio playpause event
+      // this method is used to listen to audio playpause event
       // from the notification area in the background.
       _headlessEngine = [[FlutterEngine alloc] initWithName:@"AudioPlayerIsolate"
                                                     project:nil];
@@ -80,7 +81,7 @@ float _playbackRate = 1.0;
     
 - (void)needStop {
     _isDealloc = true;
-    [self destory];
+    [self destroy];
 }
 
 // Initializes and starts the background isolate which will process audio
@@ -100,13 +101,14 @@ float _playbackRate = 1.0;
 
   // Here we actually launch the background isolate to start executing our
   // callback dispatcher, `_backgroundCallbackDispatcher`, in Dart.
-  [_headlessEngine runWithEntrypoint:entrypoint libraryURI:uri];
-
-  // The headless runner needs to be initialized before we can register it as a
-  // MethodCallDelegate or else we get an illegal memory access. If we don't
-  // want to make calls from `_backgroundCallDispatcher` back to native code,
-  // we don't need to add a MethodCallDelegate for this channel.
-  [_registrar addMethodCallDelegate:self channel:_callbackChannel];
+  headlessServiceInitialized = [_headlessEngine runWithEntrypoint:entrypoint libraryURI:uri];
+  if (headlessServiceInitialized) {
+      // The headless runner needs to be initialized before we can register it as a
+      // MethodCallDelegate or else we get an illegal memory access. If we don't
+      // want to make calls from `_backgroundCallDispatcher` back to native code,
+      // we don't need to add a MethodCallDelegate for this channel.
+      [_registrar addMethodCallDelegate:self channel:_callbackChannel];
+  }
 }
 
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
@@ -628,7 +630,9 @@ float _playbackRate = 1.0;
   }
 
   [ _channel_audioplayer invokeMethod:@"audio.onComplete" arguments:@{@"playerId": playerId}];
-  [_callbackChannel invokeMethod:@"audio.onNotificationBackgroundPlayerStateChanged" arguments:@{@"playerId": playerId, @"updateHandleMonitorKey": @(_updateHandleMonitorKey), @"value": @"completed"}];
+  if (headlessServiceInitialized) {
+      [_callbackChannel invokeMethod:@"audio.onNotificationBackgroundPlayerStateChanged" arguments:@{@"playerId": playerId, @"updateHandleMonitorKey": @(_updateHandleMonitorKey), @"value": @"completed"}];
+  }
 }
 
 -(void)observeValueForKeyPath:(NSString *)keyPath
@@ -663,7 +667,7 @@ float _playbackRate = 1.0;
   }
 }
 
-- (void)destory {
+- (void)destroy {
     for (id value in timeobservers)
     [value[@"player"] removeTimeObserver:value[@"observer"]];
     timeobservers = nil;
@@ -678,7 +682,7 @@ float _playbackRate = 1.0;
 }
     
 - (void)dealloc {
-    [self destory];
+    [self destroy];
 }
 
 
