@@ -62,7 +62,7 @@ float _playbackRate = 1.0;
       players = [[NSMutableDictionary alloc] init];
       [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(needStop) name:AudioplayersPluginStop object:nil];
 
-      // this methos is used to listen to audio playpause event
+      // this method is used to listen to audio playpause event
       // from the notification area in the background.
       _headlessEngine = [[FlutterEngine alloc] initWithName:@"AudioPlayerIsolate"
                                                     project:nil];
@@ -80,7 +80,7 @@ float _playbackRate = 1.0;
     
 - (void)needStop {
     _isDealloc = true;
-    [self destory];
+    [self destroy];
 }
 
 // Initializes and starts the background isolate which will process audio
@@ -663,7 +663,7 @@ float _playbackRate = 1.0;
   }
 }
 
-- (void)destory {
+- (void)destroy {
     for (id value in timeobservers)
     [value[@"player"] removeTimeObserver:value[@"observer"]];
     timeobservers = nil;
@@ -678,7 +678,7 @@ float _playbackRate = 1.0;
 }
     
 - (void)dealloc {
-    [self destory];
+    [self destroy];
 }
 
 
