@@ -1,6 +1,8 @@
 # Changelog
 
 ## [next]
+
+## audioplayers 0.13.5
  - fixed crash on iOS when `startHeadlessService()` wasn't called on `AudioPlayer` (by @JesseScott)
 
 ## audioplayers 0.13.4
