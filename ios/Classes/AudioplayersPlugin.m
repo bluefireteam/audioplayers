@@ -102,12 +102,13 @@ float _playbackRate = 1.0;
   // Here we actually launch the background isolate to start executing our
   // callback dispatcher, `_backgroundCallbackDispatcher`, in Dart.
   headlessServiceInitialized = [_headlessEngine runWithEntrypoint:entrypoint libraryURI:uri];
-
-  // The headless runner needs to be initialized before we can register it as a
-  // MethodCallDelegate or else we get an illegal memory access. If we don't
-  // want to make calls from `_backgroundCallDispatcher` back to native code,
-  // we don't need to add a MethodCallDelegate for this channel.
-  [_registrar addMethodCallDelegate:self channel:_callbackChannel];
+  if (headlessServiceInitialized) {
+      // The headless runner needs to be initialized before we can register it as a
+      // MethodCallDelegate or else we get an illegal memory access. If we don't
+      // want to make calls from `_backgroundCallDispatcher` back to native code,
+      // we don't need to add a MethodCallDelegate for this channel.
+      [_registrar addMethodCallDelegate:self channel:_callbackChannel];
+  }
 }
 
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
