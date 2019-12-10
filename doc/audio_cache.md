@@ -11,10 +11,15 @@ Each instance has its own independent cache, so, if you want to optimize your lo
 To play an audio, just run:
 
 ```dart
+    // import in the begining of the file
     import 'package:audioplayers/audio_cache.dart';
 
+    // add it to your class as a static memeber
     static AudioCache player = AudioCache();
+    // or as a local variable
+    final player = AudioCache();
 
+    // call this method when desired
     player.play('explosion.mp3');
 ```
 
