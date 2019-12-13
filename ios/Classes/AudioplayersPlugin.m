@@ -149,11 +149,12 @@ float _playbackRate = 1.0;
                     float volume = (float)[call.arguments[@"volume"] doubleValue] ;
                     int milliseconds = call.arguments[@"position"] == [NSNull null] ? 0.0 : [call.arguments[@"position"] intValue] ;
                     bool respectSilence = [call.arguments[@"respectSilence"]boolValue] ;
+                    bool mixWithOthers = [call.arguments[@"mixWithOthers"]boolValue] ;
                     CMTime time = CMTimeMakeWithSeconds(milliseconds / 1000,NSEC_PER_SEC);
                     NSLog(@"isLocal: %d %@", isLocal, call.arguments[@"isLocal"] );
                     NSLog(@"volume: %f %@", volume, call.arguments[@"volume"] );
                     NSLog(@"position: %d %@", milliseconds, call.arguments[@"positions"] );
-                    [self play:playerId url:url isLocal:isLocal volume:volume time:time isNotification:respectSilence];
+                    [self play:playerId url:url isLocal:isLocal volume:volume time:time mixWithOthers:mixWithOthers isNotification:respectSilence];
                   },
                 @"pause":
                   ^{
@@ -192,10 +193,12 @@ float _playbackRate = 1.0;
                     NSString *url = call.arguments[@"url"];
                     int isLocal = [call.arguments[@"isLocal"]intValue];
                     bool respectSilence = [call.arguments[@"respectSilence"]boolValue] ;
+                    bool mixWithOthers = [call.arguments[@"mixWithOthers"]boolValue] ;
                     [ self setUrl:url
                           isLocal:isLocal
                           isNotification:respectSilence
                           playerId:playerId
+                          mixWithOthers:mixWithOthers
                           onReady:^(NSString * playerId) {
                             result(@(1));
                           }
@@ -491,12 +494,14 @@ float _playbackRate = 1.0;
      isLocal: (int) isLocal
       volume: (float) volume
         time: (CMTime) time
+       mixWithOthers: (bool) mixWithOthers
       isNotification: (bool) respectSilence
 {
   [ self setUrl:url 
          isLocal:isLocal 
          isNotification:respectSilence
          playerId:playerId 
+         mixWithOthers:mixWithOthers 
          onReady:^(NSString * playerId) {
            NSMutableDictionary * playerInfo = players[playerId];
            AVPlayer *player = playerInfo[@"player"];
