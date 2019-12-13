@@ -344,11 +344,13 @@ class AudioPlayer {
     Duration position,
     bool respectSilence = false,
     bool stayAwake = false,
+    bool mixWithOthers = false
   }) async {
     isLocal ??= false;
     volume ??= 1.0;
     respectSilence ??= false;
     stayAwake ??= false;
+    mixWithOthers ??= false;
 
     final int result = await _invokeMethod('play', {
       'url': url,
@@ -357,6 +359,7 @@ class AudioPlayer {
       'position': position?.inMilliseconds,
       'respectSilence': respectSilence,
       'stayAwake': stayAwake,
+      'mixWithOthers': mixWithOthers,
     });
 
     if (result == 1) {
@@ -483,9 +486,9 @@ class AudioPlayer {
   /// The resources will start being fetched or buffered as soon as you call
   /// this method.
   Future<int> setUrl(String url,
-      {bool isLocal: false, bool respectSilence = false}) {
+      {bool isLocal: false, bool respectSilence = false , bool mixWithOthers = false}) {
     return _invokeMethod('setUrl',
-        {'url': url, 'isLocal': isLocal, 'respectSilence': respectSilence});
+        {'url': url, 'isLocal': isLocal, 'respectSilence': respectSilence, 'mixWithOthers': mixWithOthers});
   }
 
   /// Get audio duration after setting url.
