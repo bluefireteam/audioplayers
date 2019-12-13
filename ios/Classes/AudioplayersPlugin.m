@@ -400,6 +400,7 @@ float _playbackRate = 1.0;
        isLocal: (bool) isLocal
        isNotification: (bool) respectSilence
        playerId: (NSString*) playerId
+       mixWithOthers: (bool) mixWithOthers
        onReady:(VoidCallback)onReady
 {
   NSMutableDictionary * playerInfo = players[playerId];
@@ -414,7 +415,12 @@ float _playbackRate = 1.0;
   NSError *error = nil;
   AVAudioSessionCategory category = respectSilence ? AVAudioSessionCategoryAmbient : AVAudioSessionCategoryPlayback;
     
-  BOOL success = [[AVAudioSession sharedInstance] setCategory:category withOptions:AVAudioSessionCategoryOptionMixWithOthers error:&error];
+  BOOL success;
+  if(mixWithOthers) {
+    success = [[AVAudioSession sharedInstance] setCategory:category withOptions:AVAudioSessionCategoryOptionMixWithOthers error:&error];
+  } else {
+    success = [[AVAudioSession sharedInstance] setCategory:category error:&error];
+  }
     
   if (!success) {
     NSLog(@"Error setting speaker: %@", error);
