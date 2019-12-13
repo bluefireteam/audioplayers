@@ -419,6 +419,7 @@ float _playbackRate = 1.0;
   AVAudioSessionCategory category = respectSilence ? AVAudioSessionCategoryAmbient : AVAudioSessionCategoryPlayback;
     
   BOOL success;
+  // make AVAudioSessionCategoryOptionMixWithOthers optional
   if(mixWithOthers) {
     success = [[AVAudioSession sharedInstance] setCategory:category withOptions:AVAudioSessionCategoryOptionMixWithOthers error:&error];
   } else {
