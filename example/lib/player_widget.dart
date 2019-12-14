@@ -132,7 +132,10 @@ class _PlayerWidgetState extends State<PlayerWidget> {
 
       // TODO implemented for iOS, waiting for android impl
       if (Theme.of(context).platform == TargetPlatform.iOS) {
-        // set atleast title to see the notification bar on ios.
+        // (Optional) listen for notification updates in the background
+        _audioPlayer.startHeadlessService();
+
+        // set at least title to see the notification bar on ios.
         _audioPlayer.setNotification(
             title: 'App Name',
             artist: 'Artist or blank',

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -277,16 +278,6 @@ class AudioPlayer {
     this.mode ??= PlayerMode.MEDIA_PLAYER;
     this.playerId ??= _uuid.v4();
     players[playerId] = this;
-
-    // Start the headless audio service. The parameter here is a handle to
-    // a callback managed by the Flutter engine, which allows for us to pass
-    // references to our callbacks between isolates.
-    final CallbackHandle handle =
-        PluginUtilities.getCallbackHandle(_backgroundCallbackDispatcher);
-    assert(handle != null, 'Unable to lookup callback.');
-    _invokeMethod('startHeadlessService', {
-      'handleKey': <dynamic>[handle.toRawHandle()]
-    });
   }
 
   Future<int> _invokeMethod(
@@ -302,6 +293,25 @@ class AudioPlayer {
     return _channel
         .invokeMethod(method, withPlayerId)
         .then((result) => (result as int));
+  }
+
+  /// this should be called after initiating AudioPlayer only if you want to
+  /// listen for notification changes in the background
+  void startHeadlessService() {
+    if (this == null || playerId.isEmpty) {
+      return;
+    }
+    // Start the headless audio service. The parameter here is a handle to
+    // a callback managed by the Flutter engine, which allows for us to pass
+    // references to our callbacks between isolates.
+    final CallbackHandle handle =
+        PluginUtilities.getCallbackHandle(_backgroundCallbackDispatcher);
+    assert(handle != null, 'Unable to lookup callback.');
+    _invokeMethod('startHeadlessService', {
+      'handleKey': <dynamic>[handle.toRawHandle()]
+    });
+
+    return;
   }
 
   /// Start getting significant audio updates through `callback`.
@@ -507,6 +517,15 @@ class AudioPlayer {
 
     final playerId = callArgs['playerId'] as String;
     final AudioPlayer player = players[playerId];
+
+    if (!kReleaseMode && Platform.isAndroid && player == null) {
+      final oldPlayer = AudioPlayer(playerId: playerId);
+      await oldPlayer.release();
+      oldPlayer.dispose();
+      players.remove(playerId);
+      return;
+    }
+
     final value = callArgs['value'];
 
     switch (call.method) {

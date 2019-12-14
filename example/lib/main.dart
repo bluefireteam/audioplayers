@@ -30,6 +30,18 @@ class _ExampleAppState extends State<ExampleApp> {
   AudioPlayer advancedPlayer = AudioPlayer();
   String localFilePath;
 
+  @override
+  void initState() {
+    super.initState();
+
+    if (Platform.isIOS) {
+      if (audioCache.fixedPlayer != null) {
+        audioCache.fixedPlayer.startHeadlessService();
+      }
+      advancedPlayer.startHeadlessService();
+    }
+  }
+
   Future _loadFile() async {
     final bytes = await readBytes(kUrl1);
     final dir = await getApplicationDocumentsDirectory();
