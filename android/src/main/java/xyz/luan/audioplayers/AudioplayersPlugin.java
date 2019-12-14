@@ -103,11 +103,7 @@ public class AudioplayersPlugin implements MethodCallHandler {
             }
             case "setPlaybackRate": {
                 final double rate = call.argument("playbackRate");
-                final int result = player.setRate(rate);
-                if (result == -1) {
-                    LOGGER.log(Level.WARNING, "Warning! The method 'setRate' is available only on Android SDK version " + Build.VERSION_CODES.M + " or higher!");
-                }
-                response.success(result);
+                response.success(player.setRate(rate));
                 return;
             }
             case "getDuration": {

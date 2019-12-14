@@ -70,7 +70,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     @Override
     int setRate(double rate) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            return -1;
+            throw new UnsupportedOperationException("The method 'setRate' is available only on Android SDK version " + Build.VERSION_CODES.M + " or higher!");
         }
         if (this.player != null) {
             this.rate = (float) rate;
