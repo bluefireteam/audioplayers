@@ -414,7 +414,7 @@ float _playbackRate = 1.0;
   NSError *error = nil;
   AVAudioSessionCategory category = respectSilence ? AVAudioSessionCategoryAmbient : AVAudioSessionCategoryPlayback;
     
-  BOOL success = [[AVAudioSession sharedInstance] setCategory:category withOptions:AVAudioSessionCategoryOptionMixWithOthers error:&error];
+  BOOL success = [[AVAudioSession sharedInstance] setCategory:category withOptions:nil error:&error];
     
   if (!success) {
     NSLog(@"Error setting speaker: %@", error);
