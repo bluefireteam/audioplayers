@@ -338,14 +338,14 @@ class AudioPlayer {
   /// If [isLocal] is false, [url] must be a remote URL.
   Future<int> play(
     String url, {
-    bool isLocal = false,
+    bool isLocal,
     double volume = 1.0,
     // position must be null by default to be compatible with radio streams
     Duration position,
     bool respectSilence = false,
     bool stayAwake = false,
   }) async {
-    isLocal ??= false;
+    isLocal ??= url.startsWith("/") || url.startsWith("file://") || url.substring(1).startsWith(':\\');
     volume ??= 1.0;
     respectSilence ??= false;
     stayAwake ??= false;

@@ -99,7 +99,6 @@ class AudioCache {
     AudioPlayer player = _player(mode);
     await player.play(
       file.path,
-      isLocal: true,
       volume: volume,
       respectSilence: isNotification ?? respectSilence,
       stayAwake: stayAwake,
@@ -120,7 +119,6 @@ class AudioCache {
     player.setReleaseMode(ReleaseMode.LOOP);
     player.play(
       file.path,
-      isLocal: true,
       volume: volume,
       respectSilence: isNotification ?? respectSilence,
       stayAwake: stayAwake,
