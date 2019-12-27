@@ -11,9 +11,12 @@ class WrappedPlayer {
   double startingPoint;
   double soughtPosition;
   double pausedAt = null;
+  double currentVolume = 1.0;
   bool isPlaying = false;
+
   AudioBuffer currentBuffer;
   AudioBufferSourceNode currentNode;
+  GainNode gainNode;
 
   void setBuffer(AudioBuffer buffer) {
     stop();
@@ -24,10 +27,20 @@ class WrappedPlayer {
     }
   }
 
+  void setVolume(double volume) {
+    currentVolume = volume;
+    gainNode.gain.value = currentVolume;
+  }
+
   void recreateNode() {
     currentNode = _audioCtx.createBufferSource();
     currentNode.buffer = currentBuffer;
-    currentNode.connectNode(_audioCtx.destination);
+
+    gainNode = _audioCtx.createGain();
+    gainNode.gain.value = currentVolume;
+    gainNode.connectNode(_audioCtx.destination);
+
+    currentNode.connectNode(gainNode);
   }
 
   void start(double position) {
@@ -115,11 +128,12 @@ class AudioplayersPlugin {
       case 'play': {
         final String url = call.arguments['url'];
         final bool isLocal = call.arguments['isLocal'];
-        final double volume = call.arguments['volume'];
+        double volume = call.arguments['volume'] ?? 1.0;
         final double position = call.arguments['position'] ?? 0;
         // web does not care for the `stayAwake` argument
 
         final player = await setUrl(playerId, url);
+        player.setVolume(volume);
         player.start(position);
 
         return 1;
@@ -136,9 +150,13 @@ class AudioplayersPlugin {
         getOrCreatePlayer(playerId).resume();
         return 1;
       }
+      case 'setVolume': {
+        double volume = call.arguments['volume'] ?? 1.0;
+        getOrCreatePlayer(playerId).setVolume(volume);
+        return 1;
+      }
       case 'release':
       case 'seek':
-      case 'setVolume':
       case 'setReleaseMode':
       case 'setPlaybackRate':
       default:
