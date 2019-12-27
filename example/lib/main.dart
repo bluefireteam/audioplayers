@@ -17,12 +17,12 @@ const kUrl2 = 'https://luan.xyz/files/audio/nasa_on_a_mission.mp3';
 const kUrl3 = 'http://bbcmedia.ic.llnwd.net/stream/bbcmedia_radio1xtra_mf_p';
 
 void main() {
-  runApp(new MaterialApp(home: new ExampleApp()));
+  runApp(MaterialApp(home: ExampleApp()));
 }
 
 class ExampleApp extends StatefulWidget {
   @override
-  _ExampleAppState createState() => new _ExampleAppState();
+  _ExampleAppState createState() => _ExampleAppState();
 }
 
 class _ExampleAppState extends State<ExampleApp> {
@@ -94,32 +94,34 @@ class _ExampleAppState extends State<ExampleApp> {
   }
 
   Widget localAsset() {
-    return _tab(children: [
-      Text('Play Local Asset \'audio.mp3\':'),
-      _btn(txt: 'Play', onPressed: () => audioCache.play('audio.mp3')),
-      Text('Loop Local Asset \'audio.mp3\':'),
-      _btn(txt: 'Loop', onPressed: () => audioCache.loop('audio.mp3')),
-      Text('Play Local Asset \'audio2.mp3\':'),
-      _btn(txt: 'Play', onPressed: () => audioCache.play('audio2.mp3')),
-      Text('Play Local Asset In Low Latency \'audio.mp3\':'),
-      _btn(
-          txt: 'Play',
-          onPressed: () =>
-              audioCache.play('audio.mp3', mode: PlayerMode.LOW_LATENCY)),
-      Text('Play Local Asset Concurrently In Low Latency \'audio.mp3\':'),
-      _btn(
-          txt: 'Play',
-          onPressed: () async {
-            await audioCache.play('audio.mp3', mode: PlayerMode.LOW_LATENCY);
-            await audioCache.play('audio2.mp3', mode: PlayerMode.LOW_LATENCY);
-          }),
-      Text('Play Local Asset In Low Latency \'audio2.mp3\':'),
-      _btn(
-          txt: 'Play',
-          onPressed: () =>
-              audioCache.play('audio2.mp3', mode: PlayerMode.LOW_LATENCY)),
-      getLocalFileDuration(),
-    ]);
+    return SingleChildScrollView(
+      child: _tab(children: [
+        Text('Play Local Asset \'audio.mp3\':'),
+        _btn(txt: 'Play', onPressed: () => audioCache.play('audio.mp3')),
+        Text('Loop Local Asset \'audio.mp3\':'),
+        _btn(txt: 'Loop', onPressed: () => audioCache.loop('audio.mp3')),
+        Text('Play Local Asset \'audio2.mp3\':'),
+        _btn(txt: 'Play', onPressed: () => audioCache.play('audio2.mp3')),
+        Text('Play Local Asset In Low Latency \'audio.mp3\':'),
+        _btn(
+            txt: 'Play',
+            onPressed: () =>
+                audioCache.play('audio.mp3', mode: PlayerMode.LOW_LATENCY)),
+        Text('Play Local Asset Concurrently In Low Latency \'audio.mp3\':'),
+        _btn(
+            txt: 'Play',
+            onPressed: () async {
+              await audioCache.play('audio.mp3', mode: PlayerMode.LOW_LATENCY);
+              await audioCache.play('audio2.mp3', mode: PlayerMode.LOW_LATENCY);
+            }),
+        Text('Play Local Asset In Low Latency \'audio2.mp3\':'),
+        _btn(
+            txt: 'Play',
+            onPressed: () =>
+                audioCache.play('audio2.mp3', mode: PlayerMode.LOW_LATENCY)),
+        getLocalFileDuration(),
+      ]),
+    );
   }
 
   Future<int> _getDuration() async {
@@ -259,7 +261,54 @@ class _AdvancedState extends State<Advanced> {
                       .setReleaseMode(ReleaseMode.RELEASE)),
             ], mainAxisAlignment: MainAxisAlignment.spaceEvenly),
           ]),
-          new Column(children: [
+          Column(children: [
+            Text('Control'),
+            Row(children: [
+              _btn(
+                  txt: 'resume',
+                  onPressed: () => widget.advancedPlayer.resume()),
+              _btn(
+                  txt: 'pause', onPressed: () => widget.advancedPlayer.pause()),
+              _btn(txt: 'stop', onPressed: () => widget.advancedPlayer.stop()),
+              _btn(
+                  txt: 'release',
+                  onPressed: () => widget.advancedPlayer.release()),
+            ], mainAxisAlignment: MainAxisAlignment.spaceEvenly),
+          ]),
+          Column(children: [
+            Text('Seek in milliseconds'),
+            Row(children: [
+              _btn(
+                  txt: '100ms',
+                  onPressed: () {
+                    widget.advancedPlayer.seek(Duration(
+                        milliseconds: audioPosition.inMilliseconds + 100));
+                    setState(() => seekDone = false);
+                  }),
+              _btn(
+                  txt: '500ms',
+                  onPressed: () {
+                    widget.advancedPlayer.seek(Duration(
+                        milliseconds: audioPosition.inMilliseconds + 500));
+                    setState(() => seekDone = false);
+                  }),
+              _btn(
+                  txt: '1s',
+                  onPressed: () {
+                    widget.advancedPlayer
+                        .seek(Duration(seconds: audioPosition.inSeconds + 1));
+                    setState(() => seekDone = false);
+                  }),
+              _btn(
+                  txt: '1.5s',
+                  onPressed: () {
+                    widget.advancedPlayer.seek(Duration(
+                        milliseconds: audioPosition.inMilliseconds + 1500));
+                    setState(() => seekDone = false);
+                  }),
+            ], mainAxisAlignment: MainAxisAlignment.spaceEvenly),
+          ]),
+          Column(children: [
             Text('Volume'),
             Row(children: [
               _btn(
@@ -276,7 +325,7 @@ class _AdvancedState extends State<Advanced> {
                   onPressed: () => widget.advancedPlayer.setVolume(2.0)),
             ], mainAxisAlignment: MainAxisAlignment.spaceEvenly),
           ]),
-          new Column(children: [
+          Column(children: [
             Text('Rate'),
             Row(children: [
               _btn(
@@ -297,62 +346,13 @@ class _AdvancedState extends State<Advanced> {
                       widget.advancedPlayer.setPlaybackRate(playbackRate: 2.0)),
             ], mainAxisAlignment: MainAxisAlignment.spaceEvenly),
           ]),
-          new Column(children: [
-            Text('Control'),
-            Row(children: [
-              _btn(
-                  txt: 'resume',
-                  onPressed: () => widget.advancedPlayer.resume()),
-              _btn(
-                  txt: 'pause', onPressed: () => widget.advancedPlayer.pause()),
-              _btn(txt: 'stop', onPressed: () => widget.advancedPlayer.stop()),
-              _btn(
-                  txt: 'release',
-                  onPressed: () => widget.advancedPlayer.release()),
-            ], mainAxisAlignment: MainAxisAlignment.spaceEvenly),
-          ]),
-          new Column(
-            children: [
-              Text('Seek in milliseconds'),
-              Row(children: [
-                _btn(
-                    txt: '100ms',
-                    onPressed: () {
-                      widget.advancedPlayer.seek(Duration(
-                          milliseconds: audioPosition.inMilliseconds + 100));
-                      setState(() => seekDone = false);
-                    }),
-                _btn(
-                    txt: '500ms',
-                    onPressed: () {
-                      widget.advancedPlayer.seek(Duration(
-                          milliseconds: audioPosition.inMilliseconds + 500));
-                      setState(() => seekDone = false);
-                    }),
-                _btn(
-                    txt: '1s',
-                    onPressed: () {
-                      widget.advancedPlayer
-                          .seek(Duration(seconds: audioPosition.inSeconds + 1));
-                      setState(() => seekDone = false);
-                    }),
-                _btn(
-                    txt: '1.5s',
-                    onPressed: () {
-                      widget.advancedPlayer.seek(Duration(
-                          milliseconds: audioPosition.inMilliseconds + 1500));
-                      setState(() => seekDone = false);
-                    }),
-              ], mainAxisAlignment: MainAxisAlignment.spaceEvenly),
-              Text('Audio Position: ${audioPosition}'),
-              seekDone == null
-                  ? SizedBox(
-                      width: 0,
-                      height: 0,
-                    )
-                  : Text(seekDone ? "Seek Done" : "Seeking..."),
-            ],
-          ),
+          Text('Audio Position: ${audioPosition}'),
+          seekDone == null
+              ? SizedBox(
+                  width: 0,
+                  height: 0,
+                )
+              : Text(seekDone ? "Seek Done" : "Seeking..."),
         ],
       ),
     );
