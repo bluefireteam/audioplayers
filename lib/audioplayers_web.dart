@@ -87,7 +87,7 @@ class AudioplayersPlugin {
       return preloadedBuffers[url];
     }
 
-    final HttpRequest response = await HttpRequest.request(url, responseType: "arraybuffer");
+    final HttpRequest response = await HttpRequest.request(url, responseType: 'arraybuffer');
     final AudioBuffer buffer = await _audioCtx.decodeAudioData(response.response);
     return preloadedBuffers.putIfAbsent(url, () => buffer);
   }
