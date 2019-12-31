@@ -1,5 +1,6 @@
 package xyz.luan.audioplayers;
 
+import android.os.Build;
 import android.content.Context;
 import android.os.Handler;
 
@@ -100,8 +101,12 @@ public class AudioplayersPlugin implements MethodCallHandler {
                 player.setUrl(url, isLocal);
                 break;
             }
+            case "setPlaybackRate": {
+                final double rate = call.argument("playbackRate");
+                response.success(player.setRate(rate));
+                return;
+            }
             case "getDuration": {
-
                 response.success(player.getDuration());
                 return;
             }

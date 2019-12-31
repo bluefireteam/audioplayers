@@ -444,9 +444,10 @@ class AudioPlayer {
     );
   }
 
-  /// Sets the playback rate - call this after first calling play() or resume(). Works only on iOS for now
+  /// Sets the playback rate - call this after first calling play() or resume().
   ///
   /// iOS has limits between 0.5 and 2x
+  /// Android SDK version should be 23 or higher.
   /// not sure if that's changed recently.
   Future<int> setPlaybackRate({double playbackRate = 1.0}) {
     return _invokeMethod('setPlaybackRate', {'playbackRate': playbackRate});
