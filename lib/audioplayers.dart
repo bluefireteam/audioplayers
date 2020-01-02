@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 
 typedef StreamController CreateStreamController();
 typedef void TimeChangeHandler(Duration duration);
+typedef void SeekHandler(bool finished);
 typedef void ErrorHandler(String message);
 typedef void AudioPlayerStateChangeHandler(AudioPlayerState state);
 
@@ -142,8 +143,8 @@ class AudioPlayer {
   final StreamController<void> _completionController =
       StreamController<void>.broadcast();
 
-  final StreamController<void> _seekCompleteController =
-      StreamController<void>.broadcast();
+  final StreamController<bool> _seekCompleteController =
+      StreamController<bool>.broadcast();
 
   final StreamController<String> _errorController =
       StreamController<String>.broadcast();
@@ -254,7 +255,7 @@ class AudioPlayer {
   ///
   /// This is deprecated. Use [onSeekComplete] instead.
   @deprecated
-  VoidCallback seekCompleteHandler;
+  SeekHandler seekCompleteHandler;
 
   /// Handler of player errors.
   ///
@@ -553,8 +554,8 @@ class AudioPlayer {
         player.completionHandler?.call();
         break;
       case 'audio.onSeekComplete':
-        player._seekCompleteController.add(null);
-        player.seekCompleteHandler?.call();
+        player._seekCompleteController.add(value);
+        player.seekCompleteHandler?.call(value);
         break;
       case 'audio.onError':
         player.state = AudioPlayerState.STOPPED;

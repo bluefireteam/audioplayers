@@ -6,23 +6,23 @@ PODS:
     - Flutter
 
 DEPENDENCIES:
-  - audioplayers (from `/Users/erick/projects/audioplayers/ios`)
-  - Flutter (from `/Users/erick/flutter/bin/cache/artifacts/engine/ios-release`)
-  - path_provider (from `/Users/erick/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider-1.1.0/ios`)
+  - audioplayers (from `/Users/mac/Documents/audioplayers/ios`)
+  - Flutter (from `/Users/mac/Documents/flutter/bin/cache/artifacts/engine/ios`)
+  - path_provider (from `/Users/mac/Documents/flutter/.pub-cache/hosted/pub.flutter-io.cn/path_provider-1.5.0/ios`)
 
 EXTERNAL SOURCES:
   audioplayers:
-    :path: "/Users/erick/projects/audioplayers/ios"
+    :path: "/Users/mac/Documents/audioplayers/ios"
   Flutter:
-    :path: "/Users/erick/flutter/bin/cache/artifacts/engine/ios-release"
+    :path: "/Users/mac/Documents/flutter/bin/cache/artifacts/engine/ios"
   path_provider:
-    :path: "/Users/erick/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider-1.1.0/ios"
+    :path: "/Users/mac/Documents/flutter/.pub-cache/hosted/pub.flutter-io.cn/path_provider-1.5.0/ios"
 
 SPEC CHECKSUMS:
   audioplayers: 84f968cea3f2deab00ec4f8ff53358b3c0b3992c
-  Flutter: 58dd7d1b27887414a370fcccb9e645c08ffd7a6a
-  path_provider: f96fff6166a8867510d2c25fdcc346327cc4b259
+  Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+  path_provider: fb74bd0465e96b594bb3b5088ee4a4e7bb1f2a9d
 
 PODFILE CHECKSUM: 1003743f06ec24ad436e3271b83a8ca2bee2fed4
 
-COCOAPODS: 1.7.0.beta.2
+COCOAPODS: 1.8.4
