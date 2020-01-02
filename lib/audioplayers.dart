@@ -24,7 +24,7 @@ enum ReleaseMode {
   /// In Android, the media player is quite resource-intensive, and this will
   /// let it go. Data will be buffered again when needed (if it's a remote file,
   /// it will be downloaded again).
-  /// In iOS, works just like [stop] method.
+  /// In iOS and macOS, works just like [stop] method.
   ///
   /// This is the default behaviour.
   RELEASE,
@@ -50,7 +50,7 @@ enum AudioPlayerState {
 /// This enum is meant to be used as a parameter of the [AudioPlayer]'s
 /// constructor. It represents the general mode of the [AudioPlayer].
 ///
-// In iOS, both modes have the same backend implementation.
+// In iOS and macOS, both modes have the same backend implementation.
 enum PlayerMode {
   /// Ideal for long media files or streams.
   MEDIA_PLAYER,
@@ -446,7 +446,7 @@ class AudioPlayer {
 
   /// Sets the playback rate - call this after first calling play() or resume().
   ///
-  /// iOS has limits between 0.5 and 2x
+  /// iOS and macOS have limits between 0.5 and 2x
   /// Android SDK version should be 23 or higher.
   /// not sure if that's changed recently.
   Future<int> setPlaybackRate({double playbackRate = 1.0}) {

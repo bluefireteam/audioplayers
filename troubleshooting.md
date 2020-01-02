@@ -22,3 +22,9 @@ This file describes some common pitfalls and how to solve them. Please always re
 ```
 
  - Can't play stream audio: One of the know reasons for streams not playing on iOs, may be because the stream is been gziped by the server, as reported [here](https://github.com/luanpotter/audioplayers/issues/183).
+
+ ## macOS
+
+ - Project does not compile with plugin: First check your xcode version, for some unknow reason compilation seens to fail when using older versions of xcode. Also, always try to compile the example app of this plugin, we try to keep the example app always updated and working, so if you can't compile it, the problem may be on your xcode version/configuration.
+
+ - Can't play stream audio: One of the reasons for streams not playing on macOS, may be because the stream is been gziped by the server, as reported [here](https://github.com/luanpotter/audioplayers/issues/183).

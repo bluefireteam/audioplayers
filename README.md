@@ -1,6 +1,6 @@
 # AudioPlayers
 
-A Flutter plugin to play multiple simultaneously audio files, works for Android and iOS.
+A Flutter plugin to play multiple simultaneously audio files, works for Android, iOS and macOS.
 
 ![](example/tab1s.jpg) ![](example/tab2s.jpg) ![](example/tab3s.jpg)
 
@@ -89,7 +89,7 @@ For a Local File, add the `isLocal` parameter:
   }
 ```
 
-The `isLocal` flag is required only because iOS makes a difference about it (Android doesn't care either way).
+The `isLocal` flag is required only because iOS and macOS make a difference about it (Android doesn't care either way).
 
 There is also an optional named `double volume` parameter, that defaults to `1.0`. It can go from `0.0` (mute) to `1.0` (max), varying linearly.
 
@@ -129,7 +129,7 @@ By default, the player will be release once the playback is finished or the stop
 
 This is because on Android, a MediaPlayer instance can be quite resource-heavy, and keep it unreleased would cause performance issues if you play lots of different audios.
 
-On iOS this doesn't apply, so release does nothing.
+On iOS and macOS this doesn't apply, so release does nothing.
 
 You can change the Release Mode to determine the actual behavior of the MediaPlayer once finished/stopped. There are three options:
 
@@ -242,11 +242,11 @@ final audioPlayer = AudioPlayer(playerId: 'my_unique_playerId');
 You can check a list of supported formats below:
 
 - [Android](https://developer.android.com/guide/topics/media/media-formats.html)
-- [iOS](http://www.techotopia.com/index.php/Playing_Audio_on_iOS_8_using_AVAudioPlayer#Supported_Audio_Formats)
+- [iOS and macOS](http://www.techotopia.com/index.php/Playing_Audio_on_iOS_8_using_AVAudioPlayer#Supported_Audio_Formats)
 
-## :warning: iOS App Transport Security
+## :warning: iOS & macOS App Transport Security
 
-By default iOS forbids loading from non-https url. To cancel this restriction you must edit your `.plist` and add:
+By default iOS and macOS forbid loading from non-https url. To cancel this restriction on iOS you must edit your `.plist` and add:
 
 ```xml
 <key>NSAppTransportSecurity</key>
@@ -254,6 +254,14 @@ By default iOS forbids loading from non-https url. To cancel this restriction yo
     <key>NSAllowsArbitraryLoads</key>
     <true/>
 </dict>
+```
+## :warning: macOS Outgoing Connections
+
+By default, Flutter macOS apps don't allow outgoing connections, so playing audio files/streams from the internet won't work. To fix this, add the following to the `.entitlements` files for your app:
+
+```xml
+<key>com.apple.security.network.client</key>
+<true/>
 ```
 
 ## Credits

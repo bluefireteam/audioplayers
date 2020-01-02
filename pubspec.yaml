@@ -5,12 +5,19 @@ homepage: https://github.com/luanpotter/audioplayer
 
 flutter:
   plugin:
-    androidPackage: xyz.luan.audioplayers
-    pluginClass: AudioplayersPlugin
+    platforms:
+      android:
+        package: xyz.luan.audioplayers
+        pluginClass: AudioplayersPlugin
+      ios:
+        pluginClass: AudioplayersPlugin
+      macos:
+        pluginClass: AudioplayersPlugin
 
 dependencies:
   uuid: ^2.0.0
   path_provider: ^1.1.0
+  path_provider_macos: ^0.0.1
   flutter:
     sdk: flutter
 
