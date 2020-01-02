@@ -246,7 +246,7 @@ You can check a list of supported formats below:
 
 ## :warning: iOS & macOS App Transport Security
 
-By default iOS and macOS forbid loading from non-https url. To cancel this restriction on iOS you must edit your `.plist` and add:
+By default iOS and macOS forbid loading from non-https url. To cancel this restriction on iOS or macOS you must edit your `.plist` and add:
 
 ```xml
 <key>NSAppTransportSecurity</key>

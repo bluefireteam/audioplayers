@@ -29,7 +29,9 @@ class AudioCache {
 
   /// This flag should be set to true, if player is used for playing internal notifications
   ///
-  /// This flag will have influence of stream type, and will respect silent mode if set to true
+  /// This flag will have influence of stream type, and will respect silent mode if set to true.
+  /// 
+  /// Not implemented on macOS.
   bool respectSilence;
 
   AudioCache({this.prefix = "", this.fixedPlayer, this.respectSilence = false});
@@ -90,6 +92,8 @@ class AudioCache {
   /// If the file is already cached, it plays immediately. Otherwise, first waits for the file to load (might take a few milliseconds).
   /// It creates a new instance of [AudioPlayer], so it does not affect other audios playing (unless you specify a [fixedPlayer], in which case it always use the same).
   /// The instance is returned, to allow later access (either way), like pausing and resuming.
+  /// 
+  /// isNotification and stayAwake are not implemented on macOS
   Future<AudioPlayer> play(String fileName,
       {double volume = 1.0,
       bool isNotification,
@@ -109,6 +113,8 @@ class AudioCache {
   /// Like [play], but loops the audio (starts over once finished).
   ///
   /// The instance of [AudioPlayer] created is returned, so you can use it to stop the playback as desired.
+  /// 
+  /// isNotification and stayAwake are not implemented on macOS.
   Future<AudioPlayer> loop(String fileName,
       {double volume = 1.0,
       bool isNotification,

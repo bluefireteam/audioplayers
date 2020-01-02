@@ -68,6 +68,8 @@ enum PlayerMode {
 // To communicate between the native plugin and this entrypoint, we'll use
 // MethodChannels to open a persistent communication channel to trigger
 // callbacks.
+
+/// Not implemented on macOS.
 void _backgroundCallbackDispatcher() {
   const MethodChannel _channel =
       MethodChannel('xyz.luan/audioplayers_callback');
@@ -296,7 +298,7 @@ class AudioPlayer {
   }
 
   /// this should be called after initiating AudioPlayer only if you want to
-  /// listen for notification changes in the background
+  /// listen for notification changes in the background. Not implemented on macOS
   void startHeadlessService() {
     if (this == null || playerId.isEmpty) {
       return;
@@ -336,6 +338,8 @@ class AudioPlayer {
   ///
   /// If [isLocal] is true, [url] must be a local file system path.
   /// If [isLocal] is false, [url] must be a remote URL.
+  /// 
+  /// respectSilence and stayAwake are not implemented on macOS.
   Future<int> play(
     String url, {
     bool isLocal,
@@ -483,6 +487,8 @@ class AudioPlayer {
   ///
   /// The resources will start being fetched or buffered as soon as you call
   /// this method.
+  /// 
+  /// respectSilence is not implemented on macOS.
   Future<int> setUrl(String url,
       {bool isLocal: false, bool respectSilence = false}) {
     return _invokeMethod('setUrl',
