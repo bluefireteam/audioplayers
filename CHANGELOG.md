@@ -1,6 +1,7 @@
 # Changelog
 
 ## [next]
+- Bump dependencies, improve gitignore
 
 ## audioplayers 0.13.6
  - added `setPlaybackRate` feature for Android
