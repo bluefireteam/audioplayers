@@ -256,6 +256,23 @@ By default iOS forbids loading from non-https url. To cancel this restriction yo
 </dict>
 ```
 
+**Note:** On Android by default, there is a restriction not allowing traffic from HTTP resources. There is a fix for this and it requires
+adding `android:usesCleartextTraffic="true"` within your AndroidManifest.xml file located in `android/app/src/main/AndroidManifest.xml`.
+
+Here is an example of how it should look like:
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<manifest ...>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <application
+        ...
+        android:usesCleartextTraffic="true"
+        ...>
+        ...
+    </application>
+</manifest>
+```
+
 ## Credits
 
 This was originally a fork of [rxlabz's audioplayer](https://github.com/rxlabz/audioplayer), but since we have diverged and added more features.
