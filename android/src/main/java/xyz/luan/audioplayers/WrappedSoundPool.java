@@ -69,6 +69,8 @@ public class WrappedSoundPool extends Player {
 
     private float volume = 1.0f;
 
+    private float rate = 1.0f;
+
     private Integer soundId;
 
     private Integer streamId;
@@ -184,6 +186,16 @@ public class WrappedSoundPool extends Player {
     }
 
     @Override
+    int setRate(double rate) {
+        this.rate = (float) rate;
+        if (this.streamId != null) {
+            soundPool.setRate(this.streamId, this.rate);
+            return 1;
+        }
+        return 0;
+    }
+
+    @Override
     void configAttributes(boolean respectSilence, boolean setWakeMode, Context context) {
     }
 
@@ -234,6 +246,7 @@ public class WrappedSoundPool extends Player {
     }
 
     private void start() {
+        setRate(this.rate);
         if (this.paused) {
             soundPool.resume(this.streamId);
             this.paused = false;

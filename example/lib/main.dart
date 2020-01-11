@@ -17,12 +17,12 @@ const kUrl2 = 'https://luan.xyz/files/audio/nasa_on_a_mission.mp3';
 const kUrl3 = 'http://bbcmedia.ic.llnwd.net/stream/bbcmedia_radio1xtra_mf_p';
 
 void main() {
-  runApp(new MaterialApp(home: new ExampleApp()));
+  runApp(MaterialApp(home: ExampleApp()));
 }
 
 class ExampleApp extends StatefulWidget {
   @override
-  _ExampleAppState createState() => new _ExampleAppState();
+  _ExampleAppState createState() => _ExampleAppState();
 }
 
 class _ExampleAppState extends State<ExampleApp> {
@@ -89,37 +89,41 @@ class _ExampleAppState extends State<ExampleApp> {
       Text('Current local file path: $localFilePath'),
       localFilePath == null
           ? Container()
-          : PlayerWidget(url: localFilePath,),
+          : PlayerWidget(
+              url: localFilePath,
+            ),
     ]);
   }
 
   Widget localAsset() {
-    return _Tab(children: [
-      Text('Play Local Asset \'audio.mp3\':'),
-      _Btn(txt: 'Play', onPressed: () => audioCache.play('audio.mp3')),
-      Text('Loop Local Asset \'audio.mp3\':'),
-      _Btn(txt: 'Loop', onPressed: () => audioCache.loop('audio.mp3')),
-      Text('Play Local Asset \'audio2.mp3\':'),
-      _Btn(txt: 'Play', onPressed: () => audioCache.play('audio2.mp3')),
-      Text('Play Local Asset In Low Latency \'audio.mp3\':'),
-      _Btn(
-          txt: 'Play',
-          onPressed: () =>
-              audioCache.play('audio.mp3', mode: PlayerMode.LOW_LATENCY)),
-      Text('Play Local Asset Concurrently In Low Latency \'audio.mp3\':'),
-      _Btn(
-          txt: 'Play',
-          onPressed: () async {
-            await audioCache.play('audio.mp3', mode: PlayerMode.LOW_LATENCY);
-            await audioCache.play('audio2.mp3', mode: PlayerMode.LOW_LATENCY);
-          }),
-      Text('Play Local Asset In Low Latency \'audio2.mp3\':'),
-      _Btn(
-          txt: 'Play',
-          onPressed: () =>
-              audioCache.play('audio2.mp3', mode: PlayerMode.LOW_LATENCY)),
-      getLocalFileDuration(),
-    ]);
+    return SingleChildScrollView(
+      child: _Tab(children: [
+        Text('Play Local Asset \'audio.mp3\':'),
+        _Btn(txt: 'Play', onPressed: () => audioCache.play('audio.mp3')),
+        Text('Loop Local Asset \'audio.mp3\':'),
+        _Btn(txt: 'Loop', onPressed: () => audioCache.loop('audio.mp3')),
+        Text('Play Local Asset \'audio2.mp3\':'),
+        _Btn(txt: 'Play', onPressed: () => audioCache.play('audio2.mp3')),
+        Text('Play Local Asset In Low Latency \'audio.mp3\':'),
+        _Btn(
+            txt: 'Play',
+            onPressed: () =>
+                audioCache.play('audio.mp3', mode: PlayerMode.LOW_LATENCY)),
+        Text('Play Local Asset Concurrently In Low Latency \'audio.mp3\':'),
+        _Btn(
+            txt: 'Play',
+            onPressed: () async {
+              await audioCache.play('audio.mp3', mode: PlayerMode.LOW_LATENCY);
+              await audioCache.play('audio2.mp3', mode: PlayerMode.LOW_LATENCY);
+            }),
+        Text('Play Local Asset In Low Latency \'audio2.mp3\':'),
+        _Btn(
+            txt: 'Play',
+            onPressed: () =>
+                audioCache.play('audio2.mp3', mode: PlayerMode.LOW_LATENCY)),
+        getLocalFileDuration(),
+      ]),
+    );
   }
 
   Future<int> _getDuration() async {
@@ -224,70 +228,72 @@ class _AdvancedState extends State<Advanced> {
   @override
   Widget build(BuildContext context) {
     final audioPosition = Provider.of<Duration>(context);
-    return _Tab(
-      children: [
-        Column(children: [
-          Text('Source Url'),
-          Row(children: [
-            _Btn(
-                txt: 'Audio 1',
-                onPressed: () => widget.advancedPlayer.setUrl(kUrl1)),
-            _Btn(
-                txt: 'Audio 2',
-                onPressed: () => widget.advancedPlayer.setUrl(kUrl2)),
-            _Btn(
-                txt: 'Stream',
-                onPressed: () => widget.advancedPlayer.setUrl(kUrl3)),
-          ], mainAxisAlignment: MainAxisAlignment.spaceEvenly),
-        ]),
-        Column(children: [
-          Text('Release Mode'),
-          Row(children: [
-            _Btn(
-                txt: 'STOP',
-                onPressed: () =>
-                    widget.advancedPlayer.setReleaseMode(ReleaseMode.STOP)),
-            _Btn(
-                txt: 'LOOP',
-                onPressed: () =>
-                    widget.advancedPlayer.setReleaseMode(ReleaseMode.LOOP)),
-            _Btn(
-                txt: 'RELEASE',
-                onPressed: () =>
-                    widget.advancedPlayer.setReleaseMode(ReleaseMode.RELEASE)),
-          ], mainAxisAlignment: MainAxisAlignment.spaceEvenly),
-        ]),
-        new Column(children: [
-          Text('Volume'),
-          Row(children: [
-            _Btn(
-                txt: '0.0',
-                onPressed: () => widget.advancedPlayer.setVolume(0.0)),
-            _Btn(
-                txt: '0.5',
-                onPressed: () => widget.advancedPlayer.setVolume(0.5)),
-            _Btn(
-                txt: '1.0',
-                onPressed: () => widget.advancedPlayer.setVolume(1.0)),
-            _Btn(
-                txt: '2.0',
-                onPressed: () => widget.advancedPlayer.setVolume(2.0)),
-          ], mainAxisAlignment: MainAxisAlignment.spaceEvenly),
-        ]),
-        new Column(children: [
-          Text('Control'),
-          Row(children: [
-            _Btn(
-                txt: 'resume', onPressed: () => widget.advancedPlayer.resume()),
-            _Btn(txt: 'pause', onPressed: () => widget.advancedPlayer.pause()),
-            _Btn(txt: 'stop', onPressed: () => widget.advancedPlayer.stop()),
-            _Btn(
-                txt: 'release',
-                onPressed: () => widget.advancedPlayer.release()),
-          ], mainAxisAlignment: MainAxisAlignment.spaceEvenly),
-        ]),
-        new Column(
-          children: [
+    return SingleChildScrollView(
+      child: _Tab(
+        children: [
+          Column(children: [
+            Text('Source Url'),
+            Row(children: [
+              _Btn(
+                  txt: 'Audio 1',
+                  onPressed: () => widget.advancedPlayer.setUrl(kUrl1)),
+              _Btn(
+                  txt: 'Audio 2',
+                  onPressed: () => widget.advancedPlayer.setUrl(kUrl2)),
+              _Btn(
+                  txt: 'Stream',
+                  onPressed: () => widget.advancedPlayer.setUrl(kUrl3)),
+            ], mainAxisAlignment: MainAxisAlignment.spaceEvenly),
+          ]),
+          Column(children: [
+            Text('Release Mode'),
+            Row(children: [
+              _Btn(
+                  txt: 'STOP',
+                  onPressed: () =>
+                      widget.advancedPlayer.setReleaseMode(ReleaseMode.STOP)),
+              _Btn(
+                  txt: 'LOOP',
+                  onPressed: () =>
+                      widget.advancedPlayer.setReleaseMode(ReleaseMode.LOOP)),
+              _Btn(
+                  txt: 'RELEASE',
+                  onPressed: () => widget.advancedPlayer
+                      .setReleaseMode(ReleaseMode.RELEASE)),
+            ], mainAxisAlignment: MainAxisAlignment.spaceEvenly),
+          ]),
+          Column(children: [
+            Text('Volume'),
+            Row(children: [
+              _Btn(
+                  txt: '0.0',
+                  onPressed: () => widget.advancedPlayer.setVolume(0.0)),
+              _Btn(
+                  txt: '0.5',
+                  onPressed: () => widget.advancedPlayer.setVolume(0.5)),
+              _Btn(
+                  txt: '1.0',
+                  onPressed: () => widget.advancedPlayer.setVolume(1.0)),
+              _Btn(
+                  txt: '2.0',
+                  onPressed: () => widget.advancedPlayer.setVolume(2.0)),
+            ], mainAxisAlignment: MainAxisAlignment.spaceEvenly),
+          ]),
+          Column(children: [
+            Text('Control'),
+            Row(children: [
+              _Btn(
+                  txt: 'resume',
+                  onPressed: () => widget.advancedPlayer.resume()),
+              _Btn(
+                  txt: 'pause', onPressed: () => widget.advancedPlayer.pause()),
+              _Btn(txt: 'stop', onPressed: () => widget.advancedPlayer.stop()),
+              _Btn(
+                  txt: 'release',
+                  onPressed: () => widget.advancedPlayer.release()),
+            ], mainAxisAlignment: MainAxisAlignment.spaceEvenly),
+          ]),
+          Column(children: [
             Text('Seek in milliseconds'),
             Row(children: [
               _Btn(
@@ -319,16 +325,37 @@ class _AdvancedState extends State<Advanced> {
                     setState(() => seekDone = false);
                   }),
             ], mainAxisAlignment: MainAxisAlignment.spaceEvenly),
-            Text('Audio Position: ${audioPosition}'),
-            seekDone == null
-                ? SizedBox(
-                    width: 0,
-                    height: 0,
-                  )
-                : Text(seekDone ? "Seek Done" : "Seeking..."),
-          ],
-        ),
-      ],
+          ]),
+          Column(children: [
+            Text('Rate'),
+            Row(children: [
+              _Btn(
+                  txt: '0.5',
+                  onPressed: () =>
+                      widget.advancedPlayer.setPlaybackRate(playbackRate: 0.5)),
+              _Btn(
+                  txt: '1.0',
+                  onPressed: () =>
+                      widget.advancedPlayer.setPlaybackRate(playbackRate: 1.0)),
+              _Btn(
+                  txt: '1.5',
+                  onPressed: () =>
+                      widget.advancedPlayer.setPlaybackRate(playbackRate: 1.5)),
+              _Btn(
+                  txt: '2.0',
+                  onPressed: () =>
+                      widget.advancedPlayer.setPlaybackRate(playbackRate: 2.0)),
+            ], mainAxisAlignment: MainAxisAlignment.spaceEvenly),
+          ]),
+          Text('Audio Position: ${audioPosition}'),
+          seekDone == null
+              ? SizedBox(
+                  width: 0,
+                  height: 0,
+                )
+              : Text(seekDone ? "Seek Done" : "Seeking..."),
+        ],
+      ),
     );
   }
 }

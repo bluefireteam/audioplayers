@@ -2,6 +2,14 @@
 
 ## [next]
 
+## audioplayers 0.13.7
+- Bump dependencies, improve gitignore
+- Upgrade pubspec pattern
+
+## audioplayers 0.13.6
+ - added `setPlaybackRate` feature for Android
+ - Automatic detect address is local or remote (thanks, @saeed-golshan)
+
 ## audioplayers 0.13.5
  - fixed crash on iOS when `startHeadlessService()` wasn't called on `AudioPlayer` (by @JesseScott)
 

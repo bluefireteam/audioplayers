@@ -15,6 +15,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
 
     private String url;
     private double volume = 1.0;
+    private float rate = 1.0f;
     private boolean respectSilence;
     private boolean stayAwake;
     private ReleaseMode releaseMode = ReleaseMode.RELEASE;
@@ -64,6 +65,19 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
                 this.player.setVolume((float) volume, (float) volume);
             }
         }
+    }
+
+    @Override
+    int setRate(double rate) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            throw new UnsupportedOperationException("The method 'setRate' is available only on Android SDK version " + Build.VERSION_CODES.M + " or higher!");
+        }
+        if (this.player != null) {
+            this.rate = (float) rate;
+            this.player.setPlaybackParams(this.player.getPlaybackParams().setSpeed(this.rate));
+            return 1;
+        }
+        return 0;
     }
 
     @Override
