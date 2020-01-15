@@ -485,6 +485,10 @@ class AudioPlayer {
   ///
   /// The resources will start being fetched or buffered as soon as you call
   /// this method.
+  /// 
+  /// By default mixWithOthers is set to false. If it is set to true, it can 
+  /// play along with other audio from other apps. But then the lock screen notification 
+  /// for the audio will not be displayed.
   Future<int> setUrl(String url,
       {bool isLocal: false, bool respectSilence = false , bool mixWithOthers = false}) {
     return _invokeMethod('setUrl',
