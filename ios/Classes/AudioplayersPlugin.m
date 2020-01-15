@@ -412,10 +412,18 @@ const float _defaultPlaybackRate = 1.0;
 
   // code moved from play() to setUrl() to fix the bug of audio not playing in ios background
   NSError *error = nil;
+  BOOL success = false;
+
   AVAudioSessionCategory category = respectSilence ? AVAudioSessionCategoryAmbient : AVAudioSessionCategoryPlayback;
-    
-  BOOL success = [[AVAudioSession sharedInstance] setCategory:category withOptions:AVAudioSessionCategoryOptionMixWithOthers error:&error];
-    
+  // When using AVAudioSessionCategoryPlayback, by default, this implies that your app’s audio is nonmixable—activating your session 
+  // will interrupt any other audio sessions which are also nonmixable. AVAudioSessionCategoryPlayback should not be used with
+  // AVAudioSessionCategoryOptionMixWithOthers option. If so, it prevents infoCenter from working correctly.
+  if (respectSilence) {
+    success = [[AVAudioSession sharedInstance] setCategory:category withOptions:AVAudioSessionCategoryOptionMixWithOthers error:&error];
+  } else {
+    success = [[AVAudioSession sharedInstance] setCategory:category error:&error];
+  }
+
   if (!success) {
     NSLog(@"Error setting speaker: %@", error);
   }
