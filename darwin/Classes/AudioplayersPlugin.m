@@ -528,7 +528,13 @@ const float _defaultPlaybackRate = 1.0;
            AVPlayer *player = playerInfo[@"player"];
            [ player setVolume:volume ];
            [ player seekToTime:time ];
-           [ player play];
+
+           if (@available(iOS 10.0, *)) {
+             [player playImmediatelyAtRate:_defaultPlaybackRate];
+           } else {
+             [ player play];
+           }
+
            [ playerInfo setObject:@true forKey:@"isPlaying" ];
          }    
   ];
