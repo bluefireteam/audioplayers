@@ -11,6 +11,9 @@ flutter:
         pluginClass: AudioplayersPlugin
       ios:
         pluginClass: AudioplayersPlugin
+      macos:
+        pluginClass: AudioplayersPlugin
+
 
 dependencies:
   uuid: ^2.0.4
