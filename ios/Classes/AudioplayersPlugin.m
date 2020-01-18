@@ -414,7 +414,7 @@ float _playbackRate = 1.0;
   NSError *error = nil;
   AVAudioSessionCategory category = respectSilence ? AVAudioSessionCategoryAmbient : AVAudioSessionCategoryPlayback;
     
-  BOOL success = [[AVAudioSession sharedInstance] setCategory:category withOptions:nil error:&error];
+  BOOL success = [[AVAudioSession sharedInstance] setCategory:category withOptions:AVAudioSessionCategoryOptionMixWithOthers error:&error];
     
   if (!success) {
     NSLog(@"Error setting speaker: %@", error);
@@ -497,7 +497,7 @@ float _playbackRate = 1.0;
            [ player setVolume:volume ];
            [ player seekToTime:time ];
             if (@available(iOS 10.0, *)) {
-              [player playImmediatelyAtRate:1.0];
+              [player playImmediatelyAtRate:_defaultPlaybackRate];
             } else {
               [ player play];
             }
