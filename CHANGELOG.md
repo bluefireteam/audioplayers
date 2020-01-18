@@ -3,6 +3,7 @@
 ## [next]
 - Adding macOs support
 - ios:fix lack of seek completion handle
+- ios Delay start fixed
 
 ## audioplayers 0.13.7
 - Bump dependencies, improve gitignore
