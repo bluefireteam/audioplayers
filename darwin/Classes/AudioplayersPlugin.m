@@ -640,12 +640,22 @@ const float _defaultPlaybackRate = 1.0;
         time: (CMTime) time {
   NSMutableDictionary * playerInfo = players[playerId];
   AVPlayer *player = playerInfo[@"player"];
-  [[player currentItem] seekToTime:time];
   #if TARGET_OS_IPHONE
-      int seconds = CMTimeGetSeconds(time);
-      if (_infoCenter != nil) {
-        [ self updateNotification:seconds ];
+  [[player currentItem] seekToTime:time completionHandler:^(BOOL finished) {
+      if (finished) {
+          NSLog(@"ios -> seekComplete...");
+          int seconds = CMTimeGetSeconds(time);
+          if (_infoCenter != nil) {
+            [ self updateNotification:seconds ];
+          }
+          [ _channel_audioplayer invokeMethod:@"audio.onSeekComplete" arguments:@{@"playerId": playerId,@"value":@(YES)}];
+      }else{
+          NSLog(@"ios -> seekCancelled...");
+          [ _channel_audioplayer invokeMethod:@"audio.onSeekComplete" arguments:@{@"playerId": playerId,@"value":@(NO)}];
       }
+  }];
+  #else
+  [[player currentItem] seekToTime:time];
   #endif
 }
 
