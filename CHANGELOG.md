@@ -1,6 +1,8 @@
 # Changelog
 
 ## [next]
+
+## audioplayers 0.14.0
 - Adding macOs support
 - ios:fix lack of seek completion handle
 - ios Delay start fixed
