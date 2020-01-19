@@ -10,9 +10,7 @@ class PlayerWidget extends StatefulWidget {
   final String url;
   final PlayerMode mode;
 
-  PlayerWidget(
-      {@required this.url,
-      this.mode = PlayerMode.MEDIA_PLAYER});
+  PlayerWidget({@required this.url, this.mode = PlayerMode.MEDIA_PLAYER});
 
   @override
   State<StatefulWidget> createState() {
@@ -187,8 +185,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
             _position.inMilliseconds < _duration.inMilliseconds)
         ? _position
         : null;
-    final result =
-        await _audioPlayer.play(url, position: playPosition);
+    final result = await _audioPlayer.play(url, position: playPosition);
     if (result == 1) setState(() => _playerState = PlayerState.playing);
 
     // default playback rate is 1.0

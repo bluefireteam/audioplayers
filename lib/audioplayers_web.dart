@@ -100,8 +100,10 @@ class AudioplayersPlugin {
       return preloadedBuffers[url];
     }
 
-    final HttpRequest response = await HttpRequest.request(url, responseType: 'arraybuffer');
-    final AudioBuffer buffer = await _audioCtx.decodeAudioData(response.response);
+    final HttpRequest response =
+        await HttpRequest.request(url, responseType: 'arraybuffer');
+    final AudioBuffer buffer =
+        await _audioCtx.decodeAudioData(response.response);
     return preloadedBuffers.putIfAbsent(url, () => buffer);
   }
 
@@ -120,41 +122,47 @@ class AudioplayersPlugin {
     final method = call.method;
     final playerId = call.arguments['playerId'];
     switch (method) {
-      case 'setUrl': {
-        final String url = call.arguments['url'];
-        await setUrl(playerId, url);
-        return 1;
-      }
-      case 'play': {
-        final String url = call.arguments['url'];
-        final bool isLocal = call.arguments['isLocal'];
-        double volume = call.arguments['volume'] ?? 1.0;
-        final double position = call.arguments['position'] ?? 0;
-        // web does not care for the `stayAwake` argument
+      case 'setUrl':
+        {
+          final String url = call.arguments['url'];
+          await setUrl(playerId, url);
+          return 1;
+        }
+      case 'play':
+        {
+          final String url = call.arguments['url'];
+          final bool isLocal = call.arguments['isLocal'];
+          double volume = call.arguments['volume'] ?? 1.0;
+          final double position = call.arguments['position'] ?? 0;
+          // web does not care for the `stayAwake` argument
 
-        final player = await setUrl(playerId, url);
-        player.setVolume(volume);
-        player.start(position);
+          final player = await setUrl(playerId, url);
+          player.setVolume(volume);
+          player.start(position);
 
-        return 1;
-      }
-      case 'pause': {
-        getOrCreatePlayer(playerId).pause();
-        return 1;
-      }
-      case 'stop': {
-        getOrCreatePlayer(playerId).stop();
-        return 1;
-      }
-      case 'resume': {
-        getOrCreatePlayer(playerId).resume();
-        return 1;
-      }
-      case 'setVolume': {
-        double volume = call.arguments['volume'] ?? 1.0;
-        getOrCreatePlayer(playerId).setVolume(volume);
-        return 1;
-      }
+          return 1;
+        }
+      case 'pause':
+        {
+          getOrCreatePlayer(playerId).pause();
+          return 1;
+        }
+      case 'stop':
+        {
+          getOrCreatePlayer(playerId).stop();
+          return 1;
+        }
+      case 'resume':
+        {
+          getOrCreatePlayer(playerId).resume();
+          return 1;
+        }
+      case 'setVolume':
+        {
+          double volume = call.arguments['volume'] ?? 1.0;
+          getOrCreatePlayer(playerId).setVolume(volume);
+          return 1;
+        }
       case 'release':
       case 'seek':
       case 'setReleaseMode':
@@ -162,7 +170,8 @@ class AudioplayersPlugin {
       default:
         throw PlatformException(
           code: 'Unimplemented',
-          details: "The audioplayers plugin for web doesn't implement the method '$method'",
+          details:
+              "The audioplayers plugin for web doesn't implement the method '$method'",
         );
     }
   }

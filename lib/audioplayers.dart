@@ -339,7 +339,7 @@ class AudioPlayer {
   ///
   /// If [isLocal] is true, [url] must be a local file system path.
   /// If [isLocal] is false, [url] must be a remote URL.
-  /// 
+  ///
   /// respectSilence and stayAwake are not implemented on macOS.
   Future<int> play(
     String url, {
@@ -350,7 +350,9 @@ class AudioPlayer {
     bool respectSilence = false,
     bool stayAwake = false,
   }) async {
-    isLocal ??= url.startsWith("/") || url.startsWith("file://") || url.substring(1).startsWith(':\\');
+    isLocal ??= url.startsWith("/") ||
+        url.startsWith("file://") ||
+        url.substring(1).startsWith(':\\');
     volume ??= 1.0;
     respectSilence ??= false;
     stayAwake ??= false;
@@ -488,7 +490,7 @@ class AudioPlayer {
   ///
   /// The resources will start being fetched or buffered as soon as you call
   /// this method.
-  /// 
+  ///
   /// respectSilence is not implemented on macOS.
   Future<int> setUrl(String url,
       {bool isLocal: false, bool respectSilence = false}) {
