@@ -530,9 +530,10 @@ const float _defaultPlaybackRate = 1.0;
            [ player seekToTime:time ];
 
            if (@available(iOS 10.0, *)) {
-             [player playImmediatelyAtRate:_defaultPlaybackRate];
+             float playbackRate = [playerInfo[@"rate"] floatValue];
+             [player playImmediatelyAtRate:playbackRate];
            } else {
-             [ player play];
+             [player play];
            }
 
            [ playerInfo setObject:@true forKey:@"isPlaying" ];
@@ -595,9 +596,12 @@ const float _defaultPlaybackRate = 1.0;
 -(void) resume: (NSString *) playerId {
   NSMutableDictionary * playerInfo = players[playerId];
   AVPlayer *player = playerInfo[@"player"];
-  float playbackRate = [ playerInfo[@"rate"] floatValue];
-  [player play];
-  [ player setRate:playbackRate ];
+  float playbackRate = [playerInfo[@"rate"] floatValue];
+  if (@available(iOS 10.0, *)) {
+    [player playImmediatelyAtRate:playbackRate];
+  } else {
+    [player play];
+  }
   [playerInfo setObject:@true forKey:@"isPlaying"];
 }
 
