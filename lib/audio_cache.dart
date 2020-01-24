@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/services.dart' show AssetBundle, rootBundle;
 import 'package:path_provider/path_provider.dart';
 
 import 'audioplayers.dart';
@@ -14,6 +14,9 @@ import 'audioplayers.dart';
 class AudioCache {
   /// A reference to the loaded files.
   Map<String, File> loadedFiles = {};
+
+  static AssetBundle _bundle;
+  static AssetBundle get bundle => _bundle == null ? rootBundle : _bundle;
 
   /// This is the path inside your assets folder where your files lie.
   ///
@@ -58,8 +61,11 @@ class AudioCache {
   }
 
   Future<File> fetchToMemory(String fileName) async {
+    var path = await getTemporaryDirectory();
+    print(path.path);
     final file = File('${(await getTemporaryDirectory()).path}/$fileName');
     await file.create(recursive: true);
+    print("file " + file.uri.toString());
     return await file
         .writeAsBytes((await _fetchAsset(fileName)).buffer.asUint8List());
   }
@@ -76,8 +82,11 @@ class AudioCache {
   /// Also returns a [Future] to access that file.
   Future<File> load(String fileName) async {
     if (!loadedFiles.containsKey(fileName)) {
+      print("filename " + fileName);
       loadedFiles[fileName] = await fetchToMemory(fileName);
+      print("done?");
     }
+    print("loadedFiles " + loadedFiles.toString());
     return loadedFiles[fileName];
   }
 
