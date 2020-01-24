@@ -62,10 +62,8 @@ class AudioCache {
 
   Future<File> fetchToMemory(String fileName) async {
     var path = await getTemporaryDirectory();
-    print(path.path);
     final file = File('${(await getTemporaryDirectory()).path}/$fileName');
     await file.create(recursive: true);
-    print("file " + file.uri.toString());
     return await file
         .writeAsBytes((await _fetchAsset(fileName)).buffer.asUint8List());
   }
@@ -82,11 +80,8 @@ class AudioCache {
   /// Also returns a [Future] to access that file.
   Future<File> load(String fileName) async {
     if (!loadedFiles.containsKey(fileName)) {
-      print("filename " + fileName);
       loadedFiles[fileName] = await fetchToMemory(fileName);
-      print("done?");
     }
-    print("loadedFiles " + loadedFiles.toString());
     return loadedFiles[fileName];
   }
 
