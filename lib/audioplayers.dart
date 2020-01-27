@@ -1,13 +1,11 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
-
-// Required for PluginUtilities.
-import 'dart:ui';
-import 'package:flutter/material.dart';
 
 typedef StreamController CreateStreamController();
 typedef void TimeChangeHandler(Duration duration);
@@ -465,18 +463,18 @@ class AudioPlayer {
   /// Specify atleast title
   Future<dynamic> setNotification(
       {String title,
-      String albumTitle = '',
-      String artist = '',
-      String imageUrl = '',
+      String albumTitle,
+      String artist,
+      String imageUrl,
       Duration forwardSkipInterval = const Duration(seconds: 30),
       Duration backwardSkipInterval = const Duration(seconds: 30),
       Duration duration,
       Duration elapsedTime}) {
     return _invokeMethod('setNotification', {
-      'title': title,
-      'albumTitle': albumTitle,
-      'artist': artist,
-      'imageUrl': imageUrl,
+      'title': title ?? '',
+      'albumTitle': albumTitle ?? '',
+      'artist': artist ?? '',
+      'imageUrl': imageUrl ?? '',
       'forwardSkipInterval': forwardSkipInterval?.inSeconds ?? 30,
       'backwardSkipInterval': backwardSkipInterval?.inSeconds ?? 30,
       'duration': duration?.inSeconds ?? 0,
