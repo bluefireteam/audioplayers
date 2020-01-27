@@ -466,8 +466,8 @@ class AudioPlayer {
       String albumTitle,
       String artist,
       String imageUrl,
-      Duration forwardSkipInterval = const Duration(seconds: 30),
-      Duration backwardSkipInterval = const Duration(seconds: 30),
+      Duration forwardSkipInterval,
+      Duration backwardSkipInterval,
       Duration duration,
       Duration elapsedTime}) {
     return _invokeMethod('setNotification', {
@@ -561,6 +561,7 @@ class AudioPlayer {
         break;
       case 'audio.onSeekComplete':
         player._seekCompleteController.add(value);
+        // ignore: deprecated_member_use_from_same_package
         player.seekCompleteHandler?.call(value);
         break;
       case 'audio.onError':
