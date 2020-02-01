@@ -1,6 +1,8 @@
 # Changelog
 
 ## [next]
+- Prevent exceptions when null values are passed to notifications center
+- Prevent crash by checking if headlessServiceInitialized before invoking onNotificationBackgroundPlayerStateChanged
 
 ## audioplayers 0.14.0
 - Adding macOs support
