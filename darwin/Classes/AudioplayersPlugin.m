@@ -390,7 +390,10 @@ const float _defaultPlaybackRate = 1.0;
             playerState = @"playing";
         }
         [_channel_audioplayer invokeMethod:@"audio.onNotificationPlayerStateChanged" arguments:@{@"playerId": _currentPlayerId, @"value": @(_isPlaying)}];
-        [_callbackChannel invokeMethod:@"audio.onNotificationBackgroundPlayerStateChanged" arguments:@{@"playerId": _currentPlayerId, @"updateHandleMonitorKey": @(_updateHandleMonitorKey), @"value": playerState}];
+        
+        if (headlessServiceInitialized) {
+          [_callbackChannel invokeMethod:@"audio.onNotificationBackgroundPlayerStateChanged" arguments:@{@"playerId": _currentPlayerId, @"updateHandleMonitorKey": @(_updateHandleMonitorKey), @"value": playerState}];
+        }
         return MPRemoteCommandHandlerStatusSuccess;
     }
 
