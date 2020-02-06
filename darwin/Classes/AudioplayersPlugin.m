@@ -582,7 +582,8 @@ const float _defaultPlaybackRate = 1.0;
     if (_isDealloc) {
         return;
     }
-    int seconds = CMTimeGetSeconds(time);
+    // Casting to Float64 preserves precision/decimal points
+    Float64 seconds = CMTimeGetSeconds(time);
     int mseconds = seconds*1000;
     
     [_channel_audioplayer invokeMethod:@"audio.onCurrentPosition" arguments:@{@"playerId": playerId, @"value": @(mseconds)}];
