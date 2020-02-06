@@ -428,9 +428,6 @@ const float _defaultPlaybackRate = 1.0;
 {
   NSMutableDictionary * playerInfo = players[playerId];
   AVPlayer *player = playerInfo[@"player"];
-  #if TARGET_OS_IPHONE
-    _currentPlayerId = playerId; // to be used for notifications command center
-  #endif
   NSMutableSet *observers = playerInfo[@"observers"];
   AVPlayerItem *playerItem;
     
@@ -519,10 +516,10 @@ const float _defaultPlaybackRate = 1.0;
         time: (CMTime) time
       isNotification: (bool) respectSilence
 {
-  [ self setUrl:url 
-         isLocal:isLocal 
+  [ self setUrl:url
+         isLocal:isLocal
          isNotification:respectSilence
-         playerId:playerId 
+         playerId:playerId
          onReady:^(NSString * playerId) {
            NSMutableDictionary * playerInfo = players[playerId];
            AVPlayer *player = playerInfo[@"player"];
@@ -537,8 +534,11 @@ const float _defaultPlaybackRate = 1.0;
            }
 
            [ playerInfo setObject:@true forKey:@"isPlaying" ];
-         }    
+         }
   ];
+  #if TARGET_OS_IPHONE
+    _currentPlayerId = playerId; // to be used for notifications command center
+  #endif
 }
 
 -(void) updateDuration: (NSString *) playerId
@@ -597,6 +597,11 @@ const float _defaultPlaybackRate = 1.0;
   NSMutableDictionary * playerInfo = players[playerId];
   AVPlayer *player = playerInfo[@"player"];
   float playbackRate = [playerInfo[@"rate"] floatValue];
+
+  #if TARGET_OS_IPHONE
+    _currentPlayerId = playerId; // to be used for notifications command center
+  #endif
+
   if (@available(iOS 10.0, *)) {
     [player playImmediatelyAtRate:playbackRate];
   } else {
