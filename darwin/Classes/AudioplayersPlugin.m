@@ -403,11 +403,10 @@ const float _defaultPlaybackRate = 1.0;
       playingInfo[MPMediaItemPropertyAlbumTitle] = _albumTitle;
       playingInfo[MPMediaItemPropertyArtist] = _artist;
       
+      // fetch notification image in async fashion to avoid freezing UI
       dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
       dispatch_async(queue, ^{
           NSURL *url = [[NSURL alloc] initWithString:_imageUrl];
-          NSTimeInterval milisecondedDate112 = [[NSDate date] timeIntervalSince1970] * 1000;
-          NSLog(@"didReceiveResponse 112---- %f",milisecondedDate112);
           UIImage *artworkImage = [UIImage imageWithData:[NSData dataWithContentsOfURL:url]];
           if (artworkImage)
           {
