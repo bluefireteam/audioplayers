@@ -409,24 +409,17 @@ const float _defaultPlaybackRate = 1.0;
           NSTimeInterval milisecondedDate112 = [[NSDate date] timeIntervalSince1970] * 1000;
           NSLog(@"didReceiveResponse 112---- %f",milisecondedDate112);
           UIImage *artworkImage = [UIImage imageWithData:[NSData dataWithContentsOfURL:url]];
-          NSTimeInterval milisecondedDate1112 = [[NSDate date] timeIntervalSince1970] * 1000;
-          NSLog(@"didReceiveResponse 1112---- %f",milisecondedDate1112);
           if (artworkImage)
           {
               MPMediaItemArtwork *albumArt = [[MPMediaItemArtwork alloc] initWithImage: artworkImage];
               playingInfo[MPMediaItemPropertyArtwork] = albumArt;
           }
-          NSTimeInterval milisecondedDate12 = [[NSDate date] timeIntervalSince1970] * 1000;
-          NSLog(@"didReceiveResponse 12---- %f",milisecondedDate12);
 
           playingInfo[MPMediaItemPropertyPlaybackDuration] = [NSNumber numberWithInt: _duration];
           playingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = [NSNumber numberWithInt: elapsedTime];
 
           playingInfo[MPNowPlayingInfoPropertyPlaybackRate] = @(_defaultPlaybackRate);
           NSLog(@"setNotification done");
-
-          NSTimeInterval milisecondedDate2 = [[NSDate date] timeIntervalSince1970] * 1000;
-          NSLog(@"didReceiveResponse 2---- %f",milisecondedDate2);
 
           if (_infoCenter != nil) {
             _infoCenter.nowPlayingInfo = playingInfo;
