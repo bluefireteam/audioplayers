@@ -403,23 +403,35 @@ const float _defaultPlaybackRate = 1.0;
       playingInfo[MPMediaItemPropertyAlbumTitle] = _albumTitle;
       playingInfo[MPMediaItemPropertyArtist] = _artist;
       
-      NSURL *url = [[NSURL alloc] initWithString:_imageUrl];
-      UIImage *artworkImage = [UIImage imageWithData:[NSData dataWithContentsOfURL:url]];
-      if (artworkImage)
-      {
-          MPMediaItemArtwork *albumArt = [[MPMediaItemArtwork alloc] initWithImage: artworkImage];
-          playingInfo[MPMediaItemPropertyArtwork] = albumArt;
-      }
+      dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+      dispatch_async(queue, ^{
+          NSURL *url = [[NSURL alloc] initWithString:_imageUrl];
+          NSTimeInterval milisecondedDate112 = [[NSDate date] timeIntervalSince1970] * 1000;
+          NSLog(@"didReceiveResponse 112---- %f",milisecondedDate112);
+          UIImage *artworkImage = [UIImage imageWithData:[NSData dataWithContentsOfURL:url]];
+          NSTimeInterval milisecondedDate1112 = [[NSDate date] timeIntervalSince1970] * 1000;
+          NSLog(@"didReceiveResponse 1112---- %f",milisecondedDate1112);
+          if (artworkImage)
+          {
+              MPMediaItemArtwork *albumArt = [[MPMediaItemArtwork alloc] initWithImage: artworkImage];
+              playingInfo[MPMediaItemPropertyArtwork] = albumArt;
+          }
+          NSTimeInterval milisecondedDate12 = [[NSDate date] timeIntervalSince1970] * 1000;
+          NSLog(@"didReceiveResponse 12---- %f",milisecondedDate12);
 
-      playingInfo[MPMediaItemPropertyPlaybackDuration] = [NSNumber numberWithInt: _duration];
-      playingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = [NSNumber numberWithInt: elapsedTime];
+          playingInfo[MPMediaItemPropertyPlaybackDuration] = [NSNumber numberWithInt: _duration];
+          playingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = [NSNumber numberWithInt: elapsedTime];
 
-      playingInfo[MPNowPlayingInfoPropertyPlaybackRate] = @(_defaultPlaybackRate);
-      NSLog(@"setNotification done");
+          playingInfo[MPNowPlayingInfoPropertyPlaybackRate] = @(_defaultPlaybackRate);
+          NSLog(@"setNotification done");
 
-      if (_infoCenter != nil) {
-        _infoCenter.nowPlayingInfo = playingInfo;
-      }
+          NSTimeInterval milisecondedDate2 = [[NSDate date] timeIntervalSince1970] * 1000;
+          NSLog(@"didReceiveResponse 2---- %f",milisecondedDate2);
+
+          if (_infoCenter != nil) {
+            _infoCenter.nowPlayingInfo = playingInfo;
+          }
+      });
     }
 #endif
 
