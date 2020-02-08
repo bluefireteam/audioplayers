@@ -407,7 +407,7 @@ const float _defaultPlaybackRate = 1.0;
       dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
       dispatch_async(queue, ^{
           NSURL *url = [[NSURL alloc] initWithString:_imageUrl];
-          UIImage *artworkImage = [UIImage imageWithData:[NSData dataWithContentsOfURL:url]];
+          UIImage *artworkImage = [_imageUrl hasPrefix:@"http"] ? [UIImage imageWithData:[NSData dataWithContentsOfURL:url]] : [UIImage imageWithContentsOfFile: _imageUrl];
           if (artworkImage)
           {
               MPMediaItemArtwork *albumArt = [[MPMediaItemArtwork alloc] initWithImage: artworkImage];
