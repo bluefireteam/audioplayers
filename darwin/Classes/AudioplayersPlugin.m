@@ -514,7 +514,7 @@ const float _defaultPlaybackRate = 1.0;
 
 -(void) play: (NSString*) playerId
          url: (NSString*) url
-     isLocal: (int) isLocal
+     isLocal: (bool) isLocal
       volume: (float) volume
         time: (CMTime) time
       isNotification: (bool) respectSilence
