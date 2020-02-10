@@ -46,6 +46,12 @@ enum AudioPlayerState {
   COMPLETED,
 }
 
+/// Indicates which speakers use for playing
+enum PlayingRouteState {
+  SPEAKERS,
+  EARPIECE,
+}
+
 /// This enum is meant to be used as a parameter of the [AudioPlayer]'s
 /// constructor. It represents the general mode of the [AudioPlayer].
 ///
@@ -149,6 +155,8 @@ class AudioPlayer {
   final StreamController<String> _errorController =
       StreamController<String>.broadcast();
 
+  PlayingRouteState _playingRouteState = PlayingRouteState.SPEAKERS;
+
   /// Reference [Map] with all the players created by the application.
   ///
   /// This is used to exchange messages with the [MethodChannel]
@@ -167,6 +175,10 @@ class AudioPlayer {
     // ignore: deprecated_member_use_from_same_package
     audioPlayerStateChangeHandler?.call(state);
     _audioPlayerState = state;
+  }
+
+  set playingRouteState(PlayingRouteState routeState) {
+    _playingRouteState = routeState;
   }
 
   set notificationState(AudioPlayerState state) {
@@ -601,5 +613,25 @@ class AudioPlayer {
     if (!_errorController.isClosed) futures.add(_errorController.close());
 
     await Future.wait(futures);
+  }
+
+  Future<int> earpieceOrSpeakersToggle() async {
+    PlayingRouteState playingRoute = _playingRouteState == PlayingRouteState.EARPIECE
+        ? PlayingRouteState.SPEAKERS
+        : PlayingRouteState.EARPIECE;
+
+//    return _invokeMethod('setVolume', {'volume': volume});
+    final playingRouteName = playingRoute == PlayingRouteState.EARPIECE
+        ? 'earpiece'
+        : 'speakers';
+    final int result = await _invokeMethod(
+      'earpieceOrSpeakersToggle', {'playingRoute': playingRouteName},
+    );
+
+    if (result == 1) {
+      playingRouteState = playingRoute;
+    }
+
+    return result;
   }
 }

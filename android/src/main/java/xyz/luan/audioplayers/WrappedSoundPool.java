@@ -83,6 +83,8 @@ public class WrappedSoundPool extends Player {
 
     private boolean loading = false;
 
+    private String playingRoute = "speakers";
+
     WrappedSoundPool(AudioplayersPlugin ref, String playerId) {
         this.ref = ref;
         this.playerId = playerId;
@@ -94,7 +96,7 @@ public class WrappedSoundPool extends Player {
     }
 
     @Override
-    void play() {
+    void play(Context context) {
         if (!this.loading) {
             start();
         }
@@ -142,7 +144,7 @@ public class WrappedSoundPool extends Player {
     }
 
     @Override
-    void setUrl(final String url, final boolean isLocal) {
+    void setUrl(final String url, final boolean isLocal, Context context) {
         if (this.url != null && this.url.equals(url)) {
             return;
         }
@@ -223,14 +225,24 @@ public class WrappedSoundPool extends Player {
     }
 
     @Override
+    void setPlayingRoute(String playingRoute, Context context) {
+        throw unsupportedOperation("setPlayingRoute");
+    }
+
+    @Override
     void seek(int position) {
         throw unsupportedOperation("seek");
     }
 
     private static SoundPool createSoundPool() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            AudioAttributes attrs = new AudioAttributes.Builder().setLegacyStreamType(AudioManager.USE_DEFAULT_STREAM_TYPE)
+            AudioAttributes attrs = new AudioAttributes
+                    .Builder()
+                    .setLegacyStreamType(AudioManager.USE_DEFAULT_STREAM_TYPE)
+//                    .setLegacyStreamType(AudioManager.STREAM_VOICE_CALL)
                     .setUsage(AudioAttributes.USAGE_GAME)
+//                    .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
+//                    .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
                     .build();
             return new SoundPool.Builder()
                     .setAudioAttributes(attrs)
@@ -242,6 +254,7 @@ public class WrappedSoundPool extends Player {
 
     @SuppressWarnings("deprecation")
     private static SoundPool unsafeBuildLegacySoundPool() {
+        // TODO change to use earpiece
         return new SoundPool(1, AudioManager.STREAM_MUSIC, 1);
     }
 

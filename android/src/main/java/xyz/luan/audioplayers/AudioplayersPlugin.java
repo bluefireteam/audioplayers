@@ -62,15 +62,15 @@ public class AudioplayersPlugin implements MethodCallHandler {
                 final boolean stayAwake = call.argument("stayAwake");
                 player.configAttributes(respectSilence, stayAwake, context.getApplicationContext());
                 player.setVolume(volume);
-                player.setUrl(url, isLocal);
+                player.setUrl(url, isLocal, context.getApplicationContext());
                 if (position != null && !mode.equals("PlayerMode.LOW_LATENCY")) {
                     player.seek(position);
                 }
-                player.play();
+                player.play(context.getApplicationContext());
                 break;
             }
             case "resume": {
-                player.play();
+                player.play(context.getApplicationContext());
                 break;
             }
             case "pause": {
@@ -98,7 +98,7 @@ public class AudioplayersPlugin implements MethodCallHandler {
             case "setUrl": {
                 final String url = call.argument("url");
                 final boolean isLocal = call.argument("isLocal");
-                player.setUrl(url, isLocal);
+                player.setUrl(url, isLocal, context.getApplicationContext());
                 break;
             }
             case "setPlaybackRate": {
@@ -118,6 +118,11 @@ public class AudioplayersPlugin implements MethodCallHandler {
                 final String releaseModeName = call.argument("releaseMode");
                 final ReleaseMode releaseMode = ReleaseMode.valueOf(releaseModeName.substring("ReleaseMode.".length()));
                 player.setReleaseMode(releaseMode);
+                break;
+            }
+            case "earpieceOrSpeakersToggle": {
+                final String playingRoute = call.argument("playingRoute");
+                player.setPlayingRoute(playingRoute, context.getApplicationContext());
                 break;
             }
             default: {
