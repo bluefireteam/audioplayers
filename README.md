@@ -287,6 +287,7 @@ Here is an example of how it should look like:
     </application>
 </manifest>
 ```
+## :warning: iOS stream routing not implemented
 
 ## Credits
 
