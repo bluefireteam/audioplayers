@@ -237,12 +237,8 @@ public class WrappedSoundPool extends Player {
     private static SoundPool createSoundPool() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             AudioAttributes attrs = new AudioAttributes
-                    .Builder()
-                    .setLegacyStreamType(AudioManager.USE_DEFAULT_STREAM_TYPE)
-//                    .setLegacyStreamType(AudioManager.STREAM_VOICE_CALL)
+                    .Builder().setLegacyStreamType(AudioManager.USE_DEFAULT_STREAM_TYPE)
                     .setUsage(AudioAttributes.USAGE_GAME)
-//                    .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
-//                    .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
                     .build();
             return new SoundPool.Builder()
                     .setAudioAttributes(attrs)
@@ -254,7 +250,6 @@ public class WrappedSoundPool extends Player {
 
     @SuppressWarnings("deprecation")
     private static SoundPool unsafeBuildLegacySoundPool() {
-        // TODO change to use earpiece
         return new SoundPool(1, AudioManager.STREAM_MUSIC, 1);
     }
 
