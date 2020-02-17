@@ -19,6 +19,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     private boolean respectSilence;
     private boolean stayAwake;
     private ReleaseMode releaseMode = ReleaseMode.RELEASE;
+    private String playingRoute = "speakers";
 
     private boolean released = true;
     private boolean prepared = false;
@@ -39,11 +40,11 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
      */
 
     @Override
-    void setUrl(String url, boolean isLocal) {
+    void setUrl(String url, boolean isLocal, Context context) {
         if (!objectEquals(this.url, url)) {
             this.url = url;
             if (this.released) {
-                this.player = createPlayer();
+                this.player = createPlayer(context);
                 this.released = false;
             } else if (this.prepared) {
                 this.player.reset();
@@ -68,6 +69,38 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     }
 
     @Override
+    void setPlayingRoute(String playingRoute, Context context) {
+        if (!objectEquals(this.playingRoute, playingRoute)) {
+            boolean wasPlaying = this.playing;
+            if (wasPlaying) {
+                this.pause();
+            }
+
+            this.playingRoute = playingRoute;
+
+            int position = 0;
+            if (player != null) {
+                position = player.getCurrentPosition();
+            }
+
+            this.released = false;
+            this.player = createPlayer(context);
+            this.setSource(url);
+            try {
+                this.player.prepare();
+            } catch (IOException ex) {
+                throw new RuntimeException("Unable to access resource", ex);
+            }
+
+            this.seek(position);
+            if (wasPlaying) {
+                this.playing = true;
+                this.player.start();
+            }
+        }
+    }
+
+    @Override
     int setRate(double rate) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             throw new UnsupportedOperationException("The method 'setRate' is available only on Android SDK version " + Build.VERSION_CODES.M + " or higher!");
@@ -85,7 +118,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         if (this.respectSilence != respectSilence) {
             this.respectSilence = respectSilence;
             if (!this.released) {
-                setAttributes(player);
+                setAttributes(player, context);
             }
         }
         if (this.stayAwake != stayAwake) {
@@ -135,12 +168,12 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
      */
 
     @Override
-    void play() {
+    void play(Context context) {
         if (!this.playing) {
             this.playing = true;
             if (this.released) {
                 this.released = false;
-                this.player = createPlayer();
+                this.player = createPlayer(context);
                 this.setSource(url);
                 this.player.prepareAsync();
             } else if (this.prepared) {
@@ -238,12 +271,12 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
      * Internal logic. Private methods
      */
 
-    private MediaPlayer createPlayer() {
+    private MediaPlayer createPlayer(Context context) {
         MediaPlayer player = new MediaPlayer();
         player.setOnPreparedListener(this);
         player.setOnCompletionListener(this);
         player.setOnSeekCompleteListener(this);
-        setAttributes(player);
+        setAttributes(player, context);
         player.setVolume((float) volume, (float) volume);
         player.setLooping(this.releaseMode == ReleaseMode.LOOP);
         return player;
@@ -258,16 +291,35 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     }
 
     @SuppressWarnings("deprecation")
-    private void setAttributes(MediaPlayer player) {
+    private void setAttributes(MediaPlayer player, Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            player.setAudioAttributes(new AudioAttributes.Builder()
+            if (objectEquals(this.playingRoute, "speakers")) {
+                player.setAudioAttributes(new AudioAttributes.Builder()
                     .setUsage(respectSilence ? AudioAttributes.USAGE_NOTIFICATION_RINGTONE : AudioAttributes.USAGE_MEDIA)
                     .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
                     .build()
-            );
+                );
+            } else {
+                // Works with bluetooth headphones
+                // automatically switch to earpiece when disconnect bluetooth headphones
+                player.setAudioAttributes(new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .build()
+                );
+                if ( context != null ) {
+                    AudioManager mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+                    mAudioManager.setSpeakerphoneOn(false);
+                }
+            }
+
         } else {
             // This method is deprecated but must be used on older devices
-            player.setAudioStreamType(respectSilence ? AudioManager.STREAM_RING : AudioManager.STREAM_MUSIC);
+            if (objectEquals(this.playingRoute, "speakers")) {
+                player.setAudioStreamType(respectSilence ? AudioManager.STREAM_RING : AudioManager.STREAM_MUSIC);
+            } else {
+                player.setAudioStreamType(AudioManager.STREAM_VOICE_CALL);
+            }
         }
     }
 

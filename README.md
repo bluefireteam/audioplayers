@@ -152,6 +152,15 @@ If you are not on RELEASE mode, you should call the release method yourself; for
 
 Despite the complex state diagram of Android's MediaPlayer, an AudioPlayer instance should never have an invalid state. Even if it's released, if resume is called, the data will be fetch again.
 
+#### Stream routing
+You can choose between speakers and earpiece. By default using speakers.
+Toggle between speakers and earpiece.
+```
+int result = await player.earpieceOrSpeakersToggle();
+```
+
+ :warning: **iOS stream routing not implemented**
+
 ### Streams
 
 The AudioPlayer supports subscribing to events like so:
