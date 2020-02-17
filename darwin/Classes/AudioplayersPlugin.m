@@ -403,24 +403,28 @@ const float _defaultPlaybackRate = 1.0;
       playingInfo[MPMediaItemPropertyAlbumTitle] = _albumTitle;
       playingInfo[MPMediaItemPropertyArtist] = _artist;
       
-      NSURL *url = [[NSURL alloc] initWithString:_imageUrl];
-      UIImage *artworkImage = [UIImage imageWithData:[NSData dataWithContentsOfURL:url]];
-      if (artworkImage)
-      {
-          MPMediaItemArtwork *albumArt = [[MPMediaItemArtwork alloc] initWithImage: artworkImage];
-          playingInfo[MPMediaItemPropertyArtwork] = albumArt;
-      }
+      // fetch notification image in async fashion to avoid freezing UI
+      dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+      dispatch_async(queue, ^{
+          NSURL *url = [[NSURL alloc] initWithString:_imageUrl];
+          UIImage *artworkImage = [_imageUrl hasPrefix:@"http"] ? [UIImage imageWithData:[NSData dataWithContentsOfURL:url]] : [UIImage imageWithContentsOfFile: _imageUrl];
+          if (artworkImage)
+          {
+              MPMediaItemArtwork *albumArt = [[MPMediaItemArtwork alloc] initWithImage: artworkImage];
+              playingInfo[MPMediaItemPropertyArtwork] = albumArt;
+          }
 
-      playingInfo[MPMediaItemPropertyPlaybackDuration] = [NSNumber numberWithInt: _duration];
-	  // From `MPNowPlayingInfoPropertyElapsedPlaybackTime` docs -- it is not recommended to update this value frequently. Thus it should represent integer seconds and not an accurate `CMTime` value with fractions of a second
-      playingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = [NSNumber numberWithInt: elapsedTime];
+          playingInfo[MPMediaItemPropertyPlaybackDuration] = [NSNumber numberWithInt: _duration];
+	        // From `MPNowPlayingInfoPropertyElapsedPlaybackTime` docs -- it is not recommended to update this value frequently. Thus it should represent integer seconds and not an accurate `CMTime` value with fractions of a second
+          playingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = [NSNumber numberWithInt: elapsedTime];
 
-      playingInfo[MPNowPlayingInfoPropertyPlaybackRate] = @(_defaultPlaybackRate);
-      NSLog(@"setNotification done");
+          playingInfo[MPNowPlayingInfoPropertyPlaybackRate] = @(_defaultPlaybackRate);
+          NSLog(@"setNotification done");
 
-      if (_infoCenter != nil) {
-        _infoCenter.nowPlayingInfo = playingInfo;
-      }
+          if (_infoCenter != nil) {
+            _infoCenter.nowPlayingInfo = playingInfo;
+          }
+      });
     }
 #endif
 
