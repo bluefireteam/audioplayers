@@ -49,7 +49,7 @@ int64_t _updateHandleMonitorKey;
     NSString *osName = @"macOS";
 #endif
 
-NSString *_title; 
+NSString *_title;
 NSString *_albumTitle;
 NSString *_artist;
 NSString *_imageUrl;
@@ -412,6 +412,7 @@ const float _defaultPlaybackRate = 1.0;
       }
 
       playingInfo[MPMediaItemPropertyPlaybackDuration] = [NSNumber numberWithInt: _duration];
+	  // From `MPNowPlayingInfoPropertyElapsedPlaybackTime` docs -- it is not recommended to update this value frequently. Thus it should represent integer seconds and not an accurate `CMTime` value with fractions of a second
       playingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = [NSNumber numberWithInt: elapsedTime];
 
       playingInfo[MPNowPlayingInfoPropertyPlaybackRate] = @(_defaultPlaybackRate);
@@ -553,7 +554,7 @@ const float _defaultPlaybackRate = 1.0;
   NSLog(@"%@ -> updateDuration...%f", osName, CMTimeGetSeconds(duration));
   if(CMTimeGetSeconds(duration)>0){
     NSLog(@"%@ -> invokechannel", osName);
-   int mseconds= CMTimeGetSeconds(duration)*1000;
+	int mseconds = [self getMillisecondsFromCMTime:duration];
     [_channel_audioplayer invokeMethod:@"audio.onDuration" arguments:@{@"playerId": playerId, @"value": @(mseconds)}];
   }
 }
@@ -562,8 +563,8 @@ const float _defaultPlaybackRate = 1.0;
     NSMutableDictionary * playerInfo = players[playerId];
     AVPlayer *player = playerInfo[@"player"];
     
-   CMTime duration = [[[player currentItem]  asset] duration];
-    int mseconds= CMTimeGetSeconds(duration)*1000;
+	CMTime duration = [[[player currentItem]  asset] duration];
+	int mseconds = [self getMillisecondsFromCMTime:duration];
     return mseconds;
 }
 
@@ -572,7 +573,8 @@ const float _defaultPlaybackRate = 1.0;
     AVPlayer *player = playerInfo[@"player"];
 
     CMTime duration = [player currentTime];
-    return CMTimeGetSeconds(duration) * 1000;
+	int mseconds = [self getMillisecondsFromCMTime:duration];
+    return mseconds;
 }
 
 // No need to spam the logs with every time interval update
@@ -582,8 +584,7 @@ const float _defaultPlaybackRate = 1.0;
     if (_isDealloc) {
         return;
     }
-    int seconds = CMTimeGetSeconds(time);
-    int mseconds = seconds*1000;
+    int mseconds = [self getMillisecondsFromCMTime:time];
     
     [_channel_audioplayer invokeMethod:@"audio.onCurrentPosition" arguments:@{@"playerId": playerId, @"value": @(mseconds)}];
 }
@@ -613,7 +614,7 @@ const float _defaultPlaybackRate = 1.0;
   [playerInfo setObject:@true forKey:@"isPlaying"];
 }
 
--(void) setVolume: (float) volume 
+-(void) setVolume: (float) volume
         playerId:  (NSString *) playerId {
   NSMutableDictionary *playerInfo = players[playerId];
   AVPlayer *player = playerInfo[@"player"];
@@ -621,7 +622,7 @@ const float _defaultPlaybackRate = 1.0;
   [ player setVolume:volume ];
 }
 
--(void) setPlaybackRate: (float) playbackRate 
+-(void) setPlaybackRate: (float) playbackRate
         playerId:  (NSString *) playerId {
   NSLog(@"%@ -> calling setPlaybackRate", osName);
   
@@ -699,6 +700,12 @@ const float _defaultPlaybackRate = 1.0;
       }
   #endif
 }
+	
+-(int) getMillisecondsFromCMTime: (CMTime) time {
+	Float64 seconds = CMTimeGetSeconds(time);
+	int milliseconds = seconds * 1000;
+	return milliseconds;
+}
 
 -(void)observeValueForKeyPath:(NSString *)keyPath
                      ofObject:(id)object
@@ -717,7 +724,7 @@ const float _defaultPlaybackRate = 1.0;
 
       VoidCallback onReady = playerInfo[@"onReady"];
       if (onReady != nil) {
-        [playerInfo removeObjectForKey:@"onReady"];  
+        [playerInfo removeObjectForKey:@"onReady"];
         onReady(playerId);
       }
     } else if ([[player currentItem] status ] == AVPlayerItemStatusFailed) {
