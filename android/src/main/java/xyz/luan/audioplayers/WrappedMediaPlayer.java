@@ -70,7 +70,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
 
     @Override
     void setPlayingRoute(String playingRoute, Context context) {
-        if ( ! objectEquals(this.playingRoute, playingRoute) ) {
+        if (!objectEquals(this.playingRoute, playingRoute)) {
             boolean wasPlaying = this.playing;
             if (wasPlaying) {
                 this.pause();
@@ -86,7 +86,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
             this.released = false;
             this.player = createPlayer(context);
             this.setSource(url);
-            try{
+            try {
                 this.player.prepare();
             } catch (IOException ex) {
                 throw new RuntimeException("Unable to access resource", ex);
@@ -293,7 +293,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     @SuppressWarnings("deprecation")
     private void setAttributes(MediaPlayer player, Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if ( objectEquals(this.playingRoute, "speakers") ) {
+            if (objectEquals(this.playingRoute, "speakers")) {
                 player.setAudioAttributes(new AudioAttributes.Builder()
                     .setUsage(respectSilence ? AudioAttributes.USAGE_NOTIFICATION_RINGTONE : AudioAttributes.USAGE_MEDIA)
                     .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
@@ -315,7 +315,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
 
         } else {
             // This method is deprecated but must be used on older devices
-            if ( objectEquals(this.playingRoute, "speakers") ) {
+            if (objectEquals(this.playingRoute, "speakers")) {
                 player.setAudioStreamType(respectSilence ? AudioManager.STREAM_RING : AudioManager.STREAM_MUSIC);
             } else {
                 player.setAudioStreamType(AudioManager.STREAM_VOICE_CALL);

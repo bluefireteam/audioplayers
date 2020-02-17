@@ -159,6 +159,8 @@ Toggle between speakers and earpiece.
 int result = await player.earpieceOrSpeakersToggle();
 ```
 
+ :warning: **iOS stream routing not implemented**
+
 ### Streams
 
 The AudioPlayer supports subscribing to events like so:
@@ -287,7 +289,6 @@ Here is an example of how it should look like:
     </application>
 </manifest>
 ```
-## :warning: iOS stream routing not implemented
 
 ## Credits
 

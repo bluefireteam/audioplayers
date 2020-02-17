@@ -620,7 +620,6 @@ class AudioPlayer {
         ? PlayingRouteState.SPEAKERS
         : PlayingRouteState.EARPIECE;
 
-//    return _invokeMethod('setVolume', {'volume': volume});
     final playingRouteName = playingRoute == PlayingRouteState.EARPIECE
         ? 'earpiece'
         : 'speakers';
