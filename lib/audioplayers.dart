@@ -360,9 +360,7 @@ class AudioPlayer {
     bool respectSilence = false,
     bool stayAwake = false,
   }) async {
-    isLocal ??= url.startsWith("/") ||
-        url.startsWith("file://") ||
-        url.substring(1).startsWith(':\\');
+    isLocal ??= isLocalUrl(url);
     volume ??= 1.0;
     respectSilence ??= false;
     stayAwake ??= false;
@@ -504,6 +502,7 @@ class AudioPlayer {
   /// respectSilence is not implemented on macOS.
   Future<int> setUrl(String url,
       {bool isLocal: false, bool respectSilence = false}) {
+    isLocal = isLocalUrl(url);
     return _invokeMethod('setUrl',
         {'url': url, 'isLocal': isLocal, 'respectSilence': respectSilence});
   }
@@ -632,5 +631,11 @@ class AudioPlayer {
     }
 
     return result;
+  }
+
+  isLocalUrl(String url) {
+    return url.startsWith("/") ||
+        url.startsWith("file://") ||
+        url.substring(1).startsWith(':\\');
   }
 }
