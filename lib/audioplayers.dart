@@ -633,7 +633,7 @@ class AudioPlayer {
     return result;
   }
 
-  isLocalUrl(String url) {
+  bool isLocalUrl(String url) {
     return url.startsWith("/") ||
         url.startsWith("file://") ||
         url.substring(1).startsWith(':\\');
