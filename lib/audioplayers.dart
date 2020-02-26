@@ -280,7 +280,7 @@ class AudioPlayer {
     this.playerId ??= _uuid.v4();
     players[playerId] = this;
 
-    if(defaultTargetPlatform == TargetPlatform.iOS){
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
       // Start the headless audio service. The parameter here is a handle to
       // a callback managed by the Flutter engine, which allows for us to pass
       // references to our callbacks between isolates.
