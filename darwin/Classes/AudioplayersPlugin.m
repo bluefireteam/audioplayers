@@ -462,7 +462,9 @@ const float _defaultPlaybackRate = 1.0;
       [[AVAudioSession sharedInstance] setActive:YES error:&error];
   #endif
     
-  if (!playerInfo || ![url isEqualToString:playerInfo[@"url"]]) {
+    BOOL playbackFailed = ([[player currentItem] status] == AVPlayerItemStatusFailed);
+    
+  if (!playerInfo || ![url isEqualToString:playerInfo[@"url"]] || playbackFailed) {
     if (isLocal) {
       playerItem = [ [ AVPlayerItem alloc ] initWithURL:[ NSURL fileURLWithPath:url ]];
     } else {
