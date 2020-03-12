@@ -24,8 +24,6 @@ dependencies:
     sdk: flutter
   flutter_web_plugins:
     sdk: flutter
-  flutter_driver:
-    sdk: flutter
 
 dev_dependencies:
   flutter_test:

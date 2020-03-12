@@ -11,7 +11,9 @@ class PlayerWidget extends StatefulWidget {
   final String url;
   final PlayerMode mode;
 
-  PlayerWidget({ Key key, @required this.url, this.mode = PlayerMode.MEDIA_PLAYER }) : super(key: key);
+  PlayerWidget(
+      {Key key, @required this.url, this.mode = PlayerMode.MEDIA_PLAYER})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -97,9 +99,8 @@ class _PlayerWidgetState extends State<PlayerWidget> {
               iconSize: 64.0,
               icon: _isPlayingThroughEarpiece
                   ? Icon(Icons.volume_up)
-                  : Icon(Icons.hearing)
-              ,
-              color:  Colors.cyan,
+                  : Icon(Icons.hearing),
+              color: Colors.cyan,
             ),
           ],
         ),

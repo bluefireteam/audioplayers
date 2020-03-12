@@ -627,15 +627,16 @@ class AudioPlayer {
   }
 
   Future<int> earpieceOrSpeakersToggle() async {
-    PlayingRouteState playingRoute = _playingRouteState == PlayingRouteState.EARPIECE
-        ? PlayingRouteState.SPEAKERS
-        : PlayingRouteState.EARPIECE;
+    PlayingRouteState playingRoute =
+        _playingRouteState == PlayingRouteState.EARPIECE
+            ? PlayingRouteState.SPEAKERS
+            : PlayingRouteState.EARPIECE;
 
-    final playingRouteName = playingRoute == PlayingRouteState.EARPIECE
-        ? 'earpiece'
-        : 'speakers';
+    final playingRouteName =
+        playingRoute == PlayingRouteState.EARPIECE ? 'earpiece' : 'speakers';
     final int result = await _invokeMethod(
-      'earpieceOrSpeakersToggle', {'playingRoute': playingRouteName},
+      'earpieceOrSpeakersToggle',
+      {'playingRoute': playingRouteName},
     );
 
     if (result == 1) {

@@ -20,7 +20,8 @@ void main() {
     });
 
     test('simplest test', () async {
-      expect(await driver.getText(url1Finder), 'Sample 1 (https://luan.xyz/files/audio/ambient_c_motion.mp3)');
+      expect(await driver.getText(url1Finder),
+          'Sample 1 (https://luan.xyz/files/audio/ambient_c_motion.mp3)');
     });
   });
 }
