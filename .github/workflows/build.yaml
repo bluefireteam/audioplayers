@@ -50,7 +50,7 @@ jobs:
     - uses: subosito/flutter-action@v1
       with:
         channel: 'beta'
-    - name: "pwd"
-      run: "pwd"
+    - name: "go to example"
+      run: "cd example"
     - name: "Run Flutter Driver tests"
       run: "flutter drive --target=test_driver/app.dart"
