@@ -1,5 +1,7 @@
 # AudioPlayers
 
+[![Build Status](https://github.com/luanpotter/audioplayers/workflows/build/badge.svg?branch=master)](https://github.com/luanpotter/audioplayers/actions?query=workflow%3A"build"+branch%3Amaster)
+
 A Flutter plugin to play multiple simultaneously audio files, works for Android, iOS and macOS.
 
 ![](example/tab1s.jpg) ![](example/tab2s.jpg) ![](example/tab3s.jpg)
