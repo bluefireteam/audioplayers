@@ -11,7 +11,7 @@ class PlayerWidget extends StatefulWidget {
   final String url;
   final PlayerMode mode;
 
-  PlayerWidget({@required this.url, this.mode = PlayerMode.MEDIA_PLAYER});
+  PlayerWidget({ Key key, @required this.url, this.mode = PlayerMode.MEDIA_PLAYER }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -72,28 +72,35 @@ class _PlayerWidgetState extends State<PlayerWidget> {
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-                onPressed: _isPlaying ? null : () => _play(),
-                iconSize: 64.0,
-                icon: Icon(Icons.play_arrow),
-                color: Colors.cyan),
+              key: Key('play_button'),
+              onPressed: _isPlaying ? null : () => _play(),
+              iconSize: 64.0,
+              icon: Icon(Icons.play_arrow),
+              color: Colors.cyan,
+            ),
             IconButton(
-                onPressed: _isPlaying ? () => _pause() : null,
-                iconSize: 64.0,
-                icon: Icon(Icons.pause),
-                color: Colors.cyan),
+              key: Key('pause_button'),
+              onPressed: _isPlaying ? () => _pause() : null,
+              iconSize: 64.0,
+              icon: Icon(Icons.pause),
+              color: Colors.cyan,
+            ),
             IconButton(
-                onPressed: _isPlaying || _isPaused ? () => _stop() : null,
-                iconSize: 64.0,
-                icon: Icon(Icons.stop),
-                color: Colors.cyan),
+              key: Key('stop_button'),
+              onPressed: _isPlaying || _isPaused ? () => _stop() : null,
+              iconSize: 64.0,
+              icon: Icon(Icons.stop),
+              color: Colors.cyan,
+            ),
             IconButton(
-                onPressed: _earpieceOrSpeakersToggle,
-                iconSize: 64.0,
-                icon: _isPlayingThroughEarpiece
-                    ? Icon(Icons.volume_up)
-                    : Icon(Icons.hearing)
-                ,
-                color:  Colors.cyan),
+              onPressed: _earpieceOrSpeakersToggle,
+              iconSize: 64.0,
+              icon: _isPlayingThroughEarpiece
+                  ? Icon(Icons.volume_up)
+                  : Icon(Icons.hearing)
+              ,
+              color:  Colors.cyan,
+            ),
           ],
         ),
         Column(
@@ -127,7 +134,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
             ),
           ],
         ),
-        Text("State: $_audioPlayerState")
+        Text('State: $_audioPlayerState')
       ],
     );
   }
