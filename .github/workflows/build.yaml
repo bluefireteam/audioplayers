@@ -15,18 +15,21 @@ jobs:
       - run: flutter pub get
       - run: ./scripts/format.sh
       - run: flutter test
+
   android-drive:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v1
     - uses: malinskiy/action-android/install-sdk@release/0.0.5
+    - uses: actions/checkout@v1
     - uses: subosito/flutter-action@v1
       with:
         channel: 'beta'
     - name: "Build example app"
       working-directory: ./example
       run: "flutter pub get"
+    - run: adb devices
+    - run: echo $ANDROID_HOME
     - name: "Run Flutter Driver tests"
       working-directory: ./example
       run: "flutter drive --target=test_driver/app.dart"
