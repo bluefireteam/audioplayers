@@ -25,14 +25,22 @@ jobs:
     - uses: subosito/flutter-action@v1
       with:
         channel: 'beta'
-    - name: "Build example app"
+    - name: Build example app
       working-directory: ./example
       run: "flutter pub get"
-    - run: adb devices
-    - run: echo $ANDROID_HOME
+    - name: Use specific Java version for sdkmanager to work
+      uses: joschi/setup-jdk@v1
+      with:
+        java-version: 'openjdk8'
+        architecture: 'x64'
+
+    - name: Download Android Emulator Image
+      run: |
+        echo "y" | $ANDROID_HOME/tools/bin/sdkmanager --install "system-images;android-29;google_apis;x86"
+        echo "no" | $ANDROID_HOME/tools/bin/avdmanager create avd --force --name emu --device "Nexus 5X" -k 'system-images;android-29;google_apis;x86'
+        $ANDROID_HOME/emulator/emulator -list-avds
     - name: "Start Android Emulator"
       timeout-minutes: 10
-      continue-on-error: true
       run: |
         echo "Starting emulator"
         nohup $ANDROID_HOME/emulator/emulator -avd emu -no-audio -no-snapshot -no-window &
@@ -56,9 +64,9 @@ jobs:
     runs-on: macOS-latest
 
     steps:
-    - name: "List all simulators"
+    - name: List all simulators
       run: "xcrun instruments -s"
-    - name: "Start Simulator"
+    - name: Start Simulator
       run: |
         UDID=$(
           xcrun instruments -s |
@@ -72,9 +80,9 @@ jobs:
     - uses: subosito/flutter-action@v1
       with:
         channel: 'beta'
-    - name: "Build example app"
+    - name: Build example app
       working-directory: ./example
       run: "flutter pub get"
-    - name: "Run Flutter Driver tests"
+    - name: Run Flutter Driver tests
       working-directory: ./example
       run: "flutter drive --target=test_driver/app.dart"
