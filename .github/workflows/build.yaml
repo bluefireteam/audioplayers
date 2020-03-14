@@ -17,7 +17,7 @@ jobs:
       - run: flutter test
 
   android-drive:
-    runs-on: ubuntu-latest
+    runs-on: macOS-latest
 
     steps:
     - uses: malinskiy/action-android/install-sdk@release/0.0.5
