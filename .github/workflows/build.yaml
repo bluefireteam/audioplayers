@@ -43,7 +43,7 @@ jobs:
       timeout-minutes: 10
       run: |
         echo "Starting emulator"
-        ls "$ANDROID_HOME/android_sdk/tools/bin/"
+        ls "$ANDROID_HOME/tools/bin/"
         sdkmanager "platform-tools" "platforms;android-28"
         echo "$ANDROID_HOME/platform-tools"
         ls "$ANDROID_HOME/"
