@@ -16,6 +16,8 @@ jobs:
       - run: ./scripts/format.sh
       - run: flutter test
   android-drive:
+    runs-on: ubuntu-latest
+
     steps:
     - uses: actions/checkout@v1
     - uses: malinskiy/action-android/install-sdk@release/0.0.5
