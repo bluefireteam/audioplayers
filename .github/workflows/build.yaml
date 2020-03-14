@@ -43,6 +43,7 @@ jobs:
       timeout-minutes: 10
       run: |
         echo "Starting emulator"
+        android update sdk --no-ui --all
         echo "$ANDROID_HOME/platform-tools"
         ls "$ANDROID_HOME/"
         nohup $ANDROID_HOME/emulator/emulator -avd emu -no-audio -no-snapshot -no-window &
