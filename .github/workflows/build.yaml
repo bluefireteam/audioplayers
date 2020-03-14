@@ -43,13 +43,11 @@ jobs:
       timeout-minutes: 10
       run: |
         echo "Starting emulator"
-        echo "$ANDROID_HOME"
-        ls "$ANDROID_HOME"
-        ls "$ANDROID_HOME/emulator"
-        ls ~
+        echo "$ANDROID_HOME/platform-tools"
+        ls "$ANDROID_HOME/platform-tools"
         nohup $ANDROID_HOME/emulator/emulator -avd emu -no-audio -no-snapshot -no-window &
-        adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed | tr -d '\r') ]]; do sleep 1; done; input keyevent 82'
-        adb devices
+        $ANDROID_HOME/platform-tools/adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed | tr -d '\r') ]]; do sleep 1; done; input keyevent 82'
+        $ANDROID_HOME/platform-tools/adb devices
         echo "Emulator started"
     - name: "Run Flutter Driver tests"
       working-directory: ./example
