@@ -44,7 +44,7 @@ jobs:
       run: |
         echo "Starting emulator"
         ls "$ANDROID_HOME/tools/bin/"
-        sdkmanager "platform-tools" "platforms;android-28"
+        $ANDROID_HOME/tools/bin/sdkmanager "platform-tools" "platforms;android-28"
         echo "$ANDROID_HOME/platform-tools"
         ls "$ANDROID_HOME/"
         ls "$ANDROID_HOME/platform-tools"
