@@ -9,7 +9,7 @@ jobs:
       - uses: actions/checkout@v1
       - uses: subosito/flutter-action@v1
         with:
-          channel: 'beta'
+          flutter-version: 1.14.6-beta
       - run: flutter pub get
       - run: ./scripts/format.sh
       - run: flutter test
@@ -22,7 +22,7 @@ jobs:
     - uses: actions/checkout@v1
     - uses: subosito/flutter-action@v1
       with:
-        channel: 'beta'
+        flutter-version: 1.14.6-beta
     - name: Build example app
       working-directory: ./example
       run: "flutter pub get"
@@ -82,7 +82,7 @@ jobs:
     - uses: actions/checkout@v1
     - uses: subosito/flutter-action@v1
       with:
-        channel: 'beta'
+        flutter-version: 1.14.6-beta
     - name: Build example app
       working-directory: ./example
       run: "flutter pub get"
