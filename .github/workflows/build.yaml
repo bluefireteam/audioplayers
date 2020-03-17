@@ -1,8 +1,6 @@
-# Name of your workflow.
 name: build
-# Trigger the workflow on push or pull request.
 on: [push, pull_request]
-# A workflow run is made up of one or more jobs.
+
 jobs:
   build:
     runs-on: ubuntu-latest
