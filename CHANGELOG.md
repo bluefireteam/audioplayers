@@ -1,6 +1,9 @@
 # Changelog
 
-## [next]
+## audioplayers 0.14.1
+- Adding linter, tests and flutter_driver integration tests to a CI (github actions)
+- Minor fixes to the APIs and documentation
+- Fix restarting the playback of a failed AVPlayerItem
 - Prevent exceptions when null values are passed to notifications center
 - Prevent crash by checking if headlessServiceInitialized before invoking onNotificationBackgroundPlayerStateChanged
 
