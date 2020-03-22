@@ -378,16 +378,20 @@ const float _defaultPlaybackRate = 1.0;
         AVPlayer *player = playerInfo[@"player"];
         bool _isPlaying = false;
         NSString *playerState;
-        if (player.timeControlStatus == AVPlayerTimeControlStatusPlaying) {
-            // player is playing and pause it
-            [ self pause:_currentPlayerId ];
-            _isPlaying = false;
-            playerState = @"paused";
-        } else if (player.timeControlStatus == AVPlayerTimeControlStatusPaused) {
-            // player is paused and resume it
-            [ self resume:_currentPlayerId ];
-            _isPlaying = true;
-            playerState = @"playing";
+        if (@available(iOS 10.0, *)) {
+            if (player.timeControlStatus == AVPlayerTimeControlStatusPlaying) {
+                // player is playing and pause it
+                [ self pause:_currentPlayerId ];
+                _isPlaying = false;
+                playerState = @"paused";
+            } else if (player.timeControlStatus == AVPlayerTimeControlStatusPaused) {
+                // player is paused and resume it
+                [ self resume:_currentPlayerId ];
+                _isPlaying = true;
+                playerState = @"playing";
+            }
+        } else {
+            // Fallback on earlier versions
         }
         [_channel_audioplayer invokeMethod:@"audio.onNotificationPlayerStateChanged" arguments:@{@"playerId": _currentPlayerId, @"value": @(_isPlaying)}];
         
