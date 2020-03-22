@@ -12,7 +12,7 @@ This was orginally forked from [rxlabz's audioplayer](https://github.com/rxlabz/
 
 ```yaml
 dependencies:
-  audioplayers: ^0.14.1
+  audioplayers: ^0.14.2
 ```
 
 ## Discord channel

@@ -1,5 +1,10 @@
 # Changelog
 
+## [next]
+
+## audioplayers 0.14.2
+- Fix pubspec problem because of web file
+
 ## audioplayers 0.14.1
 - Adding linter, tests and flutter_driver integration tests to a CI (github actions)
 - Minor fixes to the APIs and documentation
