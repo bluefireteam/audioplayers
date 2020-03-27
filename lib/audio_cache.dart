@@ -98,7 +98,8 @@ class AudioCache {
       {double volume = 1.0,
       bool isNotification,
       PlayerMode mode = PlayerMode.MEDIA_PLAYER,
-      bool stayAwake}) async {
+      bool stayAwake,
+      bool recordingActive}) async {
     File file = await load(fileName);
     AudioPlayer player = _player(mode);
     await player.play(
@@ -106,6 +107,7 @@ class AudioCache {
       volume: volume,
       respectSilence: isNotification ?? respectSilence,
       stayAwake: stayAwake,
+      recordingActive: recordingActive
     );
     return player;
   }
