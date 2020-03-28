@@ -2,6 +2,9 @@
 
 ## [next]
 
+## audioplayers 0.15.0-beta.1
+- Audio cache support for web
+
 ## audioplayers 0.15.0-beta
 - Re-adding partial web support
 
