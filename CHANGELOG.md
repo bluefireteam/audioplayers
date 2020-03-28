@@ -2,6 +2,9 @@
 
 ## [next]
 
+## audioplayers 0.15.0-beta
+- Re-adding partial web support
+
 ## audioplayers 0.14.2
 - Fix pubspec problem because of web file
 
