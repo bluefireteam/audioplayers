@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:html';
-import 'dart:web_audio';
+
+import 'package:dart_web_audio/dart_web_audio.dart';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
@@ -12,13 +13,16 @@ class WrappedPlayer {
   double soughtPosition;
   double pausedAt = null;
   double currentVolume = 1.0;
+  String currentUrl = null;
   bool isPlaying = false;
 
   AudioBuffer currentBuffer;
   AudioBufferSourceNode currentNode;
   GainNode gainNode;
 
-  void setBuffer(AudioBuffer buffer) {
+  void setUrlAndBuffer(String url, AudioBuffer buffer) {
+    currentUrl = url;
+
     stop();
     currentBuffer = buffer;
     recreateNode();
@@ -38,9 +42,9 @@ class WrappedPlayer {
 
     gainNode = _audioCtx.createGain();
     gainNode.gain.value = currentVolume;
-    gainNode.connectNode(_audioCtx.destination);
+    gainNode.connect(_audioCtx.destination);
 
-    currentNode.connectNode(gainNode);
+    currentNode.connect(gainNode);
   }
 
   void start(double position) {
@@ -113,8 +117,13 @@ class AudioplayersPlugin {
 
   Future<WrappedPlayer> setUrl(String playerId, String url) async {
     final WrappedPlayer player = getOrCreatePlayer(playerId);
+
+    if (player.currentUrl == url) {
+      return player;
+    }
+
     final AudioBuffer buffer = await loadAudio(url);
-    player.setBuffer(buffer);
+    player.setUrlAndBuffer(url, buffer);
     return player;
   }
 
