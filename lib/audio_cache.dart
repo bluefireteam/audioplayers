@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart';
 
@@ -99,10 +100,10 @@ class AudioCache {
       bool isNotification,
       PlayerMode mode = PlayerMode.MEDIA_PLAYER,
       bool stayAwake}) async {
-    File file = await load(fileName);
+    String url = await getAbsaoluteUrl(fileName);
     AudioPlayer player = _player(mode);
     await player.play(
-      file.path,
+      url,
       volume: volume,
       respectSilence: isNotification ?? respectSilence,
       stayAwake: stayAwake,
@@ -120,15 +121,23 @@ class AudioCache {
       bool isNotification,
       PlayerMode mode = PlayerMode.MEDIA_PLAYER,
       bool stayAwake}) async {
-    File file = await load(fileName);
+    String url = await getAbsaoluteUrl(fileName);
     AudioPlayer player = _player(mode);
     player.setReleaseMode(ReleaseMode.LOOP);
     player.play(
-      file.path,
+      url,
       volume: volume,
       respectSilence: isNotification ?? respectSilence,
       stayAwake: stayAwake,
     );
     return player;
+  }
+
+  Future<String> getAbsaoluteUrl(String fileName) async {
+    if (kIsWeb) {
+      return "assets/assets/$prefix$fileName";
+    }
+    File file = await load(fileName);
+    return file.path;
   }
 }
