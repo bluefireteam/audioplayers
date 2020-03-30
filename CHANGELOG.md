@@ -14,6 +14,9 @@
 - Audio cache support for web
 - Re-adding partial web support
 
+## audioplayers 0.14.3
+- Add next and previous command for ios 
+
 ## audioplayers 0.14.2
 - Fix pubspec problem because of web file
 

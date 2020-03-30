@@ -277,6 +277,16 @@ class AudioPlayer {
   @deprecated
   ErrorHandler errorHandler;
 
+  /// Handler of next track command from native player.
+  ///
+  /// Events are sent user tap system next track button.
+  VoidCallback onNextTrackCommandHandler;
+
+  /// Handler of previous track command from native player.
+  ///
+  /// Events are sent user tap system next track button.
+  VoidCallback onPreviousTrackCommandHandler;
+
   /// An unique ID generated for this instance of [AudioPlayer].
   ///
   /// This is used to properly exchange messages with the [MethodChannel].
@@ -488,19 +498,23 @@ class AudioPlayer {
       String albumTitle,
       String artist,
       String imageUrl,
-      Duration forwardSkipInterval,
-      Duration backwardSkipInterval,
-      Duration duration,
-      Duration elapsedTime}) {
+      Duration forwardSkipInterval = Duration.zero,
+      Duration backwardSkipInterval = Duration.zero,
+      Duration duration = Duration.zero,
+      Duration elapsedTime = Duration.zero,
+      bool hasPreviousTrack = false,
+      bool hasNextTrack = false}) {
     return _invokeMethod('setNotification', {
       'title': title ?? '',
       'albumTitle': albumTitle ?? '',
       'artist': artist ?? '',
       'imageUrl': imageUrl ?? '',
-      'forwardSkipInterval': forwardSkipInterval?.inSeconds ?? 30,
-      'backwardSkipInterval': backwardSkipInterval?.inSeconds ?? 30,
-      'duration': duration?.inSeconds ?? 0,
-      'elapsedTime': elapsedTime?.inSeconds ?? 0
+      'forwardSkipInterval': forwardSkipInterval.inSeconds,
+      'backwardSkipInterval': backwardSkipInterval.inSeconds,
+      'duration': duration.inSeconds,
+      'elapsedTime': elapsedTime.inSeconds,
+      'hasPreviousTrack': hasPreviousTrack,
+      'hasNextTrack': hasNextTrack
     });
   }
 
@@ -592,6 +606,12 @@ class AudioPlayer {
         player._errorController.add(value);
         // ignore: deprecated_member_use_from_same_package
         player.errorHandler?.call(value);
+        break;
+      case 'audio.onGotNextTrackCommand':
+        player.onNextTrackCommandHandler?.call();
+        break;
+      case 'audio.onGotPreviousTrackCommand':
+        player.onPreviousTrackCommandHandler?.call();
         break;
       default:
         _log('Unknown method ${call.method} ');
