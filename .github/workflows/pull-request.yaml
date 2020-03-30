@@ -1,8 +1,11 @@
-name: build
+name: Pull Request
+
 on:
-  push:
+  pull_request:
     branches:
       - master
+      - new-structure
+    types: [opened, reopened, synchronize]
 
 jobs:
   build:
