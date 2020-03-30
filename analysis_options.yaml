@@ -1,10 +1,6 @@
 # Source of linter options:
 # http://dart-lang.github.io/linter/lints/options/options.html
 
-analyzer:
-  enable-experiment:
-    - extension-methods
-
 linter:
   rules:
     - camel_case_types
