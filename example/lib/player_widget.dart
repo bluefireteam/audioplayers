@@ -37,6 +37,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   StreamSubscription _playerCompleteSubscription;
   StreamSubscription _playerErrorSubscription;
   StreamSubscription _playerStateSubscription;
+  StreamSubscription<PlayerControlCommand> _playerControlCommandSubscription;
 
   get _isPlaying => _playerState == PlayerState.playing;
   get _isPaused => _playerState == PlayerState.paused;
@@ -62,6 +63,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     _playerCompleteSubscription?.cancel();
     _playerErrorSubscription?.cancel();
     _playerStateSubscription?.cancel();
+    _playerControlCommandSubscription?.cancel();
     super.dispose();
   }
 
@@ -142,12 +144,6 @@ class _PlayerWidgetState extends State<PlayerWidget> {
 
   void _initAudioPlayer() {
     _audioPlayer = AudioPlayer(mode: mode);
-    _audioPlayer.onNextTrackCommandHandler = () {
-      print('flutter onNextTrackCommandHandler');
-    };
-    _audioPlayer.onPreviousTrackCommandHandler = () {
-      print('flutter onPreviousTrackCommandHandler');
-    };
 
     _durationSubscription = _audioPlayer.onDurationChanged.listen((duration) {
       setState(() => _duration = duration);
@@ -193,6 +189,11 @@ class _PlayerWidgetState extends State<PlayerWidget> {
         _duration = Duration(seconds: 0);
         _position = Duration(seconds: 0);
       });
+    });
+
+    _playerControlCommandSubscription =
+        _audioPlayer.onPlayerCommand.listen((command) {
+      print('command');
     });
 
     _audioPlayer.onPlayerStateChanged.listen((state) {
