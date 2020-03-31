@@ -69,6 +69,11 @@ enum PlayerMode {
   LOW_LATENCY
 }
 
+enum PlayerControlCommand {
+  NEXT_TRACK,
+  PREVIOUS_TRACK,
+}
+
 // When we start the background service isolate, we only ever enter it once.
 // To communicate between the native plugin and this entrypoint, we'll use
 // MethodChannels to open a persistent communication channel to trigger
@@ -155,6 +160,9 @@ class AudioPlayer {
   final StreamController<String> _errorController =
       StreamController<String>.broadcast();
 
+  final StreamController<PlayerControlCommand> _commandController =
+      StreamController<PlayerControlCommand>.broadcast();
+
   PlayingRouteState _playingRouteState = PlayingRouteState.SPEAKERS;
 
   /// Reference [Map] with all the players created by the application.
@@ -226,6 +234,11 @@ class AudioPlayer {
   /// Events are sent when an unexpected error is thrown in the native code.
   Stream<String> get onPlayerError => _errorController.stream;
 
+  /// Stream of remote player command send by native side
+  ///
+  /// Events are sent user tap system remote control command.
+  Stream<PlayerControlCommand> get onPlayerCommand => _commandController.stream;
+
   /// Handler of changes on player state.
   @deprecated
   AudioPlayerStateChangeHandler audioPlayerStateChangeHandler;
@@ -276,16 +289,6 @@ class AudioPlayer {
   /// This is deprecated. Use [onPlayerError] instead.
   @deprecated
   ErrorHandler errorHandler;
-
-  /// Handler of next track command from native player.
-  ///
-  /// Events are sent user tap system next track button.
-  VoidCallback onNextTrackCommandHandler;
-
-  /// Handler of previous track command from native player.
-  ///
-  /// Events are sent user tap system next track button.
-  VoidCallback onPreviousTrackCommandHandler;
 
   /// An unique ID generated for this instance of [AudioPlayer].
   ///
@@ -608,10 +611,10 @@ class AudioPlayer {
         player.errorHandler?.call(value);
         break;
       case 'audio.onGotNextTrackCommand':
-        player.onNextTrackCommandHandler?.call();
+        player._commandController.add(PlayerControlCommand.NEXT_TRACK);
         break;
       case 'audio.onGotPreviousTrackCommand':
-        player.onPreviousTrackCommandHandler?.call();
+        player._commandController.add(PlayerControlCommand.PREVIOUS_TRACK);
         break;
       default:
         _log('Unknown method ${call.method} ');
