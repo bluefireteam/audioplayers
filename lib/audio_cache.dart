@@ -100,7 +100,7 @@ class AudioCache {
       bool isNotification,
       PlayerMode mode = PlayerMode.MEDIA_PLAYER,
       bool stayAwake}) async {
-    String url = await getAbsaoluteUrl(fileName);
+    String url = await getAbsoluteUrl(fileName);
     AudioPlayer player = _player(mode);
     await player.play(
       url,
@@ -121,7 +121,7 @@ class AudioCache {
       bool isNotification,
       PlayerMode mode = PlayerMode.MEDIA_PLAYER,
       bool stayAwake}) async {
-    String url = await getAbsaoluteUrl(fileName);
+    String url = await getAbsoluteUrl(fileName);
     AudioPlayer player = _player(mode);
     player.setReleaseMode(ReleaseMode.LOOP);
     player.play(
@@ -133,7 +133,7 @@ class AudioCache {
     return player;
   }
 
-  Future<String> getAbsaoluteUrl(String fileName) async {
+  Future<String> getAbsoluteUrl(String fileName) async {
     if (kIsWeb) {
       return "assets/assets/$prefix$fileName";
     }
