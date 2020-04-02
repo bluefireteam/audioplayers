@@ -14,7 +14,7 @@ class WrappedPlayer {
   double soughtPosition;
   double pausedAt = null;
   double currentVolume = 1.0;
-  ReleaseMode currentReleaseMode = ReleaseMode.STOP;
+  ReleaseMode currentReleaseMode = ReleaseMode.RELEASE;
   String currentUrl = null;
   bool isPlaying = false;
 
