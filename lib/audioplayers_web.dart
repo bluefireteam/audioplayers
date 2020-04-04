@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:html';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:dart_web_audio/dart_web_audio.dart';
 
 import 'package:flutter/services.dart';
@@ -13,6 +14,7 @@ class WrappedPlayer {
   double soughtPosition;
   double pausedAt = null;
   double currentVolume = 1.0;
+  ReleaseMode currentReleaseMode = ReleaseMode.RELEASE;
   String currentUrl = null;
   bool isPlaying = false;
 
@@ -33,18 +35,26 @@ class WrappedPlayer {
 
   void setVolume(double volume) {
     currentVolume = volume;
-    gainNode.gain.value = currentVolume;
+    gainNode?.gain?.value = currentVolume;
   }
 
   void recreateNode() {
     currentNode = _audioCtx.createBufferSource();
     currentNode.buffer = currentBuffer;
+    currentNode.loop = shouldLoop();
 
     gainNode = _audioCtx.createGain();
     gainNode.gain.value = currentVolume;
     gainNode.connect(_audioCtx.destination);
 
     currentNode.connect(gainNode);
+  }
+
+  bool shouldLoop() => currentReleaseMode == ReleaseMode.LOOP;
+
+  void setReleaseMode(ReleaseMode releaseMode) {
+    currentReleaseMode = releaseMode;
+    currentNode?.loop = shouldLoop();
   }
 
   void start(double position) {
@@ -127,6 +137,10 @@ class AudioplayersPlugin {
     return player;
   }
 
+  ReleaseMode parseReleaseMode(String value) {
+    return ReleaseMode.values.firstWhere((e) => e.toString() == value);
+  }
+
   Future<dynamic> handleMethodCall(MethodCall call) async {
     final method = call.method;
     final playerId = call.arguments['playerId'];
@@ -140,7 +154,8 @@ class AudioplayersPlugin {
       case 'play':
         {
           final String url = call.arguments['url'];
-          final bool isLocal = call.arguments['isLocal'];
+          final bool isLocal =
+              call.arguments['isLocal']; // TODO think about this
           double volume = call.arguments['volume'] ?? 1.0;
           final double position = call.arguments['position'] ?? 0;
           // web does not care for the `stayAwake` argument
@@ -172,9 +187,15 @@ class AudioplayersPlugin {
           getOrCreatePlayer(playerId).setVolume(volume);
           return 1;
         }
+      case 'setReleaseMode':
+        {
+          ReleaseMode releaseMode =
+              parseReleaseMode(call.arguments['releaseMode']);
+          getOrCreatePlayer(playerId).setReleaseMode(releaseMode);
+          return 1;
+        }
       case 'release':
       case 'seek':
-      case 'setReleaseMode':
       case 'setPlaybackRate':
       default:
         throw PlatformException(
