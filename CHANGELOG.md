@@ -2,10 +2,9 @@
 
 ## [next]
 
-## audioplayers 0.15.0-beta.1
+## audioplayers 0.15.0
+- Improve loop/readme for web support
 - Audio cache support for web
-
-## audioplayers 0.15.0-beta
 - Re-adding partial web support
 
 ## audioplayers 0.14.2
