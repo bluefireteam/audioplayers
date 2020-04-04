@@ -154,7 +154,8 @@ class AudioplayersPlugin {
       case 'play':
         {
           final String url = call.arguments['url'];
-          final bool isLocal = call.arguments['isLocal']; // TODO think about this
+          final bool isLocal =
+              call.arguments['isLocal']; // TODO think about this
           double volume = call.arguments['volume'] ?? 1.0;
           final double position = call.arguments['position'] ?? 0;
           // web does not care for the `stayAwake` argument
@@ -188,7 +189,8 @@ class AudioplayersPlugin {
         }
       case 'setReleaseMode':
         {
-          ReleaseMode releaseMode = parseReleaseMode(call.arguments['releaseMode']);
+          ReleaseMode releaseMode =
+              parseReleaseMode(call.arguments['releaseMode']);
           getOrCreatePlayer(playerId).setReleaseMode(releaseMode);
           return 1;
         }
