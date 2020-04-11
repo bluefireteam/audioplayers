@@ -60,7 +60,6 @@ class WrappedPlayer {
       recreateNode();
     }
     player.play();
-    print('seeking $position');
     player.currentTime = position;
   }
 
