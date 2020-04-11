@@ -1,6 +1,7 @@
 # Changelog
 
 ## [next]
+- Fix web for release mode
 
 ## audioplayers 0.15.0
 - Improve loop/readme for web support
