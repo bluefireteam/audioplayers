@@ -7,10 +7,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 
 class WrappedPlayer {
-  double pausedAt = null;
+  double pausedAt;
   double currentVolume = 1.0;
   ReleaseMode currentReleaseMode = ReleaseMode.RELEASE;
-  String currentUrl = null;
+  String currentUrl;
   bool isPlaying = false;
 
   AudioElement player;
@@ -134,8 +134,7 @@ class AudioplayersPlugin {
         {
           final String url = call.arguments['url'];
 
-          // TODO think about isLocal (is it needed or not)
-          final bool isLocal = call.arguments['isLocal'];
+          // TODO(luan) think about isLocal (is it needed or not)
 
           double volume = call.arguments['volume'] ?? 1.0;
           final double position = call.arguments['position'] ?? 0;
