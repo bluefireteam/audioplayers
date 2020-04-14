@@ -2,7 +2,7 @@
 
 ## [next]
 
-## 0.15.1-beta
+## audioplayers 0.15.1
 - Fix web for release mode
 
 ## audioplayers 0.15.0
