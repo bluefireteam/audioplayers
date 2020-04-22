@@ -2,7 +2,7 @@
 
 [![Build Status](https://github.com/luanpotter/audioplayers/workflows/build/badge.svg?branch=master)](https://github.com/luanpotter/audioplayers/actions?query=workflow%3A"build"+branch%3Amaster)
 
-A Flutter plugin to play multiple simultaneously audio files, works for Android, iOS and macOS.
+A Flutter plugin to play multiple simultaneously audio files, works for Android, iOS, macOS and web (WIP).
 
 ![](example/tab1s.jpg) ![](example/tab2s.jpg) ![](example/tab3s.jpg)
 
@@ -12,7 +12,7 @@ This was orginally forked from [rxlabz's audioplayer](https://github.com/rxlabz/
 
 ```yaml
 dependencies:
-  audioplayers: ^0.14.2
+  audioplayers: ^0.15.1
 ```
 
 ## Discord channel
@@ -45,6 +45,7 @@ To use the low latency API, better for gaming sounds, use:
 
 In this mode the backend won't fire any duration or position updates.
 Also, it is not possible to use the seek method to set the audio a specific position.
+This mode is also not available on web.
 
 You can create multiple instances to play audio simultaneously.
 
@@ -98,6 +99,8 @@ There is also an optional named `double volume` parameter, that defaults to `1.0
 The volume can also be changed at any time using the `setVolume` method.
 
 ### Controlling
+
+Note: these features are not implemented in web yet.
 
 After playing, you can control the audio with pause, stop and seek commands.
 
@@ -164,6 +167,8 @@ int result = await player.earpieceOrSpeakersToggle();
  :warning: **iOS stream routing not implemented**
 
 ### Streams
+
+Note: streams are not available on web yet.
 
 The AudioPlayer supports subscribing to events like so:
 
@@ -254,6 +259,7 @@ You can check a list of supported formats below:
 
 - [Android](https://developer.android.com/guide/topics/media/media-formats.html)
 - [iOS and macOS](http://www.techotopia.com/index.php/Playing_Audio_on_iOS_8_using_AVAudioPlayer#Supported_Audio_Formats)
+- web: audio formats supported by the browser you are using ([more details](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API))
 
 ## :warning: iOS & macOS App Transport Security
 
