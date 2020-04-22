@@ -257,10 +257,20 @@ const float _defaultPlaybackRate = 1.0;
                           int backwardSkipInterval = [call.arguments[@"backwardSkipInterval"] intValue];
                           int duration = [call.arguments[@"duration"] intValue];
                           int elapsedTime = [call.arguments[@"elapsedTime"] intValue];
+                          bool enablePreviousTrackButton = [call.arguments[@"hasPreviousTrack"] boolValue];
+                          bool enableNextTrackButton = [call.arguments[@"hasNextTrack"] boolValue];
 
-                          [self setNotification:title albumTitle:albumTitle artist:artist imageUrl:imageUrl
-                                forwardSkipInterval:forwardSkipInterval backwardSkipInterval:backwardSkipInterval
-                                duration:duration elapsedTime:elapsedTime playerId:playerId];
+                          [self setNotification:title
+                                     albumTitle:albumTitle
+                                         artist:artist
+                                       imageUrl:imageUrl
+                            forwardSkipInterval:forwardSkipInterval
+                           backwardSkipInterval:backwardSkipInterval
+                                       duration:duration
+                                    elapsedTime:elapsedTime
+                           enablePreviousTrackButton:enablePreviousTrackButton
+                          enableNextTrackButton:enableNextTrackButton
+                                       playerId:playerId];
                       #else
                           result(FlutterMethodNotImplemented);
                       #endif
@@ -301,6 +311,8 @@ const float _defaultPlaybackRate = 1.0;
             backwardSkipInterval:  (int) backwardSkipInterval
             duration:  (int) duration
             elapsedTime:  (int) elapsedTime
+            enablePreviousTrackButton: (BOOL)enablePreviousTrackButton
+            enableNextTrackButton: (BOOL)enableNextTrackButton
             playerId: (NSString*) playerId {
         _title = title;
         _albumTitle = albumTitle;
@@ -315,20 +327,31 @@ const float _defaultPlaybackRate = 1.0;
         if (remoteCommandCenter == nil) {
           remoteCommandCenter = [MPRemoteCommandCenter sharedCommandCenter];
 
-          MPSkipIntervalCommand *skipBackwardIntervalCommand = [remoteCommandCenter skipBackwardCommand];
-          [skipBackwardIntervalCommand setEnabled:YES];
-          [skipBackwardIntervalCommand addTarget:self action:@selector(skipBackwardEvent:)];
-          skipBackwardIntervalCommand.preferredIntervals = @[@(backwardSkipInterval)];  // Set your own interval
+          if (forwardSkipInterval > 0 || backwardSkipInterval > 0) {
+            MPSkipIntervalCommand *skipBackwardIntervalCommand = [remoteCommandCenter skipBackwardCommand];
+            [skipBackwardIntervalCommand setEnabled:YES];
+            [skipBackwardIntervalCommand addTarget:self action:@selector(skipBackwardEvent:)];
+            skipBackwardIntervalCommand.preferredIntervals = @[@(backwardSkipInterval)];  // Set your own interval
 
-          MPSkipIntervalCommand *skipForwardIntervalCommand = [remoteCommandCenter skipForwardCommand];
-          skipForwardIntervalCommand.preferredIntervals = @[@(forwardSkipInterval)];  // Max 99
-          [skipForwardIntervalCommand setEnabled:YES];
-          [skipForwardIntervalCommand addTarget:self action:@selector(skipForwardEvent:)];
+            MPSkipIntervalCommand *skipForwardIntervalCommand = [remoteCommandCenter skipForwardCommand];
+            skipForwardIntervalCommand.preferredIntervals = @[@(forwardSkipInterval)];  // Max 99
+            [skipForwardIntervalCommand setEnabled:YES];
+            [skipForwardIntervalCommand addTarget:self action:@selector(skipForwardEvent:)];
+          }
+          else {  // if skip interval not set using next and previous
+            MPRemoteCommand *nextTrackCommand = [remoteCommandCenter nextTrackCommand];
+            [nextTrackCommand setEnabled:enableNextTrackButton];
+            [nextTrackCommand addTarget:self action:@selector(nextTrackEvent:)];
+            
+            MPRemoteCommand *previousTrackCommand = [remoteCommandCenter previousTrackCommand];
+            [previousTrackCommand setEnabled:enablePreviousTrackButton];
+            [previousTrackCommand addTarget:self action:@selector(previousTrackEvent:)];
+          }
 
           MPRemoteCommand *pauseCommand = [remoteCommandCenter pauseCommand];
           [pauseCommand setEnabled:YES];
           [pauseCommand addTarget:self action:@selector(playOrPauseEvent:)];
-          
+
           MPRemoteCommand *playCommand = [remoteCommandCenter playCommand];
           [playCommand setEnabled:YES];
           [playCommand addTarget:self action:@selector(playOrPauseEvent:)];
@@ -371,6 +394,23 @@ const float _defaultPlaybackRate = 1.0;
         }
         return MPRemoteCommandHandlerStatusSuccess;
     }
+
+    -(MPRemoteCommandHandlerStatus) nextTrackEvent: (MPRemoteCommandEvent *) nextTrackEvent {
+       NSLog(@"nextTrackEvent");
+
+       [_channel_audioplayer invokeMethod:@"audio.onGotNextTrackCommand" arguments:@{@"playerId": _currentPlayerId}];
+
+       return MPRemoteCommandHandlerStatusSuccess;
+   }
+
+     -(MPRemoteCommandHandlerStatus) previousTrackEvent: (MPRemoteCommandEvent *) previousTrackEvent {
+        NSLog(@"previousTrackEvent");
+
+        [_channel_audioplayer invokeMethod:@"audio.onGotPreviousTrackCommand" arguments:@{@"playerId": _currentPlayerId}];
+
+        return MPRemoteCommandHandlerStatusSuccess;
+    }
+
     -(MPRemoteCommandHandlerStatus) playOrPauseEvent: (MPSkipIntervalCommandEvent *) playOrPauseEvent {
         NSLog(@"playOrPauseEvent");
 

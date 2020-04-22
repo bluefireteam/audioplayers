@@ -2,6 +2,9 @@
 
 ## [next]
 
+## audioplayers 0.14.3
+- Add next and previous command for ios 
+
 ## audioplayers 0.15.1
 - Fix web for release mode
 
