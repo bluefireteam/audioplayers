@@ -661,6 +661,13 @@ const float _defaultPlaybackRate = 1.0;
   [playerInfo setObject:@(looping) forKey:@"looping"];
 }
 
+-(void) setPlayingRoute: (NSString *) playingRoute
+               playerId: (NSString *) playerId {
+  NSLog(@"%@ -> calling setPlayingRoute", osName);
+  NSMutableDictionary *playerInfo = players[playerId];
+  [playerInfo setObject:@(playingRoute) forKey:@"playingRoute"]
+} 
+
 -(void) stop: (NSString *) playerId {
   NSMutableDictionary * playerInfo = players[playerId];
 
