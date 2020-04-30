@@ -272,6 +272,12 @@ const float _defaultPlaybackRate = 1.0;
                     bool looping = [releaseMode hasSuffix:@"LOOP"];
                     [self setLooping:looping playerId:playerId];
                   }
+                @"earpieceOrSpeakersToggle":
+                  ^{
+                    NSLog(@"earpieceOrSpeakersToggle");
+                    NSString *playingRoute = call.arguments[@"playingRoute"];
+                    [self setPlayingRoute:playingRoute playerId:playerId];
+                  }
                 };
 
   [ self initPlayerInfo:playerId ];
