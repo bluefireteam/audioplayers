@@ -467,6 +467,10 @@ const NSString _defaultPlayingRoute = "speakers";
         success = [[AVAudioSession sharedInstance] setCategory:category error:&error];
       }
     
+    if ([playerInfo[@"playingRoute"] isEqualToString:@"earpiece"]) {
+        success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
+      }
+
       if (!success) {
         NSLog(@"Error setting speaker: %@", error);
       }
