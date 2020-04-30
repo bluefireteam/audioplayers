@@ -55,7 +55,7 @@ NSString *_artist;
 NSString *_imageUrl;
 int _duration;
 const float _defaultPlaybackRate = 1.0;
-const NSString _defaultPlayingRoute = "speakers";
+const NSString *_defaultPlayingRoute = @"speakers";
 
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
   _registrar = registrar;
@@ -272,7 +272,7 @@ const NSString _defaultPlayingRoute = "speakers";
                     NSString *releaseMode = call.arguments[@"releaseMode"];
                     bool looping = [releaseMode hasSuffix:@"LOOP"];
                     [self setLooping:looping playerId:playerId];
-                  }
+                  },
                 @"earpieceOrSpeakersToggle":
                   ^{
                     NSLog(@"earpieceOrSpeakersToggle");
@@ -295,7 +295,7 @@ const NSString _defaultPlayingRoute = "speakers";
 -(void) initPlayerInfo: (NSString *) playerId {
   NSMutableDictionary * playerInfo = players[playerId];
   if (!playerInfo) {
-    players[playerId] = [@{@"isPlaying": @false, @"volume": @(1.0), @"rate": @(_defaultPlaybackRate), @"looping": @(false), @"playingRoute": @(_defaultPlayingRoute)} mutableCopy];
+    players[playerId] = [@{@"isPlaying": @false, @"volume": @(1.0), @"rate": @(_defaultPlaybackRate), @"looping": @(false), @"playingRoute": _defaultPlayingRoute} mutableCopy];
   }
 }
 
@@ -466,7 +466,7 @@ const NSString _defaultPlayingRoute = "speakers";
       } else {
         success = [[AVAudioSession sharedInstance] setCategory:category error:&error];
       }
-    
+
     if ([playerInfo[@"playingRoute"] isEqualToString:@"earpiece"]) {
         success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
       }
@@ -670,7 +670,7 @@ const NSString _defaultPlayingRoute = "speakers";
                playerId: (NSString *) playerId {
   NSLog(@"%@ -> calling setPlayingRoute", osName);
   NSMutableDictionary *playerInfo = players[playerId];
-  [playerInfo setObject:@(playingRoute) forKey:@"playingRoute"]
+  [playerInfo setObject:(playingRoute) forKey:@"playingRoute"];
 } 
 
 -(void) stop: (NSString *) playerId {
