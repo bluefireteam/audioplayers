@@ -466,8 +466,8 @@ const NSString *_defaultPlayingRoute = @"speakers";
       } else {
         success = [[AVAudioSession sharedInstance] setCategory:category error:&error];
       }
-
-    if ([playerInfo[@"playingRoute"] isEqualToString:@"earpiece"]) {
+      
+      if ([playerInfo[@"playingRoute"] isEqualToString:@"earpiece"]) {
         success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
       }
 
@@ -671,6 +671,12 @@ const NSString *_defaultPlayingRoute = @"speakers";
   NSLog(@"%@ -> calling setPlayingRoute", osName);
   NSMutableDictionary *playerInfo = players[playerId];
   [playerInfo setObject:(playingRoute) forKey:@"playingRoute"];
+  
+  if ([playingRoute isEqualToString:@"earpiece"]) {
+    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
+  } else {
+    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:nil];
+  }
 } 
 
 -(void) stop: (NSString *) playerId {
