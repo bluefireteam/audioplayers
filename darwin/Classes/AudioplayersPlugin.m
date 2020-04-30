@@ -55,6 +55,7 @@ NSString *_artist;
 NSString *_imageUrl;
 int _duration;
 const float _defaultPlaybackRate = 1.0;
+const NSString _defaultPlayingRoute = "speakers";
 
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
   _registrar = registrar;
@@ -294,7 +295,7 @@ const float _defaultPlaybackRate = 1.0;
 -(void) initPlayerInfo: (NSString *) playerId {
   NSMutableDictionary * playerInfo = players[playerId];
   if (!playerInfo) {
-    players[playerId] = [@{@"isPlaying": @false, @"volume": @(1.0), @"rate": @(_defaultPlaybackRate), @"looping": @(false)} mutableCopy];
+    players[playerId] = [@{@"isPlaying": @false, @"volume": @(1.0), @"rate": @(_defaultPlaybackRate), @"looping": @(false), @"playingRoute": @(_defaultPlayingRoute)} mutableCopy];
   }
 }
 
