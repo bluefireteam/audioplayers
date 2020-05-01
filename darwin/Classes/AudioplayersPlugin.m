@@ -673,12 +673,13 @@ const NSString *_defaultPlayingRoute = @"speakers";
   NSMutableDictionary *playerInfo = players[playerId];
   [playerInfo setObject:(playingRoute) forKey:@"playingRoute"];
 
+  BOOL success = false;
   NSError *error = nil;
   if ([playingRoute isEqualToString:@"earpiece"]) {
     // Use earpiece speaker to play audio.
-    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord error:&error];
+    success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord error:&error];
   } else {
-    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:&error];
+    success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:&error];
   }
   if (!success) {
     NSLog(@"Error setting playing route: %@", error);
