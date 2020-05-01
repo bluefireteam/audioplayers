@@ -22,6 +22,13 @@ class AudioCache {
   /// Your files will be found at assets/<prefix><fileName>
   String prefix;
 
+  /// This Flag will serve to determine does initial prefix [assets/]
+  /// is required,
+  /// For example: if we want to add audio files to package,
+  /// pattern will be [packages/<package_name>/<prefix>/<fileName>]
+  /// where [assets/] will limit this feature
+  bool ignoreAssetsPrefix;
+
   /// This is an instance of AudioPlayer that, if present, will always be used.
   ///
   /// If not set, the AudioCache will create and return a new instance of AudioPlayer every call, allowing for simultaneous calls.
@@ -35,7 +42,11 @@ class AudioCache {
   /// Not implemented on macOS.
   bool respectSilence;
 
-  AudioCache({this.prefix = "", this.fixedPlayer, this.respectSilence = false});
+  AudioCache(
+      {this.prefix = "",
+      this.fixedPlayer,
+      this.respectSilence = false,
+      this.ignoreAssetsPrefix = false});
 
   /// Clears the cache of the file [fileName].
   ///
@@ -57,7 +68,11 @@ class AudioCache {
   }
 
   Future<ByteData> _fetchAsset(String fileName) async {
-    return await rootBundle.load('assets/$prefix$fileName');
+    if (ignoreAssetsPrefix) {
+      return await rootBundle.load('$prefix$fileName');
+    } else {
+      return await rootBundle.load('assets/$prefix$fileName');
+    }
   }
 
   Future<File> fetchToMemory(String fileName) async {
