@@ -468,7 +468,8 @@ const NSString *_defaultPlayingRoute = @"speakers";
       }
       
       if ([playerInfo[@"playingRoute"] isEqualToString:@"earpiece"]) {
-        success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
+        // Use earpiece speaker to play audio.
+        success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord error:&error];
       }
 
       if (!success) {
@@ -671,11 +672,16 @@ const NSString *_defaultPlayingRoute = @"speakers";
   NSLog(@"%@ -> calling setPlayingRoute", osName);
   NSMutableDictionary *playerInfo = players[playerId];
   [playerInfo setObject:(playingRoute) forKey:@"playingRoute"];
-  
+
+  NSError *error = nil;
   if ([playingRoute isEqualToString:@"earpiece"]) {
-    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
+    // Use earpiece speaker to play audio.
+    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord error:&error];
   } else {
-    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:nil];
+    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:&error];
+  }
+  if (!success) {
+    NSLog(@"Error setting playing route: %@", error);
   }
 } 
 
