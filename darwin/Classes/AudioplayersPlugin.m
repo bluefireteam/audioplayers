@@ -458,6 +458,7 @@ const float _defaultPlaybackRate = 1.0;
         success = [[AVAudioSession sharedInstance] setCategory:category withOptions:AVAudioSessionCategoryOptionMixWithOthers error:&error];
       } else {
         success = [[AVAudioSession sharedInstance] setCategory:category error:&error];
+        [[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
       }
     
       if (!success) {
