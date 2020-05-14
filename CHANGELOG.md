@@ -1,6 +1,7 @@
 # Changelog
 
 ## [next]
+- Implemented stream routing for iOS
 
 ## audioplayers 0.15.1
 - Fix web for release mode
