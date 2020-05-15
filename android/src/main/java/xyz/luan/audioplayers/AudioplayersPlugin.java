@@ -1,6 +1,5 @@
 package xyz.luan.audioplayers;
 
-import android.os.Build;
 import android.content.Context;
 import android.os.Handler;
 
@@ -154,6 +153,10 @@ public class AudioplayersPlugin implements MethodCallHandler {
 
     public void handleCompletion(Player player) {
         channel.invokeMethod("audio.onComplete", buildArguments(player.getPlayerId(), true));
+    }
+
+    public void handleError(Player player, String message) {
+        channel.invokeMethod("audio.onError", buildArguments(player.getPlayerId(), message));
     }
 
     public void handleSeekComplete(Player player) {
