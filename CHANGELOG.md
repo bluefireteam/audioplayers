@@ -1,6 +1,7 @@
 # Changelog
 
 ## [next]
+- Implemented stream routing for iOS
 - Call release on dispose
 
 ## audioplayers 0.15.1

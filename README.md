@@ -164,8 +164,6 @@ Toggle between speakers and earpiece.
 int result = await player.earpieceOrSpeakersToggle();
 ```
 
- :warning: **iOS stream routing not implemented**
-
 ### Streams
 
 Note: streams are not available on web yet.
