@@ -57,7 +57,7 @@ class AudioCache {
   }
 
   Future<ByteData> _fetchAsset(String fileName) async {
-    return await rootBundle.load('assets/$prefix$fileName');
+    return await rootBundle.load('$prefix$fileName');
   }
 
   Future<File> fetchToMemory(String fileName) async {
