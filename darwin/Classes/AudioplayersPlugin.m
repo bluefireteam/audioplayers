@@ -442,6 +442,8 @@ const float _defaultPlaybackRate = 1.0;
   NSLog(@"setUrl %@", url);
     
   #if TARGET_OS_IPHONE
+      _currentPlayerId = playerId; // to be used for notifications command center
+
       // code moved from play() to setUrl() to fix the bug of audio not playing in ios background
       NSError *error = nil;
       BOOL success = false;
