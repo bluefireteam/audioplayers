@@ -102,6 +102,11 @@ public class WrappedSoundPool extends Player {
     }
 
     @Override
+    void setNotification(String title, String albumTitle, String artist, String imageUrl) {
+        /// Not sure if this is needed here but since it extends Player, its here
+    }
+
+    @Override
     void stop() {
         if (this.playing) {
             soundPool.stop(this.streamId);
