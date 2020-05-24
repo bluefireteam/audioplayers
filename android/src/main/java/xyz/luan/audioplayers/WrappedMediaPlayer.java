@@ -1,5 +1,34 @@
 package xyz.luan.audioplayers;
 
+import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
+import android.support.v4.media.MediaBrowserCompat;
+import android.support.v4.media.MediaDescriptionCompat;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.RatingCompat;
+import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
+import android.util.LruCache;
+import android.view.KeyEvent;
+
+import androidx.annotation.RequiresApi;
+import androidx.core.app.NotificationCompat;
+import androidx.media.MediaBrowserServiceCompat;
+import androidx.media.app.NotificationCompat.MediaStyle;
+import androidx.media.session.MediaButtonReceiver;
+
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -34,6 +63,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
 
     private MediaPlayer player;
     private AudioplayersPlugin ref;
+	private static final int NOTIFICATION_ID = 1124;
 
     WrappedMediaPlayer(AudioplayersPlugin ref, String playerId) {
         this.ref = ref;
@@ -70,6 +100,8 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         this.artist = artist;
         this.imageUrl = imageUrl;
         Log.d("myTag", "setNotification start android!");
+
+        startForeground(NOTIFICATION_ID, buildNotification());
     }
 
     @Override
@@ -252,6 +284,67 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     /**
      * Internal logic. Private methods
      */
+
+    private Notification buildNotification() {
+        Log.d("myTag", "setNotification start android 2!");
+		int[] compactActionIndices = this.compactActionIndices;
+		if (compactActionIndices == null) {
+			compactActionIndices = new int[Math.min(MAX_COMPACT_ACTIONS, actions.size())];
+			for (int i = 0; i < compactActionIndices.length; i++) compactActionIndices[i] = i;
+		}
+		String contentTitle = this.title;
+		String contentText = this.artist;
+		CharSequence subText = null;
+		Bitmap artBitmap = null;
+		// if (mediaMetadata != null) {
+		// 	MediaDescriptionCompat description = mediaMetadata.getDescription();
+		// 	contentTitle = description.getTitle().toString();
+		// 	contentText = description.getSubtitle().toString();
+		// 	artBitmap = description.getIconBitmap();
+		// 	subText = description.getDescription();
+		// }
+        Log.d("myTag", "setNotification start android 3!");
+		NotificationCompat.Builder builder = getNotificationBuilder()
+				.setContentTitle(contentTitle)
+				.setContentText(contentText)
+				.setSubText(subText);
+		if (androidNotificationClickStartsActivity)
+			builder.setContentIntent(mediaSession.getController().getSessionActivity());
+		if (notificationColor != null)
+			builder.setColor(notificationColor);
+		for (NotificationCompat.Action action : actions) {
+			builder.addAction(action);
+		}
+		if (artBitmap != null)
+			builder.setLargeIcon(artBitmap);
+		// builder.setStyle(new MediaStyle()
+		// 		.setMediaSession(mediaSession.getSessionToken())
+		// 		.setShowActionsInCompactView(compactActionIndices)
+		// 		.setShowCancelButton(true)
+		// 		.setCancelButtonIntent(buildMediaButtonPendingIntent(PlaybackStateCompat.ACTION_STOP))
+		// );
+		if (androidNotificationOngoing)
+			builder.setOngoing(true);
+		Notification notification = builder.build();
+        Log.d("myTag", "setNotification start android 4!");
+		return notification;
+	}
+
+	private NotificationCompat.Builder getNotificationBuilder() {
+		NotificationCompat.Builder notificationBuilder = null;
+		if (notificationBuilder == null) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+				createChannel();
+			int iconId = getResourceId(androidNotificationIcon);
+			notificationBuilder = new NotificationCompat.Builder(this, notificationChannelId)
+					.setSmallIcon(iconId)
+					.setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+					.setShowWhen(false)
+					.setDeleteIntent(buildMediaButtonPendingIntent(PlaybackStateCompat.ACTION_STOP))
+			;
+		}
+		return notificationBuilder;
+	}
 
     private MediaPlayer createPlayer() {
         MediaPlayer player = new MediaPlayer();
