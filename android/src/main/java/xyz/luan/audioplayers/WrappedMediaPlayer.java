@@ -20,6 +20,11 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     private boolean stayAwake;
     private ReleaseMode releaseMode = ReleaseMode.RELEASE;
 
+    private String title;
+    private String albumTitle;
+    private String artist;
+    private String imageUrl;
+
     private boolean released = true;
     private boolean prepared = false;
     private boolean playing = false;
@@ -59,21 +64,11 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
 
     @Override
     void setNotification(String title, String albumTitle, String artist, String imageUrl) {
-        if (!objectEquals(this.url, url)) {
-            this.url = url;
-            if (this.released) {
-                this.player = createPlayer();
-                this.released = false;
-            } else if (this.prepared) {
-                this.player.reset();
-                this.prepared = false;
-            }
-
-            this.setSource(url);
-            this.player.setVolume((float) volume, (float) volume);
-            this.player.setLooping(this.releaseMode == ReleaseMode.LOOP);
-            this.player.prepareAsync();
-        }
+        this.title = title;
+        this.albumTitle = albumTitle;
+        this.artist = artist;
+        this.imageUrl = imageUrl;
+        LOGGER.log(Level.SEVERE, "setNotification start!");
     }
 
     @Override
