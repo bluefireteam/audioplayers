@@ -106,6 +106,15 @@ public class AudioplayersPlugin implements MethodCallHandler {
                 response.success(player.setRate(rate));
                 return;
             }
+            case "setNotification": {
+                final String title = call.argument("title");
+                final String albumTitle = call.argument("albumTitle");
+                final String artist = call.argument("artist");
+                final String imageUrl = call.argument("imageUrl");
+
+                player.setNotification(title, albumTitle, artist, imageUrl);
+                break;
+            }
             case "getDuration": {
                 response.success(player.getDuration());
                 return;

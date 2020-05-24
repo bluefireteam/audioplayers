@@ -58,6 +58,25 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     }
 
     @Override
+    void setNotification(String title, String albumTitle, String artist, String imageUrl) {
+        if (!objectEquals(this.url, url)) {
+            this.url = url;
+            if (this.released) {
+                this.player = createPlayer();
+                this.released = false;
+            } else if (this.prepared) {
+                this.player.reset();
+                this.prepared = false;
+            }
+
+            this.setSource(url);
+            this.player.setVolume((float) volume, (float) volume);
+            this.player.setLooping(this.releaseMode == ReleaseMode.LOOP);
+            this.player.prepareAsync();
+        }
+    }
+
+    @Override
     void setVolume(double volume) {
         if (this.volume != volume) {
             this.volume = volume;

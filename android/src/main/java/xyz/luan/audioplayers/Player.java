@@ -19,6 +19,8 @@ abstract class Player {
 
     abstract void setUrl(String url, boolean isLocal);
 
+    abstract void setNotification(String title, String albumTitle, String artist, String imageUrl);
+
     abstract void setVolume(double volume);
 
     abstract int setRate(double rate);
