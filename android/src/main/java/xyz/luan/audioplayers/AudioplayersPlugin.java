@@ -1,5 +1,20 @@
 package xyz.luan.audioplayers;
 
+import android.util.Log;
+
+import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
 import android.os.Build;
 import android.content.Context;
 import android.os.Handler;
@@ -15,28 +30,174 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
 
-public class AudioplayersPlugin implements MethodCallHandler {
+import io.flutter.app.FlutterApplication;
+import io.flutter.plugin.common.MethodCall;
+import io.flutter.plugin.common.MethodChannel;
+import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
+import io.flutter.plugin.common.MethodChannel.Result;
+import io.flutter.plugin.common.PluginRegistry.PluginRegistrantCallback;
+import io.flutter.plugin.common.PluginRegistry.Registrar;
+import io.flutter.plugin.common.PluginRegistry.ViewDestroyListener;
+import io.flutter.view.FlutterCallbackInformation;
+import io.flutter.view.FlutterMain;
+import io.flutter.embedding.engine.plugins.FlutterPlugin;
+
+import androidx.annotation.NonNull;
+
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
+import io.flutter.embedding.engine.plugins.activity.ActivityAware;
+import io.flutter.plugin.common.BinaryMessenger;
+
+import android.app.Service;
+
+import io.flutter.embedding.engine.FlutterEngine;
+import io.flutter.embedding.engine.plugins.shim.ShimPluginRegistry;
+import io.flutter.embedding.engine.dart.DartExecutor;
+import io.flutter.embedding.engine.dart.DartExecutor.DartCallback;
+
+import android.content.res.AssetManager;
+
+import io.flutter.view.FlutterNativeView;
+import io.flutter.view.FlutterRunArguments;
+
+public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, ActivityAware  {
 
     private static final Logger LOGGER = Logger.getLogger(AudioplayersPlugin.class.getCanonicalName());
 
-    private final MethodChannel channel;
+    private Activity activity;
+    private MethodChannel channel;
     private final Map<String, Player> mediaPlayers = new HashMap<>();
     private final Handler handler = new Handler();
     private Runnable positionUpdates;
-    private final Context context;
+    private Context context;
     private boolean seekFinish;
 
     public static void registerWith(final Registrar registrar) {
         final MethodChannel channel = new MethodChannel(registrar.messenger(), "xyz.luan/audioplayers");
-        channel.setMethodCallHandler(new AudioplayersPlugin(channel, registrar.activeContext()));
+        channel.setMethodCallHandler(new AudioplayersPlugin(channel, registrar.activeContext(), registrar.activity()));
     }
 
-    private AudioplayersPlugin(final MethodChannel channel, Context context) {
+    private AudioplayersPlugin(final MethodChannel channel, Context context, Activity activity) {
         this.channel = channel;
         this.channel.setMethodCallHandler(this);
         this.context = context;
-        this.seekFinish = false;
+        this.activity = activity;
+        this.seekFinish = false;	
+    }	
+    
+    public AudioplayersPlugin() {}	
+    
+    @Override	
+    public void onAttachedToEngine(@NonNull FlutterPluginBinding binding) {	
+        final MethodChannel channel = new MethodChannel(binding.getBinaryMessenger(), "xyz.luan/audioplayers");	
+        this.channel = channel;	
+        this.context = binding.getApplicationContext();	
+        this.seekFinish = false;	
+        channel.setMethodCallHandler(this);	
+    }	
+    
+    @Override	
+    public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {}
+
+    // /
+	// ActivityAware callbacks
+	//
+
+	@Override
+	public void onAttachedToActivity(ActivityPluginBinding binding) {
+		// clientHandler = new ClientHandler(flutterPluginBinding.getFlutterEngine().getDartExecutor());
+		this.activity = binding.getActivity();
+	}
+
+	@Override
+	public void onDetachedFromActivityForConfigChanges() {
+	}
+
+	@Override
+	public void onReattachedToActivityForConfigChanges(ActivityPluginBinding binding) {
+		this.activity = binding.getActivity();
+	}
+
+	@Override
+	public void onDetachedFromActivity() {
+		// clientHandler = null;
     }
+
+    private static void sendConnectResult(boolean result) {
+		// connectResult.success(result);
+		// connectResult = null;
+	}
+    
+    /// mediaplayback
+    private boolean playPending;
+    public MediaBrowserCompat mediaBrowser;
+    public MediaControllerCompat mediaController;
+    public MediaControllerCompat.Callback controllerCallback = new MediaControllerCompat.Callback() {
+        @Override
+        public void onMetadataChanged(MediaMetadataCompat metadata) {
+            invokeMethod("onMediaChanged", mediaMetadata2raw(metadata));
+        }
+
+        @Override
+        public void onPlaybackStateChanged(PlaybackStateCompat state) {
+            // On the native side, we represent the update time relative to the boot time.
+            // On the flutter side, we represent the update time relative to the epoch.
+            long updateTimeSinceBoot = state.getLastPositionUpdateTime();
+            long updateTimeSinceEpoch = bootTime + updateTimeSinceBoot;
+            invokeMethod("onPlaybackStateChanged", state.getState(), state.getActions(), state.getPosition(), state.getPlaybackSpeed(), updateTimeSinceEpoch);
+        }
+
+        @Override
+        public void onQueueChanged(List<MediaSessionCompat.QueueItem> queue) {
+            invokeMethod("onQueueChanged", queue2raw(queue));
+        }
+    };
+
+    private final MediaBrowserCompat.SubscriptionCallback subscriptionCallback = new MediaBrowserCompat.SubscriptionCallback() {
+        @Override
+        public void onChildrenLoaded(String parentId, List<MediaBrowserCompat.MediaItem> children) {
+            invokeMethod("onChildrenLoaded", mediaItems2raw(children));
+        }
+    };
+
+    private final MediaBrowserCompat.ConnectionCallback connectionCallback = new MediaBrowserCompat.ConnectionCallback() {
+        @Override
+        public void onConnected() {
+            try {
+                //Activity activity = registrar.activity();
+                MediaSessionCompat.Token token = mediaBrowser.getSessionToken();
+                mediaController = new MediaControllerCompat(activity, token);
+                MediaControllerCompat.setMediaController(activity, mediaController);
+                mediaController.registerCallback(controllerCallback);
+                PlaybackStateCompat state = mediaController.getPlaybackState();
+                controllerCallback.onPlaybackStateChanged(state);
+                MediaMetadataCompat metadata = mediaController.getMetadata();
+                controllerCallback.onQueueChanged(mediaController.getQueue());
+                controllerCallback.onMetadataChanged(metadata);
+
+                synchronized (this) {
+                    if (playPending) {
+                        mediaController.getTransportControls().play();
+                        playPending = false;
+                    }
+                }
+                sendConnectResult(true);
+            } catch (RemoteException e) {
+                sendConnectResult(false);
+                throw new RuntimeException(e);
+            }
+        }
+
+        @Override
+        public void onConnectionSuspended() {
+            // TODO: Handle this
+        }
+
+        @Override
+        public void onConnectionFailed() {
+            sendConnectResult(false);
+        }
+    };
 
     @Override
     public void onMethodCall(final MethodCall call, final MethodChannel.Result response) {
@@ -53,6 +214,47 @@ public class AudioplayersPlugin implements MethodCallHandler {
         final String mode = call.argument("mode");
         final Player player = getPlayer(playerId, mode);
         switch (call.method) {
+            case "startHeadlessService": {
+                // player.startHeadlessService();
+                Log.d("myTag", "setNotification startHeadlessService android!");
+                // Context context = this.activity;
+                // startResult = result; // The result will be sent after the background task actually starts.
+                // if (AudioService.isRunning()) {
+                //     sendStartResult(false);
+                //     break;
+                // }
+                // Map<?, ?> arguments = (Map<?, ?>)call.arguments;
+                // final long callbackHandle = getLong(arguments.get("callbackHandle"));
+                boolean androidNotificationClickStartsActivity = false; // (Boolean)arguments.get("androidNotificationClickStartsActivity");
+                boolean androidNotificationOngoing = false; //(Boolean)arguments.get("androidNotificationOngoing");
+                boolean resumeOnClick = false; //(Boolean)arguments.get("resumeOnClick");
+                String androidNotificationChannelName = "test"; // (String)arguments.get("androidNotificationChannelName");
+                String androidNotificationChannelDescription = "test2"; // (String)arguments.get("androidNotificationChannelDescription");
+                Integer notificationColor = null; // arguments.get("notificationColor") == null ? null : getInt(arguments.get("notificationColor"));
+                String androidNotificationIcon = "test3"; // (String)arguments.get("androidNotificationIcon");
+                Log.d("myTag", "setNotification startHeadlessService android 11!");
+                final boolean enableQueue = false; //(Boolean)arguments.get("enableQueue");
+                final boolean androidStopForegroundOnPause = false; //(Boolean)arguments.get("androidStopForegroundOnPause");
+                final boolean androidStopOnRemoveTask = false; // (Boolean)arguments.get("androidStopOnRemoveTask");
+                final Map<String, Double> artDownscaleSizeMap = null; // (Map)arguments.get("androidArtDownscaleSize");
+                final Size artDownscaleSize = artDownscaleSizeMap == null ? null
+                    : new Size((int)Math.round(artDownscaleSizeMap.get("width")), (int)Math.round(artDownscaleSizeMap.get("height")));
+                Log.d("myTag", "setNotification startHeadlessService android 12!");
+
+                // final String appBundlePath = FlutterMain.findAppBundlePath(context.getApplicationContext());
+                Log.d("myTag", "setNotification startHeadlessService android 2!");
+                // backgroundHandler = null; // new BackgroundHandler(callbackHandle, appBundlePath, enableQueue);
+                AudioService.init(activity, resumeOnClick, androidNotificationChannelName, androidNotificationChannelDescription, notificationColor, androidNotificationIcon, androidNotificationClickStartsActivity, androidNotificationOngoing, androidStopForegroundOnPause, androidStopOnRemoveTask, artDownscaleSize, null);
+
+                synchronized (connectionCallback) {
+					if (mediaController != null)
+						mediaController.getTransportControls().play();
+					else
+						playPending = true;
+                }
+                
+                break;
+            }
             case "play": {
                 final String url = call.argument("url");
                 final double volume = call.argument("volume");

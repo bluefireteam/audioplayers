@@ -1,5 +1,7 @@
 package xyz.luan.audioplayers;
 
+import android.util.Log;
+
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -76,13 +78,19 @@ public class AudioService extends MediaBrowserServiceCompat implements AudioMana
 	private static Size artDownscaleSize;
 
 	public static void init(Activity activity, boolean resumeOnClick, String androidNotificationChannelName, String androidNotificationChannelDescription, Integer notificationColor, String androidNotificationIcon, boolean androidNotificationClickStartsActivity, boolean androidNotificationOngoing, boolean androidStopForegroundOnPause, boolean androidStopOnRemoveTask, Size artDownscaleSize, ServiceListener listener) {
+        Log.d("myTag", "setNotification service android 0!");
 		if (running)
 			throw new IllegalStateException("AudioService already running");
 		running = true;
 
+        Log.d("myTag", "setNotification service android 01!");
+        // Log.d("myTag", activity);
 		Context context = activity.getApplicationContext();
+        Log.d("myTag", "setNotification service android 02!");
 		Intent intent = new Intent(context, activity.getClass());
+        Log.d("myTag", "setNotification service android 03!");
 		contentIntent = PendingIntent.getActivity(context, REQUEST_CONTENT_INTENT, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        Log.d("myTag", "setNotification service android 1!");
 		AudioService.listener = listener;
 		AudioService.resumeOnClick = resumeOnClick;
 		AudioService.androidNotificationChannelName = androidNotificationChannelName;
@@ -94,6 +102,7 @@ public class AudioService extends MediaBrowserServiceCompat implements AudioMana
 		AudioService.androidStopForegroundOnPause = androidStopForegroundOnPause;
 		AudioService.androidStopOnRemoveTask = androidStopOnRemoveTask;
 		AudioService.artDownscaleSize = artDownscaleSize;
+        Log.d("myTag", "setNotification service android 2!");
 
 		// Get max available VM memory, exceeding this amount will throw an
 		// OutOfMemory exception. Stored in kilobytes as LruCache takes an
@@ -102,6 +111,8 @@ public class AudioService extends MediaBrowserServiceCompat implements AudioMana
 
 		// Use 1/8th of the available memory for this memory cache.
 		final int cacheSize = maxMemory / 8;
+		Log.d("myTag", "setNotification service android 12!");
+		
 
 		artBitmapCache = new LruCache<String, Bitmap>(cacheSize) {
 			@Override
@@ -411,6 +422,8 @@ public class AudioService extends MediaBrowserServiceCompat implements AudioMana
 	@Override
 	public void onCreate() {
 		super.onCreate();
+        Log.d("myTag", "setNotification service android onCreate 007!");
+
 		instance = this;
 		notificationChannelId = getApplication().getPackageName() + ".channel";
 		audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);

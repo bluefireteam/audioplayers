@@ -46,6 +46,36 @@ import java.util.Set;
 
 import java.io.IOException;
 
+import io.flutter.app.FlutterApplication;
+import io.flutter.plugin.common.MethodCall;
+import io.flutter.plugin.common.MethodChannel;
+import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
+import io.flutter.plugin.common.MethodChannel.Result;
+import io.flutter.plugin.common.PluginRegistry.PluginRegistrantCallback;
+import io.flutter.plugin.common.PluginRegistry.Registrar;
+import io.flutter.plugin.common.PluginRegistry.ViewDestroyListener;
+import io.flutter.view.FlutterCallbackInformation;
+import io.flutter.view.FlutterMain;
+import io.flutter.embedding.engine.plugins.FlutterPlugin;
+
+import androidx.annotation.NonNull;
+
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
+import io.flutter.embedding.engine.plugins.activity.ActivityAware;
+import io.flutter.plugin.common.BinaryMessenger;
+
+import android.app.Service;
+
+import io.flutter.embedding.engine.FlutterEngine;
+import io.flutter.embedding.engine.plugins.shim.ShimPluginRegistry;
+import io.flutter.embedding.engine.dart.DartExecutor;
+import io.flutter.embedding.engine.dart.DartExecutor.DartCallback;
+
+import android.content.res.AssetManager;
+
+import io.flutter.view.FlutterNativeView;
+import io.flutter.view.FlutterRunArguments;
+
 public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnSeekCompleteListener {
 
     private String playerId;
@@ -104,6 +134,11 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
             this.player.prepareAsync();
         }
     }
+
+    // @Override
+    // void startHeadlessService() {
+        
+    // }
 
     @Override
     void setNotification(String title, String albumTitle, String artist, String imageUrl) {
