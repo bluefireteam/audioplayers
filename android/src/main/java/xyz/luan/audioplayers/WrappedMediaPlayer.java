@@ -158,11 +158,31 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         int playbackState = 1; //(Integer)args.get(2);
         long position = 0; // getLong(args.get(3));
         float speed = (float)((double)((Double) 1.0));
+
+        MediaMetadataCompat mediaMetadata = createMediaMetadata(-1, albumTitle, artist, "", 0, imageUrl, title, artist, "", null, null);
+        AudioService.instance.setMetadata(mediaMetadata);
                 
         // AudioService.instance.setState(actions, actionBits, compactActionIndices, playbackState, position, speed, updateTimeSinceBoot);
         AudioService.instance.setState(actions, actionBits, compactActionIndices, playbackState, position, speed, updateTimeSinceBoot);
         // startForegroundService(NOTIFICATION_ID, buildNotification());
     }
+
+    private static MediaMetadataCompat createMediaMetadata(String mediaId, String album, String title, String artist, String genre, Long duration, String artUri, String displayTitle, String displaySubtitle, String displayDescription, RatingCompat rating, Map<?, ?> extras) {
+		return AudioService.createMediaMetadata(
+                mediaId,
+				album,
+				title,
+				artist,
+				genre,
+				getLong(duration),
+				artUri,
+				displayTitle,
+				displaySubtitle,
+				displayDescription,
+				null, //raw2rating((Map<String, Object>)rawMediaItem.get("rating")),
+				null //(Map<?, ?>)rawMediaItem.get("extras")
+		);
+	}
 
     @Override
     void setVolume(double volume) {
@@ -340,73 +360,10 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     public void onSeekComplete(final MediaPlayer mediaPlayer) {
         ref.handleSeekComplete(this);
     }
-
-    /**
-     * Internal logic. Private methods
-     */
-
-    // private Notification buildNotification() {
-    //     Log.d("myTag", "setNotification start android 2!");
-	// 	int[] compactActionIndices = this.compactActionIndices;
-	// 	if (compactActionIndices == null) {
-	// 		compactActionIndices = new int[Math.min(MAX_COMPACT_ACTIONS, actions.size())];
-	// 		for (int i = 0; i < compactActionIndices.length; i++) compactActionIndices[i] = i;
-	// 	}
-	// 	String contentTitle = this.title;
-	// 	String contentText = this.artist;
-	// 	CharSequence subText = null;
-	// 	Bitmap artBitmap = null;
-	// 	// if (mediaMetadata != null) {
-	// 	// 	MediaDescriptionCompat description = mediaMetadata.getDescription();
-	// 	// 	contentTitle = description.getTitle().toString();
-	// 	// 	contentText = description.getSubtitle().toString();
-	// 	// 	artBitmap = description.getIconBitmap();
-	// 	// 	subText = description.getDescription();
-	// 	// }
-    //     Log.d("myTag", "setNotification start android 3!");
-	// 	NotificationCompat.Builder builder = getNotificationBuilder()
-	// 			.setContentTitle(contentTitle)
-	// 			.setContentText(contentText)
-    //             .setSubText(subText);
-    //     boolean androidNotificationClickStartsActivity = false;
-	// 	if (androidNotificationClickStartsActivity)
-	// 		builder.setContentIntent(mediaSession.getController().getSessionActivity());
-	// 	if (notificationColor != null)
-	// 		builder.setColor(notificationColor);
-	// 	for (NotificationCompat.Action action : actions) {
-	// 		builder.addAction(action);
-	// 	}
-	// 	if (artBitmap != null)
-	// 		builder.setLargeIcon(artBitmap);
-	// 	// builder.setStyle(new MediaStyle()
-	// 	// 		.setMediaSession(mediaSession.getSessionToken())
-	// 	// 		.setShowActionsInCompactView(compactActionIndices)
-	// 	// 		.setShowCancelButton(true)
-	// 	// 		.setCancelButtonIntent(buildMediaButtonPendingIntent(PlaybackStateCompat.ACTION_STOP))
-    //     // );
-    //     boolean androidNotificationOngoing = false;
-	// 	if (androidNotificationOngoing)
-	// 		builder.setOngoing(true);
-	// 	Notification notification = builder.build();
-    //     Log.d("myTag", "setNotification start android 4!");
-	// 	return notification;
-	// }
-
-	// private NotificationCompat.Builder getNotificationBuilder() {
-	// 	NotificationCompat.Builder notificationBuilder = null;
-	// 	if (notificationBuilder == null) {
-	// 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-	// 			createChannel();
-	// 		int iconId = getResourceId(androidNotificationIcon);
-	// 		notificationBuilder = new NotificationCompat.Builder(this, notificationChannelId)
-	// 				.setSmallIcon(iconId)
-	// 				.setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-	// 				.setShowWhen(false)
-	// 				.setDeleteIntent(buildMediaButtonPendingIntent(PlaybackStateCompat.ACTION_STOP))
-	// 		;
-	// 	}
-	// 	return notificationBuilder;
-	// }
+    
+    public static Long getLong(Object o) {
+		return (o == null || o instanceof Long) ? (Long)o : new Long(((Integer)o).intValue());
+	}
 
     private MediaPlayer createPlayer() {
         MediaPlayer player = new MediaPlayer();
