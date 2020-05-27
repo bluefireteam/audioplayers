@@ -159,7 +159,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         long position = 0; // getLong(args.get(3));
         float speed = (float)((double)((Double) 1.0));
 
-        MediaMetadataCompat mediaMetadata = createMediaMetadata(-1, albumTitle, artist, "", 0, imageUrl, title, artist, "", null, null);
+        MediaMetadataCompat mediaMetadata = createMediaMetadata("random", albumTitle, title, artist, "", 0, imageUrl, title, artist, "", null, null);
         AudioService.instance.setMetadata(mediaMetadata);
                 
         // AudioService.instance.setState(actions, actionBits, compactActionIndices, playbackState, position, speed, updateTimeSinceBoot);
@@ -167,7 +167,9 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         // startForegroundService(NOTIFICATION_ID, buildNotification());
     }
 
-    private static MediaMetadataCompat createMediaMetadata(String mediaId, String album, String title, String artist, String genre, Long duration, String artUri, String displayTitle, String displaySubtitle, String displayDescription, RatingCompat rating, Map<?, ?> extras) {
+    private static MediaMetadataCompat createMediaMetadata(String mediaId, String album, String title, String artist, String genre, int duration, String artUri, String displayTitle, String displaySubtitle, String displayDescription, RatingCompat rating, Map<?, ?> extras) {
+        Log.d("myTag", "setNotification image!");
+        Log.d("myTag", "setNotification image - " + artUri);
 		return AudioService.createMediaMetadata(
                 mediaId,
 				album,
