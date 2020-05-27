@@ -590,6 +590,7 @@ public class AudioService extends MediaBrowserServiceCompat implements AudioMana
 
 		@Override
 		public void onPlay() {
+			Log.d("myTag", "setNotification service play startService onPlay!");
 			if (listener == null) return;
 			play(new Runnable() {
 				public void run() {
@@ -599,6 +600,7 @@ public class AudioService extends MediaBrowserServiceCompat implements AudioMana
 		}
 
 		private void play(Runnable runner) {
+			Log.d("myTag", "setNotification service play startService 0!");
 			int result = requestAudioFocus();
 			if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
 				// Don't play audio

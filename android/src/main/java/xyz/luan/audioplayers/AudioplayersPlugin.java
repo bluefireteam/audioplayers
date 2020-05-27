@@ -15,6 +15,19 @@ import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+import android.os.RemoteException;
+
+
+import android.support.v4.media.MediaBrowserCompat;
+import android.support.v4.media.MediaDescriptionCompat;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.RatingCompat;
+import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
+import android.util.LruCache;
+import android.view.KeyEvent;
+
 import android.os.Build;
 import android.content.Context;
 import android.os.Handler;
@@ -59,6 +72,14 @@ import android.content.res.AssetManager;
 
 import io.flutter.view.FlutterNativeView;
 import io.flutter.view.FlutterRunArguments;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, ActivityAware  {
 
@@ -143,20 +164,20 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
             // On the native side, we represent the update time relative to the boot time.
             // On the flutter side, we represent the update time relative to the epoch.
             long updateTimeSinceBoot = state.getLastPositionUpdateTime();
-            long updateTimeSinceEpoch = bootTime + updateTimeSinceBoot;
+            long updateTimeSinceEpoch = updateTimeSinceBoot; // bootTime + updateTimeSinceBoot;
             invokeMethod("onPlaybackStateChanged", state.getState(), state.getActions(), state.getPosition(), state.getPlaybackSpeed(), updateTimeSinceEpoch);
         }
 
         @Override
         public void onQueueChanged(List<MediaSessionCompat.QueueItem> queue) {
-            invokeMethod("onQueueChanged", queue2raw(queue));
+            // invokeMethod("onQueueChanged", queue2raw(queue));
         }
     };
 
     private final MediaBrowserCompat.SubscriptionCallback subscriptionCallback = new MediaBrowserCompat.SubscriptionCallback() {
         @Override
         public void onChildrenLoaded(String parentId, List<MediaBrowserCompat.MediaItem> children) {
-            invokeMethod("onChildrenLoaded", mediaItems2raw(children));
+            // invokeMethod("onChildrenLoaded", mediaItems2raw(children));
         }
     };
 
@@ -199,6 +220,11 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
         }
     };
 
+    public void invokeMethod(String method, Object... args) {
+        ArrayList<Object> list = new ArrayList<Object>(Arrays.asList(args));
+        channel.invokeMethod(method, list);
+    }
+
     @Override
     public void onMethodCall(final MethodCall call, final MethodChannel.Result response) {
         try {
@@ -226,12 +252,12 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
                 // Map<?, ?> arguments = (Map<?, ?>)call.arguments;
                 // final long callbackHandle = getLong(arguments.get("callbackHandle"));
                 boolean androidNotificationClickStartsActivity = false; // (Boolean)arguments.get("androidNotificationClickStartsActivity");
-                boolean androidNotificationOngoing = false; //(Boolean)arguments.get("androidNotificationOngoing");
-                boolean resumeOnClick = false; //(Boolean)arguments.get("resumeOnClick");
+                boolean androidNotificationOngoing = true; //(Boolean)arguments.get("androidNotificationOngoing");
+                boolean resumeOnClick = true; //(Boolean)arguments.get("resumeOnClick");
                 String androidNotificationChannelName = "test"; // (String)arguments.get("androidNotificationChannelName");
                 String androidNotificationChannelDescription = "test2"; // (String)arguments.get("androidNotificationChannelDescription");
                 Integer notificationColor = null; // arguments.get("notificationColor") == null ? null : getInt(arguments.get("notificationColor"));
-                String androidNotificationIcon = "test3"; // (String)arguments.get("androidNotificationIcon");
+                String androidNotificationIcon = "mipmap/ic_launcher"; // (String)arguments.get("androidNotificationIcon");
                 Log.d("myTag", "setNotification startHeadlessService android 11!");
                 final boolean enableQueue = false; //(Boolean)arguments.get("enableQueue");
                 final boolean androidStopForegroundOnPause = false; //(Boolean)arguments.get("androidStopForegroundOnPause");
@@ -247,11 +273,23 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
                 AudioService.init(activity, resumeOnClick, androidNotificationChannelName, androidNotificationChannelDescription, notificationColor, androidNotificationIcon, androidNotificationClickStartsActivity, androidNotificationOngoing, androidStopForegroundOnPause, androidStopOnRemoveTask, artDownscaleSize, null);
 
                 synchronized (connectionCallback) {
-					if (mediaController != null)
+                    // mediaController.getTransportControls().play();
+                    if (mediaController != null)
 						mediaController.getTransportControls().play();
 					else
 						playPending = true;
                 }
+
+                if (mediaBrowser == null) {
+					// connectResult = result;
+					mediaBrowser = new MediaBrowserCompat(context,
+							new ComponentName(context, AudioService.class),
+							connectionCallback,
+							null);
+					mediaBrowser.connect();
+				} else {
+					// result.success(true);
+				}
                 
                 break;
             }
@@ -445,5 +483,45 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
             }
         }
     }
+
+    private static Map<?, ?> mediaMetadata2raw(MediaMetadataCompat mediaMetadata) {
+		if (mediaMetadata == null) return null;
+		MediaDescriptionCompat description = mediaMetadata.getDescription();
+		Map<String, Object> raw = new HashMap<String, Object>();
+		raw.put("id", description.getMediaId());
+		raw.put("album", mediaMetadata.getText(MediaMetadataCompat.METADATA_KEY_ALBUM).toString());
+		raw.put("title", mediaMetadata.getText(MediaMetadataCompat.METADATA_KEY_TITLE).toString());
+		if (description.getIconUri() != null)
+			raw.put("artUri", description.getIconUri().toString());
+		if (mediaMetadata.containsKey(MediaMetadataCompat.METADATA_KEY_ARTIST))
+			raw.put("artist", mediaMetadata.getText(MediaMetadataCompat.METADATA_KEY_ARTIST).toString());
+		if (mediaMetadata.containsKey(MediaMetadataCompat.METADATA_KEY_GENRE))
+			raw.put("genre", mediaMetadata.getText(MediaMetadataCompat.METADATA_KEY_GENRE).toString());
+		if (mediaMetadata.containsKey(MediaMetadataCompat.METADATA_KEY_DURATION))
+			raw.put("duration", mediaMetadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION));
+		if (mediaMetadata.containsKey(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE))
+			raw.put("displayTitle", mediaMetadata.getText(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE).toString());
+		if (mediaMetadata.containsKey(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE))
+			raw.put("displaySubtitle", mediaMetadata.getText(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE).toString());
+		if (mediaMetadata.containsKey(MediaMetadataCompat.METADATA_KEY_DISPLAY_DESCRIPTION))
+			raw.put("displayDescription", mediaMetadata.getText(MediaMetadataCompat.METADATA_KEY_DISPLAY_DESCRIPTION).toString());
+		if (mediaMetadata.containsKey(MediaMetadataCompat.METADATA_KEY_RATING)) {
+			// raw.put("rating", rating2raw(mediaMetadata.getRating(MediaMetadataCompat.METADATA_KEY_RATING)));
+		}
+		Map<String, Object> extras = new HashMap<>();
+		for (String key : mediaMetadata.keySet()) {
+			if (key.startsWith("extra_long_")) {
+				String rawKey = key.substring("extra_long_".length());
+				extras.put(rawKey, mediaMetadata.getLong(key));
+			} else if (key.startsWith("extra_string_")) {
+				String rawKey = key.substring("extra_string_".length());
+				extras.put(rawKey, mediaMetadata.getString(key));
+			}
+		}
+		if (extras.size() > 0) {
+			raw.put("extras", extras);
+		}
+		return raw;
+	}
 }
 
