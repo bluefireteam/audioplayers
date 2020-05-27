@@ -148,13 +148,36 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         this.imageUrl = imageUrl;
         Log.d("myTag", "setNotification start android!");
 
+        int actionBits = 0;
+
+        List<Map<String, Object>> rawControls = new ArrayList<Map<String, Object>>();
+        Map<String, Object> map1 = new HashMap<>();
+        map1.put("androidIcon", "drawable/ic_action_play_arrow");
+        map1.put("label", "Play");
+        map1.put("action", PlaybackStateCompat.ACTION_PLAY);
+        rawControls.add(map1);
+
+        // Map<String, Object> map2 = new HashMap<>();
+        // map1.put("androidIcon", "drawable/ic_action_pause");
+        // map1.put("label", "Pause");
+        // map1.put("action", PlaybackStateCompat.ACTION_PAUSE);
+        // rawControls.add(map2);
+         // (List<Map<?, ?>>)args.get(0);
+        for (Map<String, Object> rawControl : rawControls) {
+            String resource = (String)rawControl.get("androidIcon");
+            long actionLongValue = (long) rawControl.get("action");
+            int actionCode = 1 << (Math.toIntExact(actionLongValue));
+            actionBits |= actionCode;
+            actions.add(AudioService.instance.action(resource, (String)rawControl.get("label"), actionCode));
+        }
+
+
         long updateTimeSinceEpoch = System.currentTimeMillis();
         // List<Object> compactActionIndexList = (List<Object>)args.get(6);
 
         // On the flutter side, we represent the update time relative to the epoch.
         // On the native side, we must represent the update time relative to the boot time.
         long updateTimeSinceBoot = updateTimeSinceEpoch;
-        int actionBits = 0;
         int playbackState = 1; //(Integer)args.get(2);
         long position = 0; // getLong(args.get(3));
         float speed = (float)((double)((Double) 1.0));
