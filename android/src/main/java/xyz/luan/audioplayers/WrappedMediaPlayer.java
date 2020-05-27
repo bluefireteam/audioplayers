@@ -37,6 +37,13 @@ import android.os.PowerManager;
 import android.content.Context;
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import java.io.IOException;
 
 public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnSeekCompleteListener {
@@ -63,7 +70,12 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
 
     private MediaPlayer player;
     private AudioplayersPlugin ref;
+
 	private static final int NOTIFICATION_ID = 1124;
+    public static final int MAX_COMPACT_ACTIONS = 3;
+	private int[] compactActionIndices;
+	private List<NotificationCompat.Action> actions = new ArrayList<NotificationCompat.Action>();
+    
 
     WrappedMediaPlayer(AudioplayersPlugin ref, String playerId) {
         this.ref = ref;
@@ -101,7 +113,20 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         this.imageUrl = imageUrl;
         Log.d("myTag", "setNotification start android!");
 
-        startForeground(NOTIFICATION_ID, buildNotification());
+        long updateTimeSinceEpoch = System.currentTimeMillis();
+        // List<Object> compactActionIndexList = (List<Object>)args.get(6);
+
+        // On the flutter side, we represent the update time relative to the epoch.
+        // On the native side, we must represent the update time relative to the boot time.
+        long updateTimeSinceBoot = updateTimeSinceEpoch;
+        int actionBits = 0;
+        int playbackState = 1; //(Integer)args.get(2);
+        long position = 0; // getLong(args.get(3));
+        float speed = (float)((double)((Double) 1.0));
+                
+        // AudioService.instance.setState(actions, actionBits, compactActionIndices, playbackState, position, speed, updateTimeSinceBoot);
+        AudioService.instance.setState(actions, actionBits, compactActionIndices, playbackState, position, speed, updateTimeSinceBoot);
+        // startForegroundService(NOTIFICATION_ID, buildNotification());
     }
 
     @Override
@@ -285,66 +310,68 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
      * Internal logic. Private methods
      */
 
-    private Notification buildNotification() {
-        Log.d("myTag", "setNotification start android 2!");
-		int[] compactActionIndices = this.compactActionIndices;
-		if (compactActionIndices == null) {
-			compactActionIndices = new int[Math.min(MAX_COMPACT_ACTIONS, actions.size())];
-			for (int i = 0; i < compactActionIndices.length; i++) compactActionIndices[i] = i;
-		}
-		String contentTitle = this.title;
-		String contentText = this.artist;
-		CharSequence subText = null;
-		Bitmap artBitmap = null;
-		// if (mediaMetadata != null) {
-		// 	MediaDescriptionCompat description = mediaMetadata.getDescription();
-		// 	contentTitle = description.getTitle().toString();
-		// 	contentText = description.getSubtitle().toString();
-		// 	artBitmap = description.getIconBitmap();
-		// 	subText = description.getDescription();
-		// }
-        Log.d("myTag", "setNotification start android 3!");
-		NotificationCompat.Builder builder = getNotificationBuilder()
-				.setContentTitle(contentTitle)
-				.setContentText(contentText)
-				.setSubText(subText);
-		if (androidNotificationClickStartsActivity)
-			builder.setContentIntent(mediaSession.getController().getSessionActivity());
-		if (notificationColor != null)
-			builder.setColor(notificationColor);
-		for (NotificationCompat.Action action : actions) {
-			builder.addAction(action);
-		}
-		if (artBitmap != null)
-			builder.setLargeIcon(artBitmap);
-		// builder.setStyle(new MediaStyle()
-		// 		.setMediaSession(mediaSession.getSessionToken())
-		// 		.setShowActionsInCompactView(compactActionIndices)
-		// 		.setShowCancelButton(true)
-		// 		.setCancelButtonIntent(buildMediaButtonPendingIntent(PlaybackStateCompat.ACTION_STOP))
-		// );
-		if (androidNotificationOngoing)
-			builder.setOngoing(true);
-		Notification notification = builder.build();
-        Log.d("myTag", "setNotification start android 4!");
-		return notification;
-	}
+    // private Notification buildNotification() {
+    //     Log.d("myTag", "setNotification start android 2!");
+	// 	int[] compactActionIndices = this.compactActionIndices;
+	// 	if (compactActionIndices == null) {
+	// 		compactActionIndices = new int[Math.min(MAX_COMPACT_ACTIONS, actions.size())];
+	// 		for (int i = 0; i < compactActionIndices.length; i++) compactActionIndices[i] = i;
+	// 	}
+	// 	String contentTitle = this.title;
+	// 	String contentText = this.artist;
+	// 	CharSequence subText = null;
+	// 	Bitmap artBitmap = null;
+	// 	// if (mediaMetadata != null) {
+	// 	// 	MediaDescriptionCompat description = mediaMetadata.getDescription();
+	// 	// 	contentTitle = description.getTitle().toString();
+	// 	// 	contentText = description.getSubtitle().toString();
+	// 	// 	artBitmap = description.getIconBitmap();
+	// 	// 	subText = description.getDescription();
+	// 	// }
+    //     Log.d("myTag", "setNotification start android 3!");
+	// 	NotificationCompat.Builder builder = getNotificationBuilder()
+	// 			.setContentTitle(contentTitle)
+	// 			.setContentText(contentText)
+    //             .setSubText(subText);
+    //     boolean androidNotificationClickStartsActivity = false;
+	// 	if (androidNotificationClickStartsActivity)
+	// 		builder.setContentIntent(mediaSession.getController().getSessionActivity());
+	// 	if (notificationColor != null)
+	// 		builder.setColor(notificationColor);
+	// 	for (NotificationCompat.Action action : actions) {
+	// 		builder.addAction(action);
+	// 	}
+	// 	if (artBitmap != null)
+	// 		builder.setLargeIcon(artBitmap);
+	// 	// builder.setStyle(new MediaStyle()
+	// 	// 		.setMediaSession(mediaSession.getSessionToken())
+	// 	// 		.setShowActionsInCompactView(compactActionIndices)
+	// 	// 		.setShowCancelButton(true)
+	// 	// 		.setCancelButtonIntent(buildMediaButtonPendingIntent(PlaybackStateCompat.ACTION_STOP))
+    //     // );
+    //     boolean androidNotificationOngoing = false;
+	// 	if (androidNotificationOngoing)
+	// 		builder.setOngoing(true);
+	// 	Notification notification = builder.build();
+    //     Log.d("myTag", "setNotification start android 4!");
+	// 	return notification;
+	// }
 
-	private NotificationCompat.Builder getNotificationBuilder() {
-		NotificationCompat.Builder notificationBuilder = null;
-		if (notificationBuilder == null) {
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-				createChannel();
-			int iconId = getResourceId(androidNotificationIcon);
-			notificationBuilder = new NotificationCompat.Builder(this, notificationChannelId)
-					.setSmallIcon(iconId)
-					.setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-					.setShowWhen(false)
-					.setDeleteIntent(buildMediaButtonPendingIntent(PlaybackStateCompat.ACTION_STOP))
-			;
-		}
-		return notificationBuilder;
-	}
+	// private NotificationCompat.Builder getNotificationBuilder() {
+	// 	NotificationCompat.Builder notificationBuilder = null;
+	// 	if (notificationBuilder == null) {
+	// 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+	// 			createChannel();
+	// 		int iconId = getResourceId(androidNotificationIcon);
+	// 		notificationBuilder = new NotificationCompat.Builder(this, notificationChannelId)
+	// 				.setSmallIcon(iconId)
+	// 				.setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+	// 				.setShowWhen(false)
+	// 				.setDeleteIntent(buildMediaButtonPendingIntent(PlaybackStateCompat.ACTION_STOP))
+	// 		;
+	// 	}
+	// 	return notificationBuilder;
+	// }
 
     private MediaPlayer createPlayer() {
         MediaPlayer player = new MediaPlayer();

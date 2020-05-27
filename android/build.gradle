@@ -33,6 +33,11 @@ android {
     }
 }
 
+dependencies {
+    implementation 'androidx.core:core:1.1.0'
+    implementation 'androidx.media:media:1.1.0'
+}
+
 allprojects {
     gradle.projectsEvaluated {
         tasks.withType(JavaCompile) {
