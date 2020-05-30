@@ -83,7 +83,9 @@ void _backgroundCallbackDispatcher() {
   // native portion of the plugin. Here we message the audio notification data
   // which we then pass to the provided callback.
   _channel.setMethodCallHandler((MethodCall call) async {
+    print('setNotification dart start 0!');
     Function _performCallbackLookup() {
+      print('setNotification dart start 0.5!');
       final CallbackHandle handle = CallbackHandle.fromRawHandle(
           call.arguments['updateHandleMonitorKey']);
 
@@ -99,6 +101,7 @@ void _backgroundCallbackDispatcher() {
     }
 
     final Map<dynamic, dynamic> callArgs = call.arguments as Map;
+    print('setNotification dart start 1!');
     if (call.method == 'audio.onNotificationBackgroundPlayerStateChanged') {
       onAudioChangeBackgroundEvent ??= _performCallbackLookup();
       final String playerState = callArgs['value'];

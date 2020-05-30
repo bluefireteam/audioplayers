@@ -618,6 +618,7 @@ public class AudioService extends MediaBrowserServiceCompat implements AudioMana
 			mediaSession.setSessionActivity(contentIntent);
 			startForeground(NOTIFICATION_ID, buildNotification());
 			isForeground = true;
+			Log.d("myTag", "setNotification service play startService 1!");
 		}
 
 		@Override
