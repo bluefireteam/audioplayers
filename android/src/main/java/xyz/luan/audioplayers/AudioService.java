@@ -255,6 +255,8 @@ public class AudioService extends MediaBrowserServiceCompat implements AudioMana
 		for (NotificationCompat.Action action : actions) {
 			builder.addAction(action);
 		}
+		// Log.d("myTag", "setNotification artBitmap : " + artBitmap);
+
 		if (artBitmap != null)
 			builder.setLargeIcon(artBitmap);
 		builder.setStyle(new MediaStyle()
@@ -376,6 +378,7 @@ public class AudioService extends MediaBrowserServiceCompat implements AudioMana
 		if (duration != null)
 			builder.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, duration);
 		if (artUri != null) {
+			Log.d("myTag", "setNotification artUri : " + artUri);
 			builder.putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI, artUri);
 			String artCacheFilePath = null;
 			if (extras != null) {
