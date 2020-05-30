@@ -285,7 +285,7 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
                 String androidNotificationChannelName = "test"; // (String)arguments.get("androidNotificationChannelName");
                 String androidNotificationChannelDescription = "test2"; // (String)arguments.get("androidNotificationChannelDescription");
                 Integer notificationColor = null; // arguments.get("notificationColor") == null ? null : getInt(arguments.get("notificationColor"));
-                String androidNotificationIcon = "mipmap/ic_launcher"; // (String)arguments.get("androidNotificationIcon");
+                String androidNotificationIcon = "mipmap/icon"; // (String)arguments.get("androidNotificationIcon");
                 Log.d("myTag", "setNotification startHeadlessService android 11!");
                 final boolean enableQueue = false; //(Boolean)arguments.get("enableQueue");
                 final boolean androidStopForegroundOnPause = false; //(Boolean)arguments.get("androidStopForegroundOnPause");
@@ -604,7 +604,13 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
 
 		@Override
 		public void onPause() {
-			invokeMethod("onPause");
+            // invokeMethod("onPause");
+            Log.d("myTag", "setNotification onPlay pause!");
+            Map<String, Object> arguments = new HashMap<String, Object>();
+            arguments.put("value", "paused");
+            arguments.put("updateHandleMonitorKey", updateHandleMonitorKey);
+
+            channel.invokeMethod("audio.onNotificationBackgroundPlayerStateChanged", arguments);
 		}
 
 		@Override
@@ -785,7 +791,7 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
 					for (int i = 0; i < compactActionIndices.length; i++)
 						compactActionIndices[i] = (Integer)compactActionIndexList.get(i);
 				}
-				AudioService.instance.setState(actions, actionBits, compactActionIndices, playbackState, position, speed, updateTimeSinceBoot);
+				AudioService.instance.setState(actions, actionBits, compactActionIndices, playbackState, position, speed);
 				result.success(true);
 				break;
 			case "stopped":

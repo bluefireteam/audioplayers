@@ -92,6 +92,8 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     private String artist;
     private String imageUrl;
 
+    private boolean showNotification = false;
+
     private boolean released = true;
     private boolean prepared = false;
     private boolean playing = false;
@@ -104,7 +106,6 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
 	private static final int NOTIFICATION_ID = 1124;
     public static final int MAX_COMPACT_ACTIONS = 3;
 	private int[] compactActionIndices;
-	private List<NotificationCompat.Action> actions = new ArrayList<NotificationCompat.Action>();
     
 
     WrappedMediaPlayer(AudioplayersPlugin ref, String playerId) {
@@ -146,15 +147,48 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         this.albumTitle = albumTitle;
         this.artist = artist;
         this.imageUrl = imageUrl;
+
+        this.showNotification = true;
         Log.d("myTag", "setNotification start android!");
+
+        // long updateTimeSinceEpoch = System.currentTimeMillis();
+        // List<Object> compactActionIndexList = (List<Object>)args.get(6);
+
+        // On the flutter side, we represent the update time relative to the epoch.
+        // On the native side, we must represent the update time relative to the boot time.
+        // long updateTimeSinceBoot = updateTimeSinceEpoch;
+        // int playbackState = 1; //(Integer)args.get(2);
+        // long position = 0; // getLong(args.get(3));
+        // float speed = (float)((double)((Double) 1.0));
+
+        MediaMetadataCompat mediaMetadata = createMediaMetadata("random", albumTitle, title, artist, "", 0, imageUrl, title, artist, "", null, null);
+        AudioService.instance.setMetadata(mediaMetadata);
+                
+        updateNotification();
+    }
+
+    private void updateNotification() {
+        long position = 0; // getLong(args.get(3));
 
         int actionBits = 0;
 
+        int playbackState = 1;
+
+        List<NotificationCompat.Action> actions = new ArrayList<NotificationCompat.Action>();
+
         List<Map<String, Object>> rawControls = new ArrayList<Map<String, Object>>();
         Map<String, Object> map1 = new HashMap<>();
-        map1.put("androidIcon", "drawable/ic_action_play_arrow");
-        map1.put("label", "Play");
-        map1.put("action", PlaybackStateCompat.ACTION_PLAY);
+        if(this.playing) {
+            map1.put("androidIcon", "drawable/ic_action_pause");
+            map1.put("label", "Pause");
+            map1.put("action", PlaybackStateCompat.ACTION_PAUSE);
+            playbackState = 3;
+        } else {
+            map1.put("androidIcon", "drawable/ic_action_play_arrow");
+            map1.put("label", "Play");
+            map1.put("action", PlaybackStateCompat.ACTION_PLAY);
+            playbackState = 2;
+        }
         rawControls.add(map1);
 
         // Map<String, Object> map2 = new HashMap<>();
@@ -172,22 +206,8 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
             actions.add(AudioService.instance.action(resource, (String)rawControl.get("label"), actionCode));
         }
 
-
-        long updateTimeSinceEpoch = System.currentTimeMillis();
-        // List<Object> compactActionIndexList = (List<Object>)args.get(6);
-
-        // On the flutter side, we represent the update time relative to the epoch.
-        // On the native side, we must represent the update time relative to the boot time.
-        long updateTimeSinceBoot = updateTimeSinceEpoch;
-        int playbackState = 1; //(Integer)args.get(2);
-        long position = 0; // getLong(args.get(3));
-        float speed = (float)((double)((Double) 1.0));
-
-        MediaMetadataCompat mediaMetadata = createMediaMetadata("random", albumTitle, title, artist, "", 0, imageUrl, title, artist, "", null, null);
-        AudioService.instance.setMetadata(mediaMetadata);
-                
         // AudioService.instance.setState(actions, actionBits, compactActionIndices, playbackState, position, speed, updateTimeSinceBoot);
-        AudioService.instance.setState(actions, actionBits, compactActionIndices, playbackState, position, speed, updateTimeSinceBoot);
+        AudioService.instance.setState(actions, actionBits, compactActionIndices, playbackState, position, this.rate);
         // startForegroundService(NOTIFICATION_ID, buildNotification());
     }
 
@@ -299,6 +319,9 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
             } else if (this.prepared) {
                 this.player.start();
                 this.ref.handleIsPlaying(this);
+                if(this.showNotification) {
+                    updateNotification();
+                }
             }
         }
     }
@@ -343,6 +366,9 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         if (this.playing) {
             this.playing = false;
             this.player.pause();
+            if(this.showNotification) {
+                updateNotification();
+            }
         }
     }
 

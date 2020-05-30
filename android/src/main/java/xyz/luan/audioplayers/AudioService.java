@@ -206,13 +206,13 @@ public class AudioService extends MediaBrowserServiceCompat implements AudioMana
 		}
 	}
 
-	void setState(List<NotificationCompat.Action> actions, int actionBits, int[] compactActionIndices, int playbackState, long position, float speed, long updateTime) {
+	void setState(List<NotificationCompat.Action> actions, int actionBits, int[] compactActionIndices, int playbackState, long position, float speed) {
 		this.actions = actions;
 		this.compactActionIndices = compactActionIndices;
 
 		PlaybackStateCompat.Builder stateBuilder = new PlaybackStateCompat.Builder()
 				.setActions(PlaybackStateCompat.ACTION_PLAY_PAUSE | actionBits)
-				.setState(playbackState, position, speed, updateTime);
+				.setState(playbackState, position, speed);
 		mediaSession.setPlaybackState(stateBuilder.build());
 
 		if (playbackState == PlaybackStateCompat.STATE_PAUSED) stopForegroundOnPause();
