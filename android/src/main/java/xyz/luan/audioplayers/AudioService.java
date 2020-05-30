@@ -181,6 +181,7 @@ public class AudioService extends MediaBrowserServiceCompat implements AudioMana
 	}
 
 	PendingIntent buildMediaButtonPendingIntent(long action) {
+        Log.d("myTag", "setNotification keycode : " + action);
 		ComponentName component = new ComponentName(getPackageName(), "androidx.media.session.MediaButtonReceiver");
 		return buildMediaButtonPendingIntent(component, action);
 	}

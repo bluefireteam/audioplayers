@@ -88,16 +88,26 @@ void _backgroundCallbackDispatcher() {
       print('setNotification dart start 0.5!');
       final CallbackHandle handle = CallbackHandle.fromRawHandle(
           call.arguments['updateHandleMonitorKey']);
+      print('setNotification dart start 0.75!');
 
       // PluginUtilities.getCallbackFromHandle performs a lookup based on the
       // handle we retrieved earlier.
       final Function closure = PluginUtilities.getCallbackFromHandle(handle);
+      print('setNotification dart start 0.85!');
 
       if (closure == null) {
-        print('Fatal Error: Callback lookup failed!');
+        print('Fatal Error setNotification : Callback lookup failed!');
         // exit(-1);
       }
       return closure;
+    }
+
+    print('setNotification dart start 0.25!');
+    try {
+      print(call?.method.toString());
+      print(call?.arguments.toString());
+    } catch (err) {
+      print(err.toString());
     }
 
     final Map<dynamic, dynamic> callArgs = call.arguments as Map;
@@ -105,6 +115,7 @@ void _backgroundCallbackDispatcher() {
     if (call.method == 'audio.onNotificationBackgroundPlayerStateChanged') {
       onAudioChangeBackgroundEvent ??= _performCallbackLookup();
       final String playerState = callArgs['value'];
+      print('setNotification dart start 2!');
       if (playerState == 'playing') {
         onAudioChangeBackgroundEvent(AudioPlayerState.PLAYING);
       } else if (playerState == 'paused') {

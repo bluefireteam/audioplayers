@@ -101,6 +101,8 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
     private Context context;
     private boolean seekFinish;
 
+    private static long updateHandleMonitorKey;
+
 	private static PluginRegistrantCallback pluginRegistrantCallback;
 	private static BackgroundHandler backgroundHandler;
 	private static FlutterEngine backgroundFlutterEngine;
@@ -317,6 +319,14 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
 					// result.success(true);
 				}
                 
+                break;
+            }
+            case "monitorNotificationStateChanges": {
+                Map<?, ?> arguments = (Map<?, ?>)call.arguments;
+				List<Object> args = (List<Object>)arguments.get("handleMonitorKey");
+                final long callbackHandle = getLong(args.get(0));
+                updateHandleMonitorKey = callbackHandle;
+
                 break;
             }
             case "play": {
@@ -635,6 +645,8 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
                 // invokeMethod("onPlay");
                 Map<String, Object> arguments = new HashMap<String, Object>();
                 arguments.put("value", "playing");
+                arguments.put("updateHandleMonitorKey", updateHandleMonitorKey);
+
                 channel.invokeMethod("audio.onNotificationBackgroundPlayerStateChanged", arguments);
             }
 		}

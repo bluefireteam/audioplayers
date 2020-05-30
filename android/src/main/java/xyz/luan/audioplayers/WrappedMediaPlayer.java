@@ -166,7 +166,8 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         for (Map<String, Object> rawControl : rawControls) {
             String resource = (String)rawControl.get("androidIcon");
             long actionLongValue = (long) rawControl.get("action");
-            int actionCode = 1 << (Math.toIntExact(actionLongValue));
+            int actionCode = Math.toIntExact(actionLongValue);
+            Log.d("myTag", "setNotification keycode 0 : " + actionCode);
             actionBits |= actionCode;
             actions.add(AudioService.instance.action(resource, (String)rawControl.get("label"), actionCode));
         }
