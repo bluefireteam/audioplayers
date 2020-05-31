@@ -366,7 +366,7 @@ public class AudioService extends MediaBrowserServiceCompat implements AudioMana
 		}
 	}
 
-	static MediaMetadataCompat createMediaMetadata(String mediaId, String album, String title, String artist, String genre, Long duration, String artUri, String displayTitle, String displaySubtitle, String displayDescription, RatingCompat rating, Map<?, ?> extras) {
+	static MediaMetadataCompat createMediaMetadata(String mediaId, String album, String title, String artist, String genre, Long duration, Bitmap imageBitmap, String displayTitle, String displaySubtitle, String displayDescription, RatingCompat rating, Map<?, ?> extras) {
 		MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder()
 				.putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, mediaId)
 				.putString(MediaMetadataCompat.METADATA_KEY_ALBUM, album)
@@ -377,20 +377,19 @@ public class AudioService extends MediaBrowserServiceCompat implements AudioMana
 			builder.putString(MediaMetadataCompat.METADATA_KEY_GENRE, genre);
 		if (duration != null)
 			builder.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, duration);
-		if (artUri != null) {
-			Log.d("myTag", "setNotification artUri : " + artUri);
-			builder.putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI, artUri);
-			String artCacheFilePath = null;
-			if (extras != null) {
-				artCacheFilePath = (String)extras.get("artCacheFile");
-			}
-			if (artCacheFilePath != null) {
-				Bitmap bitmap = loadArtBitmapFromFile(artCacheFilePath);
-				if (bitmap != null) {
-					builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, bitmap);
-					builder.putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, bitmap);
-				}
-			}
+		if (imageBitmap != null) {
+			// builder.putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI, artUri);
+			// String artCacheFilePath = null;
+			// if (extras != null) {
+			// 	artCacheFilePath = (String)extras.get("artCacheFile");
+			// }
+			// if (artCacheFilePath != null) {
+			// 	Bitmap bitmap = loadArtBitmapFromFile(artCacheFilePath);
+			// 	if (bitmap != null) {
+			builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, imageBitmap);
+			builder.putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, imageBitmap);
+			// 	}
+			// }
 		}
 		if (displayTitle != null)
 			builder.putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, displayTitle);

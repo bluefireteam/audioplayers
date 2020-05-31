@@ -32,6 +32,7 @@ import androidx.media.session.MediaButtonReceiver;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.PowerManager;
 import android.content.Context;
@@ -45,6 +46,7 @@ import java.util.Map;
 import java.util.Set;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import io.flutter.app.FlutterApplication;
 import io.flutter.plugin.common.MethodCall;
@@ -161,10 +163,40 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         // long position = 0; // getLong(args.get(3));
         // float speed = (float)((double)((Double) 1.0));
 
-        MediaMetadataCompat mediaMetadata = createMediaMetadata("random", albumTitle, title, artist, "", 0, imageUrl, title, artist, "", null, null);
-        AudioService.instance.setMetadata(mediaMetadata);
+        // MediaMetadataCompat mediaMetadata = createMediaMetadata("random", albumTitle, title, artist, "", 0, null, title, artist, "", null, null);
+        // AudioService.instance.setMetadata(mediaMetadata);
                 
-        updateNotification();
+        // updateNotification();
+
+        new setNotificationAsyncTask().execute(imageUrl);
+    }
+
+    private class setNotificationAsyncTask extends AsyncTask<String, Void, Bitmap> {
+        // ImageView bmImage;
+        // public DownloadImageTask(ImageView bmImage) {
+        //     this.bmImage = bmImage;
+        // }
+    
+        protected Bitmap doInBackground(String... urls) {
+            String urldisplay = urls[0];
+            Log.d("myTag", "setNotification urldisplay : " + urldisplay);
+            Bitmap bmp = null;
+            try {
+                InputStream in = new java.net.URL(urldisplay).openStream();
+                bmp = BitmapFactory.decodeStream(in);
+            } catch (Exception e) {
+                Log.e("Error setNotification ", e.getMessage());
+                e.printStackTrace();
+            }
+            return bmp;
+        }
+        protected void onPostExecute(Bitmap result) {
+            // bmImage.setImageBitmap(result);
+            MediaMetadataCompat mediaMetadata = createMediaMetadata("random", albumTitle, title, artist, "", 0, result, title, artist, "", null, null);
+            AudioService.instance.setMetadata(mediaMetadata);
+                    
+            updateNotification();
+        }
     }
 
     private void updateNotification() {
@@ -211,7 +243,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         // startForegroundService(NOTIFICATION_ID, buildNotification());
     }
 
-    private static MediaMetadataCompat createMediaMetadata(String mediaId, String album, String title, String artist, String genre, int duration, String artUri, String displayTitle, String displaySubtitle, String displayDescription, RatingCompat rating, Map<?, ?> extras) {
+    private static MediaMetadataCompat createMediaMetadata(String mediaId, String album, String title, String artist, String genre, int duration, Bitmap artUri, String displayTitle, String displaySubtitle, String displayDescription, RatingCompat rating, Map<?, ?> extras) {
         Log.d("myTag", "setNotification image!");
         Log.d("myTag", "setNotification image - " + artUri);
 		return AudioService.createMediaMetadata(
