@@ -308,6 +308,10 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         if (this.player != null) {
             this.rate = (float) rate;
             this.player.setPlaybackParams(this.player.getPlaybackParams().setSpeed(this.rate));
+            if(this.showNotification) {
+                this.elapsedTimeInMillis = getCurrentPosition();
+                updateNotification();
+            }
             return 1;
         }
         return 0;
