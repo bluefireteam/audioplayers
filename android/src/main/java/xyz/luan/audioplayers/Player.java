@@ -21,7 +21,7 @@ abstract class Player {
 
     // abstract void startHeadlessService();
 
-    abstract void setNotification(String title, String albumTitle, String artist, String imageUrl);
+    abstract void setNotification(String title, String albumTitle, String artist, String imageUrl, int maxDuration);
 
     abstract void setVolume(double volume);
 

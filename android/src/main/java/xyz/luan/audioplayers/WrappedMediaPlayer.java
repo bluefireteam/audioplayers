@@ -93,6 +93,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     private String albumTitle;
     private String artist;
     private String imageUrl;
+    private int maxDuration;
 
     private boolean showNotification = false;
 
@@ -144,11 +145,13 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     // }
 
     @Override
-    void setNotification(String title, String albumTitle, String artist, String imageUrl) {
+    void setNotification(String title, String albumTitle, String artist, String imageUrl, int maxDuration) {
         this.title = title;
         this.albumTitle = albumTitle;
         this.artist = artist;
         this.imageUrl = imageUrl;
+
+        this.maxDuration = maxDuration;
 
         this.showNotification = true;
         Log.d("myTag", "setNotification start android!");
@@ -198,7 +201,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         }
         protected void onPostExecute(Bitmap result) {
             // bmImage.setImageBitmap(result);
-            MediaMetadataCompat mediaMetadata = createMediaMetadata("random", albumTitle, title, artist, "", 0, result, title, artist, "", null, null);
+            MediaMetadataCompat mediaMetadata = createMediaMetadata("random", albumTitle, title, artist, "", maxDuration, result, title, artist, "", null, null);
             AudioService.instance.setMetadata(mediaMetadata);
                     
             updateNotification();

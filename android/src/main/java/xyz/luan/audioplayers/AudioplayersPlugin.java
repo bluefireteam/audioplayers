@@ -394,11 +394,13 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
                 final String albumTitle = call.argument("albumTitle");
                 final String artist = call.argument("artist");
 				final String imageUrl = call.argument("imageUrl");
+
+				final int maxDuration = call.argument("duration");
 				
 				this.forwardSkipIntervalInSeconds = call.argument("forwardSkipInterval");
 				this.backwardSkipIntervalInSeconds = call.argument("backwardSkipInterval");
 
-                player.setNotification(title, albumTitle, artist, imageUrl);
+                player.setNotification(title, albumTitle, artist, imageUrl, maxDuration);
                 break;
             }
             case "getDuration": {
