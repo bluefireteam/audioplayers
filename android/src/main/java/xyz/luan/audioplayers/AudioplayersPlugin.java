@@ -449,7 +449,13 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
     }
 
     public void handleCompletion(Player player) {
-        channel.invokeMethod("audio.onComplete", buildArguments(player.getPlayerId(), true));
+		channel.invokeMethod("audio.onComplete", buildArguments(player.getPlayerId(), true));
+		if (backgroundHandler != null) {
+			Map<String, Object> arguments = new HashMap<String, Object>();
+			arguments.put("value", "completed");
+			arguments.put("updateHandleMonitorKey", updateHandleMonitorKey);
+			backgroundHandler.backgroundChannel.invokeMethod("audio.onNotificationBackgroundPlayerStateChanged", arguments);
+		}
     }
 
     public void handleSeekComplete(Player player) {
