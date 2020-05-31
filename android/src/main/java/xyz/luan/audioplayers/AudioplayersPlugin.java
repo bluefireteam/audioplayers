@@ -710,12 +710,12 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
 
 		@Override
 		public void onFastForward() {
-			invokeMethod("onFastForward");
+			// invokeMethod("onFastForward");
 		}
 
 		@Override
 		public void onRewind() {
-			invokeMethod("onRewind");
+			// invokeMethod("onRewind");
 		}
 
 		@Override
