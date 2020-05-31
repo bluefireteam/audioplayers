@@ -1,15 +1,15 @@
 package xyz.luan.audioplayers;
 
+import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.PowerManager;
-import android.content.Context;
 
 import java.io.IOException;
 
-public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnSeekCompleteListener {
+public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnErrorListener {
 
     private String playerId;
 
@@ -263,6 +263,38 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     }
 
     @Override
+    public boolean onError(MediaPlayer mp, int what, int extra) {
+        String whatMsg;
+        if (what == MediaPlayer.MEDIA_ERROR_SERVER_DIED) {
+            whatMsg = "MEDIA_ERROR_SERVER_DIED";
+        } else {
+            whatMsg = "MEDIA_ERROR_UNKNOWN {what:" + what + "}";
+        }
+        String extraMsg;
+        switch (extra) {
+            case -2147483648:
+                extraMsg = "MEDIA_ERROR_SYSTEM";
+                break;
+            case MediaPlayer.MEDIA_ERROR_IO:
+                extraMsg = "MEDIA_ERROR_IO";
+                break;
+            case MediaPlayer.MEDIA_ERROR_MALFORMED:
+                extraMsg = "MEDIA_ERROR_MALFORMED";
+                break;
+            case MediaPlayer.MEDIA_ERROR_UNSUPPORTED:
+                extraMsg = "MEDIA_ERROR_UNSUPPORTED";
+                break;
+            case MediaPlayer.MEDIA_ERROR_TIMED_OUT:
+                extraMsg = "MEDIA_ERROR_TIMED_OUT";
+                break;
+            default:
+                extraMsg = whatMsg = "MEDIA_ERROR_UNKNOWN {extra:" + extra + "}";;
+        }
+        ref.handleError(this, "MediaPlayer error with what:" + whatMsg + " extra:" + extraMsg);
+        return false;
+    }
+
+    @Override
     public void onSeekComplete(final MediaPlayer mediaPlayer) {
         ref.handleSeekComplete(this);
     }
@@ -276,6 +308,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         player.setOnPreparedListener(this);
         player.setOnCompletionListener(this);
         player.setOnSeekCompleteListener(this);
+        player.setOnErrorListener(this);
         setAttributes(player, context);
         player.setVolume((float) volume, (float) volume);
         player.setLooping(this.releaseMode == ReleaseMode.LOOP);
