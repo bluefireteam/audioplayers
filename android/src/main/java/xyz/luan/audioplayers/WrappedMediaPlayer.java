@@ -94,6 +94,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     private String artist;
     private String imageUrl;
     private int maxDuration;
+    private int elapsedTimeInMillis = 0;
 
     private boolean showNotification = false;
 
@@ -145,13 +146,14 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     // }
 
     @Override
-    void setNotification(String title, String albumTitle, String artist, String imageUrl, int maxDuration) {
+    void setNotification(String title, String albumTitle, String artist, String imageUrl, int maxDuration, int elapsedTime) {
         this.title = title;
         this.albumTitle = albumTitle;
         this.artist = artist;
         this.imageUrl = imageUrl;
 
         this.maxDuration = maxDuration * 1000;
+        this.elapsedTimeInMillis = elapsedTime * 1000;
 
         this.showNotification = true;
         Log.d("myTag", "setNotification start android!");
@@ -210,7 +212,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     }
 
     private void updateNotification() {
-        long position = 0; // getLong(args.get(3));
+        long position = Long.valueOf(elapsedTimeInMillis); // getLong(args.get(3));
 
         int actionBits = 0;
 

@@ -102,7 +102,7 @@ public class WrappedSoundPool extends Player {
     }
 
     @Override
-    void setNotification(String title, String albumTitle, String artist, String imageUrl, int maxDuration) {
+    void setNotification(String title, String albumTitle, String artist, String imageUrl, int maxDuration, int elapsedTime) {
         /// Not sure if this is needed here but since it extends Player, its here
     }
 
