@@ -765,6 +765,7 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
 		@Override
 		public void onSeekTo(long pos) {
 			// invokeMethod("onSeekTo", pos);
+			notificationPlayer.seek(Math.toIntExact(pos));
 		}
 
 		@Override

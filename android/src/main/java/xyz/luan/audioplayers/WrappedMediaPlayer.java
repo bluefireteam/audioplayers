@@ -232,9 +232,9 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
             map1.put("action", PlaybackStateCompat.ACTION_PAUSE);
             playbackState = 3;
 
-            // long actionLongValue = (long) PlaybackStateCompat.ACTION_SEEK_TO;
-            // int actionCode = Math.toIntExact(actionLongValue);
-            // actionBits |= actionCode;
+            long actionLongValue = (long) PlaybackStateCompat.ACTION_SEEK_TO;
+            int actionCode = Math.toIntExact(actionLongValue);
+            actionBits |= actionCode;
         } else {
             map1.put("androidIcon", "drawable/ic_action_play_arrow");
             map1.put("label", "Play");

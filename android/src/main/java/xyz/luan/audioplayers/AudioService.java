@@ -766,6 +766,7 @@ public class AudioService extends MediaBrowserServiceCompat implements AudioMana
 
 		@Override
 		public void onSeekTo(long pos) {
+			Log.d("myTag", "setNotification onSeekTo : " + pos);
 			if (listener == null) return;
 			listener.onSeekTo(pos);
 		}
