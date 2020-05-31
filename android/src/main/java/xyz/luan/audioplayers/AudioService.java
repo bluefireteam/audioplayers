@@ -669,6 +669,7 @@ public class AudioService extends MediaBrowserServiceCompat implements AudioMana
 					onStop();
 					break;
 				case KeyEvent.KEYCODE_MEDIA_FAST_FORWARD:
+					Log.d("myTag", "setNotification onFastForward 0!");
 					onFastForward();
 					break;
 				case KeyEvent.KEYCODE_MEDIA_REWIND:

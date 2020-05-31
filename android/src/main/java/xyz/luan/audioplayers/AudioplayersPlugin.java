@@ -108,9 +108,9 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
 	private static FlutterEngine backgroundFlutterEngine;
 	private static long bootTime;
 
-	private Player notificationPlayer;
-	private int forwardSkipIntervalInSeconds = 0;
-	private int backwardSkipIntervalInSeconds = 0;
+	private static Player notificationPlayer;
+	private static int forwardSkipIntervalInSeconds = 0;
+	private static int backwardSkipIntervalInSeconds = 0;
 
 	static {
 		bootTime = System.currentTimeMillis() - SystemClock.elapsedRealtime();
@@ -722,9 +722,11 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
 		@Override
 		public void onFastForward() {
 			// invokeMethod("onFastForward");
+			Log.d("myTag", "setNotification onFastForward!");
 			final int currentTime = notificationPlayer.getCurrentPosition();
 			final int maxDuration = notificationPlayer.getDuration();
-			final int newTime = currentTime + forwardSkipIntervalInSeconds;
+			final int newTime = currentTime + (forwardSkipIntervalInSeconds * 1000);
+			Log.d("myTag", "setNotification newTime : " + newTime);
 			if (newTime > maxDuration) {
 				notificationPlayer.seek(maxDuration);
 			} else {
@@ -737,7 +739,7 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
 			// invokeMethod("onRewind");
 			final int currentTime = notificationPlayer.getCurrentPosition();
 			final int maxDuration = notificationPlayer.getDuration();
-			final int newTime = currentTime - backwardSkipIntervalInSeconds;
+			final int newTime = currentTime - (backwardSkipIntervalInSeconds * 1000);
 			if (newTime < 0) {
 				notificationPlayer.seek(0);
 			} else {

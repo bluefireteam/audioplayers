@@ -215,6 +215,12 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         List<NotificationCompat.Action> actions = new ArrayList<NotificationCompat.Action>();
 
         List<Map<String, Object>> rawControls = new ArrayList<Map<String, Object>>();
+        Map<String, Object> mapRewindParams = new HashMap<>();
+        mapRewindParams.put("androidIcon", "drawable/ic_action_skip_previous");
+        mapRewindParams.put("label", "rewind");
+        mapRewindParams.put("action", PlaybackStateCompat.ACTION_REWIND);
+        rawControls.add(mapRewindParams);
+
         Map<String, Object> map1 = new HashMap<>();
         if(this.playing) {
             map1.put("androidIcon", "drawable/ic_action_pause");
@@ -228,6 +234,12 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
             playbackState = 2;
         }
         rawControls.add(map1);
+
+        Map<String, Object> mapForwardParams = new HashMap<>();
+        mapForwardParams.put("androidIcon", "drawable/ic_action_skip_next");
+        mapForwardParams.put("label", "fastForward");
+        mapForwardParams.put("action", PlaybackStateCompat.ACTION_FAST_FORWARD);
+        rawControls.add(mapForwardParams);
 
         // Map<String, Object> map2 = new HashMap<>();
         // map1.put("androidIcon", "drawable/ic_action_pause");
