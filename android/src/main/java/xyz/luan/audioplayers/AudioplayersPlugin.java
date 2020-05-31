@@ -279,8 +279,8 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
                 final long callbackHandle = getLong(args.get(0));
                 // final long callbackHandle = getLong(call.argument("handleKey"));
                 Log.d("myTag", "setNotification startHeadlessService android 10!");
-                boolean androidNotificationClickStartsActivity = false; // (Boolean)arguments.get("androidNotificationClickStartsActivity");
-                boolean androidNotificationOngoing = true; //(Boolean)arguments.get("androidNotificationOngoing");
+                boolean androidNotificationClickStartsActivity = true; // (Boolean)arguments.get("androidNotificationClickStartsActivity");
+                boolean androidNotificationOngoing = false; //(Boolean)arguments.get("androidNotificationOngoing");
                 boolean resumeOnClick = true; //(Boolean)arguments.get("resumeOnClick");
                 String androidNotificationChannelName = "test"; // (String)arguments.get("androidNotificationChannelName");
                 String androidNotificationChannelDescription = "test2"; // (String)arguments.get("androidNotificationChannelDescription");
@@ -288,7 +288,7 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
                 String androidNotificationIcon = "mipmap/icon"; // (String)arguments.get("androidNotificationIcon");
                 Log.d("myTag", "setNotification startHeadlessService android 11!");
                 final boolean enableQueue = false; //(Boolean)arguments.get("enableQueue");
-                final boolean androidStopForegroundOnPause = false; //(Boolean)arguments.get("androidStopForegroundOnPause");
+                final boolean androidStopForegroundOnPause = true; //(Boolean)arguments.get("androidStopForegroundOnPause");
                 final boolean androidStopOnRemoveTask = false; // (Boolean)arguments.get("androidStopOnRemoveTask");
                 final Map<String, Double> artDownscaleSizeMap = null; // (Map)arguments.get("androidArtDownscaleSize");
                 final Size artDownscaleSize = artDownscaleSizeMap == null ? null
