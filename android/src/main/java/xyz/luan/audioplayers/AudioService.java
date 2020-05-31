@@ -688,16 +688,19 @@ public class AudioService extends MediaBrowserServiceCompat implements AudioMana
 					// These are the "genuine" media button click events
 				case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
 				case KeyEvent.KEYCODE_HEADSETHOOK:
+					Log.d("myTag", "setNotification KEYCODE_HEADSETHOOK!");
 					MediaControllerCompat controller = mediaSession.getController();
 					// If you press the media button while in the pause state, we reactivate the media session.
 					if (resumeOnClick && controller.getPlaybackState().getState() == PlaybackStateCompat.STATE_PAUSED) {
-						play(new Runnable() {
-							public void run() {
-								listener.onClick(mediaControl(event));
-							}
-						});
+						// play(new Runnable() {
+						// 	public void run() {
+						// 		listener.onClick(mediaControl(event));
+						// 	}
+						// });
+						onPlay();
 					} else {
-						listener.onClick(mediaControl(event));
+						// listener.onClick(mediaControl(event));
+						onPause();
 					}
 					break;
 				}
