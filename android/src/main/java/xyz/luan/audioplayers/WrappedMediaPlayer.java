@@ -381,6 +381,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
                 this.ref.handleIsPlaying(this);
                 this.ref.handleNotificationPlayerStateChanged(this, true);
                 if(this.showNotification) {
+                    this.elapsedTimeInMillis = getCurrentPosition();
                     updateNotification();
                 }
             }
@@ -429,6 +430,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
             this.player.pause();
             ref.handleNotificationPlayerStateChanged(this, false);
             if(this.showNotification) {
+                this.elapsedTimeInMillis = getCurrentPosition();
                 updateNotification();
             }
         }
