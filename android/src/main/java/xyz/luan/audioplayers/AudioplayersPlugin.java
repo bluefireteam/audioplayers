@@ -180,7 +180,7 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
     public MediaControllerCompat.Callback controllerCallback = new MediaControllerCompat.Callback() {
         @Override
         public void onMetadataChanged(MediaMetadataCompat metadata) {
-            invokeMethod("onMediaChanged", mediaMetadata2raw(metadata));
+            // invokeMethod("onMediaChanged", mediaMetadata2raw(metadata));
         }
 
         @Override
@@ -189,7 +189,7 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
             // On the flutter side, we represent the update time relative to the epoch.
             long updateTimeSinceBoot = state.getLastPositionUpdateTime();
             long updateTimeSinceEpoch = bootTime + updateTimeSinceBoot;
-            invokeMethod("onPlaybackStateChanged", state.getState(), state.getActions(), state.getPosition(), state.getPlaybackSpeed(), updateTimeSinceEpoch);
+            // invokeMethod("onPlaybackStateChanged", state.getState(), state.getActions(), state.getPosition(), state.getPlaybackSpeed(), updateTimeSinceEpoch);
         }
 
         @Override

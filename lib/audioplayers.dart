@@ -533,6 +533,8 @@ class AudioPlayer {
   }
 
   static Future<void> _doHandlePlatformCall(MethodCall call) async {
+    print('_doHandlePlatformCall : ' + call.toString());
+    print('_doHandlePlatformCall 1 : ' + call?.arguments.toString());
     final Map<dynamic, dynamic> callArgs = call.arguments as Map;
     _log('_platformCallHandler call ${call.method} $callArgs');
 

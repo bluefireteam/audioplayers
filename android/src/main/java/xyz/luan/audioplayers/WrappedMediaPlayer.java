@@ -182,8 +182,14 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
             Log.d("myTag", "setNotification urldisplay : " + urldisplay);
             Bitmap bmp = null;
             try {
-                InputStream in = new java.net.URL(urldisplay).openStream();
-                bmp = BitmapFactory.decodeStream(in);
+                if(urldisplay.startsWith("http")) {
+                    Log.d("myTag", "setNotification urldisplay 0 : " + urldisplay);
+                    InputStream in = new java.net.URL(urldisplay).openStream();
+                    bmp = BitmapFactory.decodeStream(in);
+                } else {
+                    Log.d("myTag", "setNotification urldisplay 1 : " + urldisplay);
+                    bmp = AudioService.loadArtBitmapFromFile(urldisplay);
+                }
             } catch (Exception e) {
                 Log.e("Error setNotification ", e.getMessage());
                 e.printStackTrace();
