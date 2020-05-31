@@ -535,7 +535,6 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
 		private String appBundlePath;
 		private boolean enableQueue;
 		public MethodChannel backgroundChannel;
-		public MethodChannel mainChannel;
 		private AudioTrack silenceAudioTrack;
 		private static final int SILENCE_SAMPLE_RATE = 44100;
 		private byte[] silence;
@@ -544,7 +543,6 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
 			this.callbackHandle = callbackHandle;
 			this.appBundlePath = appBundlePath;
 			this.enableQueue = enableQueue;
-			// mainChannel = channel;
 		}
 
 		public void init(BinaryMessenger messenger) {
@@ -625,7 +623,6 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
             arguments.put("playerId", notificationPlayerId);
             arguments.put("updateHandleMonitorKey", updateHandleMonitorKey);
 
-            // mainChannel.invokeMethod("audio.onNotificationPlayerStateChanged", arguments);
             backgroundChannel.invokeMethod("audio.onNotificationBackgroundPlayerStateChanged", arguments);
 		}
 
