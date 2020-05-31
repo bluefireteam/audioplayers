@@ -108,6 +108,10 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
 	private static FlutterEngine backgroundFlutterEngine;
 	private static long bootTime;
 
+	private Player notificationPlayer;
+	private int forwardSkipIntervalInSeconds = 0;
+	private int backwardSkipIntervalInSeconds = 0;
+
 	static {
 		bootTime = System.currentTimeMillis() - SystemClock.elapsedRealtime();
 	}
@@ -262,7 +266,8 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
     private void handleMethodCall(final MethodCall call, final MethodChannel.Result response) {
         final String playerId = call.argument("playerId");
         final String mode = call.argument("mode");
-        final Player player = getPlayer(playerId, mode);
+		final Player player = getPlayer(playerId, mode);
+		this.notificationPlayer = player;
         switch (call.method) {
             case "startHeadlessService": {
                 // player.startHeadlessService();
@@ -386,7 +391,10 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
                 final String title = call.argument("title");
                 final String albumTitle = call.argument("albumTitle");
                 final String artist = call.argument("artist");
-                final String imageUrl = call.argument("imageUrl");
+				final String imageUrl = call.argument("imageUrl");
+				
+				this.forwardSkipIntervalInSeconds = call.argument("forwardSkipInterval");
+				this.backwardSkipIntervalInSeconds = call.argument("backwardSkipInterval");
 
                 player.setNotification(title, albumTitle, artist, imageUrl);
                 break;
@@ -604,7 +612,9 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
 
 		@Override
 		public void onPause() {
-            // invokeMethod("onPause");
+			// invokeMethod("onPause");
+			notificationPlayer.pause();
+
             Log.d("myTag", "setNotification onPlay pause!");
             Map<String, Object> arguments = new HashMap<String, Object>();
             arguments.put("value", "paused");
@@ -647,7 +657,8 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
 				executor.executeDartCallback(dartCallback);
                 Log.d("myTag", "setNotification onPlay 0!");
             } else {
-                Log.d("myTag", "setNotification onPlay 1!");
+				Log.d("myTag", "setNotification onPlay 1!");
+				notificationPlayer.play();
                 // invokeMethod("onPlay");
                 Map<String, Object> arguments = new HashMap<String, Object>();
                 arguments.put("value", "playing");
@@ -711,11 +722,27 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
 		@Override
 		public void onFastForward() {
 			// invokeMethod("onFastForward");
+			final int currentTime = notificationPlayer.getCurrentPosition();
+			final int maxDuration = notificationPlayer.getDuration();
+			final int newTime = currentTime + forwardSkipIntervalInSeconds;
+			if (newTime > maxDuration) {
+				notificationPlayer.seek(maxDuration);
+			} else {
+				notificationPlayer.seek(newTime);
+			}
 		}
 
 		@Override
 		public void onRewind() {
 			// invokeMethod("onRewind");
+			final int currentTime = notificationPlayer.getCurrentPosition();
+			final int maxDuration = notificationPlayer.getDuration();
+			final int newTime = currentTime - backwardSkipIntervalInSeconds;
+			if (newTime < 0) {
+				notificationPlayer.seek(0);
+			} else {
+				notificationPlayer.seek(newTime);
+			}
 		}
 
 		@Override
