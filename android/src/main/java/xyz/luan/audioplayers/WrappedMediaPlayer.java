@@ -151,10 +151,11 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         this.artist = artist;
         this.imageUrl = imageUrl;
 
-        this.maxDuration = maxDuration;
+        this.maxDuration = maxDuration * 1000;
 
         this.showNotification = true;
         Log.d("myTag", "setNotification start android!");
+        Log.d("myTag", "setNotification start android : " + maxDuration);
 
         // long updateTimeSinceEpoch = System.currentTimeMillis();
         // List<Object> compactActionIndexList = (List<Object>)args.get(6);
@@ -230,6 +231,10 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
             map1.put("label", "Pause");
             map1.put("action", PlaybackStateCompat.ACTION_PAUSE);
             playbackState = 3;
+
+            // long actionLongValue = (long) PlaybackStateCompat.ACTION_SEEK_TO;
+            // int actionCode = Math.toIntExact(actionLongValue);
+            // actionBits |= actionCode;
         } else {
             map1.put("androidIcon", "drawable/ic_action_play_arrow");
             map1.put("label", "Play");
