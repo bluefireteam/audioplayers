@@ -434,6 +434,10 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
         return mediaPlayers.get(playerId);
     }
 
+    public void handleNotificationPlayerStateChanged(Player player, boolean isPlaying) {
+        channel.invokeMethod("audio.onNotificationPlayerStateChanged", buildArguments(player.getPlayerId(), isPlaying));
+    }
+
     public void handleIsPlaying(Player player) {
         startPositionUpdates();
     }

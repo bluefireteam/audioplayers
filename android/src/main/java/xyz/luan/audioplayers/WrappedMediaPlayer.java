@@ -369,6 +369,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
             } else if (this.prepared) {
                 this.player.start();
                 this.ref.handleIsPlaying(this);
+                this.ref.handleNotificationPlayerStateChanged(this, true);
                 if(this.showNotification) {
                     updateNotification();
                 }
@@ -416,6 +417,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         if (this.playing) {
             this.playing = false;
             this.player.pause();
+            ref.handleNotificationPlayerStateChanged(this, false);
             if(this.showNotification) {
                 updateNotification();
             }
@@ -444,6 +446,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         if (this.playing) {
             this.player.start();
             ref.handleIsPlaying(this);
+            ref.handleNotificationPlayerStateChanged(this, true);
         }
         if (this.shouldSeekTo >= 0) {
             this.player.seekTo(this.shouldSeekTo);
