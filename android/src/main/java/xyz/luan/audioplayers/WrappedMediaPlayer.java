@@ -442,6 +442,10 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     void seek(int position) {
         if (this.prepared)
             this.player.seekTo(position);
+            if(this.showNotification) {
+                this.elapsedTimeInMillis = position;
+                updateNotification();
+            }
         else
             this.shouldSeekTo = position;
     }
