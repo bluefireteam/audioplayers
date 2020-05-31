@@ -109,6 +109,7 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
 	private static long bootTime;
 
 	private static Player notificationPlayer;
+	private static String notificationPlayerId = "";
 	private static int forwardSkipIntervalInSeconds = 0;
 	private static int backwardSkipIntervalInSeconds = 0;
 
@@ -268,6 +269,7 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
         final String mode = call.argument("mode");
 		final Player player = getPlayer(playerId, mode);
 		this.notificationPlayer = player;
+		this.notificationPlayerId = playerId;
         switch (call.method) {
             case "startHeadlessService": {
                 // player.startHeadlessService();
@@ -532,7 +534,8 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
 		private long callbackHandle;
 		private String appBundlePath;
 		private boolean enableQueue;
-		public MethodChannel channel;
+		public MethodChannel backgroundChannel;
+		public MethodChannel mainChannel;
 		private AudioTrack silenceAudioTrack;
 		private static final int SILENCE_SAMPLE_RATE = 44100;
 		private byte[] silence;
@@ -541,12 +544,13 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
 			this.callbackHandle = callbackHandle;
 			this.appBundlePath = appBundlePath;
 			this.enableQueue = enableQueue;
+			// mainChannel = channel;
 		}
 
 		public void init(BinaryMessenger messenger) {
-			if (channel != null) return;
-			channel = new MethodChannel(messenger, CHANNEL_AUDIO_SERVICE_BACKGROUND);
-			channel.setMethodCallHandler(this);
+			if (backgroundChannel != null) return;
+			backgroundChannel = new MethodChannel(messenger, CHANNEL_AUDIO_SERVICE_BACKGROUND);
+			backgroundChannel.setMethodCallHandler(this);
 		}
 
 		@Override
@@ -579,7 +583,7 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
 			ArrayList<Object> list = new ArrayList<Object>();
 			list.add(parentMediaId);
 			if (backgroundHandler != null) {
-				backgroundHandler.channel.invokeMethod("onLoadChildren", list, new MethodChannel.Result() {
+				backgroundHandler.backgroundChannel.invokeMethod("onLoadChildren", list, new MethodChannel.Result() {
 					@Override
 					public void error(String errorCode, String errorMessage, Object errorDetails) {
 						result.sendError(new Bundle());
@@ -618,9 +622,11 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
             Log.d("myTag", "setNotification onPlay pause!");
             Map<String, Object> arguments = new HashMap<String, Object>();
             arguments.put("value", "paused");
+            arguments.put("playerId", notificationPlayerId);
             arguments.put("updateHandleMonitorKey", updateHandleMonitorKey);
 
-            channel.invokeMethod("audio.onNotificationBackgroundPlayerStateChanged", arguments);
+            // mainChannel.invokeMethod("audio.onNotificationPlayerStateChanged", arguments);
+            backgroundChannel.invokeMethod("audio.onNotificationBackgroundPlayerStateChanged", arguments);
 		}
 
 		@Override
@@ -664,7 +670,7 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
                 arguments.put("value", "playing");
                 arguments.put("updateHandleMonitorKey", updateHandleMonitorKey);
 
-                channel.invokeMethod("audio.onNotificationBackgroundPlayerStateChanged", arguments);
+                backgroundChannel.invokeMethod("audio.onNotificationBackgroundPlayerStateChanged", arguments);
             }
 		}
 
@@ -857,12 +863,12 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
 
 		public void invokeMethod(String method, Object... args) {
 			ArrayList<Object> list = new ArrayList<Object>(Arrays.asList(args));
-			channel.invokeMethod(method, list);
+			backgroundChannel.invokeMethod(method, list);
 		}
 
 		public void invokeMethod(final Result result, String method, Object... args) {
 			ArrayList<Object> list = new ArrayList<Object>(Arrays.asList(args));
-			channel.invokeMethod(method, list, result);
+			backgroundChannel.invokeMethod(method, list, result);
 		}
 
 		private void clear() {
