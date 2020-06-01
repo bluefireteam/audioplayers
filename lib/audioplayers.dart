@@ -363,16 +363,14 @@ class AudioPlayer {
   /// If [isLocal] is false, [url] must be a remote URL.
   ///
   /// respectSilence and stayAwake are not implemented on macOS.
-  Future<int> play(
-    String url, {
-    bool isLocal,
-    double volume = 1.0,
-    // position must be null by default to be compatible with radio streams
-    Duration position,
-    bool respectSilence = false,
-    bool stayAwake = false,
-    bool recordingActive = false
-  }) async {
+  Future<int> play(String url,
+      {bool isLocal,
+      double volume = 1.0,
+      // position must be null by default to be compatible with radio streams
+      Duration position,
+      bool respectSilence = false,
+      bool stayAwake = false,
+      bool recordingActive = false}) async {
     isLocal ??= isLocalUrl(url);
     volume ??= 1.0;
     respectSilence ??= false;
