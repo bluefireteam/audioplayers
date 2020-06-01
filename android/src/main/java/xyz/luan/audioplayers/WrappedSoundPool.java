@@ -1,11 +1,13 @@
 package xyz.luan.audioplayers;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Build;
-import android.os.PowerManager;
-import android.content.Context;
 import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
@@ -15,17 +17,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
-import java.util.Map;
-import java.util.List;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static java.io.File.createTempFile;
 
 public class WrappedSoundPool extends Player {
 
     private static SoundPool soundPool = createSoundPool();
+    private static IntentFilter AUDIO_NOISY_INTENT_FILTER =
+            new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY);
+
     static {
         soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
             public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
@@ -50,11 +55,29 @@ public class WrappedSoundPool extends Player {
         });
     }
 
-    /** For the onLoadComplete listener, track which sound id is associated with which player. An entry only exists until
+    private final AudioManager audioManager;
+    private final Context context;
+    private boolean playOnAudioFocusLoss = false;
+    private AudioFocusHelper audioFocusHelper = new AudioFocusHelper();
+    private boolean audioNoisyReceiverRegistered = false;
+    private BroadcastReceiver audioNoisyReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(intent.getAction())) {
+                if (isActuallyPlaying()) {
+                    pause();
+                }
+            }
+        }
+    };
+
+    /**
+     * For the onLoadComplete listener, track which sound id is associated with which player. An entry only exists until
      * it has been loaded.
      */
     private static Map<Integer, WrappedSoundPool> soundIdToPlayer = Collections.synchronizedMap(new HashMap<Integer, WrappedSoundPool>());
-    /** This is to keep track of the players which share the same sound id, referenced by url. When a player release()s, it
+    /**
+     * This is to keep track of the players which share the same sound id, referenced by url. When a player release()s, it
      * is removed from the associated player list. The last player to be removed actually unloads() the sound id and then
      * the url is removed from this map.
      */
@@ -85,9 +108,27 @@ public class WrappedSoundPool extends Player {
 
     private String playingRoute = "speakers";
 
-    WrappedSoundPool(AudioplayersPlugin ref, String playerId) {
+    WrappedSoundPool(AudioplayersPlugin ref, String playerId, Context context) {
         this.ref = ref;
         this.playerId = playerId;
+        this.context = context;
+        audioManager = (AudioManager) context.getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+    }
+
+    private void registerAudioNoisyReceiver() {
+        if (!audioNoisyReceiverRegistered) {
+            context.getApplicationContext().registerReceiver(audioNoisyReceiver,
+                    AUDIO_NOISY_INTENT_FILTER
+            );
+            audioNoisyReceiverRegistered = true;
+        }
+    }
+
+    private void unregisterAudioNoisyReceiver() {
+        if (audioNoisyReceiverRegistered) {
+            context.getApplicationContext().unregisterReceiver(audioNoisyReceiver);
+            audioNoisyReceiverRegistered = false;
+        }
     }
 
     @Override
@@ -97,7 +138,8 @@ public class WrappedSoundPool extends Player {
 
     @Override
     void play(Context context) {
-        if (!this.loading) {
+        if (!this.loading && audioFocusHelper.requestAudioFocus()) {
+            registerAudioNoisyReceiver();
             start();
         }
         this.playing = true;
@@ -106,6 +148,8 @@ public class WrappedSoundPool extends Player {
     @Override
     void stop() {
         if (this.playing) {
+            audioFocusHelper.abandonAudioFocus();
+            unregisterAudioNoisyReceiver();
             soundPool.stop(this.streamId);
             this.playing = false;
         }
@@ -137,6 +181,10 @@ public class WrappedSoundPool extends Player {
     @Override
     void pause() {
         if (this.playing) {
+            if (!playOnAudioFocusLoss) {
+                audioFocusHelper.abandonAudioFocus();
+                unregisterAudioNoisyReceiver();
+            }
             soundPool.pause(this.streamId);
             this.playing = false;
             this.paused = true;
@@ -221,7 +269,7 @@ public class WrappedSoundPool extends Player {
 
     @Override
     boolean isActuallyPlaying() {
-        return false;
+        return playing;
     }
 
     @Override
@@ -326,6 +374,54 @@ public class WrappedSoundPool extends Player {
 
     private UnsupportedOperationException unsupportedOperation(String message) {
         return new UnsupportedOperationException("LOW_LATENCY mode does not support: " + message);
+    }
+
+    /**
+     * 音频焦点改变的音量变化控制
+     */
+    private class AudioFocusHelper implements AudioManager.OnAudioFocusChangeListener {
+
+        boolean requestAudioFocus() {
+            int result = audioManager.requestAudioFocus(
+                    this,
+                    AudioManager.STREAM_MUSIC,
+                    AudioManager.AUDIOFOCUS_GAIN
+            );
+            return result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
+        }
+
+        void abandonAudioFocus() {
+            audioManager.abandonAudioFocus(this);
+        }
+
+        @Override
+        public void onAudioFocusChange(int focusChange) {
+            float MEDIA_VOLUME_DUCK = 0.2f;
+            switch (focusChange) {
+                case AudioManager.AUDIOFOCUS_GAIN:
+                    if (playOnAudioFocusLoss && !isActuallyPlaying()) {
+                        play(context);
+                    } else if (isActuallyPlaying()) {
+                        float MEDIA_VOLUME_DEFAULT = 1.0f;
+                        setVolume(MEDIA_VOLUME_DEFAULT);
+                    }
+                    playOnAudioFocusLoss = false;
+                    break;
+                case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+                    setVolume(MEDIA_VOLUME_DUCK);
+                    break;
+                case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+                    if (isActuallyPlaying()) {
+                        playOnAudioFocusLoss = true;
+                        pause();
+                    }
+                    break;
+                case AudioManager.AUDIOFOCUS_LOSS:
+                    audioManager.abandonAudioFocus(this);
+                    playOnAudioFocusLoss = false;
+                    pause();
+            }
+        }
     }
 
 }

@@ -30,7 +30,8 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
 
     public static void registerWith(final Registrar registrar) {
         final MethodChannel channel = new MethodChannel(registrar.messenger(), "xyz.luan/audioplayers");
-        channel.setMethodCallHandler(new AudioplayersPlugin(channel, registrar.activeContext()));
+        channel.setMethodCallHandler(new AudioplayersPlugin(channel,
+                registrar.activeContext().getApplicationContext()));
     }
 
     private AudioplayersPlugin(final MethodChannel channel, Context context) {
@@ -153,8 +154,8 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
         if (!mediaPlayers.containsKey(playerId)) {
             Player player =
                     mode.equalsIgnoreCase("PlayerMode.MEDIA_PLAYER") ?
-                            new WrappedMediaPlayer(this, playerId) :
-                            new WrappedSoundPool(this, playerId);
+                            new WrappedMediaPlayer(this, playerId, context) :
+                            new WrappedSoundPool(this, playerId, context);
             mediaPlayers.put(playerId, player);
         }
         return mediaPlayers.get(playerId);

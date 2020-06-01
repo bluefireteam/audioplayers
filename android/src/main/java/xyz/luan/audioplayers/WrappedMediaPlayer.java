@@ -1,6 +1,9 @@
 package xyz.luan.audioplayers;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -9,7 +12,11 @@ import android.os.PowerManager;
 
 import java.io.IOException;
 
-public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnErrorListener {
+public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPreparedListener,
+        MediaPlayer.OnCompletionListener, MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnErrorListener {
+
+    private static IntentFilter AUDIO_NOISY_INTENT_FILTER =
+            new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY);
 
     private String playerId;
 
@@ -29,10 +36,28 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
 
     private MediaPlayer player;
     private AudioplayersPlugin ref;
+    private final AudioManager audioManager;
+    private final Context context;
+    private boolean playOnAudioFocusLoss = false;
+    private AudioFocusHelper audioFocusHelper = new AudioFocusHelper();
+    private boolean audioNoisyReceiverRegistered = false;
+    private BroadcastReceiver audioNoisyReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(intent.getAction())) {
+                if (isActuallyPlaying()) {
+                    pause();
+                }
+            }
+        }
+    };
 
-    WrappedMediaPlayer(AudioplayersPlugin ref, String playerId) {
+
+    WrappedMediaPlayer(AudioplayersPlugin ref, String playerId, Context context) {
         this.ref = ref;
         this.playerId = playerId;
+        this.context = context;
+        audioManager = (AudioManager) context.getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
     }
 
     /**
@@ -163,13 +188,29 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         return this.playing && this.prepared;
     }
 
+    private void registerAudioNoisyReceiver() {
+        if (!audioNoisyReceiverRegistered) {
+            context.getApplicationContext().registerReceiver(audioNoisyReceiver,
+                    AUDIO_NOISY_INTENT_FILTER
+            );
+            audioNoisyReceiverRegistered = true;
+        }
+    }
+
+    private void unregisterAudioNoisyReceiver() {
+        if (audioNoisyReceiverRegistered) {
+            context.getApplicationContext().unregisterReceiver(audioNoisyReceiver);
+            audioNoisyReceiverRegistered = false;
+        }
+    }
+
     /**
      * Playback handling methods
      */
-
     @Override
     void play(Context context) {
-        if (!this.playing) {
+        if (!this.playing && audioFocusHelper.requestAudioFocus()) {
+            registerAudioNoisyReceiver();
             this.playing = true;
             if (this.released) {
                 this.released = false;
@@ -188,7 +229,8 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         if (this.released) {
             return;
         }
-
+        audioFocusHelper.abandonAudioFocus();
+        unregisterAudioNoisyReceiver();
         if (releaseMode != ReleaseMode.RELEASE) {
             if (this.playing) {
                 this.playing = false;
@@ -222,6 +264,10 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     void pause() {
         if (this.playing) {
             this.playing = false;
+            if (!playOnAudioFocusLoss) {
+                audioFocusHelper.abandonAudioFocus();
+                unregisterAudioNoisyReceiver();
+            }
             this.player.pause();
         }
     }
@@ -288,7 +334,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
                 extraMsg = "MEDIA_ERROR_TIMED_OUT";
                 break;
             default:
-                extraMsg = whatMsg = "MEDIA_ERROR_UNKNOWN {extra:" + extra + "}";;
+                extraMsg = whatMsg = "MEDIA_ERROR_UNKNOWN {extra:" + extra + "}";
         }
         ref.handleError(this, "MediaPlayer error with what:" + whatMsg + " extra:" + extraMsg);
         return false;
@@ -323,26 +369,24 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         }
     }
 
-    @SuppressWarnings("deprecation")
     private void setAttributes(MediaPlayer player, Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             if (objectEquals(this.playingRoute, "speakers")) {
                 player.setAudioAttributes(new AudioAttributes.Builder()
-                    .setUsage(respectSilence ? AudioAttributes.USAGE_NOTIFICATION_RINGTONE : AudioAttributes.USAGE_MEDIA)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                    .build()
+                        .setUsage(respectSilence ? AudioAttributes.USAGE_NOTIFICATION_RINGTONE : AudioAttributes.USAGE_MEDIA)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .build()
                 );
             } else {
                 // Works with bluetooth headphones
                 // automatically switch to earpiece when disconnect bluetooth headphones
                 player.setAudioAttributes(new AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                    .build()
+                        .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .build()
                 );
-                if ( context != null ) {
-                    AudioManager mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-                    mAudioManager.setSpeakerphoneOn(false);
+                if (context != null) {
+                    audioManager.setSpeakerphoneOn(false);
                 }
             }
 
@@ -356,4 +400,51 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         }
     }
 
+    /**
+     * 音频焦点改变的音量变化控制
+     */
+    private class AudioFocusHelper implements AudioManager.OnAudioFocusChangeListener {
+
+        boolean requestAudioFocus() {
+            int result = audioManager.requestAudioFocus(
+                    this,
+                    AudioManager.STREAM_MUSIC,
+                    AudioManager.AUDIOFOCUS_GAIN
+            );
+            return result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
+        }
+
+        void abandonAudioFocus() {
+            audioManager.abandonAudioFocus(this);
+        }
+
+        @Override
+        public void onAudioFocusChange(int focusChange) {
+            float MEDIA_VOLUME_DUCK = 0.2f;
+            switch (focusChange) {
+                case AudioManager.AUDIOFOCUS_GAIN:
+                    if (playOnAudioFocusLoss && !isActuallyPlaying()) {
+                        play(context);
+                    } else if (isActuallyPlaying()) {
+                        float MEDIA_VOLUME_DEFAULT = 1.0f;
+                        setVolume(MEDIA_VOLUME_DEFAULT);
+                    }
+                    playOnAudioFocusLoss = false;
+                    break;
+                case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+                    setVolume(MEDIA_VOLUME_DUCK);
+                    break;
+                case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+                    if (isActuallyPlaying()) {
+                        playOnAudioFocusLoss = true;
+                        pause();
+                    }
+                    break;
+                case AudioManager.AUDIOFOCUS_LOSS:
+                    audioManager.abandonAudioFocus(this);
+                    playOnAudioFocusLoss = false;
+                    pause();
+            }
+        }
+    }
 }
