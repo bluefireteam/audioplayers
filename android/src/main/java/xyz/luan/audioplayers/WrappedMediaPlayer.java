@@ -78,7 +78,7 @@ import android.content.res.AssetManager;
 import io.flutter.view.FlutterNativeView;
 import io.flutter.view.FlutterRunArguments;
 
-public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnSeekCompleteListener {
+public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnErrorListener {
 
     private String playerId;
 
@@ -222,7 +222,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
 
         List<Map<String, Object>> rawControls = new ArrayList<Map<String, Object>>();
         Map<String, Object> mapRewindParams = new HashMap<>();
-        mapRewindParams.put("androidIcon", "drawable/ic_action_skip_previous");
+        mapRewindParams.put("androidIcon", "drawable/ic_action_replay");
         mapRewindParams.put("label", "rewind");
         mapRewindParams.put("action", PlaybackStateCompat.ACTION_REWIND);
         rawControls.add(mapRewindParams);
@@ -246,7 +246,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         rawControls.add(map1);
 
         Map<String, Object> mapForwardParams = new HashMap<>();
-        mapForwardParams.put("androidIcon", "drawable/ic_action_skip_next");
+        mapForwardParams.put("androidIcon", "drawable/ic_action_skip");
         mapForwardParams.put("label", "fastForward");
         mapForwardParams.put("action", PlaybackStateCompat.ACTION_FAST_FORWARD);
         rawControls.add(mapForwardParams);
@@ -486,6 +486,24 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     public void onSeekComplete(final MediaPlayer mediaPlayer) {
         ref.handleSeekComplete(this);
     }
+
+    @Override
+    public boolean onError(final MediaPlayer mediaPlayer, int what, int extra) {
+        Log.d("myTag", "setNotification onError mediaplayer!");
+        //Invoked when there has been an error during an asynchronous operation
+        switch (what) {
+            case MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK:
+                Log.e("MediaPlayer Error setNotification", "MEDIA ERROR NOT VALID FOR PROGRESSIVE PLAYBACK " + extra);
+                break;
+            case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
+                Log.e("MediaPlayer Error setNotification", "MEDIA ERROR SERVER DIED " + extra);
+                break;
+            case MediaPlayer.MEDIA_ERROR_UNKNOWN:
+                Log.e("MediaPlayer Error setNotification", "MEDIA ERROR UNKNOWN " + extra);
+                break;
+        }
+        return true;
+    }
     
     public static Long getLong(Object o) {
 		return (o == null || o instanceof Long) ? (Long)o : new Long(((Integer)o).intValue());
@@ -496,6 +514,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         player.setOnPreparedListener(this);
         player.setOnCompletionListener(this);
         player.setOnSeekCompleteListener(this);
+        player.setOnErrorListener(this);
         setAttributes(player);
         player.setVolume((float) volume, (float) volume);
         player.setLooping(this.releaseMode == ReleaseMode.LOOP);
