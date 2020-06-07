@@ -602,6 +602,13 @@ float _notificationPlaybackRate = 1.0;
 
   [ player pause ];
   [playerInfo setObject:@false forKey:@"isPlaying"];
+  #if TARGET_OS_IPHONE
+      if (_infoCenter != nil) {
+        AVPlayerItem *currentItem = player.currentItem;
+        CMTime currentTime = currentItem.currentTime;
+        [ self updateNotification:CMTimeGetSeconds(currentTime) ];
+      }
+  #endif
 }
 
 -(void) resume: (NSString *) playerId {
