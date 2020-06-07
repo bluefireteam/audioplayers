@@ -292,7 +292,7 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
                 String androidNotificationChannelName = "test"; // (String)arguments.get("androidNotificationChannelName");
                 String androidNotificationChannelDescription = "test2"; // (String)arguments.get("androidNotificationChannelDescription");
                 Integer notificationColor = null; // arguments.get("notificationColor") == null ? null : getInt(arguments.get("notificationColor"));
-                String androidNotificationIcon = "mipmap/icon"; // (String)arguments.get("androidNotificationIcon");
+                String androidNotificationIcon = "mipmap/ic_stat_logo_circular"; // (String)arguments.get("androidNotificationIcon");
                 Log.d("myTag", "setNotification startHeadlessService android 11!");
                 final boolean enableQueue = false; //(Boolean)arguments.get("enableQueue");
                 final boolean androidStopForegroundOnPause = true; //(Boolean)arguments.get("androidStopForegroundOnPause");

@@ -55,6 +55,7 @@ NSString *_artist;
 NSString *_imageUrl;
 int _duration;
 const float _defaultPlaybackRate = 1.0;
+float _notificationPlaybackRate = 1.0;
 
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
   _registrar = registrar;
@@ -418,7 +419,7 @@ const float _defaultPlaybackRate = 1.0;
 	        // From `MPNowPlayingInfoPropertyElapsedPlaybackTime` docs -- it is not recommended to update this value frequently. Thus it should represent integer seconds and not an accurate `CMTime` value with fractions of a second
           playingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = [NSNumber numberWithInt: elapsedTime];
 
-          playingInfo[MPNowPlayingInfoPropertyPlaybackRate] = @(_defaultPlaybackRate);
+          playingInfo[MPNowPlayingInfoPropertyPlaybackRate] = @(_notificationPlaybackRate);
           NSLog(@"setNotification done");
 
           if (_infoCenter != nil) {
@@ -638,6 +639,7 @@ const float _defaultPlaybackRate = 1.0;
   [ player setRate:playbackRate ];
   #if TARGET_OS_IPHONE
       if (_infoCenter != nil) {
+        _notificationPlaybackRate = playbackRate;
         AVPlayerItem *currentItem = player.currentItem;
         CMTime currentTime = currentItem.currentTime;
         [ self updateNotification:CMTimeGetSeconds(currentTime) ];
