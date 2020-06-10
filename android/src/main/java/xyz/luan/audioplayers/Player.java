@@ -23,7 +23,7 @@ abstract class Player {
 
     abstract int setRate(double rate);
 
-    abstract void configAttributes(boolean respectSilence, boolean stayAwake, Context context);
+    abstract void configAttributes(boolean respectSilence, boolean stayAwake, boolean duckAudio, Context context);
 
     abstract void setReleaseMode(ReleaseMode releaseMode);
 

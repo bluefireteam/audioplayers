@@ -76,7 +76,8 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
                 final boolean respectSilence = call.argument("respectSilence");
                 final boolean isLocal = call.argument("isLocal");
                 final boolean stayAwake = call.argument("stayAwake");
-                player.configAttributes(respectSilence, stayAwake, context.getApplicationContext());
+                final boolean duckAudio = call.argument("duckAudio");
+                player.configAttributes(respectSilence, stayAwake, duckAudio, context.getApplicationContext());
                 player.setVolume(volume);
                 player.setUrl(url, isLocal, context.getApplicationContext());
                 if (position != null && !mode.equals("PlayerMode.LOW_LATENCY")) {
