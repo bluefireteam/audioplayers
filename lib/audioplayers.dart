@@ -371,6 +371,7 @@ class AudioPlayer {
     Duration position,
     bool respectSilence = false,
     bool stayAwake = false,
+    bool duckAudio = false,
   }) async {
     isLocal ??= isLocalUrl(url);
     volume ??= 1.0;
@@ -384,6 +385,7 @@ class AudioPlayer {
       'position': position?.inMilliseconds,
       'respectSilence': respectSilence,
       'stayAwake': stayAwake,
+      'duckAudio': duckAudio,
     });
 
     if (result == 1) {

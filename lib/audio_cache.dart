@@ -35,7 +35,16 @@ class AudioCache {
   /// Not implemented on macOS.
   bool respectSilence;
 
-  AudioCache({this.prefix = "", this.fixedPlayer, this.respectSilence = false});
+  /// This flag should be set to true, if player is used for playing sound while there may be music
+  ///
+  /// If not set, the audio will be paused while playing on iOS and continue playing on Android.
+  bool duckAudio;
+
+  AudioCache(
+      {this.prefix = "",
+      this.fixedPlayer,
+      this.respectSilence = false,
+      this.duckAudio = false});
 
   /// Clears the cache of the file [fileName].
   ///
@@ -99,15 +108,16 @@ class AudioCache {
       {double volume = 1.0,
       bool isNotification,
       PlayerMode mode = PlayerMode.MEDIA_PLAYER,
-      bool stayAwake}) async {
+      bool stayAwake,
+      bool duckAudio}) async {
     String url = await getAbsoluteUrl(fileName);
     AudioPlayer player = _player(mode);
-    await player.play(
-      url,
-      volume: volume,
-      respectSilence: isNotification ?? respectSilence,
-      stayAwake: stayAwake,
-    );
+
+    await player.play(url,
+        volume: volume,
+        respectSilence: isNotification ?? respectSilence,
+        stayAwake: stayAwake,
+        duckAudio: duckAudio);
     return player;
   }
 

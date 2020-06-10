@@ -168,11 +168,12 @@ const NSString *_defaultPlayingRoute = @"speakers";
                     float volume = (float)[call.arguments[@"volume"] doubleValue] ;
                     int milliseconds = call.arguments[@"position"] == [NSNull null] ? 0.0 : [call.arguments[@"position"] intValue] ;
                     bool respectSilence = [call.arguments[@"respectSilence"]boolValue] ;
+                    bool duckAudio = [call.arguments[@"duckAudio"]boolValue] ;
                     CMTime time = CMTimeMakeWithSeconds(milliseconds / 1000,NSEC_PER_SEC);
                     NSLog(@"isLocal: %d %@", isLocal, call.arguments[@"isLocal"] );
                     NSLog(@"volume: %f %@", volume, call.arguments[@"volume"] );
                     NSLog(@"position: %d %@", milliseconds, call.arguments[@"positions"] );
-                    [self play:playerId url:url isLocal:isLocal volume:volume time:time isNotification:respectSilence];
+                    [self play:playerId url:url isLocal:isLocal volume:volume time:time isNotification:respectSilence duckAudio:duckAudio];
                   },
                 @"pause":
                   ^{
@@ -542,7 +543,28 @@ const NSString *_defaultPlayingRoute = @"speakers";
       volume: (float) volume
         time: (CMTime) time
       isNotification: (bool) respectSilence
+      duckAudio: (bool) duckAudio
 {
+  NSError *error = nil;
+  AVAudioSessionCategory category = respectSilence ? AVAudioSessionCategoryAmbient : AVAudioSessionCategoryPlayback;
+    
+  BOOL success = false;
+  if (duckAudio) {
+    success = [[AVAudioSession sharedInstance]
+                    setCategory: category
+            withOptions: AVAudioSessionCategoryOptionDuckOthers
+                    error:&error];
+  } else {
+    success = [[AVAudioSession sharedInstance]
+                    setCategory: category
+                    error:&error];
+  }
+
+  if (!success) {
+    NSLog(@"Error setting speaker: %@", error);
+  }
+  [[AVAudioSession sharedInstance] setActive:YES error:&error];
+
   [ self setUrl:url
          isLocal:isLocal
          isNotification:respectSilence
@@ -736,6 +758,8 @@ const NSString *_defaultPlayingRoute = @"speakers";
   }
 
   [ _channel_audioplayer invokeMethod:@"audio.onComplete" arguments:@{@"playerId": playerId}];
+  NSError *error = nil;
+    [[AVAudioSession sharedInstance] setActive:NO error:&error];
   #if TARGET_OS_IPHONE
       if (headlessServiceInitialized) {
           [_callbackChannel invokeMethod:@"audio.onNotificationBackgroundPlayerStateChanged" arguments:@{@"playerId": playerId, @"updateHandleMonitorKey": @(_updateHandleMonitorKey), @"value": @"completed"}];
