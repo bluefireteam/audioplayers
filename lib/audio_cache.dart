@@ -41,11 +41,15 @@ class AudioCache {
   ///
   /// Does nothing if the file was not on cache.
   void clear(String fileName) {
-    loadedFiles.remove(fileName);
+    final file = loadedFiles.remove(fileName);
+    file?.delete();
   }
 
   /// Clears the whole cache.
   void clearCache() {
+    for (final file in loadedFiles.values) {
+      file.delete();
+    }
     loadedFiles.clear();
   }
 
