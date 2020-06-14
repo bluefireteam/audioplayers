@@ -235,7 +235,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
             playbackState = 3;
 
             long actionLongValue = (long) PlaybackStateCompat.ACTION_SEEK_TO;
-            int actionCode = Math.toIntExact(actionLongValue);
+            int actionCode = (int) actionLongValue;
             actionBits |= actionCode;
         } else {
             map1.put("androidIcon", "drawable/ic_action_play_arrow");
@@ -260,7 +260,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         for (Map<String, Object> rawControl : rawControls) {
             String resource = (String)rawControl.get("androidIcon");
             long actionLongValue = (long) rawControl.get("action");
-            int actionCode = Math.toIntExact(actionLongValue);
+            int actionCode = (int) actionLongValue;
             Log.d("myTag", "setNotification keycode 0 : " + actionCode);
             actionBits |= actionCode;
             actions.add(AudioService.instance.action(resource, (String)rawControl.get("label"), actionCode));
