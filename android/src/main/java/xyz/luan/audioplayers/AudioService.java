@@ -125,6 +125,7 @@ public class AudioService extends MediaBrowserServiceCompat implements AudioMana
 	}
 
 	public void stop() {
+		Log.d("myTag", "setNotification stop 12!");
 		running = false;
 		mediaMetadata = null;
 		resumeOnClick = false;
@@ -529,6 +530,7 @@ public class AudioService extends MediaBrowserServiceCompat implements AudioMana
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		Log.d("myTag", "setNotification stop 2!");
 		if (listener != null) {
 			listener.onDestroy();
 		}
@@ -537,9 +539,13 @@ public class AudioService extends MediaBrowserServiceCompat implements AudioMana
 
 	@Override
 	public void onTaskRemoved(Intent rootIntent) {
+		Log.d("myTag", "setNotification onTaskRemoved 2!");
 		MediaControllerCompat controller = mediaSession.getController();
 		if (androidStopOnRemoveTask || (androidStopForegroundOnPause && controller.getPlaybackState().getState() == PlaybackStateCompat.STATE_PAUSED)) {
-			listener.onStop();
+			if (listener != null) {
+				listener.onPause();
+				listener.onDestroy();
+			}
 		}
 		super.onTaskRemoved(rootIntent);
 	}

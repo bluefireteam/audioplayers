@@ -147,7 +147,9 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
     }	
     
     @Override	
-    public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {}
+    public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
+		Log.d("myTag", "setNotification onDetachedFromEngine!");
+	}
 
     // /
 	// ActivityAware callbacks
@@ -171,6 +173,7 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
 	@Override
 	public void onDetachedFromActivity() {
 		// clientHandler = null;
+		Log.d("myTag", "setNotification onDetachedFromActivity!");
     }
 
     private static void sendConnectResult(boolean result) {
@@ -296,7 +299,7 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
                 Log.d("myTag", "setNotification startHeadlessService android 11!");
                 final boolean enableQueue = false; //(Boolean)arguments.get("enableQueue");
                 final boolean androidStopForegroundOnPause = true; //(Boolean)arguments.get("androidStopForegroundOnPause");
-                final boolean androidStopOnRemoveTask = false; // (Boolean)arguments.get("androidStopOnRemoveTask");
+                final boolean androidStopOnRemoveTask = true; // (Boolean)arguments.get("androidStopOnRemoveTask");
                 final Map<String, Double> artDownscaleSizeMap = null; // (Map)arguments.get("androidArtDownscaleSize");
                 final Size artDownscaleSize = artDownscaleSizeMap == null ? null
                     : new Size((int)Math.round(artDownscaleSizeMap.get("width")), (int)Math.round(artDownscaleSizeMap.get("height")));
@@ -701,6 +704,7 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
 
 		@Override
 		public void onDestroy() {
+			Log.d("myTag", "setNotification stop 3!");
 			clear();
 		}
 
@@ -883,6 +887,7 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
 		}
 
 		private void clear() {
+			Log.d("myTag", "setNotification stop 5!");
 			AudioService.instance.stop();
 			if (silenceAudioTrack != null)
 				silenceAudioTrack.release();
