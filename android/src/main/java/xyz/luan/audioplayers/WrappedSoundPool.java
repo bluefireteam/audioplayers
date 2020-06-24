@@ -83,6 +83,8 @@ public class WrappedSoundPool extends Player {
 
     private boolean loading = false;
 
+    private String playingRoute = "speakers";
+
     WrappedSoundPool(AudioplayersPlugin ref, String playerId) {
         this.ref = ref;
         this.playerId = playerId;
@@ -94,7 +96,7 @@ public class WrappedSoundPool extends Player {
     }
 
     @Override
-    void play() {
+    void play(Context context) {
         if (!this.loading) {
             start();
         }
@@ -147,7 +149,7 @@ public class WrappedSoundPool extends Player {
     }
 
     @Override
-    void setUrl(final String url, final boolean isLocal) {
+    void setUrl(final String url, final boolean isLocal, Context context) {
         if (this.url != null && this.url.equals(url)) {
             return;
         }
@@ -225,6 +227,11 @@ public class WrappedSoundPool extends Player {
     @Override
     boolean isActuallyPlaying() {
         return false;
+    }
+		
+    @Override	
+    void setPlayingRoute(String playingRoute, Context context) {	
+        throw unsupportedOperation("setPlayingRoute");	
     }
 
     @Override

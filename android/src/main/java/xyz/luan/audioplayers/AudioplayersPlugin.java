@@ -657,8 +657,8 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
 
 		@Override
 		public void onPlay() {
+			Context context = AudioService.instance;
 			if (backgroundFlutterEngine == null) {
-				Context context = AudioService.instance;
 				backgroundFlutterEngine = new FlutterEngine(context.getApplicationContext());
 				FlutterCallbackInformation cb = FlutterCallbackInformation.lookupCallbackInformation(callbackHandle);
 				if (cb == null || appBundlePath == null) {
@@ -678,7 +678,7 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
 
 				executor.executeDartCallback(dartCallback);
 			} else {
-				notificationPlayer.play();
+				notificationPlayer.play(context.getApplicationContext());
 				Map<String, Object> arguments = new HashMap<String, Object>();
 				arguments.put("value", "playing");
 				arguments.put("updateHandleMonitorKey", updateHandleMonitorKey);
