@@ -283,25 +283,22 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
 				Map<?, ?> arguments = (Map<?, ?>) call.arguments;
 				List<Object> args = (List<Object>) arguments.get("handleKey");
 				final long callbackHandle = getLong(args.get(0));
-				// final long callbackHandle = getLong(call.argument("handleKey"));
-				boolean androidNotificationClickStartsActivity = true; // (Boolean)arguments.get("androidNotificationClickStartsActivity");
-				boolean androidNotificationOngoing = false; // (Boolean)arguments.get("androidNotificationOngoing");
-				boolean resumeOnClick = true; // (Boolean)arguments.get("resumeOnClick");
-				String androidNotificationChannelName = "androidName"; // (String)arguments.get("androidNotificationChannelName");
-				String androidNotificationChannelDescription = "androidDesc"; // (String)arguments.get("androidNotificationChannelDescription");
-				Integer notificationColor = null; // arguments.get("notificationColor") == null ? null :
-													// getInt(arguments.get("notificationColor"));
-				String androidNotificationIcon = "mipmap/ic_stat_logo_circular"; // (String)arguments.get("androidNotificationIcon");
-				final boolean enableQueue = false; // (Boolean)arguments.get("enableQueue");
-				final boolean androidStopForegroundOnPause = true; // (Boolean)arguments.get("androidStopForegroundOnPause");
-				final boolean androidStopOnRemoveTask = true; // (Boolean)arguments.get("androidStopOnRemoveTask");
-				final Map<String, Double> artDownscaleSizeMap = null; // (Map)arguments.get("androidArtDownscaleSize");
+				boolean androidNotificationClickStartsActivity = true; 
+				boolean androidNotificationOngoing = false; 
+				boolean resumeOnClick = true; 
+				String androidNotificationChannelName = "androidName"; 
+				String androidNotificationChannelDescription = "androidDesc";  
+				Integer notificationColor = null; 
+				String androidNotificationIcon = "mipmap/ic_stat_logo_circular"; 
+				final boolean enableQueue = false;
+				final boolean androidStopForegroundOnPause = true; 
+				final boolean androidStopOnRemoveTask = true; 
+				final Map<String, Double> artDownscaleSizeMap = null; 
 				final Size artDownscaleSize = artDownscaleSizeMap == null ? null
 						: new Size((int) Math.round(artDownscaleSizeMap.get("width")),
 								(int) Math.round(artDownscaleSizeMap.get("height")));
 
 				final String appBundlePath = FlutterMain.findAppBundlePath(context.getApplicationContext());
-				Log.d("myTag", "setNotification startHeadlessService android 2!");
 				backgroundHandler = new BackgroundHandler(callbackHandle, appBundlePath, enableQueue);
 				AudioService.init(activity, resumeOnClick, androidNotificationChannelName,
 						androidNotificationChannelDescription, notificationColor, androidNotificationIcon,
