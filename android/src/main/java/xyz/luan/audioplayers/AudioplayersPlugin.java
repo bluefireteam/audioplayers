@@ -147,8 +147,7 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
 	}
 
 	@Override
-	public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
-	}
+	public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {}
 
 	// /
 	// ActivityAware callbacks
@@ -341,15 +340,15 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
 				final boolean stayAwake = call.argument("stayAwake");
 				player.configAttributes(respectSilence, stayAwake, context.getApplicationContext());
 				player.setVolume(volume);
-				player.setUrl(url, isLocal);
+				player.setUrl(url, isLocal, context.getApplicationContext());
 				if (position != null && !mode.equals("PlayerMode.LOW_LATENCY")) {
 					player.seek(position);
 				}
-				player.play();
+				player.play(context.getApplicationContext());
 				break;
 			}
 			case "resume": {
-				player.play();
+				player.play(context.getApplicationContext());
 				break;
 			}
 			case "pause": {
@@ -377,7 +376,7 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
 			case "setUrl": {
 				final String url = call.argument("url");
 				final boolean isLocal = call.argument("isLocal");
-				player.setUrl(url, isLocal);
+				player.setUrl(url, isLocal, context.getApplicationContext());
 				break;
 			}
 			case "setPlaybackRate": {
@@ -413,6 +412,11 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
 				final ReleaseMode releaseMode = ReleaseMode.valueOf(releaseModeName.substring("ReleaseMode.".length()));
 				player.setReleaseMode(releaseMode);
 				break;
+			}
+			case "earpieceOrSpeakersToggle": {	
+				final String playingRoute = call.argument("playingRoute");	
+				player.setPlayingRoute(playingRoute, context.getApplicationContext());	
+				break;	
 			}
 			default: {
 				response.notImplemented();
@@ -452,6 +456,10 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin, Act
 			backgroundHandler.backgroundChannel.invokeMethod("audio.onNotificationBackgroundPlayerStateChanged",
 					arguments);
 		}
+	}
+		
+	public void handleError(Player player, String message) {	
+		channel.invokeMethod("audio.onError", buildArguments(player.getPlayerId(), message));	
 	}
 
 	public void handleSeekComplete(Player player) {
