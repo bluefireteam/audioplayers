@@ -235,13 +235,19 @@ public class WrappedSoundPool extends Player {
     }
 
     @Override
+    void setPlayingRoute(String playingRoute, Context context) {
+        throw unsupportedOperation("setPlayingRoute");
+    }
+
+    @Override
     void seek(int position) {
         throw unsupportedOperation("seek");
     }
 
     private static SoundPool createSoundPool() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            AudioAttributes attrs = new AudioAttributes.Builder().setLegacyStreamType(AudioManager.USE_DEFAULT_STREAM_TYPE)
+            AudioAttributes attrs = new AudioAttributes
+                    .Builder().setLegacyStreamType(AudioManager.USE_DEFAULT_STREAM_TYPE)
                     .setUsage(AudioAttributes.USAGE_GAME)
                     .build();
             return new SoundPool.Builder()

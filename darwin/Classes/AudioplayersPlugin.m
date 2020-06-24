@@ -273,6 +273,12 @@ const NSString *_defaultPlayingRoute = @"speakers";
                     NSString *releaseMode = call.arguments[@"releaseMode"];
                     bool looping = [releaseMode hasSuffix:@"LOOP"];
                     [self setLooping:looping playerId:playerId];
+                  },
+                @"earpieceOrSpeakersToggle":
+                  ^{
+                    NSLog(@"earpieceOrSpeakersToggle");
+                    NSString *playingRoute = call.arguments[@"playingRoute"];
+                    [self setPlayingRoute:playingRoute playerId:playerId];
                   }
                 };
 
@@ -290,7 +296,7 @@ const NSString *_defaultPlayingRoute = @"speakers";
 -(void) initPlayerInfo: (NSString *) playerId {
   NSMutableDictionary * playerInfo = players[playerId];
   if (!playerInfo) {
-    players[playerId] = [@{@"isPlaying": @false, @"volume": @(1.0), @"rate": @(_defaultPlaybackRate), @"looping": @(false)} mutableCopy];
+    players[playerId] = [@{@"isPlaying": @false, @"volume": @(1.0), @"rate": @(_defaultPlaybackRate), @"looping": @(false), @"playingRoute": _defaultPlayingRoute} mutableCopy];
   }
 }
 
@@ -462,15 +468,23 @@ const NSString *_defaultPlayingRoute = @"speakers";
         success = [[AVAudioSession sharedInstance] setCategory:category withOptions:AVAudioSessionCategoryOptionMixWithOthers error:&error];
       } else {
         success = [[AVAudioSession sharedInstance] setCategory:category error:&error];
+        [[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
       }
-    
+      
+      if ([playerInfo[@"playingRoute"] isEqualToString:@"earpiece"]) {
+        // Use earpiece speaker to play audio.
+        success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord error:&error];
+      }
+
       if (!success) {
         NSLog(@"Error setting speaker: %@", error);
       }
       [[AVAudioSession sharedInstance] setActive:YES error:&error];
   #endif
     
-  if (!playerInfo || ![url isEqualToString:playerInfo[@"url"]]) {
+  BOOL playbackFailed = ([[player currentItem] status] == AVPlayerItemStatusFailed);
+    
+  if (!playerInfo || ![url isEqualToString:playerInfo[@"url"]] || playbackFailed) {
     if (isLocal) {
       playerItem = [ [ AVPlayerItem alloc ] initWithURL:[ NSURL fileURLWithPath:url ]];
     } else {
@@ -664,6 +678,25 @@ const NSString *_defaultPlayingRoute = @"speakers";
   NSMutableDictionary *playerInfo = players[playerId];
   [playerInfo setObject:@(looping) forKey:@"looping"];
 }
+
+-(void) setPlayingRoute: (NSString *) playingRoute
+               playerId: (NSString *) playerId {
+  NSLog(@"%@ -> calling setPlayingRoute", osName);
+  NSMutableDictionary *playerInfo = players[playerId];
+  [playerInfo setObject:(playingRoute) forKey:@"playingRoute"];
+
+  BOOL success = false;
+  NSError *error = nil;
+  if ([playingRoute isEqualToString:@"earpiece"]) {
+    // Use earpiece speaker to play audio.
+    success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord error:&error];
+  } else {
+    success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:&error];
+  }
+  if (!success) {
+    NSLog(@"Error setting playing route: %@", error);
+  }
+} 
 
 -(void) stop: (NSString *) playerId {
   NSMutableDictionary * playerInfo = players[playerId];

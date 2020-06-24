@@ -1,6 +1,24 @@
 # Changelog
 
 ## [next]
+- Implemented stream routing for iOS
+- Call release on dispose
+
+## audioplayers 0.15.1
+- Fix web for release mode
+
+## audioplayers 0.15.0
+- Improve loop/readme for web support
+- Audio cache support for web
+- Re-adding partial web support
+
+## audioplayers 0.14.2
+- Fix pubspec problem because of web file
+
+## audioplayers 0.14.1
+- Adding linter, tests and flutter_driver integration tests to a CI (github actions)
+- Minor fixes to the APIs and documentation
+- Fix restarting the playback of a failed AVPlayerItem
 - Prevent exceptions when null values are passed to notifications center
 - Prevent crash by checking if headlessServiceInitialized before invoking onNotificationBackgroundPlayerStateChanged
 

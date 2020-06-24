@@ -65,6 +65,7 @@ class _ExampleAppState extends State<ExampleApp> {
       child: _Tab(children: [
         Text(
           'Sample 1 ($kUrl1)',
+          key: Key('url1'),
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         PlayerWidget(url: kUrl1),

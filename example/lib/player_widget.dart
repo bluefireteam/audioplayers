@@ -5,12 +5,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 enum PlayerState { stopped, playing, paused }
+enum PlayingRouteState { speakers, earpiece }
 
 class PlayerWidget extends StatefulWidget {
   final String url;
   final PlayerMode mode;
 
-  PlayerWidget({@required this.url, this.mode = PlayerMode.MEDIA_PLAYER});
+  PlayerWidget(
+      {Key key, @required this.url, this.mode = PlayerMode.MEDIA_PLAYER})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -28,6 +31,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   Duration _position;
 
   PlayerState _playerState = PlayerState.stopped;
+  PlayingRouteState _playingRouteState = PlayingRouteState.speakers;
   StreamSubscription _durationSubscription;
   StreamSubscription _positionSubscription;
   StreamSubscription _playerCompleteSubscription;
@@ -39,6 +43,9 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   get _durationText => _duration?.toString()?.split('.')?.first ?? '';
   get _positionText => _position?.toString()?.split('.')?.first ?? '';
 
+  get _isPlayingThroughEarpiece =>
+      _playingRouteState == PlayingRouteState.earpiece;
+
   _PlayerWidgetState(this.url, this.mode);
 
   @override
@@ -49,7 +56,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
 
   @override
   void dispose() {
-    _audioPlayer.stop();
+    _audioPlayer.dispose();
     _durationSubscription?.cancel();
     _positionSubscription?.cancel();
     _playerCompleteSubscription?.cancel();
@@ -67,20 +74,34 @@ class _PlayerWidgetState extends State<PlayerWidget> {
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-                onPressed: _isPlaying ? null : () => _play(),
-                iconSize: 64.0,
-                icon: Icon(Icons.play_arrow),
-                color: Colors.cyan),
+              key: Key('play_button'),
+              onPressed: _isPlaying ? null : () => _play(),
+              iconSize: 64.0,
+              icon: Icon(Icons.play_arrow),
+              color: Colors.cyan,
+            ),
             IconButton(
-                onPressed: _isPlaying ? () => _pause() : null,
-                iconSize: 64.0,
-                icon: Icon(Icons.pause),
-                color: Colors.cyan),
+              key: Key('pause_button'),
+              onPressed: _isPlaying ? () => _pause() : null,
+              iconSize: 64.0,
+              icon: Icon(Icons.pause),
+              color: Colors.cyan,
+            ),
             IconButton(
-                onPressed: _isPlaying || _isPaused ? () => _stop() : null,
-                iconSize: 64.0,
-                icon: Icon(Icons.stop),
-                color: Colors.cyan),
+              key: Key('stop_button'),
+              onPressed: _isPlaying || _isPaused ? () => _stop() : null,
+              iconSize: 64.0,
+              icon: Icon(Icons.stop),
+              color: Colors.cyan,
+            ),
+            IconButton(
+              onPressed: _earpieceOrSpeakersToggle,
+              iconSize: 64.0,
+              icon: _isPlayingThroughEarpiece
+                  ? Icon(Icons.volume_up)
+                  : Icon(Icons.hearing),
+              color: Colors.cyan,
+            ),
           ],
         ),
         Column(
@@ -114,7 +135,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
             ),
           ],
         ),
-        Text("State: $_audioPlayerState")
+        Text('State: $_audioPlayerState')
       ],
     );
   }
@@ -176,6 +197,8 @@ class _PlayerWidgetState extends State<PlayerWidget> {
       if (!mounted) return;
       setState(() => _audioPlayerState = state);
     });
+
+    _playingRouteState = PlayingRouteState.speakers;
   }
 
   Future<int> _play() async {
@@ -199,6 +222,16 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   Future<int> _pause() async {
     final result = await _audioPlayer.pause();
     if (result == 1) setState(() => _playerState = PlayerState.paused);
+    return result;
+  }
+
+  Future<int> _earpieceOrSpeakersToggle() async {
+    final result = await _audioPlayer.earpieceOrSpeakersToggle();
+    if (result == 1)
+      setState(() => _playingRouteState =
+          _playingRouteState == PlayingRouteState.speakers
+              ? PlayingRouteState.earpiece
+              : PlayingRouteState.speakers);
     return result;
   }
 

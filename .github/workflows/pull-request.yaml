@@ -1,0 +1,99 @@
+name: Pull Request
+
+on:
+  pull_request:
+    branches:
+      - master
+      - new-structure
+    types: [opened, reopened, synchronize]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - uses: subosito/flutter-action@v1
+        with:
+          channel: beta
+          flutter-version: '1.14.x'
+      - run: flutter pub get
+      - run: ./scripts/format.sh
+      - run: flutter test
+
+  android-drive:
+    runs-on: macOS-latest
+
+    steps:
+    - uses: malinskiy/action-android/install-sdk@release/0.0.5
+    - uses: actions/checkout@v1
+    - uses: subosito/flutter-action@v1
+      with:
+        channel: beta
+        flutter-version: '1.14.x'
+    - name: Build example app
+      working-directory: ./example
+      run: "flutter pub get"
+    - name: Use specific Java version for sdkmanager to work
+      uses: joschi/setup-jdk@v1
+      with:
+        java-version: 'openjdk8'
+        architecture: 'x64'
+
+    - name: Download Android Emulator Image
+      run: |
+        echo "y" | $ANDROID_HOME/tools/bin/sdkmanager --install "system-images;android-29;google_apis;x86"
+        echo "no" | $ANDROID_HOME/tools/bin/avdmanager create avd --force --name emu --device "Nexus 5X" -k 'system-images;android-29;google_apis;x86'
+        $ANDROID_HOME/emulator/emulator -list-avds
+    - name: "Start Android Emulator"
+      timeout-minutes: 10
+      run: |
+        echo "Starting emulator"
+        ls "$ANDROID_HOME/tools/bin/"
+        $ANDROID_HOME/tools/bin/sdkmanager "platform-tools" "platforms;android-28"
+        echo "$ANDROID_HOME/platform-tools"
+        ls "$ANDROID_HOME/"
+        ls "$ANDROID_HOME/platform-tools"
+        nohup $ANDROID_HOME/emulator/emulator -avd emu -no-audio -no-snapshot -no-window &
+        $ANDROID_HOME/platform-tools/adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed | tr -d '\r') ]]; do sleep 1; done; input keyevent 82'
+        $ANDROID_HOME/platform-tools/adb devices
+        echo "Emulator started"
+    - name: "Run Flutter Driver tests"
+      working-directory: ./example
+      run: "flutter drive --target=test_driver/app.dart"
+
+  ios-drive:
+    # Creates a build matrix for your jobs. You can define different
+    # variations of an environment to run each job in.
+    strategy:
+      matrix:
+        device:
+        - "iPhone 11 Pro (13.4.1)"
+      # When set to true, GitHub cancels all in-progress jobs if any matrix job fails.
+      fail-fast: false
+    runs-on: macOS-latest
+
+    steps:
+    - name: List all simulators
+      run: "xcrun instruments -s"
+    - name: Start Simulator
+      run: |
+        UDID=$(
+          xcrun instruments -s |
+          awk \
+            -F ' *[][]' \
+            -v 'device=${{ matrix.device }}' \
+            '$1 == device { print $2 }'
+        )
+        xcrun simctl boot "${UDID:?No Simulator with this name found}"
+    - uses: actions/checkout@v1
+    - uses: subosito/flutter-action@v1
+      with:
+        channel: beta
+        flutter-version: '1.14.x'
+    - name: Build example app
+      working-directory: ./example
+      run: "flutter pub get"
+    - name: Run Flutter Driver tests
+      working-directory: ./example
+      run: "flutter drive --target=test_driver/app.dart"

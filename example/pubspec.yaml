@@ -4,12 +4,18 @@ description: Demonstrates how to use the audioplayers plugin.
 dependencies:
   flutter:
     sdk: flutter
-  http: ^0.11.3+17
+  http: ^0.12.0+4
   path_provider: ^1.1.0
   path_provider_macos: ^0.0.1
   audioplayers:
     path: ../
   provider: ^3.0.0+1
+
+dev_dependencies:
+  flutter_driver:
+    sdk: flutter
+  test: any
+
 flutter:
   uses-material-design: true
 

@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/services.dart';
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 class MyAudioCache extends AudioCache {
   List<String> called = [];
@@ -20,6 +20,8 @@ class MyAudioCache extends AudioCache {
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   const MethodChannel _channel =
       const MethodChannel('plugins.flutter.io/path_provider');
   _channel.setMockMethodCallHandler((c) async => '/tmp');
