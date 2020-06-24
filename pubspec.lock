@@ -370,7 +370,7 @@ packages:
       name: test
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.13.0"
+    version: "1.14.2"
   test_api:
     dependency: transitive
     description:
@@ -384,7 +384,7 @@ packages:
       name: test_core
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.3.1"
+    version: "0.3.3"
   typed_data:
     dependency: transitive
     description:
@@ -433,7 +433,7 @@ packages:
       name: webkit_inspection_protocol
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.5.4"
+    version: "0.5.0+1"
   xml:
     dependency: transitive
     description:
