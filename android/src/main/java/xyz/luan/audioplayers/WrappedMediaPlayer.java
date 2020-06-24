@@ -156,33 +156,11 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         this.elapsedTimeInMillis = elapsedTime * 1000;
 
         this.showNotification = true;
-        Log.d("myTag", "setNotification start android!");
-        Log.d("myTag", "setNotification start android : " + maxDuration);
-
-        // long updateTimeSinceEpoch = System.currentTimeMillis();
-        // List<Object> compactActionIndexList = (List<Object>)args.get(6);
-
-        // On the flutter side, we represent the update time relative to the epoch.
-        // On the native side, we must represent the update time relative to the boot time.
-        // long updateTimeSinceBoot = updateTimeSinceEpoch;
-        // int playbackState = 1; //(Integer)args.get(2);
-        // long position = 0; // getLong(args.get(3));
-        // float speed = (float)((double)((Double) 1.0));
-
-        // MediaMetadataCompat mediaMetadata = createMediaMetadata("random", albumTitle, title, artist, "", 0, null, title, artist, "", null, null);
-        // AudioService.instance.setMetadata(mediaMetadata);
-                
-        // updateNotification();
 
         new setNotificationAsyncTask().execute(imageUrl);
     }
 
     private class setNotificationAsyncTask extends AsyncTask<String, Void, Bitmap> {
-        // ImageView bmImage;
-        // public DownloadImageTask(ImageView bmImage) {
-        //     this.bmImage = bmImage;
-        // }
-    
         protected Bitmap doInBackground(String... urls) {
             String urldisplay = urls[0];
             Log.d("myTag", "setNotification urldisplay : " + urldisplay);
@@ -250,13 +228,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         mapForwardParams.put("label", "fastForward");
         mapForwardParams.put("action", PlaybackStateCompat.ACTION_FAST_FORWARD);
         rawControls.add(mapForwardParams);
-
-        // Map<String, Object> map2 = new HashMap<>();
-        // map1.put("androidIcon", "drawable/ic_action_pause");
-        // map1.put("label", "Pause");
-        // map1.put("action", PlaybackStateCompat.ACTION_PAUSE);
-        // rawControls.add(map2);
-         // (List<Map<?, ?>>)args.get(0);
+        
         for (Map<String, Object> rawControl : rawControls) {
             String resource = (String)rawControl.get("androidIcon");
             long actionLongValue = (long) rawControl.get("action");
@@ -266,14 +238,10 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
             actions.add(AudioService.instance.action(resource, (String)rawControl.get("label"), actionCode));
         }
 
-        // AudioService.instance.setState(actions, actionBits, compactActionIndices, playbackState, position, speed, updateTimeSinceBoot);
         AudioService.instance.setState(actions, actionBits, compactActionIndices, playbackState, position, this.rate);
-        // startForegroundService(NOTIFICATION_ID, buildNotification());
     }
 
     private static MediaMetadataCompat createMediaMetadata(String mediaId, String album, String title, String artist, String genre, int duration, Bitmap artUri, String displayTitle, String displaySubtitle, String displayDescription, RatingCompat rating, Map<?, ?> extras) {
-        Log.d("myTag", "setNotification image!");
-        Log.d("myTag", "setNotification image - " + artUri);
 		return AudioService.createMediaMetadata(
                 mediaId,
 				album,
