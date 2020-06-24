@@ -19,8 +19,6 @@ abstract class Player {
 
     abstract void setUrl(String url, boolean isLocal);
 
-    // abstract void startHeadlessService();
-
     abstract void setNotification(String title, String albumTitle, String artist, String imageUrl, int maxDuration, int elapsedTime);
 
     abstract void setVolume(double volume);

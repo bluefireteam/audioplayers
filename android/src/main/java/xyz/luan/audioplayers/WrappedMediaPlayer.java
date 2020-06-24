@@ -140,11 +140,6 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         }
     }
 
-    // @Override
-    // void startHeadlessService() {
-        
-    // }
-
     @Override
     void setNotification(String title, String albumTitle, String artist, String imageUrl, int maxDuration, int elapsedTime) {
         this.title = title;
@@ -163,25 +158,20 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     private class setNotificationAsyncTask extends AsyncTask<String, Void, Bitmap> {
         protected Bitmap doInBackground(String... urls) {
             String urldisplay = urls[0];
-            Log.d("myTag", "setNotification urldisplay : " + urldisplay);
             Bitmap bmp = null;
             try {
                 if(urldisplay.startsWith("http")) {
-                    Log.d("myTag", "setNotification urldisplay 0 : " + urldisplay);
                     InputStream in = new java.net.URL(urldisplay).openStream();
                     bmp = BitmapFactory.decodeStream(in);
                 } else {
-                    Log.d("myTag", "setNotification urldisplay 1 : " + urldisplay);
                     bmp = AudioService.loadArtBitmapFromFile(urldisplay);
                 }
             } catch (Exception e) {
-                Log.e("Error setNotification ", e.getMessage());
                 e.printStackTrace();
             }
             return bmp;
         }
         protected void onPostExecute(Bitmap result) {
-            // bmImage.setImageBitmap(result);
             MediaMetadataCompat mediaMetadata = createMediaMetadata("random", albumTitle, title, artist, "", maxDuration, result, title, artist, "", null, null);
             AudioService.instance.setMetadata(mediaMetadata);
                     
@@ -190,7 +180,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     }
 
     private void updateNotification() {
-        long position = Long.valueOf(elapsedTimeInMillis); // getLong(args.get(3));
+        long position = Long.valueOf(elapsedTimeInMillis);
 
         int actionBits = 0;
 
@@ -233,7 +223,6 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
             String resource = (String)rawControl.get("androidIcon");
             long actionLongValue = (long) rawControl.get("action");
             int actionCode = (int) actionLongValue;
-            Log.d("myTag", "setNotification keycode 0 : " + actionCode);
             actionBits |= actionCode;
             actions.add(AudioService.instance.action(resource, (String)rawControl.get("label"), actionCode));
         }
@@ -428,7 +417,6 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
 
     @Override
     public void onPrepared(final MediaPlayer mediaPlayer) {
-        Log.d("myTag", "setNotification onPrepared!");
         this.prepared = true;
         ref.handleDuration(this);
         if (this.playing) {
@@ -457,17 +445,13 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
 
     @Override
     public boolean onError(final MediaPlayer mediaPlayer, int what, int extra) {
-        Log.d("myTag", "setNotification onError mediaplayer!");
         //Invoked when there has been an error during an asynchronous operation
         switch (what) {
             case MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK:
-                Log.e("MediaPlayer Error setNotification", "MEDIA ERROR NOT VALID FOR PROGRESSIVE PLAYBACK " + extra);
                 break;
             case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
-                Log.e("MediaPlayer Error setNotification", "MEDIA ERROR SERVER DIED " + extra);
                 break;
             case MediaPlayer.MEDIA_ERROR_UNKNOWN:
-                Log.e("MediaPlayer Error setNotification", "MEDIA ERROR UNKNOWN " + extra);
                 break;
         }
         return true;
