@@ -474,7 +474,8 @@ class AudioPlayer {
 
   /// Sets the notification bar for lock screen and notification area in iOS and Android.
   /// Android doesn't have default notification area icons, so you need to provide them.
-  /// Name your icons - ic_action_play_arrow, ic_action_pause, ic_action_replay(to go back by X sec), ic_action_skip(to go forward by X sec)
+  /// Name your icons - ic_action_play_arrow, ic_action_pause, ic_action_replay(to go back by X sec), ic_action_skip(to go forward by X sec) and put them in android drawable folder
+  /// to show your app icon in android notification, mane it ic_stat_logo_circular and put it in mipmap folder
   /// Specify atleast title
   Future<dynamic> setNotification(
       {String title,

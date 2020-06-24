@@ -78,7 +78,6 @@ public class AudioService extends MediaBrowserServiceCompat implements AudioMana
 	private static Size artDownscaleSize;
 
 	public static void init(Activity activity, boolean resumeOnClick, String androidNotificationChannelName, String androidNotificationChannelDescription, Integer notificationColor, String androidNotificationIcon, boolean androidNotificationClickStartsActivity, boolean androidNotificationOngoing, boolean androidStopForegroundOnPause, boolean androidStopOnRemoveTask, Size artDownscaleSize, ServiceListener listener) {
-        Log.d("myTag", "setNotification service android 0!");
 		if (running)
 			throw new IllegalStateException("AudioService already running");
 		running = true;
@@ -369,18 +368,8 @@ public class AudioService extends MediaBrowserServiceCompat implements AudioMana
 		if (duration != null)
 			builder.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, duration);
 		if (imageBitmap != null) {
-			// builder.putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI, artUri);
-			// String artCacheFilePath = null;
-			// if (extras != null) {
-			// 	artCacheFilePath = (String)extras.get("artCacheFile");
-			// }
-			// if (artCacheFilePath != null) {
-			// 	Bitmap bitmap = loadArtBitmapFromFile(artCacheFilePath);
-			// 	if (bitmap != null) {
 			builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, imageBitmap);
 			builder.putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, imageBitmap);
-			// 	}
-			// }
 		}
 		if (displayTitle != null)
 			builder.putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, displayTitle);
@@ -519,7 +508,6 @@ public class AudioService extends MediaBrowserServiceCompat implements AudioMana
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		Log.d("myTag", "setNotification stop 2!");
 		if (listener != null) {
 			listener.onDestroy();
 		}
@@ -528,7 +516,6 @@ public class AudioService extends MediaBrowserServiceCompat implements AudioMana
 
 	@Override
 	public void onTaskRemoved(Intent rootIntent) {
-		Log.d("myTag", "setNotification onTaskRemoved 2!");
 		MediaControllerCompat controller = mediaSession.getController();
 		if (androidStopOnRemoveTask || (androidStopForegroundOnPause && controller.getPlaybackState().getState() == PlaybackStateCompat.STATE_PAUSED)) {
 			if (listener != null) {
@@ -588,7 +575,6 @@ public class AudioService extends MediaBrowserServiceCompat implements AudioMana
 
 		@Override
 		public void onPlay() {
-			Log.d("myTag", "setNotification service play startService onPlay!");
 			if (listener == null) return;
 			play(new Runnable() {
 				public void run() {
@@ -598,7 +584,6 @@ public class AudioService extends MediaBrowserServiceCompat implements AudioMana
 		}
 
 		private void play(Runnable runner) {
-			Log.d("myTag", "setNotification service play startService 0!");
 			int result = requestAudioFocus();
 			if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
 				// Don't play audio
@@ -616,7 +601,6 @@ public class AudioService extends MediaBrowserServiceCompat implements AudioMana
 			mediaSession.setSessionActivity(contentIntent);
 			startForeground(NOTIFICATION_ID, buildNotification());
 			isForeground = true;
-			Log.d("myTag", "setNotification service play startService 1!");
 		}
 
 		@Override
@@ -664,7 +648,6 @@ public class AudioService extends MediaBrowserServiceCompat implements AudioMana
 					onStop();
 					break;
 				case KeyEvent.KEYCODE_MEDIA_FAST_FORWARD:
-					Log.d("myTag", "setNotification onFastForward 0!");
 					onFastForward();
 					break;
 				case KeyEvent.KEYCODE_MEDIA_REWIND:
@@ -683,7 +666,6 @@ public class AudioService extends MediaBrowserServiceCompat implements AudioMana
 					// These are the "genuine" media button click events
 				case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
 				case KeyEvent.KEYCODE_HEADSETHOOK:
-					Log.d("myTag", "setNotification KEYCODE_HEADSETHOOK!");
 					MediaControllerCompat controller = mediaSession.getController();
 					// If you press the media button while in the pause state, we reactivate the media session.
 					if (resumeOnClick && controller.getPlaybackState().getState() == PlaybackStateCompat.STATE_PAUSED) {
@@ -761,7 +743,6 @@ public class AudioService extends MediaBrowserServiceCompat implements AudioMana
 
 		@Override
 		public void onSeekTo(long pos) {
-			Log.d("myTag", "setNotification onSeekTo : " + pos);
 			if (listener == null) return;
 			listener.onSeekTo(pos);
 		}
