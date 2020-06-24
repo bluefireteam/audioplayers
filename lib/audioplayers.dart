@@ -472,8 +472,9 @@ class AudioPlayer {
     return _invokeMethod('setPlaybackRate', {'playbackRate': playbackRate});
   }
 
-  /// Sets the notification bar for lock screen and notification area in iOS for now.
-  ///
+  /// Sets the notification bar for lock screen and notification area in iOS and Android.
+  /// Android doesn't have default notification area icons, so you need to provide them.
+  /// Name your icons - ic_action_play_arrow, ic_action_pause, ic_action_replay(to go back by X sec), ic_action_skip(to go forward by X sec)
   /// Specify atleast title
   Future<dynamic> setNotification(
       {String title,
