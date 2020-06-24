@@ -46,6 +46,12 @@ enum AudioPlayerState {
   COMPLETED,
 }
 
+/// Indicates which speakers use for playing
+enum PlayingRouteState {
+  SPEAKERS,
+  EARPIECE,
+}
+
 /// This enum is meant to be used as a parameter of the [AudioPlayer]'s
 /// constructor. It represents the general mode of the [AudioPlayer].
 ///
@@ -83,17 +89,13 @@ void _backgroundCallbackDispatcher() {
   // native portion of the plugin. Here we message the audio notification data
   // which we then pass to the provided callback.
   _channel.setMethodCallHandler((MethodCall call) async {
-    print('setNotification dart start 0!');
     Function _performCallbackLookup() {
-      print('setNotification dart start 0.5!');
       final CallbackHandle handle = CallbackHandle.fromRawHandle(
           call.arguments['updateHandleMonitorKey']);
-      print('setNotification dart start 0.75!');
 
       // PluginUtilities.getCallbackFromHandle performs a lookup based on the
       // handle we retrieved earlier.
       final Function closure = PluginUtilities.getCallbackFromHandle(handle);
-      print('setNotification dart start 0.85!');
 
       if (closure == null) {
         print('Fatal Error setNotification : Callback lookup failed!');
@@ -102,20 +104,10 @@ void _backgroundCallbackDispatcher() {
       return closure;
     }
 
-    print('setNotification dart start 0.25!');
-    try {
-      print(call?.method.toString());
-      print(call?.arguments.toString());
-    } catch (err) {
-      print(err.toString());
-    }
-
     final Map<dynamic, dynamic> callArgs = call.arguments as Map;
-    print('setNotification dart start 1!');
     if (call.method == 'audio.onNotificationBackgroundPlayerStateChanged') {
       onAudioChangeBackgroundEvent ??= _performCallbackLookup();
       final String playerState = callArgs['value'];
-      print('setNotification dart start 2!');
       if (playerState == 'playing') {
         onAudioChangeBackgroundEvent(AudioPlayerState.PLAYING);
       } else if (playerState == 'paused') {
@@ -163,6 +155,8 @@ class AudioPlayer {
   final StreamController<String> _errorController =
       StreamController<String>.broadcast();
 
+  PlayingRouteState _playingRouteState = PlayingRouteState.SPEAKERS;
+
   /// Reference [Map] with all the players created by the application.
   ///
   /// This is used to exchange messages with the [MethodChannel]
@@ -181,6 +175,10 @@ class AudioPlayer {
     // ignore: deprecated_member_use_from_same_package
     audioPlayerStateChangeHandler?.call(state);
     _audioPlayerState = state;
+  }
+
+  set playingRouteState(PlayingRouteState routeState) {
+    _playingRouteState = routeState;
   }
 
   set notificationState(AudioPlayerState state) {
@@ -293,6 +291,7 @@ class AudioPlayer {
     this.mode ??= PlayerMode.MEDIA_PLAYER;
     this.playerId ??= _uuid.v4();
     players[playerId] = this;
+    startHeadlessService();
   }
 
   Future<int> _invokeMethod(
@@ -362,9 +361,7 @@ class AudioPlayer {
     bool respectSilence = false,
     bool stayAwake = false,
   }) async {
-    isLocal ??= url.startsWith("/") ||
-        url.startsWith("file://") ||
-        url.substring(1).startsWith(':\\');
+    isLocal ??= isLocalUrl(url);
     volume ??= 1.0;
     respectSilence ??= false;
     stayAwake ??= false;
@@ -508,6 +505,7 @@ class AudioPlayer {
   /// respectSilence is not implemented on macOS.
   Future<int> setUrl(String url,
       {bool isLocal: false, bool respectSilence = false}) {
+    isLocal = isLocalUrl(url);
     return _invokeMethod('setUrl',
         {'url': url, 'isLocal': isLocal, 'respectSilence': respectSilence});
   }
@@ -535,8 +533,6 @@ class AudioPlayer {
   }
 
   static Future<void> _doHandlePlatformCall(MethodCall call) async {
-    print('_doHandlePlatformCall : ' + call.toString());
-    print('_doHandlePlatformCall 1 : ' + call?.arguments.toString());
     final Map<dynamic, dynamic> callArgs = call.arguments as Map;
     _log('_platformCallHandler call ${call.method} $callArgs');
 
@@ -602,8 +598,11 @@ class AudioPlayer {
   /// Closes all [StreamController]s.
   ///
   /// You must call this method when your [AudioPlayer] instance is not going to
-  /// be used anymore.
+  /// be used anymore. If you try to use it after this you will get errors.
   Future<void> dispose() async {
+    // First stop and release all native resources.
+    await this.release();
+
     List<Future> futures = [];
 
     if (!_playerStateController.isClosed)
@@ -619,5 +618,31 @@ class AudioPlayer {
     if (!_errorController.isClosed) futures.add(_errorController.close());
 
     await Future.wait(futures);
+  }
+
+  Future<int> earpieceOrSpeakersToggle() async {
+    PlayingRouteState playingRoute =
+        _playingRouteState == PlayingRouteState.EARPIECE
+            ? PlayingRouteState.SPEAKERS
+            : PlayingRouteState.EARPIECE;
+
+    final playingRouteName =
+        playingRoute == PlayingRouteState.EARPIECE ? 'earpiece' : 'speakers';
+    final int result = await _invokeMethod(
+      'earpieceOrSpeakersToggle',
+      {'playingRoute': playingRouteName},
+    );
+
+    if (result == 1) {
+      playingRouteState = playingRoute;
+    }
+
+    return result;
+  }
+
+  bool isLocalUrl(String url) {
+    return url.startsWith("/") ||
+        url.startsWith("file://") ||
+        url.substring(1).startsWith(':\\');
   }
 }
