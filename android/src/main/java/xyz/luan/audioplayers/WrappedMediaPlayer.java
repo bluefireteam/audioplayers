@@ -537,14 +537,18 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             if (objectEquals(this.playingRoute, "speakers")) {
                 player.setAudioAttributes(new AudioAttributes.Builder()
-                        .setUsage(respectSilence ? AudioAttributes.USAGE_NOTIFICATION_RINGTONE : AudioAttributes.USAGE_MEDIA)
-                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build());
+                    .setUsage(respectSilence ? AudioAttributes.USAGE_NOTIFICATION_RINGTONE : AudioAttributes.USAGE_MEDIA)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .build()
+                );
             } else {
                 // Works with bluetooth headphones
                 // automatically switch to earpiece when disconnect bluetooth headphones
-                player.setAudioAttributes(
-                        new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
-                                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build());
+                player.setAudioAttributes(new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .build()
+                );
                 if (context != null) {
                     AudioManager mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
                     mAudioManager.setSpeakerphoneOn(false);
