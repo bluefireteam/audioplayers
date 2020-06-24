@@ -78,7 +78,8 @@ import android.content.res.AssetManager;
 import io.flutter.view.FlutterNativeView;
 import io.flutter.view.FlutterRunArguments;
 
-public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnErrorListener {
+public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPreparedListener,
+        MediaPlayer.OnCompletionListener, MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnErrorListener {
 
     private String playerId;
 
@@ -88,6 +89,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     private boolean respectSilence;
     private boolean stayAwake;
     private ReleaseMode releaseMode = ReleaseMode.RELEASE;
+    private String playingRoute = "speakers";
 
     private String title;
     private String albumTitle;
@@ -107,10 +109,9 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     private MediaPlayer player;
     private AudioplayersPlugin ref;
 
-	private static final int NOTIFICATION_ID = 1124;
+    private static final int NOTIFICATION_ID = 1124;
     public static final int MAX_COMPACT_ACTIONS = 3;
-	private int[] compactActionIndices;
-    
+    private int[] compactActionIndices;
 
     WrappedMediaPlayer(AudioplayersPlugin ref, String playerId) {
         this.ref = ref;
@@ -122,11 +123,11 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
      */
 
     @Override
-    void setUrl(String url, boolean isLocal) {
+    void setUrl(String url, boolean isLocal, Context context) {
         if (!objectEquals(this.url, url)) {
             this.url = url;
             if (this.released) {
-                this.player = createPlayer();
+                this.player = createPlayer(context);
                 this.released = false;
             } else if (this.prepared) {
                 this.player.reset();
@@ -141,7 +142,8 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     }
 
     @Override
-    void setNotification(String title, String albumTitle, String artist, String imageUrl, int maxDuration, int elapsedTime) {
+    void setNotification(String title, String albumTitle, String artist, String imageUrl, int maxDuration,
+            int elapsedTime) {
         this.title = title;
         this.albumTitle = albumTitle;
         this.artist = artist;
@@ -160,7 +162,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
             String urldisplay = urls[0];
             Bitmap bmp = null;
             try {
-                if(urldisplay.startsWith("http")) {
+                if (urldisplay.startsWith("http")) {
                     InputStream in = new java.net.URL(urldisplay).openStream();
                     bmp = BitmapFactory.decodeStream(in);
                 } else {
@@ -171,10 +173,12 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
             }
             return bmp;
         }
+
         protected void onPostExecute(Bitmap result) {
-            MediaMetadataCompat mediaMetadata = createMediaMetadata("random", albumTitle, title, artist, "", maxDuration, result, title, artist, "", null, null);
+            MediaMetadataCompat mediaMetadata = createMediaMetadata("random", albumTitle, title, artist, "",
+                    maxDuration, result, title, artist, "", null, null);
             AudioService.instance.setMetadata(mediaMetadata);
-                    
+
             updateNotification();
         }
     }
@@ -196,7 +200,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         rawControls.add(mapRewindParams);
 
         Map<String, Object> map1 = new HashMap<>();
-        if(this.playing) {
+        if (this.playing) {
             map1.put("androidIcon", "drawable/ic_action_pause");
             map1.put("label", "Pause");
             map1.put("action", PlaybackStateCompat.ACTION_PAUSE);
@@ -218,34 +222,27 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         mapForwardParams.put("label", "fastForward");
         mapForwardParams.put("action", PlaybackStateCompat.ACTION_FAST_FORWARD);
         rawControls.add(mapForwardParams);
-        
+
         for (Map<String, Object> rawControl : rawControls) {
-            String resource = (String)rawControl.get("androidIcon");
+            String resource = (String) rawControl.get("androidIcon");
             long actionLongValue = (long) rawControl.get("action");
             int actionCode = (int) actionLongValue;
             actionBits |= actionCode;
-            actions.add(AudioService.instance.action(resource, (String)rawControl.get("label"), actionCode));
+            actions.add(AudioService.instance.action(resource, (String) rawControl.get("label"), actionCode));
         }
 
         AudioService.instance.setState(actions, actionBits, compactActionIndices, playbackState, position, this.rate);
     }
 
-    private static MediaMetadataCompat createMediaMetadata(String mediaId, String album, String title, String artist, String genre, int duration, Bitmap artUri, String displayTitle, String displaySubtitle, String displayDescription, RatingCompat rating, Map<?, ?> extras) {
-		return AudioService.createMediaMetadata(
-                mediaId,
-				album,
-				title,
-				artist,
-				genre,
-				getLong(duration),
-				artUri,
-				displayTitle,
-				displaySubtitle,
-				displayDescription,
-				null, //raw2rating((Map<String, Object>)rawMediaItem.get("rating")),
-				null //(Map<?, ?>)rawMediaItem.get("extras")
-		);
-	}
+    private static MediaMetadataCompat createMediaMetadata(String mediaId, String album, String title, String artist,
+            String genre, int duration, Bitmap artUri, String displayTitle, String displaySubtitle,
+            String displayDescription, RatingCompat rating, Map<?, ?> extras) {
+        return AudioService.createMediaMetadata(mediaId, album, title, artist, genre, getLong(duration), artUri,
+                displayTitle, displaySubtitle, displayDescription, null, // raw2rating((Map<String,
+                                                                         // Object>)rawMediaItem.get("rating")),
+                null // (Map<?, ?>)rawMediaItem.get("extras")
+        );
+    }
 
     @Override
     void setVolume(double volume) {
@@ -258,14 +255,47 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     }
 
     @Override
+    void setPlayingRoute(String playingRoute, Context context) {
+        if (!objectEquals(this.playingRoute, playingRoute)) {
+            boolean wasPlaying = this.playing;
+            if (wasPlaying) {
+                this.pause();
+            }
+
+            this.playingRoute = playingRoute;
+
+            int position = 0;
+            if (player != null) {
+                position = player.getCurrentPosition();
+            }
+
+            this.released = false;
+            this.player = createPlayer(context);
+            this.setSource(url);
+            try {
+                this.player.prepare();
+            } catch (IOException ex) {
+                throw new RuntimeException("Unable to access resource", ex);
+            }
+
+            this.seek(position);
+            if (wasPlaying) {
+                this.playing = true;
+                this.player.start();
+            }
+        }
+    }
+
+    @Override
     int setRate(double rate) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            throw new UnsupportedOperationException("The method 'setRate' is available only on Android SDK version " + Build.VERSION_CODES.M + " or higher!");
+            throw new UnsupportedOperationException("The method 'setRate' is available only on Android SDK version "
+                    + Build.VERSION_CODES.M + " or higher!");
         }
         if (this.player != null) {
             this.rate = (float) rate;
             this.player.setPlaybackParams(this.player.getPlaybackParams().setSpeed(this.rate));
-            if(this.showNotification) {
+            if (this.showNotification) {
                 this.elapsedTimeInMillis = getCurrentPosition();
                 updateNotification();
             }
@@ -279,7 +309,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         if (this.respectSilence != respectSilence) {
             this.respectSilence = respectSilence;
             if (!this.released) {
-                setAttributes(player);
+                setAttributes(player, context);
             }
         }
         if (this.stayAwake != stayAwake) {
@@ -329,19 +359,19 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
      */
 
     @Override
-    void play() {
+    void play(Context context) {
         if (!this.playing) {
             this.playing = true;
             if (this.released) {
                 this.released = false;
-                this.player = createPlayer();
+                this.player = createPlayer(context);
                 this.setSource(url);
                 this.player.prepareAsync();
             } else if (this.prepared) {
                 this.player.start();
                 this.ref.handleIsPlaying(this);
                 this.ref.handleNotificationPlayerStateChanged(this, true);
-                if(this.showNotification) {
+                if (this.showNotification) {
                     this.elapsedTimeInMillis = getCurrentPosition();
                     updateNotification();
                 }
@@ -390,7 +420,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
             this.playing = false;
             this.player.pause();
             ref.handleNotificationPlayerStateChanged(this, false);
-            if(this.showNotification) {
+            if (this.showNotification) {
                 this.elapsedTimeInMillis = getCurrentPosition();
                 updateNotification();
             }
@@ -401,13 +431,13 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     // the player is ready.
     @Override
     void seek(int position) {
-        if (this.prepared)
+        if (this.prepared) {
             this.player.seekTo(position);
-            if(this.showNotification) {
+            if (this.showNotification) {
                 this.elapsedTimeInMillis = position;
                 updateNotification();
             }
-        else
+        } else
             this.shouldSeekTo = position;
     }
 
@@ -439,38 +469,61 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     }
 
     @Override
+    public boolean onError(MediaPlayer mp, int what, int extra) {
+        String whatMsg;
+        if (what == MediaPlayer.MEDIA_ERROR_SERVER_DIED) {
+            whatMsg = "MEDIA_ERROR_SERVER_DIED";
+        } else {
+            whatMsg = "MEDIA_ERROR_UNKNOWN {what:" + what + "}";
+        }
+        String extraMsg;
+        switch (extra) {
+            case -2147483648:
+                extraMsg = "MEDIA_ERROR_SYSTEM";
+                break;
+            case MediaPlayer.MEDIA_ERROR_IO:
+                extraMsg = "MEDIA_ERROR_IO";
+                break;
+            case MediaPlayer.MEDIA_ERROR_MALFORMED:
+                extraMsg = "MEDIA_ERROR_MALFORMED";
+                break;
+            case MediaPlayer.MEDIA_ERROR_UNSUPPORTED:
+                extraMsg = "MEDIA_ERROR_UNSUPPORTED";
+                break;
+            case MediaPlayer.MEDIA_ERROR_TIMED_OUT:
+                extraMsg = "MEDIA_ERROR_TIMED_OUT";
+                break;
+            default:
+                extraMsg = whatMsg = "MEDIA_ERROR_UNKNOWN {extra:" + extra + "}";
+                ;
+        }
+        ref.handleError(this, "MediaPlayer error with what:" + whatMsg + " extra:" + extraMsg);
+        return false;
+    }
+
+    @Override
     public void onSeekComplete(final MediaPlayer mediaPlayer) {
         ref.handleSeekComplete(this);
     }
 
-    @Override
-    public boolean onError(final MediaPlayer mediaPlayer, int what, int extra) {
-        //Invoked when there has been an error during an asynchronous operation
-        switch (what) {
-            case MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK:
-                break;
-            case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
-                break;
-            case MediaPlayer.MEDIA_ERROR_UNKNOWN:
-                break;
-        }
-        return true;
-    }
-    
-    public static Long getLong(Object o) {
-		return (o == null || o instanceof Long) ? (Long)o : new Long(((Integer)o).intValue());
-	}
+    /**
+     * Internal logic. Private methods
+     */
 
-    private MediaPlayer createPlayer() {
+    private MediaPlayer createPlayer(Context context) {
         MediaPlayer player = new MediaPlayer();
         player.setOnPreparedListener(this);
         player.setOnCompletionListener(this);
         player.setOnSeekCompleteListener(this);
         player.setOnErrorListener(this);
-        setAttributes(player);
+        setAttributes(player, context);
         player.setVolume((float) volume, (float) volume);
         player.setLooping(this.releaseMode == ReleaseMode.LOOP);
         return player;
+    }
+
+    public static Long getLong(Object o) {
+        return (o == null || o instanceof Long) ? (Long) o : new Long(((Integer) o).intValue());
     }
 
     private void setSource(String url) {
@@ -482,16 +535,32 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     }
 
     @SuppressWarnings("deprecation")
-    private void setAttributes(MediaPlayer player) {
+    private void setAttributes(MediaPlayer player, Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            player.setAudioAttributes(new AudioAttributes.Builder()
-                    .setUsage(respectSilence ? AudioAttributes.USAGE_NOTIFICATION_RINGTONE : AudioAttributes.USAGE_MEDIA)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                    .build()
-            );
+            if (objectEquals(this.playingRoute, "speakers")) {
+                player.setAudioAttributes(new AudioAttributes.Builder()
+                        .setUsage(respectSilence ? AudioAttributes.USAGE_NOTIFICATION_RINGTONE
+                                : AudioAttributes.USAGE_MEDIA)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build());
+            } else {
+                // Works with bluetooth headphones
+                // automatically switch to earpiece when disconnect bluetooth headphones
+                player.setAudioAttributes(
+                        new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
+                                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build());
+                if (context != null) {
+                    AudioManager mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+                    mAudioManager.setSpeakerphoneOn(false);
+                }
+            }
+
         } else {
             // This method is deprecated but must be used on older devices
-            player.setAudioStreamType(respectSilence ? AudioManager.STREAM_RING : AudioManager.STREAM_MUSIC);
+            if (objectEquals(this.playingRoute, "speakers")) {
+                player.setAudioStreamType(respectSilence ? AudioManager.STREAM_RING : AudioManager.STREAM_MUSIC);
+            } else {
+                player.setAudioStreamType(AudioManager.STREAM_VOICE_CALL);
+            }
         }
     }
 

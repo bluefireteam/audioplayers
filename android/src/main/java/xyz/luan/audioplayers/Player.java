@@ -9,7 +9,7 @@ abstract class Player {
 
     abstract String getPlayerId();
 
-    abstract void play();
+    abstract void play(Context context);
 
     abstract void stop();
 
@@ -17,7 +17,7 @@ abstract class Player {
 
     abstract void pause();
 
-    abstract void setUrl(String url, boolean isLocal);
+    abstract void setUrl(String url, boolean isLocal, Context context);
 
     abstract void setNotification(String title, String albumTitle, String artist, String imageUrl, int maxDuration, int elapsedTime);
 
@@ -34,6 +34,8 @@ abstract class Player {
     abstract int getCurrentPosition();
 
     abstract boolean isActuallyPlaying();
+
+    abstract void setPlayingRoute(String playingRoute, Context context);
 
     /**
      * Seek operations cannot be called until after the player is ready.
