@@ -228,11 +228,6 @@ public class WrappedSoundPool extends Player {
     boolean isActuallyPlaying() {
         return false;
     }
-		
-    @Override	
-    void setPlayingRoute(String playingRoute, Context context) {	
-        throw unsupportedOperation("setPlayingRoute");	
-    }
 
     @Override
     void setPlayingRoute(String playingRoute, Context context) {
