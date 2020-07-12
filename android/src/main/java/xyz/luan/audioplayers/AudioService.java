@@ -160,10 +160,14 @@ public class AudioService extends MediaBrowserServiceCompat implements AudioMana
 	private Handler handler = new Handler(Looper.getMainLooper());
 
 	int getResourceId(String resource) {
-		String[] parts = resource.split("/");
-		String resourceType = parts[0];
-		String resourceName = parts[1];
-		return getResources().getIdentifier(resourceName, resourceType, getApplicationContext().getPackageName());
+		if(resource != null) {
+			String[] parts = resource.split("/");
+			String resourceType = parts[0];
+			String resourceName = parts[1];
+			return getResources().getIdentifier(resourceName, resourceType, getApplicationContext().getPackageName());
+		} else {
+			return 0;
+		}
 	}
 
 	NotificationCompat.Action action(String resource, String label, long actionCode) {
@@ -590,7 +594,16 @@ public class AudioService extends MediaBrowserServiceCompat implements AudioMana
 				return;
 			}
 
-			startService(new Intent(AudioService.this, AudioService.class));
+			try {
+				startService(new Intent(AudioService.this, AudioService.class));
+			} catch (Exception e) {
+				if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+					startForegroundService(new Intent(AudioService.this, AudioService.class));
+				}
+				else {
+					startService(new Intent(AudioService.this, AudioService.class));
+				}
+			}
 			if (!mediaSession.isActive())
 				mediaSession.setActive(true);
 

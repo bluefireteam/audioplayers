@@ -336,12 +336,21 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
 
     @Override
     int getDuration() {
-        return this.player.getDuration();
+        if (this.player != null) {
+            return this.player.getDuration();
+        } else {
+            /// don't default to 0 as it might cause division by 0 error somewhere else. 
+            return 60;
+        }
     }
 
     @Override
     int getCurrentPosition() {
-        return this.player.getCurrentPosition();
+        if (this.player != null) {
+            return this.player.getCurrentPosition();
+        } else {
+            return 0;
+        }
     }
 
     @Override
