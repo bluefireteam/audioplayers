@@ -3,6 +3,8 @@
 ## [next]
 - Implemented stream routing for iOS
 - Call release on dispose
+- Fix iOS build
+- Breaking change audio cache prefix in order to allow override 'assets'
 
 ## audioplayers 0.15.1
 - Fix web for release mode

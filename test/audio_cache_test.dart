@@ -9,7 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 class MyAudioCache extends AudioCache {
   List<String> called = [];
 
-  MyAudioCache({String prefix = "", AudioPlayer fixedPlayer = null})
+  MyAudioCache({String prefix = "assets/", AudioPlayer fixedPlayer = null})
       : super(prefix: prefix, fixedPlayer: fixedPlayer);
 
   @override

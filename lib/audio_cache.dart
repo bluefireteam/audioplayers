@@ -18,8 +18,9 @@ class AudioCache {
 
   /// This is the path inside your assets folder where your files lie.
   ///
-  /// For example, Flame uses the prefix 'audio/' (must include the slash!).
-  /// Your files will be found at assets/<prefix><fileName>
+  /// For example, Flame uses the prefix 'assets/audio/' (you must include the final slash!).
+  /// The default prefix (if not provided) is 'assets/'
+  /// Your files will be found at <prefix><fileName> (so the trailing slash is crucial).
   String prefix;
 
   /// This is an instance of AudioPlayer that, if present, will always be used.
@@ -35,7 +36,8 @@ class AudioCache {
   /// Not implemented on macOS.
   bool respectSilence;
 
-  AudioCache({this.prefix = "", this.fixedPlayer, this.respectSilence = false});
+  AudioCache(
+      {this.prefix = "assets/", this.fixedPlayer, this.respectSilence = false});
 
   /// Clears the cache of the file [fileName].
   ///
@@ -61,7 +63,7 @@ class AudioCache {
   }
 
   Future<ByteData> _fetchAsset(String fileName) async {
-    return await rootBundle.load('assets/$prefix$fileName');
+    return await rootBundle.load('$prefix$fileName');
   }
 
   Future<File> fetchToMemory(String fileName) async {
@@ -139,7 +141,7 @@ class AudioCache {
 
   Future<String> getAbsoluteUrl(String fileName) async {
     if (kIsWeb) {
-      return "assets/assets/$prefix$fileName";
+      return "assets/$prefix$fileName";
     }
     File file = await load(fileName);
     return file.path;
