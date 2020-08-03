@@ -489,7 +489,7 @@ const NSString *_defaultPlayingRoute = @"speakers";
     }
       
     if (playerInfo[@"url"]) {
-      [[player currentItem] removeObserver:self forKeyPath:@"player.currentItem.status" ];
+      [[player currentItem] removeObserver:self forKeyPath:@"status" ];
 
       [ playerInfo setObject:url forKey:@"url" ];
 
@@ -525,7 +525,7 @@ const NSString *_defaultPlayingRoute = @"speakers";
     // is sound ready
     [playerInfo setObject:onReady forKey:@"onReady"];
     [playerItem addObserver:self
-                          forKeyPath:@"player.currentItem.status"
+                          forKeyPath:@"status"
                           options:0
                           context:(void*)playerId];
       
@@ -753,7 +753,7 @@ const NSString *_defaultPlayingRoute = @"speakers";
                      ofObject:(id)object
                        change:(NSDictionary *)change
                       context:(void *)context {
-  if ([keyPath isEqualToString: @"player.currentItem.status"]) {
+  if ([keyPath isEqualToString: @"status"]) {
     NSString *playerId = (__bridge NSString*)context;
     NSMutableDictionary * playerInfo = players[playerId];
     AVPlayer *player = playerInfo[@"player"];
