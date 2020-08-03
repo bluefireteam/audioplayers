@@ -23,7 +23,7 @@ To play an audio, just run:
     player.play('explosion.mp3');
 ```
 
-This will play the `explosion.mp3` file in your project's `asset` folder.
+This will play the `explosion.mp3` file in your project's `assets` folder.
 
 The file structure would be something like this:
 

@@ -607,8 +607,11 @@ class AudioPlayer {
   /// Closes all [StreamController]s.
   ///
   /// You must call this method when your [AudioPlayer] instance is not going to
-  /// be used anymore.
+  /// be used anymore. If you try to use it after this you will get errors.
   Future<void> dispose() async {
+    // First stop and release all native resources.
+    await this.release();
+
     List<Future> futures = [];
 
     if (!_playerStateController.isClosed)

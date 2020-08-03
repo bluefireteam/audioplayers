@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart';
 
@@ -17,8 +18,9 @@ class AudioCache {
 
   /// This is the path inside your assets folder where your files lie.
   ///
-  /// For example, Flame uses the prefix 'audio/' (must include the slash!).
-  /// Your files will be found at assets/<prefix><fileName>
+  /// For example, Flame uses the prefix 'assets/audio/' (you must include the final slash!).
+  /// The default prefix (if not provided) is 'assets/'
+  /// Your files will be found at <prefix><fileName> (so the trailing slash is crucial).
   String prefix;
 
   /// This is an instance of AudioPlayer that, if present, will always be used.
@@ -34,17 +36,22 @@ class AudioCache {
   /// Not implemented on macOS.
   bool respectSilence;
 
-  AudioCache({this.prefix = "", this.fixedPlayer, this.respectSilence = false});
+  AudioCache(
+      {this.prefix = "assets/", this.fixedPlayer, this.respectSilence = false});
 
   /// Clears the cache of the file [fileName].
   ///
   /// Does nothing if the file was not on cache.
   void clear(String fileName) {
-    loadedFiles.remove(fileName);
+    final file = loadedFiles.remove(fileName);
+    file?.delete();
   }
 
   /// Clears the whole cache.
   void clearCache() {
+    for (final file in loadedFiles.values) {
+      file.delete();
+    }
     loadedFiles.clear();
   }
 
@@ -56,7 +63,7 @@ class AudioCache {
   }
 
   Future<ByteData> _fetchAsset(String fileName) async {
-    return await rootBundle.load('assets/$prefix$fileName');
+    return await rootBundle.load('$prefix$fileName');
   }
 
   Future<File> fetchToMemory(String fileName) async {
@@ -99,14 +106,17 @@ class AudioCache {
       bool isNotification,
       PlayerMode mode = PlayerMode.MEDIA_PLAYER,
       bool stayAwake,
-      bool recordingActive}) async {
-    File file = await load(fileName);
+      bool recordingActive,
+  }) async {
+    String url = await getAbsoluteUrl(fileName);
     AudioPlayer player = _player(mode);
-    await player.play(file.path,
-        volume: volume,
-        respectSilence: isNotification ?? respectSilence,
-        stayAwake: stayAwake,
-        recordingActive: recordingActive);
+    await player.play(
+      url,
+      volume: volume,
+      respectSilence: isNotification ?? respectSilence,
+      stayAwake: stayAwake,
+      recordingActive: recordingActive,
+    );
     return player;
   }
 
@@ -120,15 +130,23 @@ class AudioCache {
       bool isNotification,
       PlayerMode mode = PlayerMode.MEDIA_PLAYER,
       bool stayAwake}) async {
-    File file = await load(fileName);
+    String url = await getAbsoluteUrl(fileName);
     AudioPlayer player = _player(mode);
     player.setReleaseMode(ReleaseMode.LOOP);
     player.play(
-      file.path,
+      url,
       volume: volume,
       respectSilence: isNotification ?? respectSilence,
       stayAwake: stayAwake,
     );
     return player;
+  }
+
+  Future<String> getAbsoluteUrl(String fileName) async {
+    if (kIsWeb) {
+      return "assets/$prefix$fileName";
+    }
+    File file = await load(fileName);
+    return file.path;
   }
 }

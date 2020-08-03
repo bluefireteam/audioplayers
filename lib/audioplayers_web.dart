@@ -1,26 +1,24 @@
 import 'dart:async';
 import 'dart:html';
-import 'dart:web_audio';
+
+import 'package:audioplayers/audioplayers.dart';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 
-final AudioContext _audioCtx = AudioContext();
-
 class WrappedPlayer {
-  double startingPoint;
-  double soughtPosition;
-  double pausedAt = null;
+  double pausedAt;
   double currentVolume = 1.0;
+  ReleaseMode currentReleaseMode = ReleaseMode.RELEASE;
+  String currentUrl;
   bool isPlaying = false;
 
-  AudioBuffer currentBuffer;
-  AudioBufferSourceNode currentNode;
-  GainNode gainNode;
+  AudioElement player;
 
-  void setBuffer(AudioBuffer buffer) {
+  void setUrl(String url) {
+    currentUrl = url;
+
     stop();
-    currentBuffer = buffer;
     recreateNode();
     if (isPlaying) {
       resume();
@@ -29,31 +27,40 @@ class WrappedPlayer {
 
   void setVolume(double volume) {
     currentVolume = volume;
-    gainNode.gain.value = currentVolume;
+    player?.volume = volume;
   }
 
   void recreateNode() {
-    currentNode = _audioCtx.createBufferSource();
-    currentNode.buffer = currentBuffer;
+    if (currentUrl == null) {
+      return;
+    }
+    player = AudioElement(currentUrl);
+    player.loop = shouldLoop();
+    player.volume = currentVolume;
+  }
 
-    gainNode = _audioCtx.createGain();
-    gainNode.gain.value = currentVolume;
-    gainNode.connectNode(_audioCtx.destination);
+  bool shouldLoop() => currentReleaseMode == ReleaseMode.LOOP;
 
-    currentNode.connectNode(gainNode);
+  void setReleaseMode(ReleaseMode releaseMode) {
+    currentReleaseMode = releaseMode;
+    player?.loop = shouldLoop();
+  }
+
+  void release() {
+    _cancel();
+    player = null;
   }
 
   void start(double position) {
     isPlaying = true;
-    if (currentBuffer == null) {
+    if (currentUrl == null) {
       return; // nothing to play yet
     }
-    if (currentNode == null) {
+    if (player == null) {
       recreateNode();
     }
-    startingPoint = _audioCtx.currentTime;
-    soughtPosition = position;
-    currentNode.start(startingPoint, soughtPosition);
+    player.play();
+    player.currentTime = position;
   }
 
   void resume() {
@@ -61,7 +68,7 @@ class WrappedPlayer {
   }
 
   void pause() {
-    pausedAt = _audioCtx.currentTime - startingPoint + soughtPosition;
+    pausedAt = player.currentTime;
     _cancel();
   }
 
@@ -72,17 +79,16 @@ class WrappedPlayer {
 
   void _cancel() {
     isPlaying = false;
-    currentNode?.stop();
-    currentNode = null;
+    player?.pause();
+    if (currentReleaseMode == ReleaseMode.RELEASE) {
+      player = null;
+    }
   }
 }
 
 class AudioplayersPlugin {
   // players by playerId
   Map<String, WrappedPlayer> players = {};
-
-  // cache of pre-loaded buffers by URL
-  Map<String, AudioBuffer> preloadedBuffers = {};
 
   static void registerWith(Registrar registrar) {
     final MethodChannel channel = MethodChannel(
@@ -95,27 +101,23 @@ class AudioplayersPlugin {
     channel.setMethodCallHandler(instance.handleMethodCall);
   }
 
-  Future<AudioBuffer> loadAudio(String url) async {
-    if (preloadedBuffers.containsKey(url)) {
-      return preloadedBuffers[url];
-    }
-
-    final HttpRequest response =
-        await HttpRequest.request(url, responseType: 'arraybuffer');
-    final AudioBuffer buffer =
-        await _audioCtx.decodeAudioData(response.response);
-    return preloadedBuffers.putIfAbsent(url, () => buffer);
-  }
-
   WrappedPlayer getOrCreatePlayer(String playerId) {
     return players.putIfAbsent(playerId, () => WrappedPlayer());
   }
 
   Future<WrappedPlayer> setUrl(String playerId, String url) async {
     final WrappedPlayer player = getOrCreatePlayer(playerId);
-    final AudioBuffer buffer = await loadAudio(url);
-    player.setBuffer(buffer);
+
+    if (player.currentUrl == url) {
+      return player;
+    }
+
+    player.setUrl(url);
     return player;
+  }
+
+  ReleaseMode parseReleaseMode(String value) {
+    return ReleaseMode.values.firstWhere((e) => e.toString() == value);
   }
 
   Future<dynamic> handleMethodCall(MethodCall call) async {
@@ -131,7 +133,9 @@ class AudioplayersPlugin {
       case 'play':
         {
           final String url = call.arguments['url'];
-          final bool isLocal = call.arguments['isLocal'];
+
+          // TODO(luan) think about isLocal (is it needed or not)
+
           double volume = call.arguments['volume'] ?? 1.0;
           final double position = call.arguments['position'] ?? 0;
           // web does not care for the `stayAwake` argument
@@ -163,9 +167,19 @@ class AudioplayersPlugin {
           getOrCreatePlayer(playerId).setVolume(volume);
           return 1;
         }
-      case 'release':
-      case 'seek':
       case 'setReleaseMode':
+        {
+          ReleaseMode releaseMode =
+              parseReleaseMode(call.arguments['releaseMode']);
+          getOrCreatePlayer(playerId).setReleaseMode(releaseMode);
+          return 1;
+        }
+      case 'release':
+        {
+          getOrCreatePlayer(playerId).release();
+          return 1;
+        }
+      case 'seek':
       case 'setPlaybackRate':
       default:
         throw PlatformException(
