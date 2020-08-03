@@ -164,15 +164,18 @@ const NSString *_defaultPlayingRoute = @"speakers";
                         result(0);
                     if (call.arguments[@"respectSilence"] == nil)
                         result(0);
+                    if (call.arguments[@"recordingActive"] == nil)
+                        result(0);
                     int isLocal = [call.arguments[@"isLocal"]intValue] ;
                     float volume = (float)[call.arguments[@"volume"] doubleValue] ;
                     int milliseconds = call.arguments[@"position"] == [NSNull null] ? 0.0 : [call.arguments[@"position"] intValue] ;
-                    bool respectSilence = [call.arguments[@"respectSilence"]boolValue] ;
+                    bool respectSilence = [call.arguments[@"respectSilence"] boolValue];
+                    bool recordingActive = [call.arguments[@"recordingActive"] boolValue];
                     CMTime time = CMTimeMakeWithSeconds(milliseconds / 1000,NSEC_PER_SEC);
                     NSLog(@"isLocal: %d %@", isLocal, call.arguments[@"isLocal"] );
                     NSLog(@"volume: %f %@", volume, call.arguments[@"volume"] );
                     NSLog(@"position: %d %@", milliseconds, call.arguments[@"positions"] );
-                    [self play:playerId url:url isLocal:isLocal volume:volume time:time isNotification:respectSilence];
+                    [self play:playerId url:url isLocal:isLocal volume:volume time:time isNotification:respectSilence recordingActive:recordingActive];
                   },
                 @"pause":
                   ^{
@@ -211,10 +214,12 @@ const NSString *_defaultPlayingRoute = @"speakers";
                     NSString *url = call.arguments[@"url"];
                     int isLocal = [call.arguments[@"isLocal"]intValue];
                     bool respectSilence = [call.arguments[@"respectSilence"]boolValue] ;
+                    bool recordingActive = [call.arguments[@"recordingActive"]boolValue] ;
                     [ self setUrl:url
                           isLocal:isLocal
                           isNotification:respectSilence
                           playerId:playerId
+                          recordingActive: recordingActive
                           onReady:^(NSString * playerId) {
                             result(@(1));
                           }
@@ -455,6 +460,7 @@ const NSString *_defaultPlayingRoute = @"speakers";
        isLocal: (bool) isLocal
        isNotification: (bool) respectSilence
        playerId: (NSString*) playerId
+       recordingActive: (bool) recordingActive
        onReady:(VoidCallback)onReady
 {
   NSMutableDictionary * playerInfo = players[playerId];
@@ -468,8 +474,13 @@ const NSString *_defaultPlayingRoute = @"speakers";
       // code moved from play() to setUrl() to fix the bug of audio not playing in ios background
       NSError *error = nil;
       BOOL success = false;
-
-      AVAudioSessionCategory category = respectSilence ? AVAudioSessionCategoryAmbient : AVAudioSessionCategoryPlayback;
+    
+      AVAudioSessionCategory category;
+      if (recordingActive) {
+        category = AVAudioSessionCategoryPlayAndRecord;
+      } else {
+        category = respectSilence ? AVAudioSessionCategoryAmbient : AVAudioSessionCategoryPlayback;
+      }
       // When using AVAudioSessionCategoryPlayback, by default, this implies that your app’s audio is nonmixable—activating your session
       // will interrupt any other audio sessions which are also nonmixable. AVAudioSessionCategoryPlayback should not be used with
       // AVAudioSessionCategoryOptionMixWithOthers option. If so, it prevents infoCenter from working correctly.
@@ -554,11 +565,13 @@ const NSString *_defaultPlayingRoute = @"speakers";
       volume: (float) volume
         time: (CMTime) time
       isNotification: (bool) respectSilence
+recordingActive: (bool) recordingActive
 {
   [ self setUrl:url
          isLocal:isLocal
          isNotification:respectSilence
          playerId:playerId
+         recordingActive: recordingActive
          onReady:^(NSString * playerId) {
            NSMutableDictionary * playerInfo = players[playerId];
            AVPlayer *player = playerInfo[@"player"];
