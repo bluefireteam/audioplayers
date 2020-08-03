@@ -343,6 +343,10 @@ const NSString *_defaultPlayingRoute = @"speakers";
           MPRemoteCommand *togglePlayPauseCommand = [remoteCommandCenter togglePlayPauseCommand];
           [togglePlayPauseCommand setEnabled:YES];
           [togglePlayPauseCommand addTarget:self action:@selector(playOrPauseEvent:)];
+
+          MPRemoteCommand *changePlaybackPositionCommand = [remoteCommandCenter changePlaybackPositionCommand];
+          [changePlaybackPositionCommand setEnabled:YES];
+          [changePlaybackPositionCommand addTarget:self action:@selector(onChangePlaybackPositionCommand:)];
         }
     }
 
@@ -378,6 +382,7 @@ const NSString *_defaultPlayingRoute = @"speakers";
         }
         return MPRemoteCommandHandlerStatusSuccess;
     }
+
     -(MPRemoteCommandHandlerStatus) playOrPauseEvent: (MPSkipIntervalCommandEvent *) playOrPauseEvent {
         NSLog(@"playOrPauseEvent");
 
@@ -405,6 +410,13 @@ const NSString *_defaultPlayingRoute = @"speakers";
         if (headlessServiceInitialized) {
           [_callbackChannel invokeMethod:@"audio.onNotificationBackgroundPlayerStateChanged" arguments:@{@"playerId": _currentPlayerId, @"updateHandleMonitorKey": @(_updateHandleMonitorKey), @"value": playerState}];
         }
+        return MPRemoteCommandHandlerStatusSuccess;
+    }
+
+    -(MPRemoteCommandHandlerStatus) onChangePlaybackPositionCommand: (MPChangePlaybackPositionCommandEvent *) changePositionEvent {
+        NSLog(@"changePlaybackPosition to %f", changePositionEvent.positionTime);
+        CMTime newTime = CMTimeMakeWithSeconds(changePositionEvent.positionTime, NSEC_PER_SEC);
+        [ self seek:_currentPlayerId time:newTime ];
         return MPRemoteCommandHandlerStatusSuccess;
     }
 
