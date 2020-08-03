@@ -2,8 +2,8 @@ name: Pull Request
 
 on:
   pull_request:
-    branches: - master
-      - new-structure
+    branches:
+      - master
     types: [opened, reopened, synchronize]
 
 jobs:
