@@ -4,7 +4,6 @@ on:
   pull_request:
     branches:
       - master
-      - new-structure
     types: [opened, reopened, synchronize]
 
 jobs:
@@ -68,7 +67,7 @@ jobs:
     strategy:
       matrix:
         device:
-        - "iPhone 11 Pro (13.4.1)"
+        - "iPhone 11 Pro (13.6)"
       # When set to true, GitHub cancels all in-progress jobs if any matrix job fails.
       fail-fast: false
     runs-on: macOS-latest
