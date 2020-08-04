@@ -101,12 +101,13 @@ class AudioCache {
   /// The instance is returned, to allow later access (either way), like pausing and resuming.
   ///
   /// isNotification and stayAwake are not implemented on macOS
-  Future<AudioPlayer> play(String fileName,
-      {double volume = 1.0,
-      bool isNotification,
-      PlayerMode mode = PlayerMode.MEDIA_PLAYER,
-      bool stayAwake,
-      bool recordingActive,
+  Future<AudioPlayer> play(
+    String fileName, {
+    double volume = 1.0,
+    bool isNotification,
+    PlayerMode mode = PlayerMode.MEDIA_PLAYER,
+    bool stayAwake,
+    bool recordingActive,
   }) async {
     String url = await getAbsoluteUrl(fileName);
     AudioPlayer player = _player(mode);
