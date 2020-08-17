@@ -14,12 +14,11 @@ public class ByteDataSource extends MediaDataSource {
 
     @Override
     public synchronized long getSize() throws IOException {
-        return data.length;
+        return data == null ? 0 : data.length;
     } 
 
     @Override
     public synchronized void close() throws IOException {
-        data = null;
     }
 
     @Override
