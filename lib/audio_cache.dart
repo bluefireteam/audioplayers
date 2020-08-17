@@ -127,9 +127,9 @@ class AudioCache {
       {double volume = 1.0,
       bool isNotification,
       PlayerMode mode = PlayerMode.MEDIA_PLAYER,
+      bool loop = false, 
       bool stayAwake,
-      bool recordingActive,
-      bool loop}) async {
+      bool recordingActive}) async {
     AudioPlayer player = _player(mode);
 
     if (loop) {
