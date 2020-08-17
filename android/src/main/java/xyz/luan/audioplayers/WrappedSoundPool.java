@@ -161,6 +161,8 @@ public class WrappedSoundPool extends Player {
         if (this.soundId != null) {
             release();
         }
+
+        throw unsupportedOperation("setDataSource");
     }
 
     @Override

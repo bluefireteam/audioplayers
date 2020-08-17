@@ -198,7 +198,12 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
             if (this.released) {
                 this.released = false;
                 this.player = createPlayer(context);
-                this.setSource(url);
+                if (dataSource != null) {
+                    setMediaSource(dataSource);
+                }
+                else {
+                    this.setSource(url);
+                }
                 this.player.prepareAsync();
             } else if (this.prepared) {
                 this.player.start();
