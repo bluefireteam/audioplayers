@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
@@ -379,6 +380,36 @@ class AudioPlayer {
     final int result = await _invokeMethod('play', {
       'url': url,
       'isLocal': isLocal,
+      'volume': volume,
+      'position': position?.inMilliseconds,
+      'respectSilence': respectSilence,
+      'stayAwake': stayAwake,
+      'recordingActive': recordingActive
+    });
+
+    if (result == 1) {
+      state = AudioPlayerState.PLAYING;
+    }
+
+    return result;
+  }
+
+  /// Plays audio in the form of a byte array.
+  ///
+  /// respectSilence and stayAwake are not implemented on macOS.
+  Future<int> playBytes(Uint8List bytes,
+      {double volume = 1.0,
+      // position must be null by default to be compatible with radio streams
+      Duration position,
+      bool respectSilence = false,
+      bool stayAwake = false,
+      bool recordingActive = false}) async {
+    volume ??= 1.0;
+    respectSilence ??= false;
+    stayAwake ??= false;
+
+    final int result = await _invokeMethod('play_bytes', {
+      'bytes': bytes,
       'volume': volume,
       'position': position?.inMilliseconds,
       'respectSilence': respectSilence,

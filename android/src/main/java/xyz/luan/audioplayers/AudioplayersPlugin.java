@@ -85,6 +85,21 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
                 player.play(context.getApplicationContext());
                 break;
             }
+            case "play_bytes": {
+                final byte[] bytes = call.argument("bytes");
+                final double volume = call.argument("volume");
+                final Integer position = call.argument("position");
+                final boolean respectSilence = call.argument("respectSilence");
+                final boolean stayAwake = call.argument("stayAwake");
+                player.configAttributes(respectSilence, stayAwake, context.getApplicationContext());
+                player.setVolume(volume);
+                player.setDataSource(new ByteDataSource(bytes), context.getApplicationContext());
+                if (position != null && !mode.equals("PlayerMode.LOW_LATENCY")) {
+                    player.seek(position);
+                }
+                player.play(context.getApplicationContext());
+                break;
+            }
             case "resume": {
                 player.play(context.getApplicationContext());
                 break;

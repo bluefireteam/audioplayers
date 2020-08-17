@@ -2,6 +2,7 @@ package xyz.luan.audioplayers;
 
 import android.media.AudioAttributes;
 import android.media.AudioManager;
+import android.media.MediaDataSource;
 import android.media.SoundPool;
 import android.os.Build;
 import android.os.PowerManager;
@@ -54,11 +55,16 @@ public class WrappedSoundPool extends Player {
      * it has been loaded.
      */
     private static Map<Integer, WrappedSoundPool> soundIdToPlayer = Collections.synchronizedMap(new HashMap<Integer, WrappedSoundPool>());
+    
     /** This is to keep track of the players which share the same sound id, referenced by url. When a player release()s, it
      * is removed from the associated player list. The last player to be removed actually unloads() the sound id and then
      * the url is removed from this map.
      */
     private static Map<String, List<WrappedSoundPool>> urlToPlayers = Collections.synchronizedMap(new HashMap<String, List<WrappedSoundPool>>());
+
+    /** TODO
+     */
+    private static Map<String, List<WrappedSoundPool>> dataSourceToPlayers = Collections.synchronizedMap(new HashMap<String, List<WrappedSoundPool>>());
 
 
     private final AudioplayersPlugin ref;
@@ -66,6 +72,8 @@ public class WrappedSoundPool extends Player {
     private final String playerId;
 
     private String url;
+
+    private MediaDataSource dataSource;
 
     private float volume = 1.0f;
 
@@ -140,6 +148,43 @@ public class WrappedSoundPool extends Player {
             soundPool.pause(this.streamId);
             this.playing = false;
             this.paused = true;
+        }
+    }
+
+    @Override
+    void setDataSource(MediaDataSource mediaDataSource, Context context) {
+        // Not yet implemented
+        if (this.dataSource != null && this.dataSource.equals(mediaDataSource)) {
+            return;
+        }
+
+        if (this.soundId != null) {
+            release();
+        }
+
+        synchronized (urlToPlayers) {
+            this.dataSource = mediaDataSource;
+            List<WrappedSoundPool> urlPlayers = urlToPlayers.get(url);
+            if (urlPlayers != null) {
+                // Sound has already been loaded - reuse the soundId.
+                WrappedSoundPool originalPlayer = urlPlayers.get(0);
+                this.soundId = originalPlayer.soundId;
+                this.loading = originalPlayer.loading;
+                urlPlayers.add(this);
+                Log.d("WSP", "Reusing soundId" + this.soundId + " for " + url + " is loading=" + this.loading + " " + this);
+                return;
+            }
+
+            // First one for this URL - load it.
+            this.loading = true;
+
+            long start = System.currentTimeMillis();
+            this.soundId = soundPool.load(getAudioPath(url, isLocal), 1);
+            Log.d("WSP", "time to call load() for " + url + ": " + (System.currentTimeMillis() - start) + " player=" + this);
+            soundIdToPlayer.put(this.soundId, this);
+            urlPlayers = new ArrayList<>();
+            urlPlayers.add(this);
+            urlToPlayers.put(url, urlPlayers);
         }
     }
 
