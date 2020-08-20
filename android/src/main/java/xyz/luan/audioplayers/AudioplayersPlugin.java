@@ -86,6 +86,11 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
                 break;
             }
             case "play_bytes": {
+                // API version 23 is required for MediaDataSource
+                if (android.os.Build.VERSION.SDK_INT < 23) {
+                    throw new UnsupportedOperationException("API version 23 is required");
+                }
+
                 final byte[] bytes = call.argument("bytes");
                 final double volume = call.argument("volume");
                 final Integer position = call.argument("position");

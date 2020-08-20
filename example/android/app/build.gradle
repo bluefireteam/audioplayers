@@ -23,7 +23,7 @@ android {
 
     defaultConfig {
         applicationId "xyz.luan.audioplayers_example"
-        minSdkVersion 23
+        minSdkVersion 16
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
