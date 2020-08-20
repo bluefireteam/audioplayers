@@ -59,11 +59,12 @@ Logs are disable by default! To debug, run:
 
 ### Playing Audio
 
-There are three possible sources of audio:
+There are four possible sources of audio:
 
 - Remote file on the Internet
 - Local file on the user's device
 - Local asset from your Flutter project
+- Audio in the form of a byte array (in Flutter, Uint8List)
 
 Both for Remote Files or Local Files, use the `play` method, just setting appropriately the flag `isLocal`.
 
@@ -89,6 +90,16 @@ For a Local File, add the `isLocal` parameter:
 ```dart
   playLocal() async {
     int result = await audioPlayer.play(localPath, isLocal: true);
+  }
+```
+
+To play a file in the form of a data buffer (Uint8List), use the method `playBytes`.
+This currently is not supported when calling from `audio_cache` and only works for Android (requiring API >= 23).
+
+```dart
+  playLocal() async {
+    Uint8List byteData = .. // Load audio as a byte array here.
+    int result = await audioPlayer.playBytes(byteData);
   }
 ```
 
@@ -295,6 +306,10 @@ Here is an example of how it should look like:
     </application>
 </manifest>
 ```
+
+## Gradle Build Failing
+With the recent addition of `playBytes`, this has a hard requirement on using API >= 23 features, and your build may failure depending on your minimum sdk targetting.
+To override this, you will need to add `<uses-sdk tools:overrideLibrary="xyz.luan.audioplayers"/>` to your build.gradle
 
 ## Credits
 
