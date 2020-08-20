@@ -62,18 +62,11 @@ public class WrappedSoundPool extends Player {
      */
     private static Map<String, List<WrappedSoundPool>> urlToPlayers = Collections.synchronizedMap(new HashMap<String, List<WrappedSoundPool>>());
 
-    /** TODO
-     */
-    private static Map<String, List<WrappedSoundPool>> dataSourceToPlayers = Collections.synchronizedMap(new HashMap<String, List<WrappedSoundPool>>());
-
-
     private final AudioplayersPlugin ref;
 
     private final String playerId;
 
     private String url;
-
-    private MediaDataSource dataSource;
 
     private float volume = 1.0f;
 
@@ -153,15 +146,6 @@ public class WrappedSoundPool extends Player {
 
     @Override
     void setDataSource(MediaDataSource mediaDataSource, Context context) {
-        // Not yet implemented
-        if (this.dataSource != null && this.dataSource.equals(mediaDataSource)) {
-            return;
-        }
-
-        if (this.soundId != null) {
-            release();
-        }
-
         throw unsupportedOperation("setDataSource");
     }
 
