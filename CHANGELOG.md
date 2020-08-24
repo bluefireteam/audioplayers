@@ -1,6 +1,8 @@
 # Changelog
 
 ## [next]
+
+## 0.16.0
 - Implemented stream routing for iOS
 - Call release on dispose
 - Fix iOS build

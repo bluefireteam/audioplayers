@@ -12,7 +12,7 @@ This was orginally forked from [rxlabz's audioplayer](https://github.com/rxlabz/
 
 ```yaml
 dependencies:
-  audioplayers: ^0.15.1
+  audioplayers: ^0.16.0
 ```
 
 ## Discord channel
@@ -256,7 +256,7 @@ final audioPlayer = AudioPlayer(playerId: 'my_unique_playerId');
 You can check a list of supported formats below:
 
 - [Android](https://developer.android.com/guide/topics/media/media-formats.html)
-- [iOS and macOS](http://www.techotopia.com/index.php/Playing_Audio_on_iOS_8_using_AVAudioPlayer#Supported_Audio_Formats)
+- [iOS and macOS](https://www.techotopia.com/index.php/Playing_Audio_on_iOS_8_using_AVAudioPlayer#Supported_Audio_Formats)
 - web: audio formats supported by the browser you are using ([more details](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API))
 
 ## :warning: iOS & macOS App Transport Security
