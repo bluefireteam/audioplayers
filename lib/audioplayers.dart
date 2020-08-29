@@ -555,6 +555,7 @@ class AudioPlayer {
       players.remove(playerId);
       return;
     }
+    if (player == null) return;
 
     final value = callArgs['value'];
 
@@ -627,6 +628,7 @@ class AudioPlayer {
     if (!_errorController.isClosed) futures.add(_errorController.close());
 
     await Future.wait(futures);
+    players.remove(playerId);
   }
 
   Future<int> earpieceOrSpeakersToggle() async {
