@@ -106,8 +106,8 @@ class AudioCache {
     double volume = 1.0,
     bool isNotification,
     PlayerMode mode = PlayerMode.MEDIA_PLAYER,
-    bool stayAwake,
-    bool recordingActive,
+    bool stayAwake = false,
+    bool recordingActive = false,
   }) async {
     String url = await getAbsoluteUrl(fileName);
     AudioPlayer player = _player(mode);
@@ -126,11 +126,13 @@ class AudioCache {
   /// The instance of [AudioPlayer] created is returned, so you can use it to stop the playback as desired.
   ///
   /// isNotification and stayAwake are not implemented on macOS.
-  Future<AudioPlayer> loop(String fileName,
-      {double volume = 1.0,
-      bool isNotification,
-      PlayerMode mode = PlayerMode.MEDIA_PLAYER,
-      bool stayAwake}) async {
+  Future<AudioPlayer> loop(
+    String fileName, {
+    double volume = 1.0,
+    bool isNotification,
+    PlayerMode mode = PlayerMode.MEDIA_PLAYER,
+    bool stayAwake = false,
+  }) async {
     String url = await getAbsoluteUrl(fileName);
     AudioPlayer player = _player(mode);
     player.setReleaseMode(ReleaseMode.LOOP);
