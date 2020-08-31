@@ -4,6 +4,7 @@
 
 ## 0.16.1
 - Fix Exception thrown when calling audioPlayer.dispose
+- Fix bug with AudioCache crash on iOS
 
 ## 0.16.0
 - Implemented stream routing for iOS
