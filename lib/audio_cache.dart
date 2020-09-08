@@ -38,7 +38,7 @@ class AudioCache {
 
   AudioCache(
       {this.prefix = "assets/", this.fixedPlayer, this.respectSilence = false})
-       : assert(!kIsWeb, 'AudioCache is not available for Flutter Web.');
+      : assert(!kIsWeb, 'AudioCache is not available for Flutter Web.');
 
   /// Clears the cache of the file [fileName].
   ///
