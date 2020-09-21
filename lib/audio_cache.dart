@@ -112,6 +112,7 @@ class AudioCache {
   }) async {
     String url = await getAbsoluteUrl(fileName);
     AudioPlayer player = _player(mode);
+    player.setReleaseMode(ReleaseMode.STOP);
     await player.play(
       url,
       volume: volume,
