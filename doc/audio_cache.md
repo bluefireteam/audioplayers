@@ -1,6 +1,6 @@
 # Audio Cache
 
-In order to play Local Assets, you must use the `AudioCache` class.
+In order to play Local Assets, you must use the `AudioCache` class. AudioCache is not available for Flutter Web.
 
 Flutter does not provide an easy way to play audio on your assets, but this class helps a lot. It actually copies the asset to a temporary folder in the device, where it is then played as a Local File.
 
