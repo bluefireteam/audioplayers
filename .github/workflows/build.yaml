@@ -68,6 +68,7 @@ jobs:
     - name: Start Simulator
       run: |
         UDID=$(xcrun instruments -s | grep "iPhone" | sed -n 1p | awk -F ' *[][]' '{ print $2 }')
+        echo "Using simulator $UUID"
         xcrun simctl boot "${UDID:?No Simulator with this name iPhone found}"
     - uses: actions/checkout@v1
     - uses: subosito/flutter-action@v1
