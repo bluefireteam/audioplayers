@@ -532,7 +532,9 @@ class AudioPlayer {
   ///
   /// respectSilence is not implemented on macOS.
   Future<int> setUrl(String url,
-      {bool isLocal: false, bool respectSilence = false, bool recordingActive = false}) {
+      {bool isLocal: false,
+      bool respectSilence = false,
+      bool recordingActive = false}) {
     isLocal = isLocalUrl(url);
     return _invokeMethod('setUrl', {
       'url': url,
