@@ -1,6 +1,7 @@
 # Changelog
 
 ## [next]
+- Overhauled our contributing guidelines
 
 ## 0.16.1
 - Fix Exception thrown when calling audioPlayer.dispose
