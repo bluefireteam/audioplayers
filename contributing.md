@@ -4,6 +4,14 @@ Thanks for using audioplayers and specially for your interest in contributing to
 
 Please read this document carefully before doing anything else!
 
+## Old Issues/PRs
+
+We have many existing open issues and a few open PRs that were created before this doc was created. We will try to respect their innocence of this file existence by doing our best effort to answer/address/fix/merge them as we normally would up to this point (i.e. as time permits). However, if an existing issue or PR is too blatant of an outlier from these rules, we reserve the right of asking, in the issue/PR for the author (or someone) to fix it so that it falls under the new rules (i.e. apply the templates, etc). If we need to do that, we will give two weeks for the issue/PR to be updated to follow the rules, otherwise it will be closed.
+
+Of course anyone is free to open a similar followup as long as the new one follows the rules at any time.
+
+With that particular comment in mind, consider the following rules to apply to new issues only.
+
 ## General Rules
 
 This document is divided in sections for each kind of contribution you have, but for any of them, basically for any form of communication between members of the community, you must follow these rules. I am adding them here at the top because they apply to all sections but also because they are the uttermost important thing for us.
