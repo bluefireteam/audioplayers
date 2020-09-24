@@ -1,33 +1,24 @@
 # AudioPlayers
 
-[![Build Status](https://github.com/luanpotter/audioplayers/workflows/build/badge.svg?branch=master)](https://github.com/luanpotter/audioplayers/actions?query=workflow%3A"build"+branch%3Amaster)
+[![Pub](https://img.shields.io/pub/v/audioplayers.svg?style=popout)](https://pub.dartlang.org/packages/audioplayers) [![Build Status](https://github.com/luanpotter/audioplayers/workflows/build/badge.svg?branch=master)](https://github.com/luanpotter/audioplayers/actions?query=workflow%3A"build"+branch%3Amaster) [![Discord](https://img.shields.io/discord/509714518008528896.svg)](https://discord.gg/pxrBmy4)
 
-A Flutter plugin to play multiple simultaneously audio files, works for Android, iOS, macOS and web (WIP).
+A Flutter plugin to play multiple simultaneously audio files, works for Android, iOS, macOS and web.
 
 ![](example/tab1s.jpg) ![](example/tab2s.jpg) ![](example/tab3s.jpg)
 
-## Install
+## Contributing
 
-This was orginally forked from [rxlabz's audioplayer](https://github.com/rxlabz/audioplayer), but the name was changed to `audioplayers` (mind the 's'); so, to add the dependency:
+We now have new rules for contributing!
 
-```yaml
-dependencies:
-  audioplayers: ^0.16.1
-```
+All help is appreciated but if you have questions, bug reports, issues, feature requests, pull requests, etc, please first refer to our [Contributing Guide](contributing.md).
 
-## Discord channel
-
-We have created a channel for audioplayers help on Fireslime's discord, join it [here](https://discord.gg/ny7eThk)
+Also, as always, please give us a star to help!
 
 ## Support us
 
 You can support us by becoming a patron on Patreon, any support is much appreciated.
 
 [![Patreon](https://c5.patreon.com/external/logo/become_a_patron_button.png)](https://www.patreon.com/fireslime)
-
-## Troubleshooting
-
-Before opening an issue, please refer to the [troubleshoot guide](troubleshooting.md)
 
 ## Usage
 
@@ -49,7 +40,7 @@ This mode is also not available on web.
 
 You can create multiple instances to play audio simultaneously.
 
-For all methods that return a `Future<int>`: that's the status of the operation. If `1`, the operation was successful. Otherwise it's the platform native error code.
+For all methods that return a `Future<int>`: that's the status of the operation. If `1`, the operation was successful. Otherwise, it's the platform native error code.
 
 Logs are disable by default! To debug, run:
 
@@ -72,7 +63,7 @@ For Local Assets, you have to use the `AudioCache` class (see below).
 To play a Remote File, just call `play` with the url (the `isLocal` parameter is false by default):
 
 If you want to play audio for a long period of time, you need to set appropriately the flag `stayAwake`,
-If you pass `setAwake` as true you need to add this permission to your app manifest:
+If you pass `stayAwake` as true you need to add this permission to your app manifest:
 `<uses-permission android:name="android.permission.WAKE_LOCK" />`.
 
 ```dart
