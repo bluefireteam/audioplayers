@@ -108,20 +108,22 @@ class _ExampleAppState extends State<ExampleApp> {
         _Btn(txt: 'Play', onPressed: () => audioCache.play('audio.mp3')),
         Text('Play Local Asset (via byte source) \'audio.mp3\':'),
         _Btn(
-          txt: 'Play',
-          onPressed: () async {
-            var bytes = await (await audioCache.load('audio.mp3')).readAsBytes();
-            audioCache.playBytes(bytes);
-        }),
+            txt: 'Play',
+            onPressed: () async {
+              var bytes =
+                  await (await audioCache.load('audio.mp3')).readAsBytes();
+              audioCache.playBytes(bytes);
+            }),
         Text('Loop Local Asset \'audio.mp3\':'),
         _Btn(txt: 'Loop', onPressed: () => audioCache.loop('audio.mp3')),
         Text('Loop Local Asset (via byte source) \'audio.mp3\':'),
         _Btn(
-          txt: 'Loop',
-          onPressed: () async {
-            var bytes = await (await audioCache.load('audio.mp3')).readAsBytes();
-            audioCache.playBytes(bytes, loop: true);
-        }),
+            txt: 'Loop',
+            onPressed: () async {
+              var bytes =
+                  await (await audioCache.load('audio.mp3')).readAsBytes();
+              audioCache.playBytes(bytes, loop: true);
+            }),
         Text('Play Local Asset \'audio2.mp3\':'),
         _Btn(txt: 'Play', onPressed: () => audioCache.play('audio2.mp3')),
         Text('Play Local Asset In Low Latency \'audio.mp3\':'),

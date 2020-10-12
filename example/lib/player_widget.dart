@@ -132,7 +132,9 @@ class _PlayerWidgetState extends State<PlayerWidget> {
             Text(
               _position != null
                   ? '${_positionText ?? ''} / ${_durationText ?? ''}'
-                  : _duration != null ? _durationText : '',
+                  : _duration != null
+                      ? _durationText
+                      : '',
               style: TextStyle(fontSize: 24.0),
             ),
           ],

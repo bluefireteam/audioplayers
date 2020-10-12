@@ -424,7 +424,9 @@ class AudioPlayer {
     stayAwake ??= false;
 
     if (!Platform.isAndroid) {
-      throw PlatformException(code: "Not supported", message: "Only Android is currently supported");
+      throw PlatformException(
+          code: "Not supported",
+          message: "Only Android is currently supported");
     }
 
     final int result = await _invokeMethod('play_bytes', {
