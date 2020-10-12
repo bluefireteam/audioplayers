@@ -15,7 +15,7 @@ jobs:
       - uses: subosito/flutter-action@v1
         with:
           channel: beta
-          flutter-version: '1.14.x'
+          flutter-version: '1.22.x'
       - run: flutter pub get
       - run: ./scripts/format.sh
       - run: flutter test
