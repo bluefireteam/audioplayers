@@ -123,6 +123,32 @@ class AudioCache {
     return player;
   }
 
+  /// Plays the given [fileName] by a byte source.
+  ///
+  /// This is no different than calling this API via AudioPlayer, except it will return (if applicable) the cached AudioPlayer.
+  Future<AudioPlayer> playBytes(Uint8List fileBytes,
+      {double volume = 1.0,
+      bool isNotification,
+      PlayerMode mode = PlayerMode.MEDIA_PLAYER,
+      bool loop = false, 
+      bool stayAwake,
+      bool recordingActive}) async {
+    AudioPlayer player = _player(mode);
+
+    if (loop) {
+      player.setReleaseMode(ReleaseMode.LOOP);
+    }
+
+    await player.playBytes(
+      fileBytes,
+      volume: volume,
+      respectSilence: isNotification ?? respectSilence,
+      stayAwake: stayAwake,
+      recordingActive: recordingActive,
+    );
+    return player;
+  }
+
   /// Like [play], but loops the audio (starts over once finished).
   ///
   /// The instance of [AudioPlayer] created is returned, so you can use it to stop the playback as desired.
