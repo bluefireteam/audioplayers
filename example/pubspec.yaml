@@ -4,11 +4,11 @@ description: Demonstrates how to use the audioplayers plugin.
 dependencies:
   flutter:
     sdk: flutter
-  http: ^0.12.0+4
-  path_provider: ^1.1.0
-  path_provider_macos: ^0.0.1
   audioplayers:
     path: ../
+  http: ^0.12.2
+  path_provider: ^1.5.1
+  path_provider_macos: ^0.0.4+4
   provider: ^3.0.0+1
 
 dev_dependencies:
@@ -25,4 +25,4 @@ flutter:
     - assets/messenger.mp3
 
 environment:
-  sdk: ">=2.0.0-dev.50.0 <3.0.0"
+  sdk: ">=2.2.2 <3.0.0"

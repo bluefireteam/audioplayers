@@ -314,7 +314,7 @@ class AudioPlayer {
           PluginUtilities.getCallbackHandle(_backgroundCallbackDispatcher);
       assert(handle != null, 'Unable to lookup callback.');
       _invokeMethod('startHeadlessService', {
-        'handleKey': <dynamic>[handle.toRawHandle()]
+        'handleKey': <dynamic>[handle.toRawHandle()],
       });
     }
   }
@@ -428,8 +428,9 @@ class AudioPlayer {
 
     if (!Platform.isAndroid) {
       throw PlatformException(
-          code: "Not supported",
-          message: "Only Android is currently supported");
+        code: 'Not supported',
+        message: 'Only Android is currently supported',
+      );
     }
 
     final int result = await _invokeMethod('play_bytes', {

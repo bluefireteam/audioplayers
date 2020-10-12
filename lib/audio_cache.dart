@@ -37,7 +37,7 @@ class AudioCache {
   bool respectSilence;
 
   AudioCache({
-    this.prefix = "assets/",
+    this.prefix = 'assets/',
     this.fixedPlayer,
     this.respectSilence = false,
   }) : assert(!kIsWeb, 'AudioCache is not available for Flutter Web.');
@@ -60,7 +60,7 @@ class AudioCache {
 
   /// Disables [AudioPlayer] logs (enable only if debugging, otherwise they can be quite overwhelming).
   ///
-  /// TODO: there are still some logs on the android native side that we could not get rid of, if you'd like to help, please send us a PR!
+  /// TODO(luan) there are still some logs on the android native side that we could not get rid of, if you'd like to help, please send us a PR!
   void disableLog() {
     AudioPlayer.logEnabled = false;
   }
@@ -179,7 +179,7 @@ class AudioCache {
 
   Future<String> getAbsoluteUrl(String fileName) async {
     if (kIsWeb) {
-      return "assets/$prefix$fileName";
+      return 'assets/$prefix$fileName';
     }
     File file = await load(fileName);
     return file.path;
