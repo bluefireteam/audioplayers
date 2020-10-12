@@ -359,7 +359,6 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
                 break;
             default:
                 extraMsg = whatMsg = "MEDIA_ERROR_UNKNOWN {extra:" + extra + "}";
-                ;
         }
         ref.handleError(this, "MediaPlayer error with what:" + whatMsg + " extra:" + extraMsg);
         return false;
