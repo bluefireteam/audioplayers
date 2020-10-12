@@ -36,7 +36,9 @@ class AudioCache {
   bool respectSilence;
 
   /// This flag should be set to true, if player is used for playing sound while there may be music
-  ///
+  /// 
+  /// Default to false
+  /// 
   /// If not set, the audio will be paused while playing on iOS and continue playing on Android.
   bool duckAudio;
 
