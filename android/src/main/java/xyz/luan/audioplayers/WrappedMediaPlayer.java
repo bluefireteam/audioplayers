@@ -4,6 +4,7 @@ import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.MediaDataSource;
 import android.os.Build;
 import android.os.PowerManager;
 
@@ -14,6 +15,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     private String playerId;
 
     private String url;
+    private MediaDataSource dataSource;
     private double volume = 1.0;
     private float rate = 1.0f;
     private boolean respectSilence;
@@ -52,6 +54,28 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
             }
 
             this.setSource(url);
+            this.player.setVolume((float) volume, (float) volume);
+            this.player.setLooping(this.releaseMode == ReleaseMode.LOOP);
+            this.player.prepareAsync();
+        }
+
+        // Dispose of any old data buffer array, if we are now playing from another source.
+        dataSource = null;
+    }
+
+    @Override
+    void setDataSource(MediaDataSource mediaDataSource, Context context) {
+        if (!objectEquals(this.dataSource, mediaDataSource)) {
+            this.dataSource = mediaDataSource;
+            if (this.released) {
+                this.player = createPlayer(context);
+                this.released = false;
+            } else if (this.prepared) {
+                this.player.reset();
+                this.prepared = false;
+            }
+
+            this.setMediaSource(mediaDataSource);
             this.player.setVolume((float) volume, (float) volume);
             this.player.setLooping(this.releaseMode == ReleaseMode.LOOP);
             this.player.prepareAsync();
@@ -174,7 +198,11 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
             if (this.released) {
                 this.released = false;
                 this.player = createPlayer(context);
-                this.setSource(url);
+                if (dataSource != null) {
+                    setMediaSource(dataSource);
+                } else {
+                    this.setSource(url);
+                }
                 this.player.prepareAsync();
             } else if (this.prepared) {
                 this.player.start();
@@ -320,6 +348,14 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
             this.player.setDataSource(url);
         } catch (IOException ex) {
             throw new RuntimeException("Unable to access resource", ex);
+        }
+    }
+
+    private void setMediaSource(MediaDataSource mediaDataSource) {
+        try {
+            this.player.setDataSource(mediaDataSource);
+        } catch (Exception ex) {
+            throw new RuntimeException("Unable to access media resource", ex);
         }
     }
 

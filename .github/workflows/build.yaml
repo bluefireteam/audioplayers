@@ -13,7 +13,7 @@ jobs:
       - uses: subosito/flutter-action@v1
         with:
           channel: beta
-          flutter-version: '1.14.x'
+          flutter-version: '1.22.x'
       - run: flutter pub get
       - run: ./scripts/format.sh
       - run: flutter test
@@ -27,7 +27,7 @@ jobs:
     - uses: subosito/flutter-action@v1
       with:
         channel: beta
-        flutter-version: '1.14.x'
+        flutter-version: '1.22.x'
     - name: Build example app
       working-directory: ./example
       run: "flutter pub get"
@@ -74,7 +74,7 @@ jobs:
     - uses: subosito/flutter-action@v1
       with:
         channel: beta
-        flutter-version: '1.14.x'
+        flutter-version: '1.22.x'
     - name: Build example app
       working-directory: ./example
       run: "flutter pub get"

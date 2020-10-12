@@ -36,9 +36,11 @@ class AudioCache {
   /// Not implemented on macOS.
   bool respectSilence;
 
-  AudioCache(
-      {this.prefix = "assets/", this.fixedPlayer, this.respectSilence = false})
-      : assert(!kIsWeb, 'AudioCache is not available for Flutter Web.');
+  AudioCache({
+    this.prefix = 'assets/',
+    this.fixedPlayer,
+    this.respectSilence = false,
+  }) : assert(!kIsWeb, 'AudioCache is not available for Flutter Web.');
 
   /// Clears the cache of the file [fileName].
   ///
@@ -58,7 +60,7 @@ class AudioCache {
 
   /// Disables [AudioPlayer] logs (enable only if debugging, otherwise they can be quite overwhelming).
   ///
-  /// TODO: there are still some logs on the android native side that we could not get rid of, if you'd like to help, please send us a PR!
+  /// TODO(luan) there are still some logs on the android native side that we could not get rid of, if you'd like to help, please send us a PR!
   void disableLog() {
     AudioPlayer.logEnabled = false;
   }
@@ -123,6 +125,34 @@ class AudioCache {
     return player;
   }
 
+  /// Plays the given [fileName] by a byte source.
+  ///
+  /// This is no different than calling this API via AudioPlayer, except it will return (if applicable) the cached AudioPlayer.
+  Future<AudioPlayer> playBytes(
+    Uint8List fileBytes, {
+    double volume = 1.0,
+    bool isNotification,
+    PlayerMode mode = PlayerMode.MEDIA_PLAYER,
+    bool loop = false,
+    bool stayAwake,
+    bool recordingActive,
+  }) async {
+    AudioPlayer player = _player(mode);
+
+    if (loop) {
+      player.setReleaseMode(ReleaseMode.LOOP);
+    }
+
+    await player.playBytes(
+      fileBytes,
+      volume: volume,
+      respectSilence: isNotification ?? respectSilence,
+      stayAwake: stayAwake,
+      recordingActive: recordingActive,
+    );
+    return player;
+  }
+
   /// Like [play], but loops the audio (starts over once finished).
   ///
   /// The instance of [AudioPlayer] created is returned, so you can use it to stop the playback as desired.
@@ -149,7 +179,7 @@ class AudioCache {
 
   Future<String> getAbsoluteUrl(String fileName) async {
     if (kIsWeb) {
-      return "assets/$prefix$fileName";
+      return 'assets/$prefix$fileName';
     }
     File file = await load(fileName);
     return file.path;
