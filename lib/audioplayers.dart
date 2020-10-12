@@ -358,7 +358,8 @@ class AudioPlayer {
   /// `callback` is invoked on a background isolate and will not have direct
   /// access to the state held by the main isolate (or any other isolate).
   Future<bool> monitorNotificationStateChanges(
-      void Function(AudioPlayerState value) callback) async {
+    void Function(AudioPlayerState value) callback,
+  ) async {
     if (callback == null) {
       throw ArgumentError.notNull('callback');
     }
@@ -412,13 +413,15 @@ class AudioPlayer {
   /// Plays audio in the form of a byte array.
   ///
   /// respectSilence and stayAwake are not implemented on macOS.
-  Future<int> playBytes(Uint8List bytes,
-      {double volume = 1.0,
-      // position must be null by default to be compatible with radio streams
-      Duration position,
-      bool respectSilence = false,
-      bool stayAwake = false,
-      bool recordingActive = false}) async {
+  Future<int> playBytes(
+    Uint8List bytes, {
+    double volume = 1.0,
+    // position must be null by default to be compatible with radio streams
+    Duration position,
+    bool respectSilence = false,
+    bool stayAwake = false,
+    bool recordingActive = false,
+  }) async {
     volume ??= 1.0;
     respectSilence ??= false;
     stayAwake ??= false;
@@ -535,17 +538,18 @@ class AudioPlayer {
   /// Sets the notification bar for lock screen and notification area in iOS for now.
   ///
   /// Specify atleast title
-  Future<dynamic> setNotification(
-      {String title,
-      String albumTitle,
-      String artist,
-      String imageUrl,
-      Duration forwardSkipInterval = Duration.zero,
-      Duration backwardSkipInterval = Duration.zero,
-      Duration duration = Duration.zero,
-      Duration elapsedTime = Duration.zero,
-      bool hasPreviousTrack = false,
-      bool hasNextTrack = false}) {
+  Future<dynamic> setNotification({
+    String title,
+    String albumTitle,
+    String artist,
+    String imageUrl,
+    Duration forwardSkipInterval = Duration.zero,
+    Duration backwardSkipInterval = Duration.zero,
+    Duration duration = Duration.zero,
+    Duration elapsedTime = Duration.zero,
+    bool hasPreviousTrack = false,
+    bool hasNextTrack = false,
+  }) {
     return _invokeMethod('setNotification', {
       'title': title ?? '',
       'albumTitle': albumTitle ?? '',
@@ -568,11 +572,16 @@ class AudioPlayer {
   /// this method.
   ///
   /// respectSilence is not implemented on macOS.
-  Future<int> setUrl(String url,
-      {bool isLocal: false, bool respectSilence = false}) {
+  Future<int> setUrl(
+    String url, {
+    bool isLocal: false,
+    bool respectSilence = false,
+  }) {
     isLocal = isLocalUrl(url);
-    return _invokeMethod('setUrl',
-        {'url': url, 'isLocal': isLocal, 'respectSilence': respectSilence});
+    return _invokeMethod(
+      'setUrl',
+      {'url': url, 'isLocal': isLocal, 'respectSilence': respectSilence},
+    );
   }
 
   /// Get audio duration after setting url.

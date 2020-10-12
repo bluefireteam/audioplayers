@@ -85,7 +85,7 @@ For a Local File, add the `isLocal` parameter:
 ```
 
 To play a file in the form of a data buffer (Uint8List), use the method `playBytes`.
-This currently is not supported when calling from `audio_cache` and only works for Android (requiring API >= 23).
+This currently only works for Android (requiring API >= 23).
 
 ```dart
   playLocal() async {

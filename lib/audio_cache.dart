@@ -128,13 +128,15 @@ class AudioCache {
   /// Plays the given [fileName] by a byte source.
   ///
   /// This is no different than calling this API via AudioPlayer, except it will return (if applicable) the cached AudioPlayer.
-  Future<AudioPlayer> playBytes(Uint8List fileBytes,
-      {double volume = 1.0,
-      bool isNotification,
-      PlayerMode mode = PlayerMode.MEDIA_PLAYER,
-      bool loop = false,
-      bool stayAwake,
-      bool recordingActive}) async {
+  Future<AudioPlayer> playBytes(
+    Uint8List fileBytes, {
+    double volume = 1.0,
+    bool isNotification,
+    PlayerMode mode = PlayerMode.MEDIA_PLAYER,
+    bool loop = false,
+    bool stayAwake,
+    bool recordingActive,
+  }) async {
     AudioPlayer player = _player(mode);
 
     if (loop) {
