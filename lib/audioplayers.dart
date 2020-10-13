@@ -39,11 +39,15 @@ enum ReleaseMode {
   STOP
 }
 
-/// Self explanatory. Indicates the state of the audio player.
+/// Indicates the state of the audio player.
 enum AudioPlayerState {
+  /** Stop has been called or an error occurred. */
   STOPPED,
+  /** Currently playing audio. */
   PLAYING,
+  /** Pause has been called. */
   PAUSED,
+  /** The audio successfully completed (reached the end). */
   COMPLETED,
 }
 
@@ -443,7 +447,7 @@ class AudioPlayer {
       'respectSilence': respectSilence,
       'stayAwake': stayAwake,
       'duckAudio': duckAudio,
-      'recordingActive': recordingActive
+      'recordingActive': recordingActive,
     });
 
     if (result == 1) {
