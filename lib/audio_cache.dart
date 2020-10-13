@@ -18,8 +18,9 @@ class AudioCache {
 
   /// This is the path inside your assets folder where your files lie.
   ///
-  /// For example, Flame uses the prefix 'audio/' (must include the slash!).
-  /// Your files will be found at assets/<prefix><fileName>
+  /// For example, Flame uses the prefix 'assets/audio/' (you must include the final slash!).
+  /// The default prefix (if not provided) is 'assets/'
+  /// Your files will be found at <prefix><fileName> (so the trailing slash is crucial).
   String prefix;
 
   /// This is an instance of AudioPlayer that, if present, will always be used.
@@ -36,39 +37,42 @@ class AudioCache {
   bool respectSilence;
 
   /// This flag should be set to true, if player is used for playing sound while there may be music
-  /// 
-  /// Default to false
-  /// 
-  /// If not set, the audio will be paused while playing on iOS and continue playing on Android.
+  ///
+  /// Defaults to false, meaning the audio will be paused while playing on iOS and continue playing on Android.
   bool duckAudio;
 
-  AudioCache(
-      {this.prefix = "",
-      this.fixedPlayer,
-      this.respectSilence = false,
-      this.duckAudio = false});
+  AudioCache({
+    this.prefix = 'assets/',
+    this.fixedPlayer,
+    this.respectSilence = false,
+    this.duckAudio = false,
+  }) : assert(!kIsWeb, 'AudioCache is not available for Flutter Web.');
 
   /// Clears the cache of the file [fileName].
   ///
   /// Does nothing if the file was not on cache.
   void clear(String fileName) {
-    loadedFiles.remove(fileName);
+    final file = loadedFiles.remove(fileName);
+    file?.delete();
   }
 
   /// Clears the whole cache.
   void clearCache() {
+    for (final file in loadedFiles.values) {
+      file.delete();
+    }
     loadedFiles.clear();
   }
 
   /// Disables [AudioPlayer] logs (enable only if debugging, otherwise they can be quite overwhelming).
   ///
-  /// TODO: there are still some logs on the android native side that we could not get rid of, if you'd like to help, please send us a PR!
+  /// TODO(luan) there are still some logs on the android native side that we could not get rid of, if you'd like to help, please send us a PR!
   void disableLog() {
     AudioPlayer.logEnabled = false;
   }
 
   Future<ByteData> _fetchAsset(String fileName) async {
-    return await rootBundle.load('assets/$prefix$fileName');
+    return await rootBundle.load('$prefix$fileName');
   }
 
   Future<File> fetchToMemory(String fileName) async {
@@ -106,20 +110,54 @@ class AudioCache {
   /// The instance is returned, to allow later access (either way), like pausing and resuming.
   ///
   /// isNotification and stayAwake are not implemented on macOS
-  Future<AudioPlayer> play(String fileName,
-      {double volume = 1.0,
-      bool isNotification,
-      PlayerMode mode = PlayerMode.MEDIA_PLAYER,
-      bool stayAwake,
-      bool duckAudio}) async {
+  Future<AudioPlayer> play(
+    String fileName, {
+    double volume = 1.0,
+    bool isNotification,
+    PlayerMode mode = PlayerMode.MEDIA_PLAYER,
+    bool stayAwake = false,
+    bool recordingActive = false,
+    bool duckAudio,
+  }) async {
     String url = await getAbsoluteUrl(fileName);
     AudioPlayer player = _player(mode);
+    player.setReleaseMode(ReleaseMode.STOP);
+    await player.play(
+      url,
+      volume: volume,
+      respectSilence: isNotification ?? respectSilence,
+      stayAwake: stayAwake,
+      recordingActive: recordingActive,
+      duckAudio: duckAudio ?? this.duckAudio,
+    );
+    return player;
+  }
 
-    await player.play(url,
-        volume: volume,
-        respectSilence: isNotification ?? respectSilence,
-        stayAwake: stayAwake,
-        duckAudio: duckAudio);
+  /// Plays the given [fileName] by a byte source.
+  ///
+  /// This is no different than calling this API via AudioPlayer, except it will return (if applicable) the cached AudioPlayer.
+  Future<AudioPlayer> playBytes(
+    Uint8List fileBytes, {
+    double volume = 1.0,
+    bool isNotification,
+    PlayerMode mode = PlayerMode.MEDIA_PLAYER,
+    bool loop = false,
+    bool stayAwake,
+    bool recordingActive,
+  }) async {
+    AudioPlayer player = _player(mode);
+
+    if (loop) {
+      player.setReleaseMode(ReleaseMode.LOOP);
+    }
+
+    await player.playBytes(
+      fileBytes,
+      volume: volume,
+      respectSilence: isNotification ?? respectSilence,
+      stayAwake: stayAwake,
+      recordingActive: recordingActive,
+    );
     return player;
   }
 
@@ -128,11 +166,13 @@ class AudioCache {
   /// The instance of [AudioPlayer] created is returned, so you can use it to stop the playback as desired.
   ///
   /// isNotification and stayAwake are not implemented on macOS.
-  Future<AudioPlayer> loop(String fileName,
-      {double volume = 1.0,
-      bool isNotification,
-      PlayerMode mode = PlayerMode.MEDIA_PLAYER,
-      bool stayAwake}) async {
+  Future<AudioPlayer> loop(
+    String fileName, {
+    double volume = 1.0,
+    bool isNotification,
+    PlayerMode mode = PlayerMode.MEDIA_PLAYER,
+    bool stayAwake = false,
+  }) async {
     String url = await getAbsoluteUrl(fileName);
     AudioPlayer player = _player(mode);
     player.setReleaseMode(ReleaseMode.LOOP);
@@ -147,7 +187,7 @@ class AudioCache {
 
   Future<String> getAbsoluteUrl(String fileName) async {
     if (kIsWeb) {
-      return "assets/assets/$prefix$fileName";
+      return 'assets/$prefix$fileName';
     }
     File file = await load(fileName);
     return file.path;

@@ -164,16 +164,20 @@ const NSString *_defaultPlayingRoute = @"speakers";
                         result(0);
                     if (call.arguments[@"respectSilence"] == nil)
                         result(0);
+                    if (call.arguments[@"recordingActive"] == nil)
+                        result(0);
                     int isLocal = [call.arguments[@"isLocal"]intValue] ;
                     float volume = (float)[call.arguments[@"volume"] doubleValue] ;
                     int milliseconds = call.arguments[@"position"] == [NSNull null] ? 0.0 : [call.arguments[@"position"] intValue] ;
-                    bool respectSilence = [call.arguments[@"respectSilence"]boolValue] ;
+                    bool respectSilence = [call.arguments[@"respectSilence"] boolValue];
+                    bool recordingActive = [call.arguments[@"recordingActive"] boolValue];
                     bool duckAudio = [call.arguments[@"duckAudio"]boolValue] ;
+
                     CMTime time = CMTimeMakeWithSeconds(milliseconds / 1000,NSEC_PER_SEC);
                     NSLog(@"isLocal: %d %@", isLocal, call.arguments[@"isLocal"] );
                     NSLog(@"volume: %f %@", volume, call.arguments[@"volume"] );
                     NSLog(@"position: %d %@", milliseconds, call.arguments[@"positions"] );
-                    [self play:playerId url:url isLocal:isLocal volume:volume time:time isNotification:respectSilence duckAudio:duckAudio];
+                    [self play:playerId url:url isLocal:isLocal volume:volume time:time isNotification:respectSilence duckAudio:duckAudio recordingActive:recordingActive];
                   },
                 @"pause":
                   ^{
@@ -212,10 +216,12 @@ const NSString *_defaultPlayingRoute = @"speakers";
                     NSString *url = call.arguments[@"url"];
                     int isLocal = [call.arguments[@"isLocal"]intValue];
                     bool respectSilence = [call.arguments[@"respectSilence"]boolValue] ;
+                    bool recordingActive = [call.arguments[@"recordingActive"]boolValue] ;
                     [ self setUrl:url
                           isLocal:isLocal
                           isNotification:respectSilence
                           playerId:playerId
+                          recordingActive: recordingActive
                           onReady:^(NSString * playerId) {
                             result(@(1));
                           }
@@ -259,10 +265,20 @@ const NSString *_defaultPlayingRoute = @"speakers";
                           int backwardSkipInterval = [call.arguments[@"backwardSkipInterval"] intValue];
                           int duration = [call.arguments[@"duration"] intValue];
                           int elapsedTime = [call.arguments[@"elapsedTime"] intValue];
+                          bool enablePreviousTrackButton = [call.arguments[@"hasPreviousTrack"] boolValue];
+                          bool enableNextTrackButton = [call.arguments[@"hasNextTrack"] boolValue];
 
-                          [self setNotification:title albumTitle:albumTitle artist:artist imageUrl:imageUrl
-                                forwardSkipInterval:forwardSkipInterval backwardSkipInterval:backwardSkipInterval
-                                duration:duration elapsedTime:elapsedTime playerId:playerId];
+                          [self setNotification:title
+                                     albumTitle:albumTitle
+                                         artist:artist
+                                       imageUrl:imageUrl
+                            forwardSkipInterval:forwardSkipInterval
+                           backwardSkipInterval:backwardSkipInterval
+                                       duration:duration
+                                    elapsedTime:elapsedTime
+                           enablePreviousTrackButton:enablePreviousTrackButton
+                          enableNextTrackButton:enableNextTrackButton
+                                       playerId:playerId];
                       #else
                           result(FlutterMethodNotImplemented);
                       #endif
@@ -309,6 +325,8 @@ const NSString *_defaultPlayingRoute = @"speakers";
             backwardSkipInterval:  (int) backwardSkipInterval
             duration:  (int) duration
             elapsedTime:  (int) elapsedTime
+            enablePreviousTrackButton: (BOOL)enablePreviousTrackButton
+            enableNextTrackButton: (BOOL)enableNextTrackButton
             playerId: (NSString*) playerId {
         _title = title;
         _albumTitle = albumTitle;
@@ -323,20 +341,31 @@ const NSString *_defaultPlayingRoute = @"speakers";
         if (remoteCommandCenter == nil) {
           remoteCommandCenter = [MPRemoteCommandCenter sharedCommandCenter];
 
-          MPSkipIntervalCommand *skipBackwardIntervalCommand = [remoteCommandCenter skipBackwardCommand];
-          [skipBackwardIntervalCommand setEnabled:YES];
-          [skipBackwardIntervalCommand addTarget:self action:@selector(skipBackwardEvent:)];
-          skipBackwardIntervalCommand.preferredIntervals = @[@(backwardSkipInterval)];  // Set your own interval
+          if (forwardSkipInterval > 0 || backwardSkipInterval > 0) {
+            MPSkipIntervalCommand *skipBackwardIntervalCommand = [remoteCommandCenter skipBackwardCommand];
+            [skipBackwardIntervalCommand setEnabled:YES];
+            [skipBackwardIntervalCommand addTarget:self action:@selector(skipBackwardEvent:)];
+            skipBackwardIntervalCommand.preferredIntervals = @[@(backwardSkipInterval)];  // Set your own interval
 
-          MPSkipIntervalCommand *skipForwardIntervalCommand = [remoteCommandCenter skipForwardCommand];
-          skipForwardIntervalCommand.preferredIntervals = @[@(forwardSkipInterval)];  // Max 99
-          [skipForwardIntervalCommand setEnabled:YES];
-          [skipForwardIntervalCommand addTarget:self action:@selector(skipForwardEvent:)];
+            MPSkipIntervalCommand *skipForwardIntervalCommand = [remoteCommandCenter skipForwardCommand];
+            skipForwardIntervalCommand.preferredIntervals = @[@(forwardSkipInterval)];  // Max 99
+            [skipForwardIntervalCommand setEnabled:YES];
+            [skipForwardIntervalCommand addTarget:self action:@selector(skipForwardEvent:)];
+          }
+          else {  // if skip interval not set using next and previous
+            MPRemoteCommand *nextTrackCommand = [remoteCommandCenter nextTrackCommand];
+            [nextTrackCommand setEnabled:enableNextTrackButton];
+            [nextTrackCommand addTarget:self action:@selector(nextTrackEvent:)];
+            
+            MPRemoteCommand *previousTrackCommand = [remoteCommandCenter previousTrackCommand];
+            [previousTrackCommand setEnabled:enablePreviousTrackButton];
+            [previousTrackCommand addTarget:self action:@selector(previousTrackEvent:)];
+          }
 
           MPRemoteCommand *pauseCommand = [remoteCommandCenter pauseCommand];
           [pauseCommand setEnabled:YES];
           [pauseCommand addTarget:self action:@selector(playOrPauseEvent:)];
-          
+
           MPRemoteCommand *playCommand = [remoteCommandCenter playCommand];
           [playCommand setEnabled:YES];
           [playCommand addTarget:self action:@selector(playOrPauseEvent:)];
@@ -344,6 +373,10 @@ const NSString *_defaultPlayingRoute = @"speakers";
           MPRemoteCommand *togglePlayPauseCommand = [remoteCommandCenter togglePlayPauseCommand];
           [togglePlayPauseCommand setEnabled:YES];
           [togglePlayPauseCommand addTarget:self action:@selector(playOrPauseEvent:)];
+
+          MPRemoteCommand *changePlaybackPositionCommand = [remoteCommandCenter changePlaybackPositionCommand];
+          [changePlaybackPositionCommand setEnabled:YES];
+          [changePlaybackPositionCommand addTarget:self action:@selector(onChangePlaybackPositionCommand:)];
         }
     }
 
@@ -379,6 +412,23 @@ const NSString *_defaultPlayingRoute = @"speakers";
         }
         return MPRemoteCommandHandlerStatusSuccess;
     }
+
+    -(MPRemoteCommandHandlerStatus) nextTrackEvent: (MPRemoteCommandEvent *) nextTrackEvent {
+       NSLog(@"nextTrackEvent");
+
+       [_channel_audioplayer invokeMethod:@"audio.onGotNextTrackCommand" arguments:@{@"playerId": _currentPlayerId}];
+
+       return MPRemoteCommandHandlerStatusSuccess;
+    }  
+
+    -(MPRemoteCommandHandlerStatus) previousTrackEvent: (MPRemoteCommandEvent *) previousTrackEvent {
+      NSLog(@"previousTrackEvent");
+
+        [_channel_audioplayer invokeMethod:@"audio.onGotPreviousTrackCommand" arguments:@{@"playerId": _currentPlayerId}];
+
+        return MPRemoteCommandHandlerStatusSuccess;
+    }
+
     -(MPRemoteCommandHandlerStatus) playOrPauseEvent: (MPSkipIntervalCommandEvent *) playOrPauseEvent {
         NSLog(@"playOrPauseEvent");
 
@@ -406,6 +456,13 @@ const NSString *_defaultPlayingRoute = @"speakers";
         if (headlessServiceInitialized) {
           [_callbackChannel invokeMethod:@"audio.onNotificationBackgroundPlayerStateChanged" arguments:@{@"playerId": _currentPlayerId, @"updateHandleMonitorKey": @(_updateHandleMonitorKey), @"value": playerState}];
         }
+        return MPRemoteCommandHandlerStatusSuccess;
+    }
+
+    -(MPRemoteCommandHandlerStatus) onChangePlaybackPositionCommand: (MPChangePlaybackPositionCommandEvent *) changePositionEvent {
+        NSLog(@"changePlaybackPosition to %f", changePositionEvent.positionTime);
+        CMTime newTime = CMTimeMakeWithSeconds(changePositionEvent.positionTime, NSEC_PER_SEC);
+        [ self seek:_currentPlayerId time:newTime ];
         return MPRemoteCommandHandlerStatusSuccess;
     }
 
@@ -444,6 +501,7 @@ const NSString *_defaultPlayingRoute = @"speakers";
        isLocal: (bool) isLocal
        isNotification: (bool) respectSilence
        playerId: (NSString*) playerId
+       recordingActive: (bool) recordingActive
        onReady:(VoidCallback)onReady
 {
   NSMutableDictionary * playerInfo = players[playerId];
@@ -457,8 +515,13 @@ const NSString *_defaultPlayingRoute = @"speakers";
       // code moved from play() to setUrl() to fix the bug of audio not playing in ios background
       NSError *error = nil;
       BOOL success = false;
-
-      AVAudioSessionCategory category = respectSilence ? AVAudioSessionCategoryAmbient : AVAudioSessionCategoryPlayback;
+    
+      AVAudioSessionCategory category;
+      if (recordingActive) {
+        category = AVAudioSessionCategoryPlayAndRecord;
+      } else {
+        category = respectSilence ? AVAudioSessionCategoryAmbient : AVAudioSessionCategoryPlayback;
+      }
       // When using AVAudioSessionCategoryPlayback, by default, this implies that your app’s audio is nonmixable—activating your session
       // will interrupt any other audio sessions which are also nonmixable. AVAudioSessionCategoryPlayback should not be used with
       // AVAudioSessionCategoryOptionMixWithOthers option. If so, it prevents infoCenter from working correctly.
@@ -490,7 +553,7 @@ const NSString *_defaultPlayingRoute = @"speakers";
     }
       
     if (playerInfo[@"url"]) {
-      [[player currentItem] removeObserver:self forKeyPath:@"player.currentItem.status" ];
+      [[player currentItem] removeObserver:self forKeyPath:@"status" ];
 
       [ playerInfo setObject:url forKey:@"url" ];
 
@@ -526,7 +589,7 @@ const NSString *_defaultPlayingRoute = @"speakers";
     // is sound ready
     [playerInfo setObject:onReady forKey:@"onReady"];
     [playerItem addObserver:self
-                          forKeyPath:@"player.currentItem.status"
+                          forKeyPath:@"status"
                           options:0
                           context:(void*)playerId];
       
@@ -544,6 +607,7 @@ const NSString *_defaultPlayingRoute = @"speakers";
         time: (CMTime) time
       isNotification: (bool) respectSilence
       duckAudio: (bool) duckAudio
+recordingActive: (bool) recordingActive
 {
   NSError *error = nil;
   AVAudioSessionCategory category = respectSilence ? AVAudioSessionCategoryAmbient : AVAudioSessionCategoryPlayback;
@@ -569,6 +633,7 @@ const NSString *_defaultPlayingRoute = @"speakers";
          isLocal:isLocal
          isNotification:respectSilence
          playerId:playerId
+         recordingActive: recordingActive
          onReady:^(NSString * playerId) {
            NSMutableDictionary * playerInfo = players[playerId];
            AVPlayer *player = playerInfo[@"player"];
@@ -777,7 +842,7 @@ const NSString *_defaultPlayingRoute = @"speakers";
                      ofObject:(id)object
                        change:(NSDictionary *)change
                       context:(void *)context {
-  if ([keyPath isEqualToString: @"player.currentItem.status"]) {
+  if ([keyPath isEqualToString: @"status"]) {
     NSString *playerId = (__bridge NSString*)context;
     NSMutableDictionary * playerInfo = players[playerId];
     AVPlayer *player = playerInfo[@"player"];

@@ -1,8 +1,17 @@
 # Changelog
 
 ## [next]
+- Overhauled our contributing guidelines
+
+## 0.16.1
+- Fix Exception thrown when calling audioPlayer.dispose
+- Fix bug with AudioCache crash on iOS
+
+## 0.16.0
 - Implemented stream routing for iOS
 - Call release on dispose
+- Fix iOS build
+- Breaking change audio cache prefix in order to allow override 'assets'
 
 ## audioplayers 0.15.1
 - Fix web for release mode
@@ -11,6 +20,9 @@
 - Improve loop/readme for web support
 - Audio cache support for web
 - Re-adding partial web support
+
+## audioplayers 0.14.3
+- Add next and previous command for ios 
 
 ## audioplayers 0.14.2
 - Fix pubspec problem because of web file

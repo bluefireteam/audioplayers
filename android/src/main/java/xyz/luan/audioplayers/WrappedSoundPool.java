@@ -2,6 +2,7 @@ package xyz.luan.audioplayers;
 
 import android.media.AudioAttributes;
 import android.media.AudioManager;
+import android.media.MediaDataSource;
 import android.media.SoundPool;
 import android.os.Build;
 import android.os.PowerManager;
@@ -54,12 +55,12 @@ public class WrappedSoundPool extends Player {
      * it has been loaded.
      */
     private static Map<Integer, WrappedSoundPool> soundIdToPlayer = Collections.synchronizedMap(new HashMap<Integer, WrappedSoundPool>());
+    
     /** This is to keep track of the players which share the same sound id, referenced by url. When a player release()s, it
      * is removed from the associated player list. The last player to be removed actually unloads() the sound id and then
      * the url is removed from this map.
      */
     private static Map<String, List<WrappedSoundPool>> urlToPlayers = Collections.synchronizedMap(new HashMap<String, List<WrappedSoundPool>>());
-
 
     private final AudioplayersPlugin ref;
 
@@ -141,6 +142,11 @@ public class WrappedSoundPool extends Player {
             this.playing = false;
             this.paused = true;
         }
+    }
+
+    @Override
+    void setDataSource(MediaDataSource mediaDataSource, Context context) {
+        throw unsupportedOperation("setDataSource");
     }
 
     @Override

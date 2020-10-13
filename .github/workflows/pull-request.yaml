@@ -4,7 +4,6 @@ on:
   pull_request:
     branches:
       - master
-      - new-structure
     types: [opened, reopened, synchronize]
 
 jobs:
@@ -16,7 +15,7 @@ jobs:
       - uses: subosito/flutter-action@v1
         with:
           channel: beta
-          flutter-version: '1.14.x'
+          flutter-version: '1.22.x'
       - run: flutter pub get
       - run: ./scripts/format.sh
       - run: flutter test
@@ -30,7 +29,7 @@ jobs:
     - uses: subosito/flutter-action@v1
       with:
         channel: beta
-        flutter-version: '1.14.x'
+        flutter-version: '1.22.x'
     - name: Build example app
       working-directory: ./example
       run: "flutter pub get"
@@ -63,14 +62,6 @@ jobs:
       run: "flutter drive --target=test_driver/app.dart"
 
   ios-drive:
-    # Creates a build matrix for your jobs. You can define different
-    # variations of an environment to run each job in.
-    strategy:
-      matrix:
-        device:
-        - "iPhone 11 Pro (13.4.1)"
-      # When set to true, GitHub cancels all in-progress jobs if any matrix job fails.
-      fail-fast: false
     runs-on: macOS-latest
 
     steps:
@@ -78,19 +69,14 @@ jobs:
       run: "xcrun instruments -s"
     - name: Start Simulator
       run: |
-        UDID=$(
-          xcrun instruments -s |
-          awk \
-            -F ' *[][]' \
-            -v 'device=${{ matrix.device }}' \
-            '$1 == device { print $2 }'
-        )
-        xcrun simctl boot "${UDID:?No Simulator with this name found}"
+        UDID=$(xcrun instruments -s | grep "iPhone" | sed -n 1p | awk -F ' *[][]' '{ print $2 }')
+        echo "Using simulator $UUID"
+        xcrun simctl boot "${UDID:?No Simulator with this name iPhone found}"
     - uses: actions/checkout@v1
     - uses: subosito/flutter-action@v1
       with:
         channel: beta
-        flutter-version: '1.14.x'
+        flutter-version: '1.22.x'
     - name: Build example app
       working-directory: ./example
       run: "flutter pub get"
