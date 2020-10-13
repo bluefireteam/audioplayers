@@ -36,10 +36,16 @@ class AudioCache {
   /// Not implemented on macOS.
   bool respectSilence;
 
+  /// This flag should be set to true, if player is used for playing sound while there may be music
+  ///
+  /// Defaults to false, meaning the audio will be paused while playing on iOS and continue playing on Android.
+  bool duckAudio;
+
   AudioCache({
     this.prefix = 'assets/',
     this.fixedPlayer,
     this.respectSilence = false,
+    this.duckAudio = false,
   }) : assert(!kIsWeb, 'AudioCache is not available for Flutter Web.');
 
   /// Clears the cache of the file [fileName].
@@ -111,6 +117,7 @@ class AudioCache {
     PlayerMode mode = PlayerMode.MEDIA_PLAYER,
     bool stayAwake = false,
     bool recordingActive = false,
+    bool duckAudio,
   }) async {
     String url = await getAbsoluteUrl(fileName);
     AudioPlayer player = _player(mode);
@@ -121,6 +128,7 @@ class AudioCache {
       respectSilence: isNotification ?? respectSilence,
       stayAwake: stayAwake,
       recordingActive: recordingActive,
+      duckAudio: duckAudio ?? this.duckAudio,
     );
     return player;
   }

@@ -386,6 +386,7 @@ class AudioPlayer {
     Duration position,
     bool respectSilence = false,
     bool stayAwake = false,
+    bool duckAudio = false,
     bool recordingActive = false,
   }) async {
     isLocal ??= isLocalUrl(url);
@@ -400,6 +401,7 @@ class AudioPlayer {
       'position': position?.inMilliseconds,
       'respectSilence': respectSilence ?? false,
       'stayAwake': stayAwake ?? false,
+      'duckAudio': duckAudio ?? false,
       'recordingActive': recordingActive ?? false,
     });
 
@@ -412,7 +414,7 @@ class AudioPlayer {
 
   /// Plays audio in the form of a byte array.
   ///
-  /// respectSilence and stayAwake are not implemented on macOS.
+  /// This is only supported on Android currently.
   Future<int> playBytes(
     Uint8List bytes, {
     double volume = 1.0,
@@ -420,6 +422,7 @@ class AudioPlayer {
     Duration position,
     bool respectSilence = false,
     bool stayAwake = false,
+    bool duckAudio = false,
     bool recordingActive = false,
   }) async {
     volume ??= 1.0;
@@ -433,12 +436,13 @@ class AudioPlayer {
       );
     }
 
-    final int result = await _invokeMethod('play_bytes', {
+    final int result = await _invokeMethod('playBytes', {
       'bytes': bytes,
       'volume': volume,
       'position': position?.inMilliseconds,
       'respectSilence': respectSilence,
       'stayAwake': stayAwake,
+      'duckAudio': duckAudio,
       'recordingActive': recordingActive
     });
 

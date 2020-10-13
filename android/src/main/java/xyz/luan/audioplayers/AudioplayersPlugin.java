@@ -76,7 +76,8 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
                 final boolean respectSilence = call.argument("respectSilence");
                 final boolean isLocal = call.argument("isLocal");
                 final boolean stayAwake = call.argument("stayAwake");
-                player.configAttributes(respectSilence, stayAwake, context.getApplicationContext());
+                final boolean duckAudio = call.argument("duckAudio");
+                player.configAttributes(respectSilence, stayAwake, duckAudio, context.getApplicationContext());
                 player.setVolume(volume);
                 player.setUrl(url, isLocal, context.getApplicationContext());
                 if (position != null && !mode.equals("PlayerMode.LOW_LATENCY")) {
@@ -85,7 +86,7 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
                 player.play(context.getApplicationContext());
                 break;
             }
-            case "play_bytes": {
+            case "playBytes": {
                 // API version 23 is required for MediaDataSource
                 if (android.os.Build.VERSION.SDK_INT < 23) {
                     throw new UnsupportedOperationException("API version 23 is required");
@@ -96,7 +97,8 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
                 final Integer position = call.argument("position");
                 final boolean respectSilence = call.argument("respectSilence");
                 final boolean stayAwake = call.argument("stayAwake");
-                player.configAttributes(respectSilence, stayAwake, context.getApplicationContext());
+                final boolean duckAudio = call.argument("duckAudio");
+                player.configAttributes(respectSilence, stayAwake, duckAudio, context.getApplicationContext());
                 player.setVolume(volume);
                 player.setDataSource(new ByteDataSource(bytes), context.getApplicationContext());
                 if (position != null && !mode.equals("PlayerMode.LOW_LATENCY")) {

@@ -4,13 +4,14 @@ import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.AudioFocusRequest;
 import android.media.MediaDataSource;
 import android.os.Build;
 import android.os.PowerManager;
 
 import java.io.IOException;
 
-public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnErrorListener {
+public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, AudioManager.OnAudioFocusChangeListener, MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnErrorListener {
 
     private String playerId;
 
@@ -20,17 +21,21 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     private float rate = 1.0f;
     private boolean respectSilence;
     private boolean stayAwake;
+    private boolean duckAudio;
     private ReleaseMode releaseMode = ReleaseMode.RELEASE;
     private String playingRoute = "speakers";
 
     private boolean released = true;
     private boolean prepared = false;
     private boolean playing = false;
+    private Context context;
 
     private int shouldSeekTo = -1;
 
     private MediaPlayer player;
     private AudioplayersPlugin ref;
+    private AudioManager.OnAudioFocusChangeListener audioFocusChangeListener;
+    private AudioFocusRequest audioFocusRequest;
 
     WrappedMediaPlayer(AudioplayersPlugin ref, String playerId) {
         this.ref = ref;
@@ -138,9 +143,16 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     }
 
     @Override
-    void configAttributes(boolean respectSilence, boolean stayAwake, Context context) {
+    void configAttributes(boolean respectSilence, boolean stayAwake, boolean duckAudio, Context context) {
+        this.context = context;
         if (this.respectSilence != respectSilence) {
             this.respectSilence = respectSilence;
+            if (!this.released) {
+                setAttributes(player, context);
+            }
+        }
+        if (this.duckAudio != duckAudio) {
+            this.duckAudio = duckAudio;
             if (!this.released) {
                 setAttributes(player, context);
             }
@@ -150,6 +162,13 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
             if (!this.released && this.stayAwake) {
                 this.player.setWakeMode(context, PowerManager.PARTIAL_WAKE_LOCK);
             }
+        }
+    }
+
+    @Override
+    public void onAudioFocusChange(int focusChange) {
+        if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
+            actuallyPlay(context);
         }
     }
 
@@ -187,12 +206,54 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         return this.playing && this.prepared;
     }
 
+    private AudioManager getAudioManager() {
+        return (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+    }
+
     /**
      * Playback handling methods
      */
 
     @Override
-    void play(Context context) {
+    @SuppressWarnings("deprecation")
+    void play(final Context context) {
+        this.context = context;
+        if (this.duckAudio) {
+            AudioManager audioManager = getAudioManager();
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                audioFocusRequest = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
+                        .setAudioAttributes(
+                                new AudioAttributes.Builder()
+                                        .setUsage(respectSilence ? AudioAttributes.USAGE_NOTIFICATION_RINGTONE : AudioAttributes.USAGE_MEDIA)
+                                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                                        .build()
+                        )
+                        .setOnAudioFocusChangeListener(new AudioManager.OnAudioFocusChangeListener() {
+                            @Override
+                            public void onAudioFocusChange(int focusChange) {
+                                actuallyPlay(context);
+                            }
+                        }).build();
+                audioManager.requestAudioFocus(audioFocusRequest);
+            } else {
+                // Request audio focus for playback
+                int result = audioManager.requestAudioFocus(audioFocusChangeListener,
+                        // Use the music stream.
+                        AudioManager.STREAM_MUSIC,
+                        // Request permanent focus.
+                        AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK);
+
+                if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+                    actuallyPlay(context);
+                }
+            }
+        } else {
+            actuallyPlay(context);
+        }
+    }
+
+    void actuallyPlay(Context context) {
         if (!this.playing) {
             this.playing = true;
             if (this.released) {
@@ -212,7 +273,18 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     void stop() {
+        if (this.duckAudio) {
+            AudioManager audioManager = getAudioManager();
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                audioManager.abandonAudioFocusRequest(audioFocusRequest);
+            } else {
+                audioManager.abandonAudioFocus(audioFocusChangeListener);
+            }
+        }
+
         if (this.released) {
             return;
         }
@@ -244,6 +316,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         this.prepared = false;
         this.released = true;
         this.playing = false;
+        this.context = null;
     }
 
     @Override
@@ -316,7 +389,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
                 extraMsg = "MEDIA_ERROR_TIMED_OUT";
                 break;
             default:
-                extraMsg = whatMsg = "MEDIA_ERROR_UNKNOWN {extra:" + extra + "}";;
+                extraMsg = whatMsg = "MEDIA_ERROR_UNKNOWN {extra:" + extra + "}";
         }
         ref.handleError(this, "MediaPlayer error with what:" + whatMsg + " extra:" + extraMsg);
         return false;
@@ -364,19 +437,19 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             if (objectEquals(this.playingRoute, "speakers")) {
                 player.setAudioAttributes(new AudioAttributes.Builder()
-                    .setUsage(respectSilence ? AudioAttributes.USAGE_NOTIFICATION_RINGTONE : AudioAttributes.USAGE_MEDIA)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                    .build()
+                        .setUsage(respectSilence ? AudioAttributes.USAGE_NOTIFICATION_RINGTONE : AudioAttributes.USAGE_MEDIA)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .build()
                 );
             } else {
                 // Works with bluetooth headphones
                 // automatically switch to earpiece when disconnect bluetooth headphones
                 player.setAudioAttributes(new AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                    .build()
+                        .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .build()
                 );
-                if ( context != null ) {
+                if (context != null) {
                     AudioManager mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
                     mAudioManager.setSpeakerphoneOn(false);
                 }
