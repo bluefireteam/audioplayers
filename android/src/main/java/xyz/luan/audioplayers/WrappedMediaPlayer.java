@@ -206,6 +206,10 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
         return this.playing && this.prepared;
     }
 
+    private AudioManager getAudioManager() {
+        return (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+    }
+
     /**
      * Playback handling methods
      */
@@ -215,7 +219,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     void play(final Context context) {
         this.context = context;
         if (this.duckAudio) {
-            AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+            AudioManager audioManager = getAudioManager();
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 audioFocusRequest = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
@@ -272,8 +276,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     @SuppressWarnings("deprecation")
     void stop() {
         if (this.duckAudio) {
-            AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-
+            AudioManager audioManager = getAudioManager();
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 audioManager.abandonAudioFocusRequest(audioFocusRequest);
