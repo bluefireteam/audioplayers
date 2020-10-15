@@ -20,6 +20,12 @@ You can support us by becoming a patron on Patreon, any support is much apprecia
 
 [![Patreon](https://c5.patreon.com/external/logo/become_a_patron_button.png)](https://www.patreon.com/fireslime)
 
+## Feature Parity Table
+
+Not all features are available on all platforms. [Click here](feature_parity_table.md) to see a table relating what features can be used on each target.
+
+Feel free to use it for ideas for possible PRs and contributions you can help with on our roadmap! If you are submiting a PR, don't forget to update the table.
+
 ## Usage
 
 An `AudioPlayer` instance can play a single audio at a time. To create it, simply call the constructor:
