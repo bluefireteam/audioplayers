@@ -3,6 +3,7 @@
 ## [next]
 - Overhauled our contributing guidelines
 - Improve docs around player state
+- Update dependencies versions
 
 ## 0.16.1
 - Fix Exception thrown when calling audioPlayer.dispose
