@@ -1,6 +1,8 @@
 # Changelog
 
 ## [next]
+
+## 0.16.2
 - Overhauled our contributing guidelines
 - Improve docs around player state
 - Update dependencies versions
