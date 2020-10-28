@@ -823,6 +823,21 @@ recordingActive: (bool) recordingActive
   }
 
   [ _channel_audioplayer invokeMethod:@"audio.onComplete" arguments:@{@"playerId": playerId}];
+
+  BOOL hasPlaying = NO;
+
+  for (NSDictionary *playerInfo in [players allValues]) {
+    if ([playerInfo[@"isPlaying"] boolValue]) {
+      hasPlaying = YES;
+      break;
+    }
+  }
+
+  if (!hasPlaying) {
+    NSError *error = nil;
+    [[AVAudioSession sharedInstance] setActive:NO error:&error];
+  }
+
   NSError *error = nil;
   #if TARGET_OS_IPHONE
       if (headlessServiceInitialized) {
