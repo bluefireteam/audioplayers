@@ -838,7 +838,6 @@ recordingActive: (bool) recordingActive
     [[AVAudioSession sharedInstance] setActive:NO error:&error];
   }
 
-  NSError *error = nil;
   #if TARGET_OS_IPHONE
       if (headlessServiceInitialized) {
           [_callbackChannel invokeMethod:@"audio.onNotificationBackgroundPlayerStateChanged" arguments:@{@"playerId": playerId, @"updateHandleMonitorKey": @(_updateHandleMonitorKey), @"value": @"completed"}];
