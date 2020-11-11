@@ -14,6 +14,7 @@ import java.io.IOException;
 public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, AudioManager.OnAudioFocusChangeListener, MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnErrorListener {
 
     private String playerId;
+    private MediaPlayer player;
 
     private String url;
     private MediaDataSource dataSource;
@@ -28,11 +29,10 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     private boolean released = true;
     private boolean prepared = false;
     private boolean playing = false;
-    private Context context;
 
     private int shouldSeekTo = -1;
 
-    private MediaPlayer player;
+    private Context context;
     private AudioplayersPlugin ref;
     private AudioManager.OnAudioFocusChangeListener audioFocusChangeListener;
     private AudioFocusRequest audioFocusRequest;
@@ -331,10 +331,11 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     // the player is ready.
     @Override
     void seek(int position) {
-        if (this.prepared)
+        if (this.prepared) {
             this.player.seekTo(position);
-        else
+        } else {
             this.shouldSeekTo = position;
+        }
     }
 
     /**
