@@ -823,8 +823,21 @@ recordingActive: (bool) recordingActive
   }
 
   [ _channel_audioplayer invokeMethod:@"audio.onComplete" arguments:@{@"playerId": playerId}];
-  NSError *error = nil;
+
+  BOOL hasPlaying = NO;
+
+  for (NSDictionary *playerInfo in [players allValues]) {
+    if ([playerInfo[@"isPlaying"] boolValue]) {
+      hasPlaying = YES;
+      break;
+    }
+  }
+
+  if (!hasPlaying) {
+    NSError *error = nil;
     [[AVAudioSession sharedInstance] setActive:NO error:&error];
+  }
+
   #if TARGET_OS_IPHONE
       if (headlessServiceInitialized) {
           [_callbackChannel invokeMethod:@"audio.onNotificationBackgroundPlayerStateChanged" arguments:@{@"playerId": playerId, @"updateHandleMonitorKey": @(_updateHandleMonitorKey), @"value": @"completed"}];
