@@ -70,3 +70,5 @@ Non-goals: if the existing solutions proposed below are not good or do not work 
  * notifications/locks screen: see section above, use this for now or audio_service;
  * interfaces: nothing related to interface building concerns audioplayers; you can use Flutter to build your interfaces;
  * audio recording: recording audio from the microphone into audio files and streams; there is already a package for this called [audio_recorder](https://github.com/ZaraclaJ/audio_recorder).
+ * playlist: you can implement playlists as you wish by playing multiple audios or songs in sequence. Doesn't make sense for this package to have any builtin playlist mechanism.
+ * music metadata: some file formats include music metadata, like MP3 files that have author, track. This is a library dedicated for playing audio. It is a non-goal to provide this functionality.
