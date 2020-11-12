@@ -1,12 +1,31 @@
 package xyz.luan.audioplayers;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Handler;
+import android.support.v4.media.session.PlaybackStateCompat;
+import android.util.Log;
+import android.view.KeyEvent;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.core.app.NotificationCompat;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,6 +35,7 @@ import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
+
 
 public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
 
@@ -27,20 +47,47 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
     private Runnable positionUpdates;
     private Context context;
     private boolean seekFinish;
+    private String notificationChannelId = "audio.channel";
+    ;
+    public static final int KEYCODE_BYPASS_PLAY = KeyEvent.KEYCODE_MUTE;
+    public static final int KEYCODE_BYPASS_PAUSE = KeyEvent.KEYCODE_MEDIA_RECORD;
+    public static final String INSOMNIAC_PLAY = "insomniac.play";
+    public static final String INSOMNIAC_PAUSE = "insomniac.pause";
+    public static final String INSOMNIAC_STOP = "insomniac.stop";
+    public static final String INSOMNIAC_EXTRA_INSTANCE_ID = "insomniac.instance.id";
+    private int instanceIdCounter = 0;
+    private Map<String, NotificationCompat.Action> playbackActions;
+    private IntentFilter intentFilter;
+    private boolean isPlaying = false;
+    private Player currentPlayer;
+    private String TAG = "AudioplayersPlugin";
 
     public static void registerWith(final Registrar registrar) {
+        Log.d("AudioplayersPlugin", "registerWith");
         final MethodChannel channel = new MethodChannel(registrar.messenger(), "xyz.luan/audioplayers");
         channel.setMethodCallHandler(new AudioplayersPlugin(channel, registrar.activeContext()));
     }
 
+    public AudioplayersPlugin() {
+    }
+
     private AudioplayersPlugin(final MethodChannel channel, Context context) {
+        Log.d("AudioplayersPlugin", "private AudioplayersPlugin");
         this.channel = channel;
         this.channel.setMethodCallHandler(this);
         this.context = context;
         this.seekFinish = false;
+        instanceIdCounter++;
+        initInFilter();
     }
 
-    public AudioplayersPlugin() {}
+    private void initInFilter() {
+        intentFilter = new IntentFilter();
+        for (String action : playbackActions.keySet()) {
+            intentFilter.addAction(action);
+        }
+        context.registerReceiver(notificationReceiver, intentFilter);
+    }
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding binding) {
@@ -49,10 +96,16 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
         this.context = binding.getApplicationContext();
         this.seekFinish = false;
         channel.setMethodCallHandler(this);
+        instanceIdCounter++;
+        playbackActions = createPlaybackActions(context, instanceIdCounter);
+        initInFilter();
     }
 
     @Override
-    public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {}
+    public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
+        Log.d("interFilter", "onDetachedFromEngine");
+        context.unregisterReceiver(notificationReceiver);
+    }
 
     @Override
     public void onMethodCall(final MethodCall call, final MethodChannel.Result response) {
@@ -68,6 +121,7 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
         final String playerId = call.argument("playerId");
         final String mode = call.argument("mode");
         final Player player = getPlayer(playerId, mode);
+        currentPlayer = player;
         switch (call.method) {
             case "play": {
                 final String url = call.argument("url");
@@ -84,6 +138,7 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
                     player.seek(position);
                 }
                 player.play(context.getApplicationContext());
+                updateNotification();
                 break;
             }
             case "playBytes": {
@@ -108,11 +163,13 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
                 break;
             }
             case "resume": {
+                Log.d(TAG,"resume");
                 player.play(context.getApplicationContext());
                 break;
             }
             case "pause": {
                 player.pause();
+                updateNotification();
                 break;
             }
             case "stop": {
@@ -183,6 +240,8 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
     }
 
     public void handleIsPlaying(Player player) {
+        Log.d(TAG,"handleIsPlaying");
+        updateNotification();
         startPositionUpdates();
     }
 
@@ -191,10 +250,12 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
     }
 
     public void handleCompletion(Player player) {
+        updateNotification();
         channel.invokeMethod("audio.onComplete", buildArguments(player.getPlayerId(), true));
     }
 
     public void handleError(Player player, String message) {
+        updateNotification();
         channel.invokeMethod("audio.onError", buildArguments(player.getPlayerId(), message));
     }
 
@@ -222,6 +283,134 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
         return result;
     }
 
+
+    private Notification initNotification() {
+        NotificationCompat.Builder builder = getNotificationBuilder()
+                .setContentTitle("contentTitle")
+                .setContentText("contentText")
+                .setSubText("subText");
+        List<String> actionNames = getActions();
+        for (int i = 0; i < actionNames.size(); i++) {
+            String actionName = actionNames.get(i);
+            NotificationCompat.Action action = playbackActions.get(actionName);
+            if (action != null) {
+                builder.addAction(action);
+            }
+        }
+        builder.setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
+//                .setMediaSession(mediaSession.getSessionToken())
+                        .setShowActionsInCompactView(new int[]{0})
+                        .setShowCancelButton(true)
+                        .setCancelButtonIntent(buildMediaButtonPendingIntent(PlaybackStateCompat.ACTION_STOP))
+        );
+        Notification notification = builder.build();
+        return notification;
+    }
+
+    protected List<String> getActions() {
+        boolean isPlayingAd = currentPlayer==null?false:currentPlayer.isActuallyPlaying();
+        List<String> stringActions = new ArrayList<>();
+        if (isPlayingAd) {
+            stringActions.add(INSOMNIAC_PAUSE);
+        } else {
+            stringActions.add(INSOMNIAC_PLAY);
+        }
+        stringActions.add(INSOMNIAC_STOP);
+        return stringActions;
+    }
+
+    private Map<String, NotificationCompat.Action> createPlaybackActions(
+            Context context, int instanceId) {
+        Map<String, NotificationCompat.Action> actions = new HashMap<>();
+        actions.put(
+                INSOMNIAC_PLAY,
+                new NotificationCompat.Action(
+                        R.drawable.exo_notification_play,
+                        context.getString(R.string.exo_controls_play_description),
+                        createBroadcastIntent(INSOMNIAC_PLAY, context, instanceId)));
+        actions.put(
+                INSOMNIAC_PAUSE,
+                new NotificationCompat.Action(
+                        R.drawable.exo_notification_pause,
+                        context.getString(R.string.exo_controls_pause_description),
+                        createBroadcastIntent(INSOMNIAC_PAUSE, context, instanceId)));
+//        actions.put(
+//                INSOMNIAC_STOP,
+//                new NotificationCompat.Action(
+//                        R.drawable.exo_notification_stop,
+//                        context.getString(R.string.exo_controls_stop_description),
+//                        createBroadcastIntent(INSOMNIAC_STOP, context, instanceId)));
+        return actions;
+    }
+
+    private static PendingIntent createBroadcastIntent(
+            String action, Context context, int instanceId) {
+        Intent intent = new Intent(action).setPackage(context.getPackageName());
+        intent.putExtra(INSOMNIAC_EXTRA_INSTANCE_ID, instanceId);
+        return PendingIntent.getBroadcast(
+                context, instanceId, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+    }
+
+    private void updateNotification() {
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        Log.d("tag", "updateNotification");
+        notificationManager.notify(121, initNotification());
+    }
+
+    private NotificationCompat.Builder getNotificationBuilder() {
+        NotificationCompat.Builder notificationBuilder = null;
+        if (notificationBuilder == null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                createChannel();
+            Resources res = context.getResources();
+            Bitmap bmp = BitmapFactory.decodeResource(res, R.mipmap.ic_launcher);
+            notificationBuilder = new NotificationCompat.Builder(context, notificationChannelId)
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                    .setShowWhen(false)
+                    .setLargeIcon(bmp)
+//                    .setDeleteIntent(buildMediaButtonPendingIntent(PlaybackStateCompat.ACTION_STOP))
+            ;
+        }
+        return notificationBuilder;
+    }
+
+    PendingIntent buildMediaButtonPendingIntent(long action) {
+        ComponentName component = new ComponentName(context.getPackageName(), "androidx.media.session.MediaButtonReceiver");
+        return buildMediaButtonPendingIntent(component, action);
+    }
+
+    PendingIntent buildMediaButtonPendingIntent(ComponentName component, long action) {
+        int keyCode = toKeyCode(action);
+        if (keyCode == KeyEvent.KEYCODE_UNKNOWN)
+            return null;
+        Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+        intent.setComponent(component);
+        intent.putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
+        return PendingIntent.getBroadcast(context, keyCode, intent, 0);
+    }
+
+    public static int toKeyCode(long action) {
+        if (action == PlaybackStateCompat.ACTION_PLAY) {
+            return KEYCODE_BYPASS_PLAY;
+        } else if (action == PlaybackStateCompat.ACTION_PAUSE) {
+            return KEYCODE_BYPASS_PAUSE;
+        } else {
+            return PlaybackStateCompat.toKeyCode(action);
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private void createChannel() {
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationChannel channel = notificationManager.getNotificationChannel(notificationChannelId);
+        if (channel == null) {
+            channel = new NotificationChannel(notificationChannelId, "androidNotificationChannelName", NotificationManager.IMPORTANCE_LOW);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
+
     private static final class UpdateCallback implements Runnable {
 
         private final WeakReference<Map<String, Player>> mediaPlayers;
@@ -245,14 +434,12 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
             final MethodChannel channel = this.channel.get();
             final Handler handler = this.handler.get();
             final AudioplayersPlugin audioplayersPlugin = this.audioplayersPlugin.get();
-
             if (mediaPlayers == null || channel == null || handler == null || audioplayersPlugin == null) {
                 if (audioplayersPlugin != null) {
                     audioplayersPlugin.stopPositionUpdates();
                 }
                 return;
             }
-
             boolean nonePlaying = true;
             for (Player player : mediaPlayers.values()) {
                 if (!player.isActuallyPlaying()) {
@@ -281,5 +468,29 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
             }
         }
     }
+
+    BroadcastReceiver notificationReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            Log.d("onReceive", "onReceive action=" + action);
+            if (action.equals(INSOMNIAC_PLAY)) {
+                currentPlayer.play(context.getApplicationContext());
+                handleNotificationClick();
+            } else if (action.equals(INSOMNIAC_PAUSE)) {
+                currentPlayer.pause();
+                updateNotification();
+                handleNotificationClick();
+            }
+        }
+    };
+
+    private void handleNotificationClick(){
+        if(currentPlayer!=null){
+            String playId=currentPlayer.getPlayerId();
+            channel.invokeMethod("audio.onNotificationPlayerStateChanged", buildArguments(playId, currentPlayer.isActuallyPlaying()));
+        }
+    }
+
 }
 
