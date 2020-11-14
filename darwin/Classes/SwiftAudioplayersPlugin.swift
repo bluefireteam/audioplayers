@@ -2,10 +2,10 @@ import Flutter
 import AVKit
 import AVFoundation
 
-//#if TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE
 import UIKit
 import MediaPlayer
-//#endif
+#endif
 
 #if TARGET_OS_IPHONE
 let osName = "iOS"
@@ -96,7 +96,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         self.registrar = registrar
         self.channel = channel
         
-        //#if TARGET_OS_IPHONE
+        #if TARGET_OS_IPHONE
         // this method is used to listen to audio playpause event
         // from the notification area in the background.
         self.headlessEngine = FlutterEngine.init(name: "AudioPlayerIsolate")
@@ -106,7 +106,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         // BinaryMessenger needs to be initialized first, which is done in
         // `startHeadlessService` below.
         self.callbackChannel = FlutterMethodChannel(name: "xyz.luan/audioplayers_callback", binaryMessenger: headlessEngine.binaryMessenger)
-        //#endif
+        #endif
         
         super.init()
         NotificationCenter.default.addObserver(self, selector: #selector(self.needStop), name: AudioplayersPluginStop, object: nil)
@@ -117,7 +117,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
     var isDealloc = false
     var updateHandleMonitorKey: Int64? = nil
     
-    //#if TARGET_OS_IPHONE
+    #if TARGET_OS_IPHONE
     var headlessEngine: FlutterEngine
     var callbackChannel: FlutterMethodChannel
     var headlessServiceInitialized = false
@@ -125,7 +125,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
     var currentPlayerId: String? = nil // to be used for notifications command center
     var infoCenter: MPNowPlayingInfoCenter? = nil
     var remoteCommandCenter: MPRemoteCommandCenter? = nil
-    //#endif
+    #endif
     
     var title: String? = nil
     var albumTitle: String? = nil
@@ -163,7 +163,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         self.players = [:]
     }
     
-    //#if TARGET_OS_IPHONE
+    #if TARGET_OS_IPHONE
     // Initializes and starts the background isolate which will process audio
     // events. `handle` is the handle to the callback dispatcher which we specified
     // in the Dart portion of the plugin.
@@ -192,7 +192,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
             }
         }
     }
-    //#endif
+    #endif
     
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let method = call.method
@@ -208,7 +208,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         self.initPlayerInfo(playerId: playerId)
 
         if method == "startHeadlessService" {
-            //#if TARGET_OS_IPHONE
+            #if TARGET_OS_IPHONE
             if let handleKey = args["handleKey"] {
                 log("calling start headless service %@", handleKey)
                 let handle = (handleKey as! [Any])[0]
@@ -216,9 +216,9 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
             } else {
                 result(0)
             }
-            //#else
-            //result(FlutterMethodNotImplemented)
-            //#endif
+            #else
+            result(FlutterMethodNotImplemented)
+            #endif
         } else if method == "monitorNotificationStateChanges" {
             if args["handleMonitorKey"] == nil {
                 result(0)
@@ -319,7 +319,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
             let playingRoute: String = args["playingRoute"] as! String
             self.setPlayingRoute(playerId: playerId, playingRoute: playingRoute)
         } else if method == "setNotification" {
-            //#if TARGET_OS_IPHONE
+            #if TARGET_OS_IPHONE
             log("setNotification called")
             let title: String? = args["title"] as? String
             let albumTitle: String? = args["albumTitle"] as? String
@@ -348,9 +348,9 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
                 enablePreviousTrackButton: enablePreviousTrackButton,
                 enableNextTrackButton: enableNextTrackButton
             )
-            //#else
-                result(FlutterMethodNotImplemented)
-            //#endif
+            #else
+            result(FlutterMethodNotImplemented)
+            #endif
         } else {
             log("Called not implemented method: %@", method)
             result(FlutterMethodNotImplemented)
@@ -445,9 +445,9 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
             
             playerInfo.isPlaying = true
         }
-        //#if TARGET_OS_IPHONE
+        #if TARGET_OS_IPHONE
         currentPlayerId = playerId // to be used for notifications command center
-        //#endif
+        #endif
     }
     
     func setUrl(
@@ -462,7 +462,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         
         log("setUrl %@", url)
         
-        //#if TARGET_OS_IPHONE
+        #if TARGET_OS_IPHONE
         
         let category = recordingActive ? AVAudioSession.Category.playAndRecord : (
             isNotification ? AVAudioSession.Category.ambient : AVAudioSession.Category.playback
@@ -488,7 +488,8 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         } catch {
             log("Error setting category %@", error)
         }
-        //#endif
+        
+        #endif
         
         let playbackStatus = playerInfo.player?.currentItem?.status
         
@@ -615,9 +616,9 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         
         let playbackRate: Float = playerInfo.playbackRate
         
-        //#if TARGET_OS_IPHONE
+        #if TARGET_OS_IPHONE
         currentPlayerId = playerId // to be used for notifications command center
-        //#endif
+        #endif
         
         if #available(iOS 10.0, *) {
             player.playImmediately(atRate: playbackRate)
@@ -643,13 +644,13 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         
         playerInfo.playbackRate = playbackRate
         player.rate = playbackRate
-        //#if TARGET_OS_IPHONE
+        #if TARGET_OS_IPHONE
         if infoCenter != nil {
             let currentItem = player.currentItem!
             let currentTime: CMTime = currentItem.currentTime()
             self.updateNotification(time: currentTime)
         }
-        //#endif
+        #endif
     }
     
     func setPlayingRoute(playerId: String, playingRoute: String) {
@@ -684,7 +685,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         let playerInfo: PlayerInfo = players[playerId]!
         let player = playerInfo.player
         
-        //#if TARGET_OS_IPHONE
+        #if TARGET_OS_IPHONE
         player?.currentItem?.seek(to: time) {
             finished in
             if finished {
@@ -696,9 +697,9 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
             }
             self.channel.invokeMethod("audio.onSeekComplete", arguments: ["playerId": playerId, "value": finished])
         }
-        //#else
-        //player?.currentItem?.seek(to: time)
-        //#endif
+        #else
+        player?.currentItem?.seek(to: time)
+        #endif
     }
     
     func onSoundComplete(playerId: String) {
@@ -728,16 +729,16 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
             }
         }
         
-        //#if TARGET_OS_IPHONE
+        #if TARGET_OS_IPHONE
         if headlessServiceInitialized {
             callbackChannel.invokeMethod("audio.onNotificationBackgroundPlayerStateChanged", arguments: ["playerId": playerId, "updateHandleMonitorKey": updateHandleMonitorKey as Any, "value": "completed"])
         }
-        //#endif
+        #endif
     }
     
     // notifications
 
-    //#if TARGET_OS_IPHONE
+    #if TARGET_OS_IPHONE
     static func geneateImageFromUrl(urlString: String) -> UIImage? {
         if urlString.hasPrefix("http") {
             guard let url: URL = URL.init(string: urlString) else {
@@ -961,5 +962,5 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         return MPRemoteCommandHandlerStatus.success
     }
     
-    //#endif
+    #endif
 }
