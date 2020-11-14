@@ -323,6 +323,13 @@ class AudioPlayer {
     }
   }
 
+  // 0 audio 1 radio
+  setCurrentPlyer(int playerIndex) async {
+    await _invokeMethod("setCurrentPlyer", {
+      'playerIndex': "$playerIndex",
+    });
+  }
+
   Future<int> _invokeMethod(
     String method, [
     Map<String, dynamic> arguments,
