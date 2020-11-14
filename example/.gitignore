@@ -9,3 +9,4 @@ packages
 pubspec.lock
 .flutter-plugins
 flutter_export_environment.sh
+.last_build_id
