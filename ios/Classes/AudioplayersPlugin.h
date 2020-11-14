@@ -1,4 +1,1 @@
-#import <Flutter/Flutter.h>
-
-@interface AudioplayersPlugin : NSObject<FlutterPlugin>
-@end
+../../darwin/Classes/AudioplayersPlugin.h
