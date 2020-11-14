@@ -1,10 +1,15 @@
-import Flutter
 import AVKit
 import AVFoundation
 
 #if os(iOS)
 import UIKit
 import MediaPlayer
+#endif
+
+#if os(iOS)
+import Flutter
+#else
+import FlutterMacOS
 #endif
 
 #if os(iOS)
@@ -138,7 +143,14 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
     let defaultPlayingRoute: String = "speakers"
     
     public static func register(with registrar: FlutterPluginRegistrar) {
-        let channel = FlutterMethodChannel(name: CHANNEL_NAME, binaryMessenger: registrar.messenger())
+        // TODO(luan) apparently there is a bug in Flutter causing some inconsistency between Flutter and FlutterMacOS
+        #if os(iOS)
+        let binaryMessenger = registrar.messenger()
+        #else
+        let binaryMessenger = registrar.messenger
+        #endif
+
+        let channel = FlutterMethodChannel(name: CHANNEL_NAME, binaryMessenger: binaryMessenger)
         let instance = SwiftAudioplayersPlugin(registrar: registrar, channel: channel)
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
@@ -409,6 +421,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         duckAudio: Bool,
         recordingActive: Bool
     ) {
+        #if os(iOS)
         do {
             let category: AVAudioSession.Category = isNotification ? AVAudioSession.Category.ambient : AVAudioSession.Category.playback
             if duckAudio {
@@ -421,6 +434,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         } catch {
             log("Error setting category %@", error)
         }
+        #endif
         
         self.setUrl(
             playerId: playerId,
@@ -437,7 +451,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
                 player.seek(to: time)
             }
             
-            if #available(iOS 10.0, *) {
+            if #available(iOS 10.0, macOS 10.12, *) {
                 player.playImmediately(atRate: playerInfo.playbackRate)
             } else {
                 player.play()
@@ -546,7 +560,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
                         onReady!(playerId)
                     }
                 } else if status == .failed {
-                    self.channel.invokeMethod("audio.onError", arguments: ["playerId": playerId, "value": AVPlayerItem.Status.failed])
+                    self.channel.invokeMethod("audio.onError", arguments: ["playerId": playerId, "value": "AVPlayerItem.Status.failed"])
                 }
             }
             
@@ -620,7 +634,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         currentPlayerId = playerId // to be used for notifications command center
         #endif
         
-        if #available(iOS 10.0, *) {
+        if #available(iOS 10.0, macOS 10.12, *) {
             player.playImmediately(atRate: playbackRate)
         } else {
             player.play()
@@ -659,12 +673,14 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         let playerInfo: PlayerInfo = players[playerId]!
         playerInfo.playingRoute = playingRoute
         
+        #if os(iOS)
         let category = playingRoute == "earpiece" ? AVAudioSession.Category.playAndRecord : AVAudioSession.Category.playback
         do {
             try AVAudioSession.sharedInstance().setCategory(category)
         } catch {
             log("Error setting category %@", error)
         }
+        #endif
     }
     
     func setLooping(playerId: String, looping: Bool) {
@@ -720,6 +736,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         
         channel.invokeMethod("audio.onComplete", arguments: ["playerId": playerId])
         
+        #if os(iOS)
         let hasPlaying: Bool = players.values.contains { player in player.isPlaying }
         if !hasPlaying {
             do {
@@ -728,6 +745,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
                 log("Error inactivating audio session %@", error)
             }
         }
+        #endif
         
         #if os(iOS)
         if headlessServiceInitialized {
