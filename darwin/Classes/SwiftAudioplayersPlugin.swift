@@ -232,10 +232,17 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
             result(FlutterMethodNotImplemented)
             #endif
         } else if method == "monitorNotificationStateChanges" {
-            if args["handleMonitorKey"] == nil {
+            #if os(iOS)
+            if let handleMonitorKey = args["handleMonitorKey"] {
+                log("calling monitor notification %@", handleMonitorKey)
+                let handle = (handleMonitorKey as! [Any])[0]
+                self.updateHandleMonitorKey = (handle as! Int64)
+            } else {
                 result(0)
             }
-            updateHandleMonitorKey = args["handleMonitorKey"] as! Int64?
+            #else
+            result(FlutterMethodNotImplemented)
+            #endif
         } else if method == "play" {
             let url = args["url"] as! String?
             if url == nil {
@@ -789,20 +796,23 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
             MPNowPlayingInfoPropertyPlaybackRate: defaultPlaybackRate
         ]
         
+        log("Updating playing info...")
+
         // fetch notification image in async fashion to avoid freezing UI
         DispatchQueue.global().async() { [weak self] in
             if let imageUrl = self?.imageUrl {
                 let artworkImage: UIImage? = SwiftAudioplayersPlugin.geneateImageFromUrl(urlString: imageUrl)
                 if let artworkImage = artworkImage {
                     let albumArt: MPMediaItemArtwork = MPMediaItemArtwork.init(image: artworkImage)
+                    log("Will add custom album art")
                     playingInfo[MPMediaItemPropertyArtwork] = albumArt
                 }
             }
 
-            log("setNotification done")
-
             if let infoCenter = self?.infoCenter {
-                infoCenter.nowPlayingInfo = playingInfo.filter { $0.value != nil }.mapValues { $0! }
+                let filteredMap = playingInfo.filter { $0.value != nil }.mapValues { $0! }
+                log("Setting playing info: %@", filteredMap)
+                infoCenter.nowPlayingInfo = filteredMap
             }
         }
     }
