@@ -297,7 +297,7 @@ NSString *_playerIndex;
                     NSLog(@"earpieceOrSpeakersToggle");
                     NSString *playingRoute = call.arguments[@"playingRoute"];
                     [self setPlayingRoute:playingRoute playerId:playerId];
-                  }
+                  },
                 @"setCurrentPlyer":
                  ^{
                      NSString *playerIndex = call.arguments[@"playerIndex"];
