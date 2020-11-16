@@ -863,6 +863,7 @@ recordingActive: (bool) recordingActive
   }
 
   [ self pause:playerId ];
+    [ self seek:playerId time:CMTimeMakeWithSeconds(0,1) ];
 
   if ([ playerInfo[@"looping"] boolValue]) {
     [ self seek:playerId time:CMTimeMakeWithSeconds(0,1) ];
