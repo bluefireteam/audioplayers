@@ -41,13 +41,13 @@ enum ReleaseMode {
 
 /// Indicates the state of the audio player.
 enum AudioPlayerState {
-  /** Stop has been called or an error occurred. */
+  /// Stop has been called or an error occurred.
   STOPPED,
-  /** Currently playing audio. */
+  /// Currently playing audio.
   PLAYING,
-  /** Pause has been called. */
+  /// Pause has been called.
   PAUSED,
-  /** The audio successfully completed (reached the end). */
+  /// The audio successfully completed (reached the end).
   COMPLETED,
 }
 
