@@ -2,6 +2,9 @@
 
 ## [next]
 
+## 0.17.0
+- Swift conversion of the darwin code
+
 ## 0.16.2
 - Overhauled our contributing guidelines
 - Improve docs around player state
