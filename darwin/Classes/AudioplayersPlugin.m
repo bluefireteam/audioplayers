@@ -350,27 +350,6 @@ NSString *_playerIndex;
         if (remoteCommandCenter == nil) {
           remoteCommandCenter = [MPRemoteCommandCenter sharedCommandCenter];
 
-          if (forwardSkipInterval > 0 || backwardSkipInterval > 0) {
-            MPSkipIntervalCommand *skipBackwardIntervalCommand = [remoteCommandCenter skipBackwardCommand];
-            [skipBackwardIntervalCommand setEnabled:YES];
-            [skipBackwardIntervalCommand addTarget:self action:@selector(skipBackwardEvent:)];
-            skipBackwardIntervalCommand.preferredIntervals = @[@(backwardSkipInterval)];  // Set your own interval
-
-            MPSkipIntervalCommand *skipForwardIntervalCommand = [remoteCommandCenter skipForwardCommand];
-            skipForwardIntervalCommand.preferredIntervals = @[@(forwardSkipInterval)];  // Max 99
-            [skipForwardIntervalCommand setEnabled:YES];
-            [skipForwardIntervalCommand addTarget:self action:@selector(skipForwardEvent:)];
-          }
-          else {  // if skip interval not set using next and previous
-            MPRemoteCommand *nextTrackCommand = [remoteCommandCenter nextTrackCommand];
-            [nextTrackCommand setEnabled:enableNextTrackButton];
-            [nextTrackCommand addTarget:self action:@selector(nextTrackEvent:)];
-            
-            MPRemoteCommand *previousTrackCommand = [remoteCommandCenter previousTrackCommand];
-            [previousTrackCommand setEnabled:enablePreviousTrackButton];
-            [previousTrackCommand addTarget:self action:@selector(previousTrackEvent:)];
-          }
-
             MPRemoteCommand *pauseCommand = [remoteCommandCenter pauseCommand];
             [pauseCommand setEnabled:YES];
               [pauseCommand addTarget:self action:@selector(pauseEvent:)];
@@ -381,15 +360,35 @@ NSString *_playerIndex;
 
             MPRemoteCommand *togglePlayPauseCommand = [remoteCommandCenter togglePlayPauseCommand];
             [togglePlayPauseCommand setEnabled:NO];
-  //          [togglePlayPauseCommand addTarget:self action:@selector(playOrPauseEvent:)];
+        }
+        
+        if (forwardSkipInterval > 0 || backwardSkipInterval > 0) {
+          MPSkipIntervalCommand *skipBackwardIntervalCommand = [remoteCommandCenter skipBackwardCommand];
+          [skipBackwardIntervalCommand setEnabled:YES];
+          [skipBackwardIntervalCommand addTarget:self action:@selector(skipBackwardEvent:)];
+          skipBackwardIntervalCommand.preferredIntervals = @[@(backwardSkipInterval)];  // Set your own interval
 
-              if (@available(iOS 9.1, *)) {
-                  MPRemoteCommand *changePlaybackPositionCommand = [remoteCommandCenter changePlaybackPositionCommand];
-                  [changePlaybackPositionCommand setEnabled:YES];
-                  [changePlaybackPositionCommand addTarget:self action:@selector(onChangePlaybackPositionCommand:)];
-              } else {
-                  // Fallback on earlier versions
-              }
+          MPSkipIntervalCommand *skipForwardIntervalCommand = [remoteCommandCenter skipForwardCommand];
+          skipForwardIntervalCommand.preferredIntervals = @[@(forwardSkipInterval)];  // Max 99
+          [skipForwardIntervalCommand setEnabled:YES];
+          [skipForwardIntervalCommand addTarget:self action:@selector(skipForwardEvent:)];
+        }
+        else {  // if skip interval not set using next and previous
+          MPRemoteCommand *nextTrackCommand = [remoteCommandCenter nextTrackCommand];
+          [nextTrackCommand setEnabled:enableNextTrackButton];
+          [nextTrackCommand addTarget:self action:@selector(nextTrackEvent:)];
+          
+          MPRemoteCommand *previousTrackCommand = [remoteCommandCenter previousTrackCommand];
+          [previousTrackCommand setEnabled:enablePreviousTrackButton];
+          [previousTrackCommand addTarget:self action:@selector(previousTrackEvent:)];
+        }
+        
+        if (@available(iOS 9.1, *)) {
+            MPRemoteCommand* changePlaybackPositionCommand = [remoteCommandCenter changePlaybackPositionCommand];
+            [changePlaybackPositionCommand setEnabled:YES];
+            [changePlaybackPositionCommand addTarget:self action:@selector(onChangePlaybackPositionCommand:)];
+        } else {
+            // Fallback on earlier versions
         }
     }
 
@@ -432,7 +431,7 @@ NSString *_playerIndex;
        [_channel_audioplayer invokeMethod:@"audio.onGotNextTrackCommand" arguments:@{@"playerId": _currentPlayerId}];
 
        return MPRemoteCommandHandlerStatusSuccess;
-    }  
+    }
 
     -(MPRemoteCommandHandlerStatus) previousTrackEvent: (MPRemoteCommandEvent *) previousTrackEvent {
       NSLog(@"previousTrackEvent");
@@ -453,7 +452,7 @@ NSString *_playerIndex;
     NSMutableDictionary * playerInfo = players[_currentPlayerId];
     AVPlayer *player = playerInfo[@"player"];
     bool _isPlaying = false;
-    NSString *playerState;
+    NSString *playerState = @"";
     if (@available(iOS 10.0, *)) {
         if (player.timeControlStatus == AVPlayerTimeControlStatusPlaying) {
             return MPRemoteCommandHandlerStatusCommandFailed;
@@ -485,7 +484,7 @@ NSString *_playerIndex;
     NSMutableDictionary * playerInfo = players[_currentPlayerId];
     AVPlayer *player = playerInfo[@"player"];
     bool _isPlaying = false;
-    NSString *playerState;
+    NSString *playerState = @"";
     if (@available(iOS 10.0, *)) {
         if (player.timeControlStatus == AVPlayerTimeControlStatusPlaying) {
             // player is playing and pause it
@@ -531,7 +530,7 @@ NSString *_playerIndex;
           }
 
           playingInfo[MPMediaItemPropertyPlaybackDuration] = [NSNumber numberWithInt: _duration];
-	        // From `MPNowPlayingInfoPropertyElapsedPlaybackTime` docs -- it is not recommended to update this value frequently. Thus it should represent integer seconds and not an accurate `CMTime` value with fractions of a second
+            // From `MPNowPlayingInfoPropertyElapsedPlaybackTime` docs -- it is not recommended to update this value frequently. Thus it should represent integer seconds and not an accurate `CMTime` value with fractions of a second
           playingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = [NSNumber numberWithInt: elapsedTime];
 
           playingInfo[MPNowPlayingInfoPropertyPlaybackRate] = @(_defaultPlaybackRate);
@@ -711,7 +710,7 @@ recordingActive: (bool) recordingActive
   NSLog(@"%@ -> updateDuration...%f", osName, CMTimeGetSeconds(duration));
   if(CMTimeGetSeconds(duration)>0){
     NSLog(@"%@ -> invokechannel", osName);
-	int mseconds = [self getMillisecondsFromCMTime:duration];
+    int mseconds = [self getMillisecondsFromCMTime:duration];
     [_channel_audioplayer invokeMethod:@"audio.onDuration" arguments:@{@"playerId": playerId, @"value": @(mseconds)}];
   }
 }
@@ -720,8 +719,8 @@ recordingActive: (bool) recordingActive
     NSMutableDictionary * playerInfo = players[playerId];
     AVPlayer *player = playerInfo[@"player"];
     
-	CMTime duration = [[[player currentItem]  asset] duration];
-	int mseconds = [self getMillisecondsFromCMTime:duration];
+    CMTime duration = [[[player currentItem]  asset] duration];
+    int mseconds = [self getMillisecondsFromCMTime:duration];
     return mseconds;
 }
 
@@ -730,7 +729,7 @@ recordingActive: (bool) recordingActive
     AVPlayer *player = playerInfo[@"player"];
 
     CMTime duration = [player currentTime];
-	int mseconds = [self getMillisecondsFromCMTime:duration];
+    int mseconds = [self getMillisecondsFromCMTime:duration];
     return mseconds;
 }
 
@@ -819,7 +818,7 @@ recordingActive: (bool) recordingActive
   if (!success) {
     NSLog(@"Error setting playing route: %@", error);
   }
-} 
+}
 
 -(void) stop: (NSString *) playerId {
   NSMutableDictionary * playerInfo = players[playerId];
@@ -879,11 +878,11 @@ recordingActive: (bool) recordingActive
       }
   #endif
 }
-	
+    
 -(int) getMillisecondsFromCMTime: (CMTime) time {
-	Float64 seconds = CMTimeGetSeconds(time);
-	int milliseconds = seconds * 1000;
-	return milliseconds;
+    Float64 seconds = CMTimeGetSeconds(time);
+    int milliseconds = seconds * 1000;
+    return milliseconds;
 }
 
 -(void)observeValueForKeyPath:(NSString *)keyPath
