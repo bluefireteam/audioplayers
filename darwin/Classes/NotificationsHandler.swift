@@ -1,0 +1,266 @@
+#if os(iOS)
+import MediaPlayer
+#endif
+
+class NotificationsHandler {
+    private let reference: SwiftAudioplayersPlugin
+    
+    #if os(iOS)
+    private var infoCenter: MPNowPlayingInfoCenter? = nil
+    private var remoteCommandCenter: MPRemoteCommandCenter? = nil
+    #endif
+
+    private var title: String? = nil
+    private var albumTitle: String? = nil
+    private var artist: String? = nil
+    private var imageUrl: String? = nil
+    private var duration: Int? = nil
+    
+    init(reference: SwiftAudioplayersPlugin) {
+        self.reference = reference
+    }
+    
+    func update(playerId: String, time: CMTime, playbackRate: Float) {
+        #if os(iOS)
+        updateForIos(playerId: playerId, time: time, playbackRate: playbackRate)
+        #else
+        // not implemented for macos
+        #endif
+    }
+    
+    func setNotification(
+        playerId: String,
+        title: String?,
+        albumTitle: String?,
+        artist: String?,
+        imageUrl: String?,
+        forwardSkipInterval: Int,
+        backwardSkipInterval: Int,
+        duration: Int?,
+        elapsedTime: Int,
+        enablePreviousTrackButton: Bool?,
+        enableNextTrackButton: Bool?
+    ) {
+        #if os(iOS)
+        setNotificationForIos(
+            playerId: playerId,
+            title: title,
+            albumTitle: albumTitle,
+            artist: artist,
+            imageUrl: imageUrl,
+            forwardSkipInterval: forwardSkipInterval,
+            backwardSkipInterval: backwardSkipInterval,
+            duration: duration,
+            elapsedTime: elapsedTime,
+            enablePreviousTrackButton: enablePreviousTrackButton,
+            enableNextTrackButton: enableNextTrackButton
+        )
+        #else
+        // not implemented for macos
+        #endif
+    }
+
+    #if os(iOS)
+    static func geneateImageFromUrl(urlString: String) -> UIImage? {
+        if urlString.hasPrefix("http") {
+            guard let url: URL = URL.init(string: urlString) else {
+                log("Error download image url, invalid url %@", urlString)
+                return nil
+            }
+            do {
+                let data = try Data(contentsOf: url)
+                return UIImage.init(data: data)
+            } catch {
+                log("Error download image url %@", error)
+                return nil
+            }
+        } else {
+            return UIImage.init(contentsOfFile: urlString)
+        }
+    }
+    
+    func updateForIos(playerId: String, time: CMTime, playbackRate: Float) {
+        if (infoCenter == nil || playerId != reference.lastPlayerId) {
+            return
+        }
+        // From `MPNowPlayingInfoPropertyElapsedPlaybackTime` docs -- it is not recommended to update this value frequently.
+        // Thus it should represent integer seconds and not an accurate `CMTime` value with fractions of a second
+        let elapsedTime = Int(time.seconds)
+        
+        var playingInfo: [String: Any?] = [
+            MPMediaItemPropertyTitle: title,
+            MPMediaItemPropertyAlbumTitle: albumTitle,
+            MPMediaItemPropertyArtist: artist,
+            MPMediaItemPropertyPlaybackDuration: duration,
+            MPNowPlayingInfoPropertyElapsedPlaybackTime: elapsedTime,
+            MPNowPlayingInfoPropertyPlaybackRate: playbackRate
+        ]
+        
+        log("Updating playing info...")
+
+        // fetch notification image in async fashion to avoid freezing UI
+        DispatchQueue.global().async() { [weak self] in
+            if let imageUrl = self?.imageUrl {
+                let artworkImage: UIImage? = NotificationsHandler.geneateImageFromUrl(urlString: imageUrl)
+                if let artworkImage = artworkImage {
+                    let albumArt: MPMediaItemArtwork = MPMediaItemArtwork.init(image: artworkImage)
+                    log("Will add custom album art")
+                    playingInfo[MPMediaItemPropertyArtwork] = albumArt
+                }
+            }
+
+            if let infoCenter = self?.infoCenter {
+                let filteredMap = playingInfo.filter { $0.value != nil }.mapValues { $0! }
+                log("Setting playing info: %@", filteredMap)
+                infoCenter.nowPlayingInfo = filteredMap
+            }
+        }
+    }
+    
+    func setNotificationForIos(
+        playerId: String,
+        title: String?,
+        albumTitle: String?,
+        artist: String?,
+        imageUrl: String?,
+        forwardSkipInterval: Int,
+        backwardSkipInterval: Int,
+        duration: Int?,
+        elapsedTime: Int,
+        enablePreviousTrackButton: Bool?,
+        enableNextTrackButton: Bool?
+    ) {
+        self.title = title
+        self.albumTitle = albumTitle
+        self.artist = artist
+        self.imageUrl = imageUrl
+        self.duration = duration
+
+        self.infoCenter = MPNowPlayingInfoCenter.default()
+        reference.lastPlayerId = playerId
+        reference.updateNotifications(player: reference.lastPlayer()!, time: toCMTime(millis: elapsedTime))
+
+        if (remoteCommandCenter == nil) {
+            remoteCommandCenter = MPRemoteCommandCenter.shared()
+
+          if (forwardSkipInterval > 0 || backwardSkipInterval > 0) {
+            let skipBackwardIntervalCommand = remoteCommandCenter!.skipBackwardCommand
+            skipBackwardIntervalCommand.isEnabled = true
+            skipBackwardIntervalCommand.addTarget(handler: self.skipBackwardEvent)
+            skipBackwardIntervalCommand.preferredIntervals = [backwardSkipInterval as NSNumber]
+
+            let skipForwardIntervalCommand = remoteCommandCenter!.skipForwardCommand
+            skipForwardIntervalCommand.isEnabled = true
+            skipForwardIntervalCommand.addTarget(handler: self.skipForwardEvent)
+            skipForwardIntervalCommand.preferredIntervals = [forwardSkipInterval as NSNumber] // Max 99
+          } else {  // if skip interval not set using next and previous
+            let nextTrackCommand = remoteCommandCenter!.nextTrackCommand
+            nextTrackCommand.isEnabled = enableNextTrackButton ?? false
+            nextTrackCommand.addTarget(handler: self.nextTrackEvent)
+            
+            let previousTrackCommand = remoteCommandCenter!.previousTrackCommand
+            previousTrackCommand.isEnabled = enablePreviousTrackButton ?? false
+            previousTrackCommand.addTarget(handler: self.previousTrackEvent)
+          }
+
+            let pauseCommand = remoteCommandCenter!.pauseCommand
+            pauseCommand.isEnabled = true
+            pauseCommand.addTarget(handler: self.playOrPauseEvent)
+
+            let playCommand = remoteCommandCenter!.playCommand
+            playCommand.isEnabled = true
+            playCommand.addTarget(handler: self.playOrPauseEvent)
+
+            let togglePlayPauseCommand = remoteCommandCenter!.togglePlayPauseCommand
+            togglePlayPauseCommand.isEnabled = true
+            togglePlayPauseCommand.addTarget(handler: self.playOrPauseEvent)
+            
+            if #available(iOS 9.1, *) {
+                let changePlaybackPositionCommand = remoteCommandCenter!.changePlaybackPositionCommand
+                changePlaybackPositionCommand.isEnabled = true
+                changePlaybackPositionCommand.addTarget(handler: self.onChangePlaybackPositionCommand)
+            }
+        }
+    }
+    
+    func skipBackwardEvent(skipEvent: MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus {
+        let interval = (skipEvent as! MPSkipIntervalCommandEvent).interval
+        log("Skip backward by %f", interval)
+        
+        guard let player = reference.lastPlayer() else {
+            return MPRemoteCommandHandlerStatus.commandFailed
+        }
+        
+        player.skipBackward(interval: interval)
+        return MPRemoteCommandHandlerStatus.success
+    }
+    
+    func skipForwardEvent(skipEvent: MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus {
+        let interval = (skipEvent as! MPSkipIntervalCommandEvent).interval
+        log("Skip forward by %f", interval)
+        
+        guard let player = reference.lastPlayer() else {
+            return MPRemoteCommandHandlerStatus.commandFailed
+        }
+        
+        player.skipForward(interval: interval)
+        return MPRemoteCommandHandlerStatus.success
+    }
+    
+    func nextTrackEvent(event: MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus {
+        guard let player = reference.lastPlayer() else {
+            return MPRemoteCommandHandlerStatus.commandFailed
+        }
+        reference.onGotNextTrackCommand(playerId: player.playerId)
+        return MPRemoteCommandHandlerStatus.success
+    }
+    
+    func previousTrackEvent(event: MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus {
+        guard let player = reference.lastPlayer() else {
+            return MPRemoteCommandHandlerStatus.commandFailed
+        }
+        reference.onGotPreviousTrackCommand(playerId: player.playerId)
+        return MPRemoteCommandHandlerStatus.success
+    }
+    
+    func playOrPauseEvent(event: MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus {
+        guard let player = reference.lastPlayer() else {
+            return MPRemoteCommandHandlerStatus.commandFailed
+        }
+        
+        // TODO(luan) incorporate this into WrappedMediaPlayer
+        let playerState: String
+        if #available(iOS 10.0, *) {
+            if (player.isPlaying) {
+                player.pause()
+                playerState = "paused"
+            } else {
+                player.resume()
+                playerState = "playing"
+            }
+        } else {
+            // No fallback on earlier versions
+            return MPRemoteCommandHandlerStatus.commandFailed
+        }
+        
+        reference.onNotificationPlayerStateChanged(playerId: player.playerId, isPlaying: player.isPlaying)
+        reference.onNotificationBackgroundPlayerStateChanged(playerId: player.playerId, value: playerState)
+        
+        return MPRemoteCommandHandlerStatus.success
+        
+    }
+    
+    func onChangePlaybackPositionCommand(changePositionEvent: MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus {
+        guard let player = reference.lastPlayer() else {
+            return MPRemoteCommandHandlerStatus.commandFailed
+        }
+        
+        let positionTime = (changePositionEvent as! MPChangePlaybackPositionCommandEvent).positionTime
+        log("changePlaybackPosition to %f", positionTime)
+        let newTime = toCMTime(millis: positionTime)
+        player.seek(time: newTime)
+        return MPRemoteCommandHandlerStatus.success
+    }
+    
+    #endif
+}
