@@ -34,7 +34,7 @@ jobs:
       working-directory: ./example
       run: "flutter pub get"
     - name: Use specific Java version for sdkmanager to work
-      uses: joschi/setup-jdk@v1
+      uses: joschi/setup-jdk@v2
       with:
         java-version: 'openjdk8'
         architecture: 'x64'
