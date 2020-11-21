@@ -24,7 +24,7 @@ jobs:
     runs-on: macOS-latest
 
     steps:
-    - uses: malinskiy/action-android/install-sdk@release/0.0.5
+    - uses: malinskiy/action-android/install-sdk@release/0.0.7
     - uses: actions/checkout@v1
     - uses: subosito/flutter-action@v1
       with:
