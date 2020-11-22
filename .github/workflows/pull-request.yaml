@@ -24,7 +24,9 @@ jobs:
     runs-on: macOS-latest
 
     steps:
-    - uses: malinskiy/action-android/install-sdk@release/0.0.5
+    # - uses: malinskiy/action-android/install-sdk@release/0.0.7
+    # Replaced with a fork because of this issue https://github.com/Malinskiy/action-android/issues/32
+    - uses: horie1024/action-android/install-sdk@release/0.0.9
     - uses: actions/checkout@v1
     - uses: subosito/flutter-action@v1
       with:
@@ -34,7 +36,7 @@ jobs:
       working-directory: ./example
       run: "flutter pub get"
     - name: Use specific Java version for sdkmanager to work
-      uses: joschi/setup-jdk@v1
+      uses: joschi/setup-jdk@v2
       with:
         java-version: 'openjdk8'
         architecture: 'x64'
