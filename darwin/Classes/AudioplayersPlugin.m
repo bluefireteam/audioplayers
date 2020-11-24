@@ -651,9 +651,9 @@ NSString *_playerIndex;
       [[AVAudioSession sharedInstance] setActive:YES error:&error];
   #endif
     
-  BOOL playbackFailed = ([[player currentItem] status] == AVPlayerItemStatusFailed);
+//  BOOL playbackFailed = ([[player currentItem] status] == AVPlayerItemStatusFailed);
     
-  if (!playerInfo || ![url isEqualToString:playerInfo[@"url"]] || playbackFailed) {
+//  if (!playerInfo || ![url isEqualToString:playerInfo[@"url"]] || playbackFailed) {
     if (isLocal) {
       playerItem = [ [ AVPlayerItem alloc ] initWithURL:[ NSURL fileURLWithPath:url ]];
     } else {
@@ -701,14 +701,14 @@ NSString *_playerIndex;
                           options:0
                           context:(void*)playerId];
       
-  } else {
-    if ([[player currentItem] status ] == AVPlayerItemStatusReadyToPlay) {
-        onReady(playerId);
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [self updateDuration:playerId];
-        });
-    }
-  }
+//  } else {
+//    if ([[player currentItem] status ] == AVPlayerItemStatusReadyToPlay) {
+//        onReady(playerId);
+//        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+//            [self updateDuration:playerId];
+//        });
+//    }
+//  }
 }
 
 -(void) play: (NSString*) playerId
