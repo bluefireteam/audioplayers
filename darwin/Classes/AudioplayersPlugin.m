@@ -75,6 +75,9 @@ NSString *_playerIndex;
       _isDealloc = false;
       players = [[NSMutableDictionary alloc] init];
       [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(needStop) name:AudioplayersPluginStop object:nil];
+      [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleInterruption:) name:AVAudioSessionInterruptionNotification object:[AVAudioSession sharedInstance]];
+             
+      [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleRouteChange:) name:AVAudioSessionRouteChangeNotification object:[AVAudioSession sharedInstance]];
 
     #if TARGET_OS_IPHONE
           // this method is used to listen to audio playpause event
@@ -97,6 +100,65 @@ NSString *_playerIndex;
 - (void)needStop {
     _isDealloc = true;
     [self destroy];
+}
+
+- (void)handleInterruption:(NSNotification *)notification
+{
+    if([_playerIndex isEqualToString:@"1"]){
+        return;
+    }
+    NSDictionary *info = notification.userInfo;
+    AVAudioSessionInterruptionType type = [info[AVAudioSessionInterruptionTypeKey] unsignedIntegerValue];
+    bool _isPlaying = false;
+    NSString * playerState;
+    if (type == AVAudioSessionInterruptionTypeBegan) {
+        //to pause
+        _isPlaying = false;
+        playerState = @"paused";
+    }else{
+        AVAudioSessionInterruptionOptions options = [info[AVAudioSessionInterruptionOptionKey] unsignedIntegerValue];
+        if (options == AVAudioSessionInterruptionOptionShouldResume) {
+            // to play
+            _isPlaying = true;
+            playerState = @"playing";
+            [self resume:_currentPlayerId];
+        }
+    }
+    if(playerState != nil){
+        [_channel_audioplayer invokeMethod:@"audio.onNotificationPlayerStateChanged" arguments:@{@"playerId": _currentPlayerId, @"value": @(_isPlaying)}];
+        
+        if (headlessServiceInitialized) {
+          [_callbackChannel invokeMethod:@"audio.onNotificationBackgroundPlayerStateChanged" arguments:@{@"playerId": _currentPlayerId, @"updateHandleMonitorKey": @(_updateHandleMonitorKey), @"value": playerState}];
+        }
+    }
+    
+}
+
+
+- (void)handleRouteChange:(NSNotification *)notification
+{
+    if([_playerIndex isEqualToString:@"1"]){
+        return;
+    }
+    NSDictionary *info = notification.userInfo;
+    AVAudioSessionRouteChangeReason reason = [info[AVAudioSessionRouteChangeReasonKey] unsignedIntegerValue];
+    if (reason == AVAudioSessionRouteChangeReasonOldDeviceUnavailable) {  //旧音频设备断开
+        //获取上一线路描述信息
+        AVAudioSessionRouteDescription *previousRoute = info[AVAudioSessionRouteChangePreviousRouteKey];
+        //获取上一线路的输出设备类型
+        AVAudioSessionPortDescription *previousOutput = previousRoute.outputs[0];
+        NSString *portType = previousOutput.portType;
+        if ([portType isEqualToString:AVAudioSessionPortHeadphones]
+            || [portType isEqualToString:AVAudioSessionPortBluetoothLE]
+            || [portType isEqualToString:AVAudioSessionPortBluetoothHFP]
+            || [portType isEqualToString:AVAudioSessionPortBluetoothA2DP]) {
+            [_channel_audioplayer invokeMethod:@"audio.onNotificationPlayerStateChanged" arguments:@{@"playerId": _currentPlayerId, @"value": @(NO)}];
+            
+            if (headlessServiceInitialized) {
+              [_callbackChannel invokeMethod:@"audio.onNotificationBackgroundPlayerStateChanged" arguments:@{@"playerId": _currentPlayerId, @"updateHandleMonitorKey": @(_updateHandleMonitorKey), @"value": @"paused"}];
+            }
+        }
+    }
 }
 
 #if TARGET_OS_IPHONE
@@ -641,7 +703,10 @@ NSString *_playerIndex;
       
   } else {
     if ([[player currentItem] status ] == AVPlayerItemStatusReadyToPlay) {
-      onReady(playerId);
+        onReady(playerId);
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self updateDuration:playerId];
+        });
     }
   }
 }
