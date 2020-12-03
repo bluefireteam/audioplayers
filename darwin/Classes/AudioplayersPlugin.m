@@ -78,7 +78,11 @@ NSString *_playerIndex;
       [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleInterruption:) name:AVAudioSessionInterruptionNotification object:[AVAudioSession sharedInstance]];
              
       [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleRouteChange:) name:AVAudioSessionRouteChangeNotification object:[AVAudioSession sharedInstance]];
-
+      
+      [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(playbackStalled:) name:AVPlayerItemPlaybackStalledNotification object:nil];
+      
+      [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(playbackStalled:) name:AVPlayerItemFailedToPlayToEndTimeNotification object:nil];
+      
     #if TARGET_OS_IPHONE
           // this method is used to listen to audio playpause event
           // from the notification area in the background.
@@ -96,7 +100,22 @@ NSString *_playerIndex;
   }
   return self;
 }
+
+-(void)playbackStalled:(id)value{
+    if([_playerIndex isEqualToString:@"1"]){
+        return;
+    }
     
+    [_channel_audioplayer invokeMethod:@"audio.onError" arguments:@{@"playerId": _currentPlayerId, @"value": @"AVPlayerItemStatus.failed"}];
+    
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:[_infoCenter nowPlayingInfo]];
+    int rate = [dict[MPNowPlayingInfoPropertyPlaybackRate] intValue];
+    if(rate != 0){
+        [dict setObject:@(0) forKey:MPNowPlayingInfoPropertyPlaybackRate];
+        [_infoCenter setNowPlayingInfo:dict];
+    }
+}
+
 - (void)needStop {
     _isDealloc = true;
     [self destroy];
@@ -138,6 +157,9 @@ NSString *_playerIndex;
 - (void)handleRouteChange:(NSNotification *)notification
 {
     if([_playerIndex isEqualToString:@"1"]){
+        return;
+    }
+    if(_currentPlayerId == nil || @(_updateHandleMonitorKey) == nil){
         return;
     }
     NSDictionary *info = notification.userInfo;
@@ -662,7 +684,7 @@ NSString *_playerIndex;
       
     if (playerInfo[@"url"]) {
       [[player currentItem] removeObserver:self forKeyPath:@"status" ];
-
+        [[player currentItem] removeObserver:self forKeyPath:@"playbackBufferEmpty" ];
       [ playerInfo setObject:url forKey:@"url" ];
 
       for (id ob in observers) {
@@ -672,6 +694,12 @@ NSString *_playerIndex;
       [ player replaceCurrentItemWithPlayerItem: playerItem ];
     } else {
       player = [[ AVPlayer alloc ] initWithPlayerItem: playerItem ];
+        if (@available(iOS 10.0, *)) {
+            player.automaticallyWaitsToMinimizeStalling = NO;
+        } else {
+            // Fallback on earlier versions
+        }
+
       observers = [[NSMutableSet alloc] init];
 
       [ playerInfo setObject:player forKey:@"player" ];
@@ -679,11 +707,11 @@ NSString *_playerIndex;
       [ playerInfo setObject:observers forKey:@"observers" ];
 
       // stream player position
-      CMTime interval = CMTimeMakeWithSeconds(0.2, NSEC_PER_SEC);
-      id timeObserver = [ player  addPeriodicTimeObserverForInterval: interval queue: nil usingBlock:^(CMTime time){
-        [self onTimeInterval:playerId time:time];
-      }];
-        [timeobservers addObject:@{@"player":player, @"observer":timeObserver}];
+//      CMTime interval = CMTimeMakeWithSeconds(0.2, NSEC_PER_SEC);
+//      id timeObserver = [ player  addPeriodicTimeObserverForInterval: interval queue: nil usingBlock:^(CMTime time){
+//        [self onTimeInterval:playerId time:time];
+//      }];
+//        [timeobservers addObject:@{@"player":player, @"observer":timeObserver}];
     }
       
     id anobserver = [[ NSNotificationCenter defaultCenter ] addObserverForName: AVPlayerItemDidPlayToEndTimeNotification
@@ -700,6 +728,7 @@ NSString *_playerIndex;
                           forKeyPath:@"status"
                           options:0
                           context:(void*)playerId];
+    [playerItem addObserver:self forKeyPath:@"playbackBufferEmpty" options:0 context:(void*)playerId];
       
 //  } else {
 //    if ([[player currentItem] status ] == AVPlayerItemStatusReadyToPlay) {
@@ -973,7 +1002,19 @@ recordingActive: (bool) recordingActive
     } else if ([[player currentItem] status ] == AVPlayerItemStatusFailed) {
       [_channel_audioplayer invokeMethod:@"audio.onError" arguments:@{@"playerId": playerId, @"value": @"AVPlayerItemStatus.failed"}];
     }
-  } else {
+  }else if([keyPath isEqualToString:@"playbackBufferEmpty"]){
+      NSMutableDictionary * playerInfo = players[_currentPlayerId];
+      AVPlayer *player = playerInfo[@"player"];
+      if([player currentItem].playbackBufferEmpty == YES){
+          [_channel_audioplayer invokeMethod:@"audio.onError" arguments:@{@"playerId": _currentPlayerId, @"value": @"AVPlayerItemStatus.failed"}];
+          NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:[_infoCenter nowPlayingInfo]];
+          int rate = [dict[MPNowPlayingInfoPropertyPlaybackRate] intValue];
+          if(rate != 0){
+              [dict setObject:@(0) forKey:MPNowPlayingInfoPropertyPlaybackRate];
+              [_infoCenter setNowPlayingInfo:dict];
+          }
+      }
+  }else {
     // Any unrecognized context must belong to super
     [super observeValueForKeyPath:keyPath
                          ofObject:object
@@ -998,6 +1039,7 @@ recordingActive: (bool) recordingActive
     
 - (void)dealloc {
     [self destroy];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 
