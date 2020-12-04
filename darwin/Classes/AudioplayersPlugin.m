@@ -79,9 +79,9 @@ NSString *_playerIndex;
              
       [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleRouteChange:) name:AVAudioSessionRouteChangeNotification object:[AVAudioSession sharedInstance]];
       
-      [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(playbackStalled:) name:AVPlayerItemPlaybackStalledNotification object:nil];
-      
-      [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(playbackStalled:) name:AVPlayerItemFailedToPlayToEndTimeNotification object:nil];
+//      [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(playbackStalled:) name:AVPlayerItemPlaybackStalledNotification object:nil];
+//
+//      [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(playbackStalled:) name:AVPlayerItemFailedToPlayToEndTimeNotification object:nil];
       
     #if TARGET_OS_IPHONE
           // this method is used to listen to audio playpause event
@@ -101,20 +101,21 @@ NSString *_playerIndex;
   return self;
 }
 
--(void)playbackStalled:(id)value{
-    if([_playerIndex isEqualToString:@"1"]){
-        return;
-    }
-    
-    [_channel_audioplayer invokeMethod:@"audio.onError" arguments:@{@"playerId": _currentPlayerId, @"value": @"AVPlayerItemStatus.failed"}];
-    
-    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:[_infoCenter nowPlayingInfo]];
-    int rate = [dict[MPNowPlayingInfoPropertyPlaybackRate] intValue];
-    if(rate != 0){
-        [dict setObject:@(0) forKey:MPNowPlayingInfoPropertyPlaybackRate];
-        [_infoCenter setNowPlayingInfo:dict];
-    }
-}
+//-(void)playbackStalled:(id)value{
+//    if([_playerIndex isEqualToString:@"1"]){
+//        return;
+//    }
+//    NSLog(@"========== error  3");
+//
+//    [_channel_audioplayer invokeMethod:@"audio.onError" arguments:@{@"playerId": _currentPlayerId, @"value": @"AVPlayerItemStatus.failed"}];
+//
+//    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:[_infoCenter nowPlayingInfo]];
+//    int rate = [dict[MPNowPlayingInfoPropertyPlaybackRate] intValue];
+//    if(rate != 0){
+//        [dict setObject:@(0) forKey:MPNowPlayingInfoPropertyPlaybackRate];
+//        [_infoCenter setNowPlayingInfo:dict];
+//    }
+//}
 
 - (void)needStop {
     _isDealloc = true;
@@ -1000,12 +1001,14 @@ recordingActive: (bool) recordingActive
         onReady(playerId);
       }
     } else if ([[player currentItem] status ] == AVPlayerItemStatusFailed) {
+        NSLog(@"========== error  1");
       [_channel_audioplayer invokeMethod:@"audio.onError" arguments:@{@"playerId": playerId, @"value": @"AVPlayerItemStatus.failed"}];
     }
   }else if([keyPath isEqualToString:@"playbackBufferEmpty"]){
       NSMutableDictionary * playerInfo = players[_currentPlayerId];
       AVPlayer *player = playerInfo[@"player"];
       if([player currentItem].playbackBufferEmpty == YES){
+          NSLog(@"========== error  2");
           [_channel_audioplayer invokeMethod:@"audio.onError" arguments:@{@"playerId": _currentPlayerId, @"value": @"AVPlayerItemStatus.failed"}];
           NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:[_infoCenter nowPlayingInfo]];
           int rate = [dict[MPNowPlayingInfoPropertyPlaybackRate] intValue];
