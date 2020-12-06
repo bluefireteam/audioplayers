@@ -616,9 +616,11 @@ NSString *_playerIndex;
 
           playingInfo[MPMediaItemPropertyPlaybackDuration] = [NSNumber numberWithInt: _duration];
             // From `MPNowPlayingInfoPropertyElapsedPlaybackTime` docs -- it is not recommended to update this value frequently. Thus it should represent integer seconds and not an accurate `CMTime` value with fractions of a second
-          playingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = [NSNumber numberWithInt: elapsedTime];
-
-          playingInfo[MPNowPlayingInfoPropertyPlaybackRate] = @(_defaultPlaybackRate);
+          
+          NSMutableDictionary * playerInfo = players[_currentPlayerId];
+          AVPlayer *player = playerInfo[@"player"];
+          playingInfo[MPNowPlayingInfoPropertyPlaybackRate] = @(player.rate);
+          playingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = [NSNumber numberWithInt: CMTimeGetSeconds(player.currentTime)];
           NSLog(@"setNotification done");
 
           if (_infoCenter != nil) {
@@ -1011,11 +1013,10 @@ recordingActive: (bool) recordingActive
           NSLog(@"========== error  2");
           [_channel_audioplayer invokeMethod:@"audio.onError" arguments:@{@"playerId": _currentPlayerId, @"value": @"AVPlayerItemStatus.failed"}];
           NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:[_infoCenter nowPlayingInfo]];
-          int rate = [dict[MPNowPlayingInfoPropertyPlaybackRate] intValue];
-          if(rate != 0){
+          [dict setObject:@(CMTimeGetSeconds(player.currentTime)) forKey:MPNowPlayingInfoPropertyElapsedPlaybackTime];
+          
               [dict setObject:@(0) forKey:MPNowPlayingInfoPropertyPlaybackRate];
               [_infoCenter setNowPlayingInfo:dict];
-          }
       }
   }else {
     // Any unrecognized context must belong to super
