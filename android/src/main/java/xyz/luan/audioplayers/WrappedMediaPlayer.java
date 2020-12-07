@@ -9,6 +9,8 @@ import android.media.MediaDataSource;
 import android.os.Build;
 import android.os.PowerManager;
 
+import androidx.annotation.RequiresApi;
+
 import java.io.IOException;
 
 public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, AudioManager.OnAudioFocusChangeListener, MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnErrorListener {
@@ -40,6 +42,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
     WrappedMediaPlayer(AudioplayersPlugin ref, String playerId) {
         this.ref = ref;
         this.playerId = playerId;
+        audioFocusChangeListener=this;
     }
 
     /**
@@ -167,8 +170,33 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
 
     @Override
     public void onAudioFocusChange(int focusChange) {
-        if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
-            actuallyPlay(context);
+        if (player == null) {
+            throw  new NullPointerException("exoPlayer not init");
+        }
+        switch(focusChange) {
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+                if (player.isPlaying()) {
+                    pause();
+                    ref.handlePause(this);
+                }
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+                if (player.isPlaying()) {
+                    pause();
+                    ref.handlePause(this);
+                }
+                break;
+            case AudioManager.AUDIOFOCUS_GAIN:
+                player.setVolume(1.0f,1.0f);
+                actuallyPlay(context);
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS:
+                stop();
+                ref.handlePause(this);
+                break;
+            case AudioManager.AUDIOFOCUS_NONE:
+            default:
+                break;
         }
     }
 
@@ -229,12 +257,7 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
                                         .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
                                         .build()
                         )
-                        .setOnAudioFocusChangeListener(new AudioManager.OnAudioFocusChangeListener() {
-                            @Override
-                            public void onAudioFocusChange(int focusChange) {
-                                actuallyPlay(context);
-                            }
-                        }).build();
+                        .setOnAudioFocusChangeListener(this).build();
                 audioManager.requestAudioFocus(audioFocusRequest);
             } else {
                 // Request audio focus for playback
@@ -418,12 +441,14 @@ public class WrappedMediaPlayer extends Player implements MediaPlayer.OnPrepared
 
     private void setSource(String url) {
         try {
+            this.player.reset();
             this.player.setDataSource(url);
         } catch (IOException ex) {
             throw new RuntimeException("Unable to access resource", ex);
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     private void setMediaSource(MediaDataSource mediaDataSource) {
         try {
             this.player.setDataSource(mediaDataSource);
