@@ -438,14 +438,15 @@ NSString *_playerIndex;
 
             MPRemoteCommand *pauseCommand = [remoteCommandCenter pauseCommand];
             [pauseCommand setEnabled:YES];
-              [pauseCommand addTarget:self action:@selector(pauseEvent:)];
+              [pauseCommand addTarget:self action:@selector(playOrPauseEvent:)];
 
             MPRemoteCommand *playCommand = [remoteCommandCenter playCommand];
             [playCommand setEnabled:YES];
-              [playCommand addTarget:self action:@selector(playEvent:)];
+              [playCommand addTarget:self action:@selector(playOrPauseEvent:)];
 
             MPRemoteCommand *togglePlayPauseCommand = [remoteCommandCenter togglePlayPauseCommand];
-            [togglePlayPauseCommand setEnabled:NO];
+            [togglePlayPauseCommand setEnabled:YES];
+            [togglePlayPauseCommand addTarget:self action:@selector(playOrPauseEvent:)];
         }
         
         if (forwardSkipInterval > 0 || backwardSkipInterval > 0) {
@@ -527,9 +528,7 @@ NSString *_playerIndex;
         return MPRemoteCommandHandlerStatusSuccess;
     }
 
--(MPRemoteCommandHandlerStatus) playEvent: (MPRemoteCommandEvent *) playEvent{
-    NSLog(@"playEvent");
-    
+-(MPRemoteCommandHandlerStatus) playOrPauseEvent: (MPRemoteCommandEvent *) playOrPauseEvent {
     // judge current player is audio or not
     if([_playerIndex isEqualToString:@"1"]){
         return MPRemoteCommandHandlerStatusCommandFailed;
@@ -541,44 +540,14 @@ NSString *_playerIndex;
     NSString *playerState = @"";
     if (@available(iOS 10.0, *)) {
         if (player.timeControlStatus == AVPlayerTimeControlStatusPlaying) {
-            return MPRemoteCommandHandlerStatusCommandFailed;
+            [ self pause:_currentPlayerId ];
+            _isPlaying = false;
+            playerState = @"paused";
         } else if (player.timeControlStatus == AVPlayerTimeControlStatusPaused) {
             // player is paused and resume it
             [ self resume:_currentPlayerId ];
             _isPlaying = true;
             playerState = @"playing";
-        }
-    } else {
-        // Fallback on earlier versions
-    }
-    [_channel_audioplayer invokeMethod:@"audio.onNotificationPlayerStateChanged" arguments:@{@"playerId": _currentPlayerId, @"value": @(_isPlaying)}];
-    
-    if (headlessServiceInitialized) {
-      [_callbackChannel invokeMethod:@"audio.onNotificationBackgroundPlayerStateChanged" arguments:@{@"playerId": _currentPlayerId, @"updateHandleMonitorKey": @(_updateHandleMonitorKey), @"value": playerState}];
-    }
-    return MPRemoteCommandHandlerStatusSuccess;
-}
-
--(MPRemoteCommandHandlerStatus) pauseEvent: (MPRemoteCommandEvent *) pauseEvent{
-    NSLog(@"pauseEvent");
-    
-    // judge current player is audio or not
-    if([_playerIndex isEqualToString:@"1"]){
-        return MPRemoteCommandHandlerStatusCommandFailed;
-    }
-
-    NSMutableDictionary * playerInfo = players[_currentPlayerId];
-    AVPlayer *player = playerInfo[@"player"];
-    bool _isPlaying = false;
-    NSString *playerState = @"";
-    if (@available(iOS 10.0, *)) {
-        if (player.timeControlStatus == AVPlayerTimeControlStatusPlaying) {
-            // player is playing and pause it
-            [ self pause:_currentPlayerId ];
-            _isPlaying = false;
-            playerState = @"paused";
-        } else if (player.timeControlStatus == AVPlayerTimeControlStatusPaused) {
-            return MPRemoteCommandHandlerStatusCommandFailed;
         }
     } else {
         // Fallback on earlier versions
