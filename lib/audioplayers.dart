@@ -565,6 +565,7 @@ class AudioPlayer {
     Duration elapsedTime = Duration.zero,
     bool hasPreviousTrack = false,
     bool hasNextTrack = false,
+    bool isPlay,
   }) {
     return _invokeMethod('setNotification', {
       'title': title ?? '',
@@ -576,7 +577,8 @@ class AudioPlayer {
       'duration': duration.inSeconds,
       'elapsedTime': elapsedTime.inSeconds,
       'hasPreviousTrack': hasPreviousTrack,
-      'hasNextTrack': hasNextTrack
+      'hasNextTrack': hasNextTrack,
+      'isPlay': isPlay,
     });
   }
 

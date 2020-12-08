@@ -354,7 +354,7 @@ NSString *_playerIndex;
                           int elapsedTime = [call.arguments[@"elapsedTime"] intValue];
                           bool enablePreviousTrackButton = [call.arguments[@"hasPreviousTrack"] boolValue];
                           bool enableNextTrackButton = [call.arguments[@"hasNextTrack"] boolValue];
-
+                      bool isPlay = [call.arguments[@"isPlay"] boolValue];
                           [self setNotification:title
                                      albumTitle:albumTitle
                                          artist:artist
@@ -365,7 +365,7 @@ NSString *_playerIndex;
                                     elapsedTime:elapsedTime
                            enablePreviousTrackButton:enablePreviousTrackButton
                           enableNextTrackButton:enableNextTrackButton
-                                       playerId:playerId];
+                                       playerId:playerId isPlay:isPlay];
                       #else
                           result(FlutterMethodNotImplemented);
                       #endif
@@ -421,7 +421,8 @@ NSString *_playerIndex;
             elapsedTime:  (int) elapsedTime
             enablePreviousTrackButton: (BOOL)enablePreviousTrackButton
             enableNextTrackButton: (BOOL)enableNextTrackButton
-            playerId: (NSString*) playerId {
+            playerId: (NSString*) playerId
+                     isPlay:(bool)isPlay{
         _title = title;
         _albumTitle = albumTitle;
         _artist = artist;
@@ -430,21 +431,22 @@ NSString *_playerIndex;
 
         _infoCenter = [MPNowPlayingInfoCenter defaultCenter];
         
-        [ self updateNotification:elapsedTime ];
+        [ self updateNotification:elapsedTime isPlay:isPlay];
 
         if (remoteCommandCenter == nil) {
           remoteCommandCenter = [MPRemoteCommandCenter sharedCommandCenter];
 
             MPRemoteCommand *pauseCommand = [remoteCommandCenter pauseCommand];
             [pauseCommand setEnabled:YES];
-              [pauseCommand addTarget:self action:@selector(pauseEvent:)];
+              [pauseCommand addTarget:self action:@selector(playOrPauseEvent:)];
 
             MPRemoteCommand *playCommand = [remoteCommandCenter playCommand];
             [playCommand setEnabled:YES];
-              [playCommand addTarget:self action:@selector(playEvent:)];
+              [playCommand addTarget:self action:@selector(playOrPauseEvent:)];
 
             MPRemoteCommand *togglePlayPauseCommand = [remoteCommandCenter togglePlayPauseCommand];
-            [togglePlayPauseCommand setEnabled:NO];
+            [togglePlayPauseCommand setEnabled:YES];
+            [togglePlayPauseCommand addTarget:self action:@selector(playOrPauseEvent:)];
         }
         
         if (forwardSkipInterval > 0 || backwardSkipInterval > 0) {
@@ -526,9 +528,7 @@ NSString *_playerIndex;
         return MPRemoteCommandHandlerStatusSuccess;
     }
 
--(MPRemoteCommandHandlerStatus) playEvent: (MPRemoteCommandEvent *) playEvent{
-    NSLog(@"playEvent");
-    
+-(MPRemoteCommandHandlerStatus) playOrPauseEvent: (MPRemoteCommandEvent *) playOrPauseEvent {
     // judge current player is audio or not
     if([_playerIndex isEqualToString:@"1"]){
         return MPRemoteCommandHandlerStatusCommandFailed;
@@ -540,44 +540,14 @@ NSString *_playerIndex;
     NSString *playerState = @"";
     if (@available(iOS 10.0, *)) {
         if (player.timeControlStatus == AVPlayerTimeControlStatusPlaying) {
-            return MPRemoteCommandHandlerStatusCommandFailed;
+            [ self pause:_currentPlayerId ];
+            _isPlaying = false;
+            playerState = @"paused";
         } else if (player.timeControlStatus == AVPlayerTimeControlStatusPaused) {
             // player is paused and resume it
             [ self resume:_currentPlayerId ];
             _isPlaying = true;
             playerState = @"playing";
-        }
-    } else {
-        // Fallback on earlier versions
-    }
-    [_channel_audioplayer invokeMethod:@"audio.onNotificationPlayerStateChanged" arguments:@{@"playerId": _currentPlayerId, @"value": @(_isPlaying)}];
-    
-    if (headlessServiceInitialized) {
-      [_callbackChannel invokeMethod:@"audio.onNotificationBackgroundPlayerStateChanged" arguments:@{@"playerId": _currentPlayerId, @"updateHandleMonitorKey": @(_updateHandleMonitorKey), @"value": playerState}];
-    }
-    return MPRemoteCommandHandlerStatusSuccess;
-}
-
--(MPRemoteCommandHandlerStatus) pauseEvent: (MPRemoteCommandEvent *) pauseEvent{
-    NSLog(@"pauseEvent");
-    
-    // judge current player is audio or not
-    if([_playerIndex isEqualToString:@"1"]){
-        return MPRemoteCommandHandlerStatusCommandFailed;
-    }
-
-    NSMutableDictionary * playerInfo = players[_currentPlayerId];
-    AVPlayer *player = playerInfo[@"player"];
-    bool _isPlaying = false;
-    NSString *playerState = @"";
-    if (@available(iOS 10.0, *)) {
-        if (player.timeControlStatus == AVPlayerTimeControlStatusPlaying) {
-            // player is playing and pause it
-            [ self pause:_currentPlayerId ];
-            _isPlaying = false;
-            playerState = @"paused";
-        } else if (player.timeControlStatus == AVPlayerTimeControlStatusPaused) {
-            return MPRemoteCommandHandlerStatusCommandFailed;
         }
     } else {
         // Fallback on earlier versions
@@ -597,7 +567,7 @@ NSString *_playerIndex;
         return MPRemoteCommandHandlerStatusSuccess;
     }
 
-    -(void) updateNotification: (int) elapsedTime {
+-(void) updateNotification: (int) elapsedTime isPlay:(bool)isPlay{
       NSMutableDictionary *playingInfo = [NSMutableDictionary dictionary];
       playingInfo[MPMediaItemPropertyTitle] = _title;
       playingInfo[MPMediaItemPropertyAlbumTitle] = _albumTitle;
@@ -617,10 +587,10 @@ NSString *_playerIndex;
           playingInfo[MPMediaItemPropertyPlaybackDuration] = [NSNumber numberWithInt: _duration];
             // From `MPNowPlayingInfoPropertyElapsedPlaybackTime` docs -- it is not recommended to update this value frequently. Thus it should represent integer seconds and not an accurate `CMTime` value with fractions of a second
           
-          NSMutableDictionary * playerInfo = players[_currentPlayerId];
-          AVPlayer *player = playerInfo[@"player"];
-          playingInfo[MPNowPlayingInfoPropertyPlaybackRate] = @(player.rate);
-          playingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = [NSNumber numberWithInt: CMTimeGetSeconds(player.currentTime)];
+          float rate = isPlay ? 1.0 : 0.0;
+          playingInfo[MPNowPlayingInfoPropertyPlaybackRate] = @(rate);
+          
+          playingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = [NSNumber numberWithInt: elapsedTime];
           NSLog(@"setNotification done");
 
           if (_infoCenter != nil) {
@@ -687,7 +657,7 @@ NSString *_playerIndex;
       
     if (playerInfo[@"url"]) {
       [[player currentItem] removeObserver:self forKeyPath:@"status" ];
-        [[player currentItem] removeObserver:self forKeyPath:@"playbackBufferEmpty" ];
+//        [[player currentItem] removeObserver:self forKeyPath:@"playbackBufferEmpty" ];
       [ playerInfo setObject:url forKey:@"url" ];
 
       for (id ob in observers) {
@@ -697,11 +667,11 @@ NSString *_playerIndex;
       [ player replaceCurrentItemWithPlayerItem: playerItem ];
     } else {
       player = [[ AVPlayer alloc ] initWithPlayerItem: playerItem ];
-        if (@available(iOS 10.0, *)) {
-            player.automaticallyWaitsToMinimizeStalling = NO;
-        } else {
-            // Fallback on earlier versions
-        }
+//        if (@available(iOS 10.0, *)) {
+//            player.automaticallyWaitsToMinimizeStalling = NO;
+//        } else {
+//            // Fallback on earlier versions
+//        }
 
       observers = [[NSMutableSet alloc] init];
 
@@ -731,7 +701,7 @@ NSString *_playerIndex;
                           forKeyPath:@"status"
                           options:0
                           context:(void*)playerId];
-    [playerItem addObserver:self forKeyPath:@"playbackBufferEmpty" options:0 context:(void*)playerId];
+//    [playerItem addObserver:self forKeyPath:@"playbackBufferEmpty" options:0 context:(void*)playerId];
       
 //  } else {
 //    if ([[player currentItem] status ] == AVPlayerItemStatusReadyToPlay) {
@@ -887,7 +857,8 @@ recordingActive: (bool) recordingActive
       if (_infoCenter != nil) {
         AVPlayerItem *currentItem = player.currentItem;
         CMTime currentTime = currentItem.currentTime;
-        [ self updateNotification:CMTimeGetSeconds(currentTime) ];
+          BOOL isPlay = [playerInfo[@"isPlaying"] boolValue];
+        [ self updateNotification:CMTimeGetSeconds(currentTime) isPlay:isPlay];
       }
   #endif
 }
@@ -937,7 +908,8 @@ recordingActive: (bool) recordingActive
           NSLog(@"ios -> seekComplete...");
           int seconds = CMTimeGetSeconds(time);
           if (_infoCenter != nil) {
-            [ self updateNotification:seconds ];
+              bool isPlay = [playerInfo[@"isPlaying"] boolValue];
+            [ self updateNotification:seconds isPlay:isPlay];
           }
           [ _channel_audioplayer invokeMethod:@"audio.onSeekComplete" arguments:@{@"playerId": playerId,@"value":@(YES)}];
       }else{
@@ -1006,18 +978,18 @@ recordingActive: (bool) recordingActive
         NSLog(@"========== error  1");
       [_channel_audioplayer invokeMethod:@"audio.onError" arguments:@{@"playerId": playerId, @"value": @"AVPlayerItemStatus.failed"}];
     }
-  }else if([keyPath isEqualToString:@"playbackBufferEmpty"]){
-      NSMutableDictionary * playerInfo = players[_currentPlayerId];
-      AVPlayer *player = playerInfo[@"player"];
-      if([player currentItem].playbackBufferEmpty == YES){
-          NSLog(@"========== error  2");
-          [_channel_audioplayer invokeMethod:@"audio.onError" arguments:@{@"playerId": _currentPlayerId, @"value": @"AVPlayerItemStatus.failed"}];
-          NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:[_infoCenter nowPlayingInfo]];
-          [dict setObject:@(CMTimeGetSeconds(player.currentTime)) forKey:MPNowPlayingInfoPropertyElapsedPlaybackTime];
-          
-              [dict setObject:@(0) forKey:MPNowPlayingInfoPropertyPlaybackRate];
-              [_infoCenter setNowPlayingInfo:dict];
-      }
+//  }else if([keyPath isEqualToString:@"playbackBufferEmpty"]){
+//      NSMutableDictionary * playerInfo = players[_currentPlayerId];
+//      AVPlayer *player = playerInfo[@"player"];
+//      if([player currentItem].playbackBufferEmpty == YES){
+//          NSLog(@"========== error  2");
+//          [_channel_audioplayer invokeMethod:@"audio.onError" arguments:@{@"playerId": _currentPlayerId, @"value": @"AVPlayerItemStatus.failed"}];
+//          NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:[_infoCenter nowPlayingInfo]];
+//          [dict setObject:@(CMTimeGetSeconds(player.currentTime)) forKey:MPNowPlayingInfoPropertyElapsedPlaybackTime];
+//
+//              [dict setObject:@(0) forKey:MPNowPlayingInfoPropertyPlaybackRate];
+//              [_infoCenter setNowPlayingInfo:dict];
+//      }
   }else {
     // Any unrecognized context must belong to super
     [super observeValueForKeyPath:keyPath
