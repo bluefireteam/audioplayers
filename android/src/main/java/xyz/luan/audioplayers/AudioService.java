@@ -173,14 +173,6 @@ public class AudioService extends Service {
     }
 
 
-    private static Map<String, Object> buildArguments(String playerId, Object value) {
-        Map<String, Object> result = new HashMap<>();
-        result.put("playerId", playerId);
-        result.put("value", value);
-        return result;
-    }
-
-
     private Notification initNotification() {
         NotificationCompat.Builder builder = getNotificationBuilder()
                 .setContentTitle(notificationTitle)
