@@ -358,6 +358,7 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
                         R.drawable.exo_notification_play,
                         context.getString(R.string.exo_controls_play_description),
                         createBroadcastIntent(INSOMNIAC_PLAY, context, instanceId)));
+        instanceId++;
         actions.put(
                 INSOMNIAC_PAUSE,
                 new NotificationCompat.Action(
@@ -378,7 +379,7 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
         Intent intent = new Intent(action).setPackage(context.getPackageName());
         intent.putExtra(INSOMNIAC_EXTRA_INSTANCE_ID, instanceId);
         return PendingIntent.getBroadcast(
-                context, instanceId, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+                context, instanceId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     private void updateNotification() {
@@ -423,7 +424,7 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
         Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
         intent.setComponent(component);
         intent.putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
-        return PendingIntent.getBroadcast(context, keyCode, intent, 0);
+        return PendingIntent.getBroadcast(context, keyCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     public static int toKeyCode(long action) {
