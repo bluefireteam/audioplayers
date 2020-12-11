@@ -16,6 +16,7 @@ import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -44,7 +45,7 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
 
 
-public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
+public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin,AudioPlayerStatusListener {
 
     private static final Logger LOGGER = Logger.getLogger(AudioplayersPlugin.class.getCanonicalName());
 
@@ -53,24 +54,10 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
     private final Handler handler = new Handler();
     private Runnable positionUpdates;
     private Context context;
-    private boolean seekFinish;
-    private String notificationChannelId = "InsomniacNotificationChannelId";
-    public static final int KEYCODE_BYPASS_PLAY = KeyEvent.KEYCODE_MUTE;
-    public static final int KEYCODE_BYPASS_PAUSE = KeyEvent.KEYCODE_MEDIA_RECORD;
     public static final String INSOMNIAC_PLAY = "insomniac.play";
     public static final String INSOMNIAC_PAUSE = "insomniac.pause";
-    public static final String INSOMNIAC_STOP = "insomniac.stop";
-    public static final String INSOMNIAC_EXTRA_INSTANCE_ID = "insomniac.instance.id";
-    public static final String PHONE_STATE_ACTION = "android.intent.action.PHONE_STATE";
-    private int instanceIdCounter = 0;
-    private Map<String, NotificationCompat.Action> playbackActions;
     private IntentFilter intentFilter;
-    private boolean isPlaying = false;
     private Player currentPlayer;
-    private String TAG = "AudioplayersPlugin";
-    private String notificationTitle = "insomniac";
-    private String notificationImageUrl ="";
-    private Bitmap notificationImage=null;
 
     public static void registerWith(final Registrar registrar) {
         Log.d("AudioplayersPlugin", "registerWith");
@@ -86,7 +73,6 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
         this.channel = channel;
         this.channel.setMethodCallHandler(this);
         this.context = context;
-        this.seekFinish = false;
         instanceIdCounter++;
         initInFilter();
     }
@@ -100,7 +86,14 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
             intentFilter.addAction(Intent.ACTION_HEADSET_PLUG);
             intentFilter.addAction(AudioManager.ACTION_AUDIO_BECOMING_NOISY);
             context.registerReceiver(notificationReceiver, intentFilter);
+            //start service
+            startAudioService();
         }
+    }
+
+    private void startAudioService(){
+        context.startService(new Intent(context,AudioService.class));
+        AudioService.setAudioPlayerStatusListener(this);
     }
 
     @Override
@@ -111,9 +104,7 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
             channel.setMethodCallHandler(this);
         }
         this.context = binding.getApplicationContext();
-        this.seekFinish = false;
         instanceIdCounter++;
-        playbackActions = createPlaybackActions(context, instanceIdCounter);
         initInFilter();
     }
 
@@ -124,8 +115,8 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
             currentPlayer.release();
             currentPlayer=null;
         }
-        cancelNotification();
         context.unregisterReceiver(notificationReceiver);
+        context.stopService(new Intent(context,AudioService.class));
     }
 
     @Override
@@ -139,10 +130,11 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
     }
 
     private void handleMethodCall(final MethodCall call, final MethodChannel.Result response) {
+        Intent intent=new Intent(context,AudioService.class);
         final String playerId = call.argument("playerId");
         final String mode = call.argument("mode");
-        final Player player = getPlayer(playerId, mode);
-        currentPlayer = player;
+        intent.putExtra("playerId",playerId);
+        intent.putExtra("mode",mode);
         switch (call.method) {
             case "play": {
                 final String url = call.argument("url");
@@ -152,103 +144,108 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
                 final boolean isLocal = call.argument("isLocal");
                 final boolean stayAwake = call.argument("stayAwake");
                 final boolean duckAudio = call.argument("duckAudio");
-                player.configAttributes(respectSilence, stayAwake, duckAudio, context.getApplicationContext());
-                player.setVolume(volume);
-                player.setUrl(url, isLocal, context.getApplicationContext());
-                if (position != null && !mode.equals("PlayerMode.LOW_LATENCY")) {
-                    player.seek(position);
-                }
-                player.play(context.getApplicationContext());
-                updateNotification();
+                intent.putExtra("url",url);
+                intent.putExtra("position",position);
+                intent.putExtra("volume",volume);
+                intent.putExtra("respectSilence",respectSilence);
+                intent.putExtra("isLocal",isLocal);
+                intent.putExtra("stayAwake",stayAwake);
+                intent.putExtra("duckAudio",duckAudio);
+                intent.setAction("play");
+                context.startService(intent);
                 break;
             }
             case "playBytes": {
-                // API version 23 is required for MediaDataSource
-                if (android.os.Build.VERSION.SDK_INT < 23) {
-                    throw new UnsupportedOperationException("API version 23 is required");
-                }
-
-                final byte[] bytes = call.argument("bytes");
-                final double volume = call.argument("volume");
-                final Integer position = call.argument("position");
-                final boolean respectSilence = call.argument("respectSilence");
-                final boolean stayAwake = call.argument("stayAwake");
-                final boolean duckAudio = call.argument("duckAudio");
-                player.configAttributes(respectSilence, stayAwake, duckAudio, context.getApplicationContext());
-                player.setVolume(volume);
-                player.setDataSource(new ByteDataSource(bytes), context.getApplicationContext());
-                if (position != null && !mode.equals("PlayerMode.LOW_LATENCY")) {
-                    player.seek(position);
-                }
-                player.play(context.getApplicationContext());
-                updateNotification();
                 break;
             }
             case "resume": {
-                Log.d(TAG,"resume");
-                player.play(context.getApplicationContext());
-                updateNotification();
+                intent.setAction("resume");
+                context.startService(intent);
                 break;
             }
             case "pause": {
-                player.pause();
-                updateNotification();
+                intent.setAction("pause");
+                context.startService(intent);
                 break;
             }
             case "stop": {
-                player.stop();
-                cancelNotification();
+                intent.setAction("stop");
+                context.startService(intent);
                 break;
             }
             case "release": {
-                player.release();
+                intent.setAction("release");
+                context.startService(intent);
                 break;
             }
             case "seek": {
                 final Integer position = call.argument("position");
-                player.seek(position);
+                intent.setAction("seek");
+                intent.putExtra("position",position);
+                context.startService(intent);
                 break;
             }
             case "setVolume": {
                 final double volume = call.argument("volume");
-                player.setVolume(volume);
+                intent.setAction("setVolume");
+                intent.putExtra("volume",volume);
+                context.startService(intent);
                 break;
             }
             case "setUrl": {
                 final String url = call.argument("url");
                 final boolean isLocal = call.argument("isLocal");
-                player.setUrl(url, isLocal, context.getApplicationContext());
+                intent.setAction("setUrl");
+                intent.putExtra("url",url);
+                intent.putExtra("isLocal",isLocal);
+                context.startService(intent);
                 break;
             }
             case "setPlaybackRate": {
                 final double rate = call.argument("playbackRate");
-                response.success(player.setRate(rate));
+                intent.setAction("setPlaybackRate");
+                intent.putExtra("playbackRate",rate);
+                context.startService(intent);
+                response.success(1);
                 return;
             }
             case "getDuration": {
-                response.success(player.getDuration());
+                int duration=0;
+                if(currentPlayer!=null){
+                    currentPlayer.getDuration();
+                }
+                response.success(duration);
                 return;
             }
             case "getCurrentPosition": {
-                response.success(player.getCurrentPosition());
+                int currentPostition=0;
+                if(currentPlayer!=null){
+                    currentPlayer.getCurrentPosition();
+                }
+                response.success(currentPostition);
                 return;
             }
             case "setReleaseMode": {
                 final String releaseModeName = call.argument("releaseMode");
-                final ReleaseMode releaseMode = ReleaseMode.valueOf(releaseModeName.substring("ReleaseMode.".length()));
-                player.setReleaseMode(releaseMode);
+                intent.setAction("setReleaseMode");
+                intent.putExtra("releaseMode",releaseModeName);
+                context.startService(intent);
                 break;
             }
             case "earpieceOrSpeakersToggle": {
                 final String playingRoute = call.argument("playingRoute");
-                player.setPlayingRoute(playingRoute, context.getApplicationContext());
+                intent.setAction("earpieceOrSpeakersToggle");
+                intent.putExtra("playingRoute",playingRoute);
+                context.startService(intent);
                 break;
             }
             case "setNotification":{
-                notificationTitle = call.argument("title");
-                notificationImageUrl = call.argument("imageUrl");
-                Log.d(TAG,"setNotification  TITLE=="+notificationTitle+" notificationImageUrl="+notificationImageUrl);
-                loadImage();
+                String title = call.argument("title");
+                String imageUrl = call.argument("imageUrl");
+                intent.setAction("setNotification");
+                intent.putExtra("title",title);
+                intent.putExtra("imageUrl",imageUrl);
+                context.startService(intent);
                 break;
             }
             default: {
@@ -259,204 +256,46 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
         response.success(1);
     }
 
-    private Player getPlayer(String playerId, String mode) {
-        if (!mediaPlayers.containsKey(playerId)) {
-            Player player =
-                    mode.equalsIgnoreCase("PlayerMode.MEDIA_PLAYER") ?
-                            new WrappedMediaPlayer(this, playerId) :
-                            new WrappedSoundPool(this, playerId);
-            mediaPlayers.put(playerId, player);
-        }
-        return mediaPlayers.get(playerId);
-    }
-
+    @Override
     public void handleIsPlaying(Player player) {
-        Log.d(TAG,"handleIsPlaying");
-        updateNotification();
-        startPositionUpdates();
+        currentPlayer=player;
     }
 
+    @Override
     public void handleDuration(Player player) {
+        currentPlayer=player;
         channel.invokeMethod("audio.onDuration", buildArguments(player.getPlayerId(), player.getDuration()));
     }
 
+    @Override
     public void handleCompletion(Player player) {
-        updateNotification();
+        currentPlayer=player;
         channel.invokeMethod("audio.onComplete", buildArguments(player.getPlayerId(), true));
     }
 
+    @Override
     public void handleError(Player player, String message) {
-        updateNotification();
+        currentPlayer=player;
         channel.invokeMethod("audio.onError", buildArguments(player.getPlayerId(), message));
     }
 
+    @Override
     public void handlePause(Player player) {
-        updateNotification();
+        currentPlayer=player;
         handleNotificationClick();
     }
 
+    @Override
     public void handleSeekComplete(Player player) {
-        this.seekFinish = true;
+        currentPlayer=player;
     }
 
-    private void startPositionUpdates() {
-        if (positionUpdates != null) {
-            return;
-        }
-        positionUpdates = new UpdateCallback(mediaPlayers, channel, handler, this);
-        handler.post(positionUpdates);
-    }
-
-    private void stopPositionUpdates() {
-        positionUpdates = null;
-        handler.removeCallbacksAndMessages(null);
-    }
 
     private static Map<String, Object> buildArguments(String playerId, Object value) {
         Map<String, Object> result = new HashMap<>();
         result.put("playerId", playerId);
         result.put("value", value);
         return result;
-    }
-
-
-    private Notification initNotification() {
-        NotificationCompat.Builder builder = getNotificationBuilder()
-                .setContentTitle(notificationTitle)
-                .setContentText("");
-        List<String> actionNames = getActions();
-        for (int i = 0; i < actionNames.size(); i++) {
-            String actionName = actionNames.get(i);
-            NotificationCompat.Action action = playbackActions.get(actionName);
-            if (action != null) {
-                builder.addAction(action);
-            }
-        }
-        builder.setOngoing(true);
-        builder.setPriority(NotificationCompat.PRIORITY_LOW);
-        builder.setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
-//                .setMediaSession(mediaSession.getSessionToken())
-                        .setShowActionsInCompactView(new int[]{0})
-                        .setShowCancelButton(true)
-                        .setCancelButtonIntent(buildMediaButtonPendingIntent(PlaybackStateCompat.ACTION_STOP))
-        );
-        Notification notification = builder.build();
-        return notification;
-    }
-
-    protected List<String> getActions() {
-        boolean isPlayingAd = currentPlayer==null?false:currentPlayer.isActuallyPlaying();
-        List<String> stringActions = new ArrayList<>();
-        if (isPlayingAd) {
-            stringActions.add(INSOMNIAC_PAUSE);
-        } else {
-            stringActions.add(INSOMNIAC_PLAY);
-        }
-        stringActions.add(INSOMNIAC_STOP);
-        return stringActions;
-    }
-
-    private Map<String, NotificationCompat.Action> createPlaybackActions(
-            Context context, int instanceId) {
-        Map<String, NotificationCompat.Action> actions = new HashMap<>();
-        actions.put(
-                INSOMNIAC_PLAY,
-                new NotificationCompat.Action(
-                        R.drawable.exo_notification_play,
-                        context.getString(R.string.exo_controls_play_description),
-                        createBroadcastIntent(INSOMNIAC_PLAY, context, instanceId)));
-        actions.put(
-                INSOMNIAC_PAUSE,
-                new NotificationCompat.Action(
-                        R.drawable.exo_notification_pause,
-                        context.getString(R.string.exo_controls_pause_description),
-                        createBroadcastIntent(INSOMNIAC_PAUSE, context, instanceId)));
-        return actions;
-    }
-
-    private static PendingIntent createBroadcastIntent(
-            String action, Context context, int instanceId) {
-        Intent intent = new Intent(action).setPackage(context.getPackageName());
-        intent.putExtra(INSOMNIAC_EXTRA_INSTANCE_ID, instanceId);
-        return PendingIntent.getBroadcast(
-                context, instanceId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-    }
-
-    void loadImage(){
-        notificationImage=null;
-        if(notificationImageUrl!=null&&notificationImageUrl.startsWith("http")){
-            Glide.with(context).asBitmap().load(notificationImageUrl).override(50, 50).into(new SimpleTarget<Bitmap>() {
-                @Override
-                public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                    notificationImage=resource;
-                    updateNotification();
-                }
-            });
-        }
-        updateNotification();
-    }
-
-    private void updateNotification() {
-        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(33, initNotification());
-
-    }
-
-    private void cancelNotification() {
-        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(33);
-    }
-
-    private NotificationCompat.Builder getNotificationBuilder() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) createChannel();
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, notificationChannelId);
-        Bitmap bmp=null;
-        if(notificationImage==null){
-            Resources res = context.getResources();
-            bmp = BitmapFactory.decodeResource(res, R.mipmap.ic_launcher);
-        }else{
-            bmp=notificationImage;
-        }
-        notificationBuilder.setSmallIcon(R.mipmap.ic_launcher_bar)
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setShowWhen(false)
-                .setLargeIcon(bmp);
-        return notificationBuilder;
-    }
-
-    PendingIntent buildMediaButtonPendingIntent(long action) {
-        ComponentName component = new ComponentName(context.getPackageName(), "androidx.media.session.MediaButtonReceiver");
-        return buildMediaButtonPendingIntent(component, action);
-    }
-
-    PendingIntent buildMediaButtonPendingIntent(ComponentName component, long action) {
-        int keyCode = toKeyCode(action);
-        if (keyCode == KeyEvent.KEYCODE_UNKNOWN)
-            return null;
-        Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
-        intent.setComponent(component);
-        intent.putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
-        return PendingIntent.getBroadcast(context, keyCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-    }
-
-    public static int toKeyCode(long action) {
-        if (action == PlaybackStateCompat.ACTION_PLAY) {
-            return KEYCODE_BYPASS_PLAY;
-        } else if (action == PlaybackStateCompat.ACTION_PAUSE) {
-            return KEYCODE_BYPASS_PAUSE;
-        } else {
-            return PlaybackStateCompat.toKeyCode(action);
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    private void createChannel() {
-        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        NotificationChannel channel = notificationManager.getNotificationChannel(notificationChannelId);
-        if (channel == null) {
-            channel = new NotificationChannel(notificationChannelId, "insomniacNotificationId", NotificationManager.IMPORTANCE_LOW);
-            notificationManager.createNotificationChannel(channel);
-        }
     }
 
 
@@ -518,17 +357,35 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
         }
     }
 
+    private void sendPauseToService(){
+        if(currentPlayer!=null){
+            Intent intent=new Intent(context,AudioService.class);
+            intent.setAction("pause");
+            intent.putExtra("playerId",currentPlayer.getPlayerId());
+            intent.putExtra("mode","PlayerMode.MEDIA_PLAYER");
+            context.startService(intent);
+        }
+    }
+
+    private void sendResumeToService(){
+        if(currentPlayer!=null){
+            Intent intent=new Intent(context,AudioService.class);
+            intent.setAction("resume");
+            intent.putExtra("playerId",currentPlayer.getPlayerId());
+            intent.putExtra("mode","PlayerMode.MEDIA_PLAYER");
+            context.startService(intent);
+        }
+    }
+
     BroadcastReceiver notificationReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (action.equals(INSOMNIAC_PLAY)) {
-                if(currentPlayer!=null)
-                    currentPlayer.play(context.getApplicationContext());
+                sendPauseToService();
                 handleNotificationClick();
             } else if (action.equals(INSOMNIAC_PAUSE)) {
-                if(currentPlayer!=null)currentPlayer.pause();
-                updateNotification();
+                sendResumeToService();
                 handleNotificationClick();
             }else if(action.equals(AudioManager.ACTION_HEADSET_PLUG)||action.equals(AudioManager.ACTION_AUDIO_BECOMING_NOISY)){
                 int state=intent.getIntExtra("state",2);
