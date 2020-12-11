@@ -10,10 +10,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
+import android.nfc.Tag;
 import android.os.Build;
 import android.os.Handler;
 import android.provider.MediaStore;
@@ -56,6 +58,8 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin,Audi
     private Context context;
     public static final String INSOMNIAC_PLAY = "insomniac.play";
     public static final String INSOMNIAC_PAUSE = "insomniac.pause";
+    public static final String INSOMNIAC_STOP = "insomniac.stop";
+    public static final String TAG = "AudioplayersPlugin";
     private IntentFilter intentFilter;
     private Player currentPlayer;
 
@@ -73,16 +77,15 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin,Audi
         this.channel = channel;
         this.channel.setMethodCallHandler(this);
         this.context = context;
-        instanceIdCounter++;
         initInFilter();
     }
 
     private void initInFilter() {
         if(intentFilter==null){
             intentFilter = new IntentFilter();
-            for (String action : playbackActions.keySet()) {
-                intentFilter.addAction(action);
-            }
+            intentFilter.addAction(INSOMNIAC_PLAY);
+            intentFilter.addAction(INSOMNIAC_PAUSE);
+            intentFilter.addAction(INSOMNIAC_STOP);
             intentFilter.addAction(Intent.ACTION_HEADSET_PLUG);
             intentFilter.addAction(AudioManager.ACTION_AUDIO_BECOMING_NOISY);
             context.registerReceiver(notificationReceiver, intentFilter);
@@ -104,7 +107,6 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin,Audi
             channel.setMethodCallHandler(this);
         }
         this.context = binding.getApplicationContext();
-        instanceIdCounter++;
         initInFilter();
     }
 
@@ -153,6 +155,7 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin,Audi
                 intent.putExtra("duckAudio",duckAudio);
                 intent.setAction("play");
                 context.startService(intent);
+                Log.d(TAG,"startService");
                 break;
             }
             case "playBytes": {
@@ -258,6 +261,7 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin,Audi
 
     @Override
     public void handleIsPlaying(Player player) {
+        Log.d(TAG,"handleIsPlaying");
         currentPlayer=player;
     }
 
@@ -391,8 +395,7 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin,Audi
                 int state=intent.getIntExtra("state",2);
                 if(state==0){//拔出耳机
                     if(currentPlayer!=null&&currentPlayer.isActuallyPlaying()){
-                        currentPlayer.pause();
-                        updateNotification();
+                        sendPauseToService();
                         handleNotificationClick();
                     }
                 }

@@ -57,6 +57,7 @@ public class AudioService extends Service {
     public void onCreate() {
         super.onCreate();
         instanceIdCounter++;
+        playbackActions=createPlaybackActions(this,instanceIdCounter);
     }
 
     @Nullable
@@ -79,6 +80,7 @@ public class AudioService extends Service {
         if (intent == null || intent.getAction() == null) {
             return;
         }
+        Log.d(TAG,"handleIntent");
         final String playerId = intent.getStringExtra("playerId");
         final String mode = intent.getStringExtra("mode");
         final Player player = getPlayer(playerId, mode);
@@ -99,6 +101,7 @@ public class AudioService extends Service {
                     player.seek(position);
                 }
                 player.play(getApplicationContext());
+                Log.d(TAG,"player.play");
                 updateNotification();
             break;
             case "resume":
@@ -168,6 +171,7 @@ public class AudioService extends Service {
                             new WrappedMediaPlayer(audioPlayerStatusListener, playerId) :
                             new WrappedSoundPool(audioPlayerStatusListener, playerId);
             mediaPlayers.put(playerId, player);
+            Log.d(TAG,"getPlayer");
         }
         return mediaPlayers.get(playerId);
     }
@@ -314,4 +318,9 @@ public class AudioService extends Service {
     }
 
 
+    @Override
+    public void onDestroy() {
+        cancelNotification();
+        super.onDestroy();
+    }
 }
