@@ -12,18 +12,22 @@ import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Handler;
 import android.support.v4.media.session.PlaybackStateCompat;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -51,7 +55,6 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
     private Context context;
     private boolean seekFinish;
     private String notificationChannelId = "InsomniacNotificationChannelId";
-    ;
     public static final int KEYCODE_BYPASS_PLAY = KeyEvent.KEYCODE_MUTE;
     public static final int KEYCODE_BYPASS_PAUSE = KeyEvent.KEYCODE_MEDIA_RECORD;
     public static final String INSOMNIAC_PLAY = "insomniac.play";
@@ -66,6 +69,8 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
     private Player currentPlayer;
     private String TAG = "AudioplayersPlugin";
     private String notificationTitle = "insomniac";
+    private String notificationImageUrl ="";
+    private Bitmap notificationImage=null;
 
     public static void registerWith(final Registrar registrar) {
         Log.d("AudioplayersPlugin", "registerWith");
@@ -176,6 +181,7 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
                     player.seek(position);
                 }
                 player.play(context.getApplicationContext());
+                updateNotification();
                 break;
             }
             case "resume": {
@@ -240,8 +246,9 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
             }
             case "setNotification":{
                 notificationTitle = call.argument("title");
-                Log.d(TAG,"setNotification  TITLE=="+notificationTitle);
-                updateNotification();
+                notificationImageUrl = call.argument("imageUrl");
+                Log.d(TAG,"setNotification  TITLE=="+notificationTitle+" notificationImageUrl="+notificationImageUrl);
+                loadImage();
                 break;
             }
             default: {
@@ -358,19 +365,12 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
                         R.drawable.exo_notification_play,
                         context.getString(R.string.exo_controls_play_description),
                         createBroadcastIntent(INSOMNIAC_PLAY, context, instanceId)));
-        instanceId++;
         actions.put(
                 INSOMNIAC_PAUSE,
                 new NotificationCompat.Action(
                         R.drawable.exo_notification_pause,
                         context.getString(R.string.exo_controls_pause_description),
                         createBroadcastIntent(INSOMNIAC_PAUSE, context, instanceId)));
-//        actions.put(
-//                INSOMNIAC_STOP,
-//                new NotificationCompat.Action(
-//                        R.drawable.exo_notification_stop,
-//                        context.getString(R.string.exo_controls_stop_description),
-//                        createBroadcastIntent(INSOMNIAC_STOP, context, instanceId)));
         return actions;
     }
 
@@ -382,33 +382,45 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
                 context, instanceId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
+    void loadImage(){
+        notificationImage=null;
+        if(notificationImageUrl!=null&&notificationImageUrl.startsWith("http")){
+            Glide.with(context).asBitmap().load(notificationImageUrl).override(50, 50).into(new SimpleTarget<Bitmap>() {
+                @Override
+                public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                    notificationImage=resource;
+                    updateNotification();
+                }
+            });
+        }
+        updateNotification();
+    }
+
     private void updateNotification() {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        Log.d("tag", "updateNotification");
         notificationManager.notify(33, initNotification());
+
     }
 
     private void cancelNotification() {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        Log.d("tag", "cancelNotification");
         notificationManager.cancel(33);
     }
 
     private NotificationCompat.Builder getNotificationBuilder() {
-        NotificationCompat.Builder notificationBuilder = null;
-        if (notificationBuilder == null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                createChannel();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) createChannel();
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, notificationChannelId);
+        Bitmap bmp=null;
+        if(notificationImage==null){
             Resources res = context.getResources();
-            Bitmap bmp = BitmapFactory.decodeResource(res, R.mipmap.ic_launcher);
-            notificationBuilder = new NotificationCompat.Builder(context, notificationChannelId)
-                    .setSmallIcon(R.mipmap.ic_launcher_bar)
-                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                    .setShowWhen(false)
-                    .setLargeIcon(bmp)
-//                    .setDeleteIntent(buildMediaButtonPendingIntent(PlaybackStateCompat.ACTION_STOP))
-            ;
+            bmp = BitmapFactory.decodeResource(res, R.mipmap.ic_launcher);
+        }else{
+            bmp=notificationImage;
         }
+        notificationBuilder.setSmallIcon(R.mipmap.ic_launcher_bar)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setShowWhen(false)
+                .setLargeIcon(bmp);
         return notificationBuilder;
     }
 
@@ -510,7 +522,6 @@ public class AudioplayersPlugin implements MethodCallHandler, FlutterPlugin {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            Log.d("onReceive", "onReceive action=" + action);
             if (action.equals(INSOMNIAC_PLAY)) {
                 if(currentPlayer!=null)
                     currentPlayer.play(context.getApplicationContext());
