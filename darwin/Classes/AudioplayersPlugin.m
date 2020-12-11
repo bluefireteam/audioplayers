@@ -58,6 +58,7 @@ const float _defaultPlaybackRate = 1.0;
 const NSString *_defaultPlayingRoute = @"speakers";
 // 0 audio 1 radio
 NSString *_playerIndex;
+NSMutableDictionary * imageDict;
 
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
   _registrar = registrar;
@@ -74,6 +75,7 @@ NSString *_playerIndex;
   if (self) {
       _isDealloc = false;
       players = [[NSMutableDictionary alloc] init];
+      imageDict = [[NSMutableDictionary alloc] initWithCapacity:0];
       [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(needStop) name:AudioplayersPluginStop object:nil];
       [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleInterruption:) name:AVAudioSessionInterruptionNotification object:[AVAudioSession sharedInstance]];
              
@@ -572,33 +574,63 @@ NSString *_playerIndex;
       playingInfo[MPMediaItemPropertyTitle] = _title;
       playingInfo[MPMediaItemPropertyAlbumTitle] = _albumTitle;
       playingInfo[MPMediaItemPropertyArtist] = _artist;
+    
+    playingInfo[MPMediaItemPropertyPlaybackDuration] = [NSNumber numberWithInt: _duration];
+      // From `MPNowPlayingInfoPropertyElapsedPlaybackTime` docs -- it is not recommended to update this value frequently. Thus it should represent integer seconds and not an accurate `CMTime` value with fractions of a second
+    
+    float rate = isPlay ? 1.0 : 0.0;
+    playingInfo[MPNowPlayingInfoPropertyPlaybackRate] = @(rate);
+    
+    playingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = [NSNumber numberWithInt: elapsedTime];
+    NSLog(@"setNotification done");
+
+    
       
       // fetch notification image in async fashion to avoid freezing UI
-      dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-      dispatch_async(queue, ^{
           NSURL *url = [[NSURL alloc] initWithString:_imageUrl];
-          UIImage *artworkImage = [_imageUrl hasPrefix:@"http"] ? [UIImage imageWithData:[NSData dataWithContentsOfURL:url]] : [UIImage imageWithContentsOfFile: _imageUrl];
-          if (artworkImage)
-          {
-              MPMediaItemArtwork *albumArt = [[MPMediaItemArtwork alloc] initWithImage: artworkImage];
-              playingInfo[MPMediaItemPropertyArtwork] = albumArt;
+         
+          if([_imageUrl hasPrefix:@"http"]){
+              if([imageDict.allKeys containsObject:_imageUrl]){
+                  UIImage * image = imageDict[_imageUrl];
+                  MPMediaItemArtwork *albumArt = [[MPMediaItemArtwork alloc] initWithImage: image];
+                  playingInfo[MPMediaItemPropertyArtwork] = albumArt;
+              }else{
+                  [self downloadImage:url completion:^(UIImage *image) {
+                      if(image){
+                          MPMediaItemArtwork *albumArt = [[MPMediaItemArtwork alloc] initWithImage:image];
+                          [imageDict setObject:image forKey:_imageUrl];
+                          NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:[_infoCenter nowPlayingInfo]];
+                          
+                                        [dict setObject:albumArt forKey:MPMediaItemPropertyArtwork];
+                                        [_infoCenter setNowPlayingInfo:dict];
+                      }
+                      
+                  }];
+              }
+              
+                  
+          }else{
+              UIImage* image = [UIImage imageWithContentsOfFile:_imageUrl];
+              if(image){
+                  MPMediaItemArtwork *albumArt = [[MPMediaItemArtwork alloc] initWithImage: image];
+                  playingInfo[MPMediaItemPropertyArtwork] = albumArt;
+              }
           }
-
-          playingInfo[MPMediaItemPropertyPlaybackDuration] = [NSNumber numberWithInt: _duration];
-            // From `MPNowPlayingInfoPropertyElapsedPlaybackTime` docs -- it is not recommended to update this value frequently. Thus it should represent integer seconds and not an accurate `CMTime` value with fractions of a second
-          
-          float rate = isPlay ? 1.0 : 0.0;
-          playingInfo[MPNowPlayingInfoPropertyPlaybackRate] = @(rate);
-          
-          playingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = [NSNumber numberWithInt: elapsedTime];
-          NSLog(@"setNotification done");
-
-          if (_infoCenter != nil) {
-            _infoCenter.nowPlayingInfo = playingInfo;
-          }
-      });
+    
+    if (_infoCenter != nil) {
+      _infoCenter.nowPlayingInfo = playingInfo;
+    }
+    
     }
 #endif
+
+-(void)downloadImage:(NSURL*)url completion:(void(^)(UIImage * image))completion{
+    [[[NSURLSession sharedSession] dataTaskWithURL:url completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completion([UIImage imageWithData:data]);
+        });
+        }] resume];
+}
 
 -(void) setUrl: (NSString*) url
        isLocal: (bool) isLocal
