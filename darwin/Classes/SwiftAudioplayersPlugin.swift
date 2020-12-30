@@ -2,27 +2,26 @@ import AVKit
 import AVFoundation
 
 #if os(iOS)
+import Flutter
 import UIKit
 import MediaPlayer
-#endif
-
-#if os(iOS)
-import Flutter
 #else
 import FlutterMacOS
 #endif
 
 #if os(iOS)
-let osName = "iOS"
+let OS_NAME = "iOS"
+let ENABLE_NOTIFICATIONS_HANDLER = true
 #else
-let osName = "macOS"
+let OS_NAME = "macOS"
+let ENABLE_NOTIFICATIONS_HANDLER = false
 #endif
 
 let CHANNEL_NAME = "xyz.luan/audioplayers"
 let AudioplayersPluginStop = NSNotification.Name("AudioplayersPluginStop")
 
 public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
-    
+
     var registrar: FlutterPluginRegistrar
     var channel: FlutterMethodChannel
     var notificationsHandler: NotificationsHandler? = nil
@@ -34,36 +33,18 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
 
     var timeObservers = [TimeObserver]()
     var keyValueObservations = [String : NSKeyValueObservation]()
-    
-        
+
     var isDealloc = false
-    var updateHandleMonitorKey: Int64? = nil
-    
-    #if os(iOS)
-    var headlessEngine: FlutterEngine
-    var callbackChannel: FlutterMethodChannel
-    var headlessServiceInitialized = false
-    #endif
     
     init(registrar: FlutterPluginRegistrar, channel: FlutterMethodChannel) {
         self.registrar = registrar
         self.channel = channel
         
-        #if os(iOS)
-        // this method is used to listen to audio playpause event
-        // from the notification area in the background.
-        self.headlessEngine = FlutterEngine.init(name: "AudioPlayerIsolate")
-        // This is the method channel used to communicate with
-        // `_backgroundCallbackDispatcher` defined in the Dart portion of our plugin.
-        // Note: we don't add a MethodCallDelegate for this channel now since our
-        // BinaryMessenger needs to be initialized first, which is done in
-        // `startHeadlessService` below.
-        self.callbackChannel = FlutterMethodChannel(name: "xyz.luan/audioplayers_callback", binaryMessenger: headlessEngine.binaryMessenger)
-        #endif
-        
         super.init()
         NotificationCenter.default.addObserver(self, selector: #selector(self.needStop), name: AudioplayersPluginStop, object: nil)
-        notificationsHandler = NotificationsHandler(reference: self)
+        if ENABLE_NOTIFICATIONS_HANDLER {
+            notificationsHandler = NotificationsHandler(reference: self)
+        }
     }
     
     public static func register(with registrar: FlutterPluginRegistrar) {
@@ -96,37 +77,6 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         self.players = [:]
     }
     
-    #if os(iOS)
-    // Initializes and starts the background isolate which will process audio
-    // events. `handle` is the handle to the callback dispatcher which we specified
-    // in the Dart portion of the plugin.
-    func startHeadlessService(handle: Int64) {
-        // Lookup the information for our callback dispatcher from the callback cache.
-        // This cache is populated when `PluginUtilities.getCallbackHandle` is called
-        // and the resulting handle maps to a `FlutterCallbackInformation` object.
-        // This object contains information needed by the engine to start a headless
-        // runner, which includes the callback name as well as the path to the file
-        // containing the callback.
-        let info = FlutterCallbackCache.lookupCallbackInformation(handle)
-        assert(info != nil, "failed to find callback")
-        if info != nil {
-            let entrypoint = info!.callbackName
-            let uri = info!.callbackLibraryPath
-            
-            // Here we actually launch the background isolate to start executing our
-            // callback dispatcher, `_backgroundCallbackDispatcher`, in Dart.
-            self.headlessServiceInitialized = headlessEngine.run(withEntrypoint: entrypoint, libraryURI: uri)
-            if self.headlessServiceInitialized {
-                // The headless runner needs to be initialized before we can register it as a
-                // MethodCallDelegate or else we get an illegal memory access. If we don't
-                // want to make calls from `_backgroundCallDispatcher` back to native code,
-                // we don't need to add a MethodCallDelegate for this channel.
-                self.registrar.addMethodCallDelegate(self, channel: self.callbackChannel)
-            }
-        }
-    }
-    #endif
-    
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         let method = call.method
         
@@ -140,34 +90,34 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
             result(0)
             return
         }
-        log("%@ => call %@, playerId %@", osName, method, playerId)
+        log("%@ => call %@, playerId %@", OS_NAME, method, playerId)
         
         let player = self.getOrCreatePlayer(playerId: playerId)
 
         if method == "startHeadlessService" {
-            #if os(iOS)
+            guard let handler = notificationsHandler else {
+                result(FlutterMethodNotImplemented)
+                return
+            }
             if let handleKey = args["handleKey"] {
                 log("calling start headless service %@", handleKey)
                 let handle = (handleKey as! [Any])[0]
-                self.startHeadlessService(handle: (handle as! Int64))
+                handler.startHeadlessService(handle: (handle as! Int64))
             } else {
                 result(0)
             }
-            #else
-            result(FlutterMethodNotImplemented)
-            #endif
         } else if method == "monitorNotificationStateChanges" {
-            #if os(iOS)
+            guard let handler = notificationsHandler else {
+                result(FlutterMethodNotImplemented)
+                return
+            }
             if let handleMonitorKey = args["handleMonitorKey"] {
                 log("calling monitor notification %@", handleMonitorKey)
                 let handle = (handleMonitorKey as! [Any])[0]
-                self.updateHandleMonitorKey = (handle as! Int64)
+                handler.updateHandleMonitorKey(handle: handle as! Int64)
             } else {
                 result(0)
             }
-            #else
-            result(FlutterMethodNotImplemented)
-            #endif
         } else if method == "play" {
             guard let url = args["url"] as! String? else {
                 log("Null url received on play")
@@ -344,17 +294,6 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
     
     func onDuration(playerId: String, millis: Int) {
         channel.invokeMethod("audio.onDuration", arguments: ["playerId": playerId, "value": millis])
-    }
-    
-    func onNotificationBackgroundPlayerStateChanged(playerId: String, value: String) {
-        #if os(iOS)
-        if headlessServiceInitialized {
-            callbackChannel.invokeMethod(
-                "audio.onNotificationBackgroundPlayerStateChanged",
-                arguments: ["playerId": playerId, "updateHandleMonitorKey": updateHandleMonitorKey as Any, "value": value]
-            )
-        }
-        #endif
     }
     
     func onNotificationPlayerStateChanged(playerId: String, isPlaying: Bool) {

@@ -181,7 +181,7 @@ class WrappedMediaPlayer {
 
         reference.maybeDeactivateAudioSession()
         reference.onComplete(playerId: playerId)
-        reference.onNotificationBackgroundPlayerStateChanged(playerId: playerId, value: "completed")
+        reference.notificationsHandler?.onNotificationBackgroundPlayerStateChanged(playerId: playerId, value: "completed")
     }
     
     func onTimeInterval(time: CMTime) {
@@ -196,7 +196,6 @@ class WrappedMediaPlayer {
         guard let duration = player?.currentItem?.asset.duration else {
             return
         }
-        log("%@ -> updateDuration...%f", osName, CMTimeGetSeconds(duration))
         if CMTimeGetSeconds(duration) > 0 {
             let millis = fromCMTime(time: duration)
             reference.onDuration(playerId: playerId, millis: millis)

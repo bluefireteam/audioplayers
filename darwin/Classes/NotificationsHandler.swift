@@ -10,6 +10,11 @@ class NotificationsHandler {
     private var remoteCommandCenter: MPRemoteCommandCenter? = nil
     #endif
 
+    private var headlessServiceInitialized = false
+    private var headlessEngine: FlutterEngine?
+    private var callbackChannel: FlutterMethodChannel?
+    private var updateHandleMonitorKey: Int64? = nil
+
     private var title: String? = nil
     private var albumTitle: String? = nil
     private var artist: String? = nil
@@ -18,6 +23,69 @@ class NotificationsHandler {
     
     init(reference: SwiftAudioplayersPlugin) {
         self.reference = reference
+        self.initHeadlessService()
+    }
+
+    func initHeadlessService() {
+        #if os(iOS)
+        // this method is used to listen to audio playpause event
+        // from the notification area in the background.
+        let headlessEngine = FlutterEngine.init(name: "AudioPlayerIsolate")
+        // This is the method channel used to communicate with
+        // `_backgroundCallbackDispatcher` defined in the Dart portion of our plugin.
+        // Note: we don't add a MethodCallDelegate for this channel now since our
+        // BinaryMessenger needs to be initialized first, which is done in
+        // `startHeadlessService` below.
+        self.headlessEngine = headlessEngine
+        self.callbackChannel = FlutterMethodChannel(name: "xyz.luan/audioplayers_callback", binaryMessenger: headlessEngine.binaryMessenger)
+        #endif
+    }
+
+    // Initializes and starts the background isolate which will process audio
+    // events. `handle` is the handle to the callback dispatcher which we specified
+    // in the Dart portion of the plugin.
+    func startHeadlessService(handle: Int64) {
+        guard let headlessEngine = self.headlessEngine else { return }
+        guard let callbackChannel = self.callbackChannel else { return }
+
+        #if os(iOS)
+        // Lookup the information for our callback dispatcher from the callback cache.
+        // This cache is populated when `PluginUtilities.getCallbackHandle` is called
+        // and the resulting handle maps to a `FlutterCallbackInformation` object.
+        // This object contains information needed by the engine to start a headless
+        // runner, which includes the callback name as well as the path to the file
+        // containing the callback.
+        let info = FlutterCallbackCache.lookupCallbackInformation(handle)!
+        let entrypoint = info.callbackName
+        let uri = info.callbackLibraryPath
+
+        // Here we actually launch the background isolate to start executing our
+        // callback dispatcher, `_backgroundCallbackDispatcher`, in Dart.
+        self.headlessServiceInitialized = headlessEngine.run(withEntrypoint: entrypoint, libraryURI: uri)
+        if self.headlessServiceInitialized {
+            // The headless runner needs to be initialized before we can register it as a
+            // MethodCallDelegate or else we get an illegal memory access. If we don't
+            // want to make calls from `_backgroundCallDispatcher` back to native code,
+            // we don't need to add a MethodCallDelegate for this channel.
+            self.reference.registrar.addMethodCallDelegate(reference, channel: callbackChannel)
+        }
+        #endif
+    }
+
+    func updateHandleMonitorKey(handle: Int64) {
+        self.updateHandleMonitorKey = handle
+    }
+
+    func onNotificationBackgroundPlayerStateChanged(playerId: String, value: String) {
+        if headlessServiceInitialized {
+            guard let callbackChannel = self.callbackChannel else { return }
+            guard let updateHandleMonitorKey = self.updateHandleMonitorKey else { return }
+
+            callbackChannel.invokeMethod(
+                "audio.onNotificationBackgroundPlayerStateChanged",
+                arguments: ["playerId": playerId, "updateHandleMonitorKey": updateHandleMonitorKey as Any, "value": value]
+            )
+        }
     }
     
     func update(playerId: String, time: CMTime, playbackRate: Float) {
@@ -244,7 +312,7 @@ class NotificationsHandler {
         }
         
         reference.onNotificationPlayerStateChanged(playerId: player.playerId, isPlaying: player.isPlaying)
-        reference.onNotificationBackgroundPlayerStateChanged(playerId: player.playerId, value: playerState)
+        onNotificationBackgroundPlayerStateChanged(playerId: player.playerId, value: playerState)
         
         return MPRemoteCommandHandlerStatus.success
         
