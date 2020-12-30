@@ -1,6 +1,8 @@
 # Changelog
 
 ## [next]
+* Extracted and refactored all the notifications code onto the new file
+* Add more checks and make sure notifcations code is not ran when it shouldn't
 
 ## 0.17.0
 - Swift conversion of the darwin code
