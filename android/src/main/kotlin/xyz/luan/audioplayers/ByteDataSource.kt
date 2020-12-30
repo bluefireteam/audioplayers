@@ -8,15 +8,12 @@ class ByteDataSource(
         private val data: ByteArray,
 ) : MediaDataSource() {
     @Synchronized
-    @Throws(IOException::class)
     override fun getSize(): Long {
         return data.size.toLong()
     }
 
     @Synchronized
-    @Throws(IOException::class)
-    override fun close() {
-    }
+    override fun close() = Unit
 
     @Synchronized
     override fun readAt(position: Long, buffer: ByteArray, offset: Int, size: Int): Int {

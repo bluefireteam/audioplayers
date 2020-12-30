@@ -7,9 +7,12 @@ import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterPluginBinding
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
+import java.lang.IllegalArgumentException
 import java.lang.ref.WeakReference
 import java.util.logging.Level
 import java.util.logging.Logger
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 
 class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
     private lateinit var channel: MethodChannel
@@ -45,76 +48,75 @@ class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
         when (call.method) {
             "play" -> {
                 val url = call.argument<String>("url")
-                val isLocal = call.argument<Boolean>("isLocal")!!
+                val isLocal = call.argument<Boolean>("isLocal") ?: false
 
-                val volume = call.argument<Double>("volume")!!
+                val volume = call.argument<Double>("volume") ?: 1.0
                 val position = call.argument<Int>("position")
 
                 val respectSilence = call.argument<Boolean>("respectSilence") ?: false
                 val stayAwake = call.argument<Boolean>("stayAwake") ?: false
                 val duckAudio = call.argument<Boolean>("duckAudio") ?: false
 
-                player.configAttributes(respectSilence, stayAwake, duckAudio, context.applicationContext)
+                player.configAttributes(respectSilence, stayAwake, duckAudio)
                 player.setVolume(volume)
-                player.setUrl(url, isLocal, context.applicationContext)
+                player.setUrl(url, isLocal)
                 if (position != null && mode != "PlayerMode.LOW_LATENCY") {
                     player.seek(position)
                 }
-                player.play(context.applicationContext)
+                player.play()
             }
             "playBytes" -> {
-                val bytes = call.argument<ByteArray>("bytes")!!
-                val volume = call.argument<Double>("volume")!!
+                val bytes = call.argument<ByteArray>("bytes") ?: throw error("bytes are required")
+                val volume = call.argument<Double>("volume") ?: 1.0
                 val position = call.argument<Int>("position")
-                val respectSilence = call.argument<Boolean>("respectSilence")!!
-                val stayAwake = call.argument<Boolean>("stayAwake")!!
-                val duckAudio = call.argument<Boolean>("duckAudio")!!
-                player.configAttributes(respectSilence, stayAwake, duckAudio, context.applicationContext)
+                val respectSilence = call.argument<Boolean>("respectSilence") ?: false
+                val stayAwake = call.argument<Boolean>("stayAwake") ?: false
+                val duckAudio = call.argument<Boolean>("duckAudio") ?: false
+                player.configAttributes(respectSilence, stayAwake, duckAudio)
                 player.setVolume(volume)
-                player.setDataSource(ByteDataSource(bytes), context.applicationContext)
+                player.setDataSource(ByteDataSource(bytes))
                 if (position != null && mode != "PlayerMode.LOW_LATENCY") {
                     player.seek(position)
                 }
-                player.play(context.applicationContext)
+                player.play()
             }
-            "resume" -> player.play(context.applicationContext)
+            "resume" -> player.play()
             "pause" -> player.pause()
             "stop" -> player.stop()
             "release" -> player.release()
             "seek" -> {
-                val position = call.argument<Int>("position")
-                player.seek(position!!)
+                val position = call.argument<Int>("position") ?: throw error("position is required")
+                player.seek(position)
             }
             "setVolume" -> {
-                val volume = call.argument<Double>("volume")!!
+                val volume = call.argument<Double>("volume") ?: throw error("volume is required")
                 player.setVolume(volume)
             }
             "setUrl" -> {
                 val url = call.argument<String>("url")
-                val isLocal = call.argument<Boolean>("isLocal")!!
-                player.setUrl(url, isLocal, context.applicationContext)
+                val isLocal = call.argument<Boolean>("isLocal") ?: false
+                player.setUrl(url, isLocal)
             }
             "setPlaybackRate" -> {
-                val rate = call.argument<Double>("playbackRate")!!
-                response.success(player.setRate(rate))
-                return
+                val rate = call.argument<Double>("playbackRate") ?: throw error("playbackRate is required")
+                player.setRate(rate)
             }
             "getDuration" -> {
-                response.success(player.duration)
+                response.success(player.getDuration() ?: 0)
                 return
             }
             "getCurrentPosition" -> {
-                response.success(player.currentPosition)
+                response.success(player.getCurrentPosition() ?: 0)
                 return
             }
             "setReleaseMode" -> {
-                val releaseModeName = call.argument<String>("releaseMode")
-                val releaseMode = ReleaseMode.valueOf(releaseModeName!!.substring("ReleaseMode.".length))
+                val releaseModeName = call.argument<String>("releaseMode") ?: throw error("releaseMode is required")
+                val releaseMode = ReleaseMode.valueOf(releaseModeName.substring("ReleaseMode.".length))
                 player.setReleaseMode(releaseMode)
             }
             "earpieceOrSpeakersToggle" -> {
-                val playingRoute = call.argument<String>("playingRoute")!!
-                player.setPlayingRoute(playingRoute, context.applicationContext)
+                val playingRoute = call.argument<String>("playingRoute") ?: throw error("playingRoute is required")
+                player.setPlayingRoute(playingRoute)
             }
             else -> {
                 response.notImplemented()
@@ -134,12 +136,16 @@ class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
         }
     }
 
+    fun getApplicationContext(): Context {
+        return context.applicationContext
+    }
+
     fun handleIsPlaying() {
         startPositionUpdates()
     }
 
     fun handleDuration(player: Player) {
-        channel.invokeMethod("audio.onDuration", buildArguments(player.playerId, player.duration))
+        channel.invokeMethod("audio.onDuration", buildArguments(player.playerId, player.getDuration() ?: 0))
     }
 
     fun handleCompletion(player: Player) {
@@ -158,8 +164,9 @@ class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
         if (positionUpdates != null) {
             return
         }
-        positionUpdates = UpdateCallback(mediaPlayers, channel, handler, this)
-        handler.post(positionUpdates)
+        positionUpdates = UpdateCallback(mediaPlayers, channel, handler, this).also {
+            handler.post(it)
+        }
     }
 
     private fun stopPositionUpdates() {
@@ -189,16 +196,16 @@ class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
             }
             var nonePlaying = true
             for (player in mediaPlayers.values) {
-                if (!player.isActuallyPlaying) {
+                if (!player.isActuallyPlaying()) {
                     continue
                 }
                 try {
                     nonePlaying = false
                     val key = player.playerId
-                    val duration = player.duration
-                    val time = player.currentPosition
-                    channel.invokeMethod("audio.onDuration", buildArguments(key, duration))
-                    channel.invokeMethod("audio.onCurrentPosition", buildArguments(key, time))
+                    val duration = player.getDuration()
+                    val time = player.getCurrentPosition()
+                    channel.invokeMethod("audio.onDuration", buildArguments(key, duration ?: 0))
+                    channel.invokeMethod("audio.onCurrentPosition", buildArguments(key, time ?: 0))
                     if (audioplayersPlugin.seekFinish) {
                         channel.invokeMethod("audio.onSeekComplete", buildArguments(player.playerId, true))
                         audioplayersPlugin.seekFinish = false
@@ -216,13 +223,17 @@ class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
     }
 
     companion object {
-        private val LOGGER = Logger.getLogger(AudioplayersPlugin::class.java.canonicalName)
+        private val LOGGER = Logger.getLogger(AudioplayersPlugin::class.qualifiedName!!)
 
         private fun buildArguments(playerId: String, value: Any): Map<String, Any> {
             return mapOf(
                     "playerId" to playerId,
                     "value" to value,
             )
+        }
+
+        private fun error(message: String): Exception {
+            return IllegalArgumentException(message)
         }
     }
 }
