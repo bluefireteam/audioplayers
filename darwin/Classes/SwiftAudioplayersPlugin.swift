@@ -21,19 +21,19 @@ let CHANNEL_NAME = "xyz.luan/audioplayers"
 let AudioplayersPluginStop = NSNotification.Name("AudioplayersPluginStop")
 
 public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
-
+    
     var registrar: FlutterPluginRegistrar
     var channel: FlutterMethodChannel
     var notificationsHandler: NotificationsHandler? = nil
-
+    
     var players = [String : WrappedMediaPlayer]()
     // last player that started playing, to be used for notifications command center
     // TODO(luan): provide generic way to control this
     var lastPlayerId: String? = nil
-
+    
     var timeObservers = [TimeObserver]()
     var keyValueObservations = [String : NSKeyValueObservation]()
-
+    
     var isDealloc = false
     
     init(registrar: FlutterPluginRegistrar, channel: FlutterMethodChannel) {
@@ -54,7 +54,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         #else
         let binaryMessenger = registrar.messenger
         #endif
-
+        
         let channel = FlutterMethodChannel(name: CHANNEL_NAME, binaryMessenger: binaryMessenger)
         let instance = SwiftAudioplayersPlugin(registrar: registrar, channel: channel)
         registrar.addMethodCallDelegate(instance, channel: channel)
@@ -93,7 +93,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         log("%@ => call %@, playerId %@", OS_NAME, method, playerId)
         
         let player = self.getOrCreatePlayer(playerId: playerId)
-
+        
         if method == "startHeadlessService" {
             guard let handler = notificationsHandler else {
                 result(FlutterMethodNotImplemented)
@@ -127,11 +127,11 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
             
             let isLocal: Bool = (args["isLocal"] as? Bool) ?? true
             let volume: Float = (args["volume"] as? Float) ?? 1.0
-
+            
             // we might or might not want to seek
             let seekTimeMillis: Int? = (args["position"] as? Int)
             let seekTime: CMTime? = seekTimeMillis.map { toCMTime(millis: $0) }
-
+            
             let respectSilence: Bool = (args["respectSilence"] as? Bool) ?? false
             let recordingActive: Bool = (args["recordingActive"] as? Bool) ?? false
             let duckAudio: Bool = (args["duckAudio"] as? Bool) ?? false
@@ -173,7 +173,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
                 result(0)
                 return
             }
-
+            
             player.setUrl(
                 url: url!,
                 isLocal: isLocal,
@@ -192,7 +192,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
                 result(0)
                 return
             }
-
+            
             player.setVolume(volume: volume)
         } else if method == "getCurrentPosition" {
             let currentPosition = player.getCurrentPosition()
@@ -233,7 +233,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
             
             let enablePreviousTrackButton: Bool? = args["enablePreviousTrackButton"] as? Bool
             let enableNextTrackButton: Bool? = args["enableNextTrackButton"] as? Bool
-
+            
             guard let handler = notificationsHandler else {
                 result(FlutterMethodNotImplemented)
                 return
@@ -257,7 +257,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
             result(FlutterMethodNotImplemented)
             return
         }
-
+        
         // shortcut to avoid requiring explicit call of result(1) everywhere
         if method != "setUrl" {
             result(1)

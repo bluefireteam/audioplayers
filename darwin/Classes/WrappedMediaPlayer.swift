@@ -134,14 +134,14 @@ class WrappedMediaPlayer {
             return
         }
         guard let maxDuration = getDurationCMTime() else {
-           log("Cannot skip forward, unable to determine maxDuration")
+            log("Cannot skip forward, unable to determine maxDuration")
             return
-       }
-       let newTime = CMTimeAdd(currentTime, toCMTime(millis: interval))
+        }
+        let newTime = CMTimeAdd(currentTime, toCMTime(millis: interval))
         
-       // if CMTime is more than max duration, limit it
-       let clampedTime = CMTimeGetSeconds(newTime) > CMTimeGetSeconds(maxDuration) ? maxDuration : newTime
-       seek(time: clampedTime)
+        // if CMTime is more than max duration, limit it
+        let clampedTime = CMTimeGetSeconds(newTime) > CMTimeGetSeconds(maxDuration) ? maxDuration : newTime
+        seek(time: clampedTime)
     }
     
     func skipBackward(interval: TimeInterval) {
@@ -178,7 +178,7 @@ class WrappedMediaPlayer {
             seek(time: toCMTime(millis: 0))
             resume()
         }
-
+        
         reference.maybeDeactivateAudioSession()
         reference.onComplete(playerId: playerId)
         reference.notificationsHandler?.onNotificationBackgroundPlayerStateChanged(playerId: playerId, value: "completed")
@@ -191,7 +191,7 @@ class WrappedMediaPlayer {
         let millis = fromCMTime(time: time)
         reference.onCurrentPosition(playerId: playerId, millis: millis)
     }
-
+    
     func updateDuration() {
         guard let duration = player?.currentItem?.asset.duration else {
             return
