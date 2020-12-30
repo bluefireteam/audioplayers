@@ -216,7 +216,7 @@ class WrappedMediaPlayer {
         if self.url != url || playbackStatus == .failed || playbackStatus == nil {
             let parsedUrl = isLocal ? URL.init(fileURLWithPath: url) : URL.init(string: url)!
             let playerItem = AVPlayerItem.init(url: parsedUrl)
-            
+            playerItem.audioTimePitchAlgorithm = AVAudioTimePitchAlgorithm.timeDomain
             let player: AVPlayer
             if let existingPlayer = self.player {
                 reference.keyValueObservations[playerId]?.invalidate()
