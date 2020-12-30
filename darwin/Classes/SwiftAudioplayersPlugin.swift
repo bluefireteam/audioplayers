@@ -134,7 +134,6 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
             
             let respectSilence: Bool = (args["respectSilence"] as? Bool) ?? false
             let recordingActive: Bool = (args["recordingActive"] as? Bool) ?? false
-            let duckAudio: Bool = (args["duckAudio"] as? Bool) ?? false
             
             player.play(
                 url: url,
@@ -142,7 +141,6 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
                 volume: volume,
                 time: seekTime,
                 isNotification: respectSilence,
-                duckAudio: duckAudio,
                 recordingActive: recordingActive
             )
         } else if method == "pause" {
@@ -313,32 +311,19 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         isNotification: Bool,
         playingRoute: String
     ) {
-        // TODO(luan) this method is a mess. figure out what is needed here and refactor
-        #if os(iOS)
-        let category = recordingActive ? AVAudioSession.Category.playAndRecord : (
+        // When using AVAudioSessionCategoryPlayback, by default, this implies that your app’s audio is nonmixable—activating your session
+        // will interrupt any other audio sessions which are also nonmixable. AVAudioSessionCategoryPlayback should not be used with
+        // AVAudioSessionCategoryOptionMixWithOthers option. If so, it prevents infoCenter from working correctly.
+        let category = (playingRoute == "earpiece" || recordingActive) ? AVAudioSession.Category.playAndRecord : (
             isNotification ? AVAudioSession.Category.ambient : AVAudioSession.Category.playback
         )
+        let options = isNotification ? AVAudioSession.CategoryOptions.mixWithOthers : []
         
-        do {
-            let session = AVAudioSession.sharedInstance()
-            // When using AVAudioSessionCategoryPlayback, by default, this implies that your app’s audio is nonmixable—activating your session
-            // will interrupt any other audio sessions which are also nonmixable. AVAudioSessionCategoryPlayback should not be used with
-            // AVAudioSessionCategoryOptionMixWithOthers option. If so, it prevents infoCenter from working correctly.
-            if isNotification {
-                try session.setCategory(category, options: AVAudioSession.CategoryOptions.mixWithOthers)
-            } else {
-                try session.setCategory(category)
-                UIApplication.shared.beginReceivingRemoteControlEvents()
-            }
-            
-            if playingRoute == "earpiece" {
-                // Use earpiece speaker to play audio.
-                try session.setCategory(AVAudioSession.Category.playAndRecord)
-            }
-            
-            try session.setActive(true)
-        } catch {
-            log("Error setting category %@", error)
+        configureAudioSession(category: category, options: options)
+        
+        #if os(iOS)
+        if isNotification {
+            UIApplication.shared.beginReceivingRemoteControlEvents()
         }
         #endif
     }
@@ -346,18 +331,8 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
     func maybeDeactivateAudioSession() {
         let hasPlaying = players.values.contains { player in player.isPlaying }
         if !hasPlaying {
-            setAudioSessionActive(active: false)
+            configureAudioSession(active: true)
         }
-    }
-    
-    func setAudioSessionActive(active: Bool) {
-        #if os(iOS)
-        do {
-            try AVAudioSession.sharedInstance().setActive(active)
-        } catch {
-            log("Error inactivating audio session %@", error)
-        }
-        #endif
     }
     
     func lastPlayer() -> WrappedMediaPlayer? {
@@ -367,7 +342,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
             return nil
         }
     }
-    
+
     func updateNotifications(player: WrappedMediaPlayer, time: CMTime) {
         notificationsHandler?.update(playerId: player.playerId, time: time, playbackRate: player.playbackRate)
     }
@@ -377,12 +352,26 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         let wrappedPlayer = players[playerId]!
         wrappedPlayer.playingRoute = playingRoute
         
-        #if os(iOS)
         let category = playingRoute == "earpiece" ? AVAudioSession.Category.playAndRecord : AVAudioSession.Category.playback
+        configureAudioSession(category: category)
+    }
+    
+    private func configureAudioSession(
+        category: AVAudioSession.Category? = nil,
+        options: AVAudioSession.CategoryOptions = [],
+        active: Bool? = nil
+    ) {
+        #if os(iOS)
         do {
-            try AVAudioSession.sharedInstance().setCategory(category)
+            let session = AVAudioSession.sharedInstance()
+            if let category = category {
+                try session.setCategory(category, options: options)
+            }
+            if let active = active {
+                try session.setActive(active)
+            }
         } catch {
-            log("Error setting category %@", error)
+            log("Error configuring audio session: %@", error)
         }
         #endif
     }

@@ -285,7 +285,6 @@ class WrappedMediaPlayer {
         volume: Float,
         time: CMTime?,
         isNotification: Bool,
-        duckAudio: Bool,
         recordingActive: Bool
     ) {
         reference.updateCategory(recordingActive: recordingActive, isNotification: isNotification, playingRoute: playingRoute)
