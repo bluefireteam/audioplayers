@@ -2,9 +2,9 @@ This file describes some common pitfalls and how to solve them. Please always re
 
 ## Both platforms
 
- ### Asset not available/not found when playing local files
+### Asset not available/not found when playing local files
  
- Flutter requires that files are specified on your pubspec.yaml file, under flutter > assets, check [this](https://github.com/luanpotter/bgug/blob/master/pubspec.yaml#L89) for an example. Also keep in mind that `AudioCache` class will look for files under the `assets` folder and this class must be used to play local files.
+Flutter requires that files are specified on your pubspec.yaml file, under flutter > assets, check [this](https://github.com/luanpotter/bgug/blob/master/pubspec.yaml#L89) for an example. Also keep in mind that `AudioCache` class will look for files under the `assets` folder and this class must be used to play local files.
  
 ### How to pause/stop audio?
 
@@ -15,6 +15,8 @@ If you are using the `AudioCache` class, though, it does not have a pause method
 ## Android
 
  - Can't play remote files on Android 9: Android 9 has changed some network security defaults, so it may prevent you from play files outside https by default, [this stackoverflow question](https://stackoverflow.com/questions/45940861/android-8-cleartext-http-traffic-not-permitted) is a good source to solving this.
+
+ - Some old Samsung devices have a bug that prevents certain types of audio from being played, [see more here](https://stackoverflow.com/questions/16238218/android-media-player-streaming-issue-on-samsung-devices).
 
 ## iOs
 
@@ -28,6 +30,8 @@ If you are using the `AudioCache` class, though, it does not have a pause method
   	<string>audio</string>
   </array>
 ```
+
+Or on XCode you can add it as a capability; more details [here](https://developer.apple.com/documentation/avfoundation/media_assets_playback_and_editing/creating_a_basic_video_player_ios_and_tvos/enabling_background_audio).
 
  - Can't play stream audio: One of the know reasons for streams not playing on iOs, may be because the stream is been gziped by the server, as reported [here](https://github.com/luanpotter/audioplayers/issues/183).
 
