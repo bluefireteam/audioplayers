@@ -9,12 +9,12 @@ class NotificationsHandler {
     private var infoCenter: MPNowPlayingInfoCenter? = nil
     private var remoteCommandCenter: MPRemoteCommandCenter? = nil
     #endif
-
+    
     private var headlessServiceInitialized = false
     private var headlessEngine: FlutterEngine?
     private var callbackChannel: FlutterMethodChannel?
     private var updateHandleMonitorKey: Int64? = nil
-
+    
     private var title: String? = nil
     private var albumTitle: String? = nil
     private var artist: String? = nil
@@ -25,7 +25,7 @@ class NotificationsHandler {
         self.reference = reference
         self.initHeadlessService()
     }
-
+    
     func initHeadlessService() {
         #if os(iOS)
         // this method is used to listen to audio playpause event
@@ -40,14 +40,14 @@ class NotificationsHandler {
         self.callbackChannel = FlutterMethodChannel(name: "xyz.luan/audioplayers_callback", binaryMessenger: headlessEngine.binaryMessenger)
         #endif
     }
-
+    
     // Initializes and starts the background isolate which will process audio
     // events. `handle` is the handle to the callback dispatcher which we specified
     // in the Dart portion of the plugin.
     func startHeadlessService(handle: Int64) {
         guard let headlessEngine = self.headlessEngine else { return }
         guard let callbackChannel = self.callbackChannel else { return }
-
+        
         #if os(iOS)
         // Lookup the information for our callback dispatcher from the callback cache.
         // This cache is populated when `PluginUtilities.getCallbackHandle` is called
@@ -58,7 +58,7 @@ class NotificationsHandler {
         let info = FlutterCallbackCache.lookupCallbackInformation(handle)!
         let entrypoint = info.callbackName
         let uri = info.callbackLibraryPath
-
+        
         // Here we actually launch the background isolate to start executing our
         // callback dispatcher, `_backgroundCallbackDispatcher`, in Dart.
         self.headlessServiceInitialized = headlessEngine.run(withEntrypoint: entrypoint, libraryURI: uri)
@@ -71,16 +71,16 @@ class NotificationsHandler {
         }
         #endif
     }
-
+    
     func updateHandleMonitorKey(handle: Int64) {
         self.updateHandleMonitorKey = handle
     }
-
+    
     func onNotificationBackgroundPlayerStateChanged(playerId: String, value: String) {
         if headlessServiceInitialized {
             guard let callbackChannel = self.callbackChannel else { return }
             guard let updateHandleMonitorKey = self.updateHandleMonitorKey else { return }
-
+            
             callbackChannel.invokeMethod(
                 "audio.onNotificationBackgroundPlayerStateChanged",
                 arguments: ["playerId": playerId, "updateHandleMonitorKey": updateHandleMonitorKey as Any, "value": value]
@@ -127,7 +127,7 @@ class NotificationsHandler {
         // not implemented for macos
         #endif
     }
-
+    
     #if os(iOS)
     static func geneateImageFromUrl(urlString: String) -> UIImage? {
         if urlString.hasPrefix("http") {
@@ -165,7 +165,7 @@ class NotificationsHandler {
         ]
         
         log("Updating playing info...")
-
+        
         // fetch notification image in async fashion to avoid freezing UI
         DispatchQueue.global().async() { [weak self] in
             if let imageUrl = self?.imageUrl {
@@ -176,7 +176,7 @@ class NotificationsHandler {
                     playingInfo[MPMediaItemPropertyArtwork] = albumArt
                 }
             }
-
+            
             if let infoCenter = self?.infoCenter {
                 let filteredMap = playingInfo.filter { $0.value != nil }.mapValues { $0! }
                 log("Setting playing info: %@", filteredMap)
@@ -203,42 +203,42 @@ class NotificationsHandler {
         self.artist = artist
         self.imageUrl = imageUrl
         self.duration = duration
-
+        
         self.infoCenter = MPNowPlayingInfoCenter.default()
         reference.lastPlayerId = playerId
         reference.updateNotifications(player: reference.lastPlayer()!, time: toCMTime(millis: elapsedTime))
-
+        
         if (remoteCommandCenter == nil) {
             remoteCommandCenter = MPRemoteCommandCenter.shared()
-
-          if (forwardSkipInterval > 0 || backwardSkipInterval > 0) {
-            let skipBackwardIntervalCommand = remoteCommandCenter!.skipBackwardCommand
-            skipBackwardIntervalCommand.isEnabled = true
-            skipBackwardIntervalCommand.addTarget(handler: self.skipBackwardEvent)
-            skipBackwardIntervalCommand.preferredIntervals = [backwardSkipInterval as NSNumber]
-
-            let skipForwardIntervalCommand = remoteCommandCenter!.skipForwardCommand
-            skipForwardIntervalCommand.isEnabled = true
-            skipForwardIntervalCommand.addTarget(handler: self.skipForwardEvent)
-            skipForwardIntervalCommand.preferredIntervals = [forwardSkipInterval as NSNumber] // Max 99
-          } else {  // if skip interval not set using next and previous
-            let nextTrackCommand = remoteCommandCenter!.nextTrackCommand
-            nextTrackCommand.isEnabled = enableNextTrackButton ?? false
-            nextTrackCommand.addTarget(handler: self.nextTrackEvent)
             
-            let previousTrackCommand = remoteCommandCenter!.previousTrackCommand
-            previousTrackCommand.isEnabled = enablePreviousTrackButton ?? false
-            previousTrackCommand.addTarget(handler: self.previousTrackEvent)
-          }
-
+            if (forwardSkipInterval > 0 || backwardSkipInterval > 0) {
+                let skipBackwardIntervalCommand = remoteCommandCenter!.skipBackwardCommand
+                skipBackwardIntervalCommand.isEnabled = true
+                skipBackwardIntervalCommand.addTarget(handler: self.skipBackwardEvent)
+                skipBackwardIntervalCommand.preferredIntervals = [backwardSkipInterval as NSNumber]
+                
+                let skipForwardIntervalCommand = remoteCommandCenter!.skipForwardCommand
+                skipForwardIntervalCommand.isEnabled = true
+                skipForwardIntervalCommand.addTarget(handler: self.skipForwardEvent)
+                skipForwardIntervalCommand.preferredIntervals = [forwardSkipInterval as NSNumber] // Max 99
+            } else {  // if skip interval not set using next and previous
+                let nextTrackCommand = remoteCommandCenter!.nextTrackCommand
+                nextTrackCommand.isEnabled = enableNextTrackButton ?? false
+                nextTrackCommand.addTarget(handler: self.nextTrackEvent)
+                
+                let previousTrackCommand = remoteCommandCenter!.previousTrackCommand
+                previousTrackCommand.isEnabled = enablePreviousTrackButton ?? false
+                previousTrackCommand.addTarget(handler: self.previousTrackEvent)
+            }
+            
             let pauseCommand = remoteCommandCenter!.pauseCommand
             pauseCommand.isEnabled = true
             pauseCommand.addTarget(handler: self.playOrPauseEvent)
-
+            
             let playCommand = remoteCommandCenter!.playCommand
             playCommand.isEnabled = true
             playCommand.addTarget(handler: self.playOrPauseEvent)
-
+            
             let togglePlayPauseCommand = remoteCommandCenter!.togglePlayPauseCommand
             togglePlayPauseCommand.isEnabled = true
             togglePlayPauseCommand.addTarget(handler: self.playOrPauseEvent)

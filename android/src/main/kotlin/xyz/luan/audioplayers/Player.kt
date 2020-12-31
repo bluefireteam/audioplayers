@@ -5,22 +5,23 @@ import android.media.MediaDataSource
 
 abstract class Player {
     abstract val playerId: String
-    abstract val duration: Int
-    abstract val currentPosition: Int
-    abstract val isActuallyPlaying: Boolean
 
-    abstract fun play(context: Context)
+    abstract fun getDuration(): Int?
+    abstract fun getCurrentPosition(): Int?
+    abstract fun isActuallyPlaying(): Boolean
+
+    abstract fun play()
     abstract fun stop()
     abstract fun release()
     abstract fun pause()
 
-    abstract fun configAttributes(respectSilence: Boolean, stayAwake: Boolean, duckAudio: Boolean, context: Context)
-    abstract fun setUrl(url: String?, isLocal: Boolean, context: Context)
-    abstract fun setDataSource(mediaDataSource: MediaDataSource?, context: Context)
+    abstract fun configAttributes(respectSilence: Boolean, stayAwake: Boolean, duckAudio: Boolean)
+    abstract fun setUrl(url: String?, isLocal: Boolean)
+    abstract fun setDataSource(mediaDataSource: MediaDataSource?)
     abstract fun setVolume(volume: Double)
-    abstract fun setRate(rate: Double): Int
+    abstract fun setRate(rate: Double)
     abstract fun setReleaseMode(releaseMode: ReleaseMode)
-    abstract fun setPlayingRoute(playingRoute: String, context: Context)
+    abstract fun setPlayingRoute(playingRoute: String)
 
     /**
      * Seek operations cannot be called until after the player is ready.

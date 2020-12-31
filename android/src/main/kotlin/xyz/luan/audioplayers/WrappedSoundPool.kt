@@ -1,6 +1,5 @@
 package xyz.luan.audioplayers
 
-import android.content.Context
 import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.MediaDataSource
@@ -18,7 +17,7 @@ class WrappedSoundPool internal constructor(override val playerId: String) : Pla
         /** For the onLoadComplete listener, track which sound id is associated with which player. An entry only exists until
          * it has been loaded.
          */
-        private val soundIdToPlayer = Collections.synchronizedMap(HashMap<Int, WrappedSoundPool>())
+        private val soundIdToPlayer = Collections.synchronizedMap(mapOf<Int, WrappedSoundPool>())
 
         /** This is to keep track of the players which share the same sound id, referenced by url. When a player release()s, it
          * is removed from the associated player list. The last player to be removed actually unloads() the sound id and then
@@ -44,8 +43,8 @@ class WrappedSoundPool internal constructor(override val playerId: String) : Pla
                     soundIdToPlayer.remove(loadingPlayer.soundId)
                     // Now mark all players using this sound as not loading and start them if necessary
                     synchronized(urlToPlayers) {
-                        val urlPlayers: List<WrappedSoundPool>? = urlToPlayers[loadingPlayer.url]
-                        for (player: WrappedSoundPool in urlPlayers!!) {
+                        val urlPlayers = urlToPlayers[loadingPlayer.url] ?: listOf()
+                        for (player in urlPlayers) {
                             Log.d("WSP", "Marking $player as loaded")
                             player.loading = false
                             if (player.playing) {
@@ -69,16 +68,17 @@ class WrappedSoundPool internal constructor(override val playerId: String) : Pla
     private var looping = false
     private var loading = false
 
-    override fun play(context: Context) {
+    override fun play() {
         if (!loading) {
             start()
         }
         playing = true
+        paused = false
     }
 
     override fun stop() {
         if (playing) {
-            soundPool.stop((streamId)!!)
+            streamId?.let { soundPool.stop(it) }
             playing = false
         }
         paused = false
@@ -86,37 +86,39 @@ class WrappedSoundPool internal constructor(override val playerId: String) : Pla
 
     override fun release() {
         stop()
-        if (soundId != null && url != null) {
-            synchronized<Unit>(urlToPlayers) {
-                val playersForSoundId = urlToPlayers[url] ?: return
-                if (playersForSoundId.singleOrNull() === this) {
-                    urlToPlayers.remove(url)
-                    soundPool.unload(soundId!!)
-                    soundIdToPlayer.remove(soundId)
-                    soundId = null
-                    Log.d("WSP", "Unloaded soundId $soundId")
-                } else {
-                    // This is not the last player using the soundId, just remove it from the list.
-                    playersForSoundId.remove(this)
-                }
+        val soundId = this.soundId ?: return
+        val url = this.url ?: return
+
+        synchronized(urlToPlayers) {
+            val playersForSoundId = urlToPlayers[url] ?: return
+            if (playersForSoundId.singleOrNull() === this) {
+                urlToPlayers.remove(url)
+                soundPool.unload(soundId)
+                soundIdToPlayer.remove(soundId)
+                this.soundId = null
+                Log.d("WSP", "Unloaded soundId $soundId")
+            } else {
+                // This is not the last player using the soundId, just remove it from the list.
+                playersForSoundId.remove(this)
             }
+
         }
     }
 
     override fun pause() {
         if (playing) {
-            soundPool.pause((streamId)!!)
-            playing = false
-            paused = true
+            streamId?.let { soundPool.pause(it) }
         }
+        playing = false
+        paused = true
     }
 
-    override fun setDataSource(mediaDataSource: MediaDataSource?, context: Context) {
+    override fun setDataSource(mediaDataSource: MediaDataSource?) {
         throw unsupportedOperation("setDataSource")
     }
 
-    override fun setUrl(url: String?, isLocal: Boolean, context: Context) {
-        if (this.url != null && (this.url == url)) {
+    override fun setUrl(url: String?, isLocal: Boolean) {
+        if (this.url != null && this.url == url) {
             return
         }
         if (soundId != null) {
@@ -124,69 +126,62 @@ class WrappedSoundPool internal constructor(override val playerId: String) : Pla
         }
         synchronized(urlToPlayers) {
             this.url = url
-            var urlPlayers = urlToPlayers[url]
-            if (urlPlayers != null) {
-                // Sound has already been loaded - reuse the soundId.
-                val originalPlayer = urlPlayers.first()
-                soundId = originalPlayer.soundId
-                loading = originalPlayer.loading
-                urlPlayers.add(this)
-                Log.d("WSP", "Reusing soundId$soundId for $url is loading=$loading $this")
-                return
-            }
+            val urlPlayers = urlToPlayers.getOrPut(url) { mutableListOf() }
+            val originalPlayer = urlPlayers.firstOrNull()
 
-            // First one for this URL - load it.
-            loading = true
-            val start = System.currentTimeMillis()
-            soundId = soundPool.load(getAudioPath(url, isLocal), 1)
-            Log.d("WSP", "time to call load() for $url: ${System.currentTimeMillis() - start} player=$this")
-            soundIdToPlayer[soundId] = this
-            urlPlayers = ArrayList()
+            if (originalPlayer != null) {
+                // Sound has already been loaded - reuse the soundId.
+                loading = originalPlayer.loading
+                soundId = originalPlayer.soundId
+                Log.d("WSP", "Reusing soundId $soundId for $url is loading=$loading $this")
+            } else {
+                // First one for this URL - load it.
+                val start = System.currentTimeMillis()
+
+                loading = true
+                soundId = soundPool.load(getAudioPath(url, isLocal), 1)
+                soundIdToPlayer[soundId] = this
+
+                Log.d("WSP", "time to call load() for $url: ${System.currentTimeMillis() - start} player=$this")
+            }
             urlPlayers.add(this)
-            urlToPlayers.put(url, urlPlayers)
         }
     }
 
     override fun setVolume(volume: Double) {
         this.volume = volume.toFloat()
         if (playing) {
-            soundPool.setVolume((streamId)!!, this.volume, this.volume)
+            streamId?.let { soundPool.setVolume(it, this.volume, this.volume) }
         }
     }
 
-    override fun setRate(rate: Double): Int {
+    override fun setRate(rate: Double) {
         this.rate = rate.toFloat()
         if (streamId != null) {
-            soundPool.setRate(streamId!!, this.rate)
-            return 1
+            streamId?.let { soundPool.setRate(it, this.rate) }
         }
-        return 0
     }
 
     override fun configAttributes(
             respectSilence: Boolean,
             stayAwake: Boolean,
             duckAudio: Boolean,
-            context: Context,
-    ) {}
+    ) = Unit
 
     override fun setReleaseMode(releaseMode: ReleaseMode) {
         looping = releaseMode === ReleaseMode.LOOP
         if (playing) {
-            soundPool.setLoop(streamId!!, if (looping) -1 else 0)
+            streamId?.let { soundPool.setLoop(it, loopModeInteger()) }
         }
     }
 
-    override val duration: Int
-        get() = throw unsupportedOperation("getDuration")
+    override fun getDuration() = throw unsupportedOperation("getDuration")
 
-    override val currentPosition: Int
-        get() = throw unsupportedOperation("getCurrentPosition")
+    override fun getCurrentPosition() = throw unsupportedOperation("getDuration")
 
-    override val isActuallyPlaying: Boolean
-        get() = false
+    override fun isActuallyPlaying(): Boolean = false
 
-    override fun setPlayingRoute(playingRoute: String, context: Context) {
+    override fun setPlayingRoute(playingRoute: String) {
         throw unsupportedOperation("setPlayingRoute")
     }
 
@@ -197,61 +192,45 @@ class WrappedSoundPool internal constructor(override val playerId: String) : Pla
     private fun start() {
         setRate(rate.toDouble())
         if (paused) {
-            soundPool.resume((streamId)!!)
+            streamId?.let { soundPool.resume(it) }
             paused = false
         } else {
+            val soundId = this.soundId ?: return
             streamId = soundPool.play(
-                    soundId!!,
+                    soundId,
                     volume,
                     volume,
                     0,
-                    if (looping) -1 else 0,
+                    loopModeInteger(),
                     1.0f,
             )
         }
     }
+
+    /** Integer representation of the loop mode used by Android */
+    private fun loopModeInteger(): Int = if (looping) -1 else 0
 
     private fun getAudioPath(url: String?, isLocal: Boolean): String? {
         return if (isLocal) url else loadTempFileFromNetwork(url).absolutePath
     }
 
     private fun loadTempFileFromNetwork(url: String?): File {
-        var fileOutputStream: FileOutputStream? = null
-        try {
-            val bytes = downloadUrl(URI.create(url).toURL())
-            val tempFile = File.createTempFile("sound", "")
-            fileOutputStream = FileOutputStream(tempFile)
-            fileOutputStream.write(bytes)
+        val bytes = downloadUrl(URI.create(url).toURL())
+        val tempFile = File.createTempFile("sound", "")
+        FileOutputStream(tempFile).use {
+            it.write(bytes)
             tempFile.deleteOnExit()
-            return tempFile
-        } catch (e: IOException) {
-            throw RuntimeException(e)
-        } finally {
-            try {
-                fileOutputStream?.close()
-            } catch (e: IOException) {
-                throw RuntimeException(e)
-            }
         }
+        return tempFile
     }
 
     private fun downloadUrl(url: URL): ByteArray {
         val outputStream = ByteArrayOutputStream()
-        var stream: InputStream? = null
-        try {
+        url.openStream().use { stream ->
             val chunk = ByteArray(4096)
-            var bytesRead: Int
-            stream = url.openStream()
-            while ((stream.read(chunk).also { bytesRead = it }) > 0) {
+            while (true) {
+                val bytesRead = stream.read(chunk).takeIf { it > 0 } ?: break
                 outputStream.write(chunk, 0, bytesRead)
-            }
-        } catch (e: IOException) {
-            throw RuntimeException(e)
-        } finally {
-            try {
-                stream!!.close()
-            } catch (e: IOException) {
-                throw RuntimeException(e)
             }
         }
         return outputStream.toByteArray()

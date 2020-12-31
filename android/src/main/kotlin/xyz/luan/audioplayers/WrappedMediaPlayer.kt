@@ -4,13 +4,11 @@ import android.content.Context
 import android.media.*
 import android.os.Build
 import android.os.PowerManager
-import java.io.IOException
 
 class WrappedMediaPlayer internal constructor(
         private val ref: AudioplayersPlugin,
         override val playerId: String,
 ) : Player(), MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, AudioManager.OnAudioFocusChangeListener, MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnErrorListener {
-    private var context: Context? = null
     private val audioFocusChangeListener: AudioManager.OnAudioFocusChangeListener? = null
     private var audioFocusRequest: AudioFocusRequest? = null
 
@@ -32,40 +30,47 @@ class WrappedMediaPlayer internal constructor(
     /**
      * Setter methods
      */
-    override fun setUrl(url: String?, isLocal: Boolean, context: Context) {
+    override fun setUrl(url: String?, isLocal: Boolean) {
         if (this.url != url) {
             this.url = url
-            if (released) {
-                player = createPlayer(context)
-                released = false
-            } else if (prepared) {
-                player!!.reset()
-                prepared = false
-            }
-            setSource(url)
-            player!!.setVolume(volume.toFloat(), volume.toFloat())
-            player!!.isLooping = releaseMode === ReleaseMode.LOOP
-            player!!.prepareAsync()
+            val player = getOrCreatePlayer()
+            player.setDataSource(url)
+            preparePlayer(player)
         }
 
         // Dispose of any old data buffer array, if we are now playing from another source.
         dataSource = null
     }
 
-    override fun setDataSource(mediaDataSource: MediaDataSource?, context: Context) {
+    override fun setDataSource(mediaDataSource: MediaDataSource?) {
         if (!objectEquals(dataSource, mediaDataSource)) {
             dataSource = mediaDataSource
-            if (released) {
-                player = createPlayer(context)
+            val player = getOrCreatePlayer()
+            player.setDataSource(mediaDataSource)
+            preparePlayer(player)
+        }
+    }
+
+    private fun preparePlayer(player: MediaPlayer) {
+        player.setVolume(volume.toFloat(), volume.toFloat())
+        player.isLooping = releaseMode === ReleaseMode.LOOP
+        player.prepareAsync()
+    }
+
+    private fun getOrCreatePlayer(): MediaPlayer {
+        val currentPlayer = player
+        return if (released || currentPlayer == null) {
+            createPlayer().also {
+                player = it
                 released = false
-            } else if (prepared) {
-                player!!.reset()
+            }
+        } else if (prepared) {
+            currentPlayer.also {
+                it.reset()
                 prepared = false
             }
-            setMediaSource(mediaDataSource)
-            player!!.setVolume(volume.toFloat(), volume.toFloat())
-            player!!.isLooping = releaseMode === ReleaseMode.LOOP
-            player!!.prepareAsync()
+        } else {
+            currentPlayer
         }
     }
 
@@ -73,12 +78,12 @@ class WrappedMediaPlayer internal constructor(
         if (this.volume != volume) {
             this.volume = volume
             if (!released) {
-                player!!.setVolume(volume.toFloat(), volume.toFloat())
+                player?.setVolume(volume.toFloat(), volume.toFloat())
             }
         }
     }
 
-    override fun setPlayingRoute(playingRoute: String, context: Context) {
+    override fun setPlayingRoute(playingRoute: String) {
         if (this.playingRoute != playingRoute) {
             val wasPlaying = playing
             if (wasPlaying) {
@@ -87,54 +92,50 @@ class WrappedMediaPlayer internal constructor(
             this.playingRoute = playingRoute
             val position = player?.currentPosition ?: 0
             released = false
-            player = createPlayer(context)
-            setSource(url)
-            try {
-                player!!.prepare()
-            } catch (ex: IOException) {
-                throw RuntimeException("Unable to access resource", ex)
-            }
-            seek(position)
-            if (wasPlaying) {
-                playing = true
-                player!!.start()
+            player = createPlayer().also {
+                it.setDataSource(url)
+                it.prepare()
+
+                seek(position)
+                if (wasPlaying) {
+                    playing = true
+                    it.start()
+                }
             }
         }
     }
 
-    override fun setRate(rate: Double): Int {
-        val player = this.player ?: return 0
-
+    override fun setRate(rate: Double) {
         this.rate = rate.toFloat()
+
+        val player = this.player ?: return
         player.playbackParams = player.playbackParams.setSpeed(this.rate)
-        return 1
     }
 
-    override fun configAttributes(respectSilence: Boolean, stayAwake: Boolean, duckAudio: Boolean, context: Context) {
-        this.context = context
+    override fun configAttributes(respectSilence: Boolean, stayAwake: Boolean, duckAudio: Boolean) {
         if (this.respectSilence != respectSilence) {
             this.respectSilence = respectSilence
             if (!released) {
-                player?.let { setAttributes(it, context) }
+                player?.let { setAttributes(it) }
             }
         }
         if (this.duckAudio != duckAudio) {
             this.duckAudio = duckAudio
             if (!released) {
-                player?.let { setAttributes(it, context) }
+                player?.let { setAttributes(it) }
             }
         }
         if (this.stayAwake != stayAwake) {
             this.stayAwake = stayAwake
             if (!released && this.stayAwake) {
-                player?.setWakeMode(context, PowerManager.PARTIAL_WAKE_LOCK)
+                player?.setWakeMode(ref.getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK)
             }
         }
     }
 
     override fun onAudioFocusChange(focusChange: Int) {
         if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
-            actuallyPlay(context!!)
+            actuallyPlay()
         }
     }
 
@@ -142,7 +143,7 @@ class WrappedMediaPlayer internal constructor(
         if (this.releaseMode !== releaseMode) {
             this.releaseMode = releaseMode
             if (!released) {
-                player!!.isLooping = releaseMode === ReleaseMode.LOOP
+                player?.isLooping = releaseMode === ReleaseMode.LOOP
             }
         }
     }
@@ -150,23 +151,25 @@ class WrappedMediaPlayer internal constructor(
     /**
      * Getter methods
      */
-    override val duration: Int
-        get() = player!!.duration
+    override fun getDuration(): Int? {
+        return player?.duration
+    }
 
-    override val currentPosition: Int
-        get() = player!!.currentPosition
+    override fun getCurrentPosition(): Int? {
+        return player?.currentPosition
+    }
 
-    override val isActuallyPlaying: Boolean
-        get() = playing && prepared
+    override fun isActuallyPlaying(): Boolean {
+        return playing && prepared
+    }
 
     private val audioManager: AudioManager
-        get() = context!!.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        get() = ref.getApplicationContext().getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
     /**
      * Playback handling methods
      */
-    override fun play(context: Context) {
-        this.context = context
+    override fun play() {
         if (duckAudio) {
             val audioManager = audioManager
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -177,7 +180,7 @@ class WrappedMediaPlayer internal constructor(
                                         .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
                                         .build()
                         )
-                        .setOnAudioFocusChangeListener { actuallyPlay(context) }.build()
+                        .setOnAudioFocusChangeListener { actuallyPlay() }.build()
                 this.audioFocusRequest = audioFocusRequest
                 audioManager.requestAudioFocus(audioFocusRequest)
             } else {
@@ -187,28 +190,30 @@ class WrappedMediaPlayer internal constructor(
                         AudioManager.STREAM_MUSIC,  // Request permanent focus.
                         AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
                 if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-                    actuallyPlay(context)
+                    actuallyPlay()
                 }
             }
         } else {
-            actuallyPlay(context)
+            actuallyPlay()
         }
     }
 
-    private fun actuallyPlay(context: Context) {
+    private fun actuallyPlay() {
         if (!playing) {
+            val currentPlayer = player
             playing = true
-            if (released) {
+            if (released || currentPlayer == null) {
                 released = false
-                player = createPlayer(context)
-                if (dataSource != null) {
-                    setMediaSource(dataSource)
-                } else {
-                    setSource(url)
+                player = createPlayer().also {
+                    if (dataSource != null) {
+                        it.setDataSource(dataSource)
+                    } else {
+                        it.setDataSource(url)
+                    }
+                    it.prepareAsync()
                 }
-                player!!.prepareAsync()
             } else if (prepared) {
-                player!!.start()
+                currentPlayer.start()
                 ref.handleIsPlaying()
             }
         }
@@ -230,8 +235,8 @@ class WrappedMediaPlayer internal constructor(
         if (releaseMode !== ReleaseMode.RELEASE) {
             if (playing) {
                 playing = false
-                player!!.pause()
-                player!!.seekTo(0)
+                player?.pause()
+                player?.seekTo(0)
             }
         } else {
             release()
@@ -243,21 +248,20 @@ class WrappedMediaPlayer internal constructor(
             return
         }
         if (playing) {
-            player!!.stop()
+            player?.stop()
         }
-        player!!.reset()
-        player!!.release()
+        player?.reset()
+        player?.release()
         player = null
         prepared = false
         released = true
         playing = false
-        context = null
     }
 
     override fun pause() {
         if (playing) {
             playing = false
-            player!!.pause()
+            player?.pause()
         }
     }
 
@@ -265,7 +269,7 @@ class WrappedMediaPlayer internal constructor(
     // the player is ready.
     override fun seek(position: Int) {
         if (prepared) {
-            player!!.seekTo(position)
+            player?.seekTo(position)
         } else {
             shouldSeekTo = position
         }
@@ -278,11 +282,11 @@ class WrappedMediaPlayer internal constructor(
         prepared = true
         ref.handleDuration(this)
         if (playing) {
-            player!!.start()
+            player?.start()
             ref.handleIsPlaying()
         }
         if (shouldSeekTo >= 0) {
-            player!!.seekTo(shouldSeekTo)
+            player?.seekTo(shouldSeekTo)
             shouldSeekTo = -1
         }
     }
@@ -324,36 +328,20 @@ class WrappedMediaPlayer internal constructor(
     /**
      * Internal logic. Private methods
      */
-    private fun createPlayer(context: Context): MediaPlayer {
+    private fun createPlayer(): MediaPlayer {
         val player = MediaPlayer()
         player.setOnPreparedListener(this)
         player.setOnCompletionListener(this)
         player.setOnSeekCompleteListener(this)
         player.setOnErrorListener(this)
 
-        setAttributes(player, context)
+        setAttributes(player)
         player.setVolume(volume.toFloat(), volume.toFloat())
         player.isLooping = releaseMode === ReleaseMode.LOOP
         return player
     }
 
-    private fun setSource(url: String?) {
-        try {
-            player!!.setDataSource(url)
-        } catch (ex: IOException) {
-            throw RuntimeException("Unable to access resource", ex)
-        }
-    }
-
-    private fun setMediaSource(mediaDataSource: MediaDataSource?) {
-        try {
-            player!!.setDataSource(mediaDataSource)
-        } catch (ex: Exception) {
-            throw RuntimeException("Unable to access media resource", ex)
-        }
-    }
-
-    private fun setAttributes(player: MediaPlayer, context: Context) {
+    private fun setAttributes(player: MediaPlayer) {
         val usage = when {
             // Works with bluetooth headphones
             // automatically switch to earpiece when disconnect bluetooth headphones
@@ -361,14 +349,14 @@ class WrappedMediaPlayer internal constructor(
             respectSilence -> AudioAttributes.USAGE_NOTIFICATION_RINGTONE
             else -> AudioAttributes.USAGE_MEDIA
         }
-        player.setAudioAttributes(AudioAttributes.Builder()
-                .setUsage(usage)
-                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                .build()
+        player.setAudioAttributes(
+                AudioAttributes.Builder()
+                        .setUsage(usage)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .build()
         )
 
         if (usage == AudioAttributes.USAGE_VOICE_COMMUNICATION) {
-            val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
             audioManager.isSpeakerphoneOn = false
         }
     }

@@ -2,6 +2,8 @@
 
 Not every feature is available on every platform yet. Use this table to keep track of our work and progress, and please help if you want :)
 
+Note: LLM means Low Latency Mode.
+
 ## Main Features
 
 <table width="70%">
@@ -31,10 +33,11 @@ Not every feature is available on every platform yet. Use this table to keep tra
         <tr><td>seek</td><td>yes</td><td>yes</td><td>yes</td><td>not yet</td></tr>
         <tr><td colspan="5"><strong>Advanced Audio Control Commands</strong></td></tr>
         <tr><td>playback rate</td><td>yes</td><td>yes</td><td>yes</td><td>not yet</td></tr>
-        <tr><td>duck audio</td><td>yes</td><td>yes</td><td>?</td><td>no</td></tr>
-        <tr><td>respect silence</td><td>yes</td><td>yes</td><td>?</td><td>no</td></tr>
-        <tr><td>stay awake</td><td>yes</td><td>yes</td><td>?</td><td>no</td></tr>
-        <tr><td>recording active</td><td>not yet</td><td>yes</td><td>?</td><td>no</td></tr>
+        <tr><td>duck audio</td><td>yes (except LLM)</td><td>no</td><td>no</td><td>no</td></tr>
+        <tr><td>respect silence</td><td>yes (except LLM)</td><td>yes</td><td>no</td><td>no</td></tr>
+        <tr><td>stay awake</td><td>yes (except LLM)</td><td>yes</td><td>no</td><td>no</td></tr>
+        <tr><td>recording active</td><td>not yet</td><td>yes</td><td>no</td><td>no</td></tr>
+        <tr><td>playing route</td><td>yes (except LLM)</td><td>yes</td><td>no</td><td>no</td></tr>
         <tr><td colspan="5"><strong>Streams</strong></td></tr>
         <tr><td>duration event</td><td>yes</td><td>yes</td><td>yes</td><td>not yet</td></tr>
         <tr><td>position event</td><td>yes</td><td>yes</td><td>yes</td><td>not yet</td></tr>

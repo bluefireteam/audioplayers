@@ -9,7 +9,9 @@ class WrappedMediaPlayer {
     
     var playerId: String
     var player: AVPlayer?
+    
     var observers: [TimeObserver]
+    var keyVakueObservation: NSKeyValueObservation?
     
     var isPlaying: Bool
     var playbackRate: Float
@@ -37,6 +39,7 @@ class WrappedMediaPlayer {
         self.playerId = playerId
         self.player = player
         self.observers = observers
+        self.keyVakueObservation = nil
         
         self.isPlaying = isPlaying
         self.playbackRate = playbackRate
@@ -134,14 +137,14 @@ class WrappedMediaPlayer {
             return
         }
         guard let maxDuration = getDurationCMTime() else {
-           log("Cannot skip forward, unable to determine maxDuration")
+            log("Cannot skip forward, unable to determine maxDuration")
             return
-       }
-       let newTime = CMTimeAdd(currentTime, toCMTime(millis: interval))
+        }
+        let newTime = CMTimeAdd(currentTime, toCMTime(millis: interval))
         
-       // if CMTime is more than max duration, limit it
-       let clampedTime = CMTimeGetSeconds(newTime) > CMTimeGetSeconds(maxDuration) ? maxDuration : newTime
-       seek(time: clampedTime)
+        // if CMTime is more than max duration, limit it
+        let clampedTime = CMTimeGetSeconds(newTime) > CMTimeGetSeconds(maxDuration) ? maxDuration : newTime
+        seek(time: clampedTime)
     }
     
     func skipBackward(interval: TimeInterval) {
@@ -178,7 +181,7 @@ class WrappedMediaPlayer {
             seek(time: toCMTime(millis: 0))
             resume()
         }
-
+        
         reference.maybeDeactivateAudioSession()
         reference.onComplete(playerId: playerId)
         reference.notificationsHandler?.onNotificationBackgroundPlayerStateChanged(playerId: playerId, value: "completed")
@@ -191,7 +194,7 @@ class WrappedMediaPlayer {
         let millis = fromCMTime(time: time)
         reference.onCurrentPosition(playerId: playerId, millis: millis)
     }
-
+    
     func updateDuration() {
         guard let duration = player?.currentItem?.asset.duration else {
             return
@@ -218,7 +221,7 @@ class WrappedMediaPlayer {
             playerItem.audioTimePitchAlgorithm = AVAudioTimePitchAlgorithm.timeDomain
             let player: AVPlayer
             if let existingPlayer = self.player {
-                reference.keyValueObservations[playerId]?.invalidate()
+                keyVakueObservation?.invalidate()
                 self.url = url
                 clearObservers()
                 existingPlayer.replaceCurrentItem(with: playerItem)
@@ -251,7 +254,7 @@ class WrappedMediaPlayer {
             
             // is sound ready
             self.onReady = onReady
-            let newKeyValueObservation: NSKeyValueObservation = playerItem.observe(\AVPlayerItem.status) { (playerItem, change) in
+            let newKeyValueObservation = playerItem.observe(\AVPlayerItem.status) { (playerItem, change) in
                 let status = playerItem.status
                 log("player status: %@ change: %@", status, change)
                 
@@ -268,10 +271,8 @@ class WrappedMediaPlayer {
                 }
             }
             
-            if let observation = reference.keyValueObservations[playerId] {
-                observation.invalidate()
-            }
-            reference.keyValueObservations[playerId] = newKeyValueObservation
+            keyVakueObservation?.invalidate()
+            keyVakueObservation = newKeyValueObservation
         } else {
             if playbackStatus == .readyToPlay {
                 onReady(player!)
@@ -285,7 +286,6 @@ class WrappedMediaPlayer {
         volume: Float,
         time: CMTime?,
         isNotification: Bool,
-        duckAudio: Bool,
         recordingActive: Bool
     ) {
         reference.updateCategory(recordingActive: recordingActive, isNotification: isNotification, playingRoute: playingRoute)
