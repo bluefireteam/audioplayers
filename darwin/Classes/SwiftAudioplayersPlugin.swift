@@ -32,7 +32,6 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
     var lastPlayerId: String? = nil
     
     var timeObservers = [TimeObserver]()
-    var keyValueObservations = [String : NSKeyValueObservation]()
     
     var isDealloc = false
     

@@ -9,7 +9,9 @@ class WrappedMediaPlayer {
     
     var playerId: String
     var player: AVPlayer?
+    
     var observers: [TimeObserver]
+    var keyVakueObservation: NSKeyValueObservation?
     
     var isPlaying: Bool
     var playbackRate: Float
@@ -37,6 +39,7 @@ class WrappedMediaPlayer {
         self.playerId = playerId
         self.player = player
         self.observers = observers
+        self.keyVakueObservation = nil
         
         self.isPlaying = isPlaying
         self.playbackRate = playbackRate
@@ -218,7 +221,7 @@ class WrappedMediaPlayer {
             playerItem.audioTimePitchAlgorithm = AVAudioTimePitchAlgorithm.timeDomain
             let player: AVPlayer
             if let existingPlayer = self.player {
-                reference.keyValueObservations[playerId]?.invalidate()
+                keyVakueObservation?.invalidate()
                 self.url = url
                 clearObservers()
                 existingPlayer.replaceCurrentItem(with: playerItem)
@@ -251,7 +254,7 @@ class WrappedMediaPlayer {
             
             // is sound ready
             self.onReady = onReady
-            let newKeyValueObservation: NSKeyValueObservation = playerItem.observe(\AVPlayerItem.status) { (playerItem, change) in
+            let newKeyValueObservation = playerItem.observe(\AVPlayerItem.status) { (playerItem, change) in
                 let status = playerItem.status
                 log("player status: %@ change: %@", status, change)
                 
@@ -268,10 +271,8 @@ class WrappedMediaPlayer {
                 }
             }
             
-            if let observation = reference.keyValueObservations[playerId] {
-                observation.invalidate()
-            }
-            reference.keyValueObservations[playerId] = newKeyValueObservation
+            keyVakueObservation?.invalidate()
+            keyVakueObservation = newKeyValueObservation
         } else {
             if playbackStatus == .readyToPlay {
                 onReady(player!)
