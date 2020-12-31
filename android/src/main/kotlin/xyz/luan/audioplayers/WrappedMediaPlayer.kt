@@ -35,9 +35,7 @@ class WrappedMediaPlayer internal constructor(
             this.url = url
             val player = getOrCreatePlayer()
             player.setDataSource(url)
-            player.setVolume(volume.toFloat(), volume.toFloat())
-            player.isLooping = releaseMode === ReleaseMode.LOOP
-            player.prepareAsync()
+            preparePlayer(player)
         }
 
         // Dispose of any old data buffer array, if we are now playing from another source.
@@ -49,10 +47,14 @@ class WrappedMediaPlayer internal constructor(
             dataSource = mediaDataSource
             val player = getOrCreatePlayer()
             player.setDataSource(mediaDataSource)
-            player.setVolume(volume.toFloat(), volume.toFloat())
-            player.isLooping = releaseMode === ReleaseMode.LOOP
-            player.prepareAsync()
+            preparePlayer(player)
         }
+    }
+
+    private fun preparePlayer(player: MediaPlayer) {
+        player.setVolume(volume.toFloat(), volume.toFloat())
+        player.isLooping = releaseMode === ReleaseMode.LOOP
+        player.prepareAsync()
     }
 
     private fun getOrCreatePlayer(): MediaPlayer {
