@@ -2,6 +2,8 @@
 
 Not every feature is available on every platform yet. Use this table to keep track of our work and progress, and please help if you want :)
 
+Note: LLM means Low Latency Mode.
+
 ## Main Features
 
 <table width="70%">
