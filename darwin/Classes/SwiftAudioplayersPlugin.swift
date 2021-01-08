@@ -310,6 +310,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         isNotification: Bool,
         playingRoute: String
     ) {
+        #if os(iOS)
         // When using AVAudioSessionCategoryPlayback, by default, this implies that your app’s audio is nonmixable—activating your session
         // will interrupt any other audio sessions which are also nonmixable. AVAudioSessionCategoryPlayback should not be used with
         // AVAudioSessionCategoryOptionMixWithOthers option. If so, it prevents infoCenter from working correctly.
@@ -319,8 +320,6 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         let options = isNotification ? AVAudioSession.CategoryOptions.mixWithOthers : []
         
         configureAudioSession(category: category, options: options)
-        
-        #if os(iOS)
         if isNotification {
             UIApplication.shared.beginReceivingRemoteControlEvents()
         }
@@ -330,7 +329,9 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
     func maybeDeactivateAudioSession() {
         let hasPlaying = players.values.contains { player in player.isPlaying }
         if !hasPlaying {
+            #if os(iOS)
             configureAudioSession(active: true)
+            #endif
         }
     }
     
@@ -351,16 +352,18 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         let wrappedPlayer = players[playerId]!
         wrappedPlayer.playingRoute = playingRoute
         
+        #if os(iOS)
         let category = playingRoute == "earpiece" ? AVAudioSession.Category.playAndRecord : AVAudioSession.Category.playback
         configureAudioSession(category: category)
+        #endif
     }
     
+    #if os(iOS)
     private func configureAudioSession(
         category: AVAudioSession.Category? = nil,
         options: AVAudioSession.CategoryOptions = [],
         active: Bool? = nil
     ) {
-        #if os(iOS)
         do {
             let session = AVAudioSession.sharedInstance()
             if let category = category {
@@ -372,6 +375,6 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         } catch {
             log("Error configuring audio session: %@", error)
         }
-        #endif
     }
+    #endif
 }
