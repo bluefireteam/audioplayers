@@ -329,7 +329,9 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
     func maybeDeactivateAudioSession() {
         let hasPlaying = players.values.contains { player in player.isPlaying }
         if !hasPlaying {
+            #if os(iOS)
             configureAudioSession(active: true)
+            #endif
         }
     }
     
@@ -350,16 +352,18 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         let wrappedPlayer = players[playerId]!
         wrappedPlayer.playingRoute = playingRoute
         
+        #if os(iOS)
         let category = playingRoute == "earpiece" ? AVAudioSession.Category.playAndRecord : AVAudioSession.Category.playback
         configureAudioSession(category: category)
+        #endif
     }
     
+    #if os(iOS)
     private func configureAudioSession(
         category: AVAudioSession.Category? = nil,
         options: AVAudioSession.CategoryOptions = [],
         active: Bool? = nil
     ) {
-        #if os(iOS)
         do {
             let session = AVAudioSession.sharedInstance()
             if let category = category {
@@ -371,6 +375,6 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         } catch {
             log("Error configuring audio session: %@", error)
         }
-        #endif
     }
+    #endif
 }
