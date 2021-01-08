@@ -310,6 +310,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         isNotification: Bool,
         playingRoute: String
     ) {
+        #if os(iOS)
         // When using AVAudioSessionCategoryPlayback, by default, this implies that your app’s audio is nonmixable—activating your session
         // will interrupt any other audio sessions which are also nonmixable. AVAudioSessionCategoryPlayback should not be used with
         // AVAudioSessionCategoryOptionMixWithOthers option. If so, it prevents infoCenter from working correctly.
@@ -319,8 +320,6 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         let options = isNotification ? AVAudioSession.CategoryOptions.mixWithOthers : []
         
         configureAudioSession(category: category, options: options)
-        
-        #if os(iOS)
         if isNotification {
             UIApplication.shared.beginReceivingRemoteControlEvents()
         }
