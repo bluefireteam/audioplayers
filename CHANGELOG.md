@@ -2,6 +2,10 @@
 
 ## [next]
 
+## 0.17.2
+* Fix macos compilation issue
+* Fix android for non-kotlin projects
+
 ## 0.17.1
 * Use better algorithm for speed modulation on iOS
 * Extracted and refactored all the notifications code onto the new file
