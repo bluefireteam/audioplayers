@@ -43,7 +43,7 @@ class WrappedSoundPool internal constructor(override val playerId: String) : Pla
                     soundIdToPlayer.remove(loadingPlayer.soundId)
                     // Now mark all players using this sound as not loading and start them if necessary
                     synchronized(urlToPlayers) {
-                        val urlPlayers = urlToPlayers[loadingPlayer.url] ?: listOf()
+                        val urlPlayers = urlToPlayers[loadingPlayer.url] ?: listOf<WrappedSoundPool>()
                         for (player in urlPlayers) {
                             Log.d("WSP", "Marking $player as loaded")
                             player.loading = false
@@ -165,7 +165,7 @@ class WrappedSoundPool internal constructor(override val playerId: String) : Pla
     override fun configAttributes(
             respectSilence: Boolean,
             stayAwake: Boolean,
-            duckAudio: Boolean,
+            duckAudio: Boolean
     ) = Unit
 
     override fun setReleaseMode(releaseMode: ReleaseMode) {
@@ -202,7 +202,7 @@ class WrappedSoundPool internal constructor(override val playerId: String) : Pla
                     volume,
                     0,
                     loopModeInteger(),
-                    1.0f,
+                    1.0f
             )
         }
     }

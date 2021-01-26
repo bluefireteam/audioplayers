@@ -178,7 +178,7 @@ class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
             mediaPlayers: Map<String, Player>,
             channel: MethodChannel,
             handler: Handler,
-            audioplayersPlugin: AudioplayersPlugin,
+            audioplayersPlugin: AudioplayersPlugin
     ) : Runnable {
         private val mediaPlayers = WeakReference(mediaPlayers)
         private val channel = WeakReference(channel)
@@ -228,7 +228,7 @@ class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
         private fun buildArguments(playerId: String, value: Any): Map<String, Any> {
             return mapOf(
                     "playerId" to playerId,
-                    "value" to value,
+                    "value" to value
             )
         }
 

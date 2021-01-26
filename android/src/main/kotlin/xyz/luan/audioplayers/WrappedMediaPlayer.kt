@@ -7,7 +7,7 @@ import android.os.PowerManager
 
 class WrappedMediaPlayer internal constructor(
         private val ref: AudioplayersPlugin,
-        override val playerId: String,
+        override val playerId: String
 ) : Player(), MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, AudioManager.OnAudioFocusChangeListener, MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnErrorListener {
     private val audioFocusChangeListener: AudioManager.OnAudioFocusChangeListener? = null
     private var audioFocusRequest: AudioFocusRequest? = null
