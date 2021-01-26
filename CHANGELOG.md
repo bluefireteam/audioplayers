@@ -2,6 +2,9 @@
 
 ## [next]
 
+## 0.17.3
+* Backport some code to old kt (for now)
+
 ## 0.17.2
 * Fix macos compilation issue
 * Fix android for non-kotlin projects
