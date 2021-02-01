@@ -17,6 +17,12 @@ If you are using the `AudioCache` class, though, it does not have a pause method
  - Can't play remote files on Android 9: Android 9 has changed some network security defaults, so it may prevent you from play files outside https by default, [this stackoverflow question](https://stackoverflow.com/questions/45940861/android-8-cleartext-http-traffic-not-permitted) is a good source to solving this.
 
  - Some old Samsung devices have a bug that prevents certain types of audio from being played, [see more here](https://stackoverflow.com/questions/16238218/android-media-player-streaming-issue-on-samsung-devices).
+ 
+ - minSdkVersion: we only support SDK version 23 or up.
+ 
+ Supporting bellow API 23 was turning the maintenance of the package quite complicated. We looked on many sources before increasing the min version; for example, as you can see [here](https://www.appbrain.com/stats/top-android-sdk-versions), uses of SDK 16 and below are from less than 1% of users.
+
+Currently, we don't plan on decreasing minSdkVersion to less than 23. Jelly Bean (SDK 16) was launched almost 10 years ago. Using such an old piece of software can in of itself lead to many performance and security issues and bugs. Please update your devices' android version to at least 23, and you will be able to enjoy audioplayers without any issues :)
 
 ## iOs
 
