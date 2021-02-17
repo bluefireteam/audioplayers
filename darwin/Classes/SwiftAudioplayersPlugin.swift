@@ -128,8 +128,8 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
             let volume: Float = (args["volume"] as? Float) ?? 1.0
             
             // we might or might not want to seek
-            let seekTimeMillis: Int? = (args["position"] as? Int)
-            let seekTime: CMTime? = seekTimeMillis.map { toCMTime(millis: $0) }
+            let seekTimeMillis: Int = (args["position"] as? Int) ?? 0
+            let seekTime: CMTime = toCMTime(millis: seekTimeMillis)
             
             let respectSilence: Bool = (args["respectSilence"] as? Bool) ?? false
             let recordingActive: Bool = (args["recordingActive"] as? Bool) ?? false
@@ -330,7 +330,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         let hasPlaying = players.values.contains { player in player.isPlaying }
         if !hasPlaying {
             #if os(iOS)
-            configureAudioSession(active: true)
+            configureAudioSession(active: false)
             #endif
         }
     }
