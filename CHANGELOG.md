@@ -2,18 +2,21 @@
 
 ## [next]
 
+## 0.17.4
+- Fix java.lang.UnsupportedOperationException on read-only kotlin map
+
 ## 0.17.3
-* Backport some code to old kt (for now)
+- Backport some code to old kt (for now)
 
 ## 0.17.2
-* Fix macos compilation issue
-* Fix android for non-kotlin projects
+- Fix macos compilation issue
+- Fix android for non-kotlin projects
 
 ## 0.17.1
-* Use better algorithm for speed modulation on iOS
-* Extracted and refactored all the notifications code onto the new file
-* Add more checks and make sure notifcations code is not ran when it shouldn't
-* Add more useful info to the troubleshoot guide
+- Use better algorithm for speed modulation on iOS
+- Extracted and refactored all the notifications code onto the new file
+- Add more checks and make sure notifcations code is not ran when it shouldn't
+- Add more useful info to the troubleshoot guide
 
 ## 0.17.0
 - Swift conversion of the darwin code
@@ -64,44 +67,44 @@
 - Upgrade pubspec pattern
 
 ## audioplayers 0.13.6
- - added `setPlaybackRate` feature for Android
- - Automatic detect address is local or remote (thanks, @saeed-golshan)
+- added `setPlaybackRate` feature for Android
+- Automatic detect address is local or remote (thanks, @saeed-golshan)
 
 ## audioplayers 0.13.5
- - fixed crash on iOS when `startHeadlessService()` wasn't called on `AudioPlayer` (by @JesseScott)
+- fixed crash on iOS when `startHeadlessService()` wasn't called on `AudioPlayer` (by @JesseScott)
 
 ## audioplayers 0.13.4
- - fixing missing cleanup on hot restart on Android
- - Background notification updates on iOS
+- fixing missing cleanup on hot restart on Android
+- Background notification updates on iOS
 
 ## audioplayers 0.13.3
- - audio notification area fixes
- - fix when other apps are playing sounds
- - fix android race condition
- - Support for registering plugin in background enviroment
- - fix typos and docs
+- audio notification area fixes
+- fix when other apps are playing sounds
+- fix android race condition
+- Support for registering plugin in background enviroment
+- fix typos and docs
 
 ## audioplayers 0.13.2
- - Handling plugin dealloc and onTimeInterval crashs (thanks @chedechao111)
- - Audio position update when the audio is paused (thanks @bjornjacobs)
+- Handling plugin dealloc and onTimeInterval crashs (thanks @chedechao111)
+- Audio position update when the audio is paused (thanks @bjornjacobs)
 
 ## audioplayers 0.13.1
- - Added stayAwake feature (thanks, @danielR2001)
- - Improved dispose method (thanks, @hugocbpassos)
- - Added getCurrentPosition (thanks, @hariom08)
- - Some bug fixes and small changes
+- Added stayAwake feature (thanks, @danielR2001)
+- Improved dispose method (thanks, @hugocbpassos)
+- Added getCurrentPosition (thanks, @hariom08)
+- Some bug fixes and small changes
 
 ## audioplayers 0.13.0
- - Call onDurationChanged after setUrl() to be consistent with ios version (thanks @subhash279)
- - Adding getDuration feature iOS/Android (thanks @alecorsino)
+- Call onDurationChanged after setUrl() to be consistent with ios version (thanks @subhash279)
+- Adding getDuration feature iOS/Android (thanks @alecorsino)
 
 ## audioplayers 0.12.1
- - Fixes bug where the stream handlers were not called due to exception on the handler
- - Proper error message when errors in the dart handler occurs
+- Fixes bug where the stream handlers were not called due to exception on the handler
+- Proper error message when errors in the dart handler occurs
 
 ## audioplayers 0.12.0
- - Update to path_provider 1.1.0
- - Upgrade to Swift 5 in example project setting (thanks @jerryzhoujw)
+- Update to path_provider 1.1.0
+- Upgrade to Swift 5 in example project setting (thanks @jerryzhoujw)
 
 ## audioplayers 0.11.0
 - **Breaking change**. Migrate from the deprecated original Android Support
