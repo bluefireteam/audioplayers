@@ -17,13 +17,13 @@ class WrappedSoundPool internal constructor(override val playerId: String) : Pla
         /** For the onLoadComplete listener, track which sound id is associated with which player. An entry only exists until
          * it has been loaded.
          */
-        private val soundIdToPlayer = Collections.synchronizedMap(mapOf<Int, WrappedSoundPool>())
+        private val soundIdToPlayer = Collections.synchronizedMap(mutableMapOf<Int, WrappedSoundPool>())
 
         /** This is to keep track of the players which share the same sound id, referenced by url. When a player release()s, it
          * is removed from the associated player list. The last player to be removed actually unloads() the sound id and then
          * the url is removed from this map.
          */
-        private val urlToPlayers = Collections.synchronizedMap(mapOf<String, MutableList<WrappedSoundPool>>())
+        private val urlToPlayers = Collections.synchronizedMap(mutableMapOf<String, MutableList<WrappedSoundPool>>())
 
         private fun createSoundPool(): SoundPool {
             val attrs = AudioAttributes.Builder().setLegacyStreamType(AudioManager.USE_DEFAULT_STREAM_TYPE)
