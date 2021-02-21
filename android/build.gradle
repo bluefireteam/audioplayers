@@ -38,9 +38,6 @@ android {
     lintOptions {
         disable 'InvalidPackage'
     }
-    dependencies {
-        implementation 'androidx.annotation:annotation:1.1.0'
-    }
 }
 
 allprojects {
@@ -49,10 +46,4 @@ allprojects {
             options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
         }
     }
-}
-dependencies {
-    implementation "androidx.core:core-ktx:+"
-}
-repositories {
-    mavenCentral()
 }
