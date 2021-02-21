@@ -7,12 +7,9 @@ import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterPluginBinding
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
-import java.lang.IllegalArgumentException
 import java.lang.ref.WeakReference
 import java.util.logging.Level
 import java.util.logging.Logger
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.contract
 
 class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
     private lateinit var channel: MethodChannel
