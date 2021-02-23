@@ -27,15 +27,16 @@ apply plugin: 'kotlin-android'
 android {
     compileSdkVersion 28
 
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+
     defaultConfig {
         minSdkVersion 23
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     lintOptions {
         disable 'InvalidPackage'
-    }
-    dependencies {
-        implementation 'androidx.annotation:annotation:1.1.0'
     }
 }
 
@@ -45,10 +46,4 @@ allprojects {
             options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
         }
     }
-}
-dependencies {
-    implementation "androidx.core:core-ktx:+"
-}
-repositories {
-    mavenCentral()
 }

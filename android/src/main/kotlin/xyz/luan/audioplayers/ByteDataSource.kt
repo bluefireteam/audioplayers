@@ -1,8 +1,6 @@
 package xyz.luan.audioplayers
 
 import android.media.MediaDataSource
-import java.io.IOException
-import kotlin.jvm.Throws
 
 class ByteDataSource(
         private val data: ByteArray
