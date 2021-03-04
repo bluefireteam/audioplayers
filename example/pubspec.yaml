@@ -7,8 +7,9 @@ dependencies:
   audioplayers:
     path: ../
   http: ^0.12.2
-  path_provider: ^1.5.1
-  path_provider_macos: ^0.0.4+4
+  #path_provider: ^1.5.1
+  path_provider: ^2.0.1
+  #path_provider_macos: ^0.0.4+4
   provider: 4.3.3
 
 dev_dependencies:
