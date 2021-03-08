@@ -7,9 +7,9 @@ void main() {
 
   List<MethodCall> calls = [];
   const channel = const MethodChannel('xyz.luan/audioplayers');
-  channel.setMockMethodCallHandler((MethodCall call) {
+  channel.setMockMethodCallHandler((MethodCall call) async {
     calls.add(call);
-    return null;
+    return 0;
   });
 
   MethodCall popCall() {
