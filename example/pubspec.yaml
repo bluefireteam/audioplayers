@@ -12,9 +12,9 @@ dependencies:
   provider: 5.0.0
 
 dev_dependencies:
-  flutter_driver:
-    sdk: flutter
-  test: ^1.16.5
+  # flutter_driver:
+  #   sdk: flutter
+  test: any
 
 flutter:
   uses-material-design: true
