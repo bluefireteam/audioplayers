@@ -9,7 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 class MyAudioCache extends AudioCache {
   List<String> called = [];
 
-  MyAudioCache({String prefix = 'assets/', AudioPlayer fixedPlayer = null})
+  MyAudioCache({String prefix = 'assets/', AudioPlayer? fixedPlayer})
       : super(prefix: prefix, fixedPlayer: fixedPlayer);
 
   @override
@@ -43,7 +43,7 @@ void main() {
 
     test('fixedPlayer vs non fixedPlayer', () async {
       MyAudioCache fixed = MyAudioCache(fixedPlayer: AudioPlayer());
-      String fixedId = fixed.fixedPlayer.playerId;
+      String fixedId = fixed.fixedPlayer!.playerId;
       MyAudioCache regular = MyAudioCache();
 
       AudioPlayer a1 = await fixed.play('audio.mp3');

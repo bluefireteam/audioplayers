@@ -29,7 +29,7 @@ class ExampleApp extends StatefulWidget {
 class _ExampleAppState extends State<ExampleApp> {
   AudioCache audioCache = AudioCache();
   AudioPlayer advancedPlayer = AudioPlayer();
-  String localFilePath;
+  String? localFilePath;
 
   @override
   void initState() {
@@ -40,15 +40,13 @@ class _ExampleAppState extends State<ExampleApp> {
       return;
     }
     if (Platform.isIOS) {
-      if (audioCache.fixedPlayer != null) {
-        audioCache.fixedPlayer.startHeadlessService();
-      }
+      audioCache.fixedPlayer?.startHeadlessService();
       advancedPlayer.startHeadlessService();
     }
   }
 
   Future _loadFile() async {
-    final bytes = await readBytes(kUrl1);
+    final bytes = await readBytes(Uri.parse(kUrl1));
     final dir = await getApplicationDocumentsDirectory();
     final file = File('${dir.path}/audio.mp3');
 
@@ -96,7 +94,7 @@ class _ExampleAppState extends State<ExampleApp> {
       localFilePath == null
           ? Container()
           : PlayerWidget(
-              url: localFilePath,
+              url: localFilePath!,
             ),
     ]);
   }
@@ -177,10 +175,11 @@ class _ExampleAppState extends State<ExampleApp> {
           case ConnectionState.done:
             if (snapshot.hasError) return Text('Error: ${snapshot.error}');
             return Text(
-              'audio2.mp3 duration is: ${Duration(milliseconds: snapshot.data)}',
+              'audio2.mp3 duration is: ${Duration(milliseconds: snapshot.data!)}',
             );
+          default:
+            return Container();
         }
-        return null; // unreachable
       },
     );
   }
@@ -238,18 +237,18 @@ class _ExampleAppState extends State<ExampleApp> {
 class Advanced extends StatefulWidget {
   final AudioPlayer advancedPlayer;
 
-  const Advanced({Key key, this.advancedPlayer}) : super(key: key);
+  const Advanced({Key? key, required this.advancedPlayer}) : super(key: key);
 
   @override
   _AdvancedState createState() => _AdvancedState();
 }
 
 class _AdvancedState extends State<Advanced> {
-  bool seekDone;
+  bool? seekDone;
 
   @override
   void initState() {
-    widget.advancedPlayer.seekCompleteHandler =
+    widget.advancedPlayer?.seekCompleteHandler =
         (finished) => setState(() => seekDone = finished);
     super.initState();
   }
@@ -406,7 +405,7 @@ class _AdvancedState extends State<Advanced> {
             ],
           ),
           Text('Audio Position: ${audioPosition}'),
-          if (seekDone != null) Text(seekDone ? 'Seek Done' : 'Seeking...'),
+          if (seekDone != null) Text(seekDone! ? 'Seek Done' : 'Seeking...'),
         ],
       ),
     );
@@ -416,7 +415,7 @@ class _AdvancedState extends State<Advanced> {
 class _Tab extends StatelessWidget {
   final List<Widget> children;
 
-  const _Tab({Key key, this.children}) : super(key: key);
+  const _Tab({Key? key, required this.children}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -440,7 +439,8 @@ class _Btn extends StatelessWidget {
   final String txt;
   final VoidCallback onPressed;
 
-  const _Btn({Key key, this.txt, this.onPressed}) : super(key: key);
+  const _Btn({Key? key, required this.txt, required this.onPressed})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
