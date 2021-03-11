@@ -305,8 +305,9 @@ Here is an example of how it should look like:
 ```
 
 ## Gradle Build Failing
-In order to support the `playBytes` method, this has a hard requirement on using API >= 23 features, and your build may failure depending on your minimum sdk targeting.
-To override this, you will need to add `<uses-sdk tools:overrideLibrary="xyz.luan.audioplayers"/>` to your build.gradle
+
+In order to support the `playBytes` method, this has a hard requirement on using API >= 23 features, and your build may failure depending on your minimum SDK targeting.
+To override this, you will need to add `<uses-sdk tools:overrideLibrary="xyz.luan.audioplayers"/>` to your `AndroidManifest.xml` file.
 
 ## Credits
 
