@@ -2,6 +2,9 @@
 
 ## [next]
 
+## 0.17.5
+- Update uuid to 3.0.0
+
 ## 0.17.4
 - Fix java.lang.UnsupportedOperationException on read-only kotlin map
 
