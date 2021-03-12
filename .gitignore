@@ -15,3 +15,4 @@ packages
 testing
 .flutter-plugins-dependencies
 flutter_export_environment.sh
+.fvm
