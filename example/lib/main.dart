@@ -248,8 +248,8 @@ class _AdvancedState extends State<Advanced> {
 
   @override
   void initState() {
-    widget.advancedPlayer.seekCompleteHandler =
-        (finished) => setState(() => seekDone = finished);
+    widget.advancedPlayer.onSeekComplete
+        .listen((event) => setState(() => seekDone = true));
     super.initState();
   }
 

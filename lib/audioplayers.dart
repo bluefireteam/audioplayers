@@ -188,8 +188,6 @@ class AudioPlayer {
 
   set state(AudioPlayerState state) {
     _playerStateController.add(state);
-    // ignore: deprecated_member_use_from_same_package
-    audioPlayerStateChangeHandler?.call(state);
     _audioPlayerState = state;
   }
 
@@ -246,57 +244,6 @@ class AudioPlayer {
   ///
   /// Events are sent user tap system remote control command.
   Stream<PlayerControlCommand> get onPlayerCommand => _commandController.stream;
-
-  /// Handler of changes on player state.
-  @deprecated
-  AudioPlayerStateChangeHandler? audioPlayerStateChangeHandler;
-
-  /// Handler of changes on player position.
-  ///
-  /// Will continuously update the position of the playback if the status is
-  /// [AudioPlayerState.PLAYING].
-  ///
-  /// You can use it on a progress bar, for instance.
-  ///
-  /// This is deprecated. Use [onAudioPositionChanged] instead.
-  @deprecated
-  TimeChangeHandler? positionHandler;
-
-  /// Handler of changes on audio duration.
-  ///
-  /// An event is going to be sent as soon as the audio duration is available
-  /// (it might take a while to download or buffer it).
-  ///
-  /// This is deprecated. Use [onDurationChanged] instead.
-  @deprecated
-  TimeChangeHandler? durationHandler;
-
-  /// Handler of player completions.
-  ///
-  /// Events are sent every time an audio is finished, therefore no event is
-  /// sent when an audio is paused or stopped.
-  ///
-  /// [ReleaseMode.LOOP] also sends events to this stream.
-  ///
-  /// This is deprecated. Use [onPlayerCompletion] instead.
-  @deprecated
-  VoidCallback? completionHandler;
-
-  /// Handler of seek completion.
-  ///
-  /// An event is going to be sent as soon as the audio seek is finished.
-  ///
-  /// This is deprecated. Use [onSeekComplete] instead.
-  @deprecated
-  SeekHandler? seekCompleteHandler;
-
-  /// Handler of player errors.
-  ///
-  /// Events are sent when an unexpected error is thrown in the native code.
-  ///
-  /// This is deprecated. Use [onPlayerError] instead.
-  @deprecated
-  ErrorHandler? errorHandler;
 
   /// An unique ID generated for this instance of [AudioPlayer].
   ///
@@ -632,31 +579,21 @@ class AudioPlayer {
       case 'audio.onDuration':
         Duration newDuration = Duration(milliseconds: value);
         player._durationController.add(newDuration);
-        // ignore: deprecated_member_use_from_same_package
-        player.durationHandler?.call(newDuration);
         break;
       case 'audio.onCurrentPosition':
         Duration newDuration = Duration(milliseconds: value);
         player._positionController.add(newDuration);
-        // ignore: deprecated_member_use_from_same_package
-        player.positionHandler?.call(newDuration);
         break;
       case 'audio.onComplete':
         player.state = AudioPlayerState.COMPLETED;
         player._completionController.add(null);
-        // ignore: deprecated_member_use_from_same_package
-        player.completionHandler?.call();
         break;
       case 'audio.onSeekComplete':
         player._seekCompleteController.add(value);
-        // ignore: deprecated_member_use_from_same_package
-        player.seekCompleteHandler?.call(value);
         break;
       case 'audio.onError':
         player.state = AudioPlayerState.STOPPED;
         player._errorController.add(value);
-        // ignore: deprecated_member_use_from_same_package
-        player.errorHandler?.call(value);
         break;
       case 'audio.onGotNextTrackCommand':
         player._commandController.add(PlayerControlCommand.NEXT_TRACK);
