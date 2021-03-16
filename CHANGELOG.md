@@ -1,6 +1,8 @@
 # Changelog
 
 ## [next]
+- Stable null-safety release
+- Removed all the `@deprecated` code blocks
 
 ## 0.17.4
 - Fix java.lang.UnsupportedOperationException on read-only kotlin map
