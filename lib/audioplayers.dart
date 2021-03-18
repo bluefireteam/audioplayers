@@ -288,7 +288,7 @@ class AudioPlayer {
   /// this should be called after initiating AudioPlayer only if you want to
   /// listen for notification changes in the background. Not implemented on macOS
   void startHeadlessService() {
-    if (this == null || playerId.isEmpty) {
+    if (playerId.isEmpty) {
       return;
     }
     // Start the headless audio service. The parameter here is a handle to
