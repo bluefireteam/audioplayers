@@ -52,37 +52,37 @@ class _ExampleAppState extends State<ExampleApp> {
 
     await file.writeAsBytes(bytes);
     if (await file.exists()) {
-      setState(() {
-        localFilePath = file.path;
-      });
+      setState(() => localFilePath = file.path);
     }
   }
 
   Widget remoteUrl() {
     return SingleChildScrollView(
-      child: _Tab(children: [
-        Text(
-          'Sample 1 ($kUrl1)',
-          key: Key('url1'),
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        PlayerWidget(url: kUrl1),
-        Text(
-          'Sample 2 ($kUrl2)',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        PlayerWidget(url: kUrl2),
-        Text(
-          'Sample 3 ($kUrl3)',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        PlayerWidget(url: kUrl3),
-        Text(
-          'Sample 4 (Low Latency mode) ($kUrl1)',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        PlayerWidget(url: kUrl1, mode: PlayerMode.LOW_LATENCY),
-      ]),
+      child: _Tab(
+        children: [
+          Text(
+            'Sample 1 ($kUrl1)',
+            key: Key('url1'),
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          PlayerWidget(url: kUrl1),
+          Text(
+            'Sample 2 ($kUrl2)',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          PlayerWidget(url: kUrl2),
+          Text(
+            'Sample 3 ($kUrl3)',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          PlayerWidget(url: kUrl3),
+          Text(
+            'Sample 4 (Low Latency mode) ($kUrl1)',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          PlayerWidget(url: kUrl1, mode: PlayerMode.LOW_LATENCY),
+        ],
+      ),
     );
   }
 
@@ -91,62 +91,62 @@ class _ExampleAppState extends State<ExampleApp> {
       Text('File: $kUrl1'),
       _Btn(txt: 'Download File to your Device', onPressed: () => _loadFile()),
       Text('Current local file path: $localFilePath'),
-      localFilePath == null
-          ? Container()
-          : PlayerWidget(
-              url: localFilePath!,
-            ),
+      localFilePath == null ? Container() : PlayerWidget(url: localFilePath!),
     ]);
   }
 
   Widget localAsset() {
     return SingleChildScrollView(
-      child: _Tab(children: [
-        Text('Play Local Asset \'audio.mp3\':'),
-        _Btn(txt: 'Play', onPressed: () => audioCache.play('audio.mp3')),
-        Text('Play Local Asset (via byte source) \'audio.mp3\':'),
-        _Btn(
-          txt: 'Play',
-          onPressed: () async {
-            var bytes =
-                await (await audioCache.load('audio.mp3')).readAsBytes();
-            audioCache.playBytes(bytes);
-          },
-        ),
-        Text('Loop Local Asset \'audio.mp3\':'),
-        _Btn(txt: 'Loop', onPressed: () => audioCache.loop('audio.mp3')),
-        Text('Loop Local Asset (via byte source) \'audio.mp3\':'),
-        _Btn(
-          txt: 'Loop',
-          onPressed: () async {
-            var bytes =
-                await (await audioCache.load('audio.mp3')).readAsBytes();
-            audioCache.playBytes(bytes, loop: true);
-          },
-        ),
-        Text('Play Local Asset \'audio2.mp3\':'),
-        _Btn(txt: 'Play', onPressed: () => audioCache.play('audio2.mp3')),
-        Text('Play Local Asset In Low Latency \'audio.mp3\':'),
-        _Btn(
-          txt: 'Play',
-          onPressed: () =>
-              audioCache.play('audio.mp3', mode: PlayerMode.LOW_LATENCY),
-        ),
-        Text('Play Local Asset Concurrently In Low Latency \'audio.mp3\':'),
-        _Btn(
+      child: _Tab(
+        children: [
+          Text('Play Local Asset \'audio.mp3\':'),
+          _Btn(txt: 'Play', onPressed: () => audioCache.play('audio.mp3')),
+          Text('Play Local Asset (via byte source) \'audio.mp3\':'),
+          _Btn(
             txt: 'Play',
             onPressed: () async {
-              await audioCache.play('audio.mp3', mode: PlayerMode.LOW_LATENCY);
-              await audioCache.play('audio2.mp3', mode: PlayerMode.LOW_LATENCY);
-            }),
-        Text('Play Local Asset In Low Latency \'audio2.mp3\':'),
-        _Btn(
-          txt: 'Play',
-          onPressed: () =>
-              audioCache.play('audio2.mp3', mode: PlayerMode.LOW_LATENCY),
-        ),
-        getLocalFileDuration(),
-      ]),
+              var bytes =
+                  await (await audioCache.load('audio.mp3')).readAsBytes();
+              audioCache.playBytes(bytes);
+            },
+          ),
+          Text('Loop Local Asset \'audio.mp3\':'),
+          _Btn(txt: 'Loop', onPressed: () => audioCache.loop('audio.mp3')),
+          Text('Loop Local Asset (via byte source) \'audio.mp3\':'),
+          _Btn(
+            txt: 'Loop',
+            onPressed: () async {
+              var bytes =
+                  await (await audioCache.load('audio.mp3')).readAsBytes();
+              audioCache.playBytes(bytes, loop: true);
+            },
+          ),
+          Text('Play Local Asset \'audio2.mp3\':'),
+          _Btn(txt: 'Play', onPressed: () => audioCache.play('audio2.mp3')),
+          Text('Play Local Asset In Low Latency \'audio.mp3\':'),
+          _Btn(
+            txt: 'Play',
+            onPressed: () =>
+                audioCache.play('audio.mp3', mode: PlayerMode.LOW_LATENCY),
+          ),
+          Text('Play Local Asset Concurrently In Low Latency \'audio.mp3\':'),
+          _Btn(
+              txt: 'Play',
+              onPressed: () async {
+                await audioCache.play('audio.mp3',
+                    mode: PlayerMode.LOW_LATENCY);
+                await audioCache.play('audio2.mp3',
+                    mode: PlayerMode.LOW_LATENCY);
+              }),
+          Text('Play Local Asset In Low Latency \'audio2.mp3\':'),
+          _Btn(
+            txt: 'Play',
+            onPressed: () =>
+                audioCache.play('audio2.mp3', mode: PlayerMode.LOW_LATENCY),
+          ),
+          getLocalFileDuration(),
+        ],
+      ),
     );
   }
 
@@ -223,9 +223,7 @@ class _ExampleAppState extends State<ExampleApp> {
               localFile(),
               localAsset(),
               notification(),
-              Advanced(
-                advancedPlayer: advancedPlayer,
-              ),
+              Advanced(advancedPlayer: advancedPlayer),
             ],
           ),
         ),
