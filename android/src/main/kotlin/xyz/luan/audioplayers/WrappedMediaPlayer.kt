@@ -30,8 +30,8 @@ class WrappedMediaPlayer internal constructor(
     /**
      * Setter methods
      */
-    override fun setUrl(url: String?, isLocal: Boolean) {
         if (this.url != url) {
+    override fun setUrl(url: String, isLocal: Boolean) {
             this.url = url
             val player = getOrCreatePlayer()
             player.setDataSource(url)
