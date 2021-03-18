@@ -1,6 +1,8 @@
 # Changelog
 
 ## [next]
+
+## 0.18.0
 - Stable null-safety release
 - Removed all the `@deprecated` code blocks
 
