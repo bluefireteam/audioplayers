@@ -210,9 +210,10 @@ class WrappedMediaPlayer {
         isLocal: Bool,
         isNotification: Bool,
         recordingActive: Bool,
+        duckAudio: Bool,
         onReady: @escaping (AVPlayer) -> Void
     ) {
-        reference.updateCategory(recordingActive: recordingActive, isNotification: isNotification, playingRoute: playingRoute)
+        reference.updateCategory(recordingActive: recordingActive, isNotification: isNotification, playingRoute: playingRoute, duckAudio: duckAudio)
         let playbackStatus = player?.currentItem?.status
         
         if self.url != url || playbackStatus == .failed || playbackStatus == nil {
@@ -286,15 +287,18 @@ class WrappedMediaPlayer {
         volume: Float,
         time: CMTime?,
         isNotification: Bool,
-        recordingActive: Bool
+        recordingActive: Bool,
+        duckAudio: Bool
     ) {
-        reference.updateCategory(recordingActive: recordingActive, isNotification: isNotification, playingRoute: playingRoute)
+        reference.updateCategory(recordingActive: recordingActive, isNotification: isNotification, playingRoute: playingRoute,
+        duckAudio: duckAudio)
         
         setUrl(
             url: url,
             isLocal: isLocal,
             isNotification: isNotification,
-            recordingActive: recordingActive
+            recordingActive: recordingActive,
+            duckAudio: duckAudio
         ) {
             player in
             player.volume = volume

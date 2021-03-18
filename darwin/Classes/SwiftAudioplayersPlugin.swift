@@ -133,6 +133,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
             
             let respectSilence: Bool = (args["respectSilence"] as? Bool) ?? false
             let recordingActive: Bool = (args["recordingActive"] as? Bool) ?? false
+            let duckAudio: Bool = (args["duckAudio"] as? Bool) ?? false
             
             player.play(
                 url: url,
@@ -140,7 +141,8 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
                 volume: volume,
                 time: seekTime,
                 isNotification: respectSilence,
-                recordingActive: recordingActive
+                recordingActive: recordingActive,
+                duckAudio: duckAudio
             )
         } else if method == "pause" {
             player.pause()
@@ -175,7 +177,8 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
                 url: url!,
                 isLocal: isLocal,
                 isNotification: respectSilence,
-                recordingActive: recordingActive
+                recordingActive: recordingActive,
+                duckAudio: false
             ) {
                 player in
                 result(1)
@@ -308,7 +311,8 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
     func updateCategory(
         recordingActive: Bool,
         isNotification: Bool,
-        playingRoute: String
+        playingRoute: String,
+        duckAudio: Bool
     ) {
         #if os(iOS)
         // When using AVAudioSessionCategoryPlayback, by default, this implies that your app’s audio is nonmixable—activating your session
@@ -317,7 +321,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         let category = (playingRoute == "earpiece" || recordingActive) ? AVAudioSession.Category.playAndRecord : (
             isNotification ? AVAudioSession.Category.ambient : AVAudioSession.Category.playback
         )
-        let options = isNotification ? AVAudioSession.CategoryOptions.mixWithOthers : []
+        let options = isNotification || duckAudio ? AVAudioSession.CategoryOptions.mixWithOthers : []
         
         configureAudioSession(category: category, options: options)
         if isNotification {
