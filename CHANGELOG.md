@@ -1,6 +1,7 @@
 # Changelog
 
 ## [next]
+- Allow HTTP headers in `setUrl` (android only for now)
 
 ## 0.18.1
 - Fix kotlin config issue for some apps
