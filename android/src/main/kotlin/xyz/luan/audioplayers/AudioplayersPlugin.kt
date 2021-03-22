@@ -44,7 +44,7 @@ class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
         val player = getPlayer(playerId, mode)
         when (call.method) {
             "play" -> {
-                val url = call.argument<String>("url")
+                val url = call.argument<String>("url") !!
                 val isLocal = call.argument<Boolean>("isLocal") ?: false
 
                 val volume = call.argument<Double>("volume") ?: 1.0
@@ -90,7 +90,7 @@ class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
                 player.setVolume(volume)
             }
             "setUrl" -> {
-                val url = call.argument<String>("url")
+                val url = call.argument<String>("url") !!
                 val isLocal = call.argument<Boolean>("isLocal") ?: false
                 player.setUrl(url, isLocal)
             }

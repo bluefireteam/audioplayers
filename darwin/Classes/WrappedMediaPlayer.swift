@@ -141,7 +141,6 @@ class WrappedMediaPlayer {
             return
         }
         let newTime = CMTimeAdd(currentTime, toCMTime(millis: interval * 1000))
-        
         // if CMTime is more than max duration, limit it
         let clampedTime = CMTimeGetSeconds(newTime) > CMTimeGetSeconds(maxDuration) ? maxDuration : newTime
         seek(time: clampedTime)
@@ -152,11 +151,9 @@ class WrappedMediaPlayer {
             log("Cannot skip forward, unable to determine currentTime")
             return
         }
-        
         let newTime = CMTimeSubtract(currentTime, toCMTime(millis: interval * 1000))
         // if CMTime is negative, set it to zero
         let clampedTime = CMTimeGetSeconds(newTime) < 0 ? toCMTime(millis: 0) : newTime
-        
         seek(time: clampedTime)
     }
     
