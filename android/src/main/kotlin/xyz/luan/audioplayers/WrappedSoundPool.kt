@@ -119,7 +119,7 @@ class WrappedSoundPool internal constructor(override val playerId: String) : Pla
         throw unsupportedOperation("setDataSource")
     }
 
-    override fun setUrl(url: String?, isLocal: Boolean) {
+    override fun setUrl(url: String, isLocal: Boolean) {
         if (this.url != null && this.url == url) {
             return
         }

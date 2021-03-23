@@ -2,6 +2,12 @@
 
 ## [next]
 
+## 0.18.1
+- Fix kotlin config issue for some apps
+- Fix warning from pub
+- Fix iOS lock screen
+- Fix setUrl method
+
 ## 0.18.0
 - Stable null-safety release
 - Removed all the `@deprecated` code blocks
