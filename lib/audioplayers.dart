@@ -41,7 +41,7 @@ enum ReleaseMode {
 
 /// Indicates the state of the audio player.
 enum AudioPlayerState {
-  /// Stop has been called or an error occurred.
+  /// initial state, stop has been called or an error occurred.
   STOPPED,
 
   /// Currently playing audio.
@@ -182,7 +182,7 @@ class AudioPlayer {
   /// Enables more verbose logging.
   static bool logEnabled = false;
 
-  late AudioPlayerState _audioPlayerState;
+  AudioPlayerState _audioPlayerState = AudioPlayerState.STOPPED;
 
   AudioPlayerState get state => _audioPlayerState;
 
