@@ -27,23 +27,23 @@ jobs:
       - name: Run tests
         run: flutter test
 
-      - name: Example App: Verify formatting
+      - name: Example App - Verify formatting
         working-directory: ./example
         run: flutter format --dry-run --set-exit-if-changed .
 
-      - name: Example App: Install dependencies
+      - name: Example App - Install dependencies
         working-directory: ./example
         run: flutter pub get
         
-      - name: Example App: Analyze project source
+      - name: Example App - Analyze project source
         working-directory: ./example
         run: flutter analyze --no-fatal-infos --no-fatal-warnings
         
-      - name: Example App: Build android APK
+      - name: Example App - Build android APK
         working-directory: ./example
         run: flutter build apk
 
-      # - name: Example App: Run tests
+      # - name: Example App - Run tests
       #   working-directory: ./example
       #   run: flutter test
 
