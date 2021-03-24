@@ -91,7 +91,7 @@ For a Local File, add the `isLocal` parameter:
 ```
 
 To play a file in the form of a data buffer (Uint8List), use the method `playBytes`.
-This currently only works for Android (requiring API >= 23).
+This currently only works for Android (requiring API >= 23, be sure to handle that if you use this method on your code).
 
 ```dart
   playLocal() async {
@@ -304,10 +304,11 @@ Here is an example of how it should look like:
 </manifest>
 ```
 
-## Gradle Build Failing
+## Android Support
 
-In order to support the `playBytes` method, this has a hard requirement on using API >= 23 features, and your build may failure depending on your minimum SDK targeting.
-To override this, you will need to add `<uses-sdk tools:overrideLibrary="xyz.luan.audioplayers"/>` to your `AndroidManifest.xml` file.
+Giving support to old Android devices is very hard, on this plugin we set the minSdk as 16, but we only ensure support >= 23 as that is the minimum version that the team has devices available to test changes and new features.
+
+This mean that, Audioplayer should work on older devices, but we can't give any guarantees, we will not be able to look after issues regarding API < 23. But we would glady take any pull requests from the community that fixes or improve support on those old versions.
 
 ## Credits
 
