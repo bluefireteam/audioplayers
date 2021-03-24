@@ -28,21 +28,21 @@ jobs:
       - name: Run tests
         run: flutter test
 
-      # - name: Example App - Run tests
-      #   working-directory: ./example
-      #   run: flutter test
+      - name: Example App - Run tests
+        working-directory: ./example
+        run: flutter test
 
       - name: Example App - Build web app
         working-directory: ./example
-        run: flutter build web
+        run: flutter build web --release
 
       - name: Example App - Build android APK
         working-directory: ./example
-        run: flutter build apk
+        run: flutter build apk --release
 
-      # - name: Example App - Build iOS App
-      #   working-directory: ./example
-      #   run: flutter build ios
+      - name: Example App - Build iOS App
+        working-directory: ./example
+        run: flutter build ios --release --no-codesign
 
   # android-drive:
   #   runs-on: macOS-latest
