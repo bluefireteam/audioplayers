@@ -28,10 +28,6 @@ jobs:
       - name: Run tests
         run: flutter test
 
-      - name: Example App - Run tests
-        working-directory: ./example
-        run: flutter test
-
       - name: Example App - Build web app
         working-directory: ./example
         run: flutter build web --release
