@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v1
@@ -40,9 +40,9 @@ jobs:
         working-directory: ./example
         run: flutter build apk
 
-      - name: Example App - Build iOS App
-        working-directory: ./example
-        run: flutter build ios
+      # - name: Example App - Build iOS App
+      #   working-directory: ./example
+      #   run: flutter build ios
 
   # android-drive:
   #   runs-on: macOS-latest
