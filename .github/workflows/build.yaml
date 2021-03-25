@@ -78,26 +78,26 @@ jobs:
     #    working-directory: ./example
     #    run: "flutter drive --target=test_driver/app.dart"
 
- ios:
-   runs-on: macOS-latest
-
-   steps:
-   - name: List all simulators
-     run: "xcrun instruments -s"
-   - name: Start Simulator
-     run: |
-       UDID=$(xcrun instruments -s | grep "iPhone" | sed -n 1p | awk -F ' *[][]' '{ print $2 }')
-       echo "Using simulator $UUID"
-       xcrun simctl boot "${UDID:?No Simulator with this name iPhone found}"
-   - uses: actions/checkout@v1
-   - uses: subosito/flutter-action@v1
-     with:
-       channel: stable
-   - name: Example App - Build iOS
-     working-directory: ./example
-     run: |
-       flutter pub get
-       flutter build ios --release --no-codesign
-   # - name: Run Flutter Driver tests
-   #   working-directory: ./example
-   #   run: "flutter drive --target=test_driver/app.dart"
+  ios:
+    runs-on: macOS-latest
+ 
+    steps:
+    - name: List all simulators
+      run: "xcrun instruments -s"
+    - name: Start Simulator
+      run: |
+        UDID=$(xcrun instruments -s | grep "iPhone" | sed -n 1p | awk -F ' *[][]' '{ print $2 }')
+        echo "Using simulator $UUID"
+        xcrun simctl boot "${UDID:?No Simulator with this name iPhone found}"
+    - uses: actions/checkout@v1
+    - uses: subosito/flutter-action@v1
+      with:
+        channel: stable
+    - name: Example App - Build iOS
+      working-directory: ./example
+      run: |
+        flutter pub get
+        flutter build ios --release --no-codesign
+    # - name: Run Flutter Driver tests
+    #   working-directory: ./example
+    #   run: "flutter drive --target=test_driver/app.dart"
