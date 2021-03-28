@@ -1,7 +1,10 @@
 # Changelog
 
 ## [next]
- - Changing Android minSdk verison to 16
+
+## 0.18.2
+- Changing Android minSdk verison to 16
+- Improve build processes and other small bug fixes
 
 ## 0.18.1
 - Fix kotlin config issue for some apps
