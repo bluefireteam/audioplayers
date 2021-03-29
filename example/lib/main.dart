@@ -302,7 +302,7 @@ class _AdvancedState extends State<Advanced> {
             children: [
               Text('Volume'),
               Row(
-                children: [0.0, 0.5, 1.0, 2.0].map((e) {
+                children: [0.0, 0.3, 0.5, 1.0, 1.1, 2.0].map((e) {
                   return _Btn(
                     txt: e.toString(),
                     onPressed: () => widget.advancedPlayer.setVolume(e),

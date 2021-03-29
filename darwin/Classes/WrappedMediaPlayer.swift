@@ -1,7 +1,7 @@
 import AVKit
 
-private let defaultPlaybackRate: Float = 1.0
-private let defaultVolume: Float = 1.0
+private let defaultPlaybackRate: Double = 1.0
+private let defaultVolume: Double = 1.0
 private let defaultPlayingRoute = "speakers"
 
 class WrappedMediaPlayer {
@@ -14,8 +14,8 @@ class WrappedMediaPlayer {
     var keyVakueObservation: NSKeyValueObservation?
     
     var isPlaying: Bool
-    var playbackRate: Float
-    var volume: Float
+    var playbackRate: Double
+    var volume: Double
     var playingRoute: String
     var looping: Bool
     var url: String?
@@ -28,8 +28,8 @@ class WrappedMediaPlayer {
         observers: [TimeObserver] = [],
         
         isPlaying: Bool = false,
-        playbackRate: Float = defaultPlaybackRate,
-        volume: Float = defaultVolume,
+        playbackRate: Double = defaultPlaybackRate,
+        volume: Double = defaultVolume,
         playingRoute: String = defaultPlayingRoute,
         looping: Bool = false,
         url: String? = nil,
@@ -94,7 +94,7 @@ class WrappedMediaPlayer {
     func resume() {
         isPlaying = true
         if #available(iOS 10.0, macOS 10.12, *) {
-            player?.playImmediately(atRate: playbackRate)
+            player?.playImmediately(atRate: Float(playbackRate))
         } else {
             player?.play()
         }
@@ -103,14 +103,14 @@ class WrappedMediaPlayer {
         reference.lastPlayerId = playerId
     }
     
-    func setVolume(volume: Float) {
+    func setVolume(volume: Double) {
         self.volume = volume
-        player?.volume = volume
+        player?.volume = Float(volume)
     }
     
-    func setPlaybackRate(playbackRate: Float) {
+    func setPlaybackRate(playbackRate: Double) {
         self.playbackRate = playbackRate
-        player?.rate = playbackRate
+        player?.rate = Float(playbackRate)
         
         if let currentTime = getCurrentCMTime() {
             reference.updateNotifications(player: self, time: currentTime)
@@ -281,7 +281,7 @@ class WrappedMediaPlayer {
     func play(
         url: String,
         isLocal: Bool,
-        volume: Float,
+        volume: Double,
         time: CMTime?,
         isNotification: Bool,
         recordingActive: Bool,
@@ -298,7 +298,7 @@ class WrappedMediaPlayer {
             duckAudio: duckAudio
         ) {
             player in
-            player.volume = volume
+            player.volume = Float(volume)
             if let time = time {
                 player.seek(to: time)
             }
