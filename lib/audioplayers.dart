@@ -633,6 +633,7 @@ class AudioPlayer {
     if (!_seekCompleteController.isClosed)
       futures.add(_seekCompleteController.close());
     if (!_errorController.isClosed) futures.add(_errorController.close());
+    if (!_commandController..isClosed) futures.add(_commandController.close());
 
     await Future.wait(futures);
     players.remove(playerId);
