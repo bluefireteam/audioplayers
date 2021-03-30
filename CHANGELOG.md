@@ -1,6 +1,8 @@
 # Changelog
 
 ## [next]
+
+## 0.18.3
 - Fix Float vs Double mixup on Swift that prevent non-integer values for volume/playback
 - Fix open sink issue / resource leak
 
