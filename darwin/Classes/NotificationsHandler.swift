@@ -88,7 +88,7 @@ class NotificationsHandler {
         }
     }
     
-    func update(playerId: String, time: CMTime, playbackRate: Float) {
+    func update(playerId: String, time: CMTime, playbackRate: Double) {
         #if os(iOS)
         updateForIos(playerId: playerId, time: time, playbackRate: playbackRate)
         #else
@@ -147,7 +147,7 @@ class NotificationsHandler {
         }
     }
     
-    func updateForIos(playerId: String, time: CMTime, playbackRate: Float) {
+    func updateForIos(playerId: String, time: CMTime, playbackRate: Double) {
         if (infoCenter == nil || playerId != reference.lastPlayerId) {
             return
         }
@@ -161,7 +161,7 @@ class NotificationsHandler {
             MPMediaItemPropertyArtist: artist,
             MPMediaItemPropertyPlaybackDuration: duration,
             MPNowPlayingInfoPropertyElapsedPlaybackTime: elapsedTime,
-            MPNowPlayingInfoPropertyPlaybackRate: playbackRate
+            MPNowPlayingInfoPropertyPlaybackRate: Float(playbackRate)
         ]
         
         log("Updating playing info...")

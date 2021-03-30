@@ -125,7 +125,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
             }
             
             let isLocal: Bool = (args["isLocal"] as? Bool) ?? true
-            let volume: Float = (args["volume"] as? Float) ?? 1.0
+            let volume: Double = (args["volume"] as? Double) ?? 1.0
             
             // we might or might not want to seek
             let seekTimeMillis: Int = (args["position"] as? Int) ?? 0
@@ -187,7 +187,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
             let duration = player.getDuration()
             result(duration)
         } else if method == "setVolume" {
-            guard let volume = args["volume"] as? Float else {
+            guard let volume = args["volume"] as? Double else {
                 log("Error calling setVolume, volume cannot be null")
                 result(0)
                 return
@@ -198,7 +198,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
             let currentPosition = player.getCurrentPosition()
             result(currentPosition)
         } else if method == "setPlaybackRate" {
-            guard let playbackRate = args["playbackRate"] as? Float else {
+            guard let playbackRate = args["playbackRate"] as? Double else {
                 log("Error calling setPlaybackRate, playbackRate cannot be null")
                 result(0)
                 return
