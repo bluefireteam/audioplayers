@@ -1,6 +1,8 @@
 # Changelog
 
 ## [next]
+- Fix Float vs Double mixup on Swift that prevent non-integer values for volume/playback
+- Fix open sink issue / resource leak
 
 ## 0.18.2
 - Changing Android minSdk verison to 16
