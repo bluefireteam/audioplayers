@@ -12,6 +12,26 @@ The basic class of this package is the AudioPlayer class, which represents a sin
 
 If you are using the `AudioCache` class, though, it does not have a pause method because that class generates new audio players every time you play, in order to allow for simultaneously playing. So the `play` or `loop` methods on that class returns the instance of `AudioPlayer` created, and you can save that to a variable and call `pause`/`stop`/`resume` on that instead. There is also a mode where `AudioCache` uses the same, `fixedPlayer`, but that is also returned in the method. Please take a look at the docs and source code for the `AudioCache` class for more details. Also, cf. [this stack overflow question](https://stackoverflow.com/questions/59229935/when-using-flame-audioplayers-how-to-stop-audios-from-audiocache/59229936#59229936).
 
+### Build issues
+
+**Warning**: If you are having any sort of build issues, please read this first.
+
+Our [CI](https://github.com/luanpotter/audioplayers/blob/master/.github/workflows/build.yaml) builds our example app using audioplayers for Android, iOS and web. So if the build is passing, any build errors (from android/ios sdk, gradle, java, kotlin, cocoa pods, swift, flutter, etc) is not a global issue and likely is something on your setup.
+
+Before opening an issue, you **must** try these steps:
+
+1. Run this on your project and try again:
+```bash
+flutter clean
+rm -rf build
+rm -rf ~/.pub-cache
+
+flutter pub get
+```
+2. If the issue persists, clone the audioplayers repo and run the `example` app on the platform you are having issues. If it works, then there is something wrong with your project, and you can compare it to the `example` app to see what the problem is.
+3. If the problem still persists, and no existing (open or closed) issue on this repo, no stack overflow question or existing discord discussion solves you problem, then you can open an issue. But you must follow the issue template, and refer to the problem on the example app (or start with its code and make only the necessary modifications to trigger the issue), not on your own app that we don't have access (because since step 2 the error must be reproducible on the example app).
+4. Again, only open an issue if you reached step 3 and follow the issue template closely. Build issues that do not follow these steps will be warned and closed.
+
 ## Android
 
  - Can't play remote files on Android 9: Android 9 has changed some network security defaults, so it may prevent you from play files outside https by default, [this stackoverflow question](https://stackoverflow.com/questions/45940861/android-8-cleartext-http-traffic-not-permitted) is a good source to solving this.
