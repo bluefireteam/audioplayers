@@ -16,7 +16,7 @@ extension PlayingRouteExtensions on PlayingRoute {
     }
   }
 
-  /// Note: this only makes sense because we have exactly two playing routes.EARPIECE
+  /// Note: this only makes sense because we have exactly two playing routes.
   /// If that ever was to change, this method would need to be removed.
   PlayingRoute toggle() {
     switch (this) {
