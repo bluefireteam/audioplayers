@@ -444,7 +444,7 @@ class _Btn extends StatelessWidget {
   Widget build(BuildContext context) {
     return ButtonTheme(
       minWidth: 48.0,
-      child: RaisedButton(child: Text(txt), onPressed: onPressed),
+      child: ElevatedButton(child: Text(txt), onPressed: onPressed),
     );
   }
 }

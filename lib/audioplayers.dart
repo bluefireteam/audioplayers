@@ -300,8 +300,6 @@ class AudioPlayer {
     _invokeMethod('startHeadlessService', {
       'handleKey': <dynamic>[handle?.toRawHandle()]
     });
-
-    return;
   }
 
   /// Start getting significant audio updates through `callback`.
@@ -493,8 +491,8 @@ class AudioPlayer {
     Duration backwardSkipInterval = Duration.zero,
     Duration duration = Duration.zero,
     Duration elapsedTime = Duration.zero,
-    bool hasPreviousTrack = false,
-    bool hasNextTrack = false,
+    bool enablePreviousTrackButton = false,
+    bool enableNextTrackButton = false,
   }) {
     return _invokeMethod('setNotification', {
       'title': title,
@@ -505,8 +503,8 @@ class AudioPlayer {
       'backwardSkipInterval': backwardSkipInterval.inSeconds,
       'duration': duration.inSeconds,
       'elapsedTime': elapsedTime.inSeconds,
-      'hasPreviousTrack': hasPreviousTrack,
-      'hasNextTrack': hasNextTrack
+      'enablePreviousTrackButton': enablePreviousTrackButton,
+      'enableNextTrackButton': enableNextTrackButton,
     });
   }
 
