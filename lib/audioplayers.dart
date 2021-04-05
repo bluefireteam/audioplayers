@@ -1,138 +1,16 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
-import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
 
-typedef StreamController CreateStreamController();
-typedef void TimeChangeHandler(Duration duration);
-typedef void SeekHandler(bool finished);
-typedef void ErrorHandler(String message);
-typedef void AudioPlayerStateChangeHandler(AudioPlayerState state);
-
-/// This enum is meant to be used as a parameter of [setReleaseMode] method.
-///
-/// It represents the behaviour of [AudioPlayer] when an audio is finished or
-/// stopped.
-enum ReleaseMode {
-  /// Releases all resources, just like calling [release] method.
-  ///
-  /// In Android, the media player is quite resource-intensive, and this will
-  /// let it go. Data will be buffered again when needed (if it's a remote file,
-  /// it will be downloaded again).
-  /// In iOS and macOS, works just like [stop] method.
-  ///
-  /// This is the default behaviour.
-  RELEASE,
-
-  /// Keeps buffered data and plays again after completion, creating a loop.
-  /// Notice that calling [stop] method is not enough to release the resources
-  /// when this mode is being used.
-  LOOP,
-
-  /// Stops audio playback but keep all resources intact.
-  /// Use this if you intend to play again later.
-  STOP
-}
-
-/// Indicates the state of the audio player.
-enum AudioPlayerState {
-  /// initial state, stop has been called or an error occurred.
-  STOPPED,
-
-  /// Currently playing audio.
-  PLAYING,
-
-  /// Pause has been called.
-  PAUSED,
-
-  /// The audio successfully completed (reached the end).
-  COMPLETED,
-}
-
-/// Indicates which speakers use for playing
-enum PlayingRouteState {
-  SPEAKERS,
-  EARPIECE,
-}
-
-/// This enum is meant to be used as a parameter of the [AudioPlayer]'s
-/// constructor. It represents the general mode of the [AudioPlayer].
-///
-// In iOS and macOS, both modes have the same backend implementation.
-enum PlayerMode {
-  /// Ideal for long media files or streams.
-  MEDIA_PLAYER,
-
-  /// Ideal for short audio files, since it reduces the impacts on visuals or
-  /// UI performance.
-  ///
-  /// In this mode the backend won't fire any duration or position updates.
-  /// Also, it is not possible to use the seek method to set the audio a
-  /// specific position.
-  LOW_LATENCY
-}
-
-enum PlayerControlCommand {
-  NEXT_TRACK,
-  PREVIOUS_TRACK,
-}
-
-// When we start the background service isolate, we only ever enter it once.
-// To communicate between the native plugin and this entrypoint, we'll use
-// MethodChannels to open a persistent communication channel to trigger
-// callbacks.
-
-/// Not implemented on macOS.
-void _backgroundCallbackDispatcher() {
-  const MethodChannel _channel =
-      MethodChannel('xyz.luan/audioplayers_callback');
-
-  // Setup Flutter state needed for MethodChannels.
-  WidgetsFlutterBinding.ensureInitialized();
-
-  // Reference to the onAudioChangeBackgroundEvent callback.
-  Function(AudioPlayerState)? onAudioChangeBackgroundEvent;
-
-  // This is where the magic happens and we handle background events from the
-  // native portion of the plugin. Here we message the audio notification data
-  // which we then pass to the provided callback.
-  _channel.setMethodCallHandler((MethodCall call) async {
-    Function(AudioPlayerState) _performCallbackLookup() {
-      final CallbackHandle handle = CallbackHandle.fromRawHandle(
-          call.arguments['updateHandleMonitorKey']);
-
-      // PluginUtilities.getCallbackFromHandle performs a lookup based on the
-      // handle we retrieved earlier.
-      final Function? closure = PluginUtilities.getCallbackFromHandle(handle);
-
-      if (closure == null) {
-        print('Fatal Error: Callback lookup failed!');
-        // exit(-1);
-      }
-      return closure as Function(AudioPlayerState);
-    }
-
-    final Map<dynamic, dynamic> callArgs = call.arguments as Map;
-    if (call.method == 'audio.onNotificationBackgroundPlayerStateChanged') {
-      onAudioChangeBackgroundEvent ??= _performCallbackLookup();
-      final String playerState = callArgs['value'];
-      if (playerState == 'playing') {
-        onAudioChangeBackgroundEvent!(AudioPlayerState.PLAYING);
-      } else if (playerState == 'paused') {
-        onAudioChangeBackgroundEvent!(AudioPlayerState.PAUSED);
-      } else if (playerState == 'completed') {
-        onAudioChangeBackgroundEvent!(AudioPlayerState.COMPLETED);
-      }
-    } else {
-      assert(false, "No handler defined for method type: '${call.method}'");
-    }
-  });
-}
+import 'audioplayers_notifications.dart';
+import 'player_mode.dart';
+import 'player_state.dart';
+import 'playing_route.dart';
+import 'release_mode.dart';
 
 /// This represents a single AudioPlayer, which can play one audio at a time.
 /// To play several audios at the same time, you must create several instances
@@ -147,11 +25,11 @@ class AudioPlayer {
 
   static final _uuid = Uuid();
 
-  final StreamController<AudioPlayerState> _playerStateController =
-      StreamController<AudioPlayerState>.broadcast();
+  final StreamController<PlayerState> _playerStateController =
+      StreamController<PlayerState>.broadcast();
 
-  final StreamController<AudioPlayerState> _notificationPlayerStateController =
-      StreamController<AudioPlayerState>.broadcast();
+  final StreamController<PlayerState> _notificationPlayerStateController =
+      StreamController<PlayerState>.broadcast();
 
   final StreamController<Duration> _positionController =
       StreamController<Duration>.broadcast();
@@ -171,47 +49,52 @@ class AudioPlayer {
   final StreamController<PlayerControlCommand> _commandController =
       StreamController<PlayerControlCommand>.broadcast();
 
-  PlayingRouteState _playingRouteState = PlayingRouteState.SPEAKERS;
+  PlayingRoute _playingRouteState = PlayingRoute.SPEAKERS;
 
   /// Reference [Map] with all the players created by the application.
   ///
   /// This is used to exchange messages with the [MethodChannel]
-  /// (there is only one).
+  /// (because there is only one channel for all players).
   static final players = Map<String, AudioPlayer>();
 
   /// Enables more verbose logging.
+  ///
+  /// TODO(luan): there are still some logs on the android native side that we
+  /// should get rid of.
   static bool logEnabled = false;
 
-  AudioPlayerState _audioPlayerState = AudioPlayerState.STOPPED;
+  late NotificationService notificationService;
 
-  AudioPlayerState get state => _audioPlayerState;
+  PlayerState _playerState = PlayerState.STOPPED;
 
-  set state(AudioPlayerState state) {
+  PlayerState get state => _playerState;
+
+  set state(PlayerState state) {
     _playerStateController.add(state);
-    _audioPlayerState = state;
+    _playerState = state;
   }
 
-  set playingRouteState(PlayingRouteState routeState) {
+  set playingRouteState(PlayingRoute routeState) {
     _playingRouteState = routeState;
   }
 
-  set notificationState(AudioPlayerState state) {
+  // TODO(luan) why do we need two methods for setting state?
+  set notificationState(PlayerState state) {
     _notificationPlayerStateController.add(state);
-    _audioPlayerState = state;
+    _playerState = state;
   }
 
   /// Stream of changes on player state.
-  Stream<AudioPlayerState> get onPlayerStateChanged =>
-      _playerStateController.stream;
+  Stream<PlayerState> get onPlayerStateChanged => _playerStateController.stream;
 
   /// Stream of changes on player state coming from notification area in iOS.
-  Stream<AudioPlayerState> get onNotificationPlayerStateChanged =>
+  Stream<PlayerState> get onNotificationPlayerStateChanged =>
       _notificationPlayerStateController.stream;
 
   /// Stream of changes on audio position.
   ///
   /// Roughly fires every 200 milliseconds. Will continuously update the
-  /// position of the playback if the status is [AudioPlayerState.PLAYING].
+  /// position of the playback if the status is [PlayerState.PLAYING].
   ///
   /// You can use it on a progress bar, for instance.
   Stream<Duration> get onAudioPositionChanged => _positionController.stream;
@@ -248,28 +131,17 @@ class AudioPlayer {
   /// An unique ID generated for this instance of [AudioPlayer].
   ///
   /// This is used to properly exchange messages with the [MethodChannel].
-  String playerId;
+  final String playerId;
 
   /// Current mode of the audio player. Can be updated at any time, but is going
   /// to take effect only at the next time you play the audio.
-  PlayerMode mode;
+  final PlayerMode mode;
 
   /// Creates a new instance and assigns an unique id to it.
-  AudioPlayer({this.mode = PlayerMode.MEDIA_PLAYER, this.playerId = ''}) {
-    this.playerId = this.playerId == '' ? _uuid.v4() : this.playerId;
-    players[playerId] = this;
-
-    if (defaultTargetPlatform == TargetPlatform.iOS) {
-      // Start the headless audio service. The parameter here is a handle to
-      // a callback managed by the Flutter engine, which allows for us to pass
-      // references to our callbacks between isolates.
-      final CallbackHandle? handle =
-          PluginUtilities.getCallbackHandle(_backgroundCallbackDispatcher);
-      assert(handle != null, 'Unable to lookup callback.');
-      _invokeMethod('startHeadlessService', {
-        'handleKey': <dynamic>[handle?.toRawHandle()],
-      });
-    }
+  AudioPlayer({this.mode = PlayerMode.MEDIA_PLAYER, String? playerId})
+      : this.playerId = playerId ?? _uuid.v4() {
+    players[this.playerId] = this;
+    notificationService = NotificationService(_invokeMethod);
   }
 
   Future<int> _invokeMethod(
@@ -283,39 +155,6 @@ class AudioPlayer {
     return _channel
         .invokeMethod(method, withPlayerId)
         .then((result) => (result as int));
-  }
-
-  /// this should be called after initiating AudioPlayer only if you want to
-  /// listen for notification changes in the background. Not implemented on macOS
-  void startHeadlessService() {
-    if (playerId.isEmpty) {
-      return;
-    }
-    // Start the headless audio service. The parameter here is a handle to
-    // a callback managed by the Flutter engine, which allows for us to pass
-    // references to our callbacks between isolates.
-    final CallbackHandle? handle =
-        PluginUtilities.getCallbackHandle(_backgroundCallbackDispatcher);
-    assert(handle != null, 'Unable to lookup callback.');
-    _invokeMethod('startHeadlessService', {
-      'handleKey': <dynamic>[handle?.toRawHandle()]
-    });
-  }
-
-  /// Start getting significant audio updates through `callback`.
-  ///
-  /// `callback` is invoked on a background isolate and will not have direct
-  /// access to the state held by the main isolate (or any other isolate).
-  Future<bool> monitorNotificationStateChanges(
-    void Function(AudioPlayerState value) callback,
-  ) async {
-    final CallbackHandle? handle = PluginUtilities.getCallbackHandle(callback);
-    assert(handle != null, 'Unable to lookup callback.');
-    await _invokeMethod('monitorNotificationStateChanges', {
-      'handleMonitorKey': <dynamic>[handle?.toRawHandle()]
-    });
-
-    return true;
   }
 
   /// Plays an audio.
@@ -349,7 +188,7 @@ class AudioPlayer {
     });
 
     if (result == 1) {
-      state = AudioPlayerState.PLAYING;
+      state = PlayerState.PLAYING;
     }
 
     return result;
@@ -357,7 +196,7 @@ class AudioPlayer {
 
   /// Plays audio in the form of a byte array.
   ///
-  /// This is only supported on Android currently.
+  /// This is only supported on Android (SDK >= 23) currently.
   Future<int> playBytes(
     Uint8List bytes, {
     double volume = 1.0,
@@ -386,7 +225,7 @@ class AudioPlayer {
     });
 
     if (result == 1) {
-      state = AudioPlayerState.PLAYING;
+      state = PlayerState.PLAYING;
     }
 
     return result;
@@ -397,10 +236,10 @@ class AudioPlayer {
   /// If you call [resume] later, the audio will resume from the point that it
   /// has been paused.
   Future<int> pause() async {
-    final int result = await _invokeMethod('pause');
+    final result = await _invokeMethod('pause');
 
     if (result == 1) {
-      state = AudioPlayerState.PAUSED;
+      state = PlayerState.PAUSED;
     }
 
     return result;
@@ -411,10 +250,10 @@ class AudioPlayer {
   /// The position is going to be reset and you will no longer be able to resume
   /// from the last point.
   Future<int> stop() async {
-    final int result = await _invokeMethod('stop');
+    final result = await _invokeMethod('stop');
 
     if (result == 1) {
-      state = AudioPlayerState.STOPPED;
+      state = PlayerState.STOPPED;
     }
 
     return result;
@@ -423,10 +262,10 @@ class AudioPlayer {
   /// Resumes the audio that has been paused or stopped, just like calling
   /// [play], but without changing the parameters.
   Future<int> resume() async {
-    final int result = await _invokeMethod('resume');
+    final result = await _invokeMethod('resume');
 
     if (result == 1) {
-      state = AudioPlayerState.PLAYING;
+      state = PlayerState.PLAYING;
     }
 
     return result;
@@ -437,10 +276,10 @@ class AudioPlayer {
   /// The resources are going to be fetched or buffered again as soon as you
   /// call [play] or [setUrl].
   Future<int> release() async {
-    final int result = await _invokeMethod('release');
+    final result = await _invokeMethod('release');
 
     if (result == 1) {
-      state = AudioPlayerState.STOPPED;
+      state = PlayerState.STOPPED;
     }
 
     return result;
@@ -477,35 +316,6 @@ class AudioPlayer {
   /// not sure if that's changed recently.
   Future<int> setPlaybackRate({double playbackRate = 1.0}) {
     return _invokeMethod('setPlaybackRate', {'playbackRate': playbackRate});
-  }
-
-  /// Sets the notification bar for lock screen and notification area in iOS for now.
-  ///
-  /// Specify atleast title
-  Future<dynamic> setNotification({
-    String title = '',
-    String albumTitle = '',
-    String artist = '',
-    String imageUrl = '',
-    Duration forwardSkipInterval = Duration.zero,
-    Duration backwardSkipInterval = Duration.zero,
-    Duration duration = Duration.zero,
-    Duration elapsedTime = Duration.zero,
-    bool enablePreviousTrackButton = false,
-    bool enableNextTrackButton = false,
-  }) {
-    return _invokeMethod('setNotification', {
-      'title': title,
-      'albumTitle': albumTitle,
-      'artist': artist,
-      'imageUrl': imageUrl,
-      'forwardSkipInterval': forwardSkipInterval.inSeconds,
-      'backwardSkipInterval': backwardSkipInterval.inSeconds,
-      'duration': duration.inSeconds,
-      'elapsedTime': elapsedTime.inSeconds,
-      'enablePreviousTrackButton': enablePreviousTrackButton,
-      'enableNextTrackButton': enableNextTrackButton,
-    });
   }
 
   /// Sets the URL.
@@ -572,7 +382,7 @@ class AudioPlayer {
       case 'audio.onNotificationPlayerStateChanged':
         final bool isPlaying = value;
         player.notificationState =
-            isPlaying ? AudioPlayerState.PLAYING : AudioPlayerState.PAUSED;
+            isPlaying ? PlayerState.PLAYING : PlayerState.PAUSED;
         break;
       case 'audio.onDuration':
         Duration newDuration = Duration(milliseconds: value);
@@ -583,14 +393,14 @@ class AudioPlayer {
         player._positionController.add(newDuration);
         break;
       case 'audio.onComplete':
-        player.state = AudioPlayerState.COMPLETED;
+        player.state = PlayerState.COMPLETED;
         player._completionController.add(null);
         break;
       case 'audio.onSeekComplete':
         player._seekCompleteController.add(value);
         break;
       case 'audio.onError':
-        player.state = AudioPlayerState.STOPPED;
+        player.state = PlayerState.STOPPED;
         player._errorController.add(value);
         break;
       case 'audio.onGotNextTrackCommand':
@@ -638,16 +448,10 @@ class AudioPlayer {
   }
 
   Future<int> earpieceOrSpeakersToggle() async {
-    PlayingRouteState playingRoute =
-        _playingRouteState == PlayingRouteState.EARPIECE
-            ? PlayingRouteState.SPEAKERS
-            : PlayingRouteState.EARPIECE;
-
-    final playingRouteName =
-        playingRoute == PlayingRouteState.EARPIECE ? 'earpiece' : 'speakers';
-    final int result = await _invokeMethod(
+    final playingRoute = _playingRouteState.toggle();
+    final result = await _invokeMethod(
       'earpieceOrSpeakersToggle',
-      {'playingRoute': playingRouteName},
+      {'playingRoute': playingRoute.name()},
     );
 
     if (result == 1) {

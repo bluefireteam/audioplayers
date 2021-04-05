@@ -3,11 +3,13 @@ import 'dart:io';
 
 import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:audioplayers/player_mode.dart';
+import 'package:audioplayers/release_mode.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/src/foundation/constants.dart';
 import 'package:http/http.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter/src/foundation/constants.dart';
 
 import 'player_widget.dart';
 
@@ -40,8 +42,8 @@ class _ExampleAppState extends State<ExampleApp> {
       return;
     }
     if (Platform.isIOS) {
-      audioCache.fixedPlayer?.startHeadlessService();
-      advancedPlayer.startHeadlessService();
+      audioCache.fixedPlayer?.notificationService.startHeadlessService();
+      advancedPlayer.notificationService.startHeadlessService();
     }
   }
 

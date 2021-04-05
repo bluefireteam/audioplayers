@@ -132,14 +132,14 @@ class NotificationsHandler {
     static func geneateImageFromUrl(urlString: String) -> UIImage? {
         if urlString.hasPrefix("http") {
             guard let url: URL = URL.init(string: urlString) else {
-                log("Error download image url, invalid url %@", urlString)
+                Logger.log("Error download image url, invalid url %@", urlString)
                 return nil
             }
             do {
                 let data = try Data(contentsOf: url)
                 return UIImage.init(data: data)
             } catch {
-                log("Error download image url %@", error)
+                Logger.log("Error download image url %@", error)
                 return nil
             }
         } else {
@@ -164,7 +164,7 @@ class NotificationsHandler {
             MPNowPlayingInfoPropertyPlaybackRate: Float(playbackRate)
         ]
         
-        log("Updating playing info...")
+        Logger.log("Updating playing info...")
         
         // fetch notification image in async fashion to avoid freezing UI
         DispatchQueue.global().async() { [weak self] in
@@ -172,14 +172,14 @@ class NotificationsHandler {
                 let artworkImage: UIImage? = NotificationsHandler.geneateImageFromUrl(urlString: imageUrl)
                 if let artworkImage = artworkImage {
                     let albumArt: MPMediaItemArtwork = MPMediaItemArtwork.init(image: artworkImage)
-                    log("Will add custom album art")
+                    Logger.log("Will add custom album art")
                     playingInfo[MPMediaItemPropertyArtwork] = albumArt
                 }
             }
             
             if let infoCenter = self?.infoCenter {
                 let filteredMap = playingInfo.filter { $0.value != nil }.mapValues { $0! }
-                log("Setting playing info: %@", filteredMap)
+                Logger.log("Setting playing info: %@", filteredMap)
                 infoCenter.nowPlayingInfo = filteredMap
             }
         }
@@ -253,7 +253,7 @@ class NotificationsHandler {
     
     func skipBackwardEvent(skipEvent: MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus {
         let interval = (skipEvent as! MPSkipIntervalCommandEvent).interval
-        log("Skip backward by %f", interval)
+        Logger.log("Skip backward by %f", interval)
         
         guard let player = reference.lastPlayer() else {
             return MPRemoteCommandHandlerStatus.commandFailed
@@ -265,7 +265,7 @@ class NotificationsHandler {
     
     func skipForwardEvent(skipEvent: MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus {
         let interval = (skipEvent as! MPSkipIntervalCommandEvent).interval
-        log("Skip forward by %f", interval)
+        Logger.log("Skip forward by %f", interval)
         
         guard let player = reference.lastPlayer() else {
             return MPRemoteCommandHandlerStatus.commandFailed
@@ -324,7 +324,7 @@ class NotificationsHandler {
         }
         
         let positionTime = (changePositionEvent as! MPChangePlaybackPositionCommandEvent).positionTime
-        log("changePlaybackPosition to %f", positionTime)
+        Logger.log("changePlaybackPosition to %f", positionTime)
         let newTime = toCMTime(millis: positionTime)
         player.seek(time: newTime)
         return MPRemoteCommandHandlerStatus.success
