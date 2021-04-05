@@ -153,7 +153,6 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     _durationSubscription = _audioPlayer.onDurationChanged.listen((duration) {
       setState(() => _duration = duration);
 
-      // TODO implemented for iOS, waiting for android impl
       if (Theme.of(context).platform == TargetPlatform.iOS) {
         // (Optional) listen for notification updates in the background
         _audioPlayer.startHeadlessService();
@@ -168,8 +167,8 @@ class _PlayerWidgetState extends State<PlayerWidget> {
           // backwardSkipInterval: const Duration(seconds: 30), // default is 30s
           duration: duration,
           elapsedTime: Duration(seconds: 0),
-          hasNextTrack: true,
-          hasPreviousTrack: false,
+          enableNextTrackButton: true,
+          enablePreviousTrackButton: true,
         );
       }
     });
