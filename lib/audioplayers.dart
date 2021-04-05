@@ -65,22 +65,23 @@ class AudioPlayer {
 
   late NotificationService notificationService;
 
-  PlayerState _PlayerState = PlayerState.STOPPED;
+  PlayerState _playerState = PlayerState.STOPPED;
 
-  PlayerState get state => _PlayerState;
+  PlayerState get state => _playerState;
 
   set state(PlayerState state) {
     _playerStateController.add(state);
-    _PlayerState = state;
+    _playerState = state;
   }
 
   set playingRouteState(PlayingRoute routeState) {
     _playingRouteState = routeState;
   }
 
+  // TODO(luan) why do we need two methods for setting state?
   set notificationState(PlayerState state) {
     _notificationPlayerStateController.add(state);
-    _PlayerState = state;
+    _playerState = state;
   }
 
   /// Stream of changes on player state.
@@ -134,7 +135,7 @@ class AudioPlayer {
 
   /// Current mode of the audio player. Can be updated at any time, but is going
   /// to take effect only at the next time you play the audio.
-  PlayerMode mode;
+  final PlayerMode mode;
 
   /// Creates a new instance and assigns an unique id to it.
   AudioPlayer({this.mode = PlayerMode.MEDIA_PLAYER, String? playerId})
@@ -195,7 +196,7 @@ class AudioPlayer {
 
   /// Plays audio in the form of a byte array.
   ///
-  /// This is only supported on Android currently.
+  /// This is only supported on Android (SDK >= 23) currently.
   Future<int> playBytes(
     Uint8List bytes, {
     double volume = 1.0,
@@ -235,7 +236,7 @@ class AudioPlayer {
   /// If you call [resume] later, the audio will resume from the point that it
   /// has been paused.
   Future<int> pause() async {
-    final int result = await _invokeMethod('pause');
+    final result = await _invokeMethod('pause');
 
     if (result == 1) {
       state = PlayerState.PAUSED;
@@ -249,7 +250,7 @@ class AudioPlayer {
   /// The position is going to be reset and you will no longer be able to resume
   /// from the last point.
   Future<int> stop() async {
-    final int result = await _invokeMethod('stop');
+    final result = await _invokeMethod('stop');
 
     if (result == 1) {
       state = PlayerState.STOPPED;
@@ -261,7 +262,7 @@ class AudioPlayer {
   /// Resumes the audio that has been paused or stopped, just like calling
   /// [play], but without changing the parameters.
   Future<int> resume() async {
-    final int result = await _invokeMethod('resume');
+    final result = await _invokeMethod('resume');
 
     if (result == 1) {
       state = PlayerState.PLAYING;

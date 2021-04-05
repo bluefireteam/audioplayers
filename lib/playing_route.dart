@@ -6,6 +6,7 @@ enum PlayingRoute {
 
 extension PlayingRouteExtensions on PlayingRoute {
   /// Returns this enum name to be used over the wire with the native side.
+  /// TODO(luan) other enums use toString(), we should unify.
   String name() {
     switch (this) {
       case PlayingRoute.SPEAKERS:

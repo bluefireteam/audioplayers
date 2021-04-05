@@ -12,5 +12,5 @@ enum PlayerMode {
   /// In this mode the backend won't fire any duration or position updates.
   /// Also, it is not possible to use the seek method to set the audio a
   /// specific position.
-  LOW_LATENCY
+  LOW_LATENCY,
 }
