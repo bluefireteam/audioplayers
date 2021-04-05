@@ -8,12 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
 
-typedef StreamController CreateStreamController();
-typedef void TimeChangeHandler(Duration duration);
-typedef void SeekHandler(bool finished);
-typedef void ErrorHandler(String message);
-typedef void AudioPlayerStateChangeHandler(AudioPlayerState state);
-
 /// This enum is meant to be used as a parameter of [setReleaseMode] method.
 ///
 /// It represents the behaviour of [AudioPlayer] when an audio is finished or
@@ -112,7 +106,6 @@ void _backgroundCallbackDispatcher() {
 
       if (closure == null) {
         print('Fatal Error: Callback lookup failed!');
-        // exit(-1);
       }
       return closure as Function(AudioPlayerState);
     }
@@ -182,6 +175,9 @@ class AudioPlayer {
   /// Enables more verbose logging.
   static bool logEnabled = false;
 
+  /// iOS only. Enable the notifications feature.
+  static bool enableNotificationService = true;
+
   AudioPlayerState _audioPlayerState = AudioPlayerState.STOPPED;
 
   AudioPlayerState get state => _audioPlayerState;
@@ -248,27 +244,19 @@ class AudioPlayer {
   /// An unique ID generated for this instance of [AudioPlayer].
   ///
   /// This is used to properly exchange messages with the [MethodChannel].
-  String playerId;
+  final String playerId;
 
   /// Current mode of the audio player. Can be updated at any time, but is going
   /// to take effect only at the next time you play the audio.
   PlayerMode mode;
 
   /// Creates a new instance and assigns an unique id to it.
-  AudioPlayer({this.mode = PlayerMode.MEDIA_PLAYER, this.playerId = ''}) {
-    this.playerId = this.playerId == '' ? _uuid.v4() : this.playerId;
+  AudioPlayer({this.mode = PlayerMode.MEDIA_PLAYER, String? playerId})
+      : this.playerId = playerId ?? _uuid.v4() {
     players[playerId] = this;
 
-    if (defaultTargetPlatform == TargetPlatform.iOS) {
-      // Start the headless audio service. The parameter here is a handle to
-      // a callback managed by the Flutter engine, which allows for us to pass
-      // references to our callbacks between isolates.
-      final CallbackHandle? handle =
-          PluginUtilities.getCallbackHandle(_backgroundCallbackDispatcher);
-      assert(handle != null, 'Unable to lookup callback.');
-      _invokeMethod('startHeadlessService', {
-        'handleKey': <dynamic>[handle?.toRawHandle()],
-      });
+    if (enableNotificationService) {
+      startHeadlessService();
     }
   }
 
@@ -285,20 +273,22 @@ class AudioPlayer {
         .then((result) => (result as int));
   }
 
-  /// this should be called after initiating AudioPlayer only if you want to
-  /// listen for notification changes in the background. Not implemented on macOS
-  void startHeadlessService() {
-    if (playerId.isEmpty) {
+  /// This should be called after initiating AudioPlayer only if you want to
+  /// listen for notification changes in the background.
+  ///
+  /// Only for iOS (not implemented on macOS, android, web)
+  Future<void> startHeadlessService() async {
+    if (!enableNotificationService) {
+      throw 'The notifications feature was disabled.';
+    }
+    if (defaultTargetPlatform != TargetPlatform.iOS) {
       return;
     }
     // Start the headless audio service. The parameter here is a handle to
     // a callback managed by the Flutter engine, which allows for us to pass
     // references to our callbacks between isolates.
-    final CallbackHandle? handle =
-        PluginUtilities.getCallbackHandle(_backgroundCallbackDispatcher);
-    assert(handle != null, 'Unable to lookup callback.');
-    _invokeMethod('startHeadlessService', {
-      'handleKey': <dynamic>[handle?.toRawHandle()]
+    await _invokeMethod('startHeadlessService', {
+      'handleKey': _getBgHandleKey(),
     });
   }
 
@@ -306,16 +296,25 @@ class AudioPlayer {
   ///
   /// `callback` is invoked on a background isolate and will not have direct
   /// access to the state held by the main isolate (or any other isolate).
-  Future<bool> monitorNotificationStateChanges(
+  Future<void> monitorNotificationStateChanges(
     void Function(AudioPlayerState value) callback,
   ) async {
-    final CallbackHandle? handle = PluginUtilities.getCallbackHandle(callback);
-    assert(handle != null, 'Unable to lookup callback.');
+    if (!enableNotificationService) {
+      throw 'The notifications feature was disabled.';
+    }
+    if (defaultTargetPlatform != TargetPlatform.iOS) {
+      return;
+    }
     await _invokeMethod('monitorNotificationStateChanges', {
-      'handleMonitorKey': <dynamic>[handle?.toRawHandle()]
+      'handleMonitorKey': _getBgHandleKey(),
     });
+  }
 
-    return true;
+  void _getBgHandleKey() {
+    final handle =
+        PluginUtilities.getCallbackHandle(_backgroundCallbackDispatcher);
+    assert(handle != null, 'Unable to lookup callback.');
+    return <dynamic>[handle!.toRawHandle()];
   }
 
   /// Plays an audio.
