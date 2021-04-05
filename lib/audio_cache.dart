@@ -7,6 +7,8 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart';
 
 import 'audioplayers.dart';
+import 'player_mode.dart';
+import 'release_mode.dart';
 
 /// This class represents a cache for Local Assets to be played.
 ///
@@ -62,13 +64,6 @@ class AudioCache {
       file.delete();
     }
     loadedFiles.clear();
-  }
-
-  /// Disables [AudioPlayer] logs (enable only if debugging, otherwise they can be quite overwhelming).
-  ///
-  /// TODO(luan) there are still some logs on the android native side that we could not get rid of, if you'd like to help, please send us a PR!
-  void disableLog() {
-    AudioPlayer.logEnabled = false;
   }
 
   Future<ByteData> _fetchAsset(String fileName) async {
