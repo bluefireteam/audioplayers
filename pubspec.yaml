@@ -15,7 +15,7 @@ flutter:
         pluginClass: AudioplayersPlugin
       web:
         pluginClass: AudioplayersPlugin
-        fileName: audioplayers_web.dart
+        fileName: web/audioplayers_web.dart
 
 dependencies:
   uuid: ^3.0.1

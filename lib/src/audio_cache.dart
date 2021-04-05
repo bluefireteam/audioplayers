@@ -7,9 +7,9 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 
-import 'audioplayers.dart';
-import 'player_mode.dart';
-import 'release_mode.dart';
+import 'audioplayer.dart';
+import '../api/player_mode.dart';
+import '../api/release_mode.dart';
 
 /// This class represents a cache for Local Assets to be played.
 ///

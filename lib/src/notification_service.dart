@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-import 'player_state.dart';
+import '../api/player_state.dart';
 
 enum PlayerControlCommand {
   NEXT_TRACK,

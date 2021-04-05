@@ -1,10 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:audioplayers/player_mode.dart';
-import 'package:audioplayers/release_mode.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/constants.dart';
 import 'package:http/http.dart';
