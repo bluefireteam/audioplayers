@@ -1,6 +1,7 @@
 import AVKit
 
 class Logger {
+    // TODO(luan) wire this with the Dart side
     static var enableLogs = false
 
     static func log(_ items: Any...) {
