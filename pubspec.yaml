@@ -20,6 +20,7 @@ flutter:
 dependencies:
   uuid: ^3.0.1
   path_provider: ^2.0.1
+  http: ^0.13.1
   flutter:
     sdk: flutter
   flutter_web_plugins:

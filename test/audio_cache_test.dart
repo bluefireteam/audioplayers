@@ -13,9 +13,9 @@ class MyAudioCache extends AudioCache {
       : super(prefix: prefix, fixedPlayer: fixedPlayer);
 
   @override
-  Future<File> fetchToMemory(String fileName) async {
+  Future<Uri> fetchToMemory(String fileName) async {
     called.add(fileName);
-    return new File('test/assets/' + fileName);
+    return Uri.parse('test/assets/$fileName');
   }
 }
 

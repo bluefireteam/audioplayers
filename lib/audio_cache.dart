@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart';
+import 'package:http/http.dart' as http;
 
 import 'audioplayers.dart';
 import 'player_mode.dart';
@@ -12,11 +13,20 @@ import 'release_mode.dart';
 
 /// This class represents a cache for Local Assets to be played.
 ///
-/// Flutter can only play audios on device folders, so first this class copies the files to a temporary folder, and then plays them.
+/// On desktop/mobile, Flutter can only play audios on device folders, so first
+/// this class copies the files to a temporary folder, and then plays them.
+/// On web, it just stores a reference to the URL of the audio, but it gets
+/// preloaded by making a simple GET request (the browser then takes care of
+/// caching).
+///
 /// You can pre-cache your audio, or clear the cache, as desired.
 class AudioCache {
-  /// A reference to the loaded files.
-  Map<String, File> loadedFiles = {};
+  /// A reference to the loaded files absolute URLs.
+  ///
+  /// This is a map of fileNames to pre-loaded URIs.
+  /// On mobile/desktop, the URIs are from local files where the bytes have been copied.
+  /// On web, the URIs are external links for pre-loaded files.
+  Map<String, Uri> loadedFiles = {};
 
   /// This is the path inside your assets folder where your files lie.
   ///
@@ -48,50 +58,72 @@ class AudioCache {
     this.fixedPlayer,
     this.respectSilence = false,
     this.duckAudio = false,
-  }) : assert(!kIsWeb, 'AudioCache is not available for Flutter Web.');
+  });
 
-  /// Clears the cache of the file [fileName].
+  /// Clears the cache for the file [fileName].
   ///
   /// Does nothing if the file was not on cache.
-  void clear(String fileName) {
-    final file = loadedFiles.remove(fileName);
-    file?.delete();
+  /// Note: web relies on browser cache which is handled by entirely by the browser.
+  Future<void> clear(Uri fileName) async {
+    final uri = loadedFiles.remove(fileName);
+    if (uri != null && !kIsWeb) {
+      await File(uri.toFilePath()).delete();
+    }
   }
 
   /// Clears the whole cache.
-  void clearCache() {
-    for (final file in loadedFiles.values) {
-      file.delete();
+  Future<void> clearAll() async {
+    await Future.wait(loadedFiles.values.map(clear));
+  }
+
+  Future<Uri> fetchToMemory(String fileName) async {
+    if (kIsWeb) {
+      final uri = Uri.parse('assets/$prefix$fileName');
+      // We relly on browser caching here. Once the browser downloads this file,
+      // the native side implementation should be able to access it from cache.
+      await http.get(uri);
+      return uri;
     }
-    loadedFiles.clear();
-  }
 
-  Future<ByteData> _fetchAsset(String fileName) async {
-    return await rootBundle.load('$prefix$fileName');
-  }
+    // read local asset from rootBundle
+    final byteData = await rootBundle.load('$prefix$fileName');
 
-  Future<File> fetchToMemory(String fileName) async {
+    // create a temporary file on the device to be read by the native side
     final file = File('${(await getTemporaryDirectory()).path}/$fileName');
     await file.create(recursive: true);
-    return await file
-        .writeAsBytes((await _fetchAsset(fileName)).buffer.asUint8List());
-  }
+    await file.writeAsBytes(byteData.buffer.asUint8List());
 
-  /// Loads all the [fileNames] provided to the cache.
-  ///
-  /// Also returns a list of [Future]s for those files.
-  Future<List<File>> loadAll(List<String> fileNames) async {
-    return Future.wait(fileNames.map(load));
+    // returns the local file uri
+    return file.uri;
   }
 
   /// Loads a single [fileName] to the cache.
   ///
   /// Also returns a [Future] to access that file.
-  Future<File> load(String fileName) async {
+  Future<Uri> load(String fileName) async {
     if (!loadedFiles.containsKey(fileName)) {
       loadedFiles[fileName] = await fetchToMemory(fileName);
     }
     return loadedFiles[fileName]!;
+  }
+
+  /// Loads a single [fileName] to the cache but returns it as a File.
+  ///
+  /// Note: this is not available for web, as File doesn't make sense on the
+  /// browser!
+  Future<File> loadAsFile(String fileName) async {
+    if (kIsWeb) {
+      throw 'This method cannot be used on web!';
+    }
+    final uri = await load(fileName);
+    return File(uri.toFilePath());
+  }
+
+  /// Loads all the [fileNames] provided to the cache.
+  ///
+  /// Also returns a list of [Future]s for those files.
+  Future<List<Uri>> loadAll(List<String> fileNames) async {
+    return Future.wait(fileNames.map(load));
   }
 
   AudioPlayer _player(PlayerMode mode) {
@@ -114,11 +146,11 @@ class AudioCache {
     bool recordingActive = false,
     bool? duckAudio,
   }) async {
-    String url = await getAbsoluteUrl(fileName);
+    final uri = await load(fileName);
     AudioPlayer player = _player(mode);
     player.setReleaseMode(ReleaseMode.STOP);
     await player.play(
-      url,
+      uri.toString(),
       volume: volume,
       respectSilence: isNotification ?? respectSilence,
       stayAwake: stayAwake,
@@ -168,23 +200,15 @@ class AudioCache {
     PlayerMode mode = PlayerMode.MEDIA_PLAYER,
     bool stayAwake = false,
   }) async {
-    String url = await getAbsoluteUrl(fileName);
-    AudioPlayer player = _player(mode);
+    final url = await load(fileName);
+    final player = _player(mode);
     player.setReleaseMode(ReleaseMode.LOOP);
     player.play(
-      url,
+      url.toString(),
       volume: volume,
       respectSilence: isNotification ?? respectSilence,
       stayAwake: stayAwake,
     );
     return player;
-  }
-
-  Future<String> getAbsoluteUrl(String fileName) async {
-    if (kIsWeb) {
-      return 'assets/$prefix$fileName';
-    }
-    File file = await load(fileName);
-    return file.path;
   }
 }
