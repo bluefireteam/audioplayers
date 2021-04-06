@@ -63,7 +63,7 @@ class AudioCache {
   /// Clears the cache for the file [fileName].
   ///
   /// Does nothing if the file was not on cache.
-  /// Note: web relies on browser cache which is handled by entirely by the browser.
+  /// Note: web relies on browser cache which is handled entirely by the browser.
   Future<void> clear(Uri fileName) async {
     final uri = loadedFiles.remove(fileName);
     if (uri != null && !kIsWeb) {
@@ -79,7 +79,7 @@ class AudioCache {
   Future<Uri> fetchToMemory(String fileName) async {
     if (kIsWeb) {
       final uri = _sanitizeURLForWeb(fileName);
-      // We relly on browser caching here. Once the browser downloads this file,
+      // We rely on browser caching here. Once the browser downloads this file,
       // the native side implementation should be able to access it from cache.
       await http.get(uri);
       return uri;

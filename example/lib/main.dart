@@ -124,7 +124,7 @@ class _ExampleAppState extends State<ExampleApp> {
           _Btn(
             txt: 'Play',
             onPressed: () async {
-              var bytes = await (await audioCache.loadAsFile('audio.mp3'))
+              final bytes = await (await audioCache.loadAsFile('audio.mp3'))
                   .readAsBytes();
               audioCache.playBytes(bytes);
             },
@@ -135,7 +135,7 @@ class _ExampleAppState extends State<ExampleApp> {
           _Btn(
             txt: 'Loop',
             onPressed: () async {
-              var bytes = await (await audioCache.loadAsFile('audio.mp3'))
+              final bytes = await (await audioCache.loadAsFile('audio.mp3'))
                   .readAsBytes();
               audioCache.playBytes(bytes, loop: true);
             },
@@ -170,7 +170,7 @@ class _ExampleAppState extends State<ExampleApp> {
   }
 
   Future<int> _getDuration() async {
-    Uri uri = await audioCache.load('audio2.mp3');
+    final uri = await audioCache.load('audio2.mp3');
     await advancedPlayer.setUrl(uri.toString());
     int duration = await Future.delayed(
       Duration(seconds: 2),
