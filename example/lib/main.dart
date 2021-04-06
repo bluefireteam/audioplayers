@@ -32,6 +32,7 @@ class _ExampleAppState extends State<ExampleApp> {
   AudioCache audioCache = AudioCache();
   AudioPlayer advancedPlayer = AudioPlayer();
   String? localFilePath;
+  String? localAudioCacheURI;
 
   @override
   void initState() {
@@ -90,11 +91,27 @@ class _ExampleAppState extends State<ExampleApp> {
 
   Widget localFile() {
     return _Tab(children: [
+      Text(' -- manually load bytes (no web!) --'),
       Text('File: $kUrl1'),
       _Btn(txt: 'Download File to your Device', onPressed: () => _loadFile()),
       Text('Current local file path: $localFilePath'),
       localFilePath == null ? Container() : PlayerWidget(url: localFilePath!),
+      Container(
+        constraints: BoxConstraints.expand(width: 1.0, height: 20.0),
+      ),
+      Text(' -- via AudioCache --'),
+      Text('File: $kUrl2'),
+      _Btn(txt: 'Download File to your Device', onPressed: () => _loadFileAC()),
+      Text('Current AC loaded: $localAudioCacheURI'),
+      localAudioCacheURI == null
+          ? Container()
+          : PlayerWidget(url: localAudioCacheURI!),
     ]);
+  }
+
+  void _loadFileAC() async {
+    final uri = await audioCache.load(kUrl2);
+    setState(() => localAudioCacheURI = uri.toString());
   }
 
   Widget localAsset() {

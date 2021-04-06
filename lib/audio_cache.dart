@@ -78,7 +78,7 @@ class AudioCache {
 
   Future<Uri> fetchToMemory(String fileName) async {
     if (kIsWeb) {
-      final uri = Uri.parse('assets/$prefix$fileName');
+      final uri = _sanitizeURLForWeb(fileName);
       // We relly on browser caching here. Once the browser downloads this file,
       // the native side implementation should be able to access it from cache.
       await http.get(uri);
@@ -95,6 +95,16 @@ class AudioCache {
 
     // returns the local file uri
     return file.uri;
+  }
+
+  Uri _sanitizeURLForWeb(String fileName) {
+    final tryAbsolute = Uri.tryParse(fileName);
+    if (tryAbsolute?.isAbsolute == true) {
+      return tryAbsolute!;
+    }
+
+    // local asset
+    return Uri.parse('assets/$prefix$fileName');
   }
 
   /// Loads a single [fileName] to the cache.
