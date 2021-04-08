@@ -325,8 +325,8 @@ class _AdvancedState extends State<Advanced> {
                   ),
                   _Btn(
                     txt: 'RELEASE',
-                    onPressed: () =>
-                        widget.advancedPlayer.setReleaseMode(ReleaseMode.RELEASE),
+                    onPressed: () => widget.advancedPlayer
+                        .setReleaseMode(ReleaseMode.RELEASE),
                   ),
                 ],
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
