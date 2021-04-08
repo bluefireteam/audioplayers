@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:audioplayers/audioplayers.dart';
 
 extension _Args on MethodCall {
-  Map<String, dynamic> get args => arguments as Map<String, dynamic>;
+  Map<dynamic, dynamic> get args => arguments as Map<dynamic, dynamic>;
 
   String getString(String key) {
     return args[key] as String;
