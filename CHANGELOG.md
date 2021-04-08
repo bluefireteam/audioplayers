@@ -1,6 +1,8 @@
 # Changelog
 
 ## [next]
+- Refactor Notifications code (small breaking changes)
+- AudioCache for web
 
 ## 0.18.3
 - Fix Float vs Double mixup on Swift that prevent non-integer values for volume/playback

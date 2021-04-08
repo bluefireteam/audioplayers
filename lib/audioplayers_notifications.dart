@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:flutter/foundation.dart' show defaultTargetPlatform;
+import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
@@ -85,7 +85,16 @@ class NotificationService {
   }
 
   Future<void> _callWithHandle(String methodName, Function callback) async {
-    return _call(methodName, {'handleKey': _getBgHandleKey(callback)});
+    if (!enableNotificationService) {
+      throw 'The notifications feature was disabled.';
+    }
+    if (defaultTargetPlatform != TargetPlatform.iOS) {
+      return;
+    }
+    await platformChannelInvoke(
+      methodName,
+      {'handleKey': _getBgHandleKey(callback)},
+    );
   }
 
   Future<void> _call(String methodName, Map<String, dynamic> args) async {

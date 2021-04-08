@@ -23,8 +23,7 @@ Note: LLM means Low Latency Mode.
         <tr><td>byte array</td><td>SDK >=23</td><td>not yet</td><td>not yet</td><td>not yet</td></tr>
         <tr><td colspan="5"><strong>Audio Config</strong></td></tr>
         <tr><td>set url</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr>
-        <tr><td>pre-load</td><td>yes</td><td>yes</td><td>yes</td><td>not yet</td></tr>
-        <tr><td>audio cache</td><td>yes</td><td>yes</td><td>yes</td><td>not yet</td></tr>
+        <tr><td>audio cache (pre-load)</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr>
         <tr><td>low latency mode</td><td>SDK >=21</td><td>no</td><td>no</td><td>no</td></tr>
         <tr><td colspan="5"><strong>Audio Control Commands</strong></td></tr>
         <tr><td>resume / pause / stop</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr>
