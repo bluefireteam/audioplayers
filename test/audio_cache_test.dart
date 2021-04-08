@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -22,16 +21,15 @@ class MyAudioCache extends AudioCache {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  const MethodChannel _channel =
-      const MethodChannel('plugins.flutter.io/path_provider');
+  const _channel = MethodChannel('plugins.flutter.io/path_provider');
   _channel.setMockMethodCallHandler((c) async => '/tmp');
 
-  const channel = const MethodChannel('xyz.luan/audioplayers');
+  const channel = MethodChannel('xyz.luan/audioplayers');
   channel.setMockMethodCallHandler((MethodCall call) async => 1);
 
   group('AudioCache', () {
     test('sets cache', () async {
-      MyAudioCache player = MyAudioCache();
+      final player = MyAudioCache();
       await player.load('audio.mp3');
       expect(player.loadedFiles['audio.mp3'], isNotNull);
       expect(player.called, hasLength(1));
@@ -42,16 +40,16 @@ void main() {
     });
 
     test('fixedPlayer vs non fixedPlayer', () async {
-      MyAudioCache fixed = MyAudioCache(fixedPlayer: AudioPlayer());
-      String fixedId = fixed.fixedPlayer!.playerId;
-      MyAudioCache regular = MyAudioCache();
+      final fixed = MyAudioCache(fixedPlayer: AudioPlayer());
+      final fixedId = fixed.fixedPlayer!.playerId;
+      final regular = MyAudioCache();
 
-      AudioPlayer a1 = await fixed.play('audio.mp3');
+      final a1 = await fixed.play('audio.mp3');
       expect(a1.playerId, fixedId);
-      AudioPlayer a2 = await fixed.play('audio.mp3');
+      final a2 = await fixed.play('audio.mp3');
       expect(a2.playerId, fixedId);
 
-      AudioPlayer a3 = await regular.play('audio.mp3');
+      final a3 = await regular.play('audio.mp3');
       expect(a3.playerId, isNot(fixedId));
     });
   });

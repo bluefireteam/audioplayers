@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'dart:html';
 
-import 'package:audioplayers/release_mode.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
+
+import 'release_mode.dart';
 
 class WrappedPlayer {
   double? pausedAt;
@@ -90,13 +91,13 @@ class AudioplayersPlugin {
   Map<String, WrappedPlayer> players = {};
 
   static void registerWith(Registrar registrar) {
-    final MethodChannel channel = MethodChannel(
+    final channel = MethodChannel(
       'xyz.luan/audioplayers',
       const StandardMethodCodec(),
       registrar,
     );
 
-    final AudioplayersPlugin instance = AudioplayersPlugin();
+    final instance = AudioplayersPlugin();
     channel.setMethodCallHandler(instance.handleMethodCall);
   }
 
@@ -105,7 +106,7 @@ class AudioplayersPlugin {
   }
 
   Future<WrappedPlayer> setUrl(String playerId, String url) async {
-    final WrappedPlayer player = getOrCreatePlayer(playerId);
+    final player = getOrCreatePlayer(playerId);
 
     if (player.currentUrl == url) {
       return player;
@@ -121,22 +122,23 @@ class AudioplayersPlugin {
 
   Future<dynamic> handleMethodCall(MethodCall call) async {
     final method = call.method;
-    final playerId = call.arguments['playerId'];
+    final args = call.arguments as Map<String, dynamic>;
+    final playerId = args['playerId'] as String;
     switch (method) {
       case 'setUrl':
         {
-          final String url = call.arguments['url'];
+          final url = args['url'] as String;
           await setUrl(playerId, url);
           return 1;
         }
       case 'play':
         {
-          final String url = call.arguments['url'];
+          final url = args['url'] as String;
 
           // TODO(luan) think about isLocal (is it needed or not)
 
-          double volume = call.arguments['volume'] ?? 1.0;
-          final double position = call.arguments['position'] ?? 0;
+          final volume = args['volume'] as double? ?? 1.0;
+          final position = args['position'] as double? ?? 0;
           // web does not care for the `stayAwake` argument
 
           final player = await setUrl(playerId, url);
@@ -162,14 +164,13 @@ class AudioplayersPlugin {
         }
       case 'setVolume':
         {
-          double volume = call.arguments['volume'] ?? 1.0;
+          final volume = args['volume'] as double? ?? 1.0;
           getOrCreatePlayer(playerId).setVolume(volume);
           return 1;
         }
       case 'setReleaseMode':
         {
-          ReleaseMode releaseMode =
-              parseReleaseMode(call.arguments['releaseMode']);
+          final releaseMode = parseReleaseMode(args['releaseMode'] as String);
           getOrCreatePlayer(playerId).setReleaseMode(releaseMode);
           return 1;
         }

@@ -1,5 +1,5 @@
-/// This enum is meant to be used as a parameter of the [AudioPlayer]'s
-/// constructor. It represents the general mode of the [AudioPlayer].
+/// This enum is meant to be used as a parameter of the AudioPlayer's
+/// constructor. It represents the general mode of the AudioPlayer.
 ///
 // In iOS and macOS, both modes have the same backend implementation.
 enum PlayerMode {
