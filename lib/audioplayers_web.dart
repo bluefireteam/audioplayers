@@ -122,7 +122,7 @@ class AudioplayersPlugin {
 
   Future<dynamic> handleMethodCall(MethodCall call) async {
     final method = call.method;
-    final args = call.arguments as Map<String, dynamic>;
+    final args = call.arguments as Map<dynamic, dynamic>;
     final playerId = args['playerId'] as String;
     switch (method) {
       case 'setUrl':
