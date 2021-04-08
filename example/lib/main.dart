@@ -143,25 +143,32 @@ class _ExampleAppState extends State<ExampleApp> {
           const Text("Play Local Asset In Low Latency 'audio.mp3':"),
           _Btn(
             txt: 'Play',
-            onPressed: () =>
-                audioCache.play('audio.mp3', mode: PlayerMode.LOW_LATENCY),
+            onPressed: () {
+              audioCache.play('audio.mp3', mode: PlayerMode.LOW_LATENCY);
+            },
           ),
           const Text(
             "Play Local Asset Concurrently In Low Latency 'audio.mp3':",
           ),
           _Btn(
-              txt: 'Play',
-              onPressed: () async {
-                await audioCache.play('audio.mp3',
-                    mode: PlayerMode.LOW_LATENCY);
-                await audioCache.play('audio2.mp3',
-                    mode: PlayerMode.LOW_LATENCY);
-              }),
+            txt: 'Play',
+            onPressed: () async {
+              await audioCache.play(
+                'audio.mp3',
+                mode: PlayerMode.LOW_LATENCY,
+              );
+              await audioCache.play(
+                'audio2.mp3',
+                mode: PlayerMode.LOW_LATENCY,
+              );
+            },
+          ),
           const Text("Play Local Asset In Low Latency 'audio2.mp3':"),
           _Btn(
             txt: 'Play',
-            onPressed: () =>
-                audioCache.play('audio2.mp3', mode: PlayerMode.LOW_LATENCY),
+            onPressed: () {
+              audioCache.play('audio2.mp3', mode: PlayerMode.LOW_LATENCY);
+            },
           ),
           getLocalFileDuration(),
         ],
@@ -220,8 +227,9 @@ class _ExampleAppState extends State<ExampleApp> {
     return MultiProvider(
       providers: [
         StreamProvider<Duration>.value(
-            initialData: const Duration(),
-            value: advancedPlayer.onAudioPositionChanged),
+          initialData: const Duration(),
+          value: advancedPlayer.onAudioPositionChanged,
+        ),
       ],
       child: DefaultTabController(
         length: 5,
@@ -281,42 +289,48 @@ class _AdvancedState extends State<Advanced> {
           Column(
             children: [
               const Text('Source Url'),
-              Row(children: [
-                _Btn(
-                  txt: 'Audio 1',
-                  onPressed: () => widget.advancedPlayer.setUrl(kUrl1),
-                ),
-                _Btn(
-                  txt: 'Audio 2',
-                  onPressed: () => widget.advancedPlayer.setUrl(kUrl2),
-                ),
-                _Btn(
-                  txt: 'Stream',
-                  onPressed: () => widget.advancedPlayer.setUrl(kUrl3),
-                ),
-              ], mainAxisAlignment: MainAxisAlignment.spaceEvenly),
+              Row(
+                children: [
+                  _Btn(
+                    txt: 'Audio 1',
+                    onPressed: () => widget.advancedPlayer.setUrl(kUrl1),
+                  ),
+                  _Btn(
+                    txt: 'Audio 2',
+                    onPressed: () => widget.advancedPlayer.setUrl(kUrl2),
+                  ),
+                  _Btn(
+                    txt: 'Stream',
+                    onPressed: () => widget.advancedPlayer.setUrl(kUrl3),
+                  ),
+                ],
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              ),
             ],
           ),
           Column(
             children: [
               const Text('Release Mode'),
-              Row(children: [
-                _Btn(
-                  txt: 'STOP',
-                  onPressed: () =>
-                      widget.advancedPlayer.setReleaseMode(ReleaseMode.STOP),
-                ),
-                _Btn(
-                  txt: 'LOOP',
-                  onPressed: () =>
-                      widget.advancedPlayer.setReleaseMode(ReleaseMode.LOOP),
-                ),
-                _Btn(
-                  txt: 'RELEASE',
-                  onPressed: () =>
-                      widget.advancedPlayer.setReleaseMode(ReleaseMode.RELEASE),
-                ),
-              ], mainAxisAlignment: MainAxisAlignment.spaceEvenly),
+              Row(
+                children: [
+                  _Btn(
+                    txt: 'STOP',
+                    onPressed: () =>
+                        widget.advancedPlayer.setReleaseMode(ReleaseMode.STOP),
+                  ),
+                  _Btn(
+                    txt: 'LOOP',
+                    onPressed: () =>
+                        widget.advancedPlayer.setReleaseMode(ReleaseMode.LOOP),
+                  ),
+                  _Btn(
+                    txt: 'RELEASE',
+                    onPressed: () =>
+                        widget.advancedPlayer.setReleaseMode(ReleaseMode.RELEASE),
+                  ),
+                ],
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              ),
             ],
           ),
           Column(
@@ -365,43 +379,47 @@ class _AdvancedState extends State<Advanced> {
               Row(
                 children: [
                   _Btn(
-                      txt: '100ms',
-                      onPressed: () {
-                        widget.advancedPlayer.seek(
-                          Duration(
-                            milliseconds: audioPosition.inMilliseconds + 100,
-                          ),
-                        );
-                        setState(() => seekDone = false);
-                      }),
+                    txt: '100ms',
+                    onPressed: () {
+                      widget.advancedPlayer.seek(
+                        Duration(
+                          milliseconds: audioPosition.inMilliseconds + 100,
+                        ),
+                      );
+                      setState(() => seekDone = false);
+                    },
+                  ),
                   _Btn(
-                      txt: '500ms',
-                      onPressed: () {
-                        widget.advancedPlayer.seek(
-                          Duration(
-                            milliseconds: audioPosition.inMilliseconds + 500,
-                          ),
-                        );
-                        setState(() => seekDone = false);
-                      }),
+                    txt: '500ms',
+                    onPressed: () {
+                      widget.advancedPlayer.seek(
+                        Duration(
+                          milliseconds: audioPosition.inMilliseconds + 500,
+                        ),
+                      );
+                      setState(() => seekDone = false);
+                    },
+                  ),
                   _Btn(
-                      txt: '1s',
-                      onPressed: () {
-                        widget.advancedPlayer.seek(
-                          Duration(seconds: audioPosition.inSeconds + 1),
-                        );
-                        setState(() => seekDone = false);
-                      }),
+                    txt: '1s',
+                    onPressed: () {
+                      widget.advancedPlayer.seek(
+                        Duration(seconds: audioPosition.inSeconds + 1),
+                      );
+                      setState(() => seekDone = false);
+                    },
+                  ),
                   _Btn(
-                      txt: '1.5s',
-                      onPressed: () {
-                        widget.advancedPlayer.seek(
-                          Duration(
-                            milliseconds: audioPosition.inMilliseconds + 1500,
-                          ),
-                        );
-                        setState(() => seekDone = false);
-                      }),
+                    txt: '1.5s',
+                    onPressed: () {
+                      widget.advancedPlayer.seek(
+                        Duration(
+                          milliseconds: audioPosition.inMilliseconds + 1500,
+                        ),
+                      );
+                      setState(() => seekDone = false);
+                    },
+                  ),
                 ],
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               ),
