@@ -52,6 +52,8 @@ class WrappedMediaPlayer internal constructor(
                 player.setDataSource(mediaDataSource)
                 preparePlayer(player)
             }
+        } else {
+            throw RuntimeException("setDataSource is only available on API >= 23");
         }
     }
 
