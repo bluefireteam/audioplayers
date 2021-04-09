@@ -38,16 +38,22 @@ class WrappedMediaPlayer internal constructor(
             preparePlayer(player)
         }
 
-        // Dispose of any old data buffer array, if we are now playing from another source.
-        dataSource = null
+        if (Build.VERSION.SDK_INT >= 23) {
+            // Dispose of any old data buffer array, if we are now playing from another source.
+            dataSource = null
+        }
     }
 
     override fun setDataSource(mediaDataSource: MediaDataSource?) {
-        if (!objectEquals(dataSource, mediaDataSource)) {
-            dataSource = mediaDataSource
-            val player = getOrCreatePlayer()
-            player.setDataSource(mediaDataSource)
-            preparePlayer(player)
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (!objectEquals(dataSource, mediaDataSource)) {
+                dataSource = mediaDataSource
+                val player = getOrCreatePlayer()
+                player.setDataSource(mediaDataSource)
+                preparePlayer(player)
+            }
+        } else {
+            throw RuntimeException("setDataSource is only available on API >= 23");
         }
     }
 
@@ -109,7 +115,9 @@ class WrappedMediaPlayer internal constructor(
         this.rate = rate.toFloat()
 
         val player = this.player ?: return
-        player.playbackParams = player.playbackParams.setSpeed(this.rate)
+        if (Build.VERSION.SDK_INT >= 23) {
+            player.playbackParams = player.playbackParams.setSpeed(this.rate)
+        }
     }
 
     override fun configAttributes(respectSilence: Boolean, stayAwake: Boolean, duckAudio: Boolean) {
@@ -205,7 +213,7 @@ class WrappedMediaPlayer internal constructor(
             if (released || currentPlayer == null) {
                 released = false
                 player = createPlayer().also {
-                    if (dataSource != null) {
+                    if (Build.VERSION.SDK_INT >= 23 && dataSource != null) {
                         it.setDataSource(dataSource)
                     } else {
                         it.setDataSource(url)
