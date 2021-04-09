@@ -31,7 +31,7 @@ Note: LLM means Low Latency Mode.
         <tr><td>volume</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr>
         <tr><td>seek</td><td>yes</td><td>yes</td><td>yes</td><td>not yet</td></tr>
         <tr><td colspan="5"><strong>Advanced Audio Control Commands</strong></td></tr>
-        <tr><td>playback rate</td><td>yes</td><td>yes</td><td>yes</td><td>not yet</td></tr>
+        <tr><td>playback rate</td><td>SDK >= 23</td><td>yes</td><td>yes</td><td>not yet</td></tr>
         <tr><td>duck audio</td><td>yes (except LLM)</td><td>no</td><td>no</td><td>no</td></tr>
         <tr><td>respect silence</td><td>yes (except LLM)</td><td>yes</td><td>no</td><td>no</td></tr>
         <tr><td>stay awake</td><td>yes (except LLM)</td><td>yes</td><td>no</td><td>no</td></tr>
