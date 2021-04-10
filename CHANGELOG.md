@@ -4,6 +4,7 @@
 - Refactor Notifications code (small breaking changes)
 - AudioCache for web
 - Fixing basic features for Android lower than API 23
+- Re-organize folder and file structure on the Dart side (project layout)
 
 ## 0.18.3
 - Fix Float vs Double mixup on Swift that prevent non-integer values for volume/playback
