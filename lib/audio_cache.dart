@@ -188,6 +188,8 @@ class AudioCache {
 
     if (loop) {
       player.setReleaseMode(ReleaseMode.LOOP);
+    } else if (fixedPlayer != null) {
+      player.setReleaseMode(ReleaseMode.STOP);
     }
 
     await player.playBytes(
