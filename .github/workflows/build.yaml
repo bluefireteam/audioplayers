@@ -24,7 +24,7 @@ jobs:
         run: flutter format --dry-run --set-exit-if-changed .
 
       - name: Analyze project source
-        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+        run: ./scripts/analyze.sh
 
       - name: Run tests
         run: flutter test

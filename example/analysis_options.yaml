@@ -40,8 +40,7 @@ linter:
     - cast_nullable_to_non_nullable
     - close_sinks
     - comment_references
-    # TODO(luan) re-enable this once we migrate
-    # - constant_identifier_names
+    - constant_identifier_names
     - control_flow_in_finally
     - curly_braces_in_flow_control_structures
     - directives_ordering
@@ -141,4 +140,4 @@ dart_code_metrics:
     - no-object-declaration
     - potential-null-dereference
   metrics-exclude:
-    - '**'
+    - '**/**'

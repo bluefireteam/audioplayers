@@ -137,7 +137,7 @@ class AudioCache {
   }
 
   AudioPlayer _player(PlayerMode mode) {
-    return fixedPlayer ?? new AudioPlayer(mode: mode);
+    return fixedPlayer ?? AudioPlayer(mode: mode);
   }
 
   /// Plays the given [fileName].
@@ -157,7 +157,7 @@ class AudioCache {
     bool? duckAudio,
   }) async {
     final uri = await load(fileName);
-    AudioPlayer player = _player(mode);
+    final player = _player(mode);
     player.setReleaseMode(ReleaseMode.STOP);
     await player.play(
       uri.toString(),
@@ -170,7 +170,7 @@ class AudioCache {
     return player;
   }
 
-  /// Plays the given [fileName] by a byte source.
+  /// Plays the given [fileBytes] by a byte source.
   ///
   /// This is no different than calling this API via AudioPlayer, except it will return (if applicable) the cached AudioPlayer.
   Future<AudioPlayer> playBytes(
@@ -182,7 +182,7 @@ class AudioCache {
     bool stayAwake = false,
     bool recordingActive = false,
   }) async {
-    AudioPlayer player = _player(mode);
+    final player = _player(mode);
 
     if (loop) {
       player.setReleaseMode(ReleaseMode.LOOP);

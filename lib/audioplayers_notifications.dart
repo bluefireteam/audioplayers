@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb;
+import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
@@ -70,18 +70,21 @@ class NotificationService {
     bool enablePreviousTrackButton = false,
     bool enableNextTrackButton = false,
   }) async {
-    return _call('setNotification', {
-      'title': title,
-      'albumTitle': albumTitle,
-      'artist': artist,
-      'imageUrl': imageUrl,
-      'forwardSkipInterval': forwardSkipInterval.inSeconds,
-      'backwardSkipInterval': backwardSkipInterval.inSeconds,
-      'duration': duration.inSeconds,
-      'elapsedTime': elapsedTime.inSeconds,
-      'enablePreviousTrackButton': enablePreviousTrackButton,
-      'enableNextTrackButton': enableNextTrackButton,
-    });
+    return _call(
+      'setNotification',
+      <String, dynamic>{
+        'title': title,
+        'albumTitle': albumTitle,
+        'artist': artist,
+        'imageUrl': imageUrl,
+        'forwardSkipInterval': forwardSkipInterval.inSeconds,
+        'backwardSkipInterval': backwardSkipInterval.inSeconds,
+        'duration': duration.inSeconds,
+        'elapsedTime': elapsedTime.inSeconds,
+        'enablePreviousTrackButton': enablePreviousTrackButton,
+        'enableNextTrackButton': enableNextTrackButton,
+      },
+    );
   }
 
   Future<void> _callWithHandle(String methodName, Function callback) async {
@@ -93,7 +96,9 @@ class NotificationService {
     }
     await platformChannelInvoke(
       methodName,
-      {'handleKey': _getBgHandleKey(callback)},
+      <String, dynamic>{
+        'handleKey': _getBgHandleKey(callback),
+      },
     );
   }
 
@@ -119,8 +124,7 @@ List<dynamic> _getBgHandleKey(Function callback) {
 /// MethodChannels to open a persistent communication channel to trigger
 /// callbacks.
 void _backgroundCallbackDispatcher() {
-  const MethodChannel _channel =
-      MethodChannel('xyz.luan/audioplayers_callback');
+  const _channel = MethodChannel('xyz.luan/audioplayers_callback');
 
   // Setup Flutter state needed for MethodChannels.
   WidgetsFlutterBinding.ensureInitialized();
@@ -132,24 +136,25 @@ void _backgroundCallbackDispatcher() {
   // native portion of the plugin. Here we message the audio notification data
   // which we then pass to the provided callback.
   _channel.setMethodCallHandler((MethodCall call) async {
+    final args = call.arguments as Map<String, dynamic>;
     Function(PlayerState) _performCallbackLookup() {
-      final CallbackHandle handle = CallbackHandle.fromRawHandle(
-          call.arguments['updateHandleMonitorKey']);
+      final handle = CallbackHandle.fromRawHandle(
+        args['updateHandleMonitorKey'] as int,
+      );
 
       // PluginUtilities.getCallbackFromHandle performs a lookup based on the
       // handle we retrieved earlier.
-      final Function? closure = PluginUtilities.getCallbackFromHandle(handle);
+      final closure = PluginUtilities.getCallbackFromHandle(handle);
 
       if (closure == null) {
-        print('Fatal Error: Callback lookup failed!');
+        throw 'Fatal Error: Callback lookup failed!';
       }
       return closure as Function(PlayerState);
     }
 
-    final Map<dynamic, dynamic> callArgs = call.arguments as Map;
     if (call.method == 'audio.onNotificationBackgroundPlayerStateChanged') {
       onAudioChangeBackgroundEvent ??= _performCallbackLookup();
-      final String playerState = callArgs['value'];
+      final playerState = args['value'] as String;
       if (playerState == 'playing') {
         onAudioChangeBackgroundEvent!(PlayerState.PLAYING);
       } else if (playerState == 'paused') {

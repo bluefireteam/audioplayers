@@ -2,11 +2,19 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:audioplayers/audioplayers.dart';
 
+extension _Args on MethodCall {
+  Map<dynamic, dynamic> get args => arguments as Map<dynamic, dynamic>;
+
+  String getString(String key) {
+    return args[key] as String;
+  }
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  List<MethodCall> calls = [];
-  const channel = const MethodChannel('xyz.luan/audioplayers');
+  final calls = <MethodCall>[];
+  const channel = MethodChannel('xyz.luan/audioplayers');
   channel.setMockMethodCallHandler((MethodCall call) async {
     calls.add(call);
     return 0;
@@ -20,37 +28,37 @@ void main() {
   group('AudioPlayers', () {
     test('#play', () async {
       calls.clear();
-      AudioPlayer player = AudioPlayer();
+      final player = AudioPlayer();
       await player.play('internet.com/file.mp3');
-      MethodCall call = popCall();
+      final call = popCall();
       expect(call.method, 'play');
-      expect(call.arguments['url'], 'internet.com/file.mp3');
+      expect(call.getString('url'), 'internet.com/file.mp3');
     });
 
     test('multiple players', () async {
       calls.clear();
-      AudioPlayer player1 = AudioPlayer();
-      AudioPlayer player2 = AudioPlayer();
+      final player1 = AudioPlayer();
+      final player2 = AudioPlayer();
 
       await player1.play('internet.com/file.mp3');
-      MethodCall call = popCall();
-      String player1Id = call.arguments['playerId'];
+      final call = popCall();
+      final player1Id = call.getString('playerId');
       expect(call.method, 'play');
-      expect(call.arguments['url'], 'internet.com/file.mp3');
+      expect(call.getString('url'), 'internet.com/file.mp3');
 
       await player1.play('internet.com/file.mp3');
-      expect(popCall().arguments['playerId'], player1Id);
+      expect(popCall().getString('playerId'), player1Id);
 
       await player2.play('internet.com/file.mp3');
-      expect(popCall().arguments['playerId'], isNot(player1Id));
+      expect(popCall().getString('playerId'), isNot(player1Id));
 
       await player1.play('internet.com/file.mp3');
-      expect(popCall().arguments['playerId'], player1Id);
+      expect(popCall().getString('playerId'), player1Id);
     });
 
     test('#resume, #pause and #duration', () async {
       calls.clear();
-      AudioPlayer player = AudioPlayer();
+      final player = AudioPlayer();
       await player.setUrl('assets/audio.mp3');
       expect(popCall().method, 'setUrl');
 

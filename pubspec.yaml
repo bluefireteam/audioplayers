@@ -29,7 +29,8 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  http: ^0.13.0
+  dart_code_metrics: ^3.0.0-nullsafety.0
+  dartdoc: ^0.42.0
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
