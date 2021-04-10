@@ -34,7 +34,7 @@ class NotificationService {
   final StreamController<PlayerControlCommand> _commandController =
       StreamController<PlayerControlCommand>.broadcast();
 
-  /// Stream of remote player command send by native side
+  /// Stream of remote player command sent by native side
   ///
   /// Events are sent user tap system remote control command.
   Stream<PlayerControlCommand> get onPlayerCommand => _commandController.stream;
