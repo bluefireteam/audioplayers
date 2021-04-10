@@ -1,10 +1,7 @@
 import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
-import 'package:audioplayers/audioplayers_notifications.dart';
-import 'package:audioplayers/player_mode.dart';
-import 'package:audioplayers/player_state.dart';
-import 'package:audioplayers/playing_route.dart';
+import 'package:audioplayers/notifications.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
