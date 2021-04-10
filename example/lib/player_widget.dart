@@ -193,7 +193,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     });
 
     _playerControlCommandSubscription =
-        _audioPlayer.onPlayerCommand.listen((command) {
+        _audioPlayer.notificationService.onPlayerCommand.listen((command) {
       print('command: $command');
     });
 

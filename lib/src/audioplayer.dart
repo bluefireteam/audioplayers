@@ -10,7 +10,7 @@ import 'api/player_mode.dart';
 import 'api/player_state.dart';
 import 'api/playing_route.dart';
 import 'api/release_mode.dart';
-import 'notification_service.dart';
+import 'notifications/notification_service.dart';
 
 /// This represents a single AudioPlayer, which can play one audio at a time.
 /// To play several audios at the same time, you must create several instances
@@ -45,9 +45,6 @@ class AudioPlayer {
 
   final StreamController<String> _errorController =
       StreamController<String>.broadcast();
-
-  final StreamController<PlayerControlCommand> _commandController =
-      StreamController<PlayerControlCommand>.broadcast();
 
   PlayingRoute _playingRouteState = PlayingRoute.SPEAKERS;
 
@@ -123,11 +120,6 @@ class AudioPlayer {
   /// Events are sent when an unexpected error is thrown in the native code.
   Stream<String> get onPlayerError => _errorController.stream;
 
-  /// Stream of remote player command send by native side
-  ///
-  /// Events are sent user tap system remote control command.
-  Stream<PlayerControlCommand> get onPlayerCommand => _commandController.stream;
-
   /// An unique ID generated for this instance of [AudioPlayer].
   ///
   /// This is used to properly exchange messages with the [MethodChannel].
@@ -161,6 +153,7 @@ class AudioPlayer {
   ///
   /// If [isLocal] is true, [url] must be a local file system path.
   /// If [isLocal] is false, [url] must be a remote URL.
+  /// (By default isLocal is inferred by the provided path)
   ///
   /// respectSilence and stayAwake are not implemented on macOS.
   Future<int> play(
@@ -174,13 +167,11 @@ class AudioPlayer {
     bool duckAudio = false,
     bool recordingActive = false,
   }) async {
-    isLocal ??= isLocalUrl(url);
-
     final result = await _invokeMethod(
       'play',
       <String, dynamic>{
         'url': url,
-        'isLocal': isLocal,
+        'isLocal': isLocal ?? isLocalUrl(url),
         'volume': volume,
         'position': position?.inMilliseconds,
         'respectSilence': respectSilence,
@@ -434,10 +425,10 @@ class AudioPlayer {
         player._errorController.add(error);
         break;
       case 'audio.onGotNextTrackCommand':
-        player._commandController.add(PlayerControlCommand.NEXT_TRACK);
+        player.notificationService.notifyNextTrack();
         break;
       case 'audio.onGotPreviousTrackCommand':
-        player._commandController.add(PlayerControlCommand.PREVIOUS_TRACK);
+        player.notificationService.notifyPreviousTrack();
         break;
       default:
         _log('Unknown method ${call.method} ');
@@ -481,9 +472,7 @@ class AudioPlayer {
     if (!_errorController.isClosed) {
       futures.add(_errorController.close());
     }
-    if (!_commandController.isClosed) {
-      futures.add(_commandController.close());
-    }
+    futures.add(notificationService.dispose());
 
     await Future.wait<dynamic>(futures);
     players.remove(playerId);
