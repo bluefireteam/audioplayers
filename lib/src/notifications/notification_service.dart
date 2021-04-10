@@ -36,7 +36,9 @@ class NotificationService {
 
   /// Stream of remote player command sent by native side
   ///
-  /// Events are sent user tap system remote control command.
+  /// Events are sent when the user taps the system control commands on the
+  /// notification page.
+  // TODO(luan) improve communication with the notification widget
   Stream<PlayerControlCommand> get onPlayerCommand => _commandController.stream;
 
   /// This should be called after initiating AudioPlayer only if you want to
