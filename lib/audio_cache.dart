@@ -158,7 +158,9 @@ class AudioCache {
   }) async {
     final uri = await load(fileName);
     final player = _player(mode);
-    player.setReleaseMode(ReleaseMode.STOP);
+    if (fixedPlayer != null) {
+      player.setReleaseMode(ReleaseMode.STOP);
+    }
     await player.play(
       uri.toString(),
       volume: volume,
