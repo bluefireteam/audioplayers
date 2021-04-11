@@ -28,7 +28,7 @@ function run_analyze() {
   fi
 }
 
-echo "Starting audioplayers Analyzer"
+echo "Starting Flame Analyzer"
 echo "-----------------------"
 for file in $(find . -type f -name "pubspec.yaml"); do
   dir=$(dirname $file)
