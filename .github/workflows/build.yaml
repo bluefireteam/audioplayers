@@ -17,9 +17,6 @@ jobs:
         with:
           channel: stable
 
-      - name: Install dependencies
-        run: flutter pub get
-
       - name: Lint (analyze and format)
         run: ./scripts/lint.sh
 
@@ -37,12 +34,11 @@ jobs:
        with:
          channel: stable
 
-     - name: Install dependencies
-       run: flutter pub get
-
      - name: Example App - Build web app
        working-directory: ./packages/audioplayers/example
-       run: flutter build web
+       run: |
+         flutter pub get
+         flutter build web
 
   android:
     runs-on: macOS-latest
