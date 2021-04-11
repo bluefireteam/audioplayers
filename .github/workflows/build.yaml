@@ -110,6 +110,6 @@ jobs:
          flutter pub get
          flutter build ios --release --no-codesign
      - name: Run Flutter Driver tests
-        working-directory: ./packages/audioplayers/example
-        run: echo 'Skipped (WIP)'
-        # run: "flutter drive --target=test_driver/app.dart"
+       working-directory: ./packages/audioplayers/example
+       run: echo 'Skipped (WIP)'
+       # run: "flutter drive --target=test_driver/app.dart"
