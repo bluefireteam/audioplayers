@@ -8,7 +8,7 @@ Flutter requires that files are specified on your pubspec.yaml file, under flutt
 
 ### Error when playing remote URL
 
-The remote URL must be accessible and must not be a redirect. If it's not an audio file, it does a redirect, it requires some headers, cookies or authentication, it will not work. Please bundle the file on the app or host it somewhere that properly provides the file. If you are having issues with playing audio from an URL, please first download the file and try running it locally. If the issue persists, then open the issue, including the file so we can test. Otherwise, it's an issue with your URL, not audioplayers.
+The remote URL must be accessible and not be a redirect. If it's not an audio file, it does a redirect, it requires some headers, cookies or authentication, it will not work. Please bundle the file on the app or host it somewhere that properly provides the file. If you are having issues with playing audio from an URL, please first download the file and try running it locally. If the issue persists, then open the issue, including the file so we can test. Otherwise, it's an issue with your URL, not audioplayers.
 
 ### How to pause/stop audio?
 
