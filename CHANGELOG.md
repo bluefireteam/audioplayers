@@ -4,6 +4,7 @@
 - Refactor Notifications code (small breaking changes)
 - AudioCache for web
 - Fixing basic features for Android lower than API 23
+- Fixing error after playing music several times with AudioCache
 - Re-organize folder and file structure on the Dart side (project layout)
 
 ## 0.18.3
