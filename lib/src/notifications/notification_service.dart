@@ -1,15 +1,12 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-import 'player_state.dart';
-
-enum PlayerControlCommand {
-  NEXT_TRACK,
-  PREVIOUS_TRACK,
-}
+import '../api/player_state.dart';
+import 'player_control_command.dart';
 
 /// Note: this is an iOS only feature (so far). Does not work with android/
 /// web/macOS.
@@ -33,6 +30,16 @@ class NotificationService {
       startHeadlessService();
     }
   }
+
+  final StreamController<PlayerControlCommand> _commandController =
+      StreamController<PlayerControlCommand>.broadcast();
+
+  /// Stream of remote player command sent by native side
+  ///
+  /// Events are sent when the user taps the system control commands on the
+  /// notification page.
+  // TODO(luan) improve communication with the notification widget
+  Stream<PlayerControlCommand> get onPlayerCommand => _commandController.stream;
 
   /// This should be called after initiating AudioPlayer only if you want to
   /// listen for notification changes in the background.
@@ -110,6 +117,20 @@ class NotificationService {
       return;
     }
     await platformChannelInvoke(methodName, args);
+  }
+
+  Future<void> dispose() async {
+    if (!_commandController.isClosed) {
+      await _commandController.close();
+    }
+  }
+
+  void notifyNextTrack() {
+    _commandController.add(PlayerControlCommand.NEXT_TRACK);
+  }
+
+  void notifyPreviousTrack() {
+    _commandController.add(PlayerControlCommand.PREVIOUS_TRACK);
   }
 }
 

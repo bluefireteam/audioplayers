@@ -4,7 +4,7 @@ import 'dart:html';
 import 'package:flutter/services.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 
-import 'release_mode.dart';
+import 'api/release_mode.dart';
 
 class WrappedPlayer {
   double? pausedAt;
