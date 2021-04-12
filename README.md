@@ -4,7 +4,7 @@
 
 A Flutter plugin to play multiple simultaneously audio files, works for Android, iOS, macOS and web.
 
-![](example/tab1s.jpg) ![](example/tab2s.jpg) ![](example/tab3s.jpg)
+![](/images/tab1s.jpg) ![](/images/tab2s.jpg) ![](/images/tab3s.jpg)
 
 ## Contributing
 
