@@ -310,6 +310,10 @@ Giving support to old Android devices is very hard, on this plugin we set the mi
 
 This mean that, Audioplayer should work on older devices, but we can't give any guarantees, we will not be able to look after issues regarding API < 23. But we would glady take any pull requests from the community that fixes or improve support on those old versions.
 
+## Background playing
+
+To control playback from lock screen on iOS and Android you can use [audio_service](https://pub.dev/packages/audio_service). [Example](https://denis-korovitskii.medium.com/flutter-demo-audioplayers-on-background-via-audio-service-c95d65c90ae1) how to implement all AudioPlayers features with and audio_service.
+
 ## Credits
 
 This was originally a fork of [rxlabz's audioplayer](https://github.com/rxlabz/audioplayer), but since we have diverged and added more features.
