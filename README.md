@@ -1,21 +1,18 @@
 # AudioPlayers
 
-A Flutter plugin to play multiple simultaneously audio files, works for Android, iOS and macOS.
+[![Pub](https://img.shields.io/pub/v/audioplayers.svg?style=popout)](https://pub.dartlang.org/packages/audioplayers) [![Build Status](https://github.com/luanpotter/audioplayers/workflows/build/badge.svg?branch=master)](https://github.com/luanpotter/audioplayers/actions?query=workflow%3A"build"+branch%3Amaster) [![Discord](https://img.shields.io/discord/509714518008528896.svg)](https://discord.gg/pxrBmy4)
 
-![](example/tab1s.jpg) ![](example/tab2s.jpg) ![](example/tab3s.jpg)
+A Flutter plugin to play multiple simultaneously audio files, works for Android, iOS, macOS and web.
 
-## Install
+![](/images/tab1s.jpg) ![](/images/tab2s.jpg) ![](/images/tab3s.jpg)
 
-This was orginally forked from [rxlabz's audioplayer](https://github.com/rxlabz/audioplayer), but the name was changed to `audioplayers` (mind the 's'); so, to add the dependency:
+## Contributing
 
-```yaml
-dependencies:
-  audioplayers: ^0.14.0
-```
+We now have new rules for contributing!
 
-## Discord channel
+All help is appreciated but if you have questions, bug reports, issues, feature requests, pull requests, etc, please first refer to our [Contributing Guide](contributing.md).
 
-We have created a channel for audioplayers help on Fireslime's discord, join it [here](https://discord.gg/ny7eThk)
+Also, as always, please give us a star to help!
 
 ## Support us
 
@@ -23,9 +20,11 @@ You can support us by becoming a patron on Patreon, any support is much apprecia
 
 [![Patreon](https://c5.patreon.com/external/logo/become_a_patron_button.png)](https://www.patreon.com/fireslime)
 
-## Troubleshooting
+## Feature Parity Table
 
-Before opening an issue, please refer to the [troubleshoot guide](troubleshooting.md)
+Not all features are available on all platforms. [Click here](feature_parity_table.md) to see a table relating what features can be used on each target.
+
+Feel free to use it for ideas for possible PRs and contributions you can help with on our roadmap! If you are submiting a PR, don't forget to update the table.
 
 ## Usage
 
@@ -43,10 +42,11 @@ To use the low latency API, better for gaming sounds, use:
 
 In this mode the backend won't fire any duration or position updates.
 Also, it is not possible to use the seek method to set the audio a specific position.
+This mode is also not available on web.
 
 You can create multiple instances to play audio simultaneously.
 
-For all methods that return a `Future<int>`: that's the status of the operation. If `1`, the operation was successful. Otherwise it's the platform native error code.
+For all methods that return a `Future<int>`: that's the status of the operation. If `1`, the operation was successful. Otherwise, it's the platform native error code.
 
 Logs are disable by default! To debug, run:
 
@@ -56,11 +56,12 @@ Logs are disable by default! To debug, run:
 
 ### Playing Audio
 
-There are three possible sources of audio:
+There are four possible sources of audio:
 
 - Remote file on the Internet
 - Local file on the user's device
 - Local asset from your Flutter project
+- Audio in the form of a byte array (in Flutter, Uint8List)
 
 Both for Remote Files or Local Files, use the `play` method, just setting appropriately the flag `isLocal`.
 
@@ -69,7 +70,7 @@ For Local Assets, you have to use the `AudioCache` class (see below).
 To play a Remote File, just call `play` with the url (the `isLocal` parameter is false by default):
 
 If you want to play audio for a long period of time, you need to set appropriately the flag `stayAwake`,
-If you pass `setAwake` as true you need to add this permission to your app manifest:
+If you pass `stayAwake` as true you need to add this permission to your app manifest:
 `<uses-permission android:name="android.permission.WAKE_LOCK" />`.
 
 ```dart
@@ -89,6 +90,16 @@ For a Local File, add the `isLocal` parameter:
   }
 ```
 
+To play a file in the form of a data buffer (Uint8List), use the method `playBytes`.
+This currently only works for Android (requiring API >= 23, be sure to handle that if you use this method on your code).
+
+```dart
+  playLocal() async {
+    Uint8List byteData = .. // Load audio as a byte array here.
+    int result = await audioPlayer.playBytes(byteData);
+  }
+```
+
 The `isLocal` flag is required only because iOS and macOS make a difference about it (Android doesn't care either way).
 
 There is also an optional named `double volume` parameter, that defaults to `1.0`. It can go from `0.0` (mute) to `1.0` (max), varying linearly.
@@ -96,6 +107,8 @@ There is also an optional named `double volume` parameter, that defaults to `1.0
 The volume can also be changed at any time using the `setVolume` method.
 
 ### Controlling
+
+Note: these features are not implemented in web yet.
 
 After playing, you can control the audio with pause, stop and seek commands.
 
@@ -159,9 +172,9 @@ Toggle between speakers and earpiece.
 int result = await player.earpieceOrSpeakersToggle();
 ```
 
- :warning: **iOS stream routing not implemented**
-
 ### Streams
+
+Note: streams are not available on web yet.
 
 The AudioPlayer supports subscribing to events like so:
 
@@ -230,13 +243,13 @@ This is called when an unexpected error is thrown in the native code.
 
 ### AudioCache
 
-In order to play Local Assets, you must use the `AudioCache` class.
+In order to play Local Assets, you must use the `AudioCache` class. AudioCache is not available for Flutter Web.
 
 Flutter does not provide an easy way to play audio on your assets, but this class helps a lot. It actually copies the asset to a temporary folder in the device, where it is then played as a Local File.
 
 It works as a cache because it keeps track of the copied files so that you can replay them without delay.
 
-You can find the full documentation for this class [here](doc/audio_cache.md).
+You can find the full documentation for this class [here](/packages/audioplayers/doc/audio_cache.md).
 
 ### playerId
 
@@ -251,7 +264,8 @@ final audioPlayer = AudioPlayer(playerId: 'my_unique_playerId');
 You can check a list of supported formats below:
 
 - [Android](https://developer.android.com/guide/topics/media/media-formats.html)
-- [iOS and macOS](http://www.techotopia.com/index.php/Playing_Audio_on_iOS_8_using_AVAudioPlayer#Supported_Audio_Formats)
+- [iOS and macOS](https://www.techotopia.com/index.php/Playing_Audio_on_iOS_8_using_AVAudioPlayer#Supported_Audio_Formats)
+- web: audio formats supported by the browser you are using ([more details](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API))
 
 ## :warning: iOS & macOS App Transport Security
 
@@ -289,6 +303,12 @@ Here is an example of how it should look like:
     </application>
 </manifest>
 ```
+
+## Android Support
+
+Giving support to old Android devices is very hard, on this plugin we set the minSdk as 16, but we only ensure support >= 23 as that is the minimum version that the team has devices available to test changes and new features.
+
+This mean that, Audioplayer should work on older devices, but we can't give any guarantees, we will not be able to look after issues regarding API < 23. But we would glady take any pull requests from the community that fixes or improve support on those old versions.
 
 ## Credits
 
