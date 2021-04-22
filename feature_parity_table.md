@@ -57,7 +57,7 @@ This is not the best home for them though. We are working with @ryanheise to eve
  * create a new package, audioplayers_notifications for it
  * merge this code into the existing audio_service package
 
-audio_service is already a package that provides much more advanced notification/lock screen controls.
+audio_service is already a package that provides much more advanced notification/lock screen controls. Please follow this [example](https://denis-korovitskii.medium.com/flutter-demo-audioplayers-on-background-via-audio-service-c95d65c90ae1) to implement all AudioPlayers features with and audio_service.
 
 So please do not send any PRs or additions to the notifications/lock screen for now, unless it's part of our separation effort.
 
