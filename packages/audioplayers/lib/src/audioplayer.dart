@@ -344,6 +344,7 @@ class AudioPlayer {
     String url, {
     bool? isLocal,
     bool respectSilence = false,
+    bool recordingActive = false,
   }) {
     return _invokeMethod(
       'setUrl',
@@ -351,6 +352,7 @@ class AudioPlayer {
         'url': url,
         'isLocal': isLocal ?? isLocalUrl(url),
         'respectSilence': respectSilence,
+        'recordingActive': recordingActive,
       },
     );
   }
