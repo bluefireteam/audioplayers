@@ -100,7 +100,8 @@ class AudioPlayer {
   ///
   /// An event is going to be sent as soon as the audio duration is available
   /// (it might take a while to download or buffer it).
-  Stream<Duration> get onDurationChanged => _durationController.stream;
+  Stream<Duration> get onDurationChanged =>
+      _durationController.stream.distinct();
 
   /// Stream of player completions.
   ///
