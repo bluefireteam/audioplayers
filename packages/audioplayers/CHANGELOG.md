@@ -1,6 +1,7 @@
 # Changelog
 
 ## [next]
+- Add missing awaits for AudioCache
 
 ## 0.19.0
 - Refactor Notifications code (small breaking changes)
