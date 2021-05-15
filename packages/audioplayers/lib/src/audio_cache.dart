@@ -159,7 +159,7 @@ class AudioCache {
     final uri = await load(fileName);
     final player = _player(mode);
     if (fixedPlayer != null) {
-      player.setReleaseMode(ReleaseMode.STOP);
+      await player.setReleaseMode(ReleaseMode.STOP);
     }
     await player.play(
       uri.toString(),
@@ -187,9 +187,9 @@ class AudioCache {
     final player = _player(mode);
 
     if (loop) {
-      player.setReleaseMode(ReleaseMode.LOOP);
+      await player.setReleaseMode(ReleaseMode.LOOP);
     } else if (fixedPlayer != null) {
-      player.setReleaseMode(ReleaseMode.STOP);
+      await player.setReleaseMode(ReleaseMode.STOP);
     }
 
     await player.playBytes(
@@ -216,8 +216,8 @@ class AudioCache {
   }) async {
     final url = await load(fileName);
     final player = _player(mode);
-    player.setReleaseMode(ReleaseMode.LOOP);
-    player.play(
+    await player.setReleaseMode(ReleaseMode.LOOP);
+    await player.play(
       url.toString(),
       volume: volume,
       respectSilence: isNotification ?? respectSilence,
