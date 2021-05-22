@@ -12,7 +12,7 @@ To play an audio, just run:
 
 ```dart
     // import in the begining of the file
-    import 'package:audioplayers/audio_cache.dart';
+    import 'package:audioplayers/audioplayers.dart';
 
     // add it to your class as a static member
     static AudioCache player = AudioCache();
