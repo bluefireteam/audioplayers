@@ -171,11 +171,16 @@ class NotificationsHandler {
             if let imageUrl = self?.imageUrl {
                 let artworkImage: UIImage? = NotificationsHandler.geneateImageFromUrl(urlString: imageUrl)
                 if let artworkImage = artworkImage {
+                    if #available(iOS 10, *) {
                     let albumArt: MPMediaItemArtwork = MPMediaItemArtwork.init(boundsSize: artworkImage.size, requestHandler: { (size) -> UIImage in
                         return artworkImage
                 })
+                        playingInfo[MPMediaItemPropertyArtwork] = albumArt
+                    } else {
+                        let albumArt: MPMediaItemArtwork = MPMediaItemArtwork.init(image: artworkImage)
+                        playingInfo[MPMediaItemPropertyArtwork] = albumArt
+                    }
                     Logger.log("Will add custom album art")
-                    playingInfo[MPMediaItemPropertyArtwork] = albumArt
                 }
             }
             
