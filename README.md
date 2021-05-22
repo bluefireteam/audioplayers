@@ -249,7 +249,7 @@ Flutter does not provide an easy way to play audio on your assets, but this clas
 
 It works as a cache because it keeps track of the copied files so that you can replay them without delay.
 
-You can find the full documentation for this class [here](/packages/audioplayers/doc/audio_cache.md).
+You can find the full documentation for this class [here](packages/audioplayers/doc/audio_cache.md).
 
 ### playerId
 
