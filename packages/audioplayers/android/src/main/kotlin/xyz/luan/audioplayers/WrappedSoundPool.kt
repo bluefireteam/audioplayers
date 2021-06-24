@@ -213,7 +213,11 @@ class WrappedSoundPool internal constructor(override val playerId: String) : Pla
     private fun loopModeInteger(): Int = if (looping) -1 else 0
 
     private fun getAudioPath(url: String?, isLocal: Boolean): String? {
-        return if (isLocal) url else loadTempFileFromNetwork(url).absolutePath
+        if (isLocal) {
+            return if (url?.startsWith("file://") == true) url!!.substring(7) else url
+        }
+
+        return loadTempFileFromNetwork(url).absolutePath
     }
 
     private fun loadTempFileFromNetwork(url: String?): File {
