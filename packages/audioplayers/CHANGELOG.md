@@ -7,6 +7,8 @@
 - Fix README link to audio_cache.md to work on pub
 - Fix documentation referencing old class
 - Add web support for audioPlayer.getCurrentPosition
+- Add web support for audioPlayer.getDuration
+- Add web support for audioPlayer.setPlaybackRate
 - Fix local file playback in LOW_LATENCY mode on Android
 
 ## 0.19.0

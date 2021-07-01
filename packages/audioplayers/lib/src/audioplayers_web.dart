@@ -9,6 +9,7 @@ import 'api/release_mode.dart';
 class WrappedPlayer {
   double? pausedAt;
   double currentVolume = 1.0;
+  double currentPlaybackRate = 1.0;
   ReleaseMode currentReleaseMode = ReleaseMode.RELEASE;
   String? currentUrl;
   bool isPlaying = false;
@@ -30,6 +31,11 @@ class WrappedPlayer {
     player?.volume = volume;
   }
 
+  void setPlaybackRate(double rate) {
+    currentPlaybackRate = rate;
+    player?.playbackRate = rate;
+  }
+
   void recreateNode() {
     if (currentUrl == null) {
       return;
@@ -37,6 +43,7 @@ class WrappedPlayer {
     player = AudioElement(currentUrl);
     player?.loop = shouldLoop();
     player?.volume = currentVolume;
+    player?.playbackRate = currentPlaybackRate;
   }
 
   bool shouldLoop() => currentReleaseMode == ReleaseMode.LOOP;
@@ -155,6 +162,14 @@ class AudioplayersPlugin {
           }
           return (position * 1000).toInt();
         }
+      case 'getDuration':
+        {
+          final duration = getOrCreatePlayer(playerId).player?.duration;
+          if (duration == null) {
+            return null;
+          }
+          return (duration * 1000).toInt();
+        }
       case 'pause':
         {
           getOrCreatePlayer(playerId).pause();
@@ -187,8 +202,13 @@ class AudioplayersPlugin {
           getOrCreatePlayer(playerId).release();
           return 1;
         }
-      case 'seek':
       case 'setPlaybackRate':
+        {
+          final rate = args['playbackRate'] as double? ?? 1.0;
+          getOrCreatePlayer(playerId).setPlaybackRate(rate);
+          return 1;
+        }
+      case 'seek':
       default:
         throw PlatformException(
           code: 'Unimplemented',

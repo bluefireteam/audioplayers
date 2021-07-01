@@ -426,7 +426,7 @@ class _AdvancedState extends State<Advanced> {
             children: [
               const Text('Rate'),
               Row(
-                children: [0.5, 1.0, 1.5, 2.0].map((e) {
+                children: [0.5, 1.0, 1.5, 2.0, 5.0].map((e) {
                   return _Btn(
                     txt: e.toString(),
                     onPressed: () {
