@@ -205,7 +205,7 @@ This Event updates the current position of the audio. You can use it to make a p
 This Event returns the current player state. You can use it to show if player playing, or stopped, or paused.
 
 ```dart
-  player.onPlayerStateChanged.listen((AudioPlayerState s) => {
+  player.onPlayerStateChanged.listen((PlayerState s) => {
     print('Current player state: $s');
     setState(() => playerState = s);
   });
