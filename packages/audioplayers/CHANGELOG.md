@@ -2,6 +2,12 @@
 
 ## [next]
 - Add missing awaits for AudioCache
+- Fix Kotlin Core version to v1.6.0
+- Fix iOS warning
+- Fix README link to audio_cache.md to work on pub
+- Fix documentation referencing old class
+- Add web support for audioPlayer.getCurrentPosition
+- Fix local file playback in LOW_LATENCY mode on Android
 
 ## 0.19.0
 - Refactor Notifications code (small breaking changes)
