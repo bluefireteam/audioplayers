@@ -147,6 +147,14 @@ class AudioplayersPlugin {
 
           return 1;
         }
+      case 'getCurrentPosition':
+        {
+          final position = getOrCreatePlayer(playerId).player?.currentTime;
+          if (position == null) {
+            return null;
+          }
+          return (position * 1000).toInt();
+        }
       case 'pause':
         {
           getOrCreatePlayer(playerId).pause();
