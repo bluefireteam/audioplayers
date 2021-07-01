@@ -1,6 +1,6 @@
 # Changelog
 
-## [next]
+## 0.19.1
 - Add missing awaits for AudioCache
 - Fix Kotlin Core version to v1.6.0
 - Fix iOS warning
