@@ -205,7 +205,7 @@ This Event updates the current position of the audio. You can use it to make a p
 This Event returns the current player state. You can use it to show if player playing, or stopped, or paused.
 
 ```dart
-  player.onPlayerStateChanged.listen((AudioPlayerState s) => {
+  player.onPlayerStateChanged.listen((PlayerState s) => {
     print('Current player state: $s');
     setState(() => playerState = s);
   });
@@ -249,7 +249,7 @@ Flutter does not provide an easy way to play audio on your assets, but this clas
 
 It works as a cache because it keeps track of the copied files so that you can replay them without delay.
 
-You can find the full documentation for this class [here](packages/audioplayers/doc/audio_cache.md).
+You can find the full documentation for this class [here](https://github.com/luanpotter/audioplayers/blob/master/packages/audioplayers/doc/audio_cache.md).
 
 ### playerId
 
