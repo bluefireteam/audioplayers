@@ -28,13 +28,20 @@ class WrappedSoundPool internal constructor(override val playerId: String) : Pla
         private val urlToPlayers = Collections.synchronizedMap(mutableMapOf<String, MutableList<WrappedSoundPool>>())
 
         private fun createSoundPool(): SoundPool {
-            val attrs = AudioAttributes.Builder().setLegacyStreamType(AudioManager.USE_DEFAULT_STREAM_TYPE)
-                    .setUsage(AudioAttributes.USAGE_GAME)
-                    .build()
-            return SoundPool.Builder()
-                    .setAudioAttributes(attrs)
-                    .setMaxStreams(100)
-                    .build()
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                val attrs = AudioAttributes.Builder().setLegacyStreamType(AudioManager.USE_DEFAULT_STREAM_TYPE)
+                        .setUsage(AudioAttributes.USAGE_GAME)
+                        .build()
+                // make a new SoundPool, allowing up to 100 streams
+                SoundPool.Builder()
+                        .setAudioAttributes(attrs)
+                        .setMaxStreams(100)
+                        .build()
+            } else {
+                // make a new SoundPool, allowing up to 100 streams
+                @Suppress("DEPRECATION")
+                SoundPool(100, AudioManager.STREAM_MUSIC, 0)
+            }
         }
 
         init {
