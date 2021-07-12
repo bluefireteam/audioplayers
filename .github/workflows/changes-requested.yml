@@ -10,10 +10,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: luanpotter/changes-requested@master
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        # these are optional, if you want to configure:
-        days-until-close: 5
-        trigger-label: changes-requested
-        closing-comment: This issue was closed by the changes-requested bot due to inactivity.
-        dry-run: false
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          # these are optional, if you want to configure:
+          days-until-close: 5
+          trigger-label: changes-requested
+          closing-comment: This issue was closed by the changes-requested bot due to inactivity.
+          dry-run: false
+  
