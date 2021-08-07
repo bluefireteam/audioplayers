@@ -94,6 +94,10 @@ class NotificationService {
     );
   }
 
+  Future<void> clearNotification() {
+    return _call('clearNotification', <String, dynamic>{});
+  }
+
   Future<void> _callWithHandle(String methodName, Function callback) async {
     if (!enableNotificationService) {
       throw 'The notifications feature was disabled.';

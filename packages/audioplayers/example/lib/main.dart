@@ -235,6 +235,13 @@ class _ExampleAppState extends State<ExampleApp> {
             );
           },
         ),
+        _Btn(
+          txt: 'Clear Notification',
+          onPressed: () async {
+            await advancedPlayer.stop();
+            await advancedPlayer.notificationService.clearNotification();
+          },
+        ),
       ],
     );
   }
