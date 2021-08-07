@@ -215,6 +215,26 @@ class _ExampleAppState extends State<ExampleApp> {
           onPressed: () =>
               audioCache.play('messenger.mp3', isNotification: true),
         ),
+        const Text('Notification Service'),
+        _Btn(
+          txt: 'Notification',
+          onPressed: () async {
+            await advancedPlayer.play(
+              kUrl2,
+              isLocal: false,
+              duckAudio: true,
+            );
+            await advancedPlayer.notificationService.setNotification(
+              title: 'My Song',
+              albumTitle: 'My Album',
+              artist: 'My Artist',
+              forwardSkipInterval: const Duration(seconds: 30),
+              backwardSkipInterval: const Duration(seconds: 30),
+              duration: const Duration(minutes: 3),
+              elapsedTime: const Duration(seconds: 15),
+            );
+          },
+        ),
       ],
     );
   }

@@ -152,6 +152,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
             player.stop()
         } else if method == "release" {
             player.release()
+            notificationsHandler?.clearNotification()
         } else if method == "seek" {
             let position = args["position"] as? Int
             if let position = position {
@@ -252,6 +253,12 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
                 enablePreviousTrackButton: enablePreviousTrackButton,
                 enableNextTrackButton: enableNextTrackButton
             )
+        } else if method == "clearNotification" {
+            guard let handler = notificationsHandler else {
+                result(FlutterMethodNotImplemented)
+                return
+            }
+            handler.clearNotification()
         } else {
             Logger.log("Called not implemented method: %@", method)
             result(FlutterMethodNotImplemented)

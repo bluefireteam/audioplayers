@@ -258,6 +258,18 @@ class NotificationsHandler {
         }
     }
     
+    func clearNotification() {
+        self.title = nil
+        self.albumTitle = nil
+        self.artist = nil
+        self.imageUrl = nil
+        self.duration = nil
+        
+        if let infoCenter = self.infoCenter {
+            infoCenter.nowPlayingInfo = [:]
+        }
+    }
+    
     func skipBackwardEvent(skipEvent: MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus {
         let interval = (skipEvent as! MPSkipIntervalCommandEvent).interval
         Logger.log("Skip backward by %f", interval)
