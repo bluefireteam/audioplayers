@@ -223,6 +223,7 @@ class _ExampleAppState extends State<ExampleApp> {
               kUrl2,
               isLocal: false,
               duckAudio: true,
+              respectSilence: true,
             );
             await advancedPlayer.notificationService.setNotification(
               title: 'My Song',
