@@ -169,15 +169,18 @@ class NotificationsHandler {
         // fetch notification image in async fashion to avoid freezing UI
         DispatchQueue.global().async() { [weak self] in
             if let imageUrl = self?.imageUrl {
-                let artworkImage: UIImage? = NotificationsHandler.geneateImageFromUrl(urlString: imageUrl)
+                let artworkImage = NotificationsHandler.geneateImageFromUrl(urlString: imageUrl)
                 if let artworkImage = artworkImage {
                     if #available(iOS 10, *) {
-                    let albumArt: MPMediaItemArtwork = MPMediaItemArtwork.init(boundsSize: artworkImage.size, requestHandler: { (size) -> UIImage in
-                        return artworkImage
-                })
+                        let albumArt = MPMediaItemArtwork.init(
+                            boundsSize: artworkImage.size,
+                            requestHandler: { (size) -> UIImage in
+                                return artworkImage
+                            }
+                        )
                         playingInfo[MPMediaItemPropertyArtwork] = albumArt
                     } else {
-                        let albumArt: MPMediaItemArtwork = MPMediaItemArtwork.init(image: artworkImage)
+                        let albumArt = MPMediaItemArtwork.init(image: artworkImage)
                         playingInfo[MPMediaItemPropertyArtwork] = albumArt
                     }
                     Logger.log("Will add custom album art")
