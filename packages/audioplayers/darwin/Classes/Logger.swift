@@ -4,6 +4,17 @@ enum LogLevel: Int {
     case none = 2
 }
 
+extension LogLevel {
+    static func parse(_ value: String) -> LogLevel? {
+        switch (value) {
+        case "LogLevel.INFO": return LogLevel.info
+        case "LogLevel.ERROR": return LogLevel.error
+        case "LogLevel.NONE": return LogLevel.none
+        default: return nil
+        }
+    }
+}
+
 class Logger {
     static var logLevel = LogLevel.error
 

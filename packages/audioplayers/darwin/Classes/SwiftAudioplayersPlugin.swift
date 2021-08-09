@@ -87,9 +87,14 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         }
 
         // global handlers (no playerId)
-        if method == "changeLogValue" {
-            guard let value = args["value"] as! LogLevel? else {
+        if method == "changeLogLevel" {
+            guard let valueName = args["value"] as! String? else {
                 Logger.error("Null value received on changeLogLevel")
+                result(0)
+                return
+            }
+            guard let value = LogLevel.parse(valueName) else {
+                Logger.error("Invalid value received on changeLogLevel")
                 result(0)
                 return
             }
