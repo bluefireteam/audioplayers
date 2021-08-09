@@ -1,5 +1,6 @@
 package xyz.luan.audioplayers
 
+import LogLevel
 import android.content.Context
 import android.os.Handler
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -39,8 +40,10 @@ class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
     private fun handleMethodCall(call: MethodCall, response: MethodChannel.Result) {
         when (call.method) {
             "changeLogLevel" -> {
-                val value = call.argument<String>("value")
-                // TODO(luan) impl this
+                val value = call.argument<LogLevel>("value") ?: throw error("value is required")
+                Logger.logLevel = value
+                response.success(1)
+                return
             }
         }
         val playerId = call.argument<String>("playerId") ?: return
