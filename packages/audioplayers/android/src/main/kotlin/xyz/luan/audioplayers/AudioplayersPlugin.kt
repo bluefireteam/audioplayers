@@ -40,7 +40,8 @@ class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
     private fun handleMethodCall(call: MethodCall, response: MethodChannel.Result) {
         when (call.method) {
             "changeLogLevel" -> {
-                val value = call.argument<LogLevel>("value") ?: throw error("value is required")
+                val value = call.enumArgument<LogLevel>("value")
+                    ?: throw error("value is required")
                 Logger.logLevel = value
                 response.success(1)
                 return
@@ -105,8 +106,8 @@ class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
                 return
             }
             "setReleaseMode" -> {
-                val releaseModeName = call.argument<String>("releaseMode") ?: throw error("releaseMode is required")
-                val releaseMode = ReleaseMode.valueOf(releaseModeName.substring("ReleaseMode.".length))
+                val releaseMode = call.enumArgument<ReleaseMode>("releaseMode")
+                    ?: throw error("releaseMode is required")
                 player.setReleaseMode(releaseMode)
             }
             "earpieceOrSpeakersToggle" -> {
@@ -242,4 +243,9 @@ class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
             return IllegalArgumentException(message)
         }
     }
+}
+
+private inline fun <reified T: Enum<T>> MethodCall.enumArgument(name: String): T? {
+    val enumName = argument<String>(name) ?: return null
+    return enumValueOf<T>(enumName.removePrefix("${T::class.simpleName}."))
 }

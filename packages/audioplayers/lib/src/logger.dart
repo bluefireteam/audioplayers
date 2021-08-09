@@ -10,7 +10,7 @@ class Logger {
     _logLevel = value;
     return AudioPlayer.invokeMethod(
       'changeLogLevel',
-      <String, dynamic>{'value': value},
+      <String, dynamic>{'value': value.toString()},
     );
   }
 

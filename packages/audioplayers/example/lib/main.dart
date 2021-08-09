@@ -8,7 +8,10 @@ import 'package:http/http.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
+import 'components/btn.dart';
+import 'components/tab_wrapper.dart';
 import 'player_widget.dart';
+import 'tabs/global.dart';
 
 typedef OnError = void Function(Exception exception);
 
@@ -58,11 +61,10 @@ class _ExampleAppState extends State<ExampleApp> {
 
   Widget remoteUrl() {
     return const SingleChildScrollView(
-      child: _Tab(
+      child: TabWrapper(
         children: [
           Text(
             'Sample 1 ($kUrl1)',
-            key: Key('url1'),
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           PlayerWidget(url: kUrl1),
@@ -87,21 +89,23 @@ class _ExampleAppState extends State<ExampleApp> {
   }
 
   Widget localFile() {
-    return _Tab(children: [
-      const Text(' -- manually load bytes (no web!) --'),
-      const Text('File: $kUrl1'),
-      _Btn(txt: 'Download File to your Device', onPressed: _loadFile),
-      Text('Current local file path: $localFilePath'),
-      if (localFilePath != null) PlayerWidget(url: localFilePath!),
-      Container(
-        constraints: const BoxConstraints.expand(width: 1.0, height: 20.0),
-      ),
-      const Text(' -- via AudioCache --'),
-      const Text('File: $kUrl2'),
-      _Btn(txt: 'Download File to your Device', onPressed: _loadFileAC),
-      Text('Current AC loaded: $localAudioCacheURI'),
-      if (localAudioCacheURI != null) PlayerWidget(url: localAudioCacheURI!),
-    ]);
+    return TabWrapper(
+      children: [
+        const Text(' -- manually load bytes (no web!) --'),
+        const Text('File: $kUrl1'),
+        Btn(txt: 'Download File to your Device', onPressed: _loadFile),
+        Text('Current local file path: $localFilePath'),
+        if (localFilePath != null) PlayerWidget(url: localFilePath!),
+        Container(
+          constraints: const BoxConstraints.expand(width: 1.0, height: 20.0),
+        ),
+        const Text(' -- via AudioCache --'),
+        const Text('File: $kUrl2'),
+        Btn(txt: 'Download File to your Device', onPressed: _loadFileAC),
+        Text('Current AC loaded: $localAudioCacheURI'),
+        if (localAudioCacheURI != null) PlayerWidget(url: localAudioCacheURI!),
+      ],
+    );
   }
 
   void _loadFileAC() async {
@@ -111,34 +115,34 @@ class _ExampleAppState extends State<ExampleApp> {
 
   Widget localAsset() {
     return SingleChildScrollView(
-      child: _Tab(
+      child: TabWrapper(
         children: [
           const Text("Play Local Asset 'audio.mp3':"),
-          _Btn(txt: 'Play', onPressed: () => audioCache.play('audio.mp3')),
+          Btn(txt: 'Play', onPressed: () => audioCache.play('audio.mp3')),
           const Text("Play Local Asset (via byte source) 'audio.mp3':"),
-          _Btn(
+          Btn(
             txt: 'Play',
             onPressed: () async {
-              final bytes = await (await audioCache.loadAsFile('audio.mp3'))
-                  .readAsBytes();
+              final file = await audioCache.loadAsFile('audio.mp3');
+              final bytes = await file.readAsBytes();
               audioCache.playBytes(bytes);
             },
           ),
           const Text("Loop Local Asset 'audio.mp3':"),
-          _Btn(txt: 'Loop', onPressed: () => audioCache.loop('audio.mp3')),
+          Btn(txt: 'Loop', onPressed: () => audioCache.loop('audio.mp3')),
           const Text("Loop Local Asset (via byte source) 'audio.mp3':"),
-          _Btn(
+          Btn(
             txt: 'Loop',
             onPressed: () async {
-              final bytes = await (await audioCache.loadAsFile('audio.mp3'))
-                  .readAsBytes();
+              final file = await audioCache.loadAsFile('audio.mp3');
+              final bytes = await file.readAsBytes();
               audioCache.playBytes(bytes, loop: true);
             },
           ),
           const Text("Play Local Asset 'audio2.mp3':"),
-          _Btn(txt: 'Play', onPressed: () => audioCache.play('audio2.mp3')),
+          Btn(txt: 'Play', onPressed: () => audioCache.play('audio2.mp3')),
           const Text("Play Local Asset In Low Latency 'audio.mp3':"),
-          _Btn(
+          Btn(
             txt: 'Play',
             onPressed: () {
               audioCache.play('audio.mp3', mode: PlayerMode.LOW_LATENCY);
@@ -147,7 +151,7 @@ class _ExampleAppState extends State<ExampleApp> {
           const Text(
             "Play Local Asset Concurrently In Low Latency 'audio.mp3':",
           ),
-          _Btn(
+          Btn(
             txt: 'Play',
             onPressed: () async {
               await audioCache.play(
@@ -161,7 +165,7 @@ class _ExampleAppState extends State<ExampleApp> {
             },
           ),
           const Text("Play Local Asset In Low Latency 'audio2.mp3':"),
-          _Btn(
+          Btn(
             txt: 'Play',
             onPressed: () {
               audioCache.play('audio2.mp3', mode: PlayerMode.LOW_LATENCY);
@@ -199,18 +203,16 @@ class _ExampleAppState extends State<ExampleApp> {
             return Text(
               'audio2.mp3 duration is: ${Duration(milliseconds: snapshot.data!)}',
             );
-          default:
-            return Container();
         }
       },
     );
   }
 
   Widget notification() {
-    return _Tab(
+    return TabWrapper(
       children: [
         const Text("Play notification sound: 'messenger.mp3':"),
-        _Btn(
+        Btn(
           txt: 'Play',
           onPressed: () =>
               audioCache.play('messenger.mp3', isNotification: true),
@@ -229,7 +231,7 @@ class _ExampleAppState extends State<ExampleApp> {
         ),
       ],
       child: DefaultTabController(
-        length: 5,
+        length: 6,
         child: Scaffold(
           appBar: AppBar(
             bottom: const TabBar(
@@ -239,6 +241,7 @@ class _ExampleAppState extends State<ExampleApp> {
                 Tab(text: 'Local Asset'),
                 Tab(text: 'Notification'),
                 Tab(text: 'Advanced'),
+                Tab(text: 'Global Config'),
               ],
             ),
             title: const Text('audioplayers Example'),
@@ -250,6 +253,7 @@ class _ExampleAppState extends State<ExampleApp> {
               localAsset(),
               notification(),
               Advanced(advancedPlayer: advancedPlayer),
+              const GlobalTab(),
             ],
           ),
         ),
@@ -281,22 +285,22 @@ class _AdvancedState extends State<Advanced> {
   Widget build(BuildContext context) {
     final audioPosition = Provider.of<Duration>(context);
     return SingleChildScrollView(
-      child: _Tab(
+      child: TabWrapper(
         children: [
           Column(
             children: [
               const Text('Source Url'),
               Row(
                 children: [
-                  _Btn(
+                  Btn(
                     txt: 'Audio 1',
                     onPressed: () => widget.advancedPlayer.setUrl(kUrl1),
                   ),
-                  _Btn(
+                  Btn(
                     txt: 'Audio 2',
                     onPressed: () => widget.advancedPlayer.setUrl(kUrl2),
                   ),
-                  _Btn(
+                  Btn(
                     txt: 'Stream',
                     onPressed: () => widget.advancedPlayer.setUrl(kUrl3),
                   ),
@@ -310,17 +314,17 @@ class _AdvancedState extends State<Advanced> {
               const Text('Release Mode'),
               Row(
                 children: [
-                  _Btn(
+                  Btn(
                     txt: 'STOP',
                     onPressed: () =>
                         widget.advancedPlayer.setReleaseMode(ReleaseMode.STOP),
                   ),
-                  _Btn(
+                  Btn(
                     txt: 'LOOP',
                     onPressed: () =>
                         widget.advancedPlayer.setReleaseMode(ReleaseMode.LOOP),
                   ),
-                  _Btn(
+                  Btn(
                     txt: 'RELEASE',
                     onPressed: () => widget.advancedPlayer
                         .setReleaseMode(ReleaseMode.RELEASE),
@@ -335,7 +339,7 @@ class _AdvancedState extends State<Advanced> {
               const Text('Volume'),
               Row(
                 children: [0.0, 0.3, 0.5, 1.0, 1.1, 2.0].map((e) {
-                  return _Btn(
+                  return Btn(
                     txt: e.toString(),
                     onPressed: () => widget.advancedPlayer.setVolume(e),
                   );
@@ -349,19 +353,19 @@ class _AdvancedState extends State<Advanced> {
               const Text('Control'),
               Row(
                 children: [
-                  _Btn(
+                  Btn(
                     txt: 'resume',
                     onPressed: () => widget.advancedPlayer.resume(),
                   ),
-                  _Btn(
+                  Btn(
                     txt: 'pause',
                     onPressed: () => widget.advancedPlayer.pause(),
                   ),
-                  _Btn(
+                  Btn(
                     txt: 'stop',
                     onPressed: () => widget.advancedPlayer.stop(),
                   ),
-                  _Btn(
+                  Btn(
                     txt: 'release',
                     onPressed: () => widget.advancedPlayer.release(),
                   ),
@@ -375,7 +379,7 @@ class _AdvancedState extends State<Advanced> {
               const Text('Seek in milliseconds'),
               Row(
                 children: [
-                  _Btn(
+                  Btn(
                     txt: '100ms',
                     onPressed: () {
                       widget.advancedPlayer.seek(
@@ -386,7 +390,7 @@ class _AdvancedState extends State<Advanced> {
                       setState(() => seekDone = false);
                     },
                   ),
-                  _Btn(
+                  Btn(
                     txt: '500ms',
                     onPressed: () {
                       widget.advancedPlayer.seek(
@@ -397,7 +401,7 @@ class _AdvancedState extends State<Advanced> {
                       setState(() => seekDone = false);
                     },
                   ),
-                  _Btn(
+                  Btn(
                     txt: '1s',
                     onPressed: () {
                       widget.advancedPlayer.seek(
@@ -406,7 +410,7 @@ class _AdvancedState extends State<Advanced> {
                       setState(() => seekDone = false);
                     },
                   ),
-                  _Btn(
+                  Btn(
                     txt: '1.5s',
                     onPressed: () {
                       widget.advancedPlayer.seek(
@@ -427,7 +431,7 @@ class _AdvancedState extends State<Advanced> {
               const Text('Rate'),
               Row(
                 children: [0.5, 1.0, 1.5, 2.0, 5.0].map((e) {
-                  return _Btn(
+                  return Btn(
                     txt: e.toString(),
                     onPressed: () {
                       widget.advancedPlayer.setPlaybackRate(playbackRate: e);
@@ -442,50 +446,6 @@ class _AdvancedState extends State<Advanced> {
           if (seekDone != null) Text(seekDone! ? 'Seek Done' : 'Seeking...'),
         ],
       ),
-    );
-  }
-}
-
-class _Tab extends StatelessWidget {
-  final List<Widget> children;
-
-  const _Tab({Key? key, required this.children}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        alignment: Alignment.topCenter,
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            children: children
-                .map(
-                  (w) => Container(
-                    child: w,
-                    padding: const EdgeInsets.all(6.0),
-                  ),
-                )
-                .toList(),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _Btn extends StatelessWidget {
-  final String txt;
-  final VoidCallback onPressed;
-
-  const _Btn({Key? key, required this.txt, required this.onPressed})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return ButtonTheme(
-      minWidth: 48.0,
-      child: ElevatedButton(child: Text(txt), onPressed: onPressed),
     );
   }
 }
