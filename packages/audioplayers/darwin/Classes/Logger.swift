@@ -8,18 +8,18 @@ class Logger {
     static var logLevel = LogLevel.error
 
     static func info(_ items: Any...) {
-        _log(.info, items)
+        _log(.info, items: items)
     }
 
     static func error(_ items: Any...) {
-        _log(.error, items)
+        _log(.error, items: items)
     }
 
-    static func log(level: LogLevel, _ items: Any...) {
-        _log(level, items)
+    static func log(_ level: LogLevel, _ items: Any...) {
+        _log(level, items: items)
     }
 
-    static func _log(level: LogLevel, items: [Any]) {
+    static func _log(_ level: LogLevel, items: [Any]) {
         if level.rawValue > logLevel.rawValue {
             return
         }
