@@ -84,6 +84,10 @@ class WrappedPlayer {
     _cancel();
   }
 
+  void seek(int position) {
+    player?.currentTime = position / 1000.0;
+  }
+
   void _cancel() {
     isPlaying = false;
     player?.pause();
@@ -209,6 +213,11 @@ class AudioplayersPlugin {
           return 1;
         }
       case 'seek':
+        {
+          final position = args['position'] as int? ?? 0;
+          getOrCreatePlayer(playerId).seek(position);
+          return 1;
+        }
       default:
         throw PlatformException(
           code: 'Unimplemented',
