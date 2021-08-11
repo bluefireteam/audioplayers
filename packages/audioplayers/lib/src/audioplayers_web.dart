@@ -8,7 +8,7 @@ import 'api/release_mode.dart';
 
 class WrappedPlayer {
   final AudioplayersPlugin plugin;
-  
+
   double? pausedAt;
   double currentVolume = 1.0;
   double currentPlaybackRate = 1.0;
@@ -18,9 +18,9 @@ class WrappedPlayer {
 
   AudioElement? player;
   StreamSubscription? playerTimeUpdateSubscription;
-  
+
   WrappedPlayer(this.plugin);
-  
+
   void setUrl(String url) {
     currentUrl = url;
 
@@ -50,7 +50,8 @@ class WrappedPlayer {
     player?.volume = currentVolume;
     player?.playbackRate = currentPlaybackRate;
     playerTimeUpdateSubscription = player?.onTimeUpdate.listen((event) =>
-        plugin.channel.invokeMethod('audio.onCurrentPosition', {'value': (1000 * (player?.currentTime ?? 0)).round()}));
+        plugin.channel.invokeMethod('audio.onCurrentPosition',
+            {'value': (1000 * (player?.currentTime ?? 0)).round()}));
   }
 
   bool shouldLoop() => currentReleaseMode == ReleaseMode.LOOP;
@@ -63,7 +64,7 @@ class WrappedPlayer {
   void release() {
     _cancel();
     player = null;
-    
+
     playerTimeUpdateSubscription?.cancel();
     playerTimeUpdateSubscription = null;
   }
