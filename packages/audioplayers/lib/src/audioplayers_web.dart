@@ -148,6 +148,14 @@ class AudioplayersPlugin {
 
   Future<dynamic> handleMethodCall(MethodCall call) async {
     final method = call.method;
+    switch (method) {
+      case 'changeLogLevel':
+        {
+          // no-op for now
+          return 1;
+        }
+    }
+
     final args = call.arguments as Map<dynamic, dynamic>;
     final playerId = args['playerId'] as String;
     switch (method) {

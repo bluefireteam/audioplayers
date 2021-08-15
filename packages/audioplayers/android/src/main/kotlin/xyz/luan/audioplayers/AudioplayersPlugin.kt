@@ -1,5 +1,6 @@
 package xyz.luan.audioplayers
 
+import LogLevel
 import android.content.Context
 import android.os.Handler
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -8,8 +9,6 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import java.lang.ref.WeakReference
-import java.util.logging.Level
-import java.util.logging.Logger
 
 class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
     private lateinit var channel: MethodChannel
@@ -33,45 +32,45 @@ class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
         try {
             handleMethodCall(call, response)
         } catch (e: Exception) {
-            LOGGER.log(Level.SEVERE, "Unexpected error!", e)
+            Logger.error("Unexpected error!", e)
             response.error("Unexpected error!", e.message, e)
         }
     }
 
     private fun handleMethodCall(call: MethodCall, response: MethodChannel.Result) {
+        when (call.method) {
+            "changeLogLevel" -> {
+                val value = call.enumArgument<LogLevel>("value")
+                    ?: throw error("value is required")
+                Logger.logLevel = value
+                response.success(1)
+                return
+            }
+        }
         val playerId = call.argument<String>("playerId") ?: return
         val mode = call.argument<String>("mode")
         val player = getPlayer(playerId, mode)
         when (call.method) {
             "play" -> {
-                val url = call.argument<String>("url") !!
+                configureAttributesAndVolume(call, player)
+
+                val url = call.argument<String>("url")!!
                 val isLocal = call.argument<Boolean>("isLocal") ?: false
-
-                val volume = call.argument<Double>("volume") ?: 1.0
-                val position = call.argument<Int>("position")
-
-                val respectSilence = call.argument<Boolean>("respectSilence") ?: false
-                val stayAwake = call.argument<Boolean>("stayAwake") ?: false
-                val duckAudio = call.argument<Boolean>("duckAudio") ?: false
-
-                player.configAttributes(respectSilence, stayAwake, duckAudio)
-                player.setVolume(volume)
                 player.setUrl(url, isLocal)
+
+                val position = call.argument<Int>("position")
                 if (position != null && mode != "PlayerMode.LOW_LATENCY") {
                     player.seek(position)
                 }
                 player.play()
             }
             "playBytes" -> {
+                configureAttributesAndVolume(call, player)
+
                 val bytes = call.argument<ByteArray>("bytes") ?: throw error("bytes are required")
-                val volume = call.argument<Double>("volume") ?: 1.0
-                val position = call.argument<Int>("position")
-                val respectSilence = call.argument<Boolean>("respectSilence") ?: false
-                val stayAwake = call.argument<Boolean>("stayAwake") ?: false
-                val duckAudio = call.argument<Boolean>("duckAudio") ?: false
-                player.configAttributes(respectSilence, stayAwake, duckAudio)
-                player.setVolume(volume)
                 player.setDataSource(ByteDataSource(bytes))
+
+                val position = call.argument<Int>("position")
                 if (position != null && mode != "PlayerMode.LOW_LATENCY") {
                     player.seek(position)
                 }
@@ -107,8 +106,8 @@ class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
                 return
             }
             "setReleaseMode" -> {
-                val releaseModeName = call.argument<String>("releaseMode") ?: throw error("releaseMode is required")
-                val releaseMode = ReleaseMode.valueOf(releaseModeName.substring("ReleaseMode.".length))
+                val releaseMode = call.enumArgument<ReleaseMode>("releaseMode")
+                    ?: throw error("releaseMode is required")
                 player.setReleaseMode(releaseMode)
             }
             "earpieceOrSpeakersToggle" -> {
@@ -121,6 +120,19 @@ class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
             }
         }
         response.success(1)
+    }
+
+    private fun configureAttributesAndVolume(
+        call: MethodCall,
+        player: Player
+    ) {
+        val respectSilence = call.argument<Boolean>("respectSilence") ?: false
+        val stayAwake = call.argument<Boolean>("stayAwake") ?: false
+        val duckAudio = call.argument<Boolean>("duckAudio") ?: false
+        player.configAttributes(respectSilence, stayAwake, duckAudio)
+
+        val volume = call.argument<Double>("volume") ?: 1.0
+        player.setVolume(volume)
     }
 
     private fun getPlayer(playerId: String, mode: String?): Player {
@@ -220,8 +232,6 @@ class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
     }
 
     companion object {
-        private val LOGGER = Logger.getLogger(AudioplayersPlugin::class.qualifiedName!!)
-
         private fun buildArguments(playerId: String, value: Any): Map<String, Any> {
             return mapOf(
                     "playerId" to playerId,
@@ -233,4 +243,9 @@ class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
             return IllegalArgumentException(message)
         }
     }
+}
+
+private inline fun <reified T: Enum<T>> MethodCall.enumArgument(name: String): T? {
+    val enumName = argument<String>(name) ?: return null
+    return enumValueOf<T>(enumName.removePrefix("${T::class.simpleName}."))
 }

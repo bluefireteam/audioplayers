@@ -7,28 +7,6 @@ extension String {
     }
 }
 
-class Logger {
-    // TODO(luan) wire this with the Dart side
-    static var enableLogs = false
-
-    static func log(_ items: Any...) {
-        if !enableLogs {
-            return
-        }
-
-        let string: String
-        if items.count == 1, let s = items.first as? String {
-            string = s
-        } else if items.count > 1, let format = items.first as? String, let arguments = Array(items[1..<items.count]) as? [CVarArg] {
-            string = String(format: format, arguments: arguments)
-        } else {
-            string = ""
-        }
-        
-        debugPrint(string)
-    }
-}
-
 func toCMTime(millis: Int) -> CMTime {
     return toCMTime(millis: Float(millis))
 }
