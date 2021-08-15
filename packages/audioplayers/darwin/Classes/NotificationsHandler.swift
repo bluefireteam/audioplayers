@@ -274,6 +274,8 @@ class NotificationsHandler {
         self.artist = nil
         self.imageUrl = nil
 
+        // Set both the nowPlayingInfo and infoCenter to nil so
+        // we clear all the references to the notification
         self.infoCenter?.nowPlayingInfo = nil
         self.infoCenter = nil
     }
