@@ -342,7 +342,6 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         if !hasPlaying {
             #if os(iOS)
             configureAudioSession(active: false)
-            notificationsHandler?.doHandleClearNotification()
             #endif
         }
     }

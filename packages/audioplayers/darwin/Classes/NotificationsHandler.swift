@@ -20,17 +20,13 @@ class NotificationsHandler {
     private var artist: String? = nil
     private var imageUrl: String? = nil
     private var duration: Int? = nil
-    
-    private var shouldDispose: Bool = false
-    
+        
     init(reference: SwiftAudioplayersPlugin) {
         self.reference = reference
         self.initHeadlessService()
     }
     
     func initHeadlessService() {
-        self.shouldDispose = false
-
         #if os(iOS)
         // this method is used to listen to audio playpause event
         // from the notification area in the background.
@@ -52,8 +48,6 @@ class NotificationsHandler {
     // events. `handle` is the handle to the callback dispatcher which we specified
     // in the Dart portion of the plugin.
     func startHeadlessService(handle: Int64) {
-        self.shouldDispose = false
-
         guard let headlessEngine = self.headlessEngine else { return }
         guard let callbackChannel = self.callbackChannel else { return }
         
@@ -122,8 +116,6 @@ class NotificationsHandler {
         enablePreviousTrackButton: Bool?,
         enableNextTrackButton: Bool?
     ) {
-        self.shouldDispose = false
-
         #if os(iOS)
         setNotificationForIos(
             playerId: playerId,
@@ -281,17 +273,11 @@ class NotificationsHandler {
         self.albumTitle = nil
         self.artist = nil
         self.imageUrl = nil
-        self.duration = nil
-        
-        self.shouldDispose = true
-    }
-    
-    // this must be called only after the audio session has been deactivated
-    func doHandleClearNotification() {
-        if self.shouldDispose {
-            self.infoCenter?.nowPlayingInfo = [:]
-            self.shouldDispose = false
-        }
+
+        // Set both the nowPlayingInfo and infoCenter to nil so
+        // we clear all the references to the notification
+        self.infoCenter?.nowPlayingInfo = nil
+        self.infoCenter = nil
     }
     
     func skipBackwardEvent(skipEvent: MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus {
