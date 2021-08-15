@@ -133,11 +133,11 @@ class WrappedMediaPlayer {
     
     func skipForward(interval: TimeInterval) {
         guard let currentTime = getCurrentCMTime() else {
-            Logger.log("Cannot skip forward, unable to determine currentTime")
+            Logger.error("Cannot skip forward, unable to determine currentTime")
             return
         }
         guard let maxDuration = getDurationCMTime() else {
-            Logger.log("Cannot skip forward, unable to determine maxDuration")
+            Logger.error("Cannot skip forward, unable to determine maxDuration")
             return
         }
         let newTime = CMTimeAdd(currentTime, toCMTime(millis: interval * 1000))
@@ -148,7 +148,7 @@ class WrappedMediaPlayer {
     
     func skipBackward(interval: TimeInterval) {
         guard let currentTime = getCurrentCMTime() else {
-            Logger.log("Cannot skip forward, unable to determine currentTime")
+            Logger.error("Cannot skip forward, unable to determine currentTime")
             return
         }
         let newTime = CMTimeSubtract(currentTime, toCMTime(millis: interval * 1000))
@@ -261,7 +261,7 @@ class WrappedMediaPlayer {
             self.onReady = onReady
             let newKeyValueObservation = playerItem.observe(\AVPlayerItem.status) { (playerItem, change) in
                 let status = playerItem.status
-                Logger.log("player status: %@ change: %@", status, change)
+                Logger.info("player status: %@ change: %@", status, change)
                 
                 // Do something with the status...
                 if status == .readyToPlay {

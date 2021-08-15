@@ -55,6 +55,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         #endif
         
         let channel = FlutterMethodChannel(name: CHANNEL_NAME, binaryMessenger: binaryMessenger)
+
         let instance = SwiftAudioplayersPlugin(registrar: registrar, channel: channel)
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
@@ -80,16 +81,35 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         let method = call.method
         
         guard let args = call.arguments as? [String: Any] else {
-            Logger.log("Failed to parse call.arguments from Flutter.")
+            Logger.error("Failed to parse call.arguments from Flutter.")
             result(0)
             return
         }
+
+        // global handlers (no playerId)
+        if method == "changeLogLevel" {
+            guard let valueName = args["value"] as! String? else {
+                Logger.error("Null value received on changeLogLevel")
+                result(0)
+                return
+            }
+            guard let value = LogLevel.parse(valueName) else {
+                Logger.error("Invalid value received on changeLogLevel")
+                result(0)
+                return
+            }
+
+            Logger.logLevel = value
+            result(1)
+            return
+        }
+
         guard let playerId = args["playerId"] as? String else {
-            Logger.log("Call missing mandatory parameter playerId.")
+            Logger.error("Call missing mandatory parameter playerId.")
             result(0)
             return
         }
-        Logger.log("%@ => call %@, playerId %@", OS_NAME, method, playerId)
+        Logger.info("%@ => call %@, playerId %@", OS_NAME, method, playerId)
         
         let player = self.getOrCreatePlayer(playerId: playerId)
         
@@ -99,7 +119,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
                 return
             }
             if let handleKey = args["handleKey"] {
-                Logger.log("calling start headless service %@", handleKey)
+                Logger.info("calling start headless service %@", handleKey)
                 let handle = (handleKey as! [Any])[0]
                 handler.startHeadlessService(handle: (handle as! Int64))
             } else {
@@ -111,7 +131,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
                 return
             }
             if let handleMonitorKey = args["handleMonitorKey"] {
-                Logger.log("calling monitor notification %@", handleMonitorKey)
+                Logger.info("calling monitor notification %@", handleMonitorKey)
                 let handle = (handleMonitorKey as! [Any])[0]
                 handler.updateHandleMonitorKey(handle: handle as! Int64)
             } else {
@@ -119,7 +139,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
             }
         } else if method == "play" {
             guard let url = args["url"] as! String? else {
-                Logger.log("Null url received on play")
+                Logger.error("Null url received on play")
                 result(0)
                 return
             }
@@ -158,7 +178,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
                 let time = toCMTime(millis: position)
                 player.seek(time: time)
             } else {
-                Logger.log("Null position received on seek")
+                Logger.error("Null position received on seek")
                 result(0)
             }
         } else if method == "setUrl" {
@@ -168,7 +188,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
             let recordingActive: Bool = (args["recordingActive"] as? Bool) ?? false
             
             if url == nil {
-                Logger.log("Null URL received on setUrl")
+                Logger.error("Null URL received on setUrl")
                 result(0)
                 return
             }
@@ -188,7 +208,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
             result(duration)
         } else if method == "setVolume" {
             guard let volume = args["volume"] as? Double else {
-                Logger.log("Error calling setVolume, volume cannot be null")
+                Logger.error("Error calling setVolume, volume cannot be null")
                 result(0)
                 return
             }
@@ -199,14 +219,14 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
             result(currentPosition)
         } else if method == "setPlaybackRate" {
             guard let playbackRate = args["playbackRate"] as? Double else {
-                Logger.log("Error calling setPlaybackRate, playbackRate cannot be null")
+                Logger.error("Error calling setPlaybackRate, playbackRate cannot be null")
                 result(0)
                 return
             }
             player.setPlaybackRate(playbackRate: playbackRate)
         } else if method == "setReleaseMode" {
             guard let releaseMode = args["releaseMode"] as? String else {
-                Logger.log("Error calling setReleaseMode, releaseMode cannot be null")
+                Logger.error("Error calling setReleaseMode, releaseMode cannot be null")
                 result(0)
                 return
             }
@@ -214,25 +234,24 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
             player.looping = looping
         } else if method == "earpieceOrSpeakersToggle" {
             guard let playingRoute = args["playingRoute"] as? String else {
-                Logger.log("Error calling earpieceOrSpeakersToggle, playingRoute cannot be null")
+                Logger.error("Error calling earpieceOrSpeakersToggle, playingRoute cannot be null")
                 result(0)
                 return
             }
             self.setPlayingRoute(playerId: playerId, playingRoute: playingRoute)
         } else if method == "setNotification" {
-            Logger.log("setNotification called")
-            let title: String? = args["title"] as? String
-            let albumTitle: String? = args["albumTitle"] as? String
-            let artist: String? = args["artist"] as? String
-            let imageUrl: String? = args["imageUrl"] as? String
+            let title = args["title"] as? String
+            let albumTitle = args["albumTitle"] as? String
+            let artist = args["artist"] as? String
+            let imageUrl = args["imageUrl"] as? String
             
-            let forwardSkipInterval: Int? = args["forwardSkipInterval"] as? Int
-            let backwardSkipInterval: Int? = args["backwardSkipInterval"] as? Int
-            let duration: Int? = args["duration"] as? Int
-            let elapsedTime: Int? = args["elapsedTime"] as? Int
+            let forwardSkipInterval = args["forwardSkipInterval"] as? Int
+            let backwardSkipInterval = args["backwardSkipInterval"] as? Int
+            let duration = args["duration"] as? Int
+            let elapsedTime = args["elapsedTime"] as? Int
             
-            let enablePreviousTrackButton: Bool? = args["enablePreviousTrackButton"] as? Bool
-            let enableNextTrackButton: Bool? = args["enableNextTrackButton"] as? Bool
+            let enablePreviousTrackButton = args["enablePreviousTrackButton"] as? Bool
+            let enableNextTrackButton = args["enableNextTrackButton"] as? Bool
             
             guard let handler = notificationsHandler else {
                 result(FlutterMethodNotImplemented)
@@ -260,7 +279,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
             handler.clearNotification()
             player.release()
         } else {
-            Logger.log("Called not implemented method: %@", method)
+            Logger.error("Called not implemented method: %@", method)
             result(FlutterMethodNotImplemented)
             return
         }
@@ -384,7 +403,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
                 try session.setActive(active)
             }
         } catch {
-            Logger.log("Error configuring audio session: %@", error)
+            Logger.error("Error configuring audio session: %@", error)
         }
     }
     #endif
