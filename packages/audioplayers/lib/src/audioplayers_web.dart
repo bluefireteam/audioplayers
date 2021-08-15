@@ -50,8 +50,11 @@ class WrappedPlayer {
     player?.volume = currentVolume;
     player?.playbackRate = currentPlaybackRate;
     playerTimeUpdateSubscription = player?.onTimeUpdate.listen((event) =>
-        plugin.channel.invokeMethod('audio.onCurrentPosition',
-            {'value': (1000 * (player?.currentTime ?? 0)).round()}));
+        plugin.channel.invokeMethod(
+            'audio.onCurrentPosition',
+            {'value': (1000 * (player?.currentTime ?? 0)).round()},
+        ),
+    );
   }
 
   bool shouldLoop() => currentReleaseMode == ReleaseMode.LOOP;
