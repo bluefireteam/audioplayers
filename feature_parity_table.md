@@ -39,7 +39,7 @@ Note: LLM means Low Latency Mode.
         <tr><td>playing route</td><td>yes (except LLM)</td><td>yes</td><td>no</td><td>no</td></tr>
         <tr><td colspan="5"><strong>Streams</strong></td></tr>
         <tr><td>duration event</td><td>yes</td><td>yes</td><td>yes</td><td>not yet</td></tr>
-        <tr><td>position event</td><td>yes</td><td>yes</td><td>yes</td><td>not yet</td></tr>
+        <tr><td>position event</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr>
         <tr><td>state event</td><td>yes</td><td>yes</td><td>yes</td><td>not yet</td></tr>
         <tr><td>completion event</td><td>yes</td><td>yes</td><td>yes</td><td>not yet</td></tr>
         <tr><td>error event</td><td>yes</td><td>yes</td><td>yes</td><td>not yet</td></tr>
