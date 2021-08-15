@@ -92,7 +92,6 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         Logger.log("%@ => call %@, playerId %@", OS_NAME, method, playerId)
         
         let player = self.getOrCreatePlayer(playerId: playerId)
-
         
         if method == "startHeadlessService" {
             guard let handler = notificationsHandler else {
