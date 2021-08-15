@@ -230,11 +230,6 @@ class _PlayerWidgetState extends State<PlayerWidget> {
       setState(() => _playerState = PlayerState.PLAYING);
     }
 
-    // default playback rate is 1.0
-    // this should be called after _audioPlayer.play() or _audioPlayer.resume()
-    // this can also be called everytime the user wants to change playback rate in the UI
-    _audioPlayer.setPlaybackRate();
-
     return result;
   }
 

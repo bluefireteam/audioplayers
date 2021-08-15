@@ -434,7 +434,7 @@ class _AdvancedState extends State<Advanced> {
                   return Btn(
                     txt: e.toString(),
                     onPressed: () {
-                      widget.advancedPlayer.setPlaybackRate(playbackRate: e);
+                      widget.advancedPlayer.setPlaybackRate(e);
                     },
                   );
                 }).toList(),
