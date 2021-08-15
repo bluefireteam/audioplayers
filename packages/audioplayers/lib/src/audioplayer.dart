@@ -10,6 +10,7 @@ import 'api/player_mode.dart';
 import 'api/player_state.dart';
 import 'api/playing_route.dart';
 import 'api/release_mode.dart';
+import 'logger.dart';
 import 'notifications/notification_service.dart';
 
 /// This represents a single AudioPlayer, which can play one audio at a time.
@@ -53,12 +54,6 @@ class AudioPlayer {
   /// This is used to exchange messages with the [MethodChannel]
   /// (because there is only one channel for all players).
   static final players = <String, AudioPlayer>{};
-
-  /// Enables more verbose logging.
-  ///
-  /// TODO(luan): there are still some logs on the android native side that we
-  /// should get rid of.
-  static bool logEnabled = false;
 
   late NotificationService notificationService;
 
@@ -140,13 +135,20 @@ class AudioPlayer {
   Future<int> _invokeMethod(
     String method, [
     Map<String, dynamic> arguments = const <String, dynamic>{},
-  ]) async {
+  ]) {
     final enhancedArgs = <String, dynamic>{
       ...arguments,
       'playerId': playerId,
       'mode': mode.toString(),
     };
-    final result = await _channel.invokeMethod<int>(method, enhancedArgs);
+    return invokeMethod(method, enhancedArgs);
+  }
+
+  static Future<int> invokeMethod(
+    String method,
+    Map<String, dynamic> args,
+  ) async {
+    final result = await _channel.invokeMethod<int>(method, args);
     return result ?? 0; // if null, we assume error
   }
 
@@ -375,13 +377,13 @@ class AudioPlayer {
     try {
       _doHandlePlatformCall(call);
     } catch (ex) {
-      _log('Unexpected error: $ex');
+      Logger.error('Unexpected error: $ex');
     }
   }
 
   static Future<void> _doHandlePlatformCall(MethodCall call) async {
     final callArgs = call.arguments as Map<dynamic, dynamic>;
-    _log('_platformCallHandler call ${call.method} $callArgs');
+    Logger.info('_platformCallHandler call ${call.method} $callArgs');
 
     final playerId = callArgs['playerId'] as String;
     final player = players[playerId];
@@ -433,13 +435,7 @@ class AudioPlayer {
         player.notificationService.notifyPreviousTrack();
         break;
       default:
-        _log('Unknown method ${call.method} ');
-    }
-  }
-
-  static void _log(String param) {
-    if (logEnabled) {
-      print(param);
+        Logger.error('Unknown method ${call.method} ');
     }
   }
 
