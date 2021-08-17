@@ -217,7 +217,7 @@ class _ExampleAppState extends State<ExampleApp> {
               audioCache.play('messenger.mp3', isNotification: true),
         ),
         const Text('Notification Service'),
-        _Btn(
+        Btn(
           txt: 'Notification',
           onPressed: () async {
             await advancedPlayer.notificationService.startHeadlessService();
@@ -240,7 +240,7 @@ class _ExampleAppState extends State<ExampleApp> {
             );
           },
         ),
-        _Btn(
+        Btn(
           txt: 'Clear Notification',
           onPressed: () async {
             await advancedPlayer.stop();
