@@ -222,16 +222,16 @@ class _ExampleAppState extends State<ExampleApp> {
           onPressed: () async {
             await advancedPlayer.notificationService.startHeadlessService();
             await advancedPlayer.notificationService.setNotification(
-                title: 'My Song',
-                albumTitle: 'My Album',
-                artist: 'My Artist',
-                imageUrl: 'Image URL or blank',
-                forwardSkipInterval: const Duration(seconds: 30),
-                backwardSkipInterval: const Duration(seconds: 30),
-                duration: const Duration(minutes: 3),
-                elapsedTime: const Duration(seconds: 15),
-                enableNextTrackButton: true,
-                enablePreviousTrackButton: true,
+              title: 'My Song',
+              albumTitle: 'My Album',
+              artist: 'My Artist',
+              imageUrl: 'Image URL or blank',
+              forwardSkipInterval: const Duration(seconds: 30),
+              backwardSkipInterval: const Duration(seconds: 30),
+              duration: const Duration(minutes: 3),
+              elapsedTime: const Duration(seconds: 15),
+              enableNextTrackButton: true,
+              enablePreviousTrackButton: true,
             );
 
             await advancedPlayer.play(
