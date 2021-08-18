@@ -44,7 +44,6 @@ class _ExampleAppState extends State<ExampleApp> {
     }
     if (Platform.isIOS) {
       audioCache.fixedPlayer?.notificationService.startHeadlessService();
-      advancedPlayer.notificationService.startHeadlessService();
     }
   }
 
@@ -216,6 +215,37 @@ class _ExampleAppState extends State<ExampleApp> {
           txt: 'Play',
           onPressed: () =>
               audioCache.play('messenger.mp3', isNotification: true),
+        ),
+        const Text('Notification Service'),
+        Btn(
+          txt: 'Notification',
+          onPressed: () async {
+            await advancedPlayer.notificationService.startHeadlessService();
+            await advancedPlayer.notificationService.setNotification(
+              title: 'My Song',
+              albumTitle: 'My Album',
+              artist: 'My Artist',
+              imageUrl: 'Image URL or blank',
+              forwardSkipInterval: const Duration(seconds: 30),
+              backwardSkipInterval: const Duration(seconds: 30),
+              duration: const Duration(minutes: 3),
+              elapsedTime: const Duration(seconds: 15),
+              enableNextTrackButton: true,
+              enablePreviousTrackButton: true,
+            );
+
+            await advancedPlayer.play(
+              kUrl2,
+              isLocal: false,
+            );
+          },
+        ),
+        Btn(
+          txt: 'Clear Notification',
+          onPressed: () async {
+            await advancedPlayer.stop();
+            await advancedPlayer.notificationService.clearNotification();
+          },
         ),
       ],
     );

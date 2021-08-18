@@ -159,7 +159,6 @@ class WrappedMediaPlayer {
     
     func stop() {
         pause()
-        isPlaying = false
         seek(time: toCMTime(millis: 0))
     }
     
@@ -181,7 +180,10 @@ class WrappedMediaPlayer {
         
         reference.maybeDeactivateAudioSession()
         reference.onComplete(playerId: playerId)
-        reference.notificationsHandler?.onNotificationBackgroundPlayerStateChanged(playerId: playerId, value: "completed")
+        reference.notificationsHandler?.onNotificationBackgroundPlayerStateChanged(
+            playerId: playerId,
+            value: "completed"
+        )
     }
     
     func onTimeInterval(time: CMTime) {
@@ -210,7 +212,12 @@ class WrappedMediaPlayer {
         duckAudio: Bool,
         onReady: @escaping (AVPlayer) -> Void
     ) {
-        reference.updateCategory(recordingActive: recordingActive, isNotification: isNotification, playingRoute: playingRoute, duckAudio: duckAudio)
+        reference.updateCategory(
+            recordingActive: recordingActive,
+            isNotification: isNotification,
+            playingRoute: playingRoute,
+            duckAudio: duckAudio
+        )
         let playbackStatus = player?.currentItem?.status
         
         if self.url != url || playbackStatus == .failed || playbackStatus == nil {
@@ -287,8 +294,12 @@ class WrappedMediaPlayer {
         recordingActive: Bool,
         duckAudio: Bool
     ) {
-        reference.updateCategory(recordingActive: recordingActive, isNotification: isNotification, playingRoute: playingRoute,
-        duckAudio: duckAudio)
+        reference.updateCategory(
+            recordingActive: recordingActive,
+            isNotification: isNotification,
+            playingRoute: playingRoute,
+            duckAudio: duckAudio
+        )
         
         setUrl(
             url: url,
