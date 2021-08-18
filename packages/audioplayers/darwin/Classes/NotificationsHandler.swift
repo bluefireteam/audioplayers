@@ -20,7 +20,7 @@ class NotificationsHandler {
     private var artist: String? = nil
     private var imageUrl: String? = nil
     private var duration: Int? = nil
-    
+        
     init(reference: SwiftAudioplayersPlugin) {
         self.reference = reference
         self.initHeadlessService()
@@ -37,7 +37,10 @@ class NotificationsHandler {
         // BinaryMessenger needs to be initialized first, which is done in
         // `startHeadlessService` below.
         self.headlessEngine = headlessEngine
-        self.callbackChannel = FlutterMethodChannel(name: "xyz.luan/audioplayers_callback", binaryMessenger: headlessEngine.binaryMessenger)
+        self.callbackChannel = FlutterMethodChannel(
+            name: "xyz.luan/audioplayers_callback",
+            binaryMessenger: headlessEngine.binaryMessenger
+        )
         #endif
     }
     
@@ -83,7 +86,11 @@ class NotificationsHandler {
             
             callbackChannel.invokeMethod(
                 "audio.onNotificationBackgroundPlayerStateChanged",
-                arguments: ["playerId": playerId, "updateHandleMonitorKey": updateHandleMonitorKey as Any, "value": value]
+                arguments: [
+                    "playerId": playerId,
+                    "updateHandleMonitorKey": updateHandleMonitorKey as Any,
+                    "value": value
+                ]
             )
         }
     }
@@ -259,6 +266,18 @@ class NotificationsHandler {
                 changePlaybackPositionCommand.addTarget(handler: self.onChangePlaybackPositionCommand)
             }
         }
+    }
+    
+    func clearNotification() {
+        self.title = nil
+        self.albumTitle = nil
+        self.artist = nil
+        self.imageUrl = nil
+
+        // Set both the nowPlayingInfo and infoCenter to nil so
+        // we clear all the references to the notification
+        self.infoCenter?.nowPlayingInfo = nil
+        self.infoCenter = nil
     }
     
     func skipBackwardEvent(skipEvent: MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus {

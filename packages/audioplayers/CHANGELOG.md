@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.19.2
+- Fix fatal exception on Android API < 21 in WrappedMediaPlayer.kt setAttributes
+- Add clearNotification method
+
 ## 0.19.1
 - Add missing awaits for AudioCache
 - Fix Kotlin Core version to v1.6.0
