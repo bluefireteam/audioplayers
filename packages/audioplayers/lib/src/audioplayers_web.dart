@@ -7,6 +7,7 @@ import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'api/release_mode.dart';
 
 class WrappedPlayer {
+  final String playerId;
   final AudioplayersPlugin plugin;
 
   double? pausedAt;
@@ -19,7 +20,7 @@ class WrappedPlayer {
   AudioElement? player;
   StreamSubscription? playerTimeUpdateSubscription;
 
-  WrappedPlayer(this.plugin);
+  WrappedPlayer(this.plugin, this.playerId);
 
   void setUrl(String url) {
     currentUrl = url;
@@ -52,7 +53,10 @@ class WrappedPlayer {
     playerTimeUpdateSubscription = player?.onTimeUpdate.listen(
       (_) => plugin.channel.invokeMethod<int>(
         'audio.onCurrentPosition',
-        {'value': (1000 * (player?.currentTime ?? 0)).round()},
+        {
+          'playerId': playerId,
+          'value': (1000 * (player?.currentTime ?? 0)).round(),
+        },
       ),
     );
   }
@@ -131,7 +135,7 @@ class AudioplayersPlugin {
   }
 
   WrappedPlayer getOrCreatePlayer(String playerId) {
-    return players.putIfAbsent(playerId, () => WrappedPlayer(this));
+    return players.putIfAbsent(playerId, () => WrappedPlayer(this, playerId));
   }
 
   Future<WrappedPlayer> setUrl(String playerId, String url) async {

@@ -204,7 +204,7 @@ class AudioPlayer {
     bool duckAudio = false,
     bool recordingActive = false,
   }) async {
-    if (!Platform.isAndroid) {
+    if (!_isAndroid()) {
       throw PlatformException(
         code: 'Not supported',
         message: 'Only Android is currently supported',
@@ -388,7 +388,7 @@ class AudioPlayer {
     final playerId = callArgs['playerId'] as String;
     final player = players[playerId];
 
-    if (!kReleaseMode && Platform.isAndroid && player == null) {
+    if (!kReleaseMode && _isAndroid() && player == null) {
       final oldPlayer = AudioPlayer(playerId: playerId);
       await oldPlayer.release();
       oldPlayer.dispose();
@@ -496,5 +496,13 @@ class AudioPlayer {
     return url.startsWith('/') ||
         url.startsWith('file://') ||
         url.substring(1).startsWith(':\\');
+  }
+
+  static bool _isAndroid() {
+    // we need to be careful because the "isAndroid" check throws errors on web.
+    if (kIsWeb) {
+      return false;
+    }
+    return Platform.isAndroid;
   }
 }
