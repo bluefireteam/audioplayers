@@ -50,7 +50,7 @@ class WrappedPlayer {
     player?.volume = currentVolume;
     player?.playbackRate = currentPlaybackRate;
     playerTimeUpdateSubscription = player?.onTimeUpdate.listen(
-      (event) => plugin.channel.invokeMethod(
+      (_) => plugin.channel.invokeMethod<int>(
         'audio.onCurrentPosition',
         {'value': (1000 * (player?.currentTime ?? 0)).round()},
       ),

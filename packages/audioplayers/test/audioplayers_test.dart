@@ -1,6 +1,6 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:audioplayers/audioplayers.dart';
 
 extension _Args on MethodCall {
   Map<dynamic, dynamic> get args => arguments as Map<dynamic, dynamic>;
