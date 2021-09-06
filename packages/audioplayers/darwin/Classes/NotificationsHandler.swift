@@ -135,6 +135,20 @@ class NotificationsHandler {
         #endif
     }
     
+    func clearNotification() {
+        self.title = nil
+        self.albumTitle = nil
+        self.artist = nil
+        self.imageUrl = nil
+
+        #if os(iOS)
+        // Set both the nowPlayingInfo and infoCenter to nil so
+        // we clear all the references to the notification
+        self.infoCenter?.nowPlayingInfo = nil
+        self.infoCenter = nil
+        #endif
+    }
+    
     #if os(iOS)
     static func geneateImageFromUrl(urlString: String) -> UIImage? {
         if urlString.hasPrefix("http") {
@@ -266,18 +280,6 @@ class NotificationsHandler {
                 changePlaybackPositionCommand.addTarget(handler: self.onChangePlaybackPositionCommand)
             }
         }
-    }
-    
-    func clearNotification() {
-        self.title = nil
-        self.albumTitle = nil
-        self.artist = nil
-        self.imageUrl = nil
-
-        // Set both the nowPlayingInfo and infoCenter to nil so
-        // we clear all the references to the notification
-        self.infoCenter?.nowPlayingInfo = nil
-        self.infoCenter = nil
     }
     
     func skipBackwardEvent(skipEvent: MPRemoteCommandEvent) -> MPRemoteCommandHandlerStatus {
