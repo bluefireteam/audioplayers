@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.20.0
+- Fix android/kotlin build for old projects
+- Add method to clearNotification
+- Add currentPosition stream on web
+- Add seek on web
+- Add a proper Logger
+- Make setPlaybackRate signature consistent
+
 ## 0.19.2
 - Fix fatal exception on Android API < 21 in WrappedMediaPlayer.kt setAttributes
 - Add clearNotification method
