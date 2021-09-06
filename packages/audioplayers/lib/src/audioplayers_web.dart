@@ -7,6 +7,9 @@ import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'api/release_mode.dart';
 
 class WrappedPlayer {
+  final String playerId;
+  final AudioplayersPlugin plugin;
+
   double? pausedAt;
   double currentVolume = 1.0;
   double currentPlaybackRate = 1.0;
@@ -15,6 +18,9 @@ class WrappedPlayer {
   bool isPlaying = false;
 
   AudioElement? player;
+  StreamSubscription? playerTimeUpdateSubscription;
+
+  WrappedPlayer(this.plugin, this.playerId);
 
   void setUrl(String url) {
     currentUrl = url;
@@ -44,6 +50,15 @@ class WrappedPlayer {
     player?.loop = shouldLoop();
     player?.volume = currentVolume;
     player?.playbackRate = currentPlaybackRate;
+    playerTimeUpdateSubscription = player?.onTimeUpdate.listen(
+      (_) => plugin.channel.invokeMethod<int>(
+        'audio.onCurrentPosition',
+        {
+          'playerId': playerId,
+          'value': (1000 * (player?.currentTime ?? 0)).round(),
+        },
+      ),
+    );
   }
 
   bool shouldLoop() => currentReleaseMode == ReleaseMode.LOOP;
@@ -56,6 +71,9 @@ class WrappedPlayer {
   void release() {
     _cancel();
     player = null;
+
+    playerTimeUpdateSubscription?.cancel();
+    playerTimeUpdateSubscription = null;
   }
 
   void start(double position) {
@@ -98,8 +116,12 @@ class WrappedPlayer {
 }
 
 class AudioplayersPlugin {
+  final MethodChannel channel;
+
   // players by playerId
   Map<String, WrappedPlayer> players = {};
+
+  AudioplayersPlugin(this.channel);
 
   static void registerWith(Registrar registrar) {
     final channel = MethodChannel(
@@ -108,12 +130,12 @@ class AudioplayersPlugin {
       registrar,
     );
 
-    final instance = AudioplayersPlugin();
+    final instance = AudioplayersPlugin(channel);
     channel.setMethodCallHandler(instance.handleMethodCall);
   }
 
   WrappedPlayer getOrCreatePlayer(String playerId) {
-    return players.putIfAbsent(playerId, () => WrappedPlayer());
+    return players.putIfAbsent(playerId, () => WrappedPlayer(this, playerId));
   }
 
   Future<WrappedPlayer> setUrl(String playerId, String url) async {
