@@ -1,5 +1,8 @@
 # Changelog
 
+## [next]
+- Fix enum parsing on release mode on android
+
 ## 0.20.0
 - Fix android/kotlin build for old projects
 - Add method to clearNotification

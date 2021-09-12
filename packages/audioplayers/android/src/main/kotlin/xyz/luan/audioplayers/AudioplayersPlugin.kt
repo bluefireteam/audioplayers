@@ -247,5 +247,5 @@ class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
 
 private inline fun <reified T: Enum<T>> MethodCall.enumArgument(name: String): T? {
     val enumName = argument<String>(name) ?: return null
-    return enumValueOf<T>(enumName.removePrefix("${T::class.simpleName}."))
+    return enumValueOf<T>(enumName.split('.').last())
 }
