@@ -1,6 +1,6 @@
 # Changelog
 
-## [next]
+## 0.20.1
 - Fix enum parsing on release mode on android
 
 ## 0.20.0
