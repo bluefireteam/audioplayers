@@ -169,7 +169,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         } else if method == "resume" {
             player.resume()
         } else if method == "stop" {
-            player.stop()
+            player.stop(result: result)
         } else if method == "release" {
             player.release()
         } else if method == "seek" {
@@ -285,7 +285,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         }
         
         // shortcut to avoid requiring explicit call of result(1) everywhere
-        if method != "setUrl" {
+        if method != "setUrl" && method != "stop" {
             result(1)
         }
     }

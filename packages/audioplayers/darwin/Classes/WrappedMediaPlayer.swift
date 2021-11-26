@@ -117,17 +117,23 @@ class WrappedMediaPlayer {
         }
     }
     
-    func seek(time: CMTime) {
+    func seek(time: CMTime, closure:((Bool) -> Void)? = nil) {
         guard let currentItem = player?.currentItem else {
+            closure?(false)
             return
         }
         // TODO(luan) currently when you seek, the play auto-unpuses. this should set a seekTo property, similar to what WrappedMediaPlayer
+        Logger.log("==== seek to=\(time)")
+
         currentItem.seek(to: time) {
             finished in
+            Logger.log("==== seek finished=\(finished)")
+
             if finished {
                 self.reference.updateNotifications(player: self, time: time)
             }
             self.reference.onSeekCompleted(playerId: self.playerId, finished: finished)
+            closure?(finished)
         }
     }
     
@@ -157,13 +163,16 @@ class WrappedMediaPlayer {
         seek(time: clampedTime)
     }
     
-    func stop() {
+    func stop(result: (FlutterResult)? = nil) {
         pause()
-        seek(time: toCMTime(millis: 0))
+        seek(time: toCMTime(millis: 0)){ finished in
+            let suc = finished ? 1 : 0
+            result?(suc)
+        }
     }
-    
+
     func release() {
-        stop()
+        stop(result: nil)
         clearObservers()
     }
     

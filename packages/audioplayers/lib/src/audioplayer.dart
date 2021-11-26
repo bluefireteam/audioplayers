@@ -109,7 +109,7 @@ class AudioPlayer {
   /// Stream of seek completions.
   ///
   /// An event is going to be sent as soon as the audio seek is finished.
-  Stream<void> get onSeekComplete => _seekCompleteController.stream;
+  Stream<bool> get onSeekComplete => _seekCompleteController.stream;
 
   /// Stream of player errors.
   ///
