@@ -1,7 +1,7 @@
 import android.util.Log
 
 enum class LogLevel(val value: Int) {
-    INFO(0), ERROR(1), NONE(2)
+    INFO(2), ERROR(1), NONE(0)
 }
 
 object Logger {

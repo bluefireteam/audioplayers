@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.20.2
+- Fix bug with inversed log levels
+
 ## 0.20.1
 - Fix enum parsing on release mode on android
 
