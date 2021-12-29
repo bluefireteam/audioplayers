@@ -53,7 +53,7 @@ class WrappedMediaPlayer internal constructor(
                 preparePlayer(player)
             }
         } else {
-            throw RuntimeException("setDataSource is only available on API >= 23");
+            throw RuntimeException("setDataSource is only available on API >= 23")
         }
     }
 

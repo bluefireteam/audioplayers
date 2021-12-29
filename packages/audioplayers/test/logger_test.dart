@@ -17,7 +17,7 @@ void main() {
 
   group('Logger', () {
     setUp(_print.clear);
-    test('when set to INFO everything is logger', _print.overridePrint(() {
+    test('when set to INFO everything is logged', _print.overridePrint(() {
       Logger.changeLogLevel(LogLevel.INFO);
       Logger.log(LogLevel.INFO, 'info');
       Logger.log(LogLevel.ERROR, 'error');
