@@ -65,8 +65,6 @@ jobs:
      - name: Run android unit tests
        working-directory: ./packages/audioplayers/example/android
        run: |
-         echo `pwd`
-         ls -lA
          ./gradlew test
 
      - name: Download Android Emulator Image

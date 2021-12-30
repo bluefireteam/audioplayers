@@ -31,11 +31,6 @@ internal class LoggerTest {
         assertThat(logs).isEmpty()
     }
 
-    @Test
-    fun `seeing if android tests are run by the build`() {
-        assertThat(1 + 1).isEqualTo(7)
-    }
-
     private fun mockLogger(): MutableList<String> {
         val logs = mutableListOf<String>()
         Logger.androidLogger = { _, m, _ -> logs.add(m) }
