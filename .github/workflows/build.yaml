@@ -29,6 +29,7 @@ jobs:
   web:
     runs-on: ubuntu-latest
     steps:
+     - uses: nanasess/setup-chromedriver@v1
      - uses: actions/checkout@v1
      - uses: subosito/flutter-action@v1
        with:
@@ -39,6 +40,15 @@ jobs:
        run: |
          flutter pub get
          flutter build web
+
+         export DISPLAY=:99
+         chromedriver --port=4444 &
+         sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 & # optional
+
+         flutter drive \
+          --driver=test_driver/integration_test.dart \
+          --target=integration_test/app_test.dart \
+          -d web-server
 
   android:
     runs-on: macOS-latest
