@@ -12,7 +12,7 @@ void main() {
       print('running test!');
       expect(
         find.text(
-          'Sample 1 (https://luan.xyz/files/audio/ambient_c_motion.mp3)',
+          'Sample 1 (https://luan.xyz/files/audio/ambient_c_mtion.mp3)',
         ),
         findsOneWidget,
       );
