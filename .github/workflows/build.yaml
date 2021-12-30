@@ -50,17 +50,17 @@ jobs:
        with:
          channel: stable
 
-     - name: Example App - Build android APK
-       working-directory: ./packages/audioplayers/example
-       run: |
-         flutter pub get
-         flutter build apk --release
-
      - name: Use specific Java version for sdkmanager to work
        uses: joschi/setup-jdk@v2
        with:
          java-version: 'openjdk11'
          architecture: 'x64'
+
+     - name: Example App - Build android APK
+       working-directory: ./packages/audioplayers/example
+       run: |
+         flutter pub get
+         flutter build apk --release
 
      - name: Download Android Emulator Image
        run: |
