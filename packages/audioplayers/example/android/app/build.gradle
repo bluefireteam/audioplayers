@@ -26,7 +26,7 @@ apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 29
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
@@ -39,7 +39,7 @@ android {
     defaultConfig {
         applicationId "xyz.luan.audioplayers.example"
         minSdkVersion 16
-        targetSdkVersion 30
+        targetSdkVersion 29
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
@@ -49,7 +49,7 @@ android {
             signingConfig signingConfigs.debug
         }
     }
-    buildToolsVersion '30.0.2'
+    buildToolsVersion '29.0.2'
 }
 
 flutter {
