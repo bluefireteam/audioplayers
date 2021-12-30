@@ -59,6 +59,8 @@ jobs:
      - name: Example App - Build android APK
        working-directory: ./packages/audioplayers/example
        run: |
+         flutter pub get
+         flutter build apk --release
 
      - name: Run android unit tests
        working-directory: ./packages/audioplayers/example/android
