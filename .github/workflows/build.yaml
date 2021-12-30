@@ -59,6 +59,10 @@ jobs:
      - name: Example App - Build android APK
        working-directory: ./packages/audioplayers/example
        run: |
+
+     - name: Example App - Build android APK
+       working-directory: ./packages/audioplayers/example
+       run: |
          flutter pub get
          flutter build apk --release
 
