@@ -87,7 +87,6 @@ jobs:
          echo "Emulator started"
      - name: "Run Flutter Driver tests"
        working-directory: ./packages/audioplayers/example
-       run: echo 'Skipped (WIP)'
        run: "flutter test integration_test"
 
   ios:
@@ -112,5 +111,4 @@ jobs:
          flutter build ios --release --no-codesign
      - name: Run Flutter Driver tests
        working-directory: ./packages/audioplayers/example
-       run: echo 'Skipped (WIP)'
        run: "flutter test integration_test"
