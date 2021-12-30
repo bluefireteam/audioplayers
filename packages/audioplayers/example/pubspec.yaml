@@ -12,8 +12,8 @@ dependencies:
   provider: 5.0.0
 
 dev_dependencies:
-  # flutter_driver:
-  #  sdk: flutter
+  integration_test:
+    sdk: flutter
   flame_lint: 0.0.1
 
 flutter:
