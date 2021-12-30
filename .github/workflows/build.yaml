@@ -56,16 +56,14 @@ jobs:
          java-version: 'openjdk8'
          architecture: 'x64'
 
+     - name: Example App - Build android APK
+       working-directory: ./packages/audioplayers/example
+       run: |
+
      - name: Run android unit tests
        working-directory: ./packages/audioplayers/example/android
        run: |
          ./gradlew test
-
-     - name: Example App - Build android APK
-       working-directory: ./packages/audioplayers/example
-       run: |
-         flutter pub get
-         flutter build apk --release
 
      - name: Download Android Emulator Image
        run: |
