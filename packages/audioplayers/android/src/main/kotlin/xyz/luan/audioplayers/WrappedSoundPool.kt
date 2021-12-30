@@ -52,7 +52,7 @@ class WrappedSoundPool internal constructor(override val playerId: String) : Pla
                     soundIdToPlayer.remove(loadingPlayer.soundId)
                     // Now mark all players using this sound as not loading and start them if necessary
                     synchronized(urlToPlayers) {
-                        val urlPlayers = urlToPlayers[loadingPlayer.url] ?: listOf<WrappedSoundPool>()
+                        val urlPlayers = urlToPlayers[loadingPlayer.url] ?: listOf()
                         for (player in urlPlayers) {
                             Logger.info("Marking $player as loaded")
                             player.loading = false

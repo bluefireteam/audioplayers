@@ -9,8 +9,9 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.2.0'
+        classpath 'com.android.tools.build:gradle:4.2.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "de.mannodermaus.gradle.plugins:android-junit5:1.7.1.1"
     }
 }
 
@@ -23,6 +24,7 @@ rootProject.allprojects {
 
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
+apply plugin: 'de.mannodermaus.android-junit5'
 
 android {
     compileSdkVersion 28
@@ -51,6 +53,8 @@ allprojects {
 dependencies {
     implementation "androidx.core:core-ktx:1.6.0"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    testImplementation "org.junit.jupiter:junit-jupiter:5.8.2"
+    testImplementation "org.assertj:assertj-core:3.21.0"
 }
 repositories {
     mavenCentral()

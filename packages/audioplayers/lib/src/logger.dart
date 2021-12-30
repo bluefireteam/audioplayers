@@ -1,5 +1,4 @@
 import '../audioplayers.dart';
-import 'api/log_level.dart';
 
 class Logger {
   static LogLevel _logLevel = LogLevel.ERROR;

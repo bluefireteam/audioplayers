@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v1
       - uses: subosito/flutter-action@v1
         with:
-          channel: beta
+          channel: stable
 
       - name: Lint (analyze and format)
         run: ./scripts/lint.sh
@@ -32,7 +32,7 @@ jobs:
      - uses: actions/checkout@v1
      - uses: subosito/flutter-action@v1
        with:
-         channel: beta
+         channel: stable
 
      - name: Example App - Build web app
        working-directory: ./packages/audioplayers/example
@@ -44,11 +44,17 @@ jobs:
     runs-on: macOS-latest
 
     steps:
-     - uses: malinskiy/action-android/install-sdk@release/0.0.8
+     - uses: malinskiy/action-android/install-sdk@release/0.1.2
      - uses: actions/checkout@v1
      - uses: subosito/flutter-action@v1
        with:
-         channel: beta
+         channel: stable
+
+     - name: Use specific Java version for sdkmanager to work
+       uses: joschi/setup-jdk@v2
+       with:
+         java-version: 'openjdk8'
+         architecture: 'x64'
 
      - name: Example App - Build android APK
        working-directory: ./packages/audioplayers/example
@@ -56,11 +62,10 @@ jobs:
          flutter pub get
          flutter build apk --release
 
-     - name: Use specific Java version for sdkmanager to work
-       uses: joschi/setup-jdk@v2
-       with:
-         java-version: 'openjdk8'
-         architecture: 'x64'
+     - name: Run android unit tests
+       working-directory: ./packages/audioplayers/example/android
+       run: |
+         ./gradlew test
 
      - name: Download Android Emulator Image
        run: |
@@ -99,7 +104,7 @@ jobs:
      - uses: actions/checkout@v1
      - uses: subosito/flutter-action@v1
        with:
-         channel: beta
+         channel: stable
      - name: Example App - Build iOS
        working-directory: ./packages/audioplayers/example
        run: |

@@ -1,11 +1,16 @@
+package xyz.luan.audioplayers
+
 import android.util.Log
 
 enum class LogLevel(val value: Int) {
-    INFO(0), ERROR(1), NONE(2)
+    INFO(2), ERROR(1), NONE(0)
 }
 
 object Logger {
     var logLevel: LogLevel = LogLevel.ERROR
+    var androidLogger: (String, String, Throwable?) -> Unit = { tag, message, t ->
+        Log.d(tag, message, t)
+    }
 
     fun info(message: String) {
         log(LogLevel.INFO, message)
@@ -21,7 +26,7 @@ object Logger {
 
     private fun log(level: LogLevel, message: String, throwable: Throwable? = null) {
         if (level.value <= logLevel.value) {
-            Log.d("AudioPlayers", message, throwable)
+            androidLogger("AudioPlayers", message, throwable)
         }
     }
 }
