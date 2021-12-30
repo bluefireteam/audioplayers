@@ -9,6 +9,7 @@ void main() {
     testWidgets('verify app is launched', (WidgetTester tester) async {
       app.main();
       await tester.pumpAndSettle();
+      print('running test!');
       expect(
         find.text(
           'Sample 1 (https://luan.xyz/files/audio/ambient_c_motion.mp3)',
