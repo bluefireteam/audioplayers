@@ -151,7 +151,7 @@ class AudioCache {
     String fileName, {
     double volume = 1.0,
     bool? isNotification,
-    PlayerMode mode = PlayerMode.MEDIA_PLAYER,
+    PlayerMode mode = PlayerMode.mediaPlayer,
     bool stayAwake = false,
     bool recordingActive = false,
     bool? duckAudio,
@@ -159,7 +159,7 @@ class AudioCache {
     final uri = await load(fileName);
     final player = _player(mode);
     if (fixedPlayer != null) {
-      await player.setReleaseMode(ReleaseMode.STOP);
+      await player.setReleaseMode(ReleaseMode.stop);
     }
     await player.play(
       uri.toString(),
@@ -179,7 +179,7 @@ class AudioCache {
     Uint8List fileBytes, {
     double volume = 1.0,
     bool? isNotification,
-    PlayerMode mode = PlayerMode.MEDIA_PLAYER,
+    PlayerMode mode = PlayerMode.mediaPlayer,
     bool loop = false,
     bool stayAwake = false,
     bool recordingActive = false,
@@ -187,9 +187,9 @@ class AudioCache {
     final player = _player(mode);
 
     if (loop) {
-      await player.setReleaseMode(ReleaseMode.LOOP);
+      await player.setReleaseMode(ReleaseMode.loop);
     } else if (fixedPlayer != null) {
-      await player.setReleaseMode(ReleaseMode.STOP);
+      await player.setReleaseMode(ReleaseMode.stop);
     }
 
     await player.playBytes(
@@ -211,12 +211,12 @@ class AudioCache {
     String fileName, {
     double volume = 1.0,
     bool? isNotification,
-    PlayerMode mode = PlayerMode.MEDIA_PLAYER,
+    PlayerMode mode = PlayerMode.mediaPlayer,
     bool stayAwake = false,
   }) async {
     final url = await load(fileName);
     final player = _player(mode);
-    await player.setReleaseMode(ReleaseMode.LOOP);
+    await player.setReleaseMode(ReleaseMode.loop);
     await player.play(
       url.toString(),
       volume: volume,

@@ -13,7 +13,7 @@ class WrappedPlayer {
   double? pausedAt;
   double currentVolume = 1.0;
   double currentPlaybackRate = 1.0;
-  ReleaseMode currentReleaseMode = ReleaseMode.RELEASE;
+  ReleaseMode currentReleaseMode = ReleaseMode.release;
   String? currentUrl;
   bool isPlaying = false;
 
@@ -61,7 +61,7 @@ class WrappedPlayer {
     );
   }
 
-  bool shouldLoop() => currentReleaseMode == ReleaseMode.LOOP;
+  bool shouldLoop() => currentReleaseMode == ReleaseMode.loop;
 
   void setReleaseMode(ReleaseMode releaseMode) {
     currentReleaseMode = releaseMode;
@@ -109,7 +109,7 @@ class WrappedPlayer {
   void _cancel() {
     isPlaying = false;
     player?.pause();
-    if (currentReleaseMode == ReleaseMode.RELEASE) {
+    if (currentReleaseMode == ReleaseMode.release) {
       player = null;
     }
   }

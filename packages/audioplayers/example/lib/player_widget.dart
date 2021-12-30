@@ -11,7 +11,7 @@ class PlayerWidget extends StatefulWidget {
   const PlayerWidget({
     Key? key,
     required this.url,
-    this.mode = PlayerMode.MEDIA_PLAYER,
+    this.mode = PlayerMode.mediaPlayer,
   }) : super(key: key);
 
   @override
@@ -29,8 +29,8 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   Duration? _duration;
   Duration? _position;
 
-  PlayerState _playerState = PlayerState.STOPPED;
-  PlayingRoute _playingRouteState = PlayingRoute.SPEAKERS;
+  PlayerState _playerState = PlayerState.stopped;
+  PlayingRoute _playingRouteState = PlayingRoute.speakers;
   StreamSubscription? _durationSubscription;
   StreamSubscription? _positionSubscription;
   StreamSubscription? _playerCompleteSubscription;
@@ -38,13 +38,13 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   StreamSubscription? _playerStateSubscription;
   StreamSubscription<PlayerControlCommand>? _playerControlCommandSubscription;
 
-  bool get _isPlaying => _playerState == PlayerState.PLAYING;
-  bool get _isPaused => _playerState == PlayerState.PAUSED;
+  bool get _isPlaying => _playerState == PlayerState.playing;
+  bool get _isPaused => _playerState == PlayerState.paused;
   String get _durationText => _duration?.toString().split('.').first ?? '';
   String get _positionText => _position?.toString().split('.').first ?? '';
 
   bool get _isPlayingThroughEarpiece =>
-      _playingRouteState == PlayingRoute.EARPIECE;
+      _playingRouteState == PlayingRoute.earpiece;
 
   _PlayerWidgetState(this.url, this.mode);
 
@@ -173,10 +173,9 @@ class _PlayerWidgetState extends State<PlayerWidget> {
       }
     });
 
-    _positionSubscription =
-        _audioPlayer.onAudioPositionChanged.listen((p) => setState(() {
-              _position = p;
-            }));
+    _positionSubscription = _audioPlayer.onAudioPositionChanged.listen(
+      (p) => setState(() => _position = p),
+    );
 
     _playerCompleteSubscription =
         _audioPlayer.onPlayerCompletion.listen((event) {
@@ -189,7 +188,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     _playerErrorSubscription = _audioPlayer.onPlayerError.listen((msg) {
       print('audioPlayer error : $msg');
       setState(() {
-        _playerState = PlayerState.STOPPED;
+        _playerState = PlayerState.stopped;
         _duration = const Duration();
         _position = const Duration();
       });
@@ -214,7 +213,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
       }
     });
 
-    _playingRouteState = PlayingRoute.SPEAKERS;
+    _playingRouteState = PlayingRoute.speakers;
   }
 
   Future<int> _play() async {
@@ -226,7 +225,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
         : null;
     final result = await _audioPlayer.play(url, position: playPosition);
     if (result == 1) {
-      setState(() => _playerState = PlayerState.PLAYING);
+      setState(() => _playerState = PlayerState.playing);
     }
 
     return result;
@@ -235,7 +234,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   Future<int> _pause() async {
     final result = await _audioPlayer.pause();
     if (result == 1) {
-      setState(() => _playerState = PlayerState.PAUSED);
+      setState(() => _playerState = PlayerState.paused);
     }
     return result;
   }
@@ -252,7 +251,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     final result = await _audioPlayer.stop();
     if (result == 1) {
       setState(() {
-        _playerState = PlayerState.STOPPED;
+        _playerState = PlayerState.stopped;
         _position = const Duration();
       });
     }
@@ -260,6 +259,6 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   }
 
   void _onComplete() {
-    setState(() => _playerState = PlayerState.STOPPED);
+    setState(() => _playerState = PlayerState.stopped);
   }
 }

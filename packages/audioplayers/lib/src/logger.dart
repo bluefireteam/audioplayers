@@ -1,7 +1,7 @@
 import '../audioplayers.dart';
 
 class Logger {
-  static LogLevel _logLevel = LogLevel.ERROR;
+  static LogLevel _logLevel = LogLevel.error;
 
   static LogLevel get logLevel => _logLevel;
 
@@ -23,7 +23,7 @@ class Logger {
     }
   }
 
-  static void info(String message) => log(LogLevel.INFO, message);
+  static void info(String message) => log(LogLevel.info, message);
 
-  static void error(String message) => log(LogLevel.ERROR, message);
+  static void error(String message) => log(LogLevel.error, message);
 }
