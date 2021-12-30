@@ -41,7 +41,7 @@ jobs:
          flutter build web
 
   android:
-    runs-on: macOS-latest
+    runs-on: ubuntu-latest
 
     steps:
      - uses: malinskiy/action-android/install-sdk@release/0.1.2
