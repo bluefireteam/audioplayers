@@ -12,8 +12,8 @@ dependencies:
   provider: 5.0.0
 
 dev_dependencies:
-  # flutter_driver:
-  #  sdk: flutter
+  integration_test:
+    sdk: flutter
   dart_code_metrics: ^4.2.1
 
 flutter:

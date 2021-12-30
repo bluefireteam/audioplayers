@@ -29,6 +29,7 @@ jobs:
   web:
     runs-on: ubuntu-latest
     steps:
+     - uses: nanasess/setup-chromedriver@v1
      - uses: actions/checkout@v1
      - uses: subosito/flutter-action@v1
        with:
@@ -39,6 +40,18 @@ jobs:
        run: |
          flutter pub get
          flutter build web
+
+     - name: web integration test
+       working-directory: ./packages/audioplayers/example
+       run: |
+         export DISPLAY=:99
+         chromedriver --port=4444 &
+         sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 & # optional
+
+         flutter drive \
+          --driver=test_driver/integration_test.dart \
+          --target=integration_test/app_test.dart \
+          -d web-server
 
   android:
     runs-on: macOS-latest
@@ -87,8 +100,7 @@ jobs:
          echo "Emulator started"
      - name: "Run Flutter Driver tests"
        working-directory: ./packages/audioplayers/example
-       run: echo 'Skipped (WIP)'
-       # run: "flutter drive --target=test_driver/app.dart"
+       run: "flutter test integration_test"
 
   ios:
     runs-on: macOS-latest
@@ -112,5 +124,4 @@ jobs:
          flutter build ios --release --no-codesign
      - name: Run Flutter Driver tests
        working-directory: ./packages/audioplayers/example
-       run: echo 'Skipped (WIP)'
-       # run: "flutter drive --target=test_driver/app.dart"
+       run: "flutter test integration_test"
