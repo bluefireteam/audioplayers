@@ -88,7 +88,7 @@ jobs:
      - name: "Run Flutter Driver tests"
        working-directory: ./packages/audioplayers/example
        run: echo 'Skipped (WIP)'
-       # run: "flutter drive --target=test_driver/app.dart"
+       run: "flutter test integration_test"
 
   ios:
     runs-on: macOS-latest
@@ -113,4 +113,4 @@ jobs:
      - name: Run Flutter Driver tests
        working-directory: ./packages/audioplayers/example
        run: echo 'Skipped (WIP)'
-       # run: "flutter drive --target=test_driver/app.dart"
+       run: "flutter test integration_test"
