@@ -56,9 +56,10 @@ jobs:
          java-version: 'openjdk8'
          architecture: 'x64'
 
-     - name: Example App - Build android APK
+     - name: Run android unit tests
        working-directory: ./packages/audioplayers/example
        run: |
+         ./gradlew test
 
      - name: Example App - Build android APK
        working-directory: ./packages/audioplayers/example
