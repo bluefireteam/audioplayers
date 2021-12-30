@@ -11,14 +11,14 @@ enum ReleaseMode {
   /// In iOS and macOS, works just like stop method.
   ///
   /// This is the default behaviour.
-  RELEASE,
+  release,
 
   /// Keeps buffered data and plays again after completion, creating a loop.
   /// Notice that calling stop method is not enough to release the resources
   /// when this mode is being used.
-  LOOP,
+  loop,
 
   /// Stops audio playback but keep all resources intact.
   /// Use this if you intend to play again later.
-  STOP,
+  stop,
 }

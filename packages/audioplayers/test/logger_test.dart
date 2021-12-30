@@ -17,27 +17,36 @@ void main() {
 
   group('Logger', () {
     setUp(_print.clear);
-    test('when set to INFO everything is logged', _print.overridePrint(() {
-      Logger.changeLogLevel(LogLevel.INFO);
-      Logger.log(LogLevel.INFO, 'info');
-      Logger.log(LogLevel.ERROR, 'error');
+    test(
+      'when set to INFO everything is logged',
+      _print.overridePrint(() {
+        Logger.changeLogLevel(LogLevel.info);
+        Logger.log(LogLevel.info, 'info');
+        Logger.log(LogLevel.error, 'error');
 
-      expect(_print.log, ['info', 'error']);
-    }));
-    test('when set to ERROR only errors are logged', _print.overridePrint(() {
-      Logger.changeLogLevel(LogLevel.ERROR);
-      Logger.log(LogLevel.INFO, 'info');
-      Logger.log(LogLevel.ERROR, 'error');
+        expect(_print.log, ['info', 'error']);
+      }),
+    );
+    test(
+      'when set to ERROR only errors are logged',
+      _print.overridePrint(() {
+        Logger.changeLogLevel(LogLevel.error);
+        Logger.log(LogLevel.info, 'info');
+        Logger.log(LogLevel.error, 'error');
 
-      expect(_print.log, ['error']);
-    }));
-    test('when set to NONE nothing is logged', _print.overridePrint(() {
-      Logger.changeLogLevel(LogLevel.NONE);
-      Logger.log(LogLevel.INFO, 'info');
-      Logger.log(LogLevel.ERROR, 'error');
+        expect(_print.log, ['error']);
+      }),
+    );
+    test(
+      'when set to NONE nothing is logged',
+      _print.overridePrint(() {
+        Logger.changeLogLevel(LogLevel.none);
+        Logger.log(LogLevel.info, 'info');
+        Logger.log(LogLevel.error, 'error');
 
-      expect(_print.log, <String>[]);
-    }));
+        expect(_print.log, <String>[]);
+      }),
+    );
   });
 }
 
@@ -48,10 +57,12 @@ class OverridePrint {
 
   void Function() overridePrint(void Function() testFn) {
     return () {
-      final spec = ZoneSpecification(print: (_, __, ___, String msg) {
-        // Add to log instead of printing to stdout
-        log.add(msg);
-      });
+      final spec = ZoneSpecification(
+        print: (_, __, ___, String msg) {
+          // Add to log instead of printing to stdout
+          log.add(msg);
+        },
+      );
       return Zone.current.fork(specification: spec).run<void>(testFn);
     };
   }

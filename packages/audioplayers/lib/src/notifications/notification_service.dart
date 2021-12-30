@@ -130,11 +130,11 @@ class NotificationService {
   }
 
   void notifyNextTrack() {
-    _commandController.add(PlayerControlCommand.NEXT_TRACK);
+    _commandController.add(PlayerControlCommand.nextTrack);
   }
 
   void notifyPreviousTrack() {
-    _commandController.add(PlayerControlCommand.PREVIOUS_TRACK);
+    _commandController.add(PlayerControlCommand.previousTrack);
   }
 }
 
@@ -181,11 +181,11 @@ void _backgroundCallbackDispatcher() {
       onAudioChangeBackgroundEvent ??= _performCallbackLookup();
       final playerState = args['value'] as String;
       if (playerState == 'playing') {
-        onAudioChangeBackgroundEvent!(PlayerState.PLAYING);
+        onAudioChangeBackgroundEvent!(PlayerState.playing);
       } else if (playerState == 'paused') {
-        onAudioChangeBackgroundEvent!(PlayerState.PAUSED);
+        onAudioChangeBackgroundEvent!(PlayerState.paused);
       } else if (playerState == 'completed') {
-        onAudioChangeBackgroundEvent!(PlayerState.COMPLETED);
+        onAudioChangeBackgroundEvent!(PlayerState.completed);
       }
     } else {
       assert(false, "No handler defined for method type: '${call.method}'");

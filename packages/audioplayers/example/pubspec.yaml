@@ -14,7 +14,7 @@ dependencies:
 dev_dependencies:
   integration_test:
     sdk: flutter
-  dart_code_metrics: ^4.2.1
+  flame_lint: 0.0.1
 
 flutter:
   uses-material-design: true
@@ -25,4 +25,5 @@ flutter:
     - assets/messenger.mp3
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
+  sdk: ">=2.14.0 <3.0.0"
+  flutter: ">=1.10.0"

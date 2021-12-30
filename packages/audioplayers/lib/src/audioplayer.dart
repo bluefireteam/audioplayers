@@ -47,7 +47,7 @@ class AudioPlayer {
   final StreamController<String> _errorController =
       StreamController<String>.broadcast();
 
-  PlayingRoute _playingRouteState = PlayingRoute.SPEAKERS;
+  PlayingRoute _playingRouteState = PlayingRoute.speakers;
 
   /// Reference [Map] with all the players created by the application.
   ///
@@ -57,7 +57,7 @@ class AudioPlayer {
 
   late NotificationService notificationService;
 
-  PlayerState _playerState = PlayerState.STOPPED;
+  PlayerState _playerState = PlayerState.stopped;
 
   PlayerState get state => _playerState;
 
@@ -86,7 +86,7 @@ class AudioPlayer {
   /// Stream of changes on audio position.
   ///
   /// Roughly fires every 200 milliseconds. Will continuously update the
-  /// position of the playback if the status is [PlayerState.PLAYING].
+  /// position of the playback if the status is [PlayerState.playing].
   ///
   /// You can use it on a progress bar, for instance.
   Stream<Duration> get onAudioPositionChanged => _positionController.stream;
@@ -103,7 +103,7 @@ class AudioPlayer {
   /// Events are sent every time an audio is finished, therefore no event is
   /// sent when an audio is paused or stopped.
   ///
-  /// [ReleaseMode.LOOP] also sends events to this stream.
+  /// [ReleaseMode.loop] also sends events to this stream.
   Stream<void> get onPlayerCompletion => _completionController.stream;
 
   /// Stream of seek completions.
@@ -126,7 +126,7 @@ class AudioPlayer {
   final PlayerMode mode;
 
   /// Creates a new instance and assigns an unique id to it.
-  AudioPlayer({this.mode = PlayerMode.MEDIA_PLAYER, String? playerId})
+  AudioPlayer({this.mode = PlayerMode.mediaPlayer, String? playerId})
       : playerId = playerId ?? _uuid.v4() {
     players[this.playerId] = this;
     notificationService = NotificationService(_invokeMethod);
@@ -185,7 +185,7 @@ class AudioPlayer {
     );
 
     if (result == 1) {
-      state = PlayerState.PLAYING;
+      state = PlayerState.playing;
     }
 
     return result;
@@ -225,7 +225,7 @@ class AudioPlayer {
     );
 
     if (result == 1) {
-      state = PlayerState.PLAYING;
+      state = PlayerState.playing;
     }
 
     return result;
@@ -239,7 +239,7 @@ class AudioPlayer {
     final result = await _invokeMethod('pause');
 
     if (result == 1) {
-      state = PlayerState.PAUSED;
+      state = PlayerState.paused;
     }
 
     return result;
@@ -253,7 +253,7 @@ class AudioPlayer {
     final result = await _invokeMethod('stop');
 
     if (result == 1) {
-      state = PlayerState.STOPPED;
+      state = PlayerState.stopped;
     }
 
     return result;
@@ -265,7 +265,7 @@ class AudioPlayer {
     final result = await _invokeMethod('resume');
 
     if (result == 1) {
-      state = PlayerState.PLAYING;
+      state = PlayerState.playing;
     }
 
     return result;
@@ -279,7 +279,7 @@ class AudioPlayer {
     final result = await _invokeMethod('release');
 
     if (result == 1) {
-      state = PlayerState.STOPPED;
+      state = PlayerState.stopped;
     }
 
     return result;
@@ -403,7 +403,7 @@ class AudioPlayer {
       case 'audio.onNotificationPlayerStateChanged':
         final isPlaying = callArgs['value'] as bool;
         player.notificationState =
-            isPlaying ? PlayerState.PLAYING : PlayerState.PAUSED;
+            isPlaying ? PlayerState.playing : PlayerState.paused;
         break;
       case 'audio.onDuration':
         final millis = callArgs['value'] as int;
@@ -416,7 +416,7 @@ class AudioPlayer {
         player._positionController.add(newDuration);
         break;
       case 'audio.onComplete':
-        player.state = PlayerState.COMPLETED;
+        player.state = PlayerState.completed;
         player._completionController.add(null);
         break;
       case 'audio.onSeekComplete':
@@ -425,7 +425,7 @@ class AudioPlayer {
         break;
       case 'audio.onError':
         final error = callArgs['value'] as String;
-        player.state = PlayerState.STOPPED;
+        player.state = PlayerState.stopped;
         player._errorController.add(error);
         break;
       case 'audio.onGotNextTrackCommand':

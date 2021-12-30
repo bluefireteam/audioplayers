@@ -1,14 +1,14 @@
 /// Indicates the state of the audio player.
 enum PlayerState {
   /// initial state, stop has been called or an error occurred.
-  STOPPED,
+  stopped,
 
   /// Currently playing audio.
-  PLAYING,
+  playing,
 
   /// Pause has been called.
-  PAUSED,
+  paused,
 
   /// The audio successfully completed (reached the end).
-  COMPLETED,
+  completed,
 }

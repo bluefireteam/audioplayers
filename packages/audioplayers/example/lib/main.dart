@@ -81,7 +81,7 @@ class _ExampleAppState extends State<ExampleApp> {
             'Sample 4 (Low Latency mode) ($kUrl1)',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          PlayerWidget(url: kUrl1, mode: PlayerMode.LOW_LATENCY),
+          PlayerWidget(url: kUrl1, mode: PlayerMode.lowLatency),
         ],
       ),
     );
@@ -144,7 +144,7 @@ class _ExampleAppState extends State<ExampleApp> {
           Btn(
             txt: 'Play',
             onPressed: () {
-              audioCache.play('audio.mp3', mode: PlayerMode.LOW_LATENCY);
+              audioCache.play('audio.mp3', mode: PlayerMode.lowLatency);
             },
           ),
           const Text(
@@ -155,11 +155,11 @@ class _ExampleAppState extends State<ExampleApp> {
             onPressed: () async {
               await audioCache.play(
                 'audio.mp3',
-                mode: PlayerMode.LOW_LATENCY,
+                mode: PlayerMode.lowLatency,
               );
               await audioCache.play(
                 'audio2.mp3',
-                mode: PlayerMode.LOW_LATENCY,
+                mode: PlayerMode.lowLatency,
               );
             },
           ),
@@ -167,7 +167,7 @@ class _ExampleAppState extends State<ExampleApp> {
           Btn(
             txt: 'Play',
             onPressed: () {
-              audioCache.play('audio2.mp3', mode: PlayerMode.LOW_LATENCY);
+              audioCache.play('audio2.mp3', mode: PlayerMode.lowLatency);
             },
           ),
           getLocalFileDuration(),
@@ -347,17 +347,17 @@ class _AdvancedState extends State<Advanced> {
                   Btn(
                     txt: 'STOP',
                     onPressed: () =>
-                        widget.advancedPlayer.setReleaseMode(ReleaseMode.STOP),
+                        widget.advancedPlayer.setReleaseMode(ReleaseMode.stop),
                   ),
                   Btn(
                     txt: 'LOOP',
                     onPressed: () =>
-                        widget.advancedPlayer.setReleaseMode(ReleaseMode.LOOP),
+                        widget.advancedPlayer.setReleaseMode(ReleaseMode.loop),
                   ),
                   Btn(
                     txt: 'RELEASE',
                     onPressed: () => widget.advancedPlayer
-                        .setReleaseMode(ReleaseMode.RELEASE),
+                        .setReleaseMode(ReleaseMode.release),
                   ),
                 ],
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,

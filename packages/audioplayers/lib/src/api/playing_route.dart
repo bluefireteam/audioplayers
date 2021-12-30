@@ -1,7 +1,7 @@
 /// Indicates which speakers use for playing
 enum PlayingRoute {
-  SPEAKERS,
-  EARPIECE,
+  speakers,
+  earpiece,
 }
 
 extension PlayingRouteExtensions on PlayingRoute {
@@ -9,9 +9,9 @@ extension PlayingRouteExtensions on PlayingRoute {
   /// TODO(luan) other enums use toString(), we should unify.
   String name() {
     switch (this) {
-      case PlayingRoute.SPEAKERS:
+      case PlayingRoute.speakers:
         return 'speakers';
-      case PlayingRoute.EARPIECE:
+      case PlayingRoute.earpiece:
         return 'earpiece';
     }
   }
@@ -20,10 +20,10 @@ extension PlayingRouteExtensions on PlayingRoute {
   /// If that ever was to change, this method would need to be removed.
   PlayingRoute toggle() {
     switch (this) {
-      case PlayingRoute.SPEAKERS:
-        return PlayingRoute.EARPIECE;
-      case PlayingRoute.EARPIECE:
-        return PlayingRoute.SPEAKERS;
+      case PlayingRoute.speakers:
+        return PlayingRoute.earpiece;
+      case PlayingRoute.earpiece:
+        return PlayingRoute.speakers;
     }
   }
 }
