@@ -57,7 +57,7 @@ jobs:
          architecture: 'x64'
 
      - name: Run android unit tests
-       working-directory: ./packages/audioplayers/example
+       working-directory: ./packages/audioplayers/example/android
        run: |
          ./gradlew test
 
