@@ -29,6 +29,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.8.2"
+  audioplayers_platform_interface:
+    dependency: "direct main"
+    description:
+      path: "../audioplayers_platform_interface"
+      relative: true
+    source: path
+    version: "0.20.1"
   boolean_selector:
     dependency: transitive
     description:
@@ -274,7 +281,7 @@ packages:
       name: plugin_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.0"
+    version: "2.0.2"
   process:
     dependency: transitive
     description:

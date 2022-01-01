@@ -1,17 +1,16 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:flutter/foundation.dart';
+import 'package:audioplayers_platform_interface/api/audio_context_config.dart';
+import 'package:audioplayers_platform_interface/api/for_player.dart';
+import 'package:audioplayers_platform_interface/api/player_mode.dart';
+import 'package:audioplayers_platform_interface/api/player_state.dart';
+import 'package:audioplayers_platform_interface/api/release_mode.dart';
+import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
 import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
 
-import 'api/player_mode.dart';
-import 'api/player_state.dart';
-import 'api/playing_route.dart';
-import 'api/release_mode.dart';
-import 'logger.dart';
-import 'notifications/notification_service.dart';
+const _uuid = Uuid();
 
 /// This represents a single AudioPlayer, which can play one audio at a time.
 /// To play several audios at the same time, you must create several instances
@@ -20,42 +19,7 @@ import 'notifications/notification_service.dart';
 /// It holds methods to play, loop, pause, stop, seek the audio, and some useful
 /// hooks for handlers and callbacks.
 class AudioPlayer {
-  static final MethodChannel _channel =
-      const MethodChannel('xyz.luan/audioplayers')
-        ..setMethodCallHandler(platformCallHandler);
-
-  static const _uuid = Uuid();
-
-  final StreamController<PlayerState> _playerStateController =
-      StreamController<PlayerState>.broadcast();
-
-  final StreamController<PlayerState> _notificationPlayerStateController =
-      StreamController<PlayerState>.broadcast();
-
-  final StreamController<Duration> _positionController =
-      StreamController<Duration>.broadcast();
-
-  final StreamController<Duration> _durationController =
-      StreamController<Duration>.broadcast();
-
-  final StreamController<void> _completionController =
-      StreamController<void>.broadcast();
-
-  final StreamController<bool> _seekCompleteController =
-      StreamController<bool>.broadcast();
-
-  final StreamController<String> _errorController =
-      StreamController<String>.broadcast();
-
-  PlayingRoute _playingRouteState = PlayingRoute.speakers;
-
-  /// Reference [Map] with all the players created by the application.
-  ///
-  /// This is used to exchange messages with the [MethodChannel]
-  /// (because there is only one channel for all players).
-  static final players = <String, AudioPlayer>{};
-
-  late NotificationService notificationService;
+  static final _platform = AudioplayersPlatform.instance;
 
   PlayerState _playerState = PlayerState.stopped;
 
@@ -66,22 +30,11 @@ class AudioPlayer {
     _playerState = state;
   }
 
-  set playingRouteState(PlayingRoute routeState) {
-    _playingRouteState = routeState;
-  }
-
-  // TODO(luan) why do we need two methods for setting state?
-  set notificationState(PlayerState state) {
-    _notificationPlayerStateController.add(state);
-    _playerState = state;
-  }
+  final StreamController<PlayerState> _playerStateController =
+      StreamController<PlayerState>.broadcast();
 
   /// Stream of changes on player state.
   Stream<PlayerState> get onPlayerStateChanged => _playerStateController.stream;
-
-  /// Stream of changes on player state coming from notification area in iOS.
-  Stream<PlayerState> get onNotificationPlayerStateChanged =>
-      _notificationPlayerStateController.stream;
 
   /// Stream of changes on audio position.
   ///
@@ -89,14 +42,15 @@ class AudioPlayer {
   /// position of the playback if the status is [PlayerState.playing].
   ///
   /// You can use it on a progress bar, for instance.
-  Stream<Duration> get onAudioPositionChanged => _positionController.stream;
+  Stream<Duration> get onPositionChanged =>
+      _platform.positionStream.filter(playerId);
 
   /// Stream of changes on audio duration.
   ///
   /// An event is going to be sent as soon as the audio duration is available
   /// (it might take a while to download or buffer it).
   Stream<Duration> get onDurationChanged =>
-      _durationController.stream.distinct();
+      _platform.durationStream.filter(playerId);
 
   /// Stream of player completions.
   ///
@@ -104,17 +58,14 @@ class AudioPlayer {
   /// sent when an audio is paused or stopped.
   ///
   /// [ReleaseMode.loop] also sends events to this stream.
-  Stream<void> get onPlayerCompletion => _completionController.stream;
+  Stream<void> get onPlayerCompletion =>
+      _platform.completionStream.filter(playerId);
 
   /// Stream of seek completions.
   ///
   /// An event is going to be sent as soon as the audio seek is finished.
-  Stream<void> get onSeekComplete => _seekCompleteController.stream;
-
-  /// Stream of player errors.
-  ///
-  /// Events are sent when an unexpected error is thrown in the native code.
-  Stream<String> get onPlayerError => _errorController.stream;
+  Stream<void> get onSeekComplete =>
+      _platform.seekCompleteStream.filter(playerId);
 
   /// An unique ID generated for this instance of [AudioPlayer].
   ///
@@ -127,68 +78,26 @@ class AudioPlayer {
 
   /// Creates a new instance and assigns an unique id to it.
   AudioPlayer({this.mode = PlayerMode.mediaPlayer, String? playerId})
-      : playerId = playerId ?? _uuid.v4() {
-    players[this.playerId] = this;
-    notificationService = NotificationService(_invokeMethod);
-  }
+      : playerId = playerId ?? _uuid.v4();
 
-  Future<int> _invokeMethod(
-    String method, [
-    Map<String, dynamic> arguments = const <String, dynamic>{},
-  ]) {
-    final enhancedArgs = <String, dynamic>{
-      ...arguments,
-      'playerId': playerId,
-      'mode': mode.toString(),
-    };
-    return invokeMethod(method, enhancedArgs);
-  }
-
-  static Future<int> invokeMethod(
-    String method,
-    Map<String, dynamic> args,
-  ) async {
-    final result = await _channel.invokeMethod<int>(method, args);
-    return result ?? 0; // if null, we assume error
-  }
-
-  /// Plays an audio.
-  ///
-  /// If [isLocal] is true, [url] must be a local file system path.
-  /// If [isLocal] is false, [url] must be a remote URL.
-  /// (By default isLocal is inferred by the provided path)
-  ///
-  /// respectSilence and stayAwake are not implemented on macOS.
   Future<int> play(
     String url, {
     bool? isLocal,
-    double volume = 1.0,
-    // position must be null by default to be compatible with radio streams
+    double? volume,
+    AudioContextConfig? config,
     Duration? position,
-    bool respectSilence = false,
-    bool stayAwake = false,
-    bool duckAudio = false,
-    bool recordingActive = false,
   }) async {
-    final result = await _invokeMethod(
-      'play',
-      <String, dynamic>{
-        'url': url,
-        'isLocal': isLocal ?? isLocalUrl(url),
-        'volume': volume,
-        'position': position?.inMilliseconds,
-        'respectSilence': respectSilence,
-        'stayAwake': stayAwake,
-        'duckAudio': duckAudio,
-        'recordingActive': recordingActive,
-      },
-    );
-
-    if (result == 1) {
-      state = PlayerState.playing;
+    if (volume != null) {
+      await setVolume(volume);
     }
-
-    return result;
+    if (config != null) {
+      await setAudioContextConfig(config);
+    }
+    if (position != null) {
+      await seek(position);
+    }
+    await setSourceUrl(url, isLocal: isLocal);
+    return resume();
   }
 
   /// Plays audio in the form of a byte array.
@@ -196,39 +105,21 @@ class AudioPlayer {
   /// This is only supported on Android (SDK >= 23) currently.
   Future<int> playBytes(
     Uint8List bytes, {
-    double volume = 1.0,
-    // position must be null by default to be compatible with radio streams
-    Duration? position,
-    bool respectSilence = false,
-    bool stayAwake = false,
-    bool duckAudio = false,
-    bool recordingActive = false,
+    double? volume,
+    AudioContextConfig? config,
   }) async {
-    if (!_isAndroid()) {
-      throw PlatformException(
-        code: 'Not supported',
-        message: 'Only Android is currently supported',
-      );
+    if (volume != null) {
+      await setVolume(volume);
     }
-
-    final result = await _invokeMethod(
-      'playBytes',
-      <String, dynamic>{
-        'bytes': bytes,
-        'volume': volume,
-        'position': position?.inMilliseconds,
-        'respectSilence': respectSilence,
-        'stayAwake': stayAwake,
-        'duckAudio': duckAudio,
-        'recordingActive': recordingActive,
-      },
-    );
-
-    if (result == 1) {
-      state = PlayerState.playing;
+    if (config != null) {
+      await setAudioContextConfig(config);
     }
+    await setSourceBytes(bytes);
+    return resume();
+  }
 
-    return result;
+  Future<int> setAudioContextConfig(AudioContextConfig config) {
+    return _platform.setAudioContextConfig(playerId, config);
   }
 
   /// Pauses the audio that is currently playing.
@@ -236,7 +127,7 @@ class AudioPlayer {
   /// If you call [resume] later, the audio will resume from the point that it
   /// has been paused.
   Future<int> pause() async {
-    final result = await _invokeMethod('pause');
+    final result = await _platform.pause(playerId);
 
     if (result == 1) {
       state = PlayerState.paused;
@@ -250,7 +141,7 @@ class AudioPlayer {
   /// The position is going to be reset and you will no longer be able to resume
   /// from the last point.
   Future<int> stop() async {
-    final result = await _invokeMethod('stop');
+    final result = await _platform.stop(playerId);
 
     if (result == 1) {
       state = PlayerState.stopped;
@@ -262,7 +153,7 @@ class AudioPlayer {
   /// Resumes the audio that has been paused or stopped, just like calling
   /// [play], but without changing the parameters.
   Future<int> resume() async {
-    final result = await _invokeMethod('resume');
+    final result = await _platform.resume(playerId);
 
     if (result == 1) {
       state = PlayerState.playing;
@@ -274,9 +165,9 @@ class AudioPlayer {
   /// Releases the resources associated with this media player.
   ///
   /// The resources are going to be fetched or buffered again as soon as you
-  /// call [play] or [setUrl].
+  /// call [play] or [setSourceUrl].
   Future<int> release() async {
-    final result = await _invokeMethod('release');
+    final result = await _platform.release(playerId);
 
     if (result == 1) {
       state = PlayerState.stopped;
@@ -287,13 +178,7 @@ class AudioPlayer {
 
   /// Moves the cursor to the desired position.
   Future<int> seek(Duration position) {
-    _positionController.add(position);
-    return _invokeMethod(
-      'seek',
-      <String, dynamic>{
-        'position': position.inMilliseconds,
-      },
-    );
+    return _platform.seek(playerId, position);
   }
 
   /// Sets the volume (amplitude).
@@ -301,24 +186,14 @@ class AudioPlayer {
   /// 0 is mute and 1 is the max volume. The values between 0 and 1 are linearly
   /// interpolated.
   Future<int> setVolume(double volume) {
-    return _invokeMethod(
-      'setVolume',
-      <String, dynamic>{
-        'volume': volume,
-      },
-    );
+    return _platform.setVolume(playerId, volume);
   }
 
   /// Sets the release mode.
   ///
   /// Check [ReleaseMode]'s doc to understand the difference between the modes.
   Future<int> setReleaseMode(ReleaseMode releaseMode) {
-    return _invokeMethod(
-      'setReleaseMode',
-      <String, dynamic>{
-        'releaseMode': releaseMode.toString(),
-      },
-    );
+    return _platform.setReleaseMode(playerId, releaseMode);
   }
 
   /// Sets the playback rate - call this after first calling play() or resume().
@@ -326,12 +201,7 @@ class AudioPlayer {
   /// iOS and macOS have limits between 0.5 and 2x
   /// Android SDK version should be 23 or higher
   Future<int> setPlaybackRate(double playbackRate) {
-    return _invokeMethod(
-      'setPlaybackRate',
-      <String, dynamic>{
-        'playbackRate': playbackRate,
-      },
-    );
+    return _platform.setPlaybackRate(playerId, playbackRate);
   }
 
   /// Sets the URL.
@@ -342,21 +212,17 @@ class AudioPlayer {
   /// this method.
   ///
   /// respectSilence is not implemented on macOS.
-  Future<int> setUrl(
+  Future<int> setSourceUrl(
     String url, {
     bool? isLocal,
-    bool respectSilence = false,
-    bool recordingActive = false,
   }) {
-    return _invokeMethod(
-      'setUrl',
-      <String, dynamic>{
-        'url': url,
-        'isLocal': isLocal ?? isLocalUrl(url),
-        'respectSilence': respectSilence,
-        'recordingActive': recordingActive,
-      },
-    );
+    return _platform.setSourceUrl(playerId, url, isLocal: isLocal);
+  }
+
+  Future<int> setSourceBytes(
+    Uint8List bytes,
+  ) {
+    return _platform.setSourceBytes(playerId, bytes);
   }
 
   /// Get audio duration after setting url.
@@ -365,78 +231,12 @@ class AudioPlayer {
   /// It will be available as soon as the audio duration is available
   /// (it might take a while to download or buffer it if file is not local).
   Future<int> getDuration() {
-    return _invokeMethod('getDuration');
+    return _platform.getDuration(playerId);
   }
 
   // Gets audio current playing position
   Future<int> getCurrentPosition() async {
-    return _invokeMethod('getCurrentPosition');
-  }
-
-  static Future<void> platformCallHandler(MethodCall call) async {
-    try {
-      _doHandlePlatformCall(call);
-    } catch (ex) {
-      Logger.error('Unexpected error: $ex');
-    }
-  }
-
-  static Future<void> _doHandlePlatformCall(MethodCall call) async {
-    final callArgs = call.arguments as Map<dynamic, dynamic>;
-    Logger.info('_platformCallHandler call ${call.method} $callArgs');
-
-    final playerId = callArgs['playerId'] as String;
-    final player = players[playerId];
-
-    if (!kReleaseMode && _isAndroid() && player == null) {
-      final oldPlayer = AudioPlayer(playerId: playerId);
-      await oldPlayer.release();
-      oldPlayer.dispose();
-      players.remove(playerId);
-      return;
-    }
-    if (player == null) {
-      return;
-    }
-
-    switch (call.method) {
-      case 'audio.onNotificationPlayerStateChanged':
-        final isPlaying = callArgs['value'] as bool;
-        player.notificationState =
-            isPlaying ? PlayerState.playing : PlayerState.paused;
-        break;
-      case 'audio.onDuration':
-        final millis = callArgs['value'] as int;
-        final newDuration = Duration(milliseconds: millis);
-        player._durationController.add(newDuration);
-        break;
-      case 'audio.onCurrentPosition':
-        final millis = callArgs['value'] as int;
-        final newDuration = Duration(milliseconds: millis);
-        player._positionController.add(newDuration);
-        break;
-      case 'audio.onComplete':
-        player.state = PlayerState.completed;
-        player._completionController.add(null);
-        break;
-      case 'audio.onSeekComplete':
-        final complete = callArgs['value'] as bool;
-        player._seekCompleteController.add(complete);
-        break;
-      case 'audio.onError':
-        final error = callArgs['value'] as String;
-        player.state = PlayerState.stopped;
-        player._errorController.add(error);
-        break;
-      case 'audio.onGotNextTrackCommand':
-        player.notificationService.notifyNextTrack();
-        break;
-      case 'audio.onGotPreviousTrackCommand':
-        player.notificationService.notifyPreviousTrack();
-        break;
-      default:
-        Logger.error('Unknown method ${call.method} ');
-    }
+    return _platform.getCurrentPosition(playerId);
   }
 
   /// Closes all [StreamController]s.
@@ -448,61 +248,15 @@ class AudioPlayer {
     await release();
 
     final futures = <Future>[];
-
     if (!_playerStateController.isClosed) {
       futures.add(_playerStateController.close());
     }
-    if (!_notificationPlayerStateController.isClosed) {
-      futures.add(_notificationPlayerStateController.close());
-    }
-    if (!_positionController.isClosed) {
-      futures.add(_positionController.close());
-    }
-    if (!_durationController.isClosed) {
-      futures.add(_durationController.close());
-    }
-    if (!_completionController.isClosed) {
-      futures.add(_completionController.close());
-    }
-    if (!_seekCompleteController.isClosed) {
-      futures.add(_seekCompleteController.close());
-    }
-    if (!_errorController.isClosed) {
-      futures.add(_errorController.close());
-    }
-    futures.add(notificationService.dispose());
-
     await Future.wait<dynamic>(futures);
-    players.remove(playerId);
-  }
-
-  Future<int> earpieceOrSpeakersToggle() async {
-    final playingRoute = _playingRouteState.toggle();
-    final result = await _invokeMethod(
-      'earpieceOrSpeakersToggle',
-      <String, dynamic>{
-        'playingRoute': playingRoute.name(),
-      },
-    );
-
-    if (result == 1) {
-      playingRouteState = playingRoute;
-    }
-
-    return result;
   }
 
   bool isLocalUrl(String url) {
     return url.startsWith('/') ||
         url.startsWith('file://') ||
         url.substring(1).startsWith(':\\');
-  }
-
-  static bool _isAndroid() {
-    // we need to be careful because the "isAndroid" check throws errors on web.
-    if (kIsWeb) {
-      return false;
-    }
-    return Platform.isAndroid;
   }
 }

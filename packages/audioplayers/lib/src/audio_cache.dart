@@ -2,13 +2,14 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:audioplayers_platform_interface/api/audio_context_config.dart';
+import 'package:audioplayers_platform_interface/api/player_mode.dart';
+import 'package:audioplayers_platform_interface/api/release_mode.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 
-import 'api/player_mode.dart';
-import 'api/release_mode.dart';
 import 'audioplayer.dart';
 
 /// This class represents a cache for Local Assets to be played.
@@ -41,23 +42,12 @@ class AudioCache {
   /// If this is set, every call will overwrite previous calls.
   AudioPlayer? fixedPlayer;
 
-  /// This flag should be set to true, if player is used for playing internal notifications
-  ///
-  /// This flag will have influence of stream type, and will respect silent mode if set to true.
-  ///
-  /// Not implemented on macOS.
-  bool respectSilence;
-
-  /// This flag should be set to true, if player is used for playing sound while there may be music
-  ///
-  /// Defaults to false, meaning the audio will be paused while playing on iOS and continue playing on Android.
-  bool duckAudio;
+  AudioContextConfig? defaultConfig;
 
   AudioCache({
     this.prefix = 'assets/',
     this.fixedPlayer,
-    this.respectSilence = false,
-    this.duckAudio = false,
+    this.defaultConfig,
   });
 
   /// Clears the cache for the file [fileName].
@@ -136,8 +126,17 @@ class AudioCache {
     return Future.wait(fileNames.map(load));
   }
 
-  AudioPlayer _player(PlayerMode mode) {
-    return fixedPlayer ?? AudioPlayer(mode: mode);
+  Future<AudioPlayer> _player(PlayerMode mode) async {
+    return fixedPlayer ?? await _createDefaultPlayer(mode);
+  }
+
+  Future<AudioPlayer> _createDefaultPlayer(PlayerMode mode) async {
+    final player = AudioPlayer(mode: mode);
+    final config = defaultConfig;
+    if (config != null) {
+      await player.setAudioContextConfig(config);
+    }
+    return player;
   }
 
   /// Plays the given [fileName].
@@ -150,24 +149,18 @@ class AudioCache {
   Future<AudioPlayer> play(
     String fileName, {
     double volume = 1.0,
-    bool? isNotification,
     PlayerMode mode = PlayerMode.mediaPlayer,
-    bool stayAwake = false,
-    bool recordingActive = false,
-    bool? duckAudio,
+    AudioContextConfig? config,
   }) async {
     final uri = await load(fileName);
-    final player = _player(mode);
+    final player = await _player(mode);
     if (fixedPlayer != null) {
       await player.setReleaseMode(ReleaseMode.stop);
     }
     await player.play(
       uri.toString(),
       volume: volume,
-      respectSilence: isNotification ?? respectSilence,
-      stayAwake: stayAwake,
-      recordingActive: recordingActive,
-      duckAudio: duckAudio ?? this.duckAudio,
+      config: config,
     );
     return player;
   }
@@ -178,13 +171,11 @@ class AudioCache {
   Future<AudioPlayer> playBytes(
     Uint8List fileBytes, {
     double volume = 1.0,
-    bool? isNotification,
     PlayerMode mode = PlayerMode.mediaPlayer,
+    AudioContextConfig? config,
     bool loop = false,
-    bool stayAwake = false,
-    bool recordingActive = false,
   }) async {
-    final player = _player(mode);
+    final player = await _player(mode);
 
     if (loop) {
       await player.setReleaseMode(ReleaseMode.loop);
@@ -195,10 +186,9 @@ class AudioCache {
     await player.playBytes(
       fileBytes,
       volume: volume,
-      respectSilence: isNotification ?? respectSilence,
-      stayAwake: stayAwake,
-      recordingActive: recordingActive,
+      config: config,
     );
+
     return player;
   }
 
@@ -210,18 +200,16 @@ class AudioCache {
   Future<AudioPlayer> loop(
     String fileName, {
     double volume = 1.0,
-    bool? isNotification,
     PlayerMode mode = PlayerMode.mediaPlayer,
-    bool stayAwake = false,
+    AudioContextConfig? config,
   }) async {
     final url = await load(fileName);
-    final player = _player(mode);
+    final player = await _player(mode);
     await player.setReleaseMode(ReleaseMode.loop);
     await player.play(
       url.toString(),
       volume: volume,
-      respectSilence: isNotification ?? respectSilence,
-      stayAwake: stayAwake,
+      config: config,
     );
     return player;
   }

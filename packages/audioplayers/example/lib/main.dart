@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:path_provider/path_provider.dart';
@@ -33,19 +32,6 @@ class _ExampleAppState extends State<ExampleApp> {
   AudioPlayer advancedPlayer = AudioPlayer();
   String? localFilePath;
   String? localAudioCacheURI;
-
-  @override
-  void initState() {
-    super.initState();
-
-    if (kIsWeb) {
-      // Calls to Platform.isIOS fails on web
-      return;
-    }
-    if (Platform.isIOS) {
-      audioCache.fixedPlayer?.notificationService.startHeadlessService();
-    }
-  }
 
   Future _loadFile() async {
     final bytes = await readBytes(Uri.parse(kUrl1));
@@ -178,7 +164,7 @@ class _ExampleAppState extends State<ExampleApp> {
 
   Future<int> _getDuration() async {
     final uri = await audioCache.load('audio2.mp3');
-    await advancedPlayer.setUrl(uri.toString());
+    await advancedPlayer.setSourceUrl(uri.toString());
     return Future.delayed(
       const Duration(seconds: 2),
       () => advancedPlayer.getDuration(),
@@ -207,57 +193,13 @@ class _ExampleAppState extends State<ExampleApp> {
     );
   }
 
-  Widget notification() {
-    return TabWrapper(
-      children: [
-        const Text("Play notification sound: 'messenger.mp3':"),
-        Btn(
-          txt: 'Play',
-          onPressed: () =>
-              audioCache.play('messenger.mp3', isNotification: true),
-        ),
-        const Text('Notification Service'),
-        Btn(
-          txt: 'Notification',
-          onPressed: () async {
-            await advancedPlayer.notificationService.startHeadlessService();
-            await advancedPlayer.notificationService.setNotification(
-              title: 'My Song',
-              albumTitle: 'My Album',
-              artist: 'My Artist',
-              imageUrl: 'Image URL or blank',
-              forwardSkipInterval: const Duration(seconds: 30),
-              backwardSkipInterval: const Duration(seconds: 30),
-              duration: const Duration(minutes: 3),
-              elapsedTime: const Duration(seconds: 15),
-              enableNextTrackButton: true,
-              enablePreviousTrackButton: true,
-            );
-
-            await advancedPlayer.play(
-              kUrl2,
-              isLocal: false,
-            );
-          },
-        ),
-        Btn(
-          txt: 'Clear Notification',
-          onPressed: () async {
-            await advancedPlayer.stop();
-            await advancedPlayer.notificationService.clearNotification();
-          },
-        ),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
         StreamProvider<Duration>.value(
           initialData: const Duration(),
-          value: advancedPlayer.onAudioPositionChanged,
+          value: advancedPlayer.onPositionChanged,
         ),
       ],
       child: DefaultTabController(
@@ -281,7 +223,6 @@ class _ExampleAppState extends State<ExampleApp> {
               remoteUrl(),
               localFile(),
               localAsset(),
-              notification(),
               Advanced(advancedPlayer: advancedPlayer),
               const GlobalTab(),
             ],
@@ -324,15 +265,15 @@ class _AdvancedState extends State<Advanced> {
                 children: [
                   Btn(
                     txt: 'Audio 1',
-                    onPressed: () => widget.advancedPlayer.setUrl(kUrl1),
+                    onPressed: () => widget.advancedPlayer.setSourceUrl(kUrl1),
                   ),
                   Btn(
                     txt: 'Audio 2',
-                    onPressed: () => widget.advancedPlayer.setUrl(kUrl2),
+                    onPressed: () => widget.advancedPlayer.setSourceUrl(kUrl2),
                   ),
                   Btn(
                     txt: 'Stream',
-                    onPressed: () => widget.advancedPlayer.setUrl(kUrl3),
+                    onPressed: () => widget.advancedPlayer.setSourceUrl(kUrl3),
                   ),
                 ],
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,

@@ -7,17 +7,17 @@ flutter:
   plugin:
     platforms:
       android:
-        package: xyz.luan.audioplayers
-        pluginClass: AudioplayersPlugin
+        default_package: audioplayers_android
       ios:
         pluginClass: AudioplayersPlugin
       macos:
         pluginClass: AudioplayersPlugin
       web:
-        pluginClass: AudioplayersPlugin
-        fileName: web/audioplayers_web.dart
+        default_package: audioplayers_web
 
 dependencies:
+  audioplayers_platform_interface:
+    path: ../audioplayers_platform_interface
   uuid: ^3.0.1
   path_provider: ^2.0.1
   http: ^0.13.1

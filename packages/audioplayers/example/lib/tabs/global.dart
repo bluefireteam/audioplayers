@@ -12,7 +12,11 @@ class GlobalTab extends StatefulWidget {
 }
 
 class _GlobalTabState extends State<GlobalTab> {
-  LogLevel currentLogLevel = Logger.logLevel;
+  static LoggerPlatformInterface get _logger =>
+      LoggerPlatformInterface.instance;
+
+  LogLevel currentLogLevel = _logger.logLevel;
+
   @override
   Widget build(BuildContext context) {
     return TabWrapper(
@@ -24,8 +28,8 @@ class _GlobalTabState extends State<GlobalTab> {
                 (e) => Btn(
                   txt: e.toString(),
                   onPressed: () async {
-                    await Logger.changeLogLevel(e);
-                    setState(() => currentLogLevel = Logger.logLevel);
+                    await _logger.changeLogLevel(e);
+                    setState(() => currentLogLevel = _logger.logLevel);
                   },
                 ),
               )

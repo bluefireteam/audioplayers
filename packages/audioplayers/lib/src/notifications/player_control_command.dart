@@ -1,4 +1,0 @@
-enum PlayerControlCommand {
-  nextTrack,
-  previousTrack,
-}
