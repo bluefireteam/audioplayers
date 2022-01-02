@@ -18,13 +18,10 @@ class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
     private val handler = Handler()
     private var positionUpdates: Runnable? = null
 
-    private var seekFinish = false
-
     override fun onAttachedToEngine(binding: FlutterPluginBinding) {
         channel = MethodChannel(binding.binaryMessenger, "xyz.luan/audioplayers")
         loggerChannel = MethodChannel(binding.binaryMessenger, "xyz.luan/audioplayers.logger")
         context = binding.applicationContext
-        seekFinish = false
         channel.setMethodCallHandler(this)
         loggerChannel.setMethodCallHandler(this)
     }
@@ -54,7 +51,7 @@ class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
         val player = getPlayer(playerId, mode)
         when (call.method) {
             "setSourceUrl" -> {
-                val url = call.argument<String>("url")!!
+                val url = call.argument<String>("url") ?: throw error("url is required")
                 val isLocal = call.argument<Boolean>("isLocal") ?: false
                 player.setUrl(url, isLocal)
             }
@@ -73,11 +70,6 @@ class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
             "setVolume" -> {
                 val volume = call.argument<Double>("volume") ?: throw error("volume is required")
                 player.setVolume(volume)
-            }
-            "setUrl" -> {
-                val url = call.argument<String>("url") !!
-                val isLocal = call.argument<Boolean>("isLocal") ?: false
-                player.setUrl(url, isLocal)
             }
             "setPlaybackRate" -> {
                 val rate = call.argument<Double>("playbackRate") ?: throw error("playbackRate is required")
@@ -139,8 +131,8 @@ class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
         channel.invokeMethod("audio.onDuration", buildArguments(player.playerId, player.getDuration() ?: 0))
     }
 
-    fun handleCompletion(player: Player) {
-        channel.invokeMethod("audio.onComplete", buildArguments(player.playerId, true))
+    fun handleComplete(player: Player) {
+        channel.invokeMethod("audio.onComplete", buildArguments(player.playerId))
     }
 
     fun handleError(player: Player, message: String) {
@@ -148,7 +140,7 @@ class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
     }
 
     fun handleSeekComplete() {
-        seekFinish = true
+        channel.invokeMethod("audio.onSeekComplete", buildArguments(player.playerId))
     }
 
     private fun startPositionUpdates() {
@@ -197,10 +189,6 @@ class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
                     val time = player.getCurrentPosition()
                     channel.invokeMethod("audio.onDuration", buildArguments(key, duration ?: 0))
                     channel.invokeMethod("audio.onCurrentPosition", buildArguments(key, time ?: 0))
-                    if (audioplayersPlugin.seekFinish) {
-                        channel.invokeMethod("audio.onSeekComplete", buildArguments(player.playerId, true))
-                        audioplayersPlugin.seekFinish = false
-                    }
                 } catch (e: UnsupportedOperationException) {
                 }
             }
@@ -214,11 +202,11 @@ class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
     }
 
     companion object {
-        private fun buildArguments(playerId: String, value: Any): Map<String, Any> {
-            return mapOf(
+        private fun buildArguments(playerId: String, value: Any? = null): Map<String, Any> {
+            return listOfNotNull(
                     "playerId" to playerId,
-                    "value" to value
-            )
+                    value?.let { "value" to it },
+            ).toMap()
         }
 
         private fun error(message: String): Exception {

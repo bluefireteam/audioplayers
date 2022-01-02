@@ -36,6 +36,13 @@ packages:
       relative: true
     source: path
     version: "0.20.1"
+  audioplayers_darwin:
+    dependency: "direct main"
+    description:
+      path: "../audioplayers_darwin"
+      relative: true
+    source: path
+    version: "0.20.1"
   audioplayers_platform_interface:
     dependency: "direct main"
     description:
@@ -159,7 +166,7 @@ packages:
     source: sdk
     version: "0.0.0"
   flutter_web_plugins:
-    dependency: "direct main"
+    dependency: transitive
     description: flutter
     source: sdk
     version: "0.0.0"

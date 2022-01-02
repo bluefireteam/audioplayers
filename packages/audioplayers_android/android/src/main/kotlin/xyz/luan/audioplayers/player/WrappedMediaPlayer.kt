@@ -303,7 +303,7 @@ class WrappedMediaPlayer internal constructor(
         if (releaseMode !== ReleaseMode.LOOP) {
             stop()
         }
-        ref.handleCompletion(this)
+        ref.handleComplete(this)
     }
 
     override fun onError(mp: MediaPlayer, what: Int, extra: Int): Boolean {

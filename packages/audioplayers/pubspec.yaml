@@ -9,9 +9,9 @@ flutter:
       android:
         default_package: audioplayers_android
       ios:
-        pluginClass: AudioplayersPlugin
+        default_package: audioplayers_darwin
       macos:
-        pluginClass: AudioplayersPlugin
+        default_package: audioplayers_darwin
       web:
         default_package: audioplayers_web
 
@@ -20,14 +20,14 @@ dependencies:
     path: ../audioplayers_platform_interface
   audioplayers_android:
     path: ../audioplayers_android
+  audioplayers_darwin:
+    path: ../audioplayers_darwin
   audioplayers_web:
     path: ../audioplayers_web
   uuid: ^3.0.1
   path_provider: ^2.0.1
   http: ^0.13.1
   flutter:
-    sdk: flutter
-  flutter_web_plugins:
     sdk: flutter
 
 dev_dependencies:
