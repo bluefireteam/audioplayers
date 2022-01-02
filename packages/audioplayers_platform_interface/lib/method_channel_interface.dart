@@ -1,9 +1,12 @@
 import 'package:flutter/services.dart';
 
 extension StandardMethodChannel on MethodChannel {
-  Future<int> invoke(String method, Map<String, dynamic> args) async {
-    final result = await invokeMethod<int>(method, args);
-    return result ?? 0; // if null, we assume error
+  Future<void> call(String method, Map<String, dynamic> args) async {
+    return invokeMethod<void>(method, args);
+  }
+
+  Future<T?> compute<T>(String method, Map<String, dynamic> args) async {
+    return invokeMethod<T>(method, args);
   }
 }
 

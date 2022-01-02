@@ -80,7 +80,7 @@ class AudioPlayer {
   AudioPlayer({this.mode = PlayerMode.mediaPlayer, String? playerId})
       : playerId = playerId ?? _uuid.v4();
 
-  Future<int> play(
+  Future<void> play(
     String url, {
     bool? isLocal,
     double? volume,
@@ -103,7 +103,7 @@ class AudioPlayer {
   /// Plays audio in the form of a byte array.
   ///
   /// This is only supported on Android (SDK >= 23) currently.
-  Future<int> playBytes(
+  Future<void> playBytes(
     Uint8List bytes, {
     double? volume,
     AudioContextConfig? config,
@@ -118,7 +118,7 @@ class AudioPlayer {
     return resume();
   }
 
-  Future<int> setAudioContextConfig(AudioContextConfig config) {
+  Future<void> setAudioContextConfig(AudioContextConfig config) {
     return _platform.setAudioContextConfig(playerId, config);
   }
 
@@ -126,58 +126,38 @@ class AudioPlayer {
   ///
   /// If you call [resume] later, the audio will resume from the point that it
   /// has been paused.
-  Future<int> pause() async {
-    final result = await _platform.pause(playerId);
-
-    if (result == 1) {
-      state = PlayerState.paused;
-    }
-
-    return result;
+  Future<void> pause() async {
+    await _platform.pause(playerId);
+    state = PlayerState.paused;
   }
 
   /// Stops the audio that is currently playing.
   ///
   /// The position is going to be reset and you will no longer be able to resume
   /// from the last point.
-  Future<int> stop() async {
-    final result = await _platform.stop(playerId);
-
-    if (result == 1) {
-      state = PlayerState.stopped;
-    }
-
-    return result;
+  Future<void> stop() async {
+    await _platform.stop(playerId);
+    state = PlayerState.stopped;
   }
 
   /// Resumes the audio that has been paused or stopped, just like calling
   /// [play], but without changing the parameters.
-  Future<int> resume() async {
-    final result = await _platform.resume(playerId);
-
-    if (result == 1) {
-      state = PlayerState.playing;
-    }
-
-    return result;
+  Future<void> resume() async {
+    await _platform.resume(playerId);
+    state = PlayerState.playing;
   }
 
   /// Releases the resources associated with this media player.
   ///
   /// The resources are going to be fetched or buffered again as soon as you
   /// call [play] or [setSourceUrl].
-  Future<int> release() async {
-    final result = await _platform.release(playerId);
-
-    if (result == 1) {
-      state = PlayerState.stopped;
-    }
-
-    return result;
+  Future<void> release() async {
+    await _platform.release(playerId);
+    state = PlayerState.stopped;
   }
 
   /// Moves the cursor to the desired position.
-  Future<int> seek(Duration position) {
+  Future<void> seek(Duration position) {
     return _platform.seek(playerId, position);
   }
 
@@ -185,14 +165,14 @@ class AudioPlayer {
   ///
   /// 0 is mute and 1 is the max volume. The values between 0 and 1 are linearly
   /// interpolated.
-  Future<int> setVolume(double volume) {
+  Future<void> setVolume(double volume) {
     return _platform.setVolume(playerId, volume);
   }
 
   /// Sets the release mode.
   ///
   /// Check [ReleaseMode]'s doc to understand the difference between the modes.
-  Future<int> setReleaseMode(ReleaseMode releaseMode) {
+  Future<void> setReleaseMode(ReleaseMode releaseMode) {
     return _platform.setReleaseMode(playerId, releaseMode);
   }
 
@@ -200,7 +180,7 @@ class AudioPlayer {
   ///
   /// iOS and macOS have limits between 0.5 and 2x
   /// Android SDK version should be 23 or higher
-  Future<int> setPlaybackRate(double playbackRate) {
+  Future<void> setPlaybackRate(double playbackRate) {
     return _platform.setPlaybackRate(playerId, playbackRate);
   }
 
@@ -212,14 +192,14 @@ class AudioPlayer {
   /// this method.
   ///
   /// respectSilence is not implemented on macOS.
-  Future<int> setSourceUrl(
+  Future<void> setSourceUrl(
     String url, {
     bool? isLocal,
   }) {
     return _platform.setSourceUrl(playerId, url, isLocal: isLocal);
   }
 
-  Future<int> setSourceBytes(
+  Future<void> setSourceBytes(
     Uint8List bytes,
   ) {
     return _platform.setSourceBytes(playerId, bytes);
@@ -230,12 +210,12 @@ class AudioPlayer {
   ///
   /// It will be available as soon as the audio duration is available
   /// (it might take a while to download or buffer it if file is not local).
-  Future<int> getDuration() {
+  Future<int?> getDuration() {
     return _platform.getDuration(playerId);
   }
 
   // Gets audio current playing position
-  Future<int> getCurrentPosition() async {
+  Future<int?> getCurrentPosition() async {
     return _platform.getCurrentPosition(playerId);
   }
 

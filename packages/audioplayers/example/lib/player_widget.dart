@@ -161,38 +161,28 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     });
   }
 
-  Future<int> _play() async {
+  Future<void> _play() async {
     final playPosition = (_position != null &&
             _duration != null &&
             _position!.inMilliseconds > 0 &&
             _position!.inMilliseconds < _duration!.inMilliseconds)
         ? _position
         : null;
-    final result = await _audioPlayer.play(url, position: playPosition);
-    if (result == 1) {
-      setState(() => _playerState = PlayerState.playing);
-    }
-
-    return result;
+    await _audioPlayer.play(url, position: playPosition);
+    setState(() => _playerState = PlayerState.playing);
   }
 
-  Future<int> _pause() async {
-    final result = await _audioPlayer.pause();
-    if (result == 1) {
-      setState(() => _playerState = PlayerState.paused);
-    }
-    return result;
+  Future<void> _pause() async {
+    await _audioPlayer.pause();
+    setState(() => _playerState = PlayerState.paused);
   }
 
-  Future<int> _stop() async {
-    final result = await _audioPlayer.stop();
-    if (result == 1) {
-      setState(() {
-        _playerState = PlayerState.stopped;
-        _position = const Duration();
-      });
-    }
-    return result;
+  Future<void> _stop() async {
+    await _audioPlayer.stop();
+    setState(() {
+      _playerState = PlayerState.stopped;
+      _position = const Duration();
+    });
   }
 
   void _onComplete() {

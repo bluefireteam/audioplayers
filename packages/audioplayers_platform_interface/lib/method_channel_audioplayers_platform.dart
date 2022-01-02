@@ -23,33 +23,33 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform {
       LoggerPlatformInterface.instance;
 
   @override
-  Future<int> getCurrentPosition(String playerId) {
-    return _invoke('getCurrentPosition', playerId);
+  Future<int?> getCurrentPosition(String playerId) {
+    return _compute('getCurrentPosition', playerId);
   }
 
   @override
-  Future<int> getDuration(String playerId) {
-    return _invoke('getDuration', playerId);
+  Future<int?> getDuration(String playerId) {
+    return _compute('getDuration', playerId);
   }
 
   @override
-  Future<int> pause(String playerId) {
-    return _invoke('pause', playerId);
+  Future<void> pause(String playerId) {
+    return _call('pause', playerId);
   }
 
   @override
-  Future<int> release(String playerId) {
-    return _invoke('release', playerId);
+  Future<void> release(String playerId) {
+    return _call('release', playerId);
   }
 
   @override
-  Future<int> resume(String playerId) {
-    return _invoke('resume', playerId);
+  Future<void> resume(String playerId) {
+    return _call('resume', playerId);
   }
 
   @override
-  Future<int> seek(String playerId, Duration position) {
-    return _invoke(
+  Future<void> seek(String playerId, Duration position) {
+    return _call(
       'seek',
       playerId,
       <String, dynamic>{
@@ -59,11 +59,11 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform {
   }
 
   @override
-  Future<int> setAudioContextConfig(
+  Future<void> setAudioContextConfig(
     String playerId,
     AudioContextConfig config,
   ) {
-    return _invoke(
+    return _call(
       'setAudioContextConfig',
       playerId,
       <String, dynamic>{
@@ -76,8 +76,8 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform {
   }
 
   @override
-  Future<int> setPlaybackRate(String playerId, double playbackRate) {
-    return _invoke(
+  Future<void> setPlaybackRate(String playerId, double playbackRate) {
+    return _call(
       'setPlaybackRate',
       playerId,
       <String, dynamic>{'playbackRate': playbackRate},
@@ -85,8 +85,8 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform {
   }
 
   @override
-  Future<int> setReleaseMode(String playerId, ReleaseMode releaseMode) {
-    return _invoke(
+  Future<void> setReleaseMode(String playerId, ReleaseMode releaseMode) {
+    return _call(
       'setReleaseMode',
       playerId,
       <String, dynamic>{
@@ -96,8 +96,8 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform {
   }
 
   @override
-  Future<int> setSourceBytes(String playerId, Uint8List bytes) {
-    return _invoke(
+  Future<void> setSourceBytes(String playerId, Uint8List bytes) {
+    return _call(
       'setSourceBytes',
       playerId,
       <String, dynamic>{
@@ -107,8 +107,8 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform {
   }
 
   @override
-  Future<int> setSourceUrl(String playerId, String url, {bool? isLocal}) {
-    return _invoke(
+  Future<void> setSourceUrl(String playerId, String url, {bool? isLocal}) {
+    return _call(
       'setSourceUrl',
       playerId,
       <String, dynamic>{
@@ -119,8 +119,8 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform {
   }
 
   @override
-  Future<int> setVolume(String playerId, double volume) {
-    return _invoke(
+  Future<void> setVolume(String playerId, double volume) {
+    return _call(
       'setVolume',
       playerId,
       <String, dynamic>{
@@ -130,8 +130,8 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform {
   }
 
   @override
-  Future<int> stop(String playerId) {
-    return _invoke('stop', playerId);
+  Future<void> stop(String playerId) {
+    return _call('stop', playerId);
   }
 
   Future<void> platformCallHandler(MethodCall call) async {
@@ -171,7 +171,7 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform {
     }
   }
 
-  Future<int> _invoke(
+  Future<void> _call(
     String method,
     String playerId, [
     Map<String, dynamic> arguments = const <String, dynamic>{},
@@ -180,7 +180,19 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform {
       'playerId': playerId,
       ...arguments,
     };
-    return _channel.invoke(method, enhancedArgs);
+    return _channel.call(method, enhancedArgs);
+  }
+
+  Future<T?> _compute<T>(
+    String method,
+    String playerId, [
+    Map<String, dynamic> arguments = const <String, dynamic>{},
+  ]) async {
+    final enhancedArgs = <String, dynamic>{
+      'playerId': playerId,
+      ...arguments,
+    };
+    return _channel.compute<T>(method, enhancedArgs);
   }
 
   @override

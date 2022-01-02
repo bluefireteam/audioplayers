@@ -8,7 +8,7 @@ abstract class LoggerPlatformInterface {
 
   LogLevel get logLevel;
 
-  Future<int> changeLogLevel(LogLevel value);
+  Future<void> changeLogLevel(LogLevel value);
 
   void log(LogLevel level, String message) {
     if (level.getLevel() <= logLevel.getLevel()) {
@@ -28,9 +28,9 @@ class MethodChannelLoggerPlatform extends LoggerPlatformInterface {
   static LogLevel _logLevel = LogLevel.error;
 
   @override
-  Future<int> changeLogLevel(LogLevel value) {
+  Future<void> changeLogLevel(LogLevel value) {
     _logLevel = value;
-    return _channel.invoke(
+    return _channel.call(
       'changeLogLevel',
       <String, dynamic>{'value': value.toString()},
     );

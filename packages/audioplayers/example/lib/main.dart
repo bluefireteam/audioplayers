@@ -162,7 +162,7 @@ class _ExampleAppState extends State<ExampleApp> {
     );
   }
 
-  Future<int> _getDuration() async {
+  Future<int?> _getDuration() async {
     final uri = await audioCache.load('audio2.mp3');
     await advancedPlayer.setSourceUrl(uri.toString());
     return Future.delayed(
@@ -171,10 +171,10 @@ class _ExampleAppState extends State<ExampleApp> {
     );
   }
 
-  FutureBuilder<int> getLocalFileDuration() {
-    return FutureBuilder<int>(
+  FutureBuilder<int?> getLocalFileDuration() {
+    return FutureBuilder<int?>(
       future: _getDuration(),
-      builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
+      builder: (BuildContext context, AsyncSnapshot<int?> snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.none:
             return const Text('No Connection...');
