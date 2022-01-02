@@ -145,7 +145,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     );
 
     _playerCompleteSubscription =
-        _audioPlayer.onPlayerCompletion.listen((event) {
+        _audioPlayer.onPlayerComplete.listen((event) {
       _onComplete();
       setState(() {
         _position = _duration;

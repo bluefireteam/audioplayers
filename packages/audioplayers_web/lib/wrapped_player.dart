@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:html';
 
 import 'package:audioplayers_platform_interface/api/release_mode.dart';
-import 'streams_interface.dart';
+import 'package:audioplayers_platform_interface/streams_interface.dart';
 
 class WrappedPlayer {
   final String playerId;

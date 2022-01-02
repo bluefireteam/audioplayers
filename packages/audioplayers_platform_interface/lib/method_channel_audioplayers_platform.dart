@@ -1,18 +1,17 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import 'api/audio_context_config.dart';
-import 'api/for_player.dart';
-import 'api/player_state.dart';
 import 'api/release_mode.dart';
 import 'audioplayers_platform_interface.dart';
 import 'logger_platform_interface.dart';
 import 'method_channel_interface.dart';
+import 'streams_interface.dart';
 
-class MethodChannelAudioplayersPlatform extends AudioplayersPlatform {
+class MethodChannelAudioplayersPlatform extends AudioplayersPlatform
+    with StreamsInterface {
   final MethodChannel _channel = const MethodChannel('xyz.luan/audioplayers');
 
   MethodChannelAudioplayersPlatform() {
@@ -146,25 +145,23 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform {
     _logger.info('_platformCallHandler call ${call.method} ${call.args}');
     final playerId = call.getString('playerId');
 
-    ForPlayer<T> wrap<T>(T t) => ForPlayer<T>(playerId, t);
-
     switch (call.method) {
       case 'audio.onDuration':
         final millis = call.getInt('value');
         final duration = Duration(milliseconds: millis);
-        durationStreamController.add(wrap(duration));
+        emitDuration(playerId, duration);
         break;
       case 'audio.onCurrentPosition':
         final millis = call.getInt('value');
         final position = Duration(milliseconds: millis);
-        positionStreamController.add(wrap(position));
+        emitPosition(playerId, position);
         break;
       case 'audio.onComplete':
-        completionStreamController.add(wrap(null));
+        emitComplete(playerId);
         break;
       case 'audio.onSeekComplete':
         final complete = call.getBool('value');
-        seekCompleteStreamController.add(wrap(complete));
+        emitSeekComplete(playerId, complete);
         break;
       default:
         _logger.error('Unknown method ${call.method} ');
@@ -193,49 +190,5 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform {
       ...arguments,
     };
     return _channel.compute<T>(method, enhancedArgs);
-  }
-
-  @override
-  Stream<ForPlayer<bool>> get seekCompleteStream =>
-      seekCompleteStreamController.stream;
-
-  @override
-  Stream<ForPlayer<void>> get completionStream =>
-      completionStreamController.stream;
-
-  @override
-  Stream<ForPlayer<Duration>> get durationStream =>
-      durationStreamController.stream;
-
-  @override
-  Stream<ForPlayer<PlayerState>> get playerStateStream =>
-      playerStateStreamController.stream;
-
-  @override
-  Stream<ForPlayer<Duration>> get positionStream =>
-      positionStreamController.stream;
-
-  StreamController<ForPlayer<bool>> seekCompleteStreamController =
-      StreamController<ForPlayer<bool>>.broadcast();
-
-  StreamController<ForPlayer<void>> completionStreamController =
-      StreamController<ForPlayer<void>>.broadcast();
-
-  StreamController<ForPlayer<Duration>> durationStreamController =
-      StreamController<ForPlayer<Duration>>.broadcast();
-
-  StreamController<ForPlayer<PlayerState>> playerStateStreamController =
-      StreamController<ForPlayer<PlayerState>>.broadcast();
-
-  StreamController<ForPlayer<Duration>> positionStreamController =
-      StreamController<ForPlayer<Duration>>.broadcast();
-
-  @mustCallSuper
-  Future<void> dispose() async {
-    seekCompleteStreamController.close();
-    completionStreamController.close();
-    durationStreamController.close();
-    playerStateStreamController.close();
-    positionStreamController.close();
   }
 }

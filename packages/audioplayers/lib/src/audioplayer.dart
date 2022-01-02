@@ -58,8 +58,8 @@ class AudioPlayer {
   /// sent when an audio is paused or stopped.
   ///
   /// [ReleaseMode.loop] also sends events to this stream.
-  Stream<void> get onPlayerCompletion =>
-      _platform.completionStream.filter(playerId);
+  Stream<void> get onPlayerComplete =>
+      _platform.completeStream.filter(playerId);
 
   /// Stream of seek completions.
   ///

@@ -1,16 +1,17 @@
 import 'dart:async';
 
-import 'package:audioplayers_platform_interface/api/for_player.dart';
-import 'package:audioplayers_platform_interface/api/player_state.dart';
 import 'package:flutter/foundation.dart';
+
+import 'api/for_player.dart';
+import 'api/player_state.dart';
 
 mixin StreamsInterface {
   void emitSeekComplete(String playerId, bool value) {
     _seekCompleteStreamController.add(ForPlayer(playerId, value));
   }
 
-  void emitCompletion(String playerId) {
-    _completionStreamController.add(ForPlayer(playerId, null));
+  void emitComplete(String playerId) {
+    _completeStreamController.add(ForPlayer(playerId, null));
   }
 
   void emitPlayerState(String playerId, PlayerState value) {
@@ -28,8 +29,8 @@ mixin StreamsInterface {
   Stream<ForPlayer<bool>> get seekCompleteStream =>
       _seekCompleteStreamController.stream;
 
-  Stream<ForPlayer<void>> get completionStream =>
-      _completionStreamController.stream;
+  Stream<ForPlayer<void>> get completeStream =>
+      _completeStreamController.stream;
 
   Stream<ForPlayer<Duration>> get durationStream =>
       _durationStreamController.stream;
@@ -43,7 +44,7 @@ mixin StreamsInterface {
   final StreamController<ForPlayer<bool>> _seekCompleteStreamController =
       StreamController<ForPlayer<bool>>.broadcast();
 
-  final StreamController<ForPlayer<void>> _completionStreamController =
+  final StreamController<ForPlayer<void>> _completeStreamController =
       StreamController<ForPlayer<void>>.broadcast();
 
   final StreamController<ForPlayer<Duration>> _durationStreamController =
@@ -58,7 +59,7 @@ mixin StreamsInterface {
   @mustCallSuper
   Future<void> dispose() async {
     _seekCompleteStreamController.close();
-    _completionStreamController.close();
+    _completeStreamController.close();
     _durationStreamController.close();
     _playerStateStreamController.close();
     _positionStreamController.close();

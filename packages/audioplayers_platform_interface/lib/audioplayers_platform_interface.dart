@@ -105,7 +105,7 @@ abstract class AudioplayersPlatform extends PlatformInterface {
 
   Stream<ForPlayer<Duration>> get durationStream;
 
-  Stream<ForPlayer<void>> get completionStream;
+  Stream<ForPlayer<void>> get completeStream;
 
   Stream<ForPlayer<bool>> get seekCompleteStream;
 }
