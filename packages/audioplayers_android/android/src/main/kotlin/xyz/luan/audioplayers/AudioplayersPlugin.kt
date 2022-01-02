@@ -11,6 +11,7 @@ import java.lang.ref.WeakReference
 
 class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
     private lateinit var channel: MethodChannel
+    private lateinit var loggerChannel: MethodChannel
     private lateinit var context: Context
 
     private val mediaPlayers = mutableMapOf<String, Player>()
@@ -21,9 +22,11 @@ class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
 
     override fun onAttachedToEngine(binding: FlutterPluginBinding) {
         channel = MethodChannel(binding.binaryMessenger, "xyz.luan/audioplayers")
+        loggerChannel = MethodChannel(binding.binaryMessenger, "xyz.luan/audioplayers.logger")
         context = binding.applicationContext
         seekFinish = false
         channel.setMethodCallHandler(this)
+        loggerChannel.setMethodCallHandler(this)
     }
 
     override fun onDetachedFromEngine(binding: FlutterPluginBinding) {}
@@ -50,30 +53,14 @@ class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
         val mode = call.argument<String>("mode")
         val player = getPlayer(playerId, mode)
         when (call.method) {
-            "play" -> {
-                configureAttributesAndVolume(call, player)
-
+            "setSourceUrl" -> {
                 val url = call.argument<String>("url")!!
                 val isLocal = call.argument<Boolean>("isLocal") ?: false
                 player.setUrl(url, isLocal)
-
-                val position = call.argument<Int>("position")
-                if (position != null && mode != "PlayerMode.LOW_LATENCY") {
-                    player.seek(position)
-                }
-                player.play()
             }
-            "playBytes" -> {
-                configureAttributesAndVolume(call, player)
-
+            "setSourceBytes" -> {
                 val bytes = call.argument<ByteArray>("bytes") ?: throw error("bytes are required")
                 player.setDataSource(ByteDataSource(bytes))
-
-                val position = call.argument<Int>("position")
-                if (position != null && mode != "PlayerMode.LOW_LATENCY") {
-                    player.seek(position)
-                }
-                player.play()
             }
             "resume" -> player.play()
             "pause" -> player.pause()
@@ -109,10 +96,6 @@ class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
                     ?: throw error("releaseMode is required")
                 player.setReleaseMode(releaseMode)
             }
-            "earpieceOrSpeakersToggle" -> {
-                val playingRoute = call.argument<String>("playingRoute") ?: throw error("playingRoute is required")
-                player.setPlayingRoute(playingRoute)
-            }
             else -> {
                 response.notImplemented()
                 return
@@ -136,10 +119,10 @@ class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
 
     private fun getPlayer(playerId: String, mode: String?): Player {
         return mediaPlayers.getOrPut(playerId) {
-            if (mode.equals("PlayerMode.MEDIA_PLAYER", ignoreCase = true)) {
-                WrappedMediaPlayer(this, playerId)
-            } else {
-                WrappedSoundPool(playerId)
+            when (mode) {
+                null, "PlayerMode.MEDIA_PLAYER" -> WrappedMediaPlayer(this, playerId)
+                "PlayerMode.LOW_LATENCY" -> WrappedSoundPool(playerId)
+                else -> throw error("Unknown PlayerMode $mode")
             }
         }
     }
