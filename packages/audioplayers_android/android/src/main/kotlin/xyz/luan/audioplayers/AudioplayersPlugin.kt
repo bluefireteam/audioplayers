@@ -7,6 +7,9 @@ import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterPluginBinding
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
+import xyz.luan.audioplayers.player.Player
+import xyz.luan.audioplayers.player.WrappedMediaPlayer
+import xyz.luan.audioplayers.player.WrappedSoundPool
 import java.lang.ref.WeakReference
 
 class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
@@ -158,10 +161,10 @@ class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
     }
 
     private class UpdateCallback(
-            mediaPlayers: Map<String, Player>,
-            channel: MethodChannel,
-            handler: Handler,
-            audioplayersPlugin: AudioplayersPlugin
+        mediaPlayers: Map<String, Player>,
+        channel: MethodChannel,
+        handler: Handler,
+        audioplayersPlugin: AudioplayersPlugin
     ) : Runnable {
         private val mediaPlayers = WeakReference(mediaPlayers)
         private val channel = WeakReference(channel)

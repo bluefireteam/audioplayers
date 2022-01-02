@@ -121,7 +121,7 @@ class WrappedMediaPlayer {
         guard let currentItem = player?.currentItem else {
             return
         }
-        // TODO(luan) currently when you seek, the play auto-unpuses. this should set a seekTo property, similar to what WrappedMediaPlayer
+        // TODO(luan) currently when you seek, the play auto-unpauses. this should set a seekTo property, similar to what WrappedMediaPlayer
         currentItem.seek(to: time) {
             finished in
             if finished {

@@ -1,4 +1,4 @@
-package xyz.luan.audioplayers
+package xyz.luan.audioplayers.player
 
 import android.media.AudioAttributes
 import android.media.AudioManager
@@ -11,6 +11,9 @@ import java.net.URI
 import java.net.URL
 import java.util.*
 import android.os.Build
+import xyz.luan.audioplayers.Logger
+import xyz.luan.audioplayers.player.Player
+import xyz.luan.audioplayers.ReleaseMode
 
 class WrappedSoundPool internal constructor(override val playerId: String) : Player() {
     companion object {

@@ -1,6 +1,7 @@
-package xyz.luan.audioplayers
+package xyz.luan.audioplayers.player
 
 import android.media.MediaDataSource
+import xyz.luan.audioplayers.ReleaseMode
 
 abstract class Player {
     abstract val playerId: String

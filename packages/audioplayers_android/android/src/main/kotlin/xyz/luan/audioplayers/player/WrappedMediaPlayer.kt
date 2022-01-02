@@ -1,13 +1,16 @@
-package xyz.luan.audioplayers
+package xyz.luan.audioplayers.player
 
 import android.content.Context
 import android.media.*
 import android.os.Build
 import android.os.PowerManager
+import xyz.luan.audioplayers.AudioplayersPlugin
+import xyz.luan.audioplayers.player.Player
+import xyz.luan.audioplayers.ReleaseMode
 
 class WrappedMediaPlayer internal constructor(
-        private val ref: AudioplayersPlugin,
-        override val playerId: String
+    private val ref: AudioplayersPlugin,
+    override val playerId: String
 ) : Player(), MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, AudioManager.OnAudioFocusChangeListener, MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnErrorListener {
     private val audioFocusChangeListener: AudioManager.OnAudioFocusChangeListener? = null
     private var audioFocusRequest: AudioFocusRequest? = null
