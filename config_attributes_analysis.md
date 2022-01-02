@@ -350,3 +350,8 @@ And of course the `playingRoute` enum.
         }
     }
 ```
+
+Details:
+
+ * https://developer.apple.com/documentation/avfaudio/avaudiosession
+ * https://developer.apple.com/library/archive/documentation/Audio/Conceptual/AudioSessionProgrammingGuide/AudioSessionCategoriesandModes/AudioSessionCategoriesandModes.html
