@@ -70,7 +70,7 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform {
         'respectSilence': config.respectSilence,
         'duckAudio': config.duckAudio,
         'recordingActive': config.recordingActive,
-        'playingRoute': config.playingRoute,
+        'playingRoute': config.playingRoute.toString(),
       },
     );
   }
@@ -90,7 +90,7 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform {
       'setReleaseMode',
       playerId,
       <String, dynamic>{
-        'releaseMode': releaseMode,
+        'releaseMode': releaseMode.toString(),
       },
     );
   }

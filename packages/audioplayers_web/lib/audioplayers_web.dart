@@ -137,7 +137,7 @@ class AudioplayersPlugin {
     return players.putIfAbsent(playerId, () => WrappedPlayer(this, playerId));
   }
 
-  Future<WrappedPlayer> setUrl(String playerId, String url) async {
+  Future<WrappedPlayer> setSourceUrl(String playerId, String url) async {
     final player = getOrCreatePlayer(playerId);
 
     if (player.currentUrl == url) {
@@ -165,26 +165,10 @@ class AudioplayersPlugin {
     final args = call.arguments as Map<dynamic, dynamic>;
     final playerId = args['playerId'] as String;
     switch (method) {
-      case 'setUrl':
+      case 'setSourceUrl':
         {
           final url = args['url'] as String;
-          await setUrl(playerId, url);
-          return 1;
-        }
-      case 'play':
-        {
-          final url = args['url'] as String;
-
-          // TODO(luan) think about isLocal (is it needed or not)
-
-          final volume = args['volume'] as double? ?? 1.0;
-          final position = args['position'] as double? ?? 0;
-          // web does not care for the `stayAwake` argument
-
-          final player = await setUrl(playerId, url);
-          player.setVolume(volume);
-          player.start(position);
-
+          await setSourceUrl(playerId, url);
           return 1;
         }
       case 'getCurrentPosition':

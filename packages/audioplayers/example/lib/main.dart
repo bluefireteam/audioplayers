@@ -203,7 +203,7 @@ class _ExampleAppState extends State<ExampleApp> {
         ),
       ],
       child: DefaultTabController(
-        length: 6,
+        length: 5,
         child: Scaffold(
           appBar: AppBar(
             bottom: const TabBar(
@@ -211,7 +211,6 @@ class _ExampleAppState extends State<ExampleApp> {
                 Tab(text: 'Remote Url'),
                 Tab(text: 'Local File'),
                 Tab(text: 'Local Asset'),
-                Tab(text: 'Notification'),
                 Tab(text: 'Advanced'),
                 Tab(text: 'Global Config'),
               ],

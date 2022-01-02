@@ -18,6 +18,10 @@ flutter:
 dependencies:
   audioplayers_platform_interface:
     path: ../audioplayers_platform_interface
+  audioplayers_android:
+    path: ../audioplayers_android
+  audioplayers_web:
+    path: ../audioplayers_web
   uuid: ^3.0.1
   path_provider: ^2.0.1
   http: ^0.13.1
