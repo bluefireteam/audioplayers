@@ -11,7 +11,7 @@ class WrappedMediaPlayer {
     var player: AVPlayer?
     
     var observers: [TimeObserver]
-    var keyVakueObservation: NSKeyValueObservation?
+    var keyValueObservation: NSKeyValueObservation?
     
     var isPlaying: Bool
     var playbackRate: Double
@@ -39,7 +39,7 @@ class WrappedMediaPlayer {
         self.playerId = playerId
         self.player = player
         self.observers = observers
-        self.keyVakueObservation = nil
+        self.keyValueObservation = nil
         
         self.isPlaying = isPlaying
         self.playbackRate = playbackRate
@@ -127,7 +127,7 @@ class WrappedMediaPlayer {
             if finished {
                 self.reference.updateNotifications(player: self, time: time)
             }
-            self.reference.onSeekCompleted(playerId: self.playerId, finished: finished)
+            self.reference.onSeekComplete(playerId: self.playerId, finished: finished)
         }
     }
     
@@ -204,20 +204,11 @@ class WrappedMediaPlayer {
         }
     }
     
-    func setUrl(
+    func setSourceUrl(
         url: String,
         isLocal: Bool,
-        isNotification: Bool,
-        recordingActive: Bool,
-        duckAudio: Bool,
         onReady: @escaping (AVPlayer) -> Void
     ) {
-        reference.updateCategory(
-            recordingActive: recordingActive,
-            isNotification: isNotification,
-            playingRoute: playingRoute,
-            duckAudio: duckAudio
-        )
         let playbackStatus = player?.currentItem?.status
         
         if self.url != url || playbackStatus == .failed || playbackStatus == nil {
@@ -226,7 +217,7 @@ class WrappedMediaPlayer {
             playerItem.audioTimePitchAlgorithm = AVAudioTimePitchAlgorithm.timeDomain
             let player: AVPlayer
             if let existingPlayer = self.player {
-                keyVakueObservation?.invalidate()
+                keyValueObservation?.invalidate()
                 self.url = url
                 clearObservers()
                 existingPlayer.replaceCurrentItem(with: playerItem)
@@ -276,46 +267,12 @@ class WrappedMediaPlayer {
                 }
             }
             
-            keyVakueObservation?.invalidate()
-            keyVakueObservation = newKeyValueObservation
+            keyValueObservation?.invalidate()
+            keyValueObservation = newKeyValueObservation
         } else {
             if playbackStatus == .readyToPlay {
                 onReady(player!)
             }
         }
-    }
-    
-    func play(
-        url: String,
-        isLocal: Bool,
-        volume: Double,
-        time: CMTime?,
-        isNotification: Bool,
-        recordingActive: Bool,
-        duckAudio: Bool
-    ) {
-        reference.updateCategory(
-            recordingActive: recordingActive,
-            isNotification: isNotification,
-            playingRoute: playingRoute,
-            duckAudio: duckAudio
-        )
-        
-        setUrl(
-            url: url,
-            isLocal: isLocal,
-            isNotification: isNotification,
-            recordingActive: recordingActive,
-            duckAudio: duckAudio
-        ) {
-            player in
-            player.volume = Float(volume)
-            if let time = time {
-                player.seek(to: time)
-            }
-            self.resume()
-        }
-        
-        reference.lastPlayerId = playerId
     }
 }

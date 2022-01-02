@@ -9,27 +9,15 @@ import MediaPlayer
 import FlutterMacOS
 #endif
 
-#if os(iOS)
-let OS_NAME = "iOS"
-let ENABLE_NOTIFICATIONS_HANDLER = true
-#else
-let OS_NAME = "macOS"
-let ENABLE_NOTIFICATIONS_HANDLER = false
-#endif
-
 let CHANNEL_NAME = "xyz.luan/audioplayers"
-let AudioplayersPluginStop = NSNotification.Name("AudioplayersPluginStop")
+let LOGGER_CHANNEL_NAME = "xyz.luan/audioplayers.logger"
 
 public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
-    
     var registrar: FlutterPluginRegistrar
     var channel: FlutterMethodChannel
-    var notificationsHandler: NotificationsHandler? = nil
+    var loggerChannel: FlutterMethodChannel
     
     var players = [String : WrappedMediaPlayer]()
-    // last player that started playing, to be used for notifications command center
-    // TODO(luan): provide generic way to control this
-    var lastPlayerId: String? = nil
     
     var timeObservers = [TimeObserver]()
     
@@ -40,10 +28,6 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         self.channel = channel
         
         super.init()
-        NotificationCenter.default.addObserver(self, selector: #selector(self.needStop), name: AudioplayersPluginStop, object: nil)
-        if ENABLE_NOTIFICATIONS_HANDLER {
-            notificationsHandler = NotificationsHandler(reference: self)
-        }
     }
     
     public static func register(with registrar: FlutterPluginRegistrar) {
@@ -55,9 +39,11 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         #endif
         
         let channel = FlutterMethodChannel(name: CHANNEL_NAME, binaryMessenger: binaryMessenger)
+        let loggerChannel = FlutterMethodChannel(name: LOGGER_CHANNEL_NAME, binaryMessenger: binaryMessenger)
 
-        let instance = SwiftAudioplayersPlugin(registrar: registrar, channel: channel)
+        let instance = SwiftAudioplayersPlugin(registrar: registrar, channel: channel, loggerChannel: loggerChannel)
         registrar.addMethodCallDelegate(instance, channel: channel)
+        registrar.addMethodCallDelegate(instance, channel: loggerChannel)
     }
     
     @objc func needStop() {
@@ -66,8 +52,8 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
     }
     
     func destroy() {
-        for osberver in self.timeObservers {
-            osberver.player.removeTimeObserver(osberver.observer)
+        for observer in self.timeObservers {
+            observer.player.removeTimeObserver(observer.observer)
         }
         self.timeObservers = []
         
@@ -113,58 +99,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         
         let player = self.getOrCreatePlayer(playerId: playerId)
         
-        if method == "startHeadlessService" {
-            guard let handler = notificationsHandler else {
-                result(FlutterMethodNotImplemented)
-                return
-            }
-            if let handleKey = args["handleKey"] {
-                Logger.info("calling start headless service %@", handleKey)
-                let handle = (handleKey as! [Any])[0]
-                handler.startHeadlessService(handle: (handle as! Int64))
-            } else {
-                result(0)
-            }
-        } else if method == "monitorNotificationStateChanges" {
-            guard let handler = notificationsHandler else {
-                result(FlutterMethodNotImplemented)
-                return
-            }
-            if let handleMonitorKey = args["handleMonitorKey"] {
-                Logger.info("calling monitor notification %@", handleMonitorKey)
-                let handle = (handleMonitorKey as! [Any])[0]
-                handler.updateHandleMonitorKey(handle: handle as! Int64)
-            } else {
-                result(0)
-            }
-        } else if method == "play" {
-            guard let url = args["url"] as! String? else {
-                Logger.error("Null url received on play")
-                result(0)
-                return
-            }
-            
-            let isLocal: Bool = (args["isLocal"] as? Bool) ?? true
-            let volume: Double = (args["volume"] as? Double) ?? 1.0
-            
-            // we might or might not want to seek
-            let seekTimeMillis: Int = (args["position"] as? Int) ?? 0
-            let seekTime: CMTime = toCMTime(millis: seekTimeMillis)
-            
-            let respectSilence: Bool = (args["respectSilence"] as? Bool) ?? false
-            let recordingActive: Bool = (args["recordingActive"] as? Bool) ?? false
-            let duckAudio: Bool = (args["duckAudio"] as? Bool) ?? false
-            
-            player.play(
-                url: url,
-                isLocal: isLocal,
-                volume: volume,
-                time: seekTime,
-                isNotification: respectSilence,
-                recordingActive: recordingActive,
-                duckAudio: duckAudio
-            )
-        } else if method == "pause" {
+        if method == "pause" {
             player.pause()
         } else if method == "resume" {
             player.resume()
@@ -181,24 +116,19 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
                 Logger.error("Null position received on seek")
                 result(0)
             }
-        } else if method == "setUrl" {
+        } else if method == "setSourceUrl" {
             let url: String? = args["url"] as? String
             let isLocal: Bool = (args["isLocal"] as? Bool) ?? false
-            let respectSilence: Bool = (args["respectSilence"] as? Bool) ?? false
-            let recordingActive: Bool = (args["recordingActive"] as? Bool) ?? false
             
             if url == nil {
-                Logger.error("Null URL received on setUrl")
+                Logger.error("Null URL received on setSourceUrl")
                 result(0)
                 return
             }
             
-            player.setUrl(
+            player.setSourceUrl(
                 url: url!,
                 isLocal: isLocal,
-                isNotification: respectSilence,
-                recordingActive: recordingActive,
-                duckAudio: false
             ) {
                 player in
                 result(1)
@@ -232,52 +162,6 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
             }
             let looping = releaseMode.hasSuffix("LOOP")
             player.looping = looping
-        } else if method == "earpieceOrSpeakersToggle" {
-            guard let playingRoute = args["playingRoute"] as? String else {
-                Logger.error("Error calling earpieceOrSpeakersToggle, playingRoute cannot be null")
-                result(0)
-                return
-            }
-            self.setPlayingRoute(playerId: playerId, playingRoute: playingRoute)
-        } else if method == "setNotification" {
-            let title = args["title"] as? String
-            let albumTitle = args["albumTitle"] as? String
-            let artist = args["artist"] as? String
-            let imageUrl = args["imageUrl"] as? String
-            
-            let forwardSkipInterval = args["forwardSkipInterval"] as? Int
-            let backwardSkipInterval = args["backwardSkipInterval"] as? Int
-            let duration = args["duration"] as? Int
-            let elapsedTime = args["elapsedTime"] as? Int
-            
-            let enablePreviousTrackButton = args["enablePreviousTrackButton"] as? Bool
-            let enableNextTrackButton = args["enableNextTrackButton"] as? Bool
-            
-            guard let handler = notificationsHandler else {
-                result(FlutterMethodNotImplemented)
-                return
-            }
-            // TODO(luan) reconsider whether these params are optional or not + default values/errors
-            handler.setNotification(
-                playerId: playerId,
-                title: title,
-                albumTitle: albumTitle,
-                artist: artist,
-                imageUrl: imageUrl,
-                forwardSkipInterval: forwardSkipInterval ?? 0,
-                backwardSkipInterval: backwardSkipInterval ?? 0,
-                duration: duration,
-                elapsedTime: elapsedTime!,
-                enablePreviousTrackButton: enablePreviousTrackButton,
-                enableNextTrackButton: enableNextTrackButton
-            )
-        } else if method == "clearNotification" {
-            guard let handler = notificationsHandler else {
-                result(FlutterMethodNotImplemented)
-                return
-            }
-            handler.clearNotification()
-            player.release()
         } else {
             Logger.error("Called not implemented method: %@", method)
             result(FlutterMethodNotImplemented)
@@ -285,7 +169,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         }
         
         // shortcut to avoid requiring explicit call of result(1) everywhere
-        if method != "setUrl" {
+        if method != "setSourceUrl" {
             result(1)
         }
     }
@@ -302,7 +186,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         return newPlayer
     }
     
-    func onSeekCompleted(playerId: String, finished: Bool) {
+    func onSeekComplete(playerId: String, finished: Bool) {
         channel.invokeMethod("audio.onSeekComplete", arguments: ["playerId": playerId, "value": finished])
     }
     
@@ -322,18 +206,8 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         channel.invokeMethod("audio.onDuration", arguments: ["playerId": playerId, "value": millis])
     }
     
-    func onNotificationPlayerStateChanged(playerId: String, isPlaying: Bool) {
-        channel.invokeMethod("audio.onNotificationPlayerStateChanged", arguments: ["playerId": playerId, "value": isPlaying])
-    }
-    
-    func onGotPreviousTrackCommand(playerId: String) {
-        channel.invokeMethod("audio.onGotPreviousTrackCommand", arguments: ["playerId": playerId])
-    }
-    
-    func onGotNextTrackCommand(playerId: String) {
-        channel.invokeMethod("audio.onGotNextTrackCommand", arguments: ["playerId": playerId])
-    }
-    
+    // TODO: figure out the audio session stuff
+
     func updateCategory(
         recordingActive: Bool,
         isNotification: Bool,
@@ -363,18 +237,6 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
             configureAudioSession(active: false)
             #endif
         }
-    }
-    
-    func lastPlayer() -> WrappedMediaPlayer? {
-        if let playerId = lastPlayerId {
-            return getOrCreatePlayer(playerId: playerId)
-        } else {
-            return nil
-        }
-    }
-
-    func updateNotifications(player: WrappedMediaPlayer, time: CMTime) {
-        notificationsHandler?.update(playerId: player.playerId, time: time, playbackRate: player.playbackRate)
     }
     
     // TODO(luan) this should not be here. is playingRoute player-specific or global?
