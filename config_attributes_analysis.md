@@ -1,5 +1,44 @@
 TODO(luan): figure this stuff out for web!
 
+---
+
+# Conclusions
+
+## stayAwake
+android only
+on ios should force !AVAudioSessionCategoryAmbient and !AVAudioSessionCategorySoloAmbient
+add disclaimer about UIBackgroundModes
+
+## duckAudio
+on android, make a focus request with AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK
+on iOS, requires AVAudioSession.CategoryOptions.mixWithOthers
+forces AVAudioSessionCategoryPlayback or AVAudioSessionCategoryPlayAndRecord (or AVAudioSessionCategoryAmbient)
+
+## "force speaker":
+audioManager.isSpeakerphoneOn
+ONLY playAndRecord
+overrideOutputAudioPort(AVAudioSession.PortOverride.speaker) OR defaultToSpeaker
+
+## respectSilence/isNotification & playingRoute
+### android
+usageType =
+    playingRoute == "earpiece" -> AudioAttributes.USAGE_VOICE_COMMUNICATION (this sets audioManager.isSpeakerphoneOn = false)
+    respectSilence -> AudioAttributes.USAGE_NOTIFICATION_RINGTONE
+    else -> AudioAttributes.USAGE_MEDIA
+### ios
+category =
+    playingRoute == "earpiece" || recordingActive -> AVAudioSession.Category.playAndRecord
+    respectSilence -> AVAudioSession.Category.ambient
+    else -> AVAudioSession.Category.playback
+options =
+    respectSilence || duckAudio -> [AVAudioSession.CategoryOptions.mixWithOthers]
+    else -> []
+
+
+    https://developer.apple.com/documentation/avfaudio/avaudiosession/categoryoptions
+
+---
+
 # Android
 
 Android has 3 configuration attributes:
