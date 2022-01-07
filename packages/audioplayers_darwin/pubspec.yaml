@@ -5,11 +5,12 @@ homepage: https://github.com/luanpotter/audioplayers
 
 flutter:
   plugin:
+    implements: audioplayers
     platforms:
       ios:
-        pluginClass: AudioplayersPlugin
+        pluginClass: AudioplayersDarwinPlugin
       macos:
-        pluginClass: AudioplayersPlugin
+        pluginClass: AudioplayersDarwinPlugin
 
 dependencies:
   audioplayers_platform_interface:

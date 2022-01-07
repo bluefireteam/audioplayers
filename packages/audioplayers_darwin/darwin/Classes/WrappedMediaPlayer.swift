@@ -5,7 +5,7 @@ private let defaultVolume: Double = 1.0
 private let defaultPlayingRoute = "speakers"
 
 class WrappedMediaPlayer {
-    var reference: SwiftAudioplayersPlugin
+    var reference: SwiftAudioplayersDarwinPlugin
     
     var playerId: String
     var player: AVPlayer?
@@ -22,7 +22,7 @@ class WrappedMediaPlayer {
     var onReady: ((AVPlayer) -> Void)?
     
     init(
-        reference: SwiftAudioplayersPlugin,
+        reference: SwiftAudioplayersDarwinPlugin,
         playerId: String,
         player: AVPlayer? = nil,
         observers: [TimeObserver] = [],
@@ -98,9 +98,6 @@ class WrappedMediaPlayer {
         } else {
             player?.play()
         }
-        
-        // update last player that was used
-        reference.lastPlayerId = playerId
     }
     
     func setVolume(volume: Double) {
@@ -111,10 +108,6 @@ class WrappedMediaPlayer {
     func setPlaybackRate(playbackRate: Double) {
         self.playbackRate = playbackRate
         player?.rate = Float(playbackRate)
-        
-        if let currentTime = getCurrentCMTime() {
-            reference.updateNotifications(player: self, time: currentTime)
-        }
     }
     
     func seek(time: CMTime) {
@@ -124,9 +117,6 @@ class WrappedMediaPlayer {
         // TODO(luan) currently when you seek, the play auto-unpauses. this should set a seekTo property, similar to what WrappedMediaPlayer
         currentItem.seek(to: time) {
             finished in
-            if finished {
-                self.reference.updateNotifications(player: self, time: time)
-            }
             self.reference.onSeekComplete(playerId: self.playerId, finished: finished)
         }
     }
@@ -180,10 +170,6 @@ class WrappedMediaPlayer {
         
         reference.maybeDeactivateAudioSession()
         reference.onComplete(playerId: playerId)
-        reference.notificationsHandler?.onNotificationBackgroundPlayerStateChanged(
-            playerId: playerId,
-            value: "completed"
-        )
     }
     
     func onTimeInterval(time: CMTime) {

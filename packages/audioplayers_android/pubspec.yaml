@@ -5,6 +5,7 @@ homepage: https://github.com/luanpotter/audioplayers
 
 flutter:
   plugin:
+    implements: audioplayers
     platforms:
       android:
         package: xyz.luan.audioplayers

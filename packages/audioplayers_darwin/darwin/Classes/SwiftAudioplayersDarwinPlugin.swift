@@ -9,10 +9,16 @@ import MediaPlayer
 import FlutterMacOS
 #endif
 
+#if os(iOS)
+let OS_NAME = "iOS"
+#else
+let OS_NAME = "macOS"
+#endif
+
 let CHANNEL_NAME = "xyz.luan/audioplayers"
 let LOGGER_CHANNEL_NAME = "xyz.luan/audioplayers.logger"
 
-public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
+public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
     var registrar: FlutterPluginRegistrar
     var channel: FlutterMethodChannel
     var loggerChannel: FlutterMethodChannel
@@ -23,9 +29,10 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
     
     var isDealloc = false
     
-    init(registrar: FlutterPluginRegistrar, channel: FlutterMethodChannel) {
+    init(registrar: FlutterPluginRegistrar, channel: FlutterMethodChannel, loggerChannel: FlutterMethodChannel) {
         self.registrar = registrar
         self.channel = channel
+        self.loggerChannel = loggerChannel
         
         super.init()
     }
@@ -41,7 +48,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
         let channel = FlutterMethodChannel(name: CHANNEL_NAME, binaryMessenger: binaryMessenger)
         let loggerChannel = FlutterMethodChannel(name: LOGGER_CHANNEL_NAME, binaryMessenger: binaryMessenger)
 
-        let instance = SwiftAudioplayersPlugin(registrar: registrar, channel: channel, loggerChannel: loggerChannel)
+        let instance = SwiftAudioplayersDarwinPlugin(registrar: registrar, channel: channel, loggerChannel: loggerChannel)
         registrar.addMethodCallDelegate(instance, channel: channel)
         registrar.addMethodCallDelegate(instance, channel: loggerChannel)
     }
@@ -128,7 +135,7 @@ public class SwiftAudioplayersPlugin: NSObject, FlutterPlugin {
             
             player.setSourceUrl(
                 url: url!,
-                isLocal: isLocal,
+                isLocal: isLocal
             ) {
                 player in
                 result(1)
