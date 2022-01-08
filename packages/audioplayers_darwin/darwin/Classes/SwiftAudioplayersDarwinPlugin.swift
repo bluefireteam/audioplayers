@@ -7,6 +7,7 @@ import UIKit
 import MediaPlayer
 #else
 import FlutterMacOS
+import AVFAudio
 #endif
 
 #if os(iOS)
@@ -263,7 +264,7 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
         options: AVAudioSession.CategoryOptions = [],
         active: Bool? = nil
     ) {
-        do {
+        do {           
             let session = AVAudioSession.sharedInstance()
             if let category = category {
                 try session.setCategory(category, options: options)

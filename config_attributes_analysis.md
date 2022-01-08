@@ -11,7 +11,7 @@ add disclaimer about UIBackgroundModes
 
 ## duckAudio
 on android, make a focus request with AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK
-on iOS, requires AVAudioSession.CategoryOptions.mixWithOthers
+on iOS, requires AVAudioSession.CategoryOptions.mixWithOthers IT SHOULD BE duckOthers
 forces AVAudioSessionCategoryPlayback or AVAudioSessionCategoryPlayAndRecord (or AVAudioSessionCategoryAmbient)
 
 ## "force speaker":
@@ -30,6 +30,7 @@ category =
     playingRoute == "earpiece" || recordingActive -> AVAudioSession.Category.playAndRecord
     respectSilence -> AVAudioSession.Category.ambient
     else -> AVAudioSession.Category.playback
+    # remove recording active. we only care about ambient OR playAndRecord. using playback is not necessary ever.
 options =
     respectSilence || duckAudio -> [AVAudioSession.CategoryOptions.mixWithOthers]
     else -> []

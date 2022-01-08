@@ -61,12 +61,11 @@ class AudioplayersPlugin extends AudioplayersPlatform with StreamsInterface {
   }
 
   @override
-  Future<void> setAudioContextConfig(
+  Future<void> setAudioContext(
     String playerId,
-    AudioContextConfig audioContextConfig,
-  ) {
-    // TODO: implement setAudioContextConfig
-    throw UnimplementedError();
+    AudioContext audioContext,
+  ) async {
+    // no-op: web doesn't have any audio context
   }
 
   @override

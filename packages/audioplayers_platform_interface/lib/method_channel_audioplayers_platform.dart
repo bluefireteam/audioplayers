@@ -58,19 +58,14 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform
   }
 
   @override
-  Future<void> setAudioContextConfig(
+  Future<void> setAudioContext(
     String playerId,
-    AudioContextConfig config,
+    AudioContext context,
   ) {
     return _call(
       'setAudioContextConfig',
       playerId,
-      <String, dynamic>{
-        'respectSilence': config.respectSilence,
-        'duckAudio': config.duckAudio,
-        'recordingActive': config.recordingActive,
-        'playingRoute': config.playingRoute.toString(),
-      },
+      context.toJson(),
     );
   }
 

@@ -84,9 +84,9 @@ abstract class AudioplayersPlatform extends PlatformInterface {
     Uint8List bytes,
   );
 
-  Future<void> setAudioContextConfig(
+  Future<void> setAudioContext(
     String playerId,
-    AudioContextConfig audioContextConfig,
+    AudioContext audioContext,
   );
 
   /// Get audio duration after setting url.
