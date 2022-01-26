@@ -1,6 +1,6 @@
 name: audioplayers
 description: A Flutter plugin to play multiple audio files simultaneously
-version: 0.20.1
+version: 0.21.0
 homepage: https://github.com/luanpotter/audioplayers
 publish_to: none # note: this is just for the linter to pass until we have Melos here
 
@@ -15,6 +15,8 @@ flutter:
         default_package: audioplayers_darwin
       web:
         default_package: audioplayers_web
+    windows:
+        default_package: audioplayers_windows
 
 dependencies:
   audioplayers_platform_interface:
