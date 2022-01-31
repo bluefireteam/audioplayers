@@ -10,7 +10,8 @@ import 'package:provider/provider.dart';
 import 'components/btn.dart';
 import 'components/tab_wrapper.dart';
 import 'player_widget.dart';
-import 'tabs/global.dart';
+import 'tabs/audio_context.dart';
+import 'tabs/logger.dart';
 
 typedef OnError = void Function(Exception exception);
 
@@ -203,7 +204,7 @@ class _ExampleAppState extends State<ExampleApp> {
         ),
       ],
       child: DefaultTabController(
-        length: 5,
+        length: 6,
         child: Scaffold(
           appBar: AppBar(
             bottom: const TabBar(
@@ -212,7 +213,8 @@ class _ExampleAppState extends State<ExampleApp> {
                 Tab(text: 'Local File'),
                 Tab(text: 'Local Asset'),
                 Tab(text: 'Advanced'),
-                Tab(text: 'Global Config'),
+                Tab(text: 'Logger'),
+                Tab(text: 'Audio Context'),
               ],
             ),
             title: const Text('audioplayers Example'),
@@ -223,7 +225,8 @@ class _ExampleAppState extends State<ExampleApp> {
               localFile(),
               localAsset(),
               Advanced(advancedPlayer: advancedPlayer),
-              const GlobalTab(),
+              const LoggerTab(),
+              const AudioContextTab(),
             ],
           ),
         ),

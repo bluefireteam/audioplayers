@@ -6,15 +6,16 @@ import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterPluginBinding
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
-import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import xyz.luan.audioplayers.player.Player
 import xyz.luan.audioplayers.player.WrappedMediaPlayer
 import xyz.luan.audioplayers.player.WrappedSoundPool
 import java.lang.ref.WeakReference
 
-class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
+typealias FlutterHandler = (call: MethodCall, response: MethodChannel.Result) -> Unit
+
+class AudioplayersPlugin : FlutterPlugin {
     private lateinit var channel: MethodChannel
-    private lateinit var loggerChannel: MethodChannel
+    private lateinit var globalChannel: MethodChannel
     private lateinit var context: Context
 
     private val mediaPlayers = mutableMapOf<String, Player>()
@@ -23,32 +24,56 @@ class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
 
     override fun onAttachedToEngine(binding: FlutterPluginBinding) {
         channel = MethodChannel(binding.binaryMessenger, "xyz.luan/audioplayers")
-        loggerChannel = MethodChannel(binding.binaryMessenger, "xyz.luan/audioplayers.logger")
+        globalChannel = MethodChannel(binding.binaryMessenger, "xyz.luan/audioplayers.global")
         context = binding.applicationContext
-        channel.setMethodCallHandler(this)
-        loggerChannel.setMethodCallHandler(this)
+        channel.setMethodCallHandler { call, response -> safeCall(call, response, ::handler) }
+        globalChannel.setMethodCallHandler { call, response -> safeCall(call, response, ::globalHandler) }
     }
 
-    override fun onDetachedFromEngine(binding: FlutterPluginBinding) {}
-    override fun onMethodCall(call: MethodCall, response: MethodChannel.Result) {
+    override fun onDetachedFromEngine(binding: FlutterPluginBinding) {
+        // TODO(luan) cleanup?
+    }
+
+    private fun safeCall(
+        call: MethodCall,
+        response: MethodChannel.Result,
+        handler: FlutterHandler,
+    ) {
         try {
-            handleMethodCall(call, response)
+            handler(call, response)
         } catch (e: Exception) {
             Logger.error("Unexpected error!", e)
             response.error("Unexpected error!", e.message, e)
         }
     }
 
-    private fun handleMethodCall(call: MethodCall, response: MethodChannel.Result) {
+    private fun globalHandler(call: MethodCall, response: MethodChannel.Result) {
         when (call.method) {
             "changeLogLevel" -> {
                 val value = call.enumArgument<LogLevel>("value")
                     ?: throw error("value is required")
                 Logger.logLevel = value
-                response.success(1)
-                return
+            }
+            "setGlobalAudioContext" -> {
+                val ctx = AudioContextAndroid(
+                    isSpeakerphoneOn = call.argument<Boolean>("isSpeakerphoneOn")
+                        ?: throw error("isSpeakerphoneOn is required"),
+                    stayAwake = call.argument<Boolean>("stayAwake")
+                        ?: throw error("stayAwake is required"),
+                    contentType = call.argument<Int>("contentType")
+                        ?: throw error("contentType is required"),
+                    usageType = call.argument<Int>("usageType")
+                            ?: throw error("usageType is required"),
+                    audioFocus = call.argument<Int>("audioFocus"),
+                )
+                Logger.error(ctx.toString())
             }
         }
+
+        response.success(1)
+    }
+
+    private fun handler(call: MethodCall, response: MethodChannel.Result) {
         val playerId = call.argument<String>("playerId") ?: return
         val mode = call.argument<String>("mode")
         val player = getPlayer(playerId, mode)
@@ -99,19 +124,6 @@ class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
         response.success(1)
     }
 
-    private fun configureAttributesAndVolume(
-        call: MethodCall,
-        player: Player
-    ) {
-        val respectSilence = call.argument<Boolean>("respectSilence") ?: false
-        val stayAwake = call.argument<Boolean>("stayAwake") ?: false
-        val duckAudio = call.argument<Boolean>("duckAudio") ?: false
-        player.configAttributes(respectSilence, stayAwake, duckAudio)
-
-        val volume = call.argument<Double>("volume") ?: 1.0
-        player.setVolume(volume)
-    }
-
     private fun getPlayer(playerId: String, mode: String?): Player {
         return mediaPlayers.getOrPut(playerId) {
             when (mode) {
@@ -142,7 +154,7 @@ class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
         channel.invokeMethod("audio.onError", buildArguments(player.playerId, message))
     }
 
-    fun handleSeekComplete() {
+    fun handleSeekComplete(player: Player) {
         channel.invokeMethod("audio.onSeekComplete", buildArguments(player.playerId))
     }
 
@@ -164,7 +176,7 @@ class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
         mediaPlayers: Map<String, Player>,
         channel: MethodChannel,
         handler: Handler,
-        audioplayersPlugin: AudioplayersPlugin
+        audioplayersPlugin: AudioplayersPlugin,
     ) : Runnable {
         private val mediaPlayers = WeakReference(mediaPlayers)
         private val channel = WeakReference(channel)
@@ -185,15 +197,12 @@ class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
                 if (!player.isActuallyPlaying()) {
                     continue
                 }
-                try {
-                    nonePlaying = false
-                    val key = player.playerId
-                    val duration = player.getDuration()
-                    val time = player.getCurrentPosition()
-                    channel.invokeMethod("audio.onDuration", buildArguments(key, duration ?: 0))
-                    channel.invokeMethod("audio.onCurrentPosition", buildArguments(key, time ?: 0))
-                } catch (e: UnsupportedOperationException) {
-                }
+                nonePlaying = false
+                val key = player.playerId
+                val duration = player.getDuration()
+                val time = player.getCurrentPosition()
+                channel.invokeMethod("audio.onDuration", buildArguments(key, duration ?: 0))
+                channel.invokeMethod("audio.onCurrentPosition", buildArguments(key, time ?: 0))
             }
             if (nonePlaying) {
                 audioplayersPlugin.stopPositionUpdates()
@@ -220,5 +229,5 @@ class AudioplayersPlugin : MethodCallHandler, FlutterPlugin {
 
 private inline fun <reified T: Enum<T>> MethodCall.enumArgument(name: String): T? {
     val enumName = argument<String>(name) ?: return null
-    return enumValueOf<T>(enumName.split('.').last())
+    return enumValueOf<T>(enumName.split('.').last().toUpperCase())
 }

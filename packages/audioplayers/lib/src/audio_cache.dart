@@ -42,12 +42,12 @@ class AudioCache {
   /// If this is set, every call will overwrite previous calls.
   AudioPlayer? fixedPlayer;
 
-  AudioContextConfig? defaultConfig;
+  AudioContext? defaultCtx;
 
   AudioCache({
     this.prefix = 'assets/',
     this.fixedPlayer,
-    this.defaultConfig,
+    this.defaultCtx,
   });
 
   /// Clears the cache for the file [fileName].
@@ -132,9 +132,9 @@ class AudioCache {
 
   Future<AudioPlayer> _createDefaultPlayer(PlayerMode mode) async {
     final player = AudioPlayer(mode: mode);
-    final config = defaultConfig;
-    if (config != null) {
-      await player.setAudioContextConfig(config);
+    final ctx = defaultCtx;
+    if (ctx != null) {
+      await player.setAudioContext(ctx);
     }
     return player;
   }
@@ -150,7 +150,7 @@ class AudioCache {
     String fileName, {
     double volume = 1.0,
     PlayerMode mode = PlayerMode.mediaPlayer,
-    AudioContextConfig? config,
+    AudioContext? ctx,
   }) async {
     final uri = await load(fileName);
     final player = await _player(mode);
@@ -160,7 +160,7 @@ class AudioCache {
     await player.play(
       uri.toString(),
       volume: volume,
-      config: config,
+      ctx: ctx ?? defaultCtx,
     );
     return player;
   }
@@ -172,7 +172,7 @@ class AudioCache {
     Uint8List fileBytes, {
     double volume = 1.0,
     PlayerMode mode = PlayerMode.mediaPlayer,
-    AudioContextConfig? config,
+    AudioContext? ctx,
     bool loop = false,
   }) async {
     final player = await _player(mode);
@@ -186,7 +186,7 @@ class AudioCache {
     await player.playBytes(
       fileBytes,
       volume: volume,
-      config: config,
+      ctx: ctx ?? defaultCtx,
     );
 
     return player;
@@ -201,7 +201,7 @@ class AudioCache {
     String fileName, {
     double volume = 1.0,
     PlayerMode mode = PlayerMode.mediaPlayer,
-    AudioContextConfig? config,
+    AudioContext? ctx,
   }) async {
     final url = await load(fileName);
     final player = await _player(mode);
@@ -209,7 +209,7 @@ class AudioCache {
     await player.play(
       url.toString(),
       volume: volume,
-      config: config,
+      ctx: ctx ?? defaultCtx,
     );
     return player;
   }

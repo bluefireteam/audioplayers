@@ -18,8 +18,8 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform
     _channel.setMethodCallHandler(platformCallHandler);
   }
 
-  static LoggerPlatformInterface get _logger =>
-      LoggerPlatformInterface.instance;
+  static GlobalPlatformInterface get _logger =>
+      GlobalPlatformInterface.instance;
 
   @override
   Future<int?> getCurrentPosition(String playerId) {

@@ -4,16 +4,16 @@ import 'package:flutter/material.dart';
 import '../components/btn.dart';
 import '../components/tab_wrapper.dart';
 
-class GlobalTab extends StatefulWidget {
-  const GlobalTab({Key? key}) : super(key: key);
+class LoggerTab extends StatefulWidget {
+  const LoggerTab({Key? key}) : super(key: key);
 
   @override
-  _GlobalTabState createState() => _GlobalTabState();
+  _LoggerTabState createState() => _LoggerTabState();
 }
 
-class _GlobalTabState extends State<GlobalTab> {
-  static LoggerPlatformInterface get _logger =>
-      LoggerPlatformInterface.instance;
+class _LoggerTabState extends State<LoggerTab> {
+  static GlobalPlatformInterface get _logger =>
+      GlobalPlatformInterface.instance;
 
   LogLevel currentLogLevel = _logger.logLevel;
 

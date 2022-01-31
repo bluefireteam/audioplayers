@@ -310,30 +310,25 @@ class WrappedMediaPlayer internal constructor(
     }
 
     override fun onError(mp: MediaPlayer, what: Int, extra: Int): Boolean {
-        var whatMsg: String
-        whatMsg = if (what == MediaPlayer.MEDIA_ERROR_SERVER_DIED) {
+        var whatMsg = if (what == MediaPlayer.MEDIA_ERROR_SERVER_DIED) {
             "MEDIA_ERROR_SERVER_DIED"
         } else {
             "MEDIA_ERROR_UNKNOWN {what:$what}"
         }
-        val extraMsg: String
-        when (extra) {
-            -2147483648 -> extraMsg = "MEDIA_ERROR_SYSTEM"
-            MediaPlayer.MEDIA_ERROR_IO -> extraMsg = "MEDIA_ERROR_IO"
-            MediaPlayer.MEDIA_ERROR_MALFORMED -> extraMsg = "MEDIA_ERROR_MALFORMED"
-            MediaPlayer.MEDIA_ERROR_UNSUPPORTED -> extraMsg = "MEDIA_ERROR_UNSUPPORTED"
-            MediaPlayer.MEDIA_ERROR_TIMED_OUT -> extraMsg = "MEDIA_ERROR_TIMED_OUT"
-            else -> {
-                whatMsg = "MEDIA_ERROR_UNKNOWN {extra:$extra}"
-                extraMsg = whatMsg
-            }
+        val extraMsg = when (extra) {
+            -2147483648 -> "MEDIA_ERROR_SYSTEM"
+            MediaPlayer.MEDIA_ERROR_IO -> "MEDIA_ERROR_IO"
+            MediaPlayer.MEDIA_ERROR_MALFORMED -> "MEDIA_ERROR_MALFORMED"
+            MediaPlayer.MEDIA_ERROR_UNSUPPORTED -> "MEDIA_ERROR_UNSUPPORTED"
+            MediaPlayer.MEDIA_ERROR_TIMED_OUT -> "MEDIA_ERROR_TIMED_OUT"
+            else -> "MEDIA_ERROR_UNKNOWN {extra:$extra}"
         }
         ref.handleError(this, "MediaPlayer error with what:$whatMsg extra:$extraMsg")
         return false
     }
 
     override fun onSeekComplete(mediaPlayer: MediaPlayer) {
-        ref.handleSeekComplete()
+        ref.handleSeekComplete(this)
     }
 
     /**
@@ -379,5 +374,4 @@ class WrappedMediaPlayer internal constructor(
             }
         }
     }
-
 }

@@ -16,7 +16,7 @@ void main() {
     });
 
   final _print = OverridePrint();
-  final _logger = LoggerPlatformInterface.instance;
+  final _logger = GlobalPlatformInterface.instance;
 
   group('Logger', () {
     setUp(_print.clear);

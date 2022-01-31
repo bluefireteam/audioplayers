@@ -1,7 +1,9 @@
+import 'dart:io' show Platform;
+
 /// This class contains flags to control several secondary, platform-specific aspects of audio playback, like how this audio interact with other audios, how is it played by the device and what happens when the app is backgrounded.
 /// However, note that each platform has its nuances on how to configure audio.
 /// This class is a generic abstraction of some parameters that can be useful across the board.
-/// Its flags are simple abstractions that are then translated to an [AudioContext] containing platform specific configurations: [AudioContextAndroid] and [AudioContextIos].
+/// Its flags are simple abstractions that are then translated to an [AudioContext] containing platform specific configurations: [AudioContextAndroid] and [AudioContextIOS].
 /// If these simplified flags cannot fully reflect your goals, you must create an [AudioContext] configuring each platform separately.
 class AudioContextConfig {
   /// Normally, audio played will respect the devices configured preferences.
@@ -13,7 +15,7 @@ class AudioContextConfig {
   ///
   /// * set the `.defaultToSpeaker` option OR
   /// * call `overrideOutputAudioPort(AVAudioSession.PortOverride.speaker)`
-  /// (still unclear to me which).
+  /// (TODO(luan): still unclear to me which).
   ///
   /// Note that, on iOS, this forces the category to be `.playAndRecord`, and thus is forbidden when [respectSilence] is set.
   final bool forceSpeaker;
@@ -72,7 +74,7 @@ class AudioContextConfig {
   AudioContext build() {
     return AudioContext(
       android: buildAndroid(),
-      ios: buildIos(),
+      iOS: buildIOS(),
     );
   }
 
@@ -88,43 +90,56 @@ class AudioContextConfig {
     );
   }
 
-  AudioContextIos buildIos() {
-    return AudioContextIos(
+  AudioContextIOS buildIOS() {
+    if (Platform.isIOS) {
+      validateIOS();
+    }
+    return AudioContextIOS(
       defaultToSpeaker: forceSpeaker,
-      category: respectSilence ? AVAudioSessionCategory.ambient : AVAudioSessionCategory.playAndRecord,
-      options: [AVAudioSessionOptions.mixWithOthers] + (duckAudio ? [AVAudioSessionOptions.duckOthers] : []),
+      category: respectSilence
+          ? AVAudioSessionCategory.ambient
+          : AVAudioSessionCategory.playAndRecord,
+      options: [AVAudioSessionOptions.mixWithOthers] +
+          (duckAudio ? [AVAudioSessionOptions.duckOthers] : []),
     );
   }
 
-  void validateIos() {
-
+  void validateIOS() {
+    // Please create a custom [AudioContextIOS] if the generic flags cannot
+    // represent your needs.
+    if (respectSilence && forceSpeaker) {
+      throw 'On iOS it is impossible to set both respectSilence and forceSpeaker';
+    }
   }
 }
 
 class AudioContext {
   final AudioContextAndroid android;
-  final AudioContextIos ios;
+  final AudioContextIOS iOS;
 
   AudioContext({
     required this.android,
-    required this.ios,
+    required this.iOS,
   });
 
   AudioContext copy({
     AudioContextAndroid? android,
-    AudioContextIos? ios,
+    AudioContextIOS? iOS,
   }) {
     return AudioContext(
       android: android ?? this.android,
-      ios: ios ?? this.ios,
+      iOS: iOS ?? this.iOS,
     );
   }
 
   Map<String, dynamic> toJson() {
-    return <String, dynamic>{
-      'android': android.toJson(),
-      'ios': ios.toJson(),
-    };
+    if (Platform.isAndroid) {
+      return android.toJson();
+    } else if (Platform.isIOS) {
+      return iOS.toJson();
+    } else {
+      return <String, dynamic>{};
+    }
   }
 }
 
@@ -171,29 +186,30 @@ class AudioContextAndroid {
   }
 }
 
-class AudioContextIos {
+class AudioContextIOS {
   final bool defaultToSpeaker;
   final AVAudioSessionCategory category;
   final List<AVAudioSessionOptions> options;
 
-  AudioContextIos({
+  AudioContextIOS({
     required this.defaultToSpeaker,
     required this.category,
     required this.options,
   });
 
-  AudioContextIos copy({
+  AudioContextIOS copy({
     bool? defaultToSpeaker,
     AVAudioSessionCategory? category,
     List<AVAudioSessionOptions>? options,
   }) {
-    return AudioContextIos(
+    return AudioContextIOS(
       defaultToSpeaker: defaultToSpeaker ?? this.defaultToSpeaker,
       category: category ?? this.category,
       options: options ?? this.options,
     );
   }
-    Map<String, dynamic> toJson() {
+
+  Map<String, dynamic> toJson() {
     return <String, dynamic>{
       'defaultToSpeaker': defaultToSpeaker,
       'category': category.name,
@@ -379,7 +395,7 @@ extension AndroidAudioFocusValue on AndroidAudioFocus {
 }
 
 /// This is a Dart representation of the equivalent enum on Swift.
-/// 
+///
 /// Audio session category identifiers.
 /// An audio session category defines a set of audio behaviors.
 /// Choose a category that most accurately describes the audio behavior you require.
@@ -419,7 +435,7 @@ enum AVAudioSessionCategory {
 }
 
 /// This is a Dart representation of the equivalent enum on Swift.
-/// 
+///
 /// Constants that specify optional audio behaviors. Each option is valid only for specific audio session categories.
 enum AVAudioSessionOptions {
   /// An option that indicates whether audio from this session mixes with audio from active sessions in other audio apps.

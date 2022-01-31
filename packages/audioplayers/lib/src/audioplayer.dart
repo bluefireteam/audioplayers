@@ -84,14 +84,14 @@ class AudioPlayer {
     String url, {
     bool? isLocal,
     double? volume,
-    AudioContextConfig? config,
+    AudioContext? ctx,
     Duration? position,
   }) async {
     if (volume != null) {
       await setVolume(volume);
     }
-    if (config != null) {
-      await setAudioContextConfig(config);
+    if (ctx != null) {
+      await setAudioContext(ctx);
     }
     if (position != null) {
       await seek(position);
@@ -106,20 +106,20 @@ class AudioPlayer {
   Future<void> playBytes(
     Uint8List bytes, {
     double? volume,
-    AudioContextConfig? config,
+    AudioContext? ctx,
   }) async {
     if (volume != null) {
       await setVolume(volume);
     }
-    if (config != null) {
-      await setAudioContextConfig(config);
+    if (ctx != null) {
+      await setAudioContext(ctx);
     }
     await setSourceBytes(bytes);
     return resume();
   }
 
-  Future<void> setAudioContextConfig(AudioContextConfig config) {
-    return _platform.setAudioContextConfig(playerId, config);
+  Future<void> setAudioContext(AudioContext ctx) {
+    return _platform.setAudioContext(playerId, ctx);
   }
 
   /// Pauses the audio that is currently playing.
