@@ -9,7 +9,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   final _channelLogs = <String>[];
-  const MethodChannel('xyz.luan/audioplayers.logger')
+  const MethodChannel('xyz.luan/audioplayers.global')
     ..setMockMethodCallHandler((MethodCall methodCall) async {
       _channelLogs.add('${methodCall.method} ${methodCall.arguments}');
       return 1;
