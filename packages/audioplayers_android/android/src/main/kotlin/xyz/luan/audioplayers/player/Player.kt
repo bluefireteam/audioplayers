@@ -1,37 +1,27 @@
 package xyz.luan.audioplayers.player
 
 import android.media.MediaDataSource
+import xyz.luan.audioplayers.AudioContextAndroid
 import xyz.luan.audioplayers.ReleaseMode
 
-abstract class Player {
-    abstract val playerId: String
+interface Player {
+    val playerId: String
 
-    abstract fun getDuration(): Int?
-    abstract fun getCurrentPosition(): Int?
-    abstract fun isActuallyPlaying(): Boolean
+    fun getDuration(): Int?
+    fun getCurrentPosition(): Int?
+    fun isActuallyPlaying(): Boolean
 
-    abstract fun play()
-    abstract fun stop()
-    abstract fun release()
-    abstract fun pause()
+    fun play()
+    fun stop()
+    fun release()
+    fun pause()
 
-    abstract fun configAttributes(respectSilence: Boolean, stayAwake: Boolean, duckAudio: Boolean)
-    abstract fun setUrl(url: String, isLocal: Boolean)
-    abstract fun setDataSource(mediaDataSource: MediaDataSource?)
-    abstract fun setVolume(volume: Double)
-    abstract fun setRate(rate: Double)
-    abstract fun setReleaseMode(releaseMode: ReleaseMode)
-    abstract fun setPlayingRoute(playingRoute: String)
+    fun updateAudioContext(audioContext: AudioContextAndroid)
+    fun setUrl(url: String, isLocal: Boolean)
+    fun setDataSource(mediaDataSource: MediaDataSource?)
+    fun setVolume(volume: Double)
+    fun setRate(rate: Double)
+    fun setReleaseMode(releaseMode: ReleaseMode)
 
-    /**
-     * Seek operations cannot be called until after the player is ready.
-     */
-    abstract fun seek(position: Int)
-
-    companion object {
-        @JvmStatic
-        protected fun objectEquals(o1: Any?, o2: Any?): Boolean {
-            return o1 == null && o2 == null || o1 != null && o1 == o2
-        }
-    }
+    fun seek(position: Int)
 }

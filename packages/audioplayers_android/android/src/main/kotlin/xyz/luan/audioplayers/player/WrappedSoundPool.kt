@@ -4,18 +4,18 @@ import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.MediaDataSource
 import android.media.SoundPool
+import android.os.Build
+import xyz.luan.audioplayers.AudioContextAndroid
+import xyz.luan.audioplayers.Logger
+import xyz.luan.audioplayers.ReleaseMode
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.net.URI
 import java.net.URL
 import java.util.*
-import android.os.Build
-import xyz.luan.audioplayers.Logger
-import xyz.luan.audioplayers.player.Player
-import xyz.luan.audioplayers.ReleaseMode
 
-class WrappedSoundPool internal constructor(override val playerId: String) : Player() {
+class WrappedSoundPool internal constructor(override val playerId: String) : Player {
     companion object {
         private val soundPool = createSoundPool()
 
@@ -33,13 +33,13 @@ class WrappedSoundPool internal constructor(override val playerId: String) : Pla
         private fun createSoundPool(): SoundPool {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 val attrs = AudioAttributes.Builder().setLegacyStreamType(AudioManager.USE_DEFAULT_STREAM_TYPE)
-                        .setUsage(AudioAttributes.USAGE_GAME)
-                        .build()
+                    .setUsage(AudioAttributes.USAGE_GAME)
+                    .build()
                 // make a new SoundPool, allowing up to 100 streams
                 SoundPool.Builder()
-                        .setAudioAttributes(attrs)
-                        .setMaxStreams(100)
-                        .build()
+                    .setAudioAttributes(attrs)
+                    .setMaxStreams(100)
+                    .build()
             } else {
                 // make a new SoundPool, allowing up to 100 streams
                 @Suppress("DEPRECATION")
@@ -174,14 +174,8 @@ class WrappedSoundPool internal constructor(override val playerId: String) : Pla
         }
     }
 
-    override fun configAttributes(
-            respectSilence: Boolean,
-            stayAwake: Boolean,
-            duckAudio: Boolean
-    ) = Unit
-
     override fun setReleaseMode(releaseMode: ReleaseMode) {
-        looping = releaseMode === ReleaseMode.LOOP
+        looping = releaseMode == ReleaseMode.LOOP
         if (playing) {
             streamId?.let { soundPool.setLoop(it, loopModeInteger()) }
         }
@@ -192,10 +186,6 @@ class WrappedSoundPool internal constructor(override val playerId: String) : Pla
     override fun getCurrentPosition() = throw unsupportedOperation("getDuration")
 
     override fun isActuallyPlaying(): Boolean = false
-
-    override fun setPlayingRoute(playingRoute: String) {
-        throw unsupportedOperation("setPlayingRoute")
-    }
 
     override fun seek(position: Int) {
         throw unsupportedOperation("seek")
@@ -209,12 +199,12 @@ class WrappedSoundPool internal constructor(override val playerId: String) : Pla
         } else {
             val soundId = this.soundId ?: return
             streamId = soundPool.play(
-                    soundId,
-                    volume,
-                    volume,
-                    0,
-                    loopModeInteger(),
-                    1.0f
+                soundId,
+                volume,
+                volume,
+                0,
+                loopModeInteger(),
+                1.0f
             )
         }
     }
@@ -254,5 +244,9 @@ class WrappedSoundPool internal constructor(override val playerId: String) : Pla
 
     private fun unsupportedOperation(message: String): UnsupportedOperationException {
         return UnsupportedOperationException("LOW_LATENCY mode does not support: $message")
+    }
+
+    override fun updateAudioContext(audioContext: AudioContextAndroid) {
+        TODO("Not yet implemented")
     }
 }

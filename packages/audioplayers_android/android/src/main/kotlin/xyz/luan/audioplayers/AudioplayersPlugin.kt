@@ -1,6 +1,7 @@
 package xyz.luan.audioplayers
 
 import android.content.Context
+import android.os.Build
 import android.os.Handler
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterPluginBinding
@@ -10,6 +11,7 @@ import xyz.luan.audioplayers.player.Player
 import xyz.luan.audioplayers.player.WrappedMediaPlayer
 import xyz.luan.audioplayers.player.WrappedSoundPool
 import java.lang.ref.WeakReference
+import java.util.*
 
 typealias FlutterHandler = (call: MethodCall, response: MethodChannel.Result) -> Unit
 
@@ -22,16 +24,20 @@ class AudioplayersPlugin : FlutterPlugin {
     private val handler = Handler()
     private var positionUpdates: Runnable? = null
 
+    private var defaultAudioContext: AudioContextAndroid? = null
+
     override fun onAttachedToEngine(binding: FlutterPluginBinding) {
-        channel = MethodChannel(binding.binaryMessenger, "xyz.luan/audioplayers")
-        globalChannel = MethodChannel(binding.binaryMessenger, "xyz.luan/audioplayers.global")
         context = binding.applicationContext
+        channel = MethodChannel(binding.binaryMessenger, "xyz.luan/audioplayers")
         channel.setMethodCallHandler { call, response -> safeCall(call, response, ::handler) }
+        globalChannel = MethodChannel(binding.binaryMessenger, "xyz.luan/audioplayers.global")
         globalChannel.setMethodCallHandler { call, response -> safeCall(call, response, ::globalHandler) }
     }
 
     override fun onDetachedFromEngine(binding: FlutterPluginBinding) {
-        // TODO(luan) cleanup?
+        stopPositionUpdates()
+        mediaPlayers.values.forEach { it.release() }
+        mediaPlayers.clear()
     }
 
     private fun safeCall(
@@ -55,7 +61,7 @@ class AudioplayersPlugin : FlutterPlugin {
                 Logger.logLevel = value
             }
             "setGlobalAudioContext" -> {
-                val ctx = AudioContextAndroid(
+                defaultAudioContext = AudioContextAndroid(
                     isSpeakerphoneOn = call.argument<Boolean>("isSpeakerphoneOn")
                         ?: throw error("isSpeakerphoneOn is required"),
                     stayAwake = call.argument<Boolean>("stayAwake")
@@ -63,10 +69,9 @@ class AudioplayersPlugin : FlutterPlugin {
                     contentType = call.argument<Int>("contentType")
                         ?: throw error("contentType is required"),
                     usageType = call.argument<Int>("usageType")
-                            ?: throw error("usageType is required"),
+                        ?: throw error("usageType is required"),
                     audioFocus = call.argument<Int>("audioFocus"),
                 )
-                Logger.error(ctx.toString())
             }
         }
 
@@ -75,7 +80,7 @@ class AudioplayersPlugin : FlutterPlugin {
 
     private fun handler(call: MethodCall, response: MethodChannel.Result) {
         val playerId = call.argument<String>("playerId") ?: return
-        val mode = call.argument<String>("mode")
+        val mode = call.enumArgument<PlayerMode>("mode")
         val player = getPlayer(playerId, mode)
         when (call.method) {
             "setSourceUrl" -> {
@@ -85,7 +90,11 @@ class AudioplayersPlugin : FlutterPlugin {
             }
             "setSourceBytes" -> {
                 val bytes = call.argument<ByteArray>("bytes") ?: throw error("bytes are required")
-                player.setDataSource(ByteDataSource(bytes))
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    player.setDataSource(ByteDataSource(bytes))
+                } else {
+                    throw error("Operation not supported on Android <= M")
+                }
             }
             "resume" -> player.play()
             "pause" -> player.pause()
@@ -124,12 +133,12 @@ class AudioplayersPlugin : FlutterPlugin {
         response.success(1)
     }
 
-    private fun getPlayer(playerId: String, mode: String?): Player {
+    private fun getPlayer(playerId: String, mode: PlayerMode?): Player {
         return mediaPlayers.getOrPut(playerId) {
+            val audioContext = defaultAudioContext ?: AudioContextAndroid()
             when (mode) {
-                null, "PlayerMode.MEDIA_PLAYER" -> WrappedMediaPlayer(this, playerId)
-                "PlayerMode.LOW_LATENCY" -> WrappedSoundPool(playerId)
-                else -> throw error("Unknown PlayerMode $mode")
+                null, PlayerMode.MEDIA_PLAYER -> WrappedMediaPlayer(this, playerId, audioContext)
+                PlayerMode.LOW_LATENCY -> WrappedSoundPool(playerId)
             }
         }
     }
@@ -216,8 +225,8 @@ class AudioplayersPlugin : FlutterPlugin {
     companion object {
         private fun buildArguments(playerId: String, value: Any? = null): Map<String, Any> {
             return listOfNotNull(
-                    "playerId" to playerId,
-                    value?.let { "value" to it },
+                "playerId" to playerId,
+                value?.let { "value" to it },
             ).toMap()
         }
 
@@ -227,7 +236,7 @@ class AudioplayersPlugin : FlutterPlugin {
     }
 }
 
-private inline fun <reified T: Enum<T>> MethodCall.enumArgument(name: String): T? {
+private inline fun <reified T : Enum<T>> MethodCall.enumArgument(name: String): T? {
     val enumName = argument<String>(name) ?: return null
-    return enumValueOf<T>(enumName.split('.').last().toUpperCase())
+    return enumValueOf<T>(enumName.split('.').last().toUpperCase(Locale.ROOT))
 }

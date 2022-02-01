@@ -1,14 +1,15 @@
 package xyz.luan.audioplayers
 
 import android.media.MediaDataSource
+import android.os.Build
+import androidx.annotation.RequiresApi
 
+@RequiresApi(Build.VERSION_CODES.M)
 class ByteDataSource(
-        private val data: ByteArray
+    private val data: ByteArray
 ) : MediaDataSource() {
     @Synchronized
-    override fun getSize(): Long {
-        return data.size.toLong()
-    }
+    override fun getSize(): Long = data.size.toLong()
 
     @Synchronized
     override fun close() = Unit
@@ -19,12 +20,17 @@ class ByteDataSource(
             return -1
         }
 
-        var remainingSize = size
-        if (position + remainingSize > data.size) {
-            remainingSize -= position.toInt() + remainingSize - data.size
-        }
+        val remainingSize = computeRemainingSize(size, position)
         System.arraycopy(data, position.toInt(), buffer, offset, remainingSize)
         return remainingSize
+    }
+
+    private fun computeRemainingSize(size: Int, position: Long): Int {
+        var remainingSize = size.toLong()
+        if (position + remainingSize > data.size) {
+            remainingSize -= position + remainingSize - data.size
+        }
+        return remainingSize.toInt()
     }
 
 }
