@@ -5,6 +5,7 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'api/audio_context_config.dart';
 import 'api/for_player.dart';
+import 'api/player_mode.dart';
 import 'api/player_state.dart';
 import 'api/release_mode.dart';
 import 'method_channel_audioplayers_platform.dart';
@@ -68,7 +69,7 @@ abstract class AudioplayersPlatform extends PlatformInterface {
   /// Android SDK version should be 23 or higher
   Future<void> setPlaybackRate(String playerId, double playbackRate);
 
-  /// Sets the URL.
+  /// Configures the player to read the audio from a URL.
   ///
   /// The resources will start being fetched or buffered as soon as you call
   /// this method.
@@ -78,7 +79,7 @@ abstract class AudioplayersPlatform extends PlatformInterface {
     bool? isLocal,
   });
 
-  /// Plays audio in the form of a byte array.
+  /// Configures the play to read the audio from a byte array.
   Future<void> setSourceBytes(
     String playerId,
     Uint8List bytes,
@@ -87,6 +88,11 @@ abstract class AudioplayersPlatform extends PlatformInterface {
   Future<void> setAudioContext(
     String playerId,
     AudioContext audioContext,
+  );
+
+  Future<void> setPlayerMode(
+    String playerId,
+    PlayerMode playerMode,
   );
 
   /// Get audio duration after setting url.

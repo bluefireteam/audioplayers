@@ -3,25 +3,25 @@ package xyz.luan.audioplayers.player
 import android.media.MediaDataSource
 import xyz.luan.audioplayers.AudioContextAndroid
 import xyz.luan.audioplayers.ReleaseMode
+import xyz.luan.audioplayers.source.Source
 
 interface Player {
-    val playerId: String
-
-    fun getDuration(): Int?
-    fun getCurrentPosition(): Int?
+    fun getDuration(): Int
+    fun getCurrentPosition(): Int
     fun isActuallyPlaying(): Boolean
 
-    fun play()
-    fun stop()
-    fun release()
+    fun start()
     fun pause()
+    fun stop()
+    fun seekTo(position: Int)
+    fun release()
 
-    fun updateAudioContext(audioContext: AudioContextAndroid)
-    fun setUrl(url: String, isLocal: Boolean)
-    fun setDataSource(mediaDataSource: MediaDataSource?)
-    fun setVolume(volume: Double)
-    fun setRate(rate: Double)
-    fun setReleaseMode(releaseMode: ReleaseMode)
+    fun setVolume(volume: Float)
+    fun setRate(rate: Float)
+    fun setLooping(looping: Boolean)
+    fun updateContext(context: AudioContextAndroid)
+    fun setSource(source: Source)
 
-    fun seek(position: Int)
+    fun prepare()
+    fun reset()
 }

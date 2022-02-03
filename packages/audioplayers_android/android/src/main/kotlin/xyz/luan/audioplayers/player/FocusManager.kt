@@ -7,7 +7,7 @@ import androidx.annotation.RequiresApi
 import xyz.luan.audioplayers.AudioContextAndroid
 
 class FocusManager(
-    private val player: WrappedMediaPlayer,
+    private val player: WrappedPlayer,
 ) {
     private var audioFocusChangeListener: AudioManager.OnAudioFocusChangeListener? = null
     private var audioFocusRequest: AudioFocusRequest? = null

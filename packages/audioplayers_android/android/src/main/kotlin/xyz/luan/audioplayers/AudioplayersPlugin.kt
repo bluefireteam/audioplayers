@@ -7,9 +7,9 @@ import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterPluginBinding
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
-import xyz.luan.audioplayers.player.Player
-import xyz.luan.audioplayers.player.WrappedMediaPlayer
-import xyz.luan.audioplayers.player.WrappedSoundPool
+import xyz.luan.audioplayers.player.WrappedPlayer
+import xyz.luan.audioplayers.source.BytesSource
+import xyz.luan.audioplayers.source.UrlSource
 import java.lang.ref.WeakReference
 import java.util.*
 
@@ -20,11 +20,11 @@ class AudioplayersPlugin : FlutterPlugin {
     private lateinit var globalChannel: MethodChannel
     private lateinit var context: Context
 
-    private val mediaPlayers = mutableMapOf<String, Player>()
+    private val players = mutableMapOf<String, WrappedPlayer>()
     private val handler = Handler()
     private var positionUpdates: Runnable? = null
 
-    private var defaultAudioContext: AudioContextAndroid? = null
+    private var defaultAudioContext = AudioContextAndroid()
 
     override fun onAttachedToEngine(binding: FlutterPluginBinding) {
         context = binding.applicationContext
@@ -36,8 +36,8 @@ class AudioplayersPlugin : FlutterPlugin {
 
     override fun onDetachedFromEngine(binding: FlutterPluginBinding) {
         stopPositionUpdates()
-        mediaPlayers.values.forEach { it.release() }
-        mediaPlayers.clear()
+        players.values.forEach { it.release() }
+        players.clear()
     }
 
     private fun safeCall(
@@ -56,22 +56,11 @@ class AudioplayersPlugin : FlutterPlugin {
     private fun globalHandler(call: MethodCall, response: MethodChannel.Result) {
         when (call.method) {
             "changeLogLevel" -> {
-                val value = call.enumArgument<LogLevel>("value")
-                    ?: throw error("value is required")
+                val value = call.enumArgument<LogLevel>("value") ?: error("value is required")
                 Logger.logLevel = value
             }
             "setGlobalAudioContext" -> {
-                defaultAudioContext = AudioContextAndroid(
-                    isSpeakerphoneOn = call.argument<Boolean>("isSpeakerphoneOn")
-                        ?: throw error("isSpeakerphoneOn is required"),
-                    stayAwake = call.argument<Boolean>("stayAwake")
-                        ?: throw error("stayAwake is required"),
-                    contentType = call.argument<Int>("contentType")
-                        ?: throw error("contentType is required"),
-                    usageType = call.argument<Int>("usageType")
-                        ?: throw error("usageType is required"),
-                    audioFocus = call.argument<Int>("audioFocus"),
-                )
+                defaultAudioContext = call.audioContext()
             }
         }
 
@@ -80,37 +69,35 @@ class AudioplayersPlugin : FlutterPlugin {
 
     private fun handler(call: MethodCall, response: MethodChannel.Result) {
         val playerId = call.argument<String>("playerId") ?: return
-        val mode = call.enumArgument<PlayerMode>("mode")
-        val player = getPlayer(playerId, mode)
+        val player = getPlayer(playerId)
         when (call.method) {
             "setSourceUrl" -> {
-                val url = call.argument<String>("url") ?: throw error("url is required")
+                val url = call.argument<String>("url") ?: error("url is required")
                 val isLocal = call.argument<Boolean>("isLocal") ?: false
-                player.setUrl(url, isLocal)
+                player.source = UrlSource(url, isLocal)
             }
             "setSourceBytes" -> {
-                val bytes = call.argument<ByteArray>("bytes") ?: throw error("bytes are required")
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    player.setDataSource(ByteDataSource(bytes))
-                } else {
-                    throw error("Operation not supported on Android <= M")
+                val bytes = call.argument<ByteArray>("bytes") ?: error("bytes are required")
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+                    error("Operation not supported on Android <= M")
                 }
+                player.source = BytesSource(bytes)
             }
             "resume" -> player.play()
             "pause" -> player.pause()
             "stop" -> player.stop()
             "release" -> player.release()
             "seek" -> {
-                val position = call.argument<Int>("position") ?: throw error("position is required")
+                val position = call.argument<Int>("position") ?: error("position is required")
                 player.seek(position)
             }
             "setVolume" -> {
-                val volume = call.argument<Double>("volume") ?: throw error("volume is required")
-                player.setVolume(volume)
+                val volume = call.argument<Double>("volume") ?: error("volume is required")
+                player.volume = volume.toFloat()
             }
             "setPlaybackRate" -> {
-                val rate = call.argument<Double>("playbackRate") ?: throw error("playbackRate is required")
-                player.setRate(rate)
+                val rate = call.argument<Double>("playbackRate") ?: error("playbackRate is required")
+                player.rate = rate.toFloat()
             }
             "getDuration" -> {
                 response.success(player.getDuration() ?: 0)
@@ -122,8 +109,17 @@ class AudioplayersPlugin : FlutterPlugin {
             }
             "setReleaseMode" -> {
                 val releaseMode = call.enumArgument<ReleaseMode>("releaseMode")
-                    ?: throw error("releaseMode is required")
-                player.setReleaseMode(releaseMode)
+                    ?: error("releaseMode is required")
+                player.releaseMode = releaseMode
+            }
+            "setPlayerMode" -> {
+                val playerMode = call.enumArgument<PlayerMode>("playerMode")
+                    ?: error("playerMode is required")
+                player.playerMode = playerMode
+            }
+            "setAudioContext" -> {
+                val audioContext = call.audioContext()
+                player.updateAudioContext(audioContext)
             }
             else -> {
                 response.notImplemented()
@@ -133,13 +129,9 @@ class AudioplayersPlugin : FlutterPlugin {
         response.success(1)
     }
 
-    private fun getPlayer(playerId: String, mode: PlayerMode?): Player {
-        return mediaPlayers.getOrPut(playerId) {
-            val audioContext = defaultAudioContext ?: AudioContextAndroid()
-            when (mode) {
-                null, PlayerMode.MEDIA_PLAYER -> WrappedMediaPlayer(this, playerId, audioContext)
-                PlayerMode.LOW_LATENCY -> WrappedSoundPool(playerId)
-            }
+    private fun getPlayer(playerId: String): WrappedPlayer {
+        return players.getOrPut(playerId) {
+            WrappedPlayer(this, playerId, defaultAudioContext.copy())
         }
     }
 
@@ -151,19 +143,19 @@ class AudioplayersPlugin : FlutterPlugin {
         startPositionUpdates()
     }
 
-    fun handleDuration(player: Player) {
+    fun handleDuration(player: WrappedPlayer) {
         channel.invokeMethod("audio.onDuration", buildArguments(player.playerId, player.getDuration() ?: 0))
     }
 
-    fun handleComplete(player: Player) {
+    fun handleComplete(player: WrappedPlayer) {
         channel.invokeMethod("audio.onComplete", buildArguments(player.playerId))
     }
 
-    fun handleError(player: Player, message: String) {
+    fun handleError(player: WrappedPlayer, message: String) {
         channel.invokeMethod("audio.onError", buildArguments(player.playerId, message))
     }
 
-    fun handleSeekComplete(player: Player) {
+    fun handleSeekComplete(player: WrappedPlayer) {
         channel.invokeMethod("audio.onSeekComplete", buildArguments(player.playerId))
     }
 
@@ -171,7 +163,7 @@ class AudioplayersPlugin : FlutterPlugin {
         if (positionUpdates != null) {
             return
         }
-        positionUpdates = UpdateCallback(mediaPlayers, channel, handler, this).also {
+        positionUpdates = UpdateCallback(players, channel, handler, this).also {
             handler.post(it)
         }
     }
@@ -182,7 +174,7 @@ class AudioplayersPlugin : FlutterPlugin {
     }
 
     private class UpdateCallback(
-        mediaPlayers: Map<String, Player>,
+        mediaPlayers: Map<String, WrappedPlayer>,
         channel: MethodChannel,
         handler: Handler,
         audioplayersPlugin: AudioplayersPlugin,
@@ -229,14 +221,20 @@ class AudioplayersPlugin : FlutterPlugin {
                 value?.let { "value" to it },
             ).toMap()
         }
-
-        private fun error(message: String): Exception {
-            return IllegalArgumentException(message)
-        }
     }
 }
 
 private inline fun <reified T : Enum<T>> MethodCall.enumArgument(name: String): T? {
     val enumName = argument<String>(name) ?: return null
     return enumValueOf<T>(enumName.split('.').last().toUpperCase(Locale.ROOT))
+}
+
+private fun MethodCall.audioContext(): AudioContextAndroid  {
+    return AudioContextAndroid(
+        isSpeakerphoneOn = argument<Boolean>("isSpeakerphoneOn") ?: error("isSpeakerphoneOn is required"),
+        stayAwake = argument<Boolean>("stayAwake") ?: error("stayAwake is required"),
+        contentType = argument<Int>("contentType") ?: error("contentType is required"),
+        usageType = argument<Int>("usageType") ?: error("usageType is required"),
+        audioFocus = argument<Int>("audioFocus"),
+    )
 }

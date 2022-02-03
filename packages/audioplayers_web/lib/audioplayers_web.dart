@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:audioplayers_platform_interface/api/audio_context_config.dart';
+import 'package:audioplayers_platform_interface/api/player_mode.dart';
 import 'package:audioplayers_platform_interface/api/release_mode.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
 import 'package:audioplayers_platform_interface/streams_interface.dart';
@@ -66,6 +67,14 @@ class AudioplayersPlugin extends AudioplayersPlatform with StreamsInterface {
     AudioContext audioContext,
   ) async {
     // no-op: web doesn't have any audio context
+  }
+
+  @override
+  Future<void> setPlayerMode(
+    String playerId,
+    PlayerMode playerMode,
+  ) async {
+    // no-op: web doesn't have multiple modes
   }
 
   @override

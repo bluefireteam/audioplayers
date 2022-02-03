@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/services.dart';
 
 import 'api/audio_context_config.dart';
+import 'api/player_mode.dart';
 import 'api/release_mode.dart';
 import 'audioplayers_platform_interface.dart';
 import 'logger_platform_interface.dart';
@@ -63,9 +64,23 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform
     AudioContext context,
   ) {
     return _call(
-      'setAudioContextConfig',
+      'setAudioContext',
       playerId,
       context.toJson(),
+    );
+  }
+
+  @override
+  Future<void> setPlayerMode(
+    String playerId,
+    PlayerMode playerMode,
+  ) {
+    return _call(
+      'setPlayerMode',
+      playerId,
+      <String, dynamic>{
+        'playerMode': playerMode.toString(),
+      },
     );
   }
 
