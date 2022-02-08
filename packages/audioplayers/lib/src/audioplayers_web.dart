@@ -103,7 +103,12 @@ class WrappedPlayer {
   }
 
   void seek(int position) {
-    player?.currentTime = position / 1000.0;
+    final seekPosition = position / 1000.0;
+    player?.currentTime = seekPosition;
+
+    if (!isPlaying) {
+      pausedAt = seekPosition;
+    }
   }
 
   void _cancel() {
