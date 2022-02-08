@@ -150,3 +150,17 @@ jobs:
      - name: Run Flutter Driver tests
        working-directory: ./packages/audioplayers/example
        run: "flutter test -d macos integration_test"
+
+  windows:
+    runs-on: windows-latest
+
+    steps:
+     - uses: actions/checkout@v1
+     - uses: subosito/flutter-action@v1
+       with:
+         channel: stable
+     - name: Example App - Build windows app
+       working-directory: ./packages/audioplayers/example
+       run: |
+         flutter pub get
+         flutter build windows --release
