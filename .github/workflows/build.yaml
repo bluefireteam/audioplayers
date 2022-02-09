@@ -57,17 +57,22 @@ jobs:
     runs-on: macOS-latest
 
     steps:
-     - uses: malinskiy/action-android/install-sdk@release/0.1.2
-     - uses: actions/checkout@v1
-     - uses: subosito/flutter-action@v1
-       with:
-         channel: stable
+     - name: Checkout
+       uses: actions/checkout@v1
 
-     - name: Use specific Java version for sdkmanager to work
+     - name: Setup Java 11
        uses: joschi/setup-jdk@v2
        with:
          java-version: 'openjdk11'
          architecture: 'x64'
+
+     - name: Setup Android SDK
+       uses: android-actions/setup-android@v2
+
+     - name: Setup Flutter
+       uses: subosito/flutter-action@v1
+       with:
+         channel: stable
 
      - name: Example App - Build android APK
        working-directory: ./packages/audioplayers/example
