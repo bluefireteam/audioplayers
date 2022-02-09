@@ -72,14 +72,16 @@ class WrappedPlayer internal constructor(
 
     var playerMode: PlayerMode = MEDIA_PLAYER
         set(value) {
-            field = value
+            if (field != value) {
+                field = value
 
-            // if the player exists, we need to re-create it from scratch;
-            // this will probably cause music to pause for a second
-            val player = player ?: return
-            shouldSeekTo = maybeGetCurrentPosition()
-            player.release()
-            this.player = createPlayer()
+                // if the player exists, we need to re-create it from scratch;
+                // this will probably cause music to pause for a second
+                val player = player ?: return
+                shouldSeekTo = maybeGetCurrentPosition()
+                player.release()
+                this.player = createPlayer()
+            }
         }
 
     var released = true

@@ -164,7 +164,18 @@ class SoundPoolPlayer(
 
     override fun isActuallyPlaying() = false
 
-    override fun seekTo(position: Int) = unsupportedOperation("seek")
+    override fun seekTo(position: Int) {
+        if (position == 0) {
+            streamId?.let {
+                soundPool.stop(it)
+                if (wrappedPlayer.playing) {
+                    soundPool.resume(it)
+                }
+            }
+        } else {
+            unsupportedOperation("seek")
+        }
+    }
 
     override fun start() {
         val streamId = streamId

@@ -8,11 +8,13 @@ import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterPluginBinding
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import xyz.luan.audioplayers.player.WrappedPlayer
 import xyz.luan.audioplayers.source.BytesSource
 import xyz.luan.audioplayers.source.UrlSource
-import java.lang.Runnable
 import java.lang.ref.WeakReference
 
 typealias FlutterHandler = (call: MethodCall, response: MethodChannel.Result) -> Unit
@@ -50,11 +52,13 @@ class AudioplayersPlugin : FlutterPlugin {
         response: MethodChannel.Result,
         handler: FlutterHandler,
     ) {
-        try {
-            handler(call, response)
-        } catch (e: Exception) {
-            Logger.error("Unexpected error!", e)
-            response.error("Unexpected error!", e.message, e)
+        mainScope.launch(Dispatchers.IO) {
+            try {
+                handler(call, response)
+            } catch (e: Exception) {
+                Logger.error("Unexpected error!", e)
+                response.error("Unexpected error!", e.message, e)
+            }
         }
     }
 
@@ -79,22 +83,14 @@ class AudioplayersPlugin : FlutterPlugin {
             "setSourceUrl" -> {
                 val url = call.argument<String>("url") ?: error("url is required")
                 val isLocal = call.argument<Boolean>("isLocal") ?: false
-                mainScope.launch(Dispatchers.IO) {
-                    player.source = UrlSource(url, isLocal)
-                    response.success(1)
-                }
-                return
+                player.source = UrlSource(url, isLocal)
             }
             "setSourceBytes" -> {
                 val bytes = call.argument<ByteArray>("bytes") ?: error("bytes are required")
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
                     error("Operation not supported on Android <= M")
                 }
-                mainScope.launch(Dispatchers.IO) {
-                    player.source = BytesSource(bytes)
-                    response.success(1)
-                }
-                return
+                player.source = BytesSource(bytes)
             }
             "resume" -> player.play()
             "pause" -> player.pause()
@@ -128,10 +124,7 @@ class AudioplayersPlugin : FlutterPlugin {
             "setPlayerMode" -> {
                 val playerMode = call.enumArgument<PlayerMode>("playerMode")
                     ?: error("playerMode is required")
-                mainScope.launch(Dispatchers.IO) {
-                    player.playerMode = playerMode
-                    response.success(1)
-                }
+                player.playerMode = playerMode
                 return
             }
             "setAudioContext" -> {
@@ -252,7 +245,7 @@ fun String.toConstantCase(): String {
         .uppercase()
 }
 
-private fun MethodCall.audioContext(): AudioContextAndroid  {
+private fun MethodCall.audioContext(): AudioContextAndroid {
     return AudioContextAndroid(
         isSpeakerphoneOn = argument<Boolean>("isSpeakerphoneOn") ?: error("isSpeakerphoneOn is required"),
         stayAwake = argument<Boolean>("stayAwake") ?: error("stayAwake is required"),

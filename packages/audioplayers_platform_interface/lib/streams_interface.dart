@@ -6,8 +6,8 @@ import 'api/for_player.dart';
 import 'api/player_state.dart';
 
 mixin StreamsInterface {
-  void emitSeekComplete(String playerId, bool value) {
-    _seekCompleteStreamController.add(ForPlayer(playerId, value));
+  void emitSeekComplete(String playerId) {
+    _seekCompleteStreamController.add(ForPlayer(playerId, null));
   }
 
   void emitComplete(String playerId) {
@@ -26,7 +26,7 @@ mixin StreamsInterface {
     _positionStreamController.add(ForPlayer(playerId, value));
   }
 
-  Stream<ForPlayer<bool>> get seekCompleteStream =>
+  Stream<ForPlayer<void>> get seekCompleteStream =>
       _seekCompleteStreamController.stream;
 
   Stream<ForPlayer<void>> get completeStream =>
@@ -41,8 +41,8 @@ mixin StreamsInterface {
   Stream<ForPlayer<Duration>> get positionStream =>
       _positionStreamController.stream;
 
-  final StreamController<ForPlayer<bool>> _seekCompleteStreamController =
-      StreamController<ForPlayer<bool>>.broadcast();
+  final StreamController<ForPlayer<void>> _seekCompleteStreamController =
+      StreamController<ForPlayer<void>>.broadcast();
 
   final StreamController<ForPlayer<void>> _completeStreamController =
       StreamController<ForPlayer<void>>.broadcast();

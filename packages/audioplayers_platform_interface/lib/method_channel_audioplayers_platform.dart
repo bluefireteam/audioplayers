@@ -170,8 +170,7 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform
         emitComplete(playerId);
         break;
       case 'audio.onSeekComplete':
-        final complete = call.getBool('value');
-        emitSeekComplete(playerId, complete);
+        emitSeekComplete(playerId);
         break;
       case 'audio.onError':
         throw call.getString('value');
