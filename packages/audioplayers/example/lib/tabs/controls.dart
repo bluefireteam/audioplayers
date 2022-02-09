@@ -5,10 +5,21 @@ import '../components/btn.dart';
 import '../components/tab_wrapper.dart';
 import '../components/tgl.dart';
 
-class ControlsTab extends StatelessWidget {
+class ControlsTab extends StatefulWidget {
   final AudioPlayer player;
 
   const ControlsTab({Key? key, required this.player}) : super(key: key);
+
+  @override
+  State<ControlsTab> createState() => _ControlsTabState();
+}
+
+class _ControlsTabState extends State<ControlsTab> {
+  void update(Future<void> Function() fn) async {
+    await fn();
+    // update everyone who listens to "player"
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,10 +28,10 @@ class ControlsTab extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Btn(txt: 'Pause', onPressed: player.pause),
-            Btn(txt: 'Stop', onPressed: player.stop),
-            Btn(txt: 'Resume', onPressed: player.resume),
-            Btn(txt: 'Release', onPressed: player.release),
+            Btn(txt: 'Pause', onPressed: widget.player.pause),
+            Btn(txt: 'Stop', onPressed: widget.player.stop),
+            Btn(txt: 'Resume', onPressed: widget.player.resume),
+            Btn(txt: 'Release', onPressed: widget.player.release),
           ],
         ),
         Row(
@@ -30,7 +41,7 @@ class ControlsTab extends StatelessWidget {
             ...[0.0, 0.5, 1.0, 2.0].map((it) {
               return Btn(
                 txt: it.toString(),
-                onPressed: () => player.setVolume(it),
+                onPressed: () => widget.player.setVolume(it),
               );
             }),
           ],
@@ -42,7 +53,7 @@ class ControlsTab extends StatelessWidget {
             ...[0.0, 0.5, 1.0, 2.0].map((it) {
               return Btn(
                 txt: it.toString(),
-                onPressed: () => player.setPlaybackRate(it),
+                onPressed: () => widget.player.setPlaybackRate(it),
               );
             }),
           ],
@@ -53,8 +64,10 @@ class ControlsTab extends StatelessWidget {
             const Text('Player Mode'),
             EnumTgl<PlayerMode>(
               options: PlayerMode.values,
-              selected: player.mode,
-              onChange: player.setPlayerMode,
+              selected: widget.player.mode,
+              onChange: (playerMode) {
+                update(() => widget.player.setPlayerMode(playerMode));
+              },
             ),
           ],
         ),
@@ -64,8 +77,10 @@ class ControlsTab extends StatelessWidget {
             const Text('Release Mode'),
             EnumTgl<ReleaseMode>(
               options: ReleaseMode.values,
-              selected: player.releaseMode,
-              onChange: player.setReleaseMode,
+              selected: widget.player.releaseMode,
+              onChange: (releaseMode) {
+                update(() => widget.player.setReleaseMode(releaseMode));
+              },
             ),
           ],
         ),

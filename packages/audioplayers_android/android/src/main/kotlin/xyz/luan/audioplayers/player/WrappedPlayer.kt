@@ -77,17 +77,22 @@ class WrappedPlayer internal constructor(
             // if the player exists, we need to re-create it from scratch;
             // this will probably cause music to pause for a second
             val player = player ?: return
-            shouldSeekTo = player.getCurrentPosition()
+            shouldSeekTo = maybeGetCurrentPosition()
             player.release()
             this.player = createPlayer()
         }
 
-    private var released = true
-    private var prepared = false
-    private var playing = false
-    private var shouldSeekTo = -1
+    var released = true
+    var prepared = false
+    var playing = false
+    var shouldSeekTo = -1
 
     private val focusManager = FocusManager(this)
+
+    private fun maybeGetCurrentPosition(): Int {
+        // for Sound Pool, we can't get current position, so we just start over
+        return runCatching { player?.getCurrentPosition().takeUnless { it == 0 } }.getOrNull() ?: -1
+    }
 
     private fun getOrCreatePlayer(): Player {
         val currentPlayer = player

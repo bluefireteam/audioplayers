@@ -9,6 +9,7 @@ import xyz.luan.audioplayers.Logger
 import xyz.luan.audioplayers.source.Source
 import xyz.luan.audioplayers.source.UrlSource
 import java.util.*
+import java.util.Collections.synchronizedMap
 
 // TODO(luan) make this configurable
 private const val MAX_STREAMS = 100
@@ -22,13 +23,13 @@ class SoundPoolPlayer(
         /** For the onLoadComplete listener, track which sound id is associated with which player. An entry only exists until
          * it has been loaded.
          */
-        private val soundIdToPlayer = Collections.synchronizedMap(mutableMapOf<Int, SoundPoolPlayer>())
+        private val soundIdToPlayer = synchronizedMap(mutableMapOf<Int, SoundPoolPlayer>())
 
         /** This is to keep track of the players which share the same sound id, referenced by url. When a player release()s, it
          * is removed from the associated player list. The last player to be removed actually unloads() the sound id and then
          * the url is removed from this map.
          */
-        private val urlToPlayers = Collections.synchronizedMap(mutableMapOf<UrlSource, MutableList<SoundPoolPlayer>>())
+        private val urlToPlayers = synchronizedMap(mutableMapOf<UrlSource, MutableList<SoundPoolPlayer>>())
 
         private fun createSoundPool(): SoundPool {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -61,7 +62,7 @@ class SoundPoolPlayer(
                         for (player in urlPlayers) {
                             Logger.info("Marking $player as loaded")
                             player.loading = false
-                            if (player.playing) {
+                            if (player.wrappedPlayer.playing) {
                                 Logger.info("Delayed start of $player")
                                 player.start()
                             }
@@ -76,7 +77,6 @@ class SoundPoolPlayer(
     private var streamId: Int? = null
 
     private var loading: Boolean = false
-    private var playing: Boolean = false
 
     private val urlSource: UrlSource?
         get() = wrappedPlayer.source as? UrlSource
@@ -136,7 +136,10 @@ class SoundPoolPlayer(
                 val start = System.currentTimeMillis()
 
                 loading = true
-                soundId = soundPool.load(urlSource.getAudioPathForSoundPool(), 1)
+                Logger.info("Fetching actual URL for $urlSource")
+                val actualUrl = urlSource.getAudioPathForSoundPool()
+                Logger.info("Now loading $actualUrl")
+                soundId = soundPool.load(actualUrl, 1)
                 soundIdToPlayer[soundId] = this
 
                 Logger.info("time to call load() for $urlSource: ${System.currentTimeMillis() - start} player=$this")
@@ -166,11 +169,13 @@ class SoundPoolPlayer(
     override fun seekTo(position: Int) = unsupportedOperation("seek")
 
     override fun start() {
-        if (playing) {
-            streamId?.let { soundPool.resume(it) }
-        } else {
-            val soundId = this.soundId ?: return
-            streamId = soundPool.play(
+        val streamId = streamId
+        val soundId = soundId
+
+        if (streamId != null) {
+            soundPool.resume(streamId)
+        } else if (soundId != null) {
+            this.streamId = soundPool.play(
                 soundId,
                 wrappedPlayer.volume,
                 wrappedPlayer.volume,
