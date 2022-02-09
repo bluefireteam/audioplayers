@@ -8,7 +8,6 @@ import xyz.luan.audioplayers.AudioContextAndroid
 import xyz.luan.audioplayers.Logger
 import xyz.luan.audioplayers.source.Source
 import xyz.luan.audioplayers.source.UrlSource
-import java.util.*
 import java.util.Collections.synchronizedMap
 
 // TODO(luan) make this configurable
@@ -61,7 +60,7 @@ class SoundPoolPlayer(
                         val urlPlayers = urlToPlayers[urlSource] ?: listOf()
                         for (player in urlPlayers) {
                             Logger.info("Marking $player as loaded")
-                            player.loading = false
+                            player.wrappedPlayer.prepared = true
                             if (player.wrappedPlayer.playing) {
                                 Logger.info("Delayed start of $player")
                                 player.start()
@@ -75,8 +74,6 @@ class SoundPoolPlayer(
 
     private var soundId: Int? = null
     private var streamId: Int? = null
-
-    private var loading: Boolean = false
 
     private val urlSource: UrlSource?
         get() = wrappedPlayer.source as? UrlSource
@@ -128,14 +125,15 @@ class SoundPoolPlayer(
 
             if (originalPlayer != null) {
                 // Sound has already been loaded - reuse the soundId.
-                loading = originalPlayer.loading
+                val prepared = originalPlayer.wrappedPlayer.prepared
+                wrappedPlayer.prepared = prepared
                 soundId = originalPlayer.soundId
-                Logger.info("Reusing soundId $soundId for $urlSource is loading=$loading $this")
+                Logger.info("Reusing soundId $soundId for $urlSource is prepared=$prepared $this")
             } else {
                 // First one for this URL - load it.
                 val start = System.currentTimeMillis()
 
-                loading = true
+                wrappedPlayer.prepared = false
                 Logger.info("Fetching actual URL for $urlSource")
                 val actualUrl = urlSource.getAudioPathForSoundPool()
                 Logger.info("Now loading $actualUrl")
@@ -187,7 +185,7 @@ class SoundPoolPlayer(
     }
 
     override fun prepare() {
-        // TODO(luan) what do I do here?
+        // sound pool automatically prepares when source URL is set
     }
 
     override fun reset() {
