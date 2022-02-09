@@ -126,12 +126,12 @@ class AudioCache {
     return Future.wait(fileNames.map(load));
   }
 
-  Future<AudioPlayer> _player(PlayerMode mode) async {
-    return fixedPlayer ?? await _createDefaultPlayer(mode);
+  Future<AudioPlayer> _player() async {
+    return fixedPlayer ?? await _createDefaultPlayer();
   }
 
-  Future<AudioPlayer> _createDefaultPlayer(PlayerMode mode) async {
-    final player = AudioPlayer(mode: mode);
+  Future<AudioPlayer> _createDefaultPlayer() async {
+    final player = AudioPlayer();
     final ctx = defaultCtx;
     if (ctx != null) {
       await player.setAudioContext(ctx);
@@ -153,7 +153,7 @@ class AudioCache {
     AudioContext? ctx,
   }) async {
     final uri = await load(fileName);
-    final player = await _player(mode);
+    final player = await _player();
     if (fixedPlayer != null) {
       await player.setReleaseMode(ReleaseMode.stop);
     }
@@ -161,6 +161,7 @@ class AudioCache {
       uri.toString(),
       volume: volume,
       ctx: ctx ?? defaultCtx,
+      mode: mode,
     );
     return player;
   }
@@ -175,7 +176,7 @@ class AudioCache {
     AudioContext? ctx,
     bool loop = false,
   }) async {
-    final player = await _player(mode);
+    final player = await _player();
 
     if (loop) {
       await player.setReleaseMode(ReleaseMode.loop);
@@ -187,6 +188,7 @@ class AudioCache {
       fileBytes,
       volume: volume,
       ctx: ctx ?? defaultCtx,
+      mode: mode,
     );
 
     return player;
@@ -204,12 +206,13 @@ class AudioCache {
     AudioContext? ctx,
   }) async {
     final url = await load(fileName);
-    final player = await _player(mode);
+    final player = await _player();
     await player.setReleaseMode(ReleaseMode.loop);
     await player.play(
       url.toString(),
       volume: volume,
       ctx: ctx ?? defaultCtx,
+      mode: mode,
     );
     return player;
   }

@@ -1,5 +1,6 @@
 package xyz.luan.audioplayers
 
+
 import android.content.Context
 import android.os.Build
 import android.os.Handler
@@ -7,15 +8,18 @@ import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterPluginBinding
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
+import kotlinx.coroutines.*
 import xyz.luan.audioplayers.player.WrappedPlayer
 import xyz.luan.audioplayers.source.BytesSource
 import xyz.luan.audioplayers.source.UrlSource
+import java.lang.Runnable
 import java.lang.ref.WeakReference
-import java.util.*
 
 typealias FlutterHandler = (call: MethodCall, response: MethodChannel.Result) -> Unit
 
 class AudioplayersPlugin : FlutterPlugin {
+    private val mainScope = CoroutineScope(Dispatchers.Main)
+
     private lateinit var channel: MethodChannel
     private lateinit var globalChannel: MethodChannel
     private lateinit var context: Context
@@ -38,6 +42,7 @@ class AudioplayersPlugin : FlutterPlugin {
         stopPositionUpdates()
         players.values.forEach { it.release() }
         players.clear()
+        mainScope.cancel()
     }
 
     private fun safeCall(
@@ -74,14 +79,22 @@ class AudioplayersPlugin : FlutterPlugin {
             "setSourceUrl" -> {
                 val url = call.argument<String>("url") ?: error("url is required")
                 val isLocal = call.argument<Boolean>("isLocal") ?: false
-                player.source = UrlSource(url, isLocal)
+                mainScope.launch(Dispatchers.IO) {
+                    player.source = UrlSource(url, isLocal)
+                    response.success(1)
+                }
+                return
             }
             "setSourceBytes" -> {
                 val bytes = call.argument<ByteArray>("bytes") ?: error("bytes are required")
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
                     error("Operation not supported on Android <= M")
                 }
-                player.source = BytesSource(bytes)
+                mainScope.launch(Dispatchers.IO) {
+                    player.source = BytesSource(bytes)
+                    response.success(1)
+                }
+                return
             }
             "resume" -> player.play()
             "pause" -> player.pause()
@@ -115,7 +128,11 @@ class AudioplayersPlugin : FlutterPlugin {
             "setPlayerMode" -> {
                 val playerMode = call.enumArgument<PlayerMode>("playerMode")
                     ?: error("playerMode is required")
-                player.playerMode = playerMode
+                mainScope.launch(Dispatchers.IO) {
+                    player.playerMode = playerMode
+                    response.success(1)
+                }
+                return
             }
             "setAudioContext" -> {
                 val audioContext = call.audioContext()
@@ -226,7 +243,13 @@ class AudioplayersPlugin : FlutterPlugin {
 
 private inline fun <reified T : Enum<T>> MethodCall.enumArgument(name: String): T? {
     val enumName = argument<String>(name) ?: return null
-    return enumValueOf<T>(enumName.split('.').last().toUpperCase(Locale.ROOT))
+    return enumValueOf<T>(enumName.split('.').last().toConstantCase())
+}
+
+fun String.toConstantCase(): String {
+    return replace(Regex("(.)(\\p{Upper})"), "$1_$2")
+        .replace(Regex("(.) (.)"), "$1_$2")
+        .uppercase()
 }
 
 private fun MethodCall.audioContext(): AudioContextAndroid  {

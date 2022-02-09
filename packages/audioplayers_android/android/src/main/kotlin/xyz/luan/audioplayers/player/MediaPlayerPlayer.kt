@@ -18,6 +18,7 @@ class MediaPlayerPlayer(
             setOnCompletionListener { wrappedPlayer.onCompletion() }
             setOnSeekCompleteListener { wrappedPlayer.onSeekComplete() }
             setOnErrorListener { _, what, extra -> wrappedPlayer.onError(what, extra) }
+            setOnBufferingUpdateListener { _, percent -> wrappedPlayer.onBuffering(percent) }
         }
     }
 

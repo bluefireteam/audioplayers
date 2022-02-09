@@ -173,6 +173,8 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform
         final complete = call.getBool('value');
         emitSeekComplete(playerId, complete);
         break;
+      case 'audio.onError':
+        throw call.getString('value');
       default:
         _logger.error('Unknown method ${call.method} ');
     }

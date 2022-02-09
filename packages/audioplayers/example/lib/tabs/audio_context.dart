@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../components/btn.dart';
 import '../components/cbx.dart';
 import '../components/tab_wrapper.dart';
+import '../components/tabs.dart';
 
 class AudioContextTab extends StatefulWidget {
   const AudioContextTab({Key? key}) : super(key: key);
@@ -31,39 +32,23 @@ class _AudioContextTabState extends State<AudioContextTab> {
               onPressed: () => updateConfig(AudioContextConfig()),
             ),
             Btn(
-              txt: 'Set Global',
+              txt: 'Global',
               onPressed: () => _global.setGlobalAudioContext(config.build()),
             ),
+            Btn(
+              txt: 'Local',
+              onPressed: () => print('NOT IMPL YET'),
+            )
           ],
         ),
         Container(
           height: 500,
-          child: DefaultTabController(
-            length: 3,
-            child: Scaffold(
-              body: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const TabBar(
-                    labelColor: Colors.black,
-                    tabs: [
-                      Tab(text: 'Generic Flags'),
-                      Tab(text: 'Android'),
-                      Tab(text: 'iOS'),
-                    ],
-                  ),
-                  Expanded(
-                    child: TabBarView(
-                      children: [
-                        _genericTab(),
-                        _androidTab(),
-                        _iosTab(),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          child: Tabs(
+            tabs: {
+              'Generic Flags': _genericTab(),
+              'Android': _androidTab(),
+              'iOS': _iosTab(),
+            },
           ),
         ),
       ],

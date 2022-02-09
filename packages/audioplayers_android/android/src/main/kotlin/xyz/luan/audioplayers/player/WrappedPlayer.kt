@@ -24,15 +24,18 @@ class WrappedPlayer internal constructor(
     var source: Source? = null
         set(value) {
             if (field != value) {
-                field = value
-
                 if (value != null) {
                     val player = getOrCreatePlayer()
                     player.setSource(value)
-                    preparePlayer(player)
+                    player.configAndPrepare()
                 } else {
+                    released = true
+                    prepared = false
+                    playing = false
                     player?.release()
                 }
+
+                field = value
             }
         }
 
@@ -69,7 +72,14 @@ class WrappedPlayer internal constructor(
 
     var playerMode: PlayerMode = MEDIA_PLAYER
         set(value) {
-            TODO("(luan): not implemented yet!")
+            field = value
+
+            // if the player exists, we need to re-create it from scratch;
+            // this will probably cause music to pause for a second
+            val player = player ?: return
+            shouldSeekTo = player.getCurrentPosition()
+            player.release()
+            this.player = createPlayer()
         }
 
     private var released = true
@@ -78,16 +88,6 @@ class WrappedPlayer internal constructor(
     private var shouldSeekTo = -1
 
     private val focusManager = FocusManager(this)
-
-    /**
-     * Setter methods
-     */
-
-    private fun preparePlayer(player: Player) {
-        player.setVolume(volume)
-        player.setLooping(releaseMode == ReleaseMode.LOOP)
-        player.prepare()
-    }
 
     private fun getOrCreatePlayer(): Player {
         val currentPlayer = player
@@ -151,12 +151,7 @@ class WrappedPlayer internal constructor(
             playing = true
             if (released || currentPlayer == null) {
                 released = false
-                player = createPlayer().also { player ->
-                    source?.let {
-                        player.setSource(it)
-                        player.prepare()
-                    }
-                }
+                player = createPlayer()
             } else if (prepared) {
                 currentPlayer.start()
                 ref.handleIsPlaying()
@@ -253,6 +248,11 @@ class WrappedPlayer internal constructor(
         return false
     }
 
+    fun onBuffering(percent: Int) {
+        // TODO(luan) expose this as a stream
+        println("Buffering: $percent")
+    }
+
     fun onSeekComplete() {
         ref.handleSeekComplete(this)
     }
@@ -262,9 +262,23 @@ class WrappedPlayer internal constructor(
      */
 
     private fun createPlayer(): Player {
-        return when (playerMode) {
+        val player = when (playerMode) {
             MEDIA_PLAYER -> MediaPlayerPlayer(this)
             LOW_LATENCY -> SoundPoolPlayer(this)
         }
+
+        source?.let {
+            player.setSource(it)
+            player.configAndPrepare()
+        }
+
+        return player
+    }
+
+    private fun Player.configAndPrepare() {
+        setRate(rate)
+        setVolume(volume)
+        setLooping(isLooping)
+        prepare()
     }
 }

@@ -23,10 +23,11 @@ class _LoggerTabState extends State<LoggerTab> {
       children: [
         Text('Log Level: $currentLogLevel'),
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: LogLevel.values
               .map(
                 (e) => Btn(
-                  txt: e.toString(),
+                  txt: e.toString().replaceAll('LogLevel.', ''),
                   onPressed: () async {
                     await _logger.changeLogLevel(e);
                     setState(() => currentLogLevel = _logger.logLevel);

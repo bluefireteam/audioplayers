@@ -2,7 +2,9 @@ group 'xyz.luan.audioplayers'
 version '1.0-SNAPSHOT'
 
 buildscript {
-    ext.kotlin_version = '1.4.32'
+    ext.kotlin_version = '1.6.10'
+    ext.coroutines_version = '1.6.0'
+
     repositories {
         google()
         mavenCentral()
@@ -27,7 +29,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'de.mannodermaus.android-junit5'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 31
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
@@ -51,10 +53,12 @@ allprojects {
 }
 
 dependencies {
-    implementation "androidx.core:core-ktx:1.6.0"
+    implementation "androidx.core:core-ktx:1.7.0"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
     testImplementation "org.junit.jupiter:junit-jupiter:5.8.2"
-    testImplementation "org.assertj:assertj-core:3.21.0"
+    testImplementation "org.assertj:assertj-core:3.22.0"
 }
 repositories {
     mavenCentral()

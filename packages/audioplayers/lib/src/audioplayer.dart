@@ -74,11 +74,18 @@ class AudioPlayer {
 
   /// Current mode of the audio player. Can be updated at any time, but is going
   /// to take effect only at the next time you play the audio.
-  final PlayerMode mode;
+  PlayerMode _mode = PlayerMode.mediaPlayer;
+
+  PlayerMode get mode => _mode;
+
+  ReleaseMode _releaseMode = ReleaseMode.release;
+
+  ReleaseMode get releaseMode => _releaseMode;
+
+  // TODO(luan) keep copies of things like volume, rate, etc
 
   /// Creates a new instance and assigns an unique id to it.
-  AudioPlayer({this.mode = PlayerMode.mediaPlayer, String? playerId})
-      : playerId = playerId ?? _uuid.v4();
+  AudioPlayer({String? playerId}) : playerId = playerId ?? _uuid.v4();
 
   Future<void> play(
     String url, {
@@ -86,7 +93,11 @@ class AudioPlayer {
     double? volume,
     AudioContext? ctx,
     Duration? position,
+    PlayerMode? mode,
   }) async {
+    if (mode != null) {
+      await setPlayerMode(mode);
+    }
     if (volume != null) {
       await setVolume(volume);
     }
@@ -107,7 +118,11 @@ class AudioPlayer {
     Uint8List bytes, {
     double? volume,
     AudioContext? ctx,
+    PlayerMode? mode,
   }) async {
+    if (mode != null) {
+      await setPlayerMode(mode);
+    }
     if (volume != null) {
       await setVolume(volume);
     }
@@ -120,6 +135,11 @@ class AudioPlayer {
 
   Future<void> setAudioContext(AudioContext ctx) {
     return _platform.setAudioContext(playerId, ctx);
+  }
+
+  Future<void> setPlayerMode(PlayerMode mode) {
+    _mode = mode;
+    return _platform.setPlayerMode(playerId, mode);
   }
 
   /// Pauses the audio that is currently playing.
@@ -173,6 +193,7 @@ class AudioPlayer {
   ///
   /// Check [ReleaseMode]'s doc to understand the difference between the modes.
   Future<void> setReleaseMode(ReleaseMode releaseMode) {
+    _releaseMode = releaseMode;
     return _platform.setReleaseMode(playerId, releaseMode);
   }
 
