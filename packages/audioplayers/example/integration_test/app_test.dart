@@ -10,9 +10,7 @@ void main() {
       app.main();
       await tester.pumpAndSettle();
       expect(
-        find.text(
-          'Sample 1 (https://luan.xyz/files/audio/ambient_c_motion.mp3)',
-        ),
+        find.text('Remote URL WAV 1 - coins.wav'),
         findsOneWidget,
       );
     });
