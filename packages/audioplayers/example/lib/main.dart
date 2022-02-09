@@ -49,9 +49,9 @@ class _ExampleAppState extends State<ExampleApp> {
               tabs: {
                 'Src': SourcesTab(setSourceUrl: setSourceUrl),
                 'Ctrl': ControlsTab(player: selectedPlayer),
-                'Stream': StreamsTab(),
-                'Ctx': AudioContextTab(),
-                'Log': LoggerTab(),
+                'Stream': StreamsTab(player: selectedPlayer),
+                'Ctx': const AudioContextTab(),
+                'Log': const LoggerTab(),
               },
             ),
           ),
