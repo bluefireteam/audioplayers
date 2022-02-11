@@ -69,6 +69,14 @@ jobs:
      - name: Setup Android SDK
        uses: android-actions/setup-android@v2
 
+     - name: Setup new version of cmdline-tools
+       run: |
+         wget https://dl.google.com/android/repository/commandlinetools-linux-6200805_latest.zip
+         unzip commandlinetools-linux-6200805_latest.zip -d $ANDROID_HOME/cmdline-tools
+         rm commandlinetools-linux-6200805_latest.zip
+         ls -la $ANDROID_HOME
+         ls -la $ANDROID_HOME/cmdline-tools
+
      - name: Setup Flutter
        uses: subosito/flutter-action@v1
        with:
