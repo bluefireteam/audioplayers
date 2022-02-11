@@ -94,6 +94,7 @@ jobs:
      - name: "Start Android Emulator"
        timeout-minutes: 10
        run: |
+         export ANDROID_TOOLS="$ANDROID_HOME/cmdline-tools/latest/bin"
          echo "Starting emulator"
          $ANDROID_TOOLS/sdkmanager "platform-tools" "platforms;android-30"
          nohup $ANDROID_HOME/emulator/emulator -avd emu -no-audio -no-snapshot -no-window &
