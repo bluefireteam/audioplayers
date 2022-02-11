@@ -72,6 +72,10 @@ jobs:
      - name: Setup new version of cmdline-tools
        run: |
          export ANDROID_TOOLS="$ANDROID_HOME/cmdline-tools/latest/bin"
+         echo "1"
+         ls $ANDROID_HOME/cmdline-tools/latest
+         echo "2"
+         ls $ANDROID_TOOLS
 
      - name: Setup Flutter
        uses: subosito/flutter-action@v1
