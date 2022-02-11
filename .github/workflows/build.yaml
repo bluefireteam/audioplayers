@@ -87,15 +87,15 @@ jobs:
 
      - name: Download Android Emulator Image
        run: |
-         echo "y" | $ANDROID_HOME/tools/bin/sdkmanager --install "system-images;android-30;google_apis;x86"
-         echo "no" | $ANDROID_HOME/tools/bin/avdmanager create avd --force --name emu --device "Nexus 5X" -k 'system-images;android-30;google_apis;x86'
+         echo "y" | $ANDROID_HOME/cmdline-tools/bin/sdkmanager --install "system-images;android-30;google_apis;x86"
+         echo "no" | $ANDROID_HOME/cmdline-tools/bin/avdmanager create avd --force --name emu --device "Nexus 5X" -k 'system-images;android-30;google_apis;x86'
          $ANDROID_HOME/emulator/emulator -list-avds
      - name: "Start Android Emulator"
        timeout-minutes: 10
        run: |
          echo "Starting emulator"
-         ls "$ANDROID_HOME/tools/bin/"
-         $ANDROID_HOME/tools/bin/sdkmanager "platform-tools" "platforms;android-30"
+         ls "$ANDROID_HOME/cmdline-tools/bin/"
+         $ANDROID_HOME/cmdline-tools/bin/sdkmanager "platform-tools" "platforms;android-30"
          echo "$ANDROID_HOME/platform-tools"
          ls "$ANDROID_HOME/"
          ls "$ANDROID_HOME/platform-tools"

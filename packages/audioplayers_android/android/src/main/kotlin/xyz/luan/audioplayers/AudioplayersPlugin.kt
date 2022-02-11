@@ -4,6 +4,7 @@ package xyz.luan.audioplayers
 import android.content.Context
 import android.os.Build
 import android.os.Handler
+import android.os.Looper
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterPluginBinding
 import io.flutter.plugin.common.MethodCall
@@ -27,7 +28,7 @@ class AudioplayersPlugin : FlutterPlugin {
     private lateinit var context: Context
 
     private val players = mutableMapOf<String, WrappedPlayer>()
-    private val handler = Handler()
+    private val handler = Handler(Looper.getMainLooper())
     private var positionUpdates: Runnable? = null
 
     private var defaultAudioContext = AudioContextAndroid()
