@@ -72,6 +72,7 @@ jobs:
      - name: Setup new version of cmdline-tools
        run: |
          wget https://dl.google.com/android/repository/commandlinetools-linux-6200805_latest.zip
+         ls -la $ANDROID_HOME/cmdline-tools
          unzip commandlinetools-linux-6200805_latest.zip -d $ANDROID_HOME/cmdline-tools
          rm commandlinetools-linux-6200805_latest.zip
          ls -la $ANDROID_HOME
@@ -95,8 +96,8 @@ jobs:
 
      - name: Download Android Emulator Image
        run: |
-         echo "y" | $ANDROID_HOME/cmdline-tools/bin/sdkmanager --install "system-images;android-30;google_apis;x86"
-         echo "no" | $ANDROID_HOME/cmdline-tools/bin/avdmanager create avd --force --name emu --device "Nexus 5X" -k 'system-images;android-30;google_apis;x86'
+         echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "system-images;android-30;google_apis;x86"
+         echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd --force --name emu --device "Nexus 5X" -k 'system-images;android-30;google_apis;x86'
          $ANDROID_HOME/emulator/emulator -list-avds
      - name: "Start Android Emulator"
        timeout-minutes: 10
