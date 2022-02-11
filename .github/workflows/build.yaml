@@ -69,14 +69,6 @@ jobs:
      - name: Setup Android SDK
        uses: android-actions/setup-android@v2
 
-     - name: Setup new version of cmdline-tools
-       run: |
-         export ANDROID_TOOLS="$ANDROID_HOME/cmdline-tools/latest/bin"
-         echo "1"
-         ls $ANDROID_HOME/cmdline-tools/latest
-         echo "2"
-         ls $ANDROID_TOOLS
-
      - name: Setup Flutter
        uses: subosito/flutter-action@v1
        with:
@@ -95,6 +87,7 @@ jobs:
 
      - name: Download Android Emulator Image
        run: |
+         export ANDROID_TOOLS="$ANDROID_HOME/cmdline-tools/latest/bin"
          echo "y" | $ANDROID_TOOLS/sdkmanager --install "system-images;android-30;google_apis;x86"
          echo "no" | $ANDROID_TOOLS/avdmanager create avd --force --name emu --device "Nexus 5X" -k 'system-images;android-30;google_apis;x86'
          $ANDROID_HOME/emulator/emulator -list-avds
