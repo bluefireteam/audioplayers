@@ -26,6 +26,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   StreamSubscription? _durationSubscription;
   StreamSubscription? _positionSubscription;
   StreamSubscription? _playerCompleteSubscription;
+  StreamSubscription? _playerStateChangeSubscription;
 
   bool get _isPlaying => _playerState == PlayerState.playing;
   bool get _isPaused => _playerState == PlayerState.paused;
@@ -45,6 +46,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     _durationSubscription?.cancel();
     _positionSubscription?.cancel();
     _playerCompleteSubscription?.cancel();
+    _playerStateChangeSubscription?.cancel();
     super.dispose();
   }
 
@@ -124,7 +126,8 @@ class _PlayerWidgetState extends State<PlayerWidget> {
       });
     });
 
-    player.onPlayerStateChanged.listen((state) {
+    _playerStateChangeSubscription =
+        player.onPlayerStateChanged.listen((state) {
       setState(() {
         _audioPlayerState = state;
       });

@@ -11,7 +11,7 @@ const _wavUrl2 = 'https://luan.xyz/files/audio/laser.wav';
 const _mp3Url1 = 'https://luan.xyz/files/audio/ambient_c_motion.mp3';
 const _mp3Url2 = 'https://luan.xyz/files/audio/nasa_on_a_mission.mp3';
 const _streamUrl =
-    'http://bbcmedia.ic.llnwd.net/stream/bbcmedia_radio1xtra_mf_p';
+    'https://a.files.bbci.co.uk/media/live/manifesto/audio/simulcast/hls/nonuk/sbr_low/ak/bbc_radio_one.m3u8';
 
 const _asset1 = 'laser.wav';
 const _asset2 = 'nasa_on_a_mission.mp3';
