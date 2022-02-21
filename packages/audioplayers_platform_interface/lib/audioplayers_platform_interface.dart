@@ -95,14 +95,22 @@ abstract class AudioplayersPlatform extends PlatformInterface {
     PlayerMode playerMode,
   );
 
-  /// Get audio duration after setting url.
-  /// Use it in conjunction with setUrl.
+  /// Returns the duration of the media, in milliseconds, if available.
   ///
-  /// It will be available as soon as the audio duration is available
-  /// (it might take a while to download or buffer it if file is not local).
+  /// Might not be available if:
+  ///  * source has not been set or prepared yet (for remote audios it must be
+  ///    downloaded and buffered first)
+  ///  * source does not support operation (e.g. streams)
+  ///  * otherwise not supported (e.g. LOW_LATENCY mode on Android)
   Future<int?> getDuration(String playerId);
 
-  // Gets audio current playing position
+  /// Returns the current position of playback, in milliseconds, if available.
+  ///
+  /// Might not be available if:
+  ///  * source has not been set or prepared yet (for remote audios it must be
+  ///    downloaded and buffered first)
+  ///  * source does not support operation (e.g. streams)
+  ///  * otherwise not supported (e.g. LOW_LATENCY mode on Android)
   Future<int?> getCurrentPosition(String playerId);
 
   Stream<ForPlayer<PlayerState>> get playerStateStream;

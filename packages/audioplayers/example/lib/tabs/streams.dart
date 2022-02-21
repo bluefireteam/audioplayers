@@ -1,8 +1,13 @@
+import 'dart:async';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 
 import '../components/btn.dart';
+import '../components/pad.dart';
+import '../components/player_widget.dart';
 import '../components/tab_wrapper.dart';
+import '../utils.dart';
 
 class StreamsTab extends StatefulWidget {
   final AudioPlayer player;
@@ -14,7 +19,32 @@ class StreamsTab extends StatefulWidget {
 }
 
 class _StreamsTabState extends State<StreamsTab> {
-  int? position, duration;
+  Duration? position, duration;
+  late List<StreamSubscription> streams;
+
+  Duration? streamDuration, streamPosition;
+  PlayerState? state;
+
+  @override
+  void initState() {
+    super.initState();
+    streams = <StreamSubscription>[
+      widget.player.onDurationChanged
+          .listen((it) => setState(() => streamDuration = it)),
+      widget.player.onPlayerStateChanged
+          .listen((it) => setState(() => state = it)),
+      widget.player.onPositionChanged
+          .listen((it) => setState(() => streamPosition = it)),
+      widget.player.onPlayerComplete.listen((it) => toast('Player complete!')),
+      widget.player.onSeekComplete.listen((it) => toast('Seek complete!')),
+    ];
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    streams.forEach((it) => it.cancel());
+  }
 
   void getPosition() async {
     final position = await widget.player.getCurrentPosition();
@@ -36,6 +66,7 @@ class _StreamsTabState extends State<StreamsTab> {
               txt: 'getPosition',
               onPressed: getPosition,
             ),
+            const Pad(width: 8.0),
             Text(position?.toString() ?? '-'),
           ],
         ),
@@ -45,10 +76,17 @@ class _StreamsTabState extends State<StreamsTab> {
               txt: 'getDuration',
               onPressed: getDuration,
             ),
+            const Pad(width: 8.0),
             Text(duration?.toString() ?? '-'),
           ],
         ),
-        // streams
+        const Divider(color: Colors.black),
+        const Text('Streams'),
+        Text('Stream Duration: $streamDuration'),
+        Text('Stream Position: $streamPosition'),
+        Text('Stream State: $state'),
+        const Divider(color: Colors.black),
+        PlayerWidget(player: widget.player),
       ],
     );
   }

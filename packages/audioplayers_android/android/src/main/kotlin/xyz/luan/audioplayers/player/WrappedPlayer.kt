@@ -124,13 +124,18 @@ class WrappedPlayer internal constructor(
         player?.updateContext(context)
     }
 
+    // Getters
+
     /**
-     * Getter methods
+     * Returns the duration of the media in milliseconds, if available.
      */
     fun getDuration(): Int? {
         return player?.getDuration()
     }
 
+    /**
+     * Returns the current position of the playback in milliseconds, if available.
+     */
     fun getCurrentPosition(): Int? {
         return player?.getCurrentPosition()
     }

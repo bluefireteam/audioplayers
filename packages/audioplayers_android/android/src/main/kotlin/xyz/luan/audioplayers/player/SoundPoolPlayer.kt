@@ -158,9 +158,11 @@ class SoundPoolPlayer(
         streamId?.let { soundPool.setLoop(it, looping.loopModeInteger()) }
     }
 
-    override fun getDuration() = unsupportedOperation("getDuration")
+    // Cannot get duration for Sound Pool
+    override fun getDuration() = null
 
-    override fun getCurrentPosition() = unsupportedOperation("getDuration")
+    // Cannot get current position for Sound Pool
+    override fun getCurrentPosition() = null
 
     override fun isActuallyPlaying() = false
 

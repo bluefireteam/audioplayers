@@ -231,13 +231,21 @@ class AudioPlayer {
   ///
   /// It will be available as soon as the audio duration is available
   /// (it might take a while to download or buffer it if file is not local).
-  Future<int?> getDuration() {
-    return _platform.getDuration(playerId);
+  Future<Duration?> getDuration() async {
+    final milliseconds = await _platform.getDuration(playerId);
+    if (milliseconds == null) {
+      return null;
+    }
+    return Duration(milliseconds: milliseconds);
   }
 
   // Gets audio current playing position
-  Future<int?> getCurrentPosition() async {
-    return _platform.getCurrentPosition(playerId);
+  Future<Duration?> getCurrentPosition() async {
+    final milliseconds = await _platform.getCurrentPosition(playerId);
+    if (milliseconds == null) {
+      return null;
+    }
+    return Duration(milliseconds: milliseconds);
   }
 
   /// Closes all [StreamController]s.

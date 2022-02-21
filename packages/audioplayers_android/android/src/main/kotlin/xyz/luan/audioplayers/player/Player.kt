@@ -6,8 +6,8 @@ import xyz.luan.audioplayers.ReleaseMode
 import xyz.luan.audioplayers.source.Source
 
 interface Player {
-    fun getDuration(): Int
-    fun getCurrentPosition(): Int
+    fun getDuration(): Int?
+    fun getCurrentPosition(): Int?
     fun isActuallyPlaying(): Boolean
 
     fun start()

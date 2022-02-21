@@ -8,6 +8,7 @@ import 'tabs/controls.dart';
 import 'tabs/logger.dart';
 import 'tabs/sources.dart';
 import 'tabs/streams.dart';
+import 'utils.dart';
 
 typedef OnError = void Function(Exception exception);
 
@@ -63,13 +64,5 @@ class _ExampleAppState extends State<ExampleApp> {
   Future<void> setSourceUrl(String url, {bool isLocal = false}) async {
     await selectedPlayer.setSourceUrl(url, isLocal: isLocal);
     toast('Successfully setted URL');
-  }
-
-  void toast(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-      ),
-    );
   }
 }

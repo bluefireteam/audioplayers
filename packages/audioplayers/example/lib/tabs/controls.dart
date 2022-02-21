@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import '../components/btn.dart';
 import '../components/tab_wrapper.dart';
 import '../components/tgl.dart';
+import '../components/txt.dart';
+import '../utils.dart';
 
 class ControlsTab extends StatefulWidget {
   final AudioPlayer player;
@@ -15,10 +17,26 @@ class ControlsTab extends StatefulWidget {
 }
 
 class _ControlsTabState extends State<ControlsTab> {
+  String modalInputSeek = '';
+
   void update(Future<void> Function() fn) async {
     await fn();
     // update everyone who listens to "player"
     setState(() {});
+  }
+
+  Future<void> seekPercent(double percent) async {
+    final duration = await widget.player.getDuration();
+    if (duration == null) {
+      toast('Failed to get duration for proportional seek.');
+      return;
+    }
+    final position = duration * percent;
+    seekDuration(position);
+  }
+
+  Future<void> seekDuration(Duration duration) async {
+    update(() => widget.player.seek(duration));
   }
 
   @override
@@ -84,7 +102,68 @@ class _ControlsTabState extends State<ControlsTab> {
             ),
           ],
         ),
-        // TODO(luan): add seek
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('Seek'),
+            ...[0.0, 0.5, 1.0].map((it) {
+              return Btn(
+                txt: it.toString(),
+                onPressed: () => seekPercent(it),
+              );
+            }),
+            Btn(
+              txt: 'Custom',
+              onPressed: () async {
+                dialog([
+                  const Text('Pick a duration and unit to seek'),
+                  TxtBox(
+                    value: modalInputSeek,
+                    onChange: (it) => setState(() => modalInputSeek = it),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Btn(
+                        txt: 'millis',
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          seekDuration(
+                            Duration(
+                              milliseconds: int.parse(modalInputSeek),
+                            ),
+                          );
+                        },
+                      ),
+                      Btn(
+                        txt: 'seconds',
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          seekDuration(
+                            Duration(
+                              seconds: int.parse(modalInputSeek),
+                            ),
+                          );
+                        },
+                      ),
+                      Btn(
+                        txt: '%',
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          seekPercent(double.parse(modalInputSeek));
+                        },
+                      ),
+                      Btn(
+                        txt: 'Cancel',
+                        onPressed: Navigator.of(context).pop,
+                      ),
+                    ],
+                  ),
+                ]);
+              },
+            ),
+          ],
+        ),
       ],
     );
   }
