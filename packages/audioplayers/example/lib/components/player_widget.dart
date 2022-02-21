@@ -108,7 +108,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     );
   }
 
-  void _initStreams() async {
+  void _initStreams() {
     _durationSubscription = player.onDurationChanged.listen((duration) {
       setState(() => _duration = duration);
     });

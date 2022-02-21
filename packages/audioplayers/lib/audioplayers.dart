@@ -8,3 +8,4 @@ export 'package:audioplayers_platform_interface/logger_platform_interface.dart';
 
 export 'src/audio_cache.dart';
 export 'src/audioplayer.dart';
+export 'src/source.dart';

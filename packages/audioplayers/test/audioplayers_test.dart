@@ -30,7 +30,7 @@ void main() {
     test('#play', () async {
       calls.clear();
       final player = AudioPlayer();
-      await player.play('internet.com/file.mp3');
+      await player.play(UrlSource('internet.com/file.mp3'));
       final call1 = popCall();
       expect(call1.method, 'setSourceUrl');
       expect(call1.getString('url'), 'internet.com/file.mp3');
@@ -43,7 +43,7 @@ void main() {
       final player1 = AudioPlayer();
       final player2 = AudioPlayer();
 
-      await player1.play('internet.com/file.mp3');
+      await player1.play(UrlSource('internet.com/file.mp3'));
       final call1 = popCall();
       final player1Id = call1.getString('playerId');
       expect(call1.method, 'setSourceUrl');
@@ -52,15 +52,15 @@ void main() {
       expect(call2.method, 'resume');
 
       clear();
-      await player1.play('internet.com/file.mp3');
+      await player1.play(UrlSource('internet.com/file.mp3'));
       expect(popCall().getString('playerId'), player1Id);
 
       clear();
-      await player2.play('internet.com/file.mp3');
+      await player2.play(UrlSource('internet.com/file.mp3'));
       expect(popCall().getString('playerId'), isNot(player1Id));
 
       clear();
-      await player1.play('internet.com/file.mp3');
+      await player1.play(UrlSource('internet.com/file.mp3'));
       expect(popCall().getString('playerId'), player1Id);
     });
 

@@ -1,14 +1,11 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:audioplayers_platform_interface/api/audio_context_config.dart';
-import 'package:audioplayers_platform_interface/api/for_player.dart';
-import 'package:audioplayers_platform_interface/api/player_mode.dart';
-import 'package:audioplayers_platform_interface/api/player_state.dart';
-import 'package:audioplayers_platform_interface/api/release_mode.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
 import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
+
+import '../audioplayers.dart';
 
 const _uuid = Uuid();
 
@@ -20,6 +17,11 @@ const _uuid = Uuid();
 /// hooks for handlers and callbacks.
 class AudioPlayer {
   static final _platform = AudioplayersPlatform.instance;
+
+  /// This is the [AudioCache] instance used by this player.
+  /// Unless you want to control multiple caches separately, you don't need to
+  /// change anything as the global instance will be used by default.
+  AudioCache audioCache = AudioCache.instance;
 
   PlayerState _playerState = PlayerState.stopped;
 
@@ -82,14 +84,11 @@ class AudioPlayer {
 
   ReleaseMode get releaseMode => _releaseMode;
 
-  // TODO(luan) keep copies of things like volume, rate, etc
-
   /// Creates a new instance and assigns an unique id to it.
   AudioPlayer({String? playerId}) : playerId = playerId ?? _uuid.v4();
 
   Future<void> play(
-    String url, {
-    bool? isLocal,
+    Source source, {
     double? volume,
     AudioContext? ctx,
     Duration? position,
@@ -107,29 +106,7 @@ class AudioPlayer {
     if (position != null) {
       await seek(position);
     }
-    await setSourceUrl(url, isLocal: isLocal);
-    return resume();
-  }
-
-  /// Plays audio in the form of a byte array.
-  ///
-  /// This is only supported on Android (SDK >= 23) currently.
-  Future<void> playBytes(
-    Uint8List bytes, {
-    double? volume,
-    AudioContext? ctx,
-    PlayerMode? mode,
-  }) async {
-    if (mode != null) {
-      await setPlayerMode(mode);
-    }
-    if (volume != null) {
-      await setVolume(volume);
-    }
-    if (ctx != null) {
-      await setAudioContext(ctx);
-    }
-    await setSourceBytes(bytes);
+    await setSource(source);
     return resume();
   }
 
@@ -160,8 +137,7 @@ class AudioPlayer {
     state = PlayerState.stopped;
   }
 
-  /// Resumes the audio that has been paused or stopped, just like calling
-  /// [play], but without changing the parameters.
+  /// Resumes the audio that has been paused or stopped.
   Future<void> resume() async {
     await _platform.resume(playerId);
     state = PlayerState.playing;
@@ -170,7 +146,7 @@ class AudioPlayer {
   /// Releases the resources associated with this media player.
   ///
   /// The resources are going to be fetched or buffered again as soon as you
-  /// call [play] or [setSourceUrl].
+  /// call [resume] or change the source.
   Future<void> release() async {
     await _platform.release(playerId);
     state = PlayerState.stopped;
@@ -205,24 +181,41 @@ class AudioPlayer {
     return _platform.setPlaybackRate(playerId, playbackRate);
   }
 
-  /// Sets the URL.
+  /// Sets the audio source for this player.
   ///
-  /// Unlike [play], the playback will not resume.
+  /// This will delegate to one of the specific methods below depending on
+  /// the source type.
+  Future<void> setSource(Source source) {
+    return source.setOnPlayer(this);
+  }
+
+  /// Sets the URL to a remote link.
   ///
   /// The resources will start being fetched or buffered as soon as you call
   /// this method.
-  ///
-  /// respectSilence is not implemented on macOS.
-  Future<void> setSourceUrl(
-    String url, {
-    bool? isLocal,
-  }) {
-    return _platform.setSourceUrl(playerId, url, isLocal: isLocal);
+  Future<void> setSourceUrl(String url) {
+    return _platform.setSourceUrl(playerId, url, isLocal: false);
   }
 
-  Future<void> setSourceBytes(
-    Uint8List bytes,
-  ) {
+  /// Sets the URL to a file in the users device.
+  ///
+  /// The resources will start being fetched or buffered as soon as you call
+  /// this method.
+  Future<void> setSourceDeviceFile(String path) {
+    return _platform.setSourceUrl(playerId, path, isLocal: true);
+  }
+
+  /// Sets the URL to an asset in your Flutter application.
+  /// The global instance of AudioCache will be used by default.
+  ///
+  /// The resources will start being fetched or buffered as soon as you call
+  /// this method.
+  Future<void> setSourceAsset(String path) async {
+    final url = await audioCache.load(path);
+    return _platform.setSourceUrl(playerId, url.path, isLocal: true);
+  }
+
+  Future<void> setSourceBytes(Uint8List bytes) {
     return _platform.setSourceBytes(playerId, bytes);
   }
 
@@ -261,11 +254,5 @@ class AudioPlayer {
       futures.add(_playerStateController.close());
     }
     await Future.wait<dynamic>(futures);
-  }
-
-  bool isLocalUrl(String url) {
-    return url.startsWith('/') ||
-        url.startsWith('file://') ||
-        url.substring(1).startsWith(':\\');
   }
 }
