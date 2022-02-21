@@ -50,7 +50,7 @@ class WrappedMediaPlayer {
         self.onReady = onReady
     }
     
-    func clearObservers() {
+    func dispose() {
         for observer in observers {
             NotificationCenter.default.removeObserver(observer.observer)
         }
@@ -154,7 +154,7 @@ class WrappedMediaPlayer {
     
     func release() {
         stop()
-        clearObservers()
+        dispose()
     }
     
     func onSoundComplete() {
@@ -202,7 +202,7 @@ class WrappedMediaPlayer {
             if let existingPlayer = self.player {
                 keyValueObservation?.invalidate()
                 self.url = url
-                clearObservers()
+                dispose()
                 existingPlayer.replaceCurrentItem(with: playerItem)
                 player = existingPlayer
             } else {

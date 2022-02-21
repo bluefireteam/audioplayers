@@ -44,14 +44,14 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
         registrar.addMethodCallDelegate(instance, channel: channel)
         registrar.addMethodCallDelegate(instance, channel: globalChannel)
     }
-    
-    @objc func needStop() {
-        destroy()
+
+    public func detachFromEngine(for registrar: FlutterPluginRegistrar) {
+        dispose()
     }
     
-    func destroy() {
+    func dispose() {
         for (_, player) in self.players {
-            player.clearObservers()
+            player.dispose()
         }
         self.players = [:]
     }
