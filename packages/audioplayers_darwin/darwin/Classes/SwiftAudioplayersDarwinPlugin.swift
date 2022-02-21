@@ -10,36 +10,27 @@ import FlutterMacOS
 import AVFAudio
 #endif
 
-#if os(iOS)
-let OS_NAME = "iOS"
-#else
-let OS_NAME = "macOS"
-#endif
-
 let CHANNEL_NAME = "xyz.luan/audioplayers"
-let LOGGER_CHANNEL_NAME = "xyz.luan/audioplayers.logger"
+let GLOBAL_CHANNEL_NAME = "xyz.luan/audioplayers.global"
 
 public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
     var registrar: FlutterPluginRegistrar
     var channel: FlutterMethodChannel
-    var loggerChannel: FlutterMethodChannel
+    var globalChannel: FlutterMethodChannel
     
+    var globalContext: AudioContext = AudioContext()
     var players = [String : WrappedMediaPlayer]()
     
-    var timeObservers = [TimeObserver]()
-    
-    var isDealloc = false
-    
-    init(registrar: FlutterPluginRegistrar, channel: FlutterMethodChannel, loggerChannel: FlutterMethodChannel) {
+    init(registrar: FlutterPluginRegistrar, channel: FlutterMethodChannel, globalChannel: FlutterMethodChannel) {
         self.registrar = registrar
         self.channel = channel
-        self.loggerChannel = loggerChannel
+        self.globalChannel = globalChannel
         
         super.init()
     }
     
     public static func register(with registrar: FlutterPluginRegistrar) {
-        // TODO(luan) apparently there is a bug in Flutter causing some inconsistency between Flutter and FlutterMacOS
+        // apparently there is a bug in Flutter causing some inconsistency between Flutter and FlutterMacOS
         #if os(iOS)
         let binaryMessenger = registrar.messenger()
         #else
@@ -47,24 +38,18 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
         #endif
         
         let channel = FlutterMethodChannel(name: CHANNEL_NAME, binaryMessenger: binaryMessenger)
-        let loggerChannel = FlutterMethodChannel(name: LOGGER_CHANNEL_NAME, binaryMessenger: binaryMessenger)
+        let globalChannel = FlutterMethodChannel(name: GLOBAL_CHANNEL_NAME, binaryMessenger: binaryMessenger)
 
-        let instance = SwiftAudioplayersDarwinPlugin(registrar: registrar, channel: channel, loggerChannel: loggerChannel)
+        let instance = SwiftAudioplayersDarwinPlugin(registrar: registrar, channel: channel, globalChannel: globalChannel)
         registrar.addMethodCallDelegate(instance, channel: channel)
-        registrar.addMethodCallDelegate(instance, channel: loggerChannel)
+        registrar.addMethodCallDelegate(instance, channel: globalChannel)
     }
     
     @objc func needStop() {
-        isDealloc = true
         destroy()
     }
     
     func destroy() {
-        for observer in self.timeObservers {
-            observer.player.removeTimeObserver(observer.observer)
-        }
-        self.timeObservers = []
-        
         for (_, player) in self.players {
             player.clearObservers()
         }
@@ -80,6 +65,7 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
             return
         }
 
+        Logger.info("method %s", method)
         // global handlers (no playerId)
         if method == "changeLogLevel" {
             guard let valueName = args["value"] as! String? else {
@@ -96,14 +82,22 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
             Logger.logLevel = value
             result(1)
             return
+        } else if method == "setGlobalAudioContext" {
+            guard let context = parseAudioContext(args: args) else {
+                result(0)
+                return
+            }
+            globalContext = context
+            // TODO(luan) check all existing players
         }
 
+        // player specific handlers
         guard let playerId = args["playerId"] as? String else {
             Logger.error("Call missing mandatory parameter playerId.")
             result(0)
             return
         }
-        Logger.info("%@ => call %@, playerId %@", OS_NAME, method, playerId)
+        Logger.info("Method call %@, playerId %@", method, playerId)
         
         let player = self.getOrCreatePlayer(playerId: playerId)
         
@@ -141,6 +135,7 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
                 player in
                 result(1)
             }
+            return
         } else if method == "getDuration" {
             let duration = player.getDuration()
             result(duration)
@@ -170,16 +165,21 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
             }
             let looping = releaseMode.hasSuffix("LOOP")
             player.looping = looping
+        } else if method == "setAudioContext" {
+            guard let context = parseAudioContext(args: args) else {
+                result(0)
+                return
+            }
+            // TODO(luan) implement this
+            Logger.error("Not implemented yet; audio context = %@", context)
         } else {
             Logger.error("Called not implemented method: %@", method)
             result(FlutterMethodNotImplemented)
             return
         }
         
-        // shortcut to avoid requiring explicit call of result(1) everywhere
-        if method != "setSourceUrl" {
-            result(1)
-        }
+        // default result
+        result(1)
     }
     
     func getOrCreatePlayer(playerId: String) -> WrappedMediaPlayer {
@@ -214,60 +214,24 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
         channel.invokeMethod("audio.onDuration", arguments: ["playerId": playerId, "value": millis])
     }
     
-    // TODO: figure out the audio session stuff
-
-    func updateCategory(
-        recordingActive: Bool,
-        isNotification: Bool,
-        playingRoute: String,
-        duckAudio: Bool
-    ) {
-        #if os(iOS)
-        // When using AVAudioSessionCategoryPlayback, by default, this implies that your app’s audio is nonmixable—activating your session
-        // will interrupt any other audio sessions which are also nonmixable. AVAudioSessionCategoryPlayback should not be used with
-        // AVAudioSessionCategoryOptionMixWithOthers option. If so, it prevents infoCenter from working correctly.
-        let category = (playingRoute == "earpiece" || recordingActive) ? AVAudioSession.Category.playAndRecord : (
-            isNotification ? AVAudioSession.Category.ambient : AVAudioSession.Category.playback
-        )
-        let options = isNotification || duckAudio ? AVAudioSession.CategoryOptions.mixWithOthers : []
-        
-        configureAudioSession(category: category, options: options)
-        if isNotification {
-            UIApplication.shared.beginReceivingRemoteControlEvents()
-        }
-        #endif
-    }
-    
     func maybeDeactivateAudioSession() {
         let hasPlaying = players.values.contains { player in player.isPlaying }
         if !hasPlaying {
-            #if os(iOS)
             configureAudioSession(active: false)
-            #endif
         }
     }
     
-    // TODO(luan) this should not be here. is playingRoute player-specific or global?
-    func setPlayingRoute(playerId: String, playingRoute: String) {
-        let wrappedPlayer = players[playerId]!
-        wrappedPlayer.playingRoute = playingRoute
-        
-        #if os(iOS)
-        let category = playingRoute == "earpiece" ? AVAudioSession.Category.playAndRecord : AVAudioSession.Category.playback
-        configureAudioSession(category: category)
-        #endif
-    }
     
-    #if os(iOS)
     private func configureAudioSession(
-        category: AVAudioSession.Category? = nil,
-        options: AVAudioSession.CategoryOptions = [],
+        audioContext: AudioContext? = nil,
         active: Bool? = nil
     ) {
+        #if os(iOS)
         do {           
             let session = AVAudioSession.sharedInstance()
-            if let category = category {
-                try session.setCategory(category, options: options)
+            if let audioContext = audioContext {
+                let combinedOptions = audioContext.options.reduce(AVAudioSession.CategoryOptions()) { [$0, $1] }
+                try session.setCategory(audioContext.category, options: combinedOptions)
             }
             if let active = active {
                 try session.setActive(active)
@@ -275,6 +239,70 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
         } catch {
             Logger.error("Error configuring audio session: %@", error)
         }
+        #endif
     }
-    #endif
+    
+    func parseAudioContext(args: [String: Any]) -> AudioContext? {
+        guard let category = args["category"] as! String? else {
+            Logger.error("Null value received for category")
+            return nil
+        }
+        guard let optionStrings = args["options"] as! [String]? else {
+            Logger.error("Null value received for options")
+            return nil
+        }
+        let options = optionStrings.compactMap { parseCategoryOption(option: $0) }
+        if (optionStrings.count != options.count) {
+            return nil
+        }
+        guard let defaultToSpeaker = args["defaultToSpeaker"] as! Bool? else {
+            Logger.error("Null value received for defaultToSpeaker")
+            return nil
+        }
+        
+        return AudioContext(
+            category: AVAudioSession.Category.init(rawValue: category),
+            options: options,
+            defaultToSpeaker: defaultToSpeaker
+        )
+    }
+    
+    func parseCategoryOption(option: String) -> AVAudioSession.CategoryOptions? {
+        switch option {
+        case "mixWithOthers":
+            return .mixWithOthers
+        case "duckOthers":
+            return .duckOthers
+        case "allowBluetooth":
+            return .allowBluetooth
+        case "defaultToSpeaker":
+            return .defaultToSpeaker
+        case "interruptSpokenAudioAndMixWithOthers":
+            return .interruptSpokenAudioAndMixWithOthers
+        case "allowBluetoothA2DP":
+            if #available(iOS 10.0, *) {
+                return .allowBluetoothA2DP
+            } else {
+                Logger.error("Category Option allowBluetoothA2DP is only available on iOS 10+")
+                return nil
+            }
+        case "allowAirPlay":
+            if #available(iOS 10.0, *) {
+                return .allowAirPlay
+            } else {
+                Logger.error("Category Option allowAirPlay is only available on iOS 10+")
+                return nil
+            }
+        case "overrideMutedMicrophoneInterruption":
+            if #available(iOS 14.5, *) {
+                return .overrideMutedMicrophoneInterruption
+            } else {
+                Logger.error("Category Option overrideMutedMicrophoneInterruption is only available on iOS 14.5+")
+                return nil
+            }
+        default:
+            Logger.error("Invalid Category Option %@", option)
+            return nil
+        }
+    }
 }

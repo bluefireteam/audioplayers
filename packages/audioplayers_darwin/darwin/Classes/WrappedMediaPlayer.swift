@@ -173,9 +173,6 @@ class WrappedMediaPlayer {
     }
     
     func onTimeInterval(time: CMTime) {
-        if reference.isDealloc {
-            return
-        }
         let millis = fromCMTime(time: time)
         reference.onCurrentPosition(playerId: playerId, millis: millis)
     }
@@ -221,7 +218,7 @@ class WrappedMediaPlayer {
                     [weak self] time in
                     self!.onTimeInterval(time: time)
                 }
-                reference.timeObservers.append(TimeObserver(player: player, observer: timeObserver))
+                self.observers.append(TimeObserver(player: player, observer: timeObserver))
             }
             
             let anObserver = NotificationCenter.default.addObserver(
