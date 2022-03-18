@@ -152,7 +152,6 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform
   }
 
   Future<void> _doHandlePlatformCall(MethodCall call) async {
-    _logger.info('_platformCallHandler call ${call.method} ${call.args}');
     final playerId = call.getString('playerId');
 
     switch (call.method) {

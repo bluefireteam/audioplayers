@@ -120,6 +120,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     );
 
     _playerCompleteSubscription = player.onPlayerComplete.listen((event) {
+      player.stop();
       setState(() {
         _playerState = PlayerState.stopped;
         _position = _duration;

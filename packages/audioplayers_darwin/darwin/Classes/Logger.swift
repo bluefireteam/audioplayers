@@ -7,9 +7,9 @@ enum LogLevel: Int {
 extension LogLevel {
     static func parse(_ value: String) -> LogLevel? {
         switch (value) {
-        case "LogLevel.INFO": return LogLevel.info
-        case "LogLevel.ERROR": return LogLevel.error
-        case "LogLevel.NONE": return LogLevel.none
+        case "LogLevel.info": return LogLevel.info
+        case "LogLevel.error": return LogLevel.error
+        case "LogLevel.none": return LogLevel.none
         default: return nil
         }
     }

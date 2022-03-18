@@ -7,7 +7,9 @@ import '../components/tab_wrapper.dart';
 import '../components/tabs.dart';
 
 class AudioContextTab extends StatefulWidget {
-  const AudioContextTab({Key? key}) : super(key: key);
+  final AudioPlayer player;
+
+  const AudioContextTab({Key? key, required this.player}) : super(key: key);
 
   @override
   _AudioContextTabState createState() => _AudioContextTabState();
@@ -37,7 +39,7 @@ class _AudioContextTabState extends State<AudioContextTab> {
             ),
             Btn(
               txt: 'Local',
-              onPressed: () => print('NOT IMPL YET'),
+              onPressed: () => widget.player.setAudioContext(config.build()),
             )
           ],
         ),

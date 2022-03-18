@@ -2,7 +2,7 @@ import AVKit
 
 private let defaultPlaybackRate: Double = 1.0
 private let defaultVolume: Double = 1.0
-private let defaultPlayingRoute = "speakers"
+private let defaultLooping: Bool = false
 
 class WrappedMediaPlayer {
     var reference: SwiftAudioplayersDarwinPlugin
@@ -16,8 +16,8 @@ class WrappedMediaPlayer {
     var isPlaying: Bool
     var playbackRate: Double
     var volume: Double
-    var playingRoute: String
     var looping: Bool
+
     var url: String?
     var onReady: ((AVPlayer) -> Void)?
     
@@ -25,26 +25,21 @@ class WrappedMediaPlayer {
         reference: SwiftAudioplayersDarwinPlugin,
         playerId: String,
         player: AVPlayer? = nil,
-        observers: [TimeObserver] = [],
-        
-        isPlaying: Bool = false,
         playbackRate: Double = defaultPlaybackRate,
         volume: Double = defaultVolume,
-        playingRoute: String = defaultPlayingRoute,
-        looping: Bool = false,
+        looping: Bool = defaultLooping,
         url: String? = nil,
         onReady: ((AVPlayer) -> Void)? = nil
     ) {
         self.reference = reference
         self.playerId = playerId
         self.player = player
-        self.observers = observers
+        self.observers = []
         self.keyValueObservation = nil
         
-        self.isPlaying = isPlaying
+        self.isPlaying = false
         self.playbackRate = playbackRate
         self.volume = volume
-        self.playingRoute = playingRoute
         self.looping = looping
         self.url = url
         self.onReady = onReady
@@ -54,6 +49,7 @@ class WrappedMediaPlayer {
         for observer in observers {
             NotificationCenter.default.removeObserver(observer.observer)
         }
+        keyValueObservation?.invalidate()
         observers = []
     }
     
@@ -114,9 +110,11 @@ class WrappedMediaPlayer {
         guard let currentItem = player?.currentItem else {
             return
         }
-        // TODO(luan) currently when you seek, the play auto-unpauses. this should set a seekTo property, similar to what WrappedMediaPlayer
         currentItem.seek(to: time) {
             finished in
+            if !self.isPlaying {
+                self.player?.pause()
+            }
             self.reference.onSeekComplete(playerId: self.playerId, finished: finished)
         }
     }
@@ -168,7 +166,7 @@ class WrappedMediaPlayer {
             resume()
         }
         
-        reference.maybeDeactivateAudioSession()
+        reference.controlAudioSession()
         reference.onComplete(playerId: playerId)
     }
     

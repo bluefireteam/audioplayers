@@ -18,13 +18,15 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
     var channel: FlutterMethodChannel
     var globalChannel: FlutterMethodChannel
     
-    var globalContext: AudioContext = AudioContext()
+    var globalContext = AudioContext()
     var players = [String : WrappedMediaPlayer]()
     
     init(registrar: FlutterPluginRegistrar, channel: FlutterMethodChannel, globalChannel: FlutterMethodChannel) {
         self.registrar = registrar
         self.channel = channel
         self.globalChannel = globalChannel
+        
+        globalContext.apply()
         
         super.init()
     }
@@ -65,7 +67,8 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
             return
         }
 
-        Logger.info("method %s", method)
+        Logger.info("method: %@", method)
+
         // global handlers (no playerId)
         if method == "changeLogLevel" {
             guard let valueName = args["value"] as! String? else {
@@ -83,12 +86,14 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
             result(1)
             return
         } else if method == "setGlobalAudioContext" {
-            guard let context = parseAudioContext(args: args) else {
+            guard let context = AudioContext.parse(args: args) else {
                 result(0)
                 return
             }
             globalContext = context
-            // TODO(luan) check all existing players
+            globalContext.apply()
+            result(1)
+            return
         }
 
         // player specific handlers
@@ -97,8 +102,7 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
             result(0)
             return
         }
-        Logger.info("Method call %@, playerId %@", method, playerId)
-        
+        Logger.info("playerId: %@", playerId)
         let player = self.getOrCreatePlayer(playerId: playerId)
         
         if method == "pause" {
@@ -136,6 +140,10 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
                 result(1)
             }
             return
+        } else if method == "setSourceBytes" {
+            Logger.error("setSourceBytes is not curretnly implemented on iOS")
+            result(0)
+            return
         } else if method == "getDuration" {
             let duration = player.getDuration()
             result(duration)
@@ -163,22 +171,20 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
                 result(0)
                 return
             }
-            let looping = releaseMode.hasSuffix("LOOP")
+            // Note: there is no "release" on iOS; hence we only care if it's looping or not
+            let looping = releaseMode.hasSuffix("loop")
             player.looping = looping
         } else if method == "setAudioContext" {
-            guard let context = parseAudioContext(args: args) else {
-                result(0)
-                return
-            }
-            // TODO(luan) implement this
-            Logger.error("Not implemented yet; audio context = %@", context)
+            Logger.error("iOS does not allow for player-specific audio contexts; use setGlobalAudioContext instead.")
+            result(0)
+            return
         } else {
             Logger.error("Called not implemented method: %@", method)
             result(FlutterMethodNotImplemented)
             return
         }
         
-        // default result
+        // default result (bypass by adding `return` to your branch)
         result(1)
     }
     
@@ -214,95 +220,8 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
         channel.invokeMethod("audio.onDuration", arguments: ["playerId": playerId, "value": millis])
     }
     
-    func maybeDeactivateAudioSession() {
-        let hasPlaying = players.values.contains { player in player.isPlaying }
-        if !hasPlaying {
-            configureAudioSession(active: false)
-        }
-    }
-    
-    
-    private func configureAudioSession(
-        audioContext: AudioContext? = nil,
-        active: Bool? = nil
-    ) {
-        #if os(iOS)
-        do {           
-            let session = AVAudioSession.sharedInstance()
-            if let audioContext = audioContext {
-                let combinedOptions = audioContext.options.reduce(AVAudioSession.CategoryOptions()) { [$0, $1] }
-                try session.setCategory(audioContext.category, options: combinedOptions)
-            }
-            if let active = active {
-                try session.setActive(active)
-            }
-        } catch {
-            Logger.error("Error configuring audio session: %@", error)
-        }
-        #endif
-    }
-    
-    func parseAudioContext(args: [String: Any]) -> AudioContext? {
-        guard let category = args["category"] as! String? else {
-            Logger.error("Null value received for category")
-            return nil
-        }
-        guard let optionStrings = args["options"] as! [String]? else {
-            Logger.error("Null value received for options")
-            return nil
-        }
-        let options = optionStrings.compactMap { parseCategoryOption(option: $0) }
-        if (optionStrings.count != options.count) {
-            return nil
-        }
-        guard let defaultToSpeaker = args["defaultToSpeaker"] as! Bool? else {
-            Logger.error("Null value received for defaultToSpeaker")
-            return nil
-        }
-        
-        return AudioContext(
-            category: AVAudioSession.Category.init(rawValue: category),
-            options: options,
-            defaultToSpeaker: defaultToSpeaker
-        )
-    }
-    
-    func parseCategoryOption(option: String) -> AVAudioSession.CategoryOptions? {
-        switch option {
-        case "mixWithOthers":
-            return .mixWithOthers
-        case "duckOthers":
-            return .duckOthers
-        case "allowBluetooth":
-            return .allowBluetooth
-        case "defaultToSpeaker":
-            return .defaultToSpeaker
-        case "interruptSpokenAudioAndMixWithOthers":
-            return .interruptSpokenAudioAndMixWithOthers
-        case "allowBluetoothA2DP":
-            if #available(iOS 10.0, *) {
-                return .allowBluetoothA2DP
-            } else {
-                Logger.error("Category Option allowBluetoothA2DP is only available on iOS 10+")
-                return nil
-            }
-        case "allowAirPlay":
-            if #available(iOS 10.0, *) {
-                return .allowAirPlay
-            } else {
-                Logger.error("Category Option allowAirPlay is only available on iOS 10+")
-                return nil
-            }
-        case "overrideMutedMicrophoneInterruption":
-            if #available(iOS 14.5, *) {
-                return .overrideMutedMicrophoneInterruption
-            } else {
-                Logger.error("Category Option overrideMutedMicrophoneInterruption is only available on iOS 14.5+")
-                return nil
-            }
-        default:
-            Logger.error("Invalid Category Option %@", option)
-            return nil
-        }
+    func controlAudioSession() {
+        let anyIsPlaying = players.values.contains { player in player.isPlaying }
+        globalContext.activateAudioSession(active: anyIsPlaying)
     }
 }
