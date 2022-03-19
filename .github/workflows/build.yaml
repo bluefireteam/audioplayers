@@ -128,3 +128,20 @@ jobs:
      - name: Run Flutter Driver tests
        working-directory: ./packages/audioplayers/example
        run: "flutter test integration_test"
+
+  macos:
+    runs-on: macOS-latest
+
+    steps:
+     - uses: actions/checkout@v1
+     - uses: subosito/flutter-action@v1
+       with:
+         channel: stable
+     - name: Example App - Build macOS
+       working-directory: ./packages/audioplayers/example
+       run: |
+         flutter pub get
+         flutter build macos --release --no-codesign
+     - name: Run Flutter Driver tests
+       working-directory: ./packages/audioplayers/example
+       run: "flutter test -d macos integration_test"
