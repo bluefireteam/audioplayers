@@ -140,6 +140,7 @@ jobs:
      - name: Example App - Build macOS
        working-directory: ./packages/audioplayers/example
        run: |
+         flutter config --enable-macos-desktop
          flutter pub get
          flutter build macos --release
      - name: Run Flutter Driver tests
