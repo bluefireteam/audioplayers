@@ -1,14 +1,7 @@
 import 'package:audioplayers/audioplayers.dart';
+import 'package:audioplayers_platform_interface/method_channel_interface.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-extension _Args on MethodCall {
-  Map<dynamic, dynamic> get args => arguments as Map<dynamic, dynamic>;
-
-  String getString(String key) {
-    return args[key] as String;
-  }
-}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -20,19 +13,29 @@ void main() {
     return 0;
   });
 
+  void clear() {
+    calls.clear();
+  }
+
   MethodCall popCall() {
-    expect(calls, hasLength(1));
     return calls.removeAt(0);
+  }
+
+  MethodCall popLastCall() {
+    expect(calls, hasLength(1));
+    return popCall();
   }
 
   group('AudioPlayers', () {
     test('#play', () async {
       calls.clear();
       final player = AudioPlayer();
-      await player.play('internet.com/file.mp3');
-      final call = popCall();
-      expect(call.method, 'play');
-      expect(call.getString('url'), 'internet.com/file.mp3');
+      await player.play(UrlSource('internet.com/file.mp3'));
+      final call1 = popCall();
+      expect(call1.method, 'setSourceUrl');
+      expect(call1.getString('url'), 'internet.com/file.mp3');
+      final call2 = popLastCall();
+      expect(call2.method, 'resume');
     });
 
     test('multiple players', () async {
@@ -40,36 +43,41 @@ void main() {
       final player1 = AudioPlayer();
       final player2 = AudioPlayer();
 
-      await player1.play('internet.com/file.mp3');
-      final call = popCall();
-      final player1Id = call.getString('playerId');
-      expect(call.method, 'play');
-      expect(call.getString('url'), 'internet.com/file.mp3');
+      await player1.play(UrlSource('internet.com/file.mp3'));
+      final call1 = popCall();
+      final player1Id = call1.getString('playerId');
+      expect(call1.method, 'setSourceUrl');
+      expect(call1.getString('url'), 'internet.com/file.mp3');
+      final call2 = popLastCall();
+      expect(call2.method, 'resume');
 
-      await player1.play('internet.com/file.mp3');
+      clear();
+      await player1.play(UrlSource('internet.com/file.mp3'));
       expect(popCall().getString('playerId'), player1Id);
 
-      await player2.play('internet.com/file.mp3');
+      clear();
+      await player2.play(UrlSource('internet.com/file.mp3'));
       expect(popCall().getString('playerId'), isNot(player1Id));
 
-      await player1.play('internet.com/file.mp3');
+      clear();
+      await player1.play(UrlSource('internet.com/file.mp3'));
       expect(popCall().getString('playerId'), player1Id);
     });
 
     test('#resume, #pause and #duration', () async {
       calls.clear();
       final player = AudioPlayer();
-      await player.setUrl('assets/audio.mp3');
-      expect(popCall().method, 'setUrl');
+      await player.setSourceUrl('assets/audio.mp3');
+      expect(popLastCall().method, 'setSourceUrl');
 
       await player.resume();
-      expect(popCall().method, 'resume');
+      expect(popLastCall().method, 'resume');
 
       await player.getDuration();
-      expect(popCall().method, 'getDuration');
+      expect(popLastCall().method, 'getDuration');
 
       await player.pause();
-      expect(popCall().method, 'pause');
+      expect(popLastCall().method, 'pause');
     });
   });
 }

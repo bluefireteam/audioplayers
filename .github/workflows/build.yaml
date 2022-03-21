@@ -2,10 +2,10 @@ name: build
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches:
-      - master
+      - main
 
 jobs:
   build:
@@ -57,17 +57,22 @@ jobs:
     runs-on: macOS-latest
 
     steps:
-     - uses: malinskiy/action-android/install-sdk@release/0.1.2
-     - uses: actions/checkout@v1
-     - uses: subosito/flutter-action@v1
-       with:
-         channel: stable
+     - name: Checkout
+       uses: actions/checkout@v1
 
-     - name: Use specific Java version for sdkmanager to work
+     - name: Setup Java 11
        uses: joschi/setup-jdk@v2
        with:
-         java-version: 'openjdk8'
+         java-version: 'openjdk11'
          architecture: 'x64'
+
+     - name: Setup Android SDK
+       uses: android-actions/setup-android@v2
+
+     - name: Setup Flutter
+       uses: subosito/flutter-action@v1
+       with:
+         channel: stable
 
      - name: Example App - Build android APK
        working-directory: ./packages/audioplayers/example
@@ -82,18 +87,16 @@ jobs:
 
      - name: Download Android Emulator Image
        run: |
-         echo "y" | $ANDROID_HOME/tools/bin/sdkmanager --install "system-images;android-30;google_apis;x86"
-         echo "no" | $ANDROID_HOME/tools/bin/avdmanager create avd --force --name emu --device "Nexus 5X" -k 'system-images;android-30;google_apis;x86'
+         export ANDROID_TOOLS="$ANDROID_HOME/cmdline-tools/latest/bin"
+         echo "y" | $ANDROID_TOOLS/sdkmanager --install "system-images;android-30;google_apis;x86"
+         echo "no" | $ANDROID_TOOLS/avdmanager create avd --force --name emu --device "Nexus 5X" -k 'system-images;android-30;google_apis;x86'
          $ANDROID_HOME/emulator/emulator -list-avds
      - name: "Start Android Emulator"
        timeout-minutes: 10
        run: |
+         export ANDROID_TOOLS="$ANDROID_HOME/cmdline-tools/latest/bin"
          echo "Starting emulator"
-         ls "$ANDROID_HOME/tools/bin/"
-         $ANDROID_HOME/tools/bin/sdkmanager "platform-tools" "platforms;android-30"
-         echo "$ANDROID_HOME/platform-tools"
-         ls "$ANDROID_HOME/"
-         ls "$ANDROID_HOME/platform-tools"
+         $ANDROID_TOOLS/sdkmanager "platform-tools" "platforms;android-30"
          nohup $ANDROID_HOME/emulator/emulator -avd emu -no-audio -no-snapshot -no-window &
          $ANDROID_HOME/platform-tools/adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed | tr -d '\r') ]]; do sleep 1; done; input keyevent 82'
          $ANDROID_HOME/platform-tools/adb devices
@@ -107,10 +110,10 @@ jobs:
 
     steps:
      - name: List all simulators
-       run: "xcrun instruments -s"
+       run: "xcrun simctl list devices"
      - name: Start Simulator
        run: |
-         UDID=$(xcrun instruments -s | grep "iPhone" | sed -n 1p | awk -F ' *[][]' '{ print $2 }')
+         UDID=$(xcrun simctl list devices | grep "iPhone" | sed -n 1p | awk -F '\\)? \\(' '{ print $2 }')
          echo "Using simulator $UUID"
          xcrun simctl boot "${UDID:?No Simulator with this name iPhone found}"
      - uses: actions/checkout@v1
@@ -125,3 +128,25 @@ jobs:
      - name: Run Flutter Driver tests
        working-directory: ./packages/audioplayers/example
        run: "flutter test integration_test"
+
+  macos:
+    runs-on: macOS-latest
+
+    steps:
+     - uses: actions/checkout@v1
+     - uses: subosito/flutter-action@v1
+       with:
+         channel: master
+     - name: setup-cocoapods
+       uses: maxim-lobanov/setup-cocoapods@v1
+       with:
+         podfile-path: ./packages/audioplayers/example/macos/Podfile.lock
+     - name: Example App - Build macOS
+       working-directory: ./packages/audioplayers/example
+       run: |
+         flutter config --enable-macos-desktop
+         flutter pub get
+         flutter build macos --release
+     - name: Run Flutter Driver tests
+       working-directory: ./packages/audioplayers/example
+       run: "flutter test -d macos integration_test"
