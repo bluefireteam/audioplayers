@@ -30,8 +30,8 @@ class AudioPlayer {
   set state(PlayerState state) {
     if (!_playerStateController.isClosed) {
       _playerStateController.add(state);
-      _playerState = state;
     }
+    _playerState = state;
   }
 
   final StreamController<PlayerState> _playerStateController =
