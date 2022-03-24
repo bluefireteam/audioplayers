@@ -28,7 +28,9 @@ class AudioPlayer {
   PlayerState get state => _playerState;
 
   set state(PlayerState state) {
-    _playerStateController.add(state);
+    if (!_playerStateController.isClosed) {
+      _playerStateController.add(state);
+    }
     _playerState = state;
   }
 
