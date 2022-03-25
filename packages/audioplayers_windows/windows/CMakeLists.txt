@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-set(PROJECT_NAME "audioplayers")
+set(PROJECT_NAME "audioplayers_windows")
 set(WIL_VERSION "1.0.210803.1")
 project(${PROJECT_NAME} LANGUAGES CXX)
 include(FetchContent)
@@ -30,7 +30,7 @@ if (NOT ret EQUAL 0)
 endif()
 
 add_library(${PLUGIN_NAME} SHARED
-  "audioplayers_plugin.cpp"
+  "audioplayers_windows_plugin.cpp"
   "audio_player.h"
   "audio_player.cpp"
   "Logger.h"
@@ -54,7 +54,7 @@ target_include_directories(${PLUGIN_NAME} INTERFACE
 target_link_libraries(${PLUGIN_NAME} PRIVATE flutter flutter_wrapper_plugin)
 
 # List of absolute paths to libraries that should be bundled with the plugin
-set(audioplayers_bundled_libraries
+set(audioplayers_windows_bundled_libraries
   ""
   PARENT_SCOPE
 )

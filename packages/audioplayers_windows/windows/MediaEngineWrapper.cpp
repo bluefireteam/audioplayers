@@ -329,23 +329,10 @@ void MediaEngineWrapper::SetMediaSource(IMFMediaSource* mediaSource) {
 
 void MediaEngineWrapper::OnLoaded()
 {
-    // Call asynchronously to prevent potential deadlock due to lock inversion
-    // Ensure that the callback lambda holds a reference to this object to ensure that it isn't destroyed while there is a pending callback
-    winrt::com_ptr<MediaEngineWrapper> ref;
-    ref.copy_from(this);
-    media::MFPutWorkItem([&, ref]() {
-        {
-            auto lock = m_lock.lock();
-            // Put media engine into DCOMP mode (as opposed to frame server mode) and
-            // obtain a handle to the DCOMP surface handle
-            winrt::com_ptr<IMFMediaEngineEx> mediaEngineEx = m_mediaEngine.as<IMFMediaEngineEx>();
-            THROW_IF_FAILED(mediaEngineEx->EnableWindowlessSwapchainMode(true));
-        }
-        if(m_initializedCB)
-        {
-            m_initializedCB();
-        }
-    });
+    if(m_initializedCB)
+    {
+        m_initializedCB();
+    }
 }
 
 void MediaEngineWrapper::OnError(MF_MEDIA_ENGINE_ERR error, HRESULT hr)

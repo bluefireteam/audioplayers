@@ -57,6 +57,13 @@ packages:
       relative: true
     source: path
     version: "0.20.1"
+  audioplayers_windows:
+    dependency: "direct main"
+    description:
+      path: "../audioplayers_windows"
+      relative: true
+    source: path
+    version: "0.20.1"
   boolean_selector:
     dependency: transitive
     description:
@@ -204,7 +211,7 @@ packages:
       name: js
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.6.4"
+    version: "0.6.3"
   logging:
     dependency: transitive
     description:
@@ -253,7 +260,7 @@ packages:
       name: path
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.8.1"
+    version: "1.8.0"
   path_provider:
     dependency: "direct main"
     description:
@@ -377,7 +384,7 @@ packages:
       name: test_api
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.4.9"
+    version: "0.4.8"
   typed_data:
     dependency: transitive
     description:

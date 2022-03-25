@@ -1,4 +1,4 @@
-#include "include/audioplayers/audioplayers_plugin.h"
+#include "include/audioplayers_windows/audioplayers_windows_plugin.h"
 
 // This must be included before many other Windows headers.
 #include <windows.h>
@@ -36,22 +36,27 @@ T GetArgument(const std::string arg, const EncodableValue* args, T fallback) {
   return result;
 }
 
-class AudioplayersPlugin : public Plugin {
+class AudioplayersWindowsPlugin : public Plugin {
  public:
   static void RegisterWithRegistrar(PluginRegistrarWindows *registrar);
 
-  AudioplayersPlugin();
+  AudioplayersWindowsPlugin();
 
-  virtual ~AudioplayersPlugin();
+  virtual ~AudioplayersWindowsPlugin();
 
  private:
 
   std::map<std::string, std::unique_ptr<AudioPlayer>> audioPlayers;
 
   static inline std::unique_ptr<MethodChannel<EncodableValue>> channel{};
+  static inline std::unique_ptr<MethodChannel<EncodableValue>> globalChannel{};
 
   // Called when a method is called on this plugin's channel from Dart.
   void HandleMethodCall(
+      const MethodCall<EncodableValue> &method_call,
+      std::unique_ptr<MethodResult<EncodableValue>> result);
+
+  void HandleGlobalMethodCall(
       const MethodCall<EncodableValue> &method_call,
       std::unique_ptr<MethodResult<EncodableValue>> result);
 
@@ -59,34 +64,42 @@ class AudioplayersPlugin : public Plugin {
 };
 
 // static
-void AudioplayersPlugin::RegisterWithRegistrar(
+void AudioplayersWindowsPlugin::RegisterWithRegistrar(
     PluginRegistrarWindows *registrar) {
   channel =
       std::make_unique<MethodChannel<EncodableValue>>(
           registrar->messenger(), "xyz.luan/audioplayers",
           &StandardMethodCodec::GetInstance());
+  globalChannel =
+      std::make_unique<MethodChannel<EncodableValue>>(
+          registrar->messenger(), "xyz.luan/audioplayers.global",
+          &StandardMethodCodec::GetInstance());
 
-  auto plugin = std::make_unique<AudioplayersPlugin>();
+  auto plugin = std::make_unique<AudioplayersWindowsPlugin>();
 
   channel->SetMethodCallHandler(
       [plugin_pointer = plugin.get()](const auto &call, auto result) {
         plugin_pointer->HandleMethodCall(call, std::move(result));
       });
 
+  globalChannel->SetMethodCallHandler(
+      [plugin_pointer = plugin.get()](const auto &call, auto result) {
+        plugin_pointer->HandleGlobalMethodCall(call, std::move(result));
+      });
+
   registrar->AddPlugin(std::move(plugin));
 }
 
-AudioplayersPlugin::AudioplayersPlugin() {}
+AudioplayersWindowsPlugin::AudioplayersWindowsPlugin() {}
 
-AudioplayersPlugin::~AudioplayersPlugin() {}
+AudioplayersWindowsPlugin::~AudioplayersWindowsPlugin() {}
 
-void AudioplayersPlugin::HandleMethodCall(
+void AudioplayersWindowsPlugin::HandleGlobalMethodCall(
     const MethodCall<EncodableValue> &method_call,
     std::unique_ptr<MethodResult<EncodableValue>> result) {
 
   auto args = method_call.arguments();
 
-  // global handlers (no playerId)
   if (method_call.method_name().compare("changeLogLevel") == 0) {
     auto valueName = GetArgument<std::string>("value", args, std::string());
     if(valueName.empty()) {
@@ -108,9 +121,16 @@ void AudioplayersPlugin::HandleMethodCall(
     }
 
     Logger::logLevel = value;
-    result->Success(EncodableValue(1));
-    return;
   }
+
+  result->Success(EncodableValue(1));
+}
+
+void AudioplayersWindowsPlugin::HandleMethodCall(
+    const MethodCall<EncodableValue> &method_call,
+    std::unique_ptr<MethodResult<EncodableValue>> result) {
+
+  auto args = method_call.arguments();
 
   auto playerId = GetArgument<std::string>("playerId", args, std::string());
   if(playerId.empty()) {
@@ -163,7 +183,7 @@ void AudioplayersPlugin::HandleMethodCall(
     auto position = GetArgument<int>("position", args, (int)(player->GetPosition() / 10000));
     player->SeekTo(position * 10000);
     result->Success(EncodableValue(1));
-  } else if (method_call.method_name().compare("setUrl") == 0) {
+  } else if (method_call.method_name().compare("setSourceUrl") == 0) {
     auto url = GetArgument<std::string>("url", args, std::string());
 
     if (url.empty()) {
@@ -206,7 +226,7 @@ void AudioplayersPlugin::HandleMethodCall(
   }
 }
 
-AudioPlayer* AudioplayersPlugin::GetPlayer(std::string playerId, std::string mode) {
+AudioPlayer* AudioplayersWindowsPlugin::GetPlayer(std::string playerId, std::string mode) {
   auto searchPlayer = audioPlayers.find(playerId);
   if(searchPlayer != audioPlayers.end()) {
     return searchPlayer->second.get();
@@ -221,9 +241,9 @@ AudioPlayer* AudioplayersPlugin::GetPlayer(std::string playerId, std::string mod
 
 }  // namespace
 
-void AudioplayersPluginRegisterWithRegistrar(
+void AudioplayersWindowsPluginRegisterWithRegistrar(
     FlutterDesktopPluginRegistrarRef registrar) {
-  AudioplayersPlugin::RegisterWithRegistrar(
+  AudioplayersWindowsPlugin::RegisterWithRegistrar(
       PluginRegistrarManager::GetInstance()
           ->GetRegistrar<PluginRegistrarWindows>(registrar));
 }

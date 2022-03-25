@@ -18,8 +18,6 @@
 #include <memory>
 #include <sstream>
 #include <string>
-#include <atlbase.h>
-#include <atlstr.h>
 #include <wincodec.h>
 #include <future>
 
@@ -50,8 +48,6 @@
 #include <memory>
 #include <sstream>
 #include <string>
-#include <atlbase.h>
-#include <atlstr.h>
 #include <wincodec.h>
 
 using namespace winrt;
