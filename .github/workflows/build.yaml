@@ -21,6 +21,7 @@ jobs:
       - run: melos run format-check
       - run: melos run analyze
       - run: melos run test
+      - run: melos run dartdoc
 
   web:
     runs-on: ubuntu-latest
