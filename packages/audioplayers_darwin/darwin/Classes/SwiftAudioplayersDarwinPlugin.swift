@@ -110,18 +110,23 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
         } else if method == "resume" {
             player.resume()
         } else if method == "stop" {
-            player.stop()
+            player.stop() {
+                result(1)
+            }
+            return
         } else if method == "release" {
             player.release()
         } else if method == "seek" {
-            let position = args["position"] as? Int
-            if let position = position {
-                let time = toCMTime(millis: position)
-                player.seek(time: time)
-            } else {
+            guard let position = args["position"] as? Int else {
                 Logger.error("Null position received on seek")
                 result(0)
+                return
             }
+            let time = toCMTime(millis: position)
+            player.seek(time: time) {
+                result(1)
+            }
+            return
         } else if method == "setSourceUrl" {
             let url: String? = args["url"] as? String
             let isLocal: Bool = (args["isLocal"] as? Bool) ?? false
@@ -132,11 +137,7 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
                 return
             }
             
-            player.setSourceUrl(
-                url: url!,
-                isLocal: isLocal
-            ) {
-                player in
+            player.setSourceUrl(url: url!, isLocal: isLocal) {
                 result(1)
             }
             return
@@ -158,6 +159,7 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
         } else if method == "getCurrentPosition" {
             let currentPosition = player.getCurrentPosition()
             result(currentPosition)
+            return
         } else if method == "setPlaybackRate" {
             guard let playbackRate = args["playbackRate"] as? Double else {
                 Logger.error("Error calling setPlaybackRate, playbackRate cannot be null")
