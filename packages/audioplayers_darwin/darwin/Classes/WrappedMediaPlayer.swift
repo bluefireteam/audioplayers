@@ -4,6 +4,8 @@ private let defaultPlaybackRate: Double = 1.0
 private let defaultVolume: Double = 1.0
 private let defaultLooping: Bool = false
 
+typealias Completer = () -> Void
+
 class WrappedMediaPlayer {
     var reference: SwiftAudioplayersDarwinPlugin
     
@@ -19,7 +21,7 @@ class WrappedMediaPlayer {
     var looping: Bool
 
     var url: String?
-    var onReady: ((AVPlayer) -> Void)?
+    var onReady: Completer?
     
     init(
         reference: SwiftAudioplayersDarwinPlugin,
@@ -28,8 +30,7 @@ class WrappedMediaPlayer {
         playbackRate: Double = defaultPlaybackRate,
         volume: Double = defaultVolume,
         looping: Bool = defaultLooping,
-        url: String? = nil,
-        onReady: ((AVPlayer) -> Void)? = nil
+        url: String? = nil
     ) {
         self.reference = reference
         self.playerId = playerId
@@ -42,7 +43,6 @@ class WrappedMediaPlayer {
         self.volume = volume
         self.looping = looping
         self.url = url
-        self.onReady = onReady
     }
     
     func dispose() {
@@ -106,8 +106,9 @@ class WrappedMediaPlayer {
         player?.rate = Float(playbackRate)
     }
     
-    func seek(time: CMTime) {
+    func seek(time: CMTime, completer: Completer? = nil) {
         guard let currentItem = player?.currentItem else {
+            completer?()
             return
         }
         currentItem.seek(to: time) {
@@ -116,43 +117,22 @@ class WrappedMediaPlayer {
                 self.player?.pause()
             }
             self.reference.onSeekComplete(playerId: self.playerId, finished: finished)
+            if (finished) {
+                completer?()
+            }
         }
     }
     
-    func skipForward(interval: TimeInterval) {
-        guard let currentTime = getCurrentCMTime() else {
-            Logger.error("Cannot skip forward, unable to determine currentTime")
-            return
-        }
-        guard let maxDuration = getDurationCMTime() else {
-            Logger.error("Cannot skip forward, unable to determine maxDuration")
-            return
-        }
-        let newTime = CMTimeAdd(currentTime, toCMTime(millis: interval * 1000))
-        // if CMTime is more than max duration, limit it
-        let clampedTime = CMTimeGetSeconds(newTime) > CMTimeGetSeconds(maxDuration) ? maxDuration : newTime
-        seek(time: clampedTime)
-    }
-    
-    func skipBackward(interval: TimeInterval) {
-        guard let currentTime = getCurrentCMTime() else {
-            Logger.error("Cannot skip forward, unable to determine currentTime")
-            return
-        }
-        let newTime = CMTimeSubtract(currentTime, toCMTime(millis: interval * 1000))
-        // if CMTime is negative, set it to zero
-        let clampedTime = CMTimeGetSeconds(newTime) < 0 ? toCMTime(millis: 0) : newTime
-        seek(time: clampedTime)
-    }
-    
-    func stop() {
+    func stop(completer: Completer? = nil) {
         pause()
-        seek(time: toCMTime(millis: 0))
+        seek(time: toCMTime(millis: 0), completer: completer)
     }
     
-    func release() {
-        stop()
-        dispose()
+    func release(completer: Completer? = nil) {
+        stop {
+            self.dispose()
+            completer?()
+        }
     }
     
     func onSoundComplete() {
@@ -162,8 +142,9 @@ class WrappedMediaPlayer {
         
         pause()
         if looping {
-            seek(time: toCMTime(millis: 0))
-            resume()
+            seek(time: toCMTime(millis: 0)) {
+                self.resume()
+            }
         }
         
         reference.controlAudioSession()
@@ -188,7 +169,7 @@ class WrappedMediaPlayer {
     func setSourceUrl(
         url: String,
         isLocal: Bool,
-        onReady: @escaping (AVPlayer) -> Void
+        completer: Completer? = nil
     ) {
         let playbackStatus = player?.currentItem?.status
         
@@ -230,7 +211,7 @@ class WrappedMediaPlayer {
             self.observers.append(TimeObserver(player: player, observer: anObserver))
             
             // is sound ready
-            self.onReady = onReady
+            self.onReady = completer
             let newKeyValueObservation = playerItem.observe(\AVPlayerItem.status) { (playerItem, change) in
                 let status = playerItem.status
                 Logger.info("player status: %@ change: %@", status, change)
@@ -241,7 +222,7 @@ class WrappedMediaPlayer {
                     
                     if let onReady = self.onReady {
                         self.onReady = nil
-                        onReady(self.player!)
+                        onReady()
                     }
                 } else if status == .failed {
                     self.reference.onError(playerId: self.playerId)
@@ -252,7 +233,7 @@ class WrappedMediaPlayer {
             keyValueObservation = newKeyValueObservation
         } else {
             if playbackStatus == .readyToPlay {
-                onReady(player!)
+                completer?()
             }
         }
     }
