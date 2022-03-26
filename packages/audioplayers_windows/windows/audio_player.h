@@ -70,7 +70,7 @@ public:
     int64_t GetDuration();
     void SeekTo(int64_t seek);
 
-    void SetUrl(std::string url);
+    void SetSourceUrl(std::string url);
 
     virtual ~AudioPlayer();
 
