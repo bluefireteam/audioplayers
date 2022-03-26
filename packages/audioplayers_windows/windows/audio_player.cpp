@@ -31,7 +31,7 @@ AudioPlayer::AudioPlayer(std::string playerId, flutter::MethodChannel<flutter::E
     m_mediaEngineWrapper->Initialize();
 }
 
-void AudioPlayer::SetUrl(std::string url) {
+void AudioPlayer::SetSourceUrl(std::string url) {
     if(_url != url) {
         _url = url;
         // Create a source resolver to create an IMFMediaSource for the content URL.

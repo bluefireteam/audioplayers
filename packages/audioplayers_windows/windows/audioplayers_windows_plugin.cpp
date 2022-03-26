@@ -140,32 +140,7 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
   auto mode = GetArgument<std::string>("mode", args, std::string());
   auto player = GetPlayer(playerId, mode);
 
-  if (method_call.method_name().compare("play") == 0) {
-    auto url = GetArgument<std::string>("url", args, std::string());
-
-    if (url.empty()) {
-        Logger::Error("Null url received on play");
-        result->Success(EncodableValue(0));
-        return;
-    }
-
-    auto volume = GetArgument<double>("volume", args, 1.0);
-
-    auto seekTimeMillis = GetArgument<int>("position", args, -1);
-
-    try {
-      player->SetUrl(url);
-      player->SetVolume(volume);
-      if (seekTimeMillis != -1) {
-        player->SeekTo(seekTimeMillis * 10000);
-      }
-      player->Play();
-      result->Success(EncodableValue(1));
-    } catch(...) {
-      Logger::Error("Error playing Url:'" + url + "'.");
-      result->Success(EncodableValue(0));
-    }
-  } else if (method_call.method_name().compare("pause") == 0) {
+  if (method_call.method_name().compare("pause") == 0) {
     player->Pause();
     result->Success(EncodableValue(1));
   } else if (method_call.method_name().compare("resume") == 0) {
@@ -187,13 +162,13 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
     auto url = GetArgument<std::string>("url", args, std::string());
 
     if (url.empty()) {
-        Logger::Error("Null URL received on setUrl");
+        Logger::Error("Null URL received on setSourceUrl");
         result->Success(EncodableValue(0));
         return;
     }
 
     try {
-      player->SetUrl(url);
+      player->SetSourceUrl(url);
       result->Success(EncodableValue(1));
     } catch(...) {
       Logger::Error("Error setting url to '" + url + "'.");
@@ -232,7 +207,6 @@ AudioPlayer* AudioplayersWindowsPlugin::GetPlayer(std::string playerId, std::str
     return searchPlayer->second.get();
   } else {
     auto player = std::make_unique<AudioPlayer>(playerId, channel.get());
-    //player->Init();
     auto playerPtr = player.get();
     audioPlayers.insert(std::make_pair(playerId, std::move(player)));
     return playerPtr;
