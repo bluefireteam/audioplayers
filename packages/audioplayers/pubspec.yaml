@@ -15,6 +15,8 @@ flutter:
         default_package: audioplayers_darwin
       web:
         default_package: audioplayers_web
+      windows:
+        default_package: audioplayers_windows
 
 dependencies:
   audioplayers_platform_interface:
@@ -25,6 +27,8 @@ dependencies:
     path: ../audioplayers_darwin
   audioplayers_web:
     path: ../audioplayers_web
+  audioplayers_windows:
+    path: ../audioplayers_windows
   uuid: ^3.0.1
   path_provider: ^2.0.1
   http: ^0.13.1
