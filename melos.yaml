@@ -35,9 +35,8 @@ scripts:
   dartdoc:
     run: melos exec flutter pub run dartdoc
     description: Run dartdoc checks for all non-example packages.
-    select-package:
-      ignore:
-        - "*_example"
+    ignore:
+      - "*_example"
 
   test:select:
     run: melos exec flutter test
