@@ -19,8 +19,7 @@ flutter:
         default_package: audioplayers_windows
 
 dependencies:
-  audioplayers_platform_interface:
-    path: ../audioplayers_platform_interface
+  audioplayers_platform_interface: 1.0.0-rc.1
   audioplayers_android:
     path: ../audioplayers_android
   audioplayers_darwin:
@@ -43,5 +42,5 @@ dev_dependencies:
 
 environment:
   sdk: ">=2.14.0 <3.0.0"
-  flutter: ">=1.10.0"
+  flutter: ">=2.5.0"
 
