@@ -32,9 +32,9 @@ packages:
   audioplayers_platform_interface:
     dependency: "direct main"
     description:
-      path: "../audioplayers_platform_interface"
-      relative: true
-    source: path
+      name: audioplayers_platform_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
     version: "1.0.0-rc.1"
   boolean_selector:
     dependency: transitive
