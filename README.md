@@ -10,7 +10,7 @@ A Flutter plugin to play multiple simultaneously audio files, works for Android,
 
 We now have new rules for contributing!
 
-All help is appreciated but if you have questions, bug reports, issues, feature requests, pull requests, etc, please first refer to our [Contributing Guide](/contributing.md).
+All help is appreciated but if you have questions, bug reports, issues, feature requests, pull requests, etc, please first refer to our [Contributing Guide](contributing.md).
 
 Also, as always, please give us a star to help!
 
@@ -22,7 +22,7 @@ You can support us by becoming a patron on Patreon, any support is much apprecia
 
 ## Feature Parity Table
 
-Not all features are available on all platforms. [Click here](/feature_parity_table.md) to see a table relating what features can be used on each target.
+Not all features are available on all platforms. [Click here](feature_parity_table.md) to see a table relating what features can be used on each target.
 
 Feel free to use it for ideas for possible PRs and contributions you can help with on our roadmap! If you are submiting a PR, don't forget to update the table.
 
