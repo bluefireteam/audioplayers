@@ -13,7 +13,7 @@ flutter:
         pluginClass: AudioplayersDarwinPlugin
 
 dependencies:
-  audioplayers_platform_interface: 1.0.0-rc.1
+  audioplayers_platform_interface: ^1.0.0-rc.1
   flutter:
     sdk: flutter
 
