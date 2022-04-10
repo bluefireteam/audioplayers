@@ -196,6 +196,9 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
     auto looping = releaseMode.find("loop") != std::string::npos;
     player->SetLooping(looping);
     result->Success(EncodableValue(1));
+  } else if (method_call.method_name().compare("setPlayerMode") == 0) {
+    // windows doesn't have multiple player modes, so this should no-op
+    result->Success(EncodableValue(1));
   } else {
     result->NotImplemented();
   }
