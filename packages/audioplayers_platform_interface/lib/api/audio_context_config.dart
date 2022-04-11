@@ -1,5 +1,7 @@
 import 'dart:io' show Platform;
 
+import 'package:flutter/foundation.dart';
+
 /// This class contains flags to control several secondary, platform-specific aspects of audio playback, like how this audio interact with other audios, how is it played by the device and what happens when the app is backgrounded.
 /// However, note that each platform has its nuances on how to configure audio.
 /// This class is a generic abstraction of some parameters that can be useful across the board.
@@ -132,7 +134,10 @@ class AudioContext {
   }
 
   Map<String, dynamic> toJson() {
-    if (Platform.isAndroid) {
+    // we need to check web first because `Platform.isX` fails on web
+    if (kIsWeb) {
+      return <String, dynamic>{};
+    } else if (Platform.isAndroid) {
       return android.toJson();
     } else if (Platform.isIOS) {
       return iOS.toJson();

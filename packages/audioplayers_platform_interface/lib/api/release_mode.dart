@@ -20,9 +20,5 @@ enum ReleaseMode {
 
   /// Stops audio playback but keep all resources intact.
   /// Use this if you intend to play again later.
-  stop
-}
-
-ReleaseMode parseReleaseMode(String value) {
-  return ReleaseMode.values.firstWhere((e) => e.toString() == value);
+  stop,
 }

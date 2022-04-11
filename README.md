@@ -1,22 +1,20 @@
 # AudioPlayers
 
-[![Pub](https://img.shields.io/pub/v/audioplayers.svg?style=popout&include_prereleases)](https://pub.dartlang.org/packages/audioplayers) [![Build Status](https://github.com/luanpotter/audioplayers/workflows/build/badge.svg?branch=main)](https://github.com/luanpotter/audioplayers/actions?query=workflow%3A"build"+branch%3Amain) [![Discord](https://img.shields.io/discord/509714518008528896.svg)](https://discord.gg/pxrBmy4)
+[![Pub](https://img.shields.io/pub/v/audioplayers.svg?style=popout&include_prereleases)](https://pub.dartlang.org/packages/audioplayers) [![Build Status](https://github.com/luanpotter/audioplayers/workflows/build/badge.svg?branch=main)](https://github.com/luanpotter/audioplayers/actions?query=workflow%3A"build"+branch%3Amain) [![Discord](https://img.shields.io/discord/509714518008528896.svg)](https://discord.gg/pxrBmy4) [![Melos](https://img.shields.io/badge/maintained%20with-melos-f700ff.svg)](https://github.com/invertase/melos)
 
 A Flutter plugin to play multiple simultaneously audio files, works for Android, iOS, macOS, Windows and web.
 
-TODO(luan) update screenshots with new example app
-
-![](/images/tab1s.jpg) ![](/images/tab2s.jpg) ![](/images/tab3s.jpg)
+![](/images/screenshot1.jpg) ![](/images/screenshot2.jpg) ![](/images/screenshot3.jpg)
 
 **Note**: all the docs have been update to reflect the content for the v1 release (currently `1.0.0-rc.1`). If you are looking for v0 specific information and guidance, please checkout [the version of this repo before the first v0 change](https://github.com/bluefireteam/audioplayers/tree/46816bf55859c9c88b204e3828cce6190ff87483).
 
-TODO(luan) include migration guide
+If you are interest in migrating to v1, please check [our migration guide](migration_guide.md).
 
 ## Help
 
 If you have any problems, please follow these steps before opening an issue.
 
-1. Carefully read the [Getting Started tutorial](getting-started.md) before anything else. Re-read if necessary.
+1. Carefully read the [Getting Started tutorial](getting_started.md) before anything else. Re-read if necessary.
 1. Check our [Troubleshooting Guide](https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md) for solutions for most problems.
 1. If you have a missing feature report or feature request, please first check the [Feature Parity Table](feature_parity_table.md) to understand our roadmap and what we know is missing. We love contributions!
 1. Join [Blue Fire's Discord server](https://discord.gg/5unKpdQD78) and ask for directions. Maybe it's not a bug, or it's a known issue.
@@ -38,7 +36,7 @@ Also, as always, please give us a star to help!
 
 We tried to make audioplayers as simple to use as possible.
 
-Please follow our [Getting Started tutorial](getting-started.md) for all high-level information you need to know.
+Please follow our [Getting Started tutorial](getting_started.md) for all high-level information you need to know.
 
 Then, if you want to dig deeper, our code is very well documented with dartdocs, so check [our API reference](https://pub.dev/documentation/audioplayers/1.0.0-rc.1/) or the codebase itself on your IDE (or on GitHub).
 

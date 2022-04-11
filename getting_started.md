@@ -81,6 +81,17 @@ Starts playback from current position (by default, from the start).
   await player.resume();
 ```
 
+### play
+
+Play is just a shortcut method that allows you to:
+
+  * set a source
+  * configure some player parameters (volume)
+  * configure audio attributes
+  * resume (start playing immediately)
+
+All in a single function call. For most simple use cases, it might be the only method you need.
+
 ### seek
 
 Changes the current position (note: this does not affect the "playing" status).

@@ -31,7 +31,7 @@ After you read and accepted the rules above, you need to decide what kind of inq
 
 Questions are not bugs! Do not open issues for questions. Here are the channels to ask for help.
 
-First of all, make sure you read *at least* the [Readme Document](README.md) and the [Getting Started tutorial](getting-started.md) in full. That is the basis of how this library work and its very well written with care and love by us. If you haven't read even the basics, don't expect us to answer a question that is already solved there.
+First of all, make sure you read *at least* the [Readme Document](README.md) and the [Getting Started tutorial](getting_started.md) in full. That is the basis of how this library work and its very well written with care and love by us. If you haven't read even the basics, don't expect us to answer a question that is already solved there.
 
 Second, make sure you went through our FAQ, [Troubleshooting](troubleshooting.md). There are many questions we get asked all the time that we have put the time and effort to answer on that doc. So make sure your question is not already there.
 
@@ -65,13 +65,12 @@ In order to open a Feature Request issue, just select the correct template under
 
 Once your feature got approved to start developing, feel free to send your PRs! However, we have a few important PR rules:
 
+ * Start your PR title with a [conventional commit](https://www.conventionalcommits.org) type (feat:, fix: etc).
  * Your build must pass. Please make sure everything is green!
- * Follow guidelines. We don't have a code analyzer for the native side (yet!), but please follow the code around you to make it properly formatted and linted. For Java, please follow an acceptable standard [like this one](https://google.github.io/styleguide/javaguide.html). There is nothing worse than badly formatted code!
+ * Follow guidelines. For the Dart side, follow [Flame's official style guide](https://github.com/flame-engine/flame/blob/main/STYLEGUIDE.md). We don't have a code analyzer for the native side (yet!), but please follow the code around you to make it properly formatted and linted. There is nothing worse than badly formatted code!
  * Write clean, beautiful and easy to understand code, with comments if necessary and docs if applicable.
  * Update our README/getting started/feature parity table/any other docs accordingly to your change, making it clear which platforms are supported.
  * Try to support all platforms where it makes sense. This is a hard thing to ask, and we understand and we will merge PRs that only work on one platform as well. But if you have the time, please help us with feature parity.
  * Make sure your change is testable on the `example` app. If necessary, add to it. This is **mandatory**. We need to be able to at least manually try your feature. Tests are even better of course (see below).
  * Try to add tests, if possible. We don't strive for 100% coverage, but we have very basic driver tests and unit tests where it makes sense (not all places can be tested for an audio player app).
  * Do not add a new version to the changelog, bump versions or anything like that. We will deal with the release process using `melos` whenever there is something to release.
-
-TODO(luan): talk about conventional commits
