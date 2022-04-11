@@ -15,7 +15,6 @@ class AudioContextConfig {
   ///
   /// * set the `.defaultToSpeaker` option OR
   /// * call `overrideOutputAudioPort(AVAudioSession.PortOverride.speaker)`
-  /// (TODO(luan): still unclear to me which).
   ///
   /// Note that, on iOS, this forces the category to be `.playAndRecord`, and thus is forbidden when [respectSilence] is set.
   final bool forceSpeaker;

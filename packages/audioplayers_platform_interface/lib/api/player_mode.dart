@@ -1,7 +1,6 @@
-/// This enum is meant to be used as a parameter of the AudioPlayer's
-/// constructor. It represents the general mode of the AudioPlayer.
+/// This represents what kind of native implementation is used by the player.
 ///
-// In iOS and macOS, both modes have the same backend implementation.
+/// Currently, this distinction is only relevant for Android.
 enum PlayerMode {
   /// Ideal for long media files or streams.
   mediaPlayer,

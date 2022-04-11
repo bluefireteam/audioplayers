@@ -2,9 +2,28 @@
 
 Not every feature is available on every platform yet. Use this table to keep track of our work and progress, and please help if you want :)
 
-Note: LLM means Low Latency Mode.
+## Note on Linux Support
+
+Our main goal in your current roadmap is to support Linux. This is the current status of Desktop for us:
+
+* [DONE] Add platform interface, refactor API so native implementations are cleaner
+* [DONE] Federate plugin and provide structure to add multi-platform support
+* [DONE] Add macOS support through Darwin (existing)
+* [DONE] (thanks @azchohfi) Add Windows support
+* [IN PROGRESS] Add Linux support
+
+If you would like to assist us on this final step, please reach our on our Discord server so we can coordinate efforts.
+
+## Note on Android Support
+
+Giving support to old Android devices is very hard, on this plugin we set the minSdk as 16, but we only ensure support >= 23 as that is the minimum version that the team has devices available to test changes and new features.
+
+This mean that, audioplayers should work on older devices, but we can't give any guarantees, we will not be able to look after issues regarding API < 23. But we would glady take any pull requests from the community that fixes or improve support on those old versions.
+
 
 ## Main Features
+
+Note: LLM means Low Latency Mode.
 
 <table width="70%">
     <thead style="font-size: 1.5em">
@@ -49,28 +68,18 @@ Note: LLM means Low Latency Mode.
 
 <br />
 
-## Notifications
+## Lock Screen Controls
 
-Apart from the main features for playing audio, some unrelated features to notification and lock screen management were added to audioplayers.
+To control playback from lock screen on iOS and Android, you can use @ryanheise's excellent [audio_service](https://pub.dev/packages/audio_service) package. [This article](https://denis-korovitskii.medium.com/flutter-demo-audioplayers-on-background-via-audio-service-c95d65c90ae1) showcases how to integrate audioplayers features with and audio_service.
 
-This is not the best home for them though. We are working with @ryanheise to eventually extract the existing notification related code from audioplayers and either:
+Do not send any PRs or additions regarding notifications/lock screen support, unless it is a generic change on our infrastructure/wiring to support better integrating with `audio_service`.
 
- * create a new package, audioplayers_notifications for it
- * merge this code into the existing audio_service package
+## Other Out-of-Scope Features
 
-audio_service is already a package that provides much more advanced notification/lock screen controls. Please follow this [example](https://denis-korovitskii.medium.com/flutter-demo-audioplayers-on-background-via-audio-service-c95d65c90ae1) to implement all AudioPlayers features with and audio_service.
-
-So please do not send any PRs or additions to the notifications/lock screen for now, unless it's part of our separation effort.
-
-I will update this file as we move forward with this.
-
-## Other Features
-
-Some features are totally out of scope for the `audioplayers` package. The goal  of this library is to provide a unified place to play audio media, be it songs, background musics, sound effects, etc, from different sources, and providing an array of advanced controls and listeners to control it via code.
+Some features are also out of scope for the `audioplayers` package. The goal  of this library is to provide a unified place to play audio media, be it songs, background musics, sound effects, etc, from different sources, and providing an array of advanced controls and listeners to control it via code.
 
 Non-goals: if the existing solutions proposed below are not good or do not work well with audioplayers, I am happy to collaborate to create an `audioplayers_x` separated package (eg `audioplayers_recorder`).
 
- * notifications/locks screen: see section above, use this for now or audio_service;
  * interfaces: nothing related to interface building concerns audioplayers; you can use Flutter to build your interfaces;
  * audio recording: recording audio from the microphone into audio files and streams; there is already a package for this called [audio_recorder](https://github.com/ZaraclaJ/audio_recorder).
  * playlist: you can implement playlists as you wish by playing multiple audios or songs in sequence. Doesn't make sense for this package to have any builtin playlist mechanism.
