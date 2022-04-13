@@ -11,4 +11,8 @@ First step is to add the current release candidate (RC1) to your `pubspec.yaml`:
 
 This document contains the list of major changes to be aware of.
 
+## AudioCache is dead, long live Sources
+
+
+
 TODO(luan): write migration guide

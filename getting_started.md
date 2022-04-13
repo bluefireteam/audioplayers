@@ -164,10 +164,27 @@ You can pick one of 3 options:
 
 ## Audio Context
 
-TODO(luan) write about audio contexts
+An Audio Context is a (mostly mobile-specific) set of secondary, platform-specific aspects of audio playback, typically related to how the act of playing audio interacts with other features of the device. In most cases, you do not need to change this.
 
-**Note**: If you pass `stayAwake` as true you need to add this permission to your app manifest:
-`<uses-permission android:name="android.permission.WAKE_LOCK" />`.
+The Audio Context configuration can be set globally via:
+
+```dart
+  AudioPlayer.global.setGlobalAudioContext(config);
+```
+
+This will naturally apply to all players. On iOS, that is the only option.
+On Android only, each player can have different Audio Context configuration.
+To configure player specific Audio Context (if desired), use:
+
+```dart
+  player.setAudioContext(config);
+```
+
+While each platform has its own set of configurations, they are somewhat related, and you can create them using a unified interface call `AudioContextConfig` -- it provides generic abstractions that convey intent, that are then converted to platform specific configurations.
+
+Note that if this process is not perfect, you can create your configuration from scratch by providing exact details for each platform.
+
+The `AudioContextConfig` class has documentation about each parameter, what they are for, and what configurations they reflect on native code.
 
 ## Streams
 
