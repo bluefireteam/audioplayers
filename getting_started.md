@@ -128,7 +128,7 @@ The release mode is controlling what happens when the playback ends. There are 3
 1. `.release` (default): releases all resources associated with this player, equivalent to calling the `release` method.
 1. `.loop`: starts over after completion, looping over and over again.
 
-**Note**: you can control exactly what happens when the playback ends using the `onAudioComplete` stream (see Streams below).
+**Note**: you can control exactly what happens when the playback ends using the `onPlayerComplete` stream (see Streams below).
 
 **Note**: there are caveats when looping audio without gaps.
 TODO(luan) explain this.

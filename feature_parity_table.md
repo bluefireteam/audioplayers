@@ -4,7 +4,7 @@ Not every feature is available on every platform yet. Use this table to keep tra
 
 ## Note on Linux Support
 
-Our main goal in your current roadmap is to support Linux. This is the current status of Desktop for us:
+Our main goal in the current roadmap is to support Linux. This is the current status of Desktop for us:
 
 * [DONE] Add platform interface, refactor API so native implementations are cleaner
 * [DONE] Federate plugin and provide structure to add multi-platform support
@@ -12,7 +12,7 @@ Our main goal in your current roadmap is to support Linux. This is the current s
 * [DONE] (thanks @azchohfi) Add Windows support
 * [IN PROGRESS] Add Linux support
 
-If you would like to assist us on this final step, please reach our on our Discord server so we can coordinate efforts.
+If you would like to assist us on this final step, please reach our on our [Discord](https://discord.gg/pxrBmy4) server so we can coordinate efforts.
 
 ## Note on Android Support
 
