@@ -16,6 +16,7 @@ const _uuid = Uuid();
 /// It holds methods to play, loop, pause, stop, seek the audio, and some useful
 /// hooks for handlers and callbacks.
 class AudioPlayer {
+  static final global = GlobalPlatformInterface.instance;
   static final _platform = AudioplayersPlatform.instance;
 
   /// This is the [AudioCache] instance used by this player.

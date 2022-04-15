@@ -6,11 +6,11 @@ Please read this document carefully before doing anything else!
 
 ## Old Issues/PRs
 
-We have many existing open issues and a few open PRs that were created before this doc was created. We will try to respect their innocence of this file existence by doing our best effort to answer/address/fix/merge them as we normally would up to this point (i.e. as time permits). However, if an existing issue or PR is too blatant of an outlier from these rules, we reserve the right of asking, in the issue/PR for the author (or someone) to fix it so that it falls under the new rules (i.e. apply the templates, etc). If we need to do that, we will give two weeks for the issue/PR to be updated to follow the rules, otherwise it will be closed.
+We have many existing open issues and a few open PRs that were created before this doc was created. We will try to respect their ignorance of this file's existence by doing our best effort to answer/address/fix/merge them as we normally would up to this point (i.e. as time permits). However, if an existing issue or PR is too blatant of an outlier from these rules, we reserve the right of asking, in the issue/PR for the author (or someone) to fix it so that it falls under the new rules (i.e. apply the templates, etc). If we need to do that, we will give two weeks for the issue/PR to be updated to follow the rules, otherwise it will be closed.
 
 Of course, anyone is free to open a similar followup at any time, as long as the new one follows the rules.
 
-With that particular comment in mind, consider the following rules to apply to new issues only.
+With that particular comment in mind, consider the following rules to apply to all new issues only.
 
 ## General Rules
 
@@ -31,7 +31,7 @@ After you read and accepted the rules above, you need to decide what kind of inq
 
 Questions are not bugs! Do not open issues for questions. Here are the channels to ask for help.
 
-First of all, make sure you read *at least* the [Readme Document](README.md) in full. That is the basis of how this library work and its very well written with care and love by us. If you haven't read even the readme, don't expect us to answer a question that is already solved there.
+First of all, make sure you read *at least* the [Readme Document](README.md) and the [Getting Started tutorial](getting_started.md) in full. That is the basis of how this library work and its very well written with care and love by us. If you haven't read even the basics, don't expect us to answer a question that is already solved there.
 
 Second, make sure you went through our FAQ, [Troubleshooting](troubleshooting.md). There are many questions we get asked all the time that we have put the time and effort to answer on that doc. So make sure your question is not already there.
 
@@ -51,7 +51,11 @@ If you found a bug or issue, please report it to us! If you are unsure if it's a
 
 But the first step is, again, to search for an existing issue. Maybe your issue was already reported, and we don't want duplicates. In fact, if it was already reported, the existing issues might have tips and tricks to circumvent the issue until we fix it.
 
-Once you are certain your bug is brand new, you can create an issue and select the `Bug Report` type. You **must** follow the template provided, read it carefully.
+Also, if it's about a specific feature not being implemented on a specific platform, we already track that on the [Feature Parity Table](feature_parity_table.md). PRs are welcome, but no need to report what we already know. We are progressing under our best effort to fulfill the most requested gaps.
+
+Once you are certain your bug is legit and brand new, you can create an issue and select the `Bug Report` type. You **must** follow the template provided, read it carefully.
+
+**Note**: read the template and *replace* the sections with your content. Do not *keep* the instructions on the final text of your PR. PRs that contains copied excerpts from the template (other than the titles, etc), will be closed without notice.
 
 ### Feature Requests / PRs
 
@@ -61,12 +65,12 @@ In order to open a Feature Request issue, just select the correct template under
 
 Once your feature got approved to start developing, feel free to send your PRs! However, we have a few important PR rules:
 
+ * Start your PR title with a [conventional commit](https://www.conventionalcommits.org) type (feat:, fix: etc).
  * Your build must pass. Please make sure everything is green!
- * Follow guidelines. We don't have a code analyzer for the native side (yet!), but please follow the code around you to make it properly formatted and linted. For Java, please follow an acceptable standard [like this one](https://google.github.io/styleguide/javaguide.html). There is nothing worse than badly formatted code!
- * Write clean, beautiful and easy to understand code, with comments if necessary and docs if possible.
- * Update our README/docs accordingly to your change, making it clear which platforms are supported.
+ * Follow guidelines. For the Dart side, follow [Flame's official style guide](https://github.com/flame-engine/flame/blob/main/STYLEGUIDE.md). We don't have a code analyzer for the native side (yet!), but please follow the code around you to make it properly formatted and linted. There is nothing worse than badly formatted code!
+ * Write clean, beautiful and easy to understand code, with comments if necessary and docs if applicable.
+ * Update our README/getting started/feature parity table/any other docs accordingly to your change, making it clear which platforms are supported.
  * Try to support all platforms where it makes sense. This is a hard thing to ask, and we understand and we will merge PRs that only work on one platform as well. But if you have the time, please help us with feature parity.
- * Make sure your change is testable on the `example` app. If necessary, add it. This is **mandatory**. We need to be able to at least manually try your feature. Tests are even better of course (see below).
- * Try to add tests. We (sadly) have very little test coverage. If any new feature had some tests, it would help us a great deal. But this is also a hard ask because we don't have the easiest infrastructure to test, in fact, audio is hard to test.
- * Add your change to the CHANGELOG under the `[next]` section.
- * Do not add a new version to the changelog, bump versions or anything like that. We will deal with the release process and decide the next version after things are merged.
+ * Make sure your change is testable on the `example` app. If necessary, add to it. This is **mandatory**. We need to be able to at least manually try your feature. Tests are even better of course (see below).
+ * Try to add tests, if possible. We don't strive for 100% coverage, but we have very basic driver tests and unit tests where it makes sense (not all places can be tested for an audio player app).
+ * Do not add a new version to the changelog, bump versions or anything like that. We will deal with the release process using `melos` whenever there is something to release.
