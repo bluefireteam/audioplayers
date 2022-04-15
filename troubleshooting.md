@@ -89,6 +89,12 @@ Or on XCode you can add it as a capability; more details [here](https://develope
 
 One of the know reasons for streams not playing is that the stream is being gziped by the server, as described [here](https://github.com/luanpotter/audioplayers/issues/183).
 
+## Gapless Looping
+
+Depending on the file format and platform, when audioplayers uses the native implementation of the "looping" feature, there will be gaps between plays, witch might not be noticeable for non-continuous SFX but will definitely be noticeable for looping songs.
+
+TODO(luan): break down alternatives here, low latency mode, audio pool, gapless_audioplayer, ocarina, etc
+
 ## [macOS] Outgoing Connections
 
 By default, macOS apps don't allow outgoing connections; so playing audio files/streams from the internet won't work. To fix this, add the following to the `.entitlements` files for your app:

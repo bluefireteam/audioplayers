@@ -130,8 +130,7 @@ The release mode is controlling what happens when the playback ends. There are 3
 
 **Note**: you can control exactly what happens when the playback ends using the `onPlayerComplete` stream (see Streams below).
 
-**Note**: there are caveats when looping audio without gaps.
-TODO(luan) explain this.
+**Note**: there are caveats when looping audio without gaps. Depending on the file format and platform, when audioplayers uses the native implementation of the "looping" feature, there will be gaps between plays, witch might not be noticeable for non-continuous SFX but will definitely be noticeable for looping songs. Please check out the Gapless Loop section on our [Troubleshooting Guide](https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md) for more details.
 
 ### Player Mode
 
@@ -184,7 +183,7 @@ While each platform has its own set of configurations, they are somewhat related
 
 Note that if this process is not perfect, you can create your configuration from scratch by providing exact details for each platform.
 
-The `AudioContextConfig` class has documentation about each parameter, what they are for, and what configurations they reflect on native code.
+The [`AudioContextConfig` class has documentation about each parameter](https://github.com/bluefireteam/audioplayers/blob/main/packages/audioplayers_platform_interface/lib/api/audio_context_config.dart), what they are for, and what configurations they reflect on native code.
 
 ## Streams
 
