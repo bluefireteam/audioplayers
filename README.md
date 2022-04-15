@@ -54,7 +54,7 @@ Or by making a single donation by buying us a coffee:
 
 [![Buy Me A Coffee](https://user-images.githubusercontent.com/835641/60540201-fcd7fa00-9ce4-11e9-87ec-1e98568e9f58.png)](https://www.buymeacoffee.com/bluefire)
 
-**Note**: this software was made by the community, for the community, on our spare time, with no commercial affiliation. It is provided as is and any positive contribution is appreciated. Be kind and mindful of the free time that a battalion of people has gifted on behalf of the community to craft this.
+**Note**: this software was made by the community, for the community, on our spare time, with no commercial affiliation. It is provided as is and any positive contribution is appreciated. Be kind and mindful of the free time that a battalion of people has gifted on behalf of the community to craft and maintain this.
 
 ## Feature Parity Table
 
