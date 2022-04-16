@@ -16,8 +16,7 @@ class AudioContextTab extends StatefulWidget {
 }
 
 class _AudioContextTabState extends State<AudioContextTab> {
-  static GlobalPlatformInterface get _global =>
-      GlobalPlatformInterface.instance;
+  static GlobalPlatformInterface get _global => AudioPlayer.global;
 
   AudioContextConfig config = AudioContextConfig();
 

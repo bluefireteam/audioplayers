@@ -77,7 +77,7 @@ class _SourcesTabState extends State<SourcesTab> {
             setSource(BytesSource(bytes));
           },
         ),
-        // TODO(luan) add local files
+        // TODO(luan) add local files via file picker
       ],
     );
   }
