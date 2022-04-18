@@ -2,25 +2,24 @@
 
 #include <flutter_linux/flutter_linux.h>
 
+#include <future>
 #include <map>
 #include <memory>
 #include <sstream>
 #include <string>
-#include <future>
 
 // STL headers
 #include <functional>
-#include <memory>
-
 #include <map>
 #include <memory>
 #include <sstream>
 #include <string>
+extern "C" {
+#include <gst/gst.h>
+}
 
 class AudioPlayer {
-
-public:
-
+   public:
     AudioPlayer(std::string playerId, FlMethodChannel* channel);
 
     void Dispose();
@@ -39,25 +38,22 @@ public:
 
     virtual ~AudioPlayer();
 
-private:
-
+   private:
     // Media members
-//    media::MFPlatformRef m_mfPlatform;
-//    lnx::com_ptr<media::MediaEngineWrapper> m_mediaEngineWrapper;
+    //    media::MFPlatformRef m_mfPlatform;
+    GstElement* playbin;
 
     bool _isInitialized = false;
     std::string _url{};
 
-//    void SendInitialized();
+    //    void SendInitialized();
 
-//    void OnMediaError(MF_MEDIA_ENGINE_ERR error, HRESULT hr);
-//    void OnMediaStateChange(media::MediaEngineWrapper::BufferingState bufferingState);
-//    void OnPlaybackEnded();
-//    void OnTimeUpdate();
-//    void OnSeekCompleted();
+    //    void OnMediaError(MF_MEDIA_ENGINE_ERR error, HRESULT hr);
+    //    void OnMediaStateChange(media::MediaEngineWrapper::BufferingState
+    //    bufferingState); void OnPlaybackEnded(); void OnTimeUpdate(); void
+    //    OnSeekCompleted();
 
     std::string _playerId;
 
     FlMethodChannel* _channel;
-
 };
