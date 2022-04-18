@@ -10,6 +10,8 @@ flutter:
         default_package: audioplayers_android
       ios:
         default_package: audioplayers_darwin
+      linux:
+        default_package: audioplayers_linux
       macos:
         default_package: audioplayers_darwin
       web:
@@ -21,6 +23,9 @@ dependencies:
   audioplayers_platform_interface: ^1.0.0-rc.1
   audioplayers_android: ^1.0.0-rc.1
   audioplayers_darwin: ^1.0.0-rc.1
+  # TODO use released version
+  audioplayers_linux:
+    path: ../audioplayers_linux
   audioplayers_web: ^1.0.0-rc.1
   audioplayers_windows: ^1.0.0-rc.1
   uuid: ^3.0.1

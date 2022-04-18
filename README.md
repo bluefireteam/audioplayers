@@ -2,7 +2,7 @@
 
 [![Pub](https://img.shields.io/pub/v/audioplayers.svg?style=popout&include_prereleases)](https://pub.dartlang.org/packages/audioplayers) [![Build Status](https://github.com/luanpotter/audioplayers/workflows/build/badge.svg?branch=main)](https://github.com/luanpotter/audioplayers/actions?query=workflow%3A"build"+branch%3Amain) [![Discord](https://img.shields.io/discord/509714518008528896.svg)](https://discord.gg/pxrBmy4) [![Melos](https://img.shields.io/badge/maintained%20with-melos-f700ff.svg)](https://github.com/invertase/melos)
 
-A Flutter plugin to play multiple simultaneously audio files, works for Android, iOS, macOS, Windows and web.
+A Flutter plugin to play multiple simultaneously audio files, works for Android, iOS, macOS, Windows, Linux and web.
 
 <img src="images/screenshot1.png" width="250" /> <img src="images/screenshot2.png" width="250" /> <img src="images/screenshot3.png" width="250" />
 
