@@ -96,12 +96,9 @@ static void audioplayers_linux_plugin_HandleMethodCall(
 
     auto flMode = fl_value_lookup_string(args, "mode");
 
-    std::string mode;
-    if (flMode == nullptr) {
-        mode = std::string();
-    } else {
-        mode = std::string(fl_value_get_string(flMode));
-    }
+    std::string mode = flMode == nullptr
+                           ? std::string()
+                           : std::string(fl_value_get_string(flMode));
 
     auto player = audioplayers_linux_plugin_GetPlayer(self, playerId, mode);
 
@@ -120,11 +117,10 @@ static void audioplayers_linux_plugin_HandleMethodCall(
         player->SeekTo(0);
         result = 1;
     } else if (strcmp(method, "seek") == 0) {
-        int position =
-            fl_value_get_float(fl_value_lookup_string(args, "position"));
-        if (!position) {
-            position = (int)(player->GetPosition() / 10000);
-        }
+        auto flPosition = fl_value_lookup_string(args, "position");
+        int position = flPosition == nullptr
+                           ? (int)(player->GetPosition() / 10000)
+                           : fl_value_get_float(flPosition);
         player->SeekTo(position * 10000);
         result = 1;
     } else if (strcmp(method, "setSourceUrl") == 0) {
@@ -135,13 +131,11 @@ static void audioplayers_linux_plugin_HandleMethodCall(
             return;
         }
         auto url = std::string(fl_value_get_string(flUrl));
-        
+
         auto flIsLocal = fl_value_lookup_string(args, "isLocal");
-        bool isLocal = false;
-        if(flIsLocal != nullptr) {
-           isLocal = fl_value_get_bool(flIsLocal);
-        }
-        if(isLocal) {
+        bool isLocal =
+            flIsLocal == nullptr ? false : fl_value_get_bool(flIsLocal);
+        if (isLocal) {
             url = std::string("file://") + url;
         }
 
@@ -155,24 +149,38 @@ static void audioplayers_linux_plugin_HandleMethodCall(
     } else if (strcmp(method, "getDuration") == 0) {
         result = player->GetDuration() / 10000;
     } else if (strcmp(method, "setVolume") == 0) {
-        // double volume = GetArgument<double>("volume", args, 1.0);
-        // player->SetVolume(volume);
-        // result = 1;
+        auto flVolume = fl_value_lookup_string(args, "volume");
+        double volume =
+            flVolume == nullptr ? 1.0 : fl_value_get_float(flVolume);
+        player->SetVolume(volume);
+        result = 1;
     } else if (strcmp(method, "getCurrentPosition") == 0) {
         result = player->GetPosition() / 10000;
     } else if (strcmp(method, "setPlaybackRate") == 0) {
-        // auto playbackRate = GetArgument<double>("playbackRate", args, 1.0);
-        // player->SetPlaybackSpeed(playbackRate);
-        // result = 1;
+        auto flPlaybackRate = fl_value_lookup_string(args, "playbackRate");
+        double playbackRate = flPlaybackRate == nullptr
+                                  ? 1.0
+                                  : fl_value_get_float(flPlaybackRate);
+        player->SetPlaybackSpeed(playbackRate);
+        result = 1;
     } else if (strcmp(method, "setReleaseMode") == 0) {
-        // auto releaseMode = GetArgument<std::string>("releaseMode", args,
-        // std::string()); if (releaseMode.empty()) {
-        //     Logger::Error("Error calling setReleaseMode, releaseMode cannot
-        //     be null"); result = 0; return;
-        // }
-        // auto looping = releaseMode.find("loop") != std::string::npos;
-        // player->SetLooping(looping);
-        // result = 1;
+        auto flReleaseMode = fl_value_lookup_string(args, "releaseMode");
+        std::string releaseMode =
+            flReleaseMode == nullptr
+                ? std::string()
+                : std::string(fl_value_get_string(flReleaseMode));
+        if (releaseMode.empty()) {
+            Logger::Error(
+                "Error calling setReleaseMode, releaseMode cannot be null");
+            result = 0;
+            return;
+        }
+        auto looping = releaseMode.find("loop") != std::string::npos;
+        player->SetLooping(looping);
+        result = 1;
+    } else if (strcmp(method, "setPlayerMode") == 0) {
+        // TODO check if multiplayer mode in linux is supported
+        result = 1;
     } else {
         response = FL_METHOD_RESPONSE(fl_method_not_implemented_response_new());
         fl_method_call_respond(method_call, response, nullptr);
