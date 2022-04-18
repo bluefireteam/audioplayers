@@ -31,7 +31,7 @@ static FlMethodChannel *channel;
 static FlMethodChannel *globalChannel;
 static std::map<std::string, std::unique_ptr<AudioPlayer>> audioPlayers;
 
-static AudioPlayer *audioplayers_linux_plugin_GetPlayer(
+static AudioPlayer *audioplayers_linux_plugin_get_player(
     AudioplayersLinuxPlugin *self, std::string playerId, std::string mode) {
     auto searchPlayer = audioPlayers.find(playerId);
     if (searchPlayer != audioPlayers.end()) {
@@ -44,7 +44,7 @@ static AudioPlayer *audioplayers_linux_plugin_GetPlayer(
     }
 }
 
-static void audioplayers_linux_plugin_HandleGlobalMethodCall(
+static void audioplayers_linux_plugin_handle_global_method_call(
     AudioplayersLinuxPlugin *self, FlMethodCall *method_call) {
     g_autoptr(FlMethodResponse) response = nullptr;
     int result = 1;
@@ -80,7 +80,7 @@ static void audioplayers_linux_plugin_HandleGlobalMethodCall(
     fl_method_call_respond(method_call, response, nullptr);
 }
 
-static void audioplayers_linux_plugin_HandleMethodCall(
+static void audioplayers_linux_plugin_handle_method_call(
     AudioplayersLinuxPlugin *self, FlMethodCall *method_call) {
     g_autoptr(FlMethodResponse) response = nullptr;
     int result;
@@ -100,7 +100,7 @@ static void audioplayers_linux_plugin_HandleMethodCall(
                            ? std::string()
                            : std::string(fl_value_get_string(flMode));
 
-    auto player = audioplayers_linux_plugin_GetPlayer(self, playerId, mode);
+    auto player = audioplayers_linux_plugin_get_player(self, playerId, mode);
 
     if (strcmp(method, "pause") == 0) {
         player->Pause();
@@ -206,14 +206,14 @@ static void audioplayers_linux_plugin_init(AudioplayersLinuxPlugin *self) {}
 static void method_call_cb(FlMethodChannel *channel, FlMethodCall *method_call,
                            gpointer user_data) {
     AudioplayersLinuxPlugin *plugin = AUDIOPLAYERS_LINUX_PLUGIN(user_data);
-    audioplayers_linux_plugin_HandleMethodCall(plugin, method_call);
+    audioplayers_linux_plugin_handle_method_call(plugin, method_call);
 }
 
 static void method_call_global_cb(FlMethodChannel *channel,
                                   FlMethodCall *method_call,
                                   gpointer user_data) {
     AudioplayersLinuxPlugin *plugin = AUDIOPLAYERS_LINUX_PLUGIN(user_data);
-    audioplayers_linux_plugin_HandleGlobalMethodCall(plugin, method_call);
+    audioplayers_linux_plugin_handle_global_method_call(plugin, method_call);
 }
 
 void audioplayers_linux_plugin_register_with_registrar(
