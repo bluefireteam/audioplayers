@@ -213,15 +213,28 @@ void AudioPlayer::Resume() {
 }
 
 int64_t AudioPlayer::GetPosition() {
-    //    return m_mediaEngineWrapper->GetMediaTime();
-    return 0;  // TODO
+    gint64 current = -1;
+    if (!gst_element_query_position(playbin, GST_FORMAT_TIME, &current)) {
+        Logger::Error(std::string("Could not query current position."));
+        return 0;
+    }
+    return current;
 }
 
 int64_t AudioPlayer::GetDuration() {
-    //    return m_mediaEngineWrapper->GetDuration();
-    return 0;  // TODO
+    gint64 duration;
+    if (!gst_element_query_duration(playbin, GST_FORMAT_TIME, &duration)) {
+        Logger::Error(std::string("Could not query current duration."));
+        return 0;
+    }
+    return duration;
 }
 
 void AudioPlayer::SeekTo(int64_t seek) {
-    //    m_mediaEngineWrapper->SeekTo(seek);
+    if (!gst_element_seek_simple(
+            playbin, GST_FORMAT_TIME,
+            GstSeekFlags(GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_KEY_UNIT),
+            seek * GST_MSECOND)) {
+        Logger::Error(std::string("Could not seek to position"));
+    }
 }

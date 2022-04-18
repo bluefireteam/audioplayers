@@ -120,8 +120,8 @@ static void audioplayers_linux_plugin_HandleMethodCall(
         auto flPosition = fl_value_lookup_string(args, "position");
         int position = flPosition == nullptr
                            ? (int)(player->GetPosition() / 10000)
-                           : fl_value_get_float(flPosition);
-        player->SeekTo(position * 10000);
+                           : fl_value_get_int(flPosition);
+        player->SeekTo(position);
         result = 1;
     } else if (strcmp(method, "setSourceUrl") == 0) {
         auto flUrl = fl_value_lookup_string(args, "url");
