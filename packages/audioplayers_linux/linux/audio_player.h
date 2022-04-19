@@ -20,7 +20,7 @@ extern "C" {
 
 class AudioPlayer {
    public:
-    AudioPlayer(std::string playerId, FlMethodChannel* channel);
+    AudioPlayer(std::string playerId, FlMethodChannel *channel);
 
     void Dispose();
     void SetLooping(bool isLooping);
@@ -39,21 +39,26 @@ class AudioPlayer {
     virtual ~AudioPlayer();
 
    private:
-    // Media members
-    //    media::MFPlatformRef m_mfPlatform;
-    GstElement* playbin;
+    // Gst members
+    GstElement *playbin;
+    GstBus *bus;
+    GMainLoop *main_loop;
 
     bool _isInitialized = false;
     std::string _url{};
 
-    //    void SendInitialized();
+    static gboolean OnBusMessage(GstBus *bus, GstMessage *message,
+                                 AudioPlayer *data);
+    void SendInitialized();
 
-    //    void OnMediaError(MF_MEDIA_ENGINE_ERR error, HRESULT hr);
-    //    void OnMediaStateChange(media::MediaEngineWrapper::BufferingState
-    //    bufferingState); void OnPlaybackEnded(); void OnTimeUpdate(); void
-    //    OnSeekCompleted();
+    void OnMediaError(GError *error, gchar *debug);
+    void OnMediaStateChange(GstObject *src, GstState *old_state,
+                            GstState *new_state);
+    void OnPlaybackEnded();
+    void OnTimeUpdate();
+    void OnSeekCompleted();
 
     std::string _playerId;
 
-    FlMethodChannel* _channel;
+    FlMethodChannel *_channel;
 };

@@ -13,159 +13,164 @@ AudioPlayer::AudioPlayer(std::string playerId, FlMethodChannel *channel)
         return;
     }
 
-    // GstBus *bus;
-    // GstMessage *msg;
-    // msg = gst_bus_timed_pop_filtered(
-    //     bus, GST_CLOCK_TIME_NONE,
-    //     (GstMessageType)(GST_MESSAGE_ERROR | GST_MESSAGE_EOS));
+    // TODO not working with main_loop running, also message events work without
+    // it, but proposed: See:
+    // https://gstreamer.freedesktop.org/documentation/tutorials/playback/playbin-usage.html?gi-language=c#the-multilingual-player
+    // main_loop = g_main_loop_new(NULL, FALSE);
+    // g_main_loop_run(main_loop);
 
-    // /* See next tutorial for proper error message handling/parsing */
-    // if (GST_MESSAGE_TYPE(msg) == GST_MESSAGE_ERROR) {
-    //     GError *err;
-    //     gchar *d;
-    //     gst_message_parse_error(msg, &err, &d);
-
-    //     std::ostringstream oss;
-    //     oss << "Error: " << err->code << "; message=" << err->message;
-    //     Logger::Error(oss.str());
-    //     return;
-    // }
-    // /* Free resources */
-    // gst_message_unref(msg);
-    // gst_object_unref(bus);
-    // gst_element_set_state(pipeline, GST_STATE_NULL);
-    // gst_object_unref(pipeline);
-
-    //// WINDOWS:
-    //    m_mfPlatform.Startup();
-    //
-    //    // Callbacks invoked by the media engine wrapper
-    //    auto onError = std::bind(&AudioPlayer::OnMediaError, this,
-    //    std::placeholders::_1, std::placeholders::_2); auto
-    //    onBufferingStateChanged = std::bind(&AudioPlayer::OnMediaStateChange,
-    //    this, std::placeholders::_1); auto onPlaybackEndedCB =
-    //    std::bind(&AudioPlayer::OnPlaybackEnded, this); auto onTimeUpdateCB =
-    //    std::bind(&AudioPlayer::OnTimeUpdate, this); auto onSeekCompletedCB =
-    //    std::bind(&AudioPlayer::OnSeekCompleted, this);
-    //
-    //    // Create and initialize the MediaEngineWrapper which manages media
-    //    playback m_mediaEngineWrapper =
-    //    lnx::make_self<media::MediaEngineWrapper>(nullptr, onError,
-    //    onBufferingStateChanged, onPlaybackEndedCB, onTimeUpdateCB,
-    //    onSeekCompletedCB);
-    //
-    //    m_mediaEngineWrapper->Initialize();
+    bus = gst_element_get_bus(playbin);
+    gst_bus_add_watch(bus, (GstBusFunc)AudioPlayer::OnBusMessage, this);
 }
 
 void AudioPlayer::SetSourceUrl(std::string url) {
     if (_url != url) {
         _url = url;
         g_object_set(playbin, "uri", _url.c_str(), NULL);
+        _isInitialized = false;
     }
 }
 
 AudioPlayer::~AudioPlayer() {}
 
-// void AudioPlayer::OnMediaError(MF_MEDIA_ENGINE_ERR error, HRESULT hr) {
-//     LOG_HR_MSG(hr, "MediaEngine error (%d)", error);
-//     if(this->_channel) {
-//         _com_error err(hr);
-//
-//         std::wstring wstr(err.ErrorMessage());
-//
-//         int size = WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS,
-//         &wstr[0], (int)wstr.size(), NULL, 0, NULL, NULL); std::string ret =
-//         std::string(size, 0); WideCharToMultiByte(CP_UTF8,
-//         WC_ERR_INVALID_CHARS, &wstr[0], (int)wstr.size(), &ret[0], size,
-//         NULL, NULL);
-//
-//         this->_channel->InvokeMethod("audio.onError",
-//             std::make_unique<FlValue>(
-//                 flutter::EncodableMap({
-//                     {FlValue("playerId"), FlValue(_playerId)},
-//                     {FlValue("value"), FlValue(ret)}
-//                 })));
-//     }
-// }
+// See:
+// https://gstreamer.freedesktop.org/documentation/gstreamer/gstevent.html?gi-language=c#GstEventType
+gboolean AudioPlayer::OnBusMessage(GstBus *bus, GstMessage *message,
+                                   AudioPlayer *data) {
+    g_print("Got %s message\n", GST_MESSAGE_TYPE_NAME(message));
 
-// void
-// AudioPlayer::OnMediaStateChange(media::MediaEngineWrapper::BufferingState
-// bufferingState) {
-//     if(bufferingState !=
-//     media::MediaEngineWrapper::BufferingState::HAVE_NOTHING) {
-//         if (!this->_isInitialized) {
-//             this->_isInitialized = true;
-//             this->SendInitialized();
-//         }
-//     }
-// }
+    switch (GST_MESSAGE_TYPE(message)) {
+        case GST_MESSAGE_ERROR: {
+            GError *err;
+            gchar *debug;
 
-// void AudioPlayer::OnPlaybackEnded() {
-//     SeekTo(0);
-//     if (GetLooping()) {
-//         Play();
-//     }
-//     if(this->_channel) {
-//         this->_channel->InvokeMethod("audio.onComplete",
-//             std::make_unique<FlValue>(
-//                 flutter::EncodableMap({
-//                     {FlValue("playerId"), FlValue(_playerId)},
-//                     {FlValue("value"), FlValue(true)}
-//                 })));
-//     }
-// }
-//
-// void AudioPlayer::OnTimeUpdate() {
-//     if(this->_channel) {
-//         this->_channel->InvokeMethod("audio.onCurrentPosition",
-//             std::make_unique<FlValue>(
-//                 flutter::EncodableMap({
-//                     {FlValue("playerId"), FlValue(_playerId)},
-//                     {FlValue("value"),
-//                     FlValue((int64_t)m_mediaEngineWrapper->GetMediaTime() /
-//                     10000)}
-//                 })));
-//     }
-// }
-//
-// void AudioPlayer::OnSeekCompleted() {
-//     if(this->_channel) {
-//         this->_channel->InvokeMethod("audio.onSeekComplete",
-//             std::make_unique<FlValue>(
-//                 flutter::EncodableMap({
-//                     {FlValue("playerId"), FlValue(_playerId)},
-//                     {FlValue("value"), FlValue(true)}
-//                 })));
-//     }
-// }
+            gst_message_parse_error(message, &err, &debug);
+            data->OnMediaError(err, debug);
+            g_error_free(err);
+            g_free(debug);
 
-// void AudioPlayer::SendInitialized() {
-//     if(this->_channel) {
-//         this->_channel->InvokeMethod("audio.onDuration",
-//             std::make_unique<FlValue>(
-//                 flutter::EncodableMap({
-//                     {FlValue("playerId"), FlValue(_playerId)},
-//                     {FlValue("value"),
-//                     FlValue((int64_t)m_mediaEngineWrapper->GetDuration() /
-//                     10000)}
-//                 })));
-//         this->_channel->InvokeMethod("audio.onCurrentPosition",
-//             std::make_unique<FlValue>(
-//                 flutter::EncodableMap({
-//                     {FlValue("playerId"), FlValue(_playerId)},
-//                     {FlValue("value"),
-//                     FlValue((int64_t)m_mediaEngineWrapper->GetMediaTime() /
-//                     10000)}
-//                 })));
-//     }
-// }
+            g_main_loop_quit(data->main_loop);
+            break;
+        }
+        case GST_MESSAGE_STATE_CHANGED:
+            GstState old_state, new_state;
+
+            gst_message_parse_state_changed(message, &old_state, &new_state,
+                                            NULL);
+            data->OnMediaStateChange(message->src, &old_state, &new_state);
+            break;
+        case GST_MESSAGE_EOS:
+            data->OnPlaybackEnded();
+            g_main_loop_quit(data->main_loop);
+            break;
+        default:
+            /* unhandled message */
+            break;
+    }
+
+    // Continue watching for messages
+    return TRUE;
+};
+
+void AudioPlayer::OnMediaError(GError *error, gchar *debug) {
+    std::ostringstream oss;
+    oss << "Error: " << error->code << "; message=" << error->message;
+    g_print("%s\n", oss.str().c_str());
+    if (this->_channel) {
+        g_autoptr(FlValue) map = fl_value_new_map();
+        fl_value_set_string(map, "playerId",
+                            fl_value_new_string(_playerId.c_str()));
+        fl_value_set_string(map, "value",
+                            fl_value_new_string(oss.str().c_str()));
+
+        fl_method_channel_invoke_method(this->_channel, "audio.onError", map,
+                                        nullptr, nullptr, nullptr);
+    }
+}
+
+void AudioPlayer::OnMediaStateChange(GstObject *src, GstState *old_state,
+                                     GstState *new_state) {
+    g_print("Element %s changed state from %s to %s.\n", GST_OBJECT_NAME(src),
+            gst_element_state_get_name(*old_state),
+            gst_element_state_get_name(*new_state));
+    if (strcmp(GST_OBJECT_NAME(src), "playbin") == 0) {
+        // TODO may need to filter further
+        if (!this->_isInitialized) {
+            this->_isInitialized = true;
+            this->SendInitialized();
+        }
+    }
+}
+
+void AudioPlayer::OnPlaybackEnded() {
+    SeekTo(0);
+    if (GetLooping()) {
+        Play();
+    }
+    if (this->_channel) {
+        g_autoptr(FlValue) map = fl_value_new_map();
+        fl_value_set_string(map, "playerId",
+                            fl_value_new_string(_playerId.c_str()));
+        fl_value_set_string(map, "value", fl_value_new_bool(true));
+
+        fl_method_channel_invoke_method(this->_channel, "audio.onComplete", map,
+                                        nullptr, nullptr, nullptr);
+    }
+}
+
+void AudioPlayer::OnTimeUpdate() {
+    if (this->_channel) {
+        g_autoptr(FlValue) map = fl_value_new_map();
+        fl_value_set_string(map, "playerId",
+                            fl_value_new_string(_playerId.c_str()));
+        fl_value_set_string(map, "value",
+                            fl_value_new_int(GetPosition() / 10000));
+        fl_method_channel_invoke_method(this->_channel,
+                                        "audio.onCurrentPosition", map, nullptr,
+                                        nullptr, nullptr);
+    }
+}
+
+void AudioPlayer::OnSeekCompleted() {
+    if (this->_channel) {
+        g_autoptr(FlValue) map = fl_value_new_map();
+        fl_value_set_string(map, "playerId",
+                            fl_value_new_string(_playerId.c_str()));
+        fl_value_set_string(map, "value", fl_value_new_bool(true));
+        fl_method_channel_invoke_method(this->_channel, "audio.onSeekComplete",
+                                        map, nullptr, nullptr, nullptr);
+    }
+}
+
+void AudioPlayer::SendInitialized() {
+    if (this->_channel) {
+        g_autoptr(FlValue) map = fl_value_new_map();
+        fl_value_set_string(map, "playerId",
+                            fl_value_new_string(_playerId.c_str()));
+        fl_value_set_string(map, "value",
+                            fl_value_new_int(GetDuration() / 10000));
+        fl_method_channel_invoke_method(this->_channel, "audio.onDuration", map,
+                                        nullptr, nullptr, nullptr);
+
+        map = fl_value_new_map();
+        fl_value_set_string(map, "playerId",
+                            fl_value_new_string(_playerId.c_str()));
+        fl_value_set_string(map, "value",
+                            fl_value_new_int(GetPosition() / 10000));
+        fl_method_channel_invoke_method(this->_channel,
+                                        "audio.onCurrentPosition", map, nullptr,
+                                        nullptr, nullptr);
+    }
+}
 
 void AudioPlayer::Dispose() {
     if (_isInitialized) {
         Pause();
     }
-    gst_element_set_state(playbin, GST_STATE_NULL);
+    g_main_loop_unref(main_loop);
+    gst_object_unref(bus);
     gst_object_unref(playbin);
+    gst_element_set_state(playbin, GST_STATE_NULL);
     _channel = nullptr;
     _isInitialized = false;
 }
@@ -188,6 +193,8 @@ void AudioPlayer::SetVolume(double volume) {
     //    m_mediaEngineWrapper->SetVolume((float)volume);
 }
 
+// See:
+// https://gstreamer.freedesktop.org/documentation/tutorials/basic/playback-speed.html?gi-language=c
 void AudioPlayer::SetPlaybackSpeed(double playbackSpeed) {
     GstEvent *seek_event;
     gint64 position = GetPosition();
@@ -203,7 +210,7 @@ void AudioPlayer::SetPlaybackSpeed(double playbackSpeed) {
             GST_SEEK_TYPE_SET, 0, GST_SEEK_TYPE_SET, position);
     }
     gst_element_send_event(playbin, seek_event);
-    // TODO https://gstreamer.freedesktop.org/documentation/tutorials/basic/playback-speed.html?gi-language=c
+    // TODO not working
 }
 
 void AudioPlayer::Play() {
@@ -255,6 +262,7 @@ void AudioPlayer::SeekTo(int64_t seek) {
             playbin, GST_FORMAT_TIME,
             GstSeekFlags(GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_KEY_UNIT),
             seek * GST_MSECOND)) {
-        Logger::Error(std::string("Could not seek to position ") + std::to_string(seek) + std::string("."));
+        Logger::Error(std::string("Could not seek to position ") +
+                      std::to_string(seek) + std::string("."));
     }
 }
