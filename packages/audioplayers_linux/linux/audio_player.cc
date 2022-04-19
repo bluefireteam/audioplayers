@@ -162,7 +162,7 @@ AudioPlayer::~AudioPlayer() {}
 
 void AudioPlayer::Dispose() {
     if (_isInitialized) {
-        //        m_mediaEngineWrapper->Pause();
+        Pause();
     }
     gst_element_set_state(playbin, GST_STATE_NULL);
     gst_object_unref(playbin);
@@ -189,10 +189,39 @@ void AudioPlayer::SetVolume(double volume) {
 }
 
 void AudioPlayer::SetPlaybackSpeed(double playbackSpeed) {
-    //    m_mediaEngineWrapper->SetPlaybackRate(playbackSpeed);
+    GstEvent *seek_event;
+    gint64 position = GetPosition();
+    if (playbackSpeed > 0) {
+        seek_event = gst_event_new_seek(
+            playbackSpeed, GST_FORMAT_TIME,
+            GstSeekFlags(GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE),
+            GST_SEEK_TYPE_SET, position, GST_SEEK_TYPE_END, 0);
+    } else {
+        seek_event = gst_event_new_seek(
+            playbackSpeed, GST_FORMAT_TIME,
+            GstSeekFlags(GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE),
+            GST_SEEK_TYPE_SET, 0, GST_SEEK_TYPE_SET, position);
+    }
+    gst_element_send_event(playbin, seek_event);
+    // TODO https://gstreamer.freedesktop.org/documentation/tutorials/basic/playback-speed.html?gi-language=c
 }
 
 void AudioPlayer::Play() {
+    SeekTo(0);
+    Resume();
+}
+
+void AudioPlayer::Pause() {
+    GstStateChangeReturn ret = gst_element_set_state(playbin, GST_STATE_PAUSED);
+    if (ret == GST_STATE_CHANGE_FAILURE) {
+        Logger::Error(
+            std::string("Unable to set the pipeline to the paused state."));
+        gst_object_unref(playbin);
+        return;
+    }
+}
+
+void AudioPlayer::Resume() {
     GstStateChangeReturn ret =
         gst_element_set_state(playbin, GST_STATE_PLAYING);
     if (ret == GST_STATE_CHANGE_FAILURE) {
@@ -203,17 +232,8 @@ void AudioPlayer::Play() {
     }
 }
 
-void AudioPlayer::Pause() {
-    //    m_mediaEngineWrapper->Pause();
-}
-
-void AudioPlayer::Resume() {
-    Play();
-    //    m_mediaEngineWrapper->Resume();
-}
-
 int64_t AudioPlayer::GetPosition() {
-    gint64 current = -1;
+    gint64 current = 0;
     if (!gst_element_query_position(playbin, GST_FORMAT_TIME, &current)) {
         Logger::Error(std::string("Could not query current position."));
         return 0;
@@ -222,7 +242,7 @@ int64_t AudioPlayer::GetPosition() {
 }
 
 int64_t AudioPlayer::GetDuration() {
-    gint64 duration;
+    gint64 duration = 0;
     if (!gst_element_query_duration(playbin, GST_FORMAT_TIME, &duration)) {
         Logger::Error(std::string("Could not query current duration."));
         return 0;
@@ -235,6 +255,6 @@ void AudioPlayer::SeekTo(int64_t seek) {
             playbin, GST_FORMAT_TIME,
             GstSeekFlags(GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_KEY_UNIT),
             seek * GST_MSECOND)) {
-        Logger::Error(std::string("Could not seek to position"));
+        Logger::Error(std::string("Could not seek to position ") + std::to_string(seek) + std::string("."));
     }
 }
