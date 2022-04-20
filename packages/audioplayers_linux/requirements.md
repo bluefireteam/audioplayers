@@ -12,3 +12,8 @@ GStreamer:
 ```
 sudo apt-get install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
 ```
+
+Optional GStreamer Bad Plugins (e.g. for `.m3u8`):
+```
+sudo apt-get install gstreamer1.0-plugins-bad
+```

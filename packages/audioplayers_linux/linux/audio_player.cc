@@ -13,6 +13,9 @@ AudioPlayer::AudioPlayer(std::string playerId, FlMethodChannel *channel)
         return;
     }
 
+    g_signal_connect(playbin, "source-setup",
+                     G_CALLBACK(AudioPlayer::SourceSetup), &source);
+
     // TODO not working with main_loop running, also message events work without
     // it, but proposed: See:
     // https://gstreamer.freedesktop.org/documentation/tutorials/playback/playbin-usage.html?gi-language=c#the-multilingual-player
@@ -22,6 +25,14 @@ AudioPlayer::AudioPlayer(std::string playerId, FlMethodChannel *channel)
     bus = gst_element_get_bus(playbin);
     gst_bus_add_watch(bus, (GstBusFunc)AudioPlayer::OnBusMessage, this);
 }
+
+void AudioPlayer::SourceSetup(GstElement *playbin, GstElement *source,
+                         GstElement **p_src) {
+    if (g_object_class_find_property(G_OBJECT_GET_CLASS(source),
+                                     "ssl-strict") != 0) {
+        g_object_set(G_OBJECT(source), "ssl-strict", FALSE, NULL);
+    }
+};
 
 void AudioPlayer::SetSourceUrl(std::string url) {
     if (_url != url) {
@@ -169,6 +180,7 @@ void AudioPlayer::Dispose() {
     }
     g_main_loop_unref(main_loop);
     gst_object_unref(bus);
+    gst_object_unref(source);
     gst_object_unref(playbin);
     gst_element_set_state(playbin, GST_STATE_NULL);
     _channel = nullptr;

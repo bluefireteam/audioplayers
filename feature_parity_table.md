@@ -39,8 +39,8 @@ Note: LLM means Low Latency Mode.
         <tr><td colspan="7"><strong>Audio Source</strong></td></tr>
         <tr><td>local file on device</td><td>yes</td><td>yes</td><td>yes</td><td>no</td><td>yes</td><td>yes</td></tr>
         <tr><td>local asset</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr>
-        <tr><td>external URL file</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>no</td></tr>
-        <tr><td>external URL stream</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>no</td></tr>
+        <tr><td>external URL file</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr>
+        <tr><td>external URL stream</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr>
         <tr><td>byte array</td><td>SDK >=23</td><td>not yet</td><td>not yet</td><td>not yet</td><td>not yet</td><td>no</td></tr>
         <tr><td colspan="7"><strong>Audio Config</strong></td></tr>
         <tr><td>set url</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr>

@@ -41,6 +41,7 @@ class AudioPlayer {
    private:
     // Gst members
     GstElement *playbin;
+    GstElement *source;
     GstBus *bus;
     GMainLoop *main_loop;
 
@@ -49,6 +50,8 @@ class AudioPlayer {
 
     static gboolean OnBusMessage(GstBus *bus, GstMessage *message,
                                  AudioPlayer *data);
+    static void SourceSetup(GstElement *playbin, GstElement *source,
+                            GstElement **p_src);
     void SendInitialized();
 
     void OnMediaError(GError *error, gchar *debug);
