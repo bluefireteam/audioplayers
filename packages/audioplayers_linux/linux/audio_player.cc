@@ -23,11 +23,16 @@ AudioPlayer::AudioPlayer(std::string playerId, FlMethodChannel *channel)
     // g_main_loop_run(main_loop);
 
     bus = gst_element_get_bus(playbin);
+    // TODO use gst_bus_add_signal_watch for more granular messages, see
+    // https://gstreamer.freedesktop.org/documentation/tutorials/basic/toolkit-integration.html?gi-language=c#walkthrough
     gst_bus_add_watch(bus, (GstBusFunc)AudioPlayer::OnBusMessage, this);
+
+    // Refresh continuously
+    g_timeout_add(1000, (GSourceFunc)AudioPlayer::OnRefresh, this);
 }
 
 void AudioPlayer::SourceSetup(GstElement *playbin, GstElement *source,
-                         GstElement **p_src) {
+                              GstElement **p_src) {
     if (g_object_class_find_property(G_OBJECT_GET_CLASS(source),
                                      "ssl-strict") != 0) {
         g_object_set(G_OBJECT(source), "ssl-strict", FALSE, NULL);
@@ -74,6 +79,12 @@ gboolean AudioPlayer::OnBusMessage(GstBus *bus, GstMessage *message,
             data->OnPlaybackEnded();
             g_main_loop_quit(data->main_loop);
             break;
+        case GST_MESSAGE_DURATION_CHANGED:
+            data->OnDurationUpdate();
+            break;
+        case GST_MESSAGE_STREAM_STATUS:
+        case GST_MESSAGE_NEED_CONTEXT:
+        case GST_MESSAGE_ELEMENT:
         default:
             /* unhandled message */
             break;
@@ -82,6 +93,18 @@ gboolean AudioPlayer::OnBusMessage(GstBus *bus, GstMessage *message,
     // Continue watching for messages
     return TRUE;
 };
+
+// Compare with refresh_ui in
+// https://gstreamer.freedesktop.org/documentation/tutorials/basic/toolkit-integration.html?gi-language=c#walkthrough
+gboolean AudioPlayer::OnRefresh(AudioPlayer *data) {
+    /* We do not want to update anything unless we are in the PAUSED or PLAYING
+     * states */
+    if (data->playbin->current_state < GST_STATE_PAUSED) return TRUE;
+    if (data->playbin->current_state == GST_STATE_PLAYING) {
+        data->OnPositionUpdate();
+    }
+    return TRUE;
+}
 
 void AudioPlayer::OnMediaError(GError *error, gchar *debug) {
     std::ostringstream oss;
@@ -101,14 +124,14 @@ void AudioPlayer::OnMediaError(GError *error, gchar *debug) {
 
 void AudioPlayer::OnMediaStateChange(GstObject *src, GstState *old_state,
                                      GstState *new_state) {
-    g_print("Element %s changed state from %s to %s.\n", GST_OBJECT_NAME(src),
-            gst_element_state_get_name(*old_state),
-            gst_element_state_get_name(*new_state));
     if (strcmp(GST_OBJECT_NAME(src), "playbin") == 0) {
+        g_print("Element %s changed state from %s to %s.\n",
+                GST_OBJECT_NAME(src), gst_element_state_get_name(*old_state),
+                gst_element_state_get_name(*new_state));
         // TODO may need to filter further
         if (!this->_isInitialized) {
             this->_isInitialized = true;
-            this->SendInitialized();
+            g_print("Initialized media");
         }
     }
 }
@@ -129,7 +152,7 @@ void AudioPlayer::OnPlaybackEnded() {
     }
 }
 
-void AudioPlayer::OnTimeUpdate() {
+void AudioPlayer::OnPositionUpdate() {
     if (this->_channel) {
         g_autoptr(FlValue) map = fl_value_new_map();
         fl_value_set_string(map, "playerId",
@@ -139,6 +162,18 @@ void AudioPlayer::OnTimeUpdate() {
         fl_method_channel_invoke_method(this->_channel,
                                         "audio.onCurrentPosition", map, nullptr,
                                         nullptr, nullptr);
+    }
+}
+
+void AudioPlayer::OnDurationUpdate() {
+    if (this->_channel) {
+        g_autoptr(FlValue) map = fl_value_new_map();
+        fl_value_set_string(map, "playerId",
+                            fl_value_new_string(_playerId.c_str()));
+        fl_value_set_string(map, "value",
+                            fl_value_new_int(GetDuration() / 10000));
+        fl_method_channel_invoke_method(this->_channel, "audio.onDuration", map,
+                                        nullptr, nullptr, nullptr);
     }
 }
 
@@ -150,27 +185,6 @@ void AudioPlayer::OnSeekCompleted() {
         fl_value_set_string(map, "value", fl_value_new_bool(true));
         fl_method_channel_invoke_method(this->_channel, "audio.onSeekComplete",
                                         map, nullptr, nullptr, nullptr);
-    }
-}
-
-void AudioPlayer::SendInitialized() {
-    if (this->_channel) {
-        g_autoptr(FlValue) map = fl_value_new_map();
-        fl_value_set_string(map, "playerId",
-                            fl_value_new_string(_playerId.c_str()));
-        fl_value_set_string(map, "value",
-                            fl_value_new_int(GetDuration() / 10000));
-        fl_method_channel_invoke_method(this->_channel, "audio.onDuration", map,
-                                        nullptr, nullptr, nullptr);
-
-        map = fl_value_new_map();
-        fl_value_set_string(map, "playerId",
-                            fl_value_new_string(_playerId.c_str()));
-        fl_value_set_string(map, "value",
-                            fl_value_new_int(GetPosition() / 10000));
-        fl_method_channel_invoke_method(this->_channel,
-                                        "audio.onCurrentPosition", map, nullptr,
-                                        nullptr, nullptr);
     }
 }
 

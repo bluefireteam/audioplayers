@@ -52,13 +52,15 @@ class AudioPlayer {
                                  AudioPlayer *data);
     static void SourceSetup(GstElement *playbin, GstElement *source,
                             GstElement **p_src);
-    void SendInitialized();
+    static gboolean OnRefresh(AudioPlayer *data);
+    // void SendInitialized();
 
     void OnMediaError(GError *error, gchar *debug);
     void OnMediaStateChange(GstObject *src, GstState *old_state,
                             GstState *new_state);
     void OnPlaybackEnded();
-    void OnTimeUpdate();
+    void OnPositionUpdate();
+    void OnDurationUpdate();
     void OnSeekCompleted();
 
     std::string _playerId;
