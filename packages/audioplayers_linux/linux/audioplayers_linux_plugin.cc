@@ -118,9 +118,8 @@ static void audioplayers_linux_plugin_handle_method_call(
         result = 1;
     } else if (strcmp(method, "seek") == 0) {
         auto flPosition = fl_value_lookup_string(args, "position");
-        int position = flPosition == nullptr
-                           ? (int)(player->GetPosition() / 10000)
-                           : fl_value_get_int(flPosition);
+        int position = flPosition == nullptr ? (int)(player->GetPosition())
+                                             : fl_value_get_int(flPosition);
         player->SeekTo(position);
         result = 1;
     } else if (strcmp(method, "setSourceUrl") == 0) {
@@ -147,7 +146,7 @@ static void audioplayers_linux_plugin_handle_method_call(
             result = 0;
         }
     } else if (strcmp(method, "getDuration") == 0) {
-        result = player->GetDuration() / 10000;
+        result = player->GetDuration();
     } else if (strcmp(method, "setVolume") == 0) {
         auto flVolume = fl_value_lookup_string(args, "volume");
         double volume =
@@ -155,7 +154,7 @@ static void audioplayers_linux_plugin_handle_method_call(
         player->SetVolume(volume);
         result = 1;
     } else if (strcmp(method, "getCurrentPosition") == 0) {
-        result = player->GetPosition() / 10000;
+        result = player->GetPosition();
     } else if (strcmp(method, "setPlaybackRate") == 0) {
         auto flPlaybackRate = fl_value_lookup_string(args, "playbackRate");
         double playbackRate = flPlaybackRate == nullptr

@@ -157,8 +157,7 @@ void AudioPlayer::OnPositionUpdate() {
         g_autoptr(FlValue) map = fl_value_new_map();
         fl_value_set_string(map, "playerId",
                             fl_value_new_string(_playerId.c_str()));
-        fl_value_set_string(map, "value",
-                            fl_value_new_int(GetPosition() / 10000));
+        fl_value_set_string(map, "value", fl_value_new_int(GetPosition()));
         fl_method_channel_invoke_method(this->_channel,
                                         "audio.onCurrentPosition", map, nullptr,
                                         nullptr, nullptr);
@@ -170,8 +169,7 @@ void AudioPlayer::OnDurationUpdate() {
         g_autoptr(FlValue) map = fl_value_new_map();
         fl_value_set_string(map, "playerId",
                             fl_value_new_string(_playerId.c_str()));
-        fl_value_set_string(map, "value",
-                            fl_value_new_int(GetDuration() / 10000));
+        fl_value_set_string(map, "value", fl_value_new_int(GetDuration()));
         fl_method_channel_invoke_method(this->_channel, "audio.onDuration", map,
                                         nullptr, nullptr, nullptr);
     }
@@ -265,24 +263,33 @@ void AudioPlayer::Resume() {
     }
 }
 
+/**
+ * @return int64_t the position in milliseconds 
+ */
 int64_t AudioPlayer::GetPosition() {
     gint64 current = 0;
     if (!gst_element_query_position(playbin, GST_FORMAT_TIME, &current)) {
         Logger::Error(std::string("Could not query current position."));
         return 0;
     }
-    return current;
+    return current / 1000000;
 }
 
+/**
+ * @return int64_t the duration in milliseconds 
+ */
 int64_t AudioPlayer::GetDuration() {
     gint64 duration = 0;
     if (!gst_element_query_duration(playbin, GST_FORMAT_TIME, &duration)) {
         Logger::Error(std::string("Could not query current duration."));
         return 0;
     }
-    return duration;
+    return duration / 1000000;
 }
 
+/**
+ * @param seek the position in milliseconds
+ */
 void AudioPlayer::SeekTo(int64_t seek) {
     if (!gst_element_seek_simple(
             playbin, GST_FORMAT_TIME,
