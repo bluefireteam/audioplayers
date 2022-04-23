@@ -55,7 +55,6 @@ class AudioPlayer {
     static void SourceSetup(GstElement *playbin, GstElement *source,
                             GstElement **p_src);
     static gboolean OnRefresh(AudioPlayer *data);
-    // void SendInitialized();
 
     void OnMediaError(GError *error, gchar *debug);
     void OnMediaStateChange(GstObject *src, GstState *old_state,

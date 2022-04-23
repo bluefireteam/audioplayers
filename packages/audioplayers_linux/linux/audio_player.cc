@@ -55,8 +55,6 @@ AudioPlayer::~AudioPlayer() {}
 // https://gstreamer.freedesktop.org/documentation/gstreamer/gstevent.html?gi-language=c#GstEventType
 gboolean AudioPlayer::OnBusMessage(GstBus *bus, GstMessage *message,
                                    AudioPlayer *data) {
-    g_print("Got %s message\n", GST_MESSAGE_TYPE_NAME(message));
-
     switch (GST_MESSAGE_TYPE(message)) {
         case GST_MESSAGE_ERROR: {
             GError *err;
@@ -99,7 +97,6 @@ gboolean AudioPlayer::OnBusMessage(GstBus *bus, GstMessage *message,
 gboolean AudioPlayer::OnRefresh(AudioPlayer *data) {
     /* We do not want to update anything unless we are in the PAUSED or PLAYING
      * states */
-    if (data->playbin->current_state < GST_STATE_PAUSED) return TRUE;
     if (data->playbin->current_state == GST_STATE_PLAYING) {
         data->OnPositionUpdate();
     }
@@ -199,13 +196,9 @@ void AudioPlayer::Dispose() {
     _isInitialized = false;
 }
 
-void AudioPlayer::SetLooping(bool isLooping) {
-    _isLooping = isLooping;
-}
+void AudioPlayer::SetLooping(bool isLooping) { _isLooping = isLooping; }
 
-bool AudioPlayer::GetLooping() {
-    return _isLooping;
-}
+bool AudioPlayer::GetLooping() { return _isLooping; }
 
 void AudioPlayer::SetVolume(double volume) {
     if (volume > 1) {
@@ -213,7 +206,7 @@ void AudioPlayer::SetVolume(double volume) {
     } else if (volume < 0) {
         volume = 0;
     }
-    //    m_mediaEngineWrapper->SetVolume((float)volume);
+    g_object_set(G_OBJECT(playbin), "volume", volume, NULL);
 }
 
 // See:
