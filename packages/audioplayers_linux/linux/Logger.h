@@ -13,7 +13,7 @@ class Logger {
 private:
     static void Log(LogLevel level, std::string message);
 public:
-    static inline LogLevel logLevel = LogLevel::Error;
+    static LogLevel logLevel;
 
     static void Info(std::string message);
 

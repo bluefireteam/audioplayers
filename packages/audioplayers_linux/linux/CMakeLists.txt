@@ -1,8 +1,7 @@
 # See: https://github.com/flutter/flutter/blob/bc0ec85717de14677a0253814faead368ac2abe8/packages/flutter_tools/templates/app_shared/linux.tmpl/CMakeLists.txt.tmpl
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.10)
 set(PROJECT_NAME "audioplayers_linux")
 project(${PROJECT_NAME} LANGUAGES CXX)
-set(CMAKE_CXX_STANDARD 17)
 include(FetchContent)
 
 # This value is used when generating builds using this plugin, so it must
@@ -45,7 +44,7 @@ target_link_libraries(${PLUGIN_NAME} PRIVATE ${GST_APP_LIBRARIES} ${GLIB_LIBRARI
 target_compile_definitions(${PLUGIN_NAME} PRIVATE FLUTTER_PLUGIN_IMPL)
 target_include_directories(${PLUGIN_NAME} INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 target_link_libraries(${PLUGIN_NAME} PRIVATE flutter)
-target_link_libraries(${BINARY_NAME} PRIVATE PkgConfig::GTK)
+target_link_libraries(${PLUGIN_NAME} PRIVATE PkgConfig::GTK)
 
 # List of absolute paths to libraries that should be bundled with the plugin
 set(audioplayers_linux_bundled_libraries

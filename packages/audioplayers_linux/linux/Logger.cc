@@ -2,6 +2,8 @@
 
 using namespace std;
 
+LogLevel Logger::logLevel = LogLevel::Error;
+
 void Logger::Info(std::string message) {
     Log(LogLevel::Info, message);
 }
