@@ -42,6 +42,8 @@ void AudioPlayer::SourceSetup(GstElement *playbin, GstElement *source,
 void AudioPlayer::SetSourceUrl(std::string url) {
     if (_url != url) {
         _url = url;
+        if (playbin->current_state >= GST_STATE_READY)
+            gst_element_set_state(playbin, GST_STATE_READY);
         g_object_set(playbin, "uri", _url.c_str(), NULL);
         _isInitialized = false;
     }
@@ -64,8 +66,6 @@ gboolean AudioPlayer::OnBusMessage(GstBus *bus, GstMessage *message,
             data->OnMediaError(err, debug);
             g_error_free(err);
             g_free(debug);
-
-            g_main_loop_quit(data->main_loop);
             break;
         }
         case GST_MESSAGE_STATE_CHANGED:
@@ -76,8 +76,8 @@ gboolean AudioPlayer::OnBusMessage(GstBus *bus, GstMessage *message,
             data->OnMediaStateChange(message->src, &old_state, &new_state);
             break;
         case GST_MESSAGE_EOS:
+            gst_element_set_state(data->playbin, GST_STATE_READY);
             data->OnPlaybackEnded();
-            g_main_loop_quit(data->main_loop);
             break;
         case GST_MESSAGE_DURATION_CHANGED:
             data->OnDurationUpdate();
@@ -200,12 +200,11 @@ void AudioPlayer::Dispose() {
 }
 
 void AudioPlayer::SetLooping(bool isLooping) {
-    //    m_mediaEngineWrapper->SetLooping(isLooping);
+    _isLooping = isLooping;
 }
 
 bool AudioPlayer::GetLooping() {
-    return false;
-    //    return m_mediaEngineWrapper->GetLooping();
+    return _isLooping;
 }
 
 void AudioPlayer::SetVolume(double volume) {
@@ -264,7 +263,7 @@ void AudioPlayer::Resume() {
 }
 
 /**
- * @return int64_t the position in milliseconds 
+ * @return int64_t the position in milliseconds
  */
 int64_t AudioPlayer::GetPosition() {
     gint64 current = 0;
@@ -276,7 +275,7 @@ int64_t AudioPlayer::GetPosition() {
 }
 
 /**
- * @return int64_t the duration in milliseconds 
+ * @return int64_t the duration in milliseconds
  */
 int64_t AudioPlayer::GetDuration() {
     gint64 duration = 0;

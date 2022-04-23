@@ -46,6 +46,8 @@ class AudioPlayer {
     GMainLoop *main_loop;
 
     bool _isInitialized = false;
+    bool _isLooping = false;
+
     std::string _url{};
 
     static gboolean OnBusMessage(GstBus *bus, GstMessage *message,
