@@ -160,7 +160,7 @@ static void audioplayers_linux_plugin_handle_method_call(
         double playbackRate = flPlaybackRate == nullptr
                                   ? 1.0
                                   : fl_value_get_float(flPlaybackRate);
-        player->SetPlaybackSpeed(playbackRate);
+        player->SetPlaybackRate(playbackRate);
         result = 1;
     } else if (strcmp(method, "setReleaseMode") == 0) {
         auto flReleaseMode = fl_value_lookup_string(args, "releaseMode");

@@ -80,9 +80,16 @@ gboolean AudioPlayer::OnBusMessage(GstBus *bus, GstMessage *message,
         case GST_MESSAGE_DURATION_CHANGED:
             data->OnDurationUpdate();
             break;
+        case GST_MESSAGE_ASYNC_DONE:
+            if (!data->_isSeekCompleted) {
+                data->OnSeekCompleted();
+                data->_isSeekCompleted = true;
+            }
+            break;
         case GST_MESSAGE_STREAM_STATUS:
         case GST_MESSAGE_NEED_CONTEXT:
         case GST_MESSAGE_ELEMENT:
+            g_print("Got %s message\n", GST_MESSAGE_TYPE_NAME(message));
         default:
             /* unhandled message */
             break;
@@ -128,7 +135,7 @@ void AudioPlayer::OnMediaStateChange(GstObject *src, GstState *old_state,
         // TODO may need to filter further
         if (!this->_isInitialized) {
             this->_isInitialized = true;
-            g_print("Initialized media");
+            g_print("Initialized media.\n");
         }
     }
 }
@@ -174,6 +181,7 @@ void AudioPlayer::OnDurationUpdate() {
 
 void AudioPlayer::OnSeekCompleted() {
     if (this->_channel) {
+        OnPositionUpdate();
         g_autoptr(FlValue) map = fl_value_new_map();
         fl_value_set_string(map, "playerId",
                             fl_value_new_string(_playerId.c_str()));
@@ -211,22 +219,27 @@ void AudioPlayer::SetVolume(double volume) {
 
 // See:
 // https://gstreamer.freedesktop.org/documentation/tutorials/basic/playback-speed.html?gi-language=c
-void AudioPlayer::SetPlaybackSpeed(double playbackSpeed) {
+void AudioPlayer::SetPlaybackRate(double rate) {
+    if (!_isSeekCompleted) return;
+    _isSeekCompleted = false;
     GstEvent *seek_event;
     gint64 position = GetPosition();
-    if (playbackSpeed > 0) {
+    if (rate > 0) {
         seek_event = gst_event_new_seek(
-            playbackSpeed, GST_FORMAT_TIME,
+            rate, GST_FORMAT_TIME,
             GstSeekFlags(GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE),
             GST_SEEK_TYPE_SET, position, GST_SEEK_TYPE_END, 0);
     } else {
         seek_event = gst_event_new_seek(
-            playbackSpeed, GST_FORMAT_TIME,
+            rate, GST_FORMAT_TIME,
             GstSeekFlags(GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE),
             GST_SEEK_TYPE_SET, 0, GST_SEEK_TYPE_SET, position);
     }
-    gst_element_send_event(playbin, seek_event);
-    // TODO not working
+    if (!gst_element_send_event(playbin, seek_event)) {
+        Logger::Error(std::string("Could not set playback to rate ") +
+                      std::to_string(rate) + std::string("."));
+        _isSeekCompleted = true;
+    }
 }
 
 void AudioPlayer::Play() {
@@ -283,11 +296,14 @@ int64_t AudioPlayer::GetDuration() {
  * @param seek the position in milliseconds
  */
 void AudioPlayer::SeekTo(int64_t seek) {
+    if (!_isSeekCompleted) return;
+    _isSeekCompleted = false;
     if (!gst_element_seek_simple(
             playbin, GST_FORMAT_TIME,
             GstSeekFlags(GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_KEY_UNIT),
             seek * GST_MSECOND)) {
         Logger::Error(std::string("Could not seek to position ") +
                       std::to_string(seek) + std::string("."));
+        _isSeekCompleted = true;
     }
 }

@@ -25,7 +25,7 @@ class AudioPlayer {
     void Dispose();
     void SetLooping(bool isLooping);
     void SetVolume(double volume);
-    void SetPlaybackSpeed(double playbackSpeed);
+    void SetPlaybackRate(double playbackSpeed);
     void Play();
     void Pause();
     void Resume();
@@ -47,6 +47,7 @@ class AudioPlayer {
 
     bool _isInitialized = false;
     bool _isLooping = false;
+    bool _isSeekCompleted = true;
 
     std::string _url{};
 
