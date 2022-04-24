@@ -137,22 +137,6 @@ void AudioPlayer::OnMediaStateChange(GstObject *src, GstState *old_state,
     }
 }
 
-void AudioPlayer::OnPlaybackEnded() {
-    SetPosition(0);
-    if (GetLooping()) {
-        Play();
-    }
-    if (this->_channel) {
-        g_autoptr(FlValue) map = fl_value_new_map();
-        fl_value_set_string(map, "playerId",
-                            fl_value_new_string(_playerId.c_str()));
-        fl_value_set_string(map, "value", fl_value_new_bool(true));
-
-        fl_method_channel_invoke_method(this->_channel, "audio.onComplete", map,
-                                        nullptr, nullptr, nullptr);
-    }
-}
-
 void AudioPlayer::OnPositionUpdate() {
     if (this->_channel) {
         g_autoptr(FlValue) map = fl_value_new_map();
@@ -188,18 +172,20 @@ void AudioPlayer::OnSeekCompleted() {
     }
 }
 
-void AudioPlayer::Dispose() {
-    if (_isInitialized) {
-        Pause();
+void AudioPlayer::OnPlaybackEnded() {
+    SetPosition(0);
+    if (GetLooping()) {
+        Play();
     }
-    gst_object_unref(bus);
-    gst_object_unref(source);
+    if (this->_channel) {
+        g_autoptr(FlValue) map = fl_value_new_map();
+        fl_value_set_string(map, "playerId",
+                            fl_value_new_string(_playerId.c_str()));
+        fl_value_set_string(map, "value", fl_value_new_bool(true));
 
-    gst_element_set_state(playbin, GST_STATE_NULL);
-    gst_object_unref(playbin);
-
-    _channel = nullptr;
-    _isInitialized = false;
+        fl_method_channel_invoke_method(this->_channel, "audio.onComplete", map,
+                                        nullptr, nullptr, nullptr);
+    }
 }
 
 void AudioPlayer::SetLooping(bool isLooping) { _isLooping = isLooping; }
@@ -269,6 +255,30 @@ void AudioPlayer::SetPosition(int64_t position) {
     SetPlayback(position, _playbackRate);
 }
 
+/**
+ * @return int64_t the position in milliseconds
+ */
+int64_t AudioPlayer::GetPosition() {
+    gint64 current = 0;
+    if (!gst_element_query_position(playbin, GST_FORMAT_TIME, &current)) {
+        Logger::Error(std::string("Could not query current position."));
+        return 0;
+    }
+    return current / 1000000;
+}
+
+/**
+ * @return int64_t the duration in milliseconds
+ */
+int64_t AudioPlayer::GetDuration() {
+    gint64 duration = 0;
+    if (!gst_element_query_duration(playbin, GST_FORMAT_TIME, &duration)) {
+        Logger::Error(std::string("Could not query current duration."));
+        return 0;
+    }
+    return duration / 1000000;
+}
+
 void AudioPlayer::Play() {
     if (!_isInitialized) return;
     SetPosition(0);
@@ -295,26 +305,16 @@ void AudioPlayer::Resume() {
     }
 }
 
-/**
- * @return int64_t the position in milliseconds
- */
-int64_t AudioPlayer::GetPosition() {
-    gint64 current = 0;
-    if (!gst_element_query_position(playbin, GST_FORMAT_TIME, &current)) {
-        Logger::Error(std::string("Could not query current position."));
-        return 0;
+void AudioPlayer::Dispose() {
+    if (_isInitialized) {
+        Pause();
     }
-    return current / 1000000;
-}
+    gst_object_unref(bus);
+    gst_object_unref(source);
 
-/**
- * @return int64_t the duration in milliseconds
- */
-int64_t AudioPlayer::GetDuration() {
-    gint64 duration = 0;
-    if (!gst_element_query_duration(playbin, GST_FORMAT_TIME, &duration)) {
-        Logger::Error(std::string("Could not query current duration."));
-        return 0;
-    }
-    return duration / 1000000;
+    gst_element_set_state(playbin, GST_STATE_NULL);
+    gst_object_unref(playbin);
+
+    _channel = nullptr;
+    _isInitialized = false;
 }

@@ -52,10 +52,10 @@ class AudioPlayer {
     std::string _playerId;
     FlMethodChannel *_channel;
 
-    static gboolean OnBusMessage(GstBus *bus, GstMessage *message,
-                                 AudioPlayer *data);
     static void SourceSetup(GstElement *playbin, GstElement *source,
                             GstElement **p_src);
+    static gboolean OnBusMessage(GstBus *bus, GstMessage *message,
+                                 AudioPlayer *data);
     static gboolean OnRefresh(AudioPlayer *data);
 
     void SetPlayback(int64_t seekTo, double rate);
@@ -63,8 +63,8 @@ class AudioPlayer {
     void OnMediaError(GError *error, gchar *debug);
     void OnMediaStateChange(GstObject *src, GstState *old_state,
                             GstState *new_state);
-    void OnPlaybackEnded();
     void OnPositionUpdate();
     void OnDurationUpdate();
     void OnSeekCompleted();
+    void OnPlaybackEnded();
 };
