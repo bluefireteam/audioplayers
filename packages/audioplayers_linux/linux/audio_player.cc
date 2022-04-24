@@ -13,20 +13,24 @@ AudioPlayer::AudioPlayer(std::string playerId, FlMethodChannel *channel)
         return;
     }
 
+    // Setup source options
     g_signal_connect(playbin, "source-setup",
                      G_CALLBACK(AudioPlayer::SourceSetup), &source);
 
     bus = gst_element_get_bus(playbin);
-    // TODO use gst_bus_add_signal_watch for more granular messages, see
-    // https://gstreamer.freedesktop.org/documentation/tutorials/basic/toolkit-integration.html?gi-language=c#walkthrough
+
+    // Watch bus messages for one time events
     gst_bus_add_watch(bus, (GstBusFunc)AudioPlayer::OnBusMessage, this);
 
-    // Refresh continuously
+    // Refresh continuously to emit reoccuring events
     g_timeout_add(1000, (GSourceFunc)AudioPlayer::OnRefresh, this);
 }
 
+AudioPlayer::~AudioPlayer() {}
+
 void AudioPlayer::SourceSetup(GstElement *playbin, GstElement *source,
                               GstElement **p_src) {
+    // Allow sources from unencrypted / misconfigured connections
     if (g_object_class_find_property(G_OBJECT_GET_CLASS(source),
                                      "ssl-strict") != 0) {
         g_object_set(G_OBJECT(source), "ssl-strict", FALSE, NULL);
@@ -47,10 +51,6 @@ void AudioPlayer::SetSourceUrl(std::string url) {
     }
 }
 
-AudioPlayer::~AudioPlayer() {}
-
-// See:
-// https://gstreamer.freedesktop.org/documentation/gstreamer/gstevent.html?gi-language=c#GstEventType
 gboolean AudioPlayer::OnBusMessage(GstBus *bus, GstMessage *message,
                                    AudioPlayer *data) {
     switch (GST_MESSAGE_TYPE(message)) {
@@ -84,12 +84,9 @@ gboolean AudioPlayer::OnBusMessage(GstBus *bus, GstMessage *message,
                 data->_isSeekCompleted = true;
             }
             break;
-        case GST_MESSAGE_STREAM_STATUS:
-        case GST_MESSAGE_NEED_CONTEXT:
-        case GST_MESSAGE_ELEMENT:
-            g_print("Got %s message\n", GST_MESSAGE_TYPE_NAME(message));
         default:
-            /* unhandled message */
+            // For more GstMessage types see:
+            // https://gstreamer.freedesktop.org/documentation/gstreamer/gstmessage.html?gi-language=c#enumerations
             break;
     }
 
@@ -141,7 +138,7 @@ void AudioPlayer::OnMediaStateChange(GstObject *src, GstState *old_state,
 }
 
 void AudioPlayer::OnPlaybackEnded() {
-    SeekTo(0);
+    SetPosition(0);
     if (GetLooping()) {
         Play();
     }
@@ -223,10 +220,10 @@ void AudioPlayer::SetVolume(double volume) {
  * Negatives values means backwards playback.
  * A value of 0.0 will pause the player.
  *
- * @param seekTo the position in milliseconds
+ * @param position the position in milliseconds
  * @param rate the playback rate (speed)
  */
-void AudioPlayer::SetPlayback(int64_t seekTo, double rate) {
+void AudioPlayer::SetPlayback(int64_t position, double rate) {
     if (!_isInitialized) return;
     // See:
     // https://gstreamer.freedesktop.org/documentation/tutorials/basic/playback-speed.html?gi-language=c
@@ -245,16 +242,16 @@ void AudioPlayer::SetPlayback(int64_t seekTo, double rate) {
         seek_event = gst_event_new_seek(
             rate, GST_FORMAT_TIME,
             GstSeekFlags(GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE),
-            GST_SEEK_TYPE_SET, seekTo * GST_MSECOND, GST_SEEK_TYPE_NONE, -1);
+            GST_SEEK_TYPE_SET, position * GST_MSECOND, GST_SEEK_TYPE_NONE, -1);
     } else {
         seek_event = gst_event_new_seek(
             rate, GST_FORMAT_TIME,
             GstSeekFlags(GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE),
-            GST_SEEK_TYPE_SET, 0, GST_SEEK_TYPE_SET, seekTo * GST_MSECOND);
+            GST_SEEK_TYPE_SET, 0, GST_SEEK_TYPE_SET, position * GST_MSECOND);
     }
     if (!gst_element_send_event(playbin, seek_event)) {
         Logger::Error(std::string("Could not set playback to position ") +
-                      std::to_string(seekTo) + std::string(" and rate ") +
+                      std::to_string(position) + std::string(" and rate ") +
                       std::to_string(rate) + std::string("."));
         _isSeekCompleted = true;
     }
@@ -265,21 +262,20 @@ void AudioPlayer::SetPlaybackRate(double rate) {
 }
 
 /**
- * @param seekTo the position in milliseconds
+ * @param position the position in milliseconds
  */
-void AudioPlayer::SeekTo(int64_t seekTo) {
+void AudioPlayer::SetPosition(int64_t position) {
     if (!_isInitialized) return;
-    SetPlayback(seekTo, _playbackRate);
+    SetPlayback(position, _playbackRate);
 }
 
 void AudioPlayer::Play() {
     if (!_isInitialized) return;
-    SeekTo(0);
+    SetPosition(0);
     Resume();
 }
 
 void AudioPlayer::Pause() {
-    if (!_isInitialized) return;
     GstStateChangeReturn ret = gst_element_set_state(playbin, GST_STATE_PAUSED);
     if (ret == GST_STATE_CHANGE_FAILURE) {
         Logger::Error(

@@ -110,17 +110,17 @@ static void audioplayers_linux_plugin_handle_method_call(
         result = 1;
     } else if (strcmp(method, "stop") == 0) {
         player->Pause();
-        player->SeekTo(0);
+        player->SetPosition(0);
         result = 1;
     } else if (strcmp(method, "release") == 0) {
         player->Pause();
-        player->SeekTo(0);
+        player->SetPosition(0);
         result = 1;
     } else if (strcmp(method, "seek") == 0) {
         auto flPosition = fl_value_lookup_string(args, "position");
         int position = flPosition == nullptr ? (int)(player->GetPosition())
                                              : fl_value_get_int(flPosition);
-        player->SeekTo(position);
+        player->SetPosition(position);
         result = 1;
     } else if (strcmp(method, "setSourceUrl") == 0) {
         auto flUrl = fl_value_lookup_string(args, "url");
