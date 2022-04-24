@@ -124,9 +124,6 @@ void AudioPlayer::OnMediaError(GError *error, gchar *debug) {
 void AudioPlayer::OnMediaStateChange(GstObject *src, GstState *old_state,
                                      GstState *new_state) {
     if (strcmp(GST_OBJECT_NAME(src), "playbin") == 0) {
-        g_print("Element %s changed state from %s to %s.\n",
-                GST_OBJECT_NAME(src), gst_element_state_get_name(*old_state),
-                gst_element_state_get_name(*new_state));
         if (*new_state >= GST_STATE_READY) {
             if (!this->_isInitialized) {
                 this->_isInitialized = true;
