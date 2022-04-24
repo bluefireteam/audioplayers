@@ -22,18 +22,18 @@ class AudioPlayer {
    public:
     AudioPlayer(std::string playerId, FlMethodChannel *channel);
 
-    void Dispose();
-    void SetLooping(bool isLooping);
-    void SetVolume(double volume);
-    void SetPlaybackRate(double playbackSpeed);
+    int64_t GetPosition();
+    int64_t GetDuration();
+    bool GetLooping();
     void Play();
     void Pause();
     void Resume();
-    bool GetLooping();
-    int64_t GetPosition();
-    int64_t GetDuration();
-    void SeekTo(int64_t seek);
-
+    void Dispose();
+    void SetLooping(bool isLooping);
+    void SetVolume(double volume);
+    void SetPlayback(int64_t seekTo, double rate);
+    void SetPlaybackRate(double rate);
+    void SeekTo(int64_t seekTo);
     void SetSourceUrl(std::string url);
 
     virtual ~AudioPlayer();
@@ -43,11 +43,11 @@ class AudioPlayer {
     GstElement *playbin;
     GstElement *source;
     GstBus *bus;
-    GMainLoop *main_loop;
 
     bool _isInitialized = false;
     bool _isLooping = false;
     bool _isSeekCompleted = true;
+    double _playbackRate = 1.0;
 
     std::string _url{};
 

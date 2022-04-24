@@ -16,12 +16,6 @@ AudioPlayer::AudioPlayer(std::string playerId, FlMethodChannel *channel)
     g_signal_connect(playbin, "source-setup",
                      G_CALLBACK(AudioPlayer::SourceSetup), &source);
 
-    // TODO not working with main_loop running, also message events work without
-    // it, but proposed: See:
-    // https://gstreamer.freedesktop.org/documentation/tutorials/playback/playbin-usage.html?gi-language=c#the-multilingual-player
-    // main_loop = g_main_loop_new(NULL, FALSE);
-    // g_main_loop_run(main_loop);
-
     bus = gst_element_get_bus(playbin);
     // TODO use gst_bus_add_signal_watch for more granular messages, see
     // https://gstreamer.freedesktop.org/documentation/tutorials/basic/toolkit-integration.html?gi-language=c#walkthrough
@@ -42,9 +36,13 @@ void AudioPlayer::SourceSetup(GstElement *playbin, GstElement *source,
 void AudioPlayer::SetSourceUrl(std::string url) {
     if (_url != url) {
         _url = url;
-        if (playbin->current_state >= GST_STATE_READY)
-            gst_element_set_state(playbin, GST_STATE_READY);
-        g_object_set(playbin, "uri", _url.c_str(), NULL);
+        if (_url.empty()) {
+            gst_element_set_state(playbin, GST_STATE_NULL);
+        } else {
+            g_object_set(playbin, "uri", _url.c_str(), NULL);
+            if (playbin->current_state != GST_STATE_READY)
+                gst_element_set_state(playbin, GST_STATE_READY);
+        }
         _isInitialized = false;
     }
 }
@@ -132,10 +130,12 @@ void AudioPlayer::OnMediaStateChange(GstObject *src, GstState *old_state,
         g_print("Element %s changed state from %s to %s.\n",
                 GST_OBJECT_NAME(src), gst_element_state_get_name(*old_state),
                 gst_element_state_get_name(*new_state));
-        // TODO may need to filter further
-        if (!this->_isInitialized) {
-            this->_isInitialized = true;
-            g_print("Initialized media.\n");
+        if (*new_state >= GST_STATE_READY) {
+            if (!this->_isInitialized) {
+                this->_isInitialized = true;
+            }
+        } else if (this->_isInitialized) {
+            this->_isInitialized = false;
         }
     }
 }
@@ -195,11 +195,12 @@ void AudioPlayer::Dispose() {
     if (_isInitialized) {
         Pause();
     }
-    g_main_loop_unref(main_loop);
     gst_object_unref(bus);
     gst_object_unref(source);
-    gst_object_unref(playbin);
+
     gst_element_set_state(playbin, GST_STATE_NULL);
+    gst_object_unref(playbin);
+
     _channel = nullptr;
     _isInitialized = false;
 }
@@ -217,53 +218,83 @@ void AudioPlayer::SetVolume(double volume) {
     g_object_set(G_OBJECT(playbin), "volume", volume, NULL);
 }
 
-// See:
-// https://gstreamer.freedesktop.org/documentation/tutorials/basic/playback-speed.html?gi-language=c
-void AudioPlayer::SetPlaybackRate(double rate) {
+/**
+ * A rate of 1.0 means normal playback rate, 2.0 means double speed.
+ * Negatives values means backwards playback.
+ * A value of 0.0 will pause the player.
+ *
+ * @param seekTo the position in milliseconds
+ * @param rate the playback rate (speed)
+ */
+void AudioPlayer::SetPlayback(int64_t seekTo, double rate) {
+    if (!_isInitialized) return;
+    // See:
+    // https://gstreamer.freedesktop.org/documentation/tutorials/basic/playback-speed.html?gi-language=c
     if (!_isSeekCompleted) return;
+    if (rate == 0) {
+        // Do not set rate if it's 0, rather pause.
+        Pause();
+        return;
+    }
+
+    if (_playbackRate != rate) _playbackRate = rate;
     _isSeekCompleted = false;
+
     GstEvent *seek_event;
-    gint64 position = GetPosition();
     if (rate > 0) {
         seek_event = gst_event_new_seek(
             rate, GST_FORMAT_TIME,
             GstSeekFlags(GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE),
-            GST_SEEK_TYPE_SET, position, GST_SEEK_TYPE_END, 0);
+            GST_SEEK_TYPE_SET, seekTo * GST_MSECOND, GST_SEEK_TYPE_NONE, -1);
     } else {
         seek_event = gst_event_new_seek(
             rate, GST_FORMAT_TIME,
             GstSeekFlags(GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE),
-            GST_SEEK_TYPE_SET, 0, GST_SEEK_TYPE_SET, position);
+            GST_SEEK_TYPE_SET, 0, GST_SEEK_TYPE_SET, seekTo * GST_MSECOND);
     }
     if (!gst_element_send_event(playbin, seek_event)) {
-        Logger::Error(std::string("Could not set playback to rate ") +
+        Logger::Error(std::string("Could not set playback to position ") +
+                      std::to_string(seekTo) + std::string(" and rate ") +
                       std::to_string(rate) + std::string("."));
         _isSeekCompleted = true;
     }
 }
 
+void AudioPlayer::SetPlaybackRate(double rate) {
+    SetPlayback(GetPosition(), _playbackRate);
+}
+
+/**
+ * @param seekTo the position in milliseconds
+ */
+void AudioPlayer::SeekTo(int64_t seekTo) {
+    if (!_isInitialized) return;
+    SetPlayback(seekTo, _playbackRate);
+}
+
 void AudioPlayer::Play() {
+    if (!_isInitialized) return;
     SeekTo(0);
     Resume();
 }
 
 void AudioPlayer::Pause() {
+    if (!_isInitialized) return;
     GstStateChangeReturn ret = gst_element_set_state(playbin, GST_STATE_PAUSED);
     if (ret == GST_STATE_CHANGE_FAILURE) {
         Logger::Error(
             std::string("Unable to set the pipeline to the paused state."));
-        gst_object_unref(playbin);
         return;
     }
 }
 
 void AudioPlayer::Resume() {
+    if (!_isInitialized) return;
     GstStateChangeReturn ret =
         gst_element_set_state(playbin, GST_STATE_PLAYING);
     if (ret == GST_STATE_CHANGE_FAILURE) {
         Logger::Error(
             std::string("Unable to set the pipeline to the playing state."));
-        gst_object_unref(playbin);
         return;
     }
 }
@@ -290,20 +321,4 @@ int64_t AudioPlayer::GetDuration() {
         return 0;
     }
     return duration / 1000000;
-}
-
-/**
- * @param seek the position in milliseconds
- */
-void AudioPlayer::SeekTo(int64_t seek) {
-    if (!_isSeekCompleted) return;
-    _isSeekCompleted = false;
-    if (!gst_element_seek_simple(
-            playbin, GST_FORMAT_TIME,
-            GstSeekFlags(GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_KEY_UNIT),
-            seek * GST_MSECOND)) {
-        Logger::Error(std::string("Could not seek to position ") +
-                      std::to_string(seek) + std::string("."));
-        _isSeekCompleted = true;
-    }
 }
