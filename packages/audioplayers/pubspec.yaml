@@ -23,9 +23,16 @@ dependencies:
   audioplayers_platform_interface: ^1.0.0-rc.1
   audioplayers_android: ^1.0.0-rc.1
   audioplayers_darwin: ^1.0.0-rc.1
-  # TODO use released version
   audioplayers_linux:
-    path: ../audioplayers_linux
+    # TODO Use when released:
+    #audioplayers_linux: ^1.0.0-rc.1
+    # Use for development:
+    #path: ../audioplayers_linux
+    # Use for testing:
+    git:
+      url: https://github.com/Gustl22/audioplayers.git
+      ref: 798-linux-support
+      path: packages/audioplayers_linux
   audioplayers_web: ^1.0.0-rc.1
   audioplayers_windows: ^1.0.0-rc.1
   uuid: ^3.0.1
