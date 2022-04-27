@@ -2,8 +2,7 @@
 
 #include <iostream>
 
-enum class LogLevel
-{
+enum class LogLevel {
     None,
     Error,
     Info
@@ -12,6 +11,7 @@ enum class LogLevel
 class Logger {
 private:
     static void Log(LogLevel level, std::string message);
+
 public:
     static LogLevel logLevel;
 

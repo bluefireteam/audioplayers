@@ -13,13 +13,13 @@ G_BEGIN_DECLS
 
 typedef struct _AudioplayersLinuxPlugin AudioplayersLinuxPlugin;
 typedef struct {
-  GObjectClass parent_class;
+    GObjectClass parent_class;
 } AudioplayersLinuxPluginClass;
 
 FLUTTER_PLUGIN_EXPORT GType audioplayers_linux_plugin_get_type();
 
 FLUTTER_PLUGIN_EXPORT void audioplayers_linux_plugin_register_with_registrar(
-        FlPluginRegistrar* registrar);
+        FlPluginRegistrar *registrar);
 
 G_END_DECLS
 

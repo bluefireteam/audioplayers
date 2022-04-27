@@ -5,7 +5,7 @@
 #include "Logger.h"
 
 AudioPlayer::AudioPlayer(std::string playerId, FlMethodChannel *channel)
-    : _playerId(playerId), _channel(channel) {
+        : _playerId(playerId), _channel(channel) {
     gst_init(NULL, NULL);
     playbin = gst_element_factory_make("playbin", "playbin");
     if (!playbin) {
@@ -20,10 +20,10 @@ AudioPlayer::AudioPlayer(std::string playerId, FlMethodChannel *channel)
     bus = gst_element_get_bus(playbin);
 
     // Watch bus messages for one time events
-    gst_bus_add_watch(bus, (GstBusFunc)AudioPlayer::OnBusMessage, this);
+    gst_bus_add_watch(bus, (GstBusFunc) AudioPlayer::OnBusMessage, this);
 
     // Refresh continuously to emit reoccuring events
-    g_timeout_add(1000, (GSourceFunc)AudioPlayer::OnRefresh, this);
+    g_timeout_add(1000, (GSourceFunc) AudioPlayer::OnRefresh, this);
 }
 
 AudioPlayer::~AudioPlayer() {}
@@ -44,8 +44,9 @@ void AudioPlayer::SetSourceUrl(std::string url) {
             gst_element_set_state(playbin, GST_STATE_NULL);
         } else {
             g_object_set(playbin, "uri", _url.c_str(), NULL);
-            if (playbin->current_state != GST_STATE_READY)
+            if (playbin->current_state != GST_STATE_READY) {
                 gst_element_set_state(playbin, GST_STATE_READY);
+            }
         }
         _isInitialized = false;
     }
@@ -97,8 +98,7 @@ gboolean AudioPlayer::OnBusMessage(GstBus *bus, GstMessage *message,
 // Compare with refresh_ui in
 // https://gstreamer.freedesktop.org/documentation/tutorials/basic/toolkit-integration.html?gi-language=c#walkthrough
 gboolean AudioPlayer::OnRefresh(AudioPlayer *data) {
-    /* We do not want to update anything unless we are in the PAUSED or PLAYING
-     * states */
+    // We do not want to update anything unless we are in the PAUSED or PLAYING states
     if (data->playbin->current_state == GST_STATE_PLAYING) {
         data->OnPositionUpdate();
     }
@@ -110,7 +110,8 @@ void AudioPlayer::OnMediaError(GError *error, gchar *debug) {
     oss << "Error: " << error->code << "; message=" << error->message;
     g_print("%s\n", oss.str().c_str());
     if (this->_channel) {
-        g_autoptr(FlValue) map = fl_value_new_map();
+        g_autoptr(FlValue)
+        map = fl_value_new_map();
         fl_value_set_string(map, "playerId",
                             fl_value_new_string(_playerId.c_str()));
         fl_value_set_string(map, "value",
@@ -136,7 +137,8 @@ void AudioPlayer::OnMediaStateChange(GstObject *src, GstState *old_state,
 
 void AudioPlayer::OnPositionUpdate() {
     if (this->_channel) {
-        g_autoptr(FlValue) map = fl_value_new_map();
+        g_autoptr(FlValue)
+        map = fl_value_new_map();
         fl_value_set_string(map, "playerId",
                             fl_value_new_string(_playerId.c_str()));
         fl_value_set_string(map, "value", fl_value_new_int(GetPosition()));
@@ -148,7 +150,8 @@ void AudioPlayer::OnPositionUpdate() {
 
 void AudioPlayer::OnDurationUpdate() {
     if (this->_channel) {
-        g_autoptr(FlValue) map = fl_value_new_map();
+        g_autoptr(FlValue)
+        map = fl_value_new_map();
         fl_value_set_string(map, "playerId",
                             fl_value_new_string(_playerId.c_str()));
         fl_value_set_string(map, "value", fl_value_new_int(GetDuration()));
@@ -160,7 +163,8 @@ void AudioPlayer::OnDurationUpdate() {
 void AudioPlayer::OnSeekCompleted() {
     if (this->_channel) {
         OnPositionUpdate();
-        g_autoptr(FlValue) map = fl_value_new_map();
+        g_autoptr(FlValue)
+        map = fl_value_new_map();
         fl_value_set_string(map, "playerId",
                             fl_value_new_string(_playerId.c_str()));
         fl_value_set_string(map, "value", fl_value_new_bool(true));
@@ -175,7 +179,8 @@ void AudioPlayer::OnPlaybackEnded() {
         Play();
     }
     if (this->_channel) {
-        g_autoptr(FlValue) map = fl_value_new_map();
+        g_autoptr(FlValue)
+        map = fl_value_new_map();
         fl_value_set_string(map, "playerId",
                             fl_value_new_string(_playerId.c_str()));
         fl_value_set_string(map, "value", fl_value_new_bool(true));
@@ -185,9 +190,13 @@ void AudioPlayer::OnPlaybackEnded() {
     }
 }
 
-void AudioPlayer::SetLooping(bool isLooping) { _isLooping = isLooping; }
+void AudioPlayer::SetLooping(bool isLooping) {
+    _isLooping = isLooping;
+}
 
-bool AudioPlayer::GetLooping() { return _isLooping; }
+bool AudioPlayer::GetLooping() {
+    return _isLooping;
+}
 
 void AudioPlayer::SetVolume(double volume) {
     if (volume > 1) {
@@ -207,10 +216,14 @@ void AudioPlayer::SetVolume(double volume) {
  * @param rate the playback rate (speed)
  */
 void AudioPlayer::SetPlayback(int64_t position, double rate) {
-    if (!_isInitialized) return;
+    if (!_isInitialized) {
+        return;
+    }
     // See:
     // https://gstreamer.freedesktop.org/documentation/tutorials/basic/playback-speed.html?gi-language=c
-    if (!_isSeekCompleted) return;
+    if (!_isSeekCompleted) {
+        return;
+    }
     if (rate == 0) {
         // Do not set rate if it's 0, rather pause.
         Pause();
@@ -223,14 +236,14 @@ void AudioPlayer::SetPlayback(int64_t position, double rate) {
     GstEvent *seek_event;
     if (rate > 0) {
         seek_event = gst_event_new_seek(
-            rate, GST_FORMAT_TIME,
-            GstSeekFlags(GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE),
-            GST_SEEK_TYPE_SET, position * GST_MSECOND, GST_SEEK_TYPE_NONE, -1);
+                rate, GST_FORMAT_TIME,
+                GstSeekFlags(GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE),
+                GST_SEEK_TYPE_SET, position * GST_MSECOND, GST_SEEK_TYPE_NONE, -1);
     } else {
         seek_event = gst_event_new_seek(
-            rate, GST_FORMAT_TIME,
-            GstSeekFlags(GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE),
-            GST_SEEK_TYPE_SET, 0, GST_SEEK_TYPE_SET, position * GST_MSECOND);
+                rate, GST_FORMAT_TIME,
+                GstSeekFlags(GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE),
+                GST_SEEK_TYPE_SET, 0, GST_SEEK_TYPE_SET, position * GST_MSECOND);
     }
     if (!gst_element_send_event(playbin, seek_event)) {
         Logger::Error(std::string("Could not set playback to position ") +
@@ -248,7 +261,9 @@ void AudioPlayer::SetPlaybackRate(double rate) {
  * @param position the position in milliseconds
  */
 void AudioPlayer::SetPosition(int64_t position) {
-    if (!_isInitialized) return;
+    if (!_isInitialized) {
+        return;
+    }
     SetPlayback(position, _playbackRate);
 }
 
@@ -277,7 +292,9 @@ int64_t AudioPlayer::GetDuration() {
 }
 
 void AudioPlayer::Play() {
-    if (!_isInitialized) return;
+    if (!_isInitialized) {
+        return;
+    }
     SetPosition(0);
     Resume();
 }
@@ -286,18 +303,20 @@ void AudioPlayer::Pause() {
     GstStateChangeReturn ret = gst_element_set_state(playbin, GST_STATE_PAUSED);
     if (ret == GST_STATE_CHANGE_FAILURE) {
         Logger::Error(
-            std::string("Unable to set the pipeline to the paused state."));
+                std::string("Unable to set the pipeline to the paused state."));
         return;
     }
 }
 
 void AudioPlayer::Resume() {
-    if (!_isInitialized) return;
+    if (!_isInitialized) {
+        return;
+    }
     GstStateChangeReturn ret =
-        gst_element_set_state(playbin, GST_STATE_PLAYING);
+            gst_element_set_state(playbin, GST_STATE_PLAYING);
     if (ret == GST_STATE_CHANGE_FAILURE) {
         Logger::Error(
-            std::string("Unable to set the pipeline to the playing state."));
+                std::string("Unable to set the pipeline to the playing state."));
         return;
     }
 }
