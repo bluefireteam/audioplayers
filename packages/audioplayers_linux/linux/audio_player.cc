@@ -230,7 +230,9 @@ void AudioPlayer::SetPlayback(int64_t position, double rate) {
         return;
     }
 
-    if (_playbackRate != rate) _playbackRate = rate;
+    if (_playbackRate != rate) {
+        _playbackRate = rate;
+    }
     _isSeekCompleted = false;
 
     GstEvent *seek_event;
