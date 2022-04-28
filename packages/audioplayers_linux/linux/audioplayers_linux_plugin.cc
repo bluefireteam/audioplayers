@@ -178,7 +178,8 @@ static void audioplayers_linux_plugin_handle_method_call(
         player->SetLooping(looping);
         result = 1;
     } else if (strcmp(method, "setPlayerMode") == 0) {
-        // TODO check if multiplayer mode in linux is supported
+        // TODO check support for low latency mode:
+        // https://gstreamer.freedesktop.org/documentation/additional/design/latency.html?gi-language=c
         result = 1;
     } else {
         response = FL_METHOD_RESPONSE(fl_method_not_implemented_response_new());
