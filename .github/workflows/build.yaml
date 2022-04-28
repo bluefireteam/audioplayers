@@ -182,9 +182,12 @@ jobs:
         with:
           channel: stable
       - uses: bluefireteam/melos-action@main
+      - name: Install GStreamer
+        run: sudo apt-get install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
       - name: Example App - Build linux app
         working-directory: ./packages/audioplayers/example
         run: |
+          flutter config --enable-linux-desktop
           flutter pub get
           flutter build linux --release
       - name: Run Flutter Driver tests
