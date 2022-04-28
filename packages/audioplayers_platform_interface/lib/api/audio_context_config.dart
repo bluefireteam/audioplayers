@@ -55,7 +55,7 @@ class AudioContextConfig {
     this.forceSpeaker = false,
     this.duckAudio = false,
     this.respectSilence = false,
-    this.stayAwake = false,
+    this.stayAwake = true,
   });
 
   AudioContextConfig copy({
@@ -87,7 +87,9 @@ class AudioContextConfig {
       usageType: respectSilence
           ? AndroidUsageType.notificationRingtone
           : AndroidUsageType.media,
-      audioFocus: duckAudio ? AndroidAudioFocus.gainTransientMayDuck : null,
+      audioFocus: duckAudio
+          ? AndroidAudioFocus.gainTransientMayDuck
+          : AndroidAudioFocus.gain,
     );
   }
 
@@ -99,7 +101,7 @@ class AudioContextConfig {
       defaultToSpeaker: forceSpeaker,
       category: respectSilence
           ? AVAudioSessionCategory.ambient
-          : AVAudioSessionCategory.playAndRecord,
+          : AVAudioSessionCategory.playback,
       options: [AVAudioSessionOptions.mixWithOthers] +
           (duckAudio ? [AVAudioSessionOptions.duckOthers] : []),
     );
