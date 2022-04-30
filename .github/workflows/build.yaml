@@ -182,10 +182,6 @@ jobs:
         with:
           channel: stable
       - uses: bluefireteam/melos-action@main
-      - name: Update ubuntu
-        run: |
-          sudo apt-get update
-          sudo apt-get upgrade
       - name: Install Flutter requirements for Linux
         run: sudo apt-get install clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
       - name: Install GStreamer
@@ -198,4 +194,4 @@ jobs:
           flutter build linux --release
       - name: Run Flutter Driver tests
         working-directory: ./packages/audioplayers/example
-        run: "flutter test -d linux integration_test --verbose"
+        run: "flutter test -d linux integration_test"

@@ -6,17 +6,13 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('end-to-end test', () {
-    testWidgets(
-      'verify app is launched',
-      (WidgetTester tester) async {
-        app.main();
-        await tester.pumpAndSettle();
-        expect(
-          find.text('Remote URL WAV 1 - coins.wav'),
-          findsOneWidget,
-        );
-      },
-      timeout: const Timeout(Duration(minutes: 5)),
-    );
+    testWidgets('verify app is launched', (WidgetTester tester) async {
+      app.main();
+      await tester.pumpAndSettle();
+      expect(
+        find.text('Remote URL WAV 1 - coins.wav'),
+        findsOneWidget,
+      );
+    });
   });
 }
