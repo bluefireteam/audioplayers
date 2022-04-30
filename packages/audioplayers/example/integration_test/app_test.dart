@@ -16,7 +16,7 @@ void main() {
           findsOneWidget,
         );
       },
-      timeout: const Timeout(Duration(minutes: 1)),
+      timeout: const Timeout(Duration(minutes: 5)),
     );
   });
 }
