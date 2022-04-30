@@ -198,4 +198,4 @@ jobs:
           flutter build linux --release
       - name: Run Flutter Driver tests
         working-directory: ./packages/audioplayers/example
-        run: "flutter test -d linux integration_test"
+        run: "flutter test -d linux integration_test --verbose"
