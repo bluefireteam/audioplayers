@@ -3,6 +3,42 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2022-04-28
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`audioplayers` - `v1.0.0-rc.2`](#audioplayers---v100-rc2)
+ - [`audioplayers_windows` - `v1.0.0-rc.2`](#audioplayers_windows---v100-rc2)
+ - [`audioplayers_darwin` - `v1.0.0-rc.2`](#audioplayers_darwin---v100-rc2)
+ - [`audioplayers_android` - `v1.0.0-rc.2`](#audioplayers_android---v100-rc2)
+ - [`audioplayers_platform_interface` - `v1.0.0-rc.2`](#audioplayers_platform_interface---v100-rc2)
+ - [`audioplayers_web` - `v1.0.0-rc.2`](#audioplayers_web---v100-rc2)
+
+---
+
+#### `audioplayers` - `v1.0.0-rc.2`
+
+ - Bump "audioplayers" to `1.0.0-rc.2`.
+
+#### `audioplayers_windows` - `v1.0.0-rc.2`
+
+#### `audioplayers_darwin` - `v1.0.0-rc.2`
+
+#### `audioplayers_android` - `v1.0.0-rc.2`
+
+#### `audioplayers_platform_interface` - `v1.0.0-rc.2`
+
+#### `audioplayers_web` - `v1.0.0-rc.2`
+
+
 ## 2022-04-01
 
 ### Changes
