@@ -1,6 +1,7 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 
+import 'components/btn.dart';
 import 'components/tabs.dart';
 import 'components/tgl.dart';
 import 'tabs/audio_context.dart';
@@ -26,6 +27,15 @@ class _ExampleAppState extends State<ExampleApp> {
 
   AudioPlayer get selectedPlayer => players[selectedPlayerIdx];
 
+  void test() {
+    AudioPlayer().play(
+      AssetSource(
+        'nasa_on_a_mission.mp3',
+      ),
+      volume: 0.1,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,6 +54,7 @@ class _ExampleAppState extends State<ExampleApp> {
               ),
             ),
           ),
+          Btn(txt: 'Foo', onPressed: test),
           Expanded(
             child: Tabs(
               tabs: {

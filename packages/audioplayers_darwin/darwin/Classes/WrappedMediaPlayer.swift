@@ -54,11 +54,7 @@ class WrappedMediaPlayer {
     }
     
     func getDurationCMTime() -> CMTime? {
-        guard let currentItem = player?.currentItem else {
-            return nil
-        }
-        
-        return currentItem.asset.duration
+        return player?.currentItem?.asset?.duration
     }
     
     func getDuration() -> Int? {
@@ -69,10 +65,7 @@ class WrappedMediaPlayer {
     }
     
     private func getCurrentCMTime() -> CMTime? {
-        guard let player = player else {
-            return nil
-        }
-        return player.currentTime()
+        return player?.currentTime()
     }
     
     func getCurrentPosition() -> Int? {
@@ -186,6 +179,7 @@ class WrappedMediaPlayer {
                 player = existingPlayer
             } else {
                 player = AVPlayer.init(playerItem: playerItem)
+                configParameters(player)
                 
                 self.player = player
                 self.observers = []
@@ -236,5 +230,10 @@ class WrappedMediaPlayer {
                 completer?()
             }
         }
+    }
+
+    func configParameters(player: AVPlayer) {
+        player.volume = Float(volume)
+        player.rate = Float(playbackRate)
     }
 }
