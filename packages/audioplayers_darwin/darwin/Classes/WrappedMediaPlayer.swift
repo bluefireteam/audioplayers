@@ -21,7 +21,6 @@ class WrappedMediaPlayer {
     var looping: Bool
 
     var url: String?
-    var onReady: Completer?
     
     init(
         reference: SwiftAudioplayersDarwinPlugin,
@@ -205,7 +204,6 @@ class WrappedMediaPlayer {
             self.observers.append(TimeObserver(player: player, observer: anObserver))
             
             // is sound ready
-            self.onReady = completer
             let newKeyValueObservation = playerItem.observe(\AVPlayerItem.status) { (playerItem, change) in
                 let status = playerItem.status
                 Logger.info("player status: %@ change: %@", status, change)
@@ -213,11 +211,7 @@ class WrappedMediaPlayer {
                 // Do something with the status...
                 if status == .readyToPlay {
                     self.updateDuration()
-                    
-                    if let onReady = self.onReady {
-                        self.onReady = nil
-                        onReady()
-                    }
+                    completer?()
                 } else if status == .failed {
                     self.reference.onError(playerId: self.playerId)
                 }
