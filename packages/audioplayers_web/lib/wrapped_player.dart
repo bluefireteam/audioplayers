@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:html';
 
+import 'package:audioplayers_platform_interface/api/player_state.dart';
 import 'package:audioplayers_platform_interface/api/release_mode.dart';
 import 'package:audioplayers_platform_interface/streams_interface.dart';
 
@@ -17,6 +18,7 @@ class WrappedPlayer {
 
   AudioElement? player;
   StreamSubscription? playerTimeUpdateSubscription;
+  StreamSubscription? playerEndedSubscription;
 
   WrappedPlayer(this.playerId, this.streamsInterface);
 
@@ -57,6 +59,10 @@ class WrappedPlayer {
         streamsInterface.emitPosition(playerId, Duration(milliseconds: value));
       },
     );
+    playerEndedSubscription = player!.onEnded.listen((_) {
+      streamsInterface.emitPlayerState(playerId, PlayerState.stopped);
+      streamsInterface.emitComplete(playerId);
+    });
   }
 
   bool shouldLoop() => currentReleaseMode == ReleaseMode.loop;
@@ -72,6 +78,8 @@ class WrappedPlayer {
 
     playerTimeUpdateSubscription?.cancel();
     playerTimeUpdateSubscription = null;
+    playerEndedSubscription?.cancel();
+    playerEndedSubscription = null;
   }
 
   void start(double position) {
