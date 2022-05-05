@@ -49,17 +49,15 @@ class WrappedPlayer {
     if (currentUrl == null) {
       return;
     }
-    player = AudioElement(currentUrl);
-    player?.loop = shouldLoop();
-    player?.volume = currentVolume;
-    player?.playbackRate = currentPlaybackRate;
-    playerTimeUpdateSubscription = player?.onTimeUpdate.listen(
-      (_) {
-        final value = (1000 * (player?.currentTime ?? 0)).round();
-        streamsInterface.emitPosition(playerId, Duration(milliseconds: value));
-      },
-    );
-    playerEndedSubscription = player!.onEnded.listen((_) {
+    Duration toDuration(num jsNum) => Duration(milliseconds: (1000 * (jsNum.toString() == 'NaN' ? 0 : jsNum)).round());
+
+    final p = player = AudioElement(currentUrl);
+    p.loop = shouldLoop();
+    p.volume = currentVolume;
+    p.playbackRate = currentPlaybackRate;
+    p.onLoadedData.listen((event) => streamsInterface.emitDuration(playerId, toDuration(p.duration)));
+    playerTimeUpdateSubscription = p.onTimeUpdate.listen((_) => streamsInterface.emitPosition(playerId, toDuration(p.currentTime)));
+    playerEndedSubscription = p.onEnded.listen((_) {
       streamsInterface.emitPlayerState(playerId, PlayerState.stopped);
       streamsInterface.emitComplete(playerId);
     });
