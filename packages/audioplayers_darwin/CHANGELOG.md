@@ -1,3 +1,7 @@
+## 1.0.0-rc.3
+
+ - **FIX**: Volume and rate can be set before audio playing on iOS (#1113). ([eca1dd0e](https://github.com/bluefireteam/audioplayers/commit/eca1dd0e85abd72dc6c17bd2b7a24912664b98a5))
+
 ## 1.0.0-rc.2
 
 ## 1.0.0-rc.1
