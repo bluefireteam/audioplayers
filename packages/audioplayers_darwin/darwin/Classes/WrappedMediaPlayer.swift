@@ -53,7 +53,7 @@ class WrappedMediaPlayer {
     }
     
     func getDurationCMTime() -> CMTime? {
-        return player?.currentItem?.asset?.duration
+        return player?.currentItem?.asset.duration
     }
     
     func getDuration() -> Int? {
@@ -178,7 +178,7 @@ class WrappedMediaPlayer {
                 player = existingPlayer
             } else {
                 player = AVPlayer.init(playerItem: playerItem)
-                configParameters(player)
+                configParameters(player: player)
                 
                 self.player = player
                 self.observers = []
