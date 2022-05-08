@@ -37,7 +37,6 @@ jobs:
      - name: Example App - Build web app
        working-directory: ./packages/audioplayers/example
        run: |
-         flutter pub get
          flutter build web
 
      - name: web integration test
@@ -75,7 +74,6 @@ jobs:
      - name: Example App - Build android APK
        working-directory: ./packages/audioplayers/example
        run: |
-         flutter pub get
          flutter build apk --release
 
      - name: Run android unit tests
@@ -125,7 +123,6 @@ jobs:
      - name: Example App - Build iOS
        working-directory: ./packages/audioplayers/example
        run: |
-         flutter pub get
          flutter build ios --release --no-codesign
      - name: Run Flutter Driver tests
        working-directory: ./packages/audioplayers/example
@@ -149,7 +146,6 @@ jobs:
        working-directory: ./packages/audioplayers/example
        run: |
          flutter config --enable-macos-desktop
-         flutter pub get
          flutter build macos --release
      - name: Run Flutter Driver tests
        working-directory: ./packages/audioplayers/example
@@ -167,7 +163,6 @@ jobs:
      - name: Example App - Build windows app
        working-directory: ./packages/audioplayers/example
        run: |
-         flutter pub get
          flutter build windows --release
      - name: Run Flutter Driver tests
        working-directory: ./packages/audioplayers/example
@@ -190,7 +185,6 @@ jobs:
         working-directory: ./packages/audioplayers/example
         run: |
           flutter config --enable-linux-desktop
-          flutter pub get
           flutter build linux --release
       - name: Run Flutter Driver tests
         working-directory: ./packages/audioplayers/example
