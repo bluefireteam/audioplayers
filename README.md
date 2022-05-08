@@ -4,9 +4,9 @@
 
 A Flutter plugin to play multiple simultaneously audio files, works for Android, iOS, Linux, macOS, Windows, and web.
 
-<img src="images/screenshot1.png" width="250" /> <img src="images/screenshot2.png" width="250" /> <img src="images/screenshot3.png" width="250" />
+<img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot1.png" width="250" /> <img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot2.png" width="250" /> <img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot3.png" width="250" />
 
-**Note**: all the docs have been update to reflect the content for the v1 release (currently `1.0.0-rc.1`). If you are looking for v0 specific information and guidance, please checkout [the version of this repo before the first v0 change](https://github.com/bluefireteam/audioplayers/tree/46816bf55859c9c88b204e3828cce6190ff87483).
+**Note**: all the docs have been update to reflect the content for the v1 release (currently `1.0.0-rc.3`). If you are looking for v0 specific information and guidance, please checkout [the version of this repo before the first v0 change](https://github.com/bluefireteam/audioplayers/tree/46816bf55859c9c88b204e3828cce6190ff87483).
 
 If you are interest in migrating to v1, please check [our migration guide](migration_guide.md).
 
