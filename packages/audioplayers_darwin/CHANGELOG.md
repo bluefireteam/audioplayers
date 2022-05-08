@@ -1,3 +1,7 @@
+## 1.0.0-rc.4
+
+ - **FIX**: Fix iOS code that was missing from previous push (melos vs pub get issue) (#1122). ([fe737849](https://github.com/bluefireteam/audioplayers/commit/fe737849811d0de02cac56b73a613e4ceb78c218))
+
 ## 1.0.0-rc.3
 
  - **FIX**: Volume and rate can be set before audio playing on iOS (#1113). ([eca1dd0e](https://github.com/bluefireteam/audioplayers/commit/eca1dd0e85abd72dc6c17bd2b7a24912664b98a5))
