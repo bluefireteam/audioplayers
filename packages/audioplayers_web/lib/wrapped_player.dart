@@ -19,6 +19,7 @@ class WrappedPlayer {
   AudioElement? player;
   StreamSubscription? playerTimeUpdateSubscription;
   StreamSubscription? playerEndedSubscription;
+  StreamSubscription? playerLoadedDataSubscription;
 
   WrappedPlayer(this.playerId, this.streamsInterface);
 
@@ -49,14 +50,21 @@ class WrappedPlayer {
     if (currentUrl == null) {
       return;
     }
-    Duration toDuration(num jsNum) => Duration(milliseconds: (1000 * (jsNum.toString() == 'NaN' ? 0 : jsNum)).round());
+    Duration toDuration(num jsNum) => Duration(
+          milliseconds:
+              (1000 * (jsNum.toString() == 'NaN' ? 0 : jsNum)).round(),
+        );
 
     final p = player = AudioElement(currentUrl);
     p.loop = shouldLoop();
     p.volume = currentVolume;
     p.playbackRate = currentPlaybackRate;
-    p.onLoadedData.listen((event) => streamsInterface.emitDuration(playerId, toDuration(p.duration)));
-    playerTimeUpdateSubscription = p.onTimeUpdate.listen((_) => streamsInterface.emitPosition(playerId, toDuration(p.currentTime)));
+    playerLoadedDataSubscription = p.onLoadedData.listen((event) {
+      streamsInterface.emitDuration(playerId, toDuration(p.duration));
+    });
+    playerTimeUpdateSubscription = p.onTimeUpdate.listen((_) {
+      streamsInterface.emitPosition(playerId, toDuration(p.currentTime));
+    });
     playerEndedSubscription = p.onEnded.listen((_) {
       streamsInterface.emitPlayerState(playerId, PlayerState.stopped);
       streamsInterface.emitComplete(playerId);
@@ -74,6 +82,8 @@ class WrappedPlayer {
     _cancel();
     player = null;
 
+    playerLoadedDataSubscription?.cancel();
+    playerLoadedDataSubscription = null;
     playerTimeUpdateSubscription?.cancel();
     playerTimeUpdateSubscription = null;
     playerEndedSubscription?.cancel();
