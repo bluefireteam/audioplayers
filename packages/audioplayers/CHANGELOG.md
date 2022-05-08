@@ -1,3 +1,8 @@
+## 1.0.0-rc.3
+
+ - **FIX**: Volume and rate can be set before audio playing on iOS (#1113). ([eca1dd0e](https://github.com/bluefireteam/audioplayers/commit/eca1dd0e85abd72dc6c17bd2b7a24912664b98a5))
+ - **FEAT**: Linux platform support (closes #798) (#1110). ([74616c54](https://github.com/bluefireteam/audioplayers/commit/74616c5471fb942d8f08c41de50c93d4387f8916))
+
 ## 1.0.0-rc.2
 
  - Bump "audioplayers" to `1.0.0-rc.2`.
