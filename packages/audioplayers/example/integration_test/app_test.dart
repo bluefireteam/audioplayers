@@ -178,6 +178,7 @@ void main() {
         await tester.tap(find.byKey(const Key('streamsTab')));
         await tester.pumpAndSettle();
 
+        // Display position before playing
         await tester.tap(find.byKey(const Key('getPosition')));
         await tester.pumpAndSettle();
         expect(
@@ -185,10 +186,14 @@ void main() {
           findsOneWidget,
         );
 
+        // Display duration before playing
         await tester.tap(find.byKey(const Key('getDuration')));
         await tester.pumpAndSettle();
         expect(
-          find.byKeyAndText(const Key('durationText'), text: '0:00:00.000000'),
+          find.byKeyAndText(
+            const Key('durationText'),
+            text: audioSourceTestData.duration.toString(),
+          ),
           findsOneWidget,
         );
 
@@ -198,7 +203,10 @@ void main() {
         await tester.pump(const Duration(milliseconds: 500));
 
         expect(find.text('Stream Position: 0:'), findsOneWidget);
-        expect(find.text('Stream Duration: 0:'), findsOneWidget);
+        expect(
+          find.text('Stream Duration: ${audioSourceTestData.duration}'),
+          findsOneWidget,
+        );
 
         await tester.tap(find.byKey(const Key('pause_button')));
         await tester.tap(find.byKey(const Key('stop_button')));
@@ -212,6 +220,11 @@ void main() {
         await tester.pumpAndSettle();
       });
     }
+  });
+
+  group('play multiple sources', () {
+    // TODO simultaneously
+    // TODO one after another
   });
 }
 
