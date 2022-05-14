@@ -10,6 +10,7 @@ final PlatformFeatures features = kIsWeb
     ? PlatformFeatures(
         hasUrlSource: true,
         hasAssetSource: true,
+        hasMp3Duration: true,
         hasVolume: true,
         hasPlaybackRate: true,
         hasPositionEvent: true,
@@ -21,6 +22,7 @@ final PlatformFeatures features = kIsWeb
             hasBytesSource: true,
             hasLowLatency: true,
             hasReleaseMode: true,
+            hasMp3Duration: true,
             hasVolume: true,
             hasSeek: true,
             hasPlaybackRate: true,
@@ -38,6 +40,7 @@ final PlatformFeatures features = kIsWeb
                 hasUrlSource: true,
                 hasAssetSource: true,
                 hasReleaseMode: true,
+                hasMp3Duration: true,
                 hasVolume: true,
                 hasSeek: true,
                 hasPlaybackRate: true,
@@ -55,6 +58,7 @@ final PlatformFeatures features = kIsWeb
                     hasUrlSource: true,
                     hasAssetSource: true,
                     hasReleaseMode: true,
+                    hasMp3Duration: true,
                     hasVolume: true,
                     hasSeek: true,
                     hasPlaybackRate: true,
@@ -81,6 +85,7 @@ final PlatformFeatures features = kIsWeb
                             hasUrlSource: true,
                             hasAssetSource: true,
                             hasReleaseMode: true,
+                            hasMp3Duration: true,
                             hasVolume: true,
                             hasSeek: true,
                             hasPlaybackRate: true,
@@ -157,6 +162,54 @@ void main() {
     for (final audioSourceTestData in audioTestDataList) {
       testWidgets('test source $audioSourceTestData',
           (WidgetTester tester) async {
+        Future<void> testDuration() async {
+          await tester.tap(find.byKey(const Key('getDuration')));
+          await tester.pumpAndSettle();
+          expect(
+            find.byKeyAndText(
+              const Key('durationText'),
+              text: audioSourceTestData.duration.toString(),
+            ),
+            findsOneWidget,
+          );
+        }
+
+        Future<void> testPosition(String positionStr) async {
+          await tester.tap(find.byKey(const Key('getPosition')));
+          await tester.pumpAndSettle();
+          expect(
+            find.byKeyAndText(
+              const Key('positionText'),
+              text: positionStr,
+            ),
+            findsOneWidget,
+          );
+        }
+
+        Future<void> testOnDuration() async {
+          if (features.hasDurationEvent) {
+            expect(
+              find.byKeyAndText(
+                const Key('onDurationText'),
+                text: 'Stream Duration: ${audioSourceTestData.duration}',
+              ),
+              findsOneWidget,
+            );
+          }
+        }
+
+        Future<void> testOnPosition(String positionStr) async {
+          if (features.hasPositionEvent) {
+            expect(
+              find.byKeyAndText(
+                const Key('onPositionText'),
+                text: 'Stream Position: $positionStr',
+              ),
+              findsOneWidget,
+            );
+          }
+        }
+
         app.main();
         await tester.pumpAndSettle();
 
@@ -167,57 +220,67 @@ void main() {
         await tester
             .tap(find.byKey(Key('setSource-${audioSourceTestData.sourceKey}')));
 
-        // Controls
-        await tester.tap(find.byKey(const Key('controlsTab')));
-        await tester.pumpAndSettle();
-
-        // await tester.tap(find.byKey(const Key('control-resume')));
-        // await Future<void>.delayed(const Duration(seconds: 1));
-
         // Streams
         await tester.tap(find.byKey(const Key('streamsTab')));
         await tester.pumpAndSettle();
 
-        // Display position before playing
-        await tester.tap(find.byKey(const Key('getPosition')));
-        await tester.pumpAndSettle();
-        expect(
-          find.byKeyAndText(const Key('positionText'), text: '0:00:00.000000'),
-          findsOneWidget,
-        );
+        // Stream position is tracked as soon as source is loaded
+        if (!audioSourceTestData.sourceKey.contains('m3u8')) {
+          // Display position before playing
+          await testPosition('0:00:00.000000');
+        }
 
-        // Display duration before playing
-        await tester.tap(find.byKey(const Key('getDuration')));
-        await tester.pumpAndSettle();
-        expect(
-          find.byKeyAndText(
-            const Key('durationText'),
-            text: audioSourceTestData.duration.toString(),
-          ),
-          findsOneWidget,
-        );
+        // MP3 duration is estimated: https://bugzilla.gnome.org/show_bug.cgi?id=726144
+        final isImmediateDurationSupported = features.hasMp3Duration ||
+            !audioSourceTestData.sourceKey.contains('mp3');
+
+        if (isImmediateDurationSupported) {
+          // Display duration before playing
+          await testDuration();
+        }
 
         await tester.tap(find.byKey(const Key('play_button')));
         await tester.pumpAndSettle();
 
-        await tester.pump(const Duration(milliseconds: 500));
+        // Test if onDurationText is set immediately.
+        if (isImmediateDurationSupported) {
+          await testOnDuration();
+        }
 
-        expect(find.text('Stream Position: 0:'), findsOneWidget);
-        expect(
-          find.text('Stream Duration: ${audioSourceTestData.duration}'),
-          findsOneWidget,
-        );
+        const sampleDuration = Duration(seconds: 2);
+        await tester.pump(sampleDuration);
+
+        // Test if position is set.
+        // Cannot test more precisely as initialization takes some time and
+        // a longer sampleDuration would decelerate length of overall tests.
+        // Better test position update in seek mode.
+        await testOnPosition('0:00:0');
+
+        // Display duration after end / stop (some samples are shorter than sampleDuration, so this test would fail)
+        // TODO Not possible at the moment (shows duration of 0)
+        // await testDuration();
+        // await testOnDuration();
 
         await tester.tap(find.byKey(const Key('pause_button')));
         await tester.tap(find.byKey(const Key('stop_button')));
 
+        // Controls
+        // TODO test volume, rate, player mode, release mode, seek
+        // await tester.tap(find.byKey(const Key('controlsTab')));
+        // await tester.pumpAndSettle();
+
+        // await tester.tap(find.byKey(const Key('control-resume')));
+        // await Future<void>.delayed(const Duration(seconds: 1));
+
         // Audio context
-        await tester.tap(find.byKey(const Key('audioContextTab')));
-        await tester.pumpAndSettle();
+        // TODO test generic flags
+        // await tester.tap(find.byKey(const Key('audioContextTab')));
+        // await tester.pumpAndSettle();
 
         // Logs
-        await tester.tap(find.byKey(const Key('loggerTab')));
-        await tester.pumpAndSettle();
+        // TODO may test logs
+        // await tester.tap(find.byKey(const Key('loggerTab')));
+        // await tester.pumpAndSettle();
       });
     }
   });
@@ -231,15 +294,18 @@ void main() {
 extension on CommonFinders {
   Finder byKeyAndText(Key key,
       {required String text, bool skipOffstage = true}) {
-    return find.byWidgetPredicate((widget) {
-      if (widget.key != key || widget is! Text) {
+    return find.byWidgetPredicate(
+      (widget) {
+        if (widget.key != key || widget is! Text) {
+          return false;
+        }
+        if (widget.data != null && widget.data!.contains(text)) {
+          return true;
+        }
         return false;
-      }
-      if (widget.data?.contains(text) != null) {
-        return true;
-      }
-      return false;
-    }, skipOffstage: skipOffstage);
+      },
+      skipOffstage: skipOffstage,
+    );
   }
 }
 
@@ -259,6 +325,11 @@ class SourceTestData {
   Duration duration;
 
   SourceTestData({required this.sourceKey, required this.duration});
+
+  @override
+  String toString() {
+    return 'SourceTestData(sourceKey: $sourceKey, duration: $duration)';
+  }
 }
 
 class PlatformFeatures {
@@ -270,6 +341,7 @@ class PlatformFeatures {
   final bool hasReleaseMode; // Not yet tested
   final bool hasVolume; // Not yet tested
   final bool hasSeek; // Not yet tested
+  final bool hasMp3Duration; // Not yet tested
 
   final bool hasPlaybackRate; // Not yet tested
   final bool hasDuckAudio; // Not yet tested
@@ -278,8 +350,8 @@ class PlatformFeatures {
   final bool hasRecordingActive; // Not yet tested
   final bool hasPlayingRoute; // Not yet tested
 
-  final bool hasDurationEvent; // Not yet tested
-  final bool hasPositionEvent; // Not yet tested
+  final bool hasDurationEvent;
+  final bool hasPositionEvent;
   final bool hasCompletionEvent; // Not yet tested
   final bool hasErrorEvent; // Not yet tested
 
@@ -289,6 +361,7 @@ class PlatformFeatures {
     this.hasBytesSource = false,
     this.hasLowLatency = false,
     this.hasReleaseMode = false,
+    this.hasMp3Duration = false,
     this.hasVolume = false,
     this.hasSeek = false,
     this.hasPlaybackRate = false,

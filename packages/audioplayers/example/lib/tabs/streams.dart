@@ -90,9 +90,18 @@ class _StreamsTabState extends State<StreamsTab> {
         ),
         const Divider(color: Colors.black),
         const Text('Streams'),
-        Text('Stream Duration: $streamDuration'),
-        Text('Stream Position: $streamPosition'),
-        Text('Stream State: $state'),
+        Text(
+          'Stream Duration: $streamDuration',
+          key: const Key('onDurationText'),
+        ),
+        Text(
+          'Stream Position: $streamPosition',
+          key: const Key('onPositionText'),
+        ),
+        Text(
+          'Stream State: $state',
+          key: const Key('onStateText'),
+        ),
         const Divider(color: Colors.black),
         PlayerWidget(player: widget.player),
       ],
