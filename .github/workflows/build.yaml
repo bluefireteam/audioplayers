@@ -178,7 +178,9 @@ jobs:
           channel: stable
       - uses: bluefireteam/melos-action@main
       - name: Install Flutter requirements for Linux
-        run: sudo apt-get install clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+        run: | 
+          sudo apt-get update
+          sudo apt-get install clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
       - name: Install GStreamer
         run: sudo apt-get install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
       - name: Example App - Build linux app
