@@ -256,7 +256,7 @@ void AudioPlayer::SetPlayback(int64_t position, double rate) {
 }
 
 void AudioPlayer::SetPlaybackRate(double rate) {
-    SetPlayback(GetPosition(), _playbackRate);
+    SetPlayback(GetPosition(), rate);
 }
 
 /**
