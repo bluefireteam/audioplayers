@@ -128,6 +128,7 @@ void AudioPlayer::OnMediaStateChange(GstObject *src, GstState *old_state,
         if (*new_state >= GST_STATE_READY) {
             if (!this->_isInitialized) {
                 this->_isInitialized = true;
+                Pause(); // Need to set to pause state, in order to get duration
             }
         } else if (this->_isInitialized) {
             this->_isInitialized = false;
@@ -308,6 +309,7 @@ void AudioPlayer::Pause() {
                 std::string("Unable to set the pipeline to the paused state."));
         return;
     }
+    OnPositionUpdate(); // Update to exact position when pausing
 }
 
 void AudioPlayer::Resume() {
@@ -321,6 +323,7 @@ void AudioPlayer::Resume() {
                 std::string("Unable to set the pipeline to the playing state."));
         return;
     }
+    OnDurationUpdate(); // Update duration when start playing, as no event is emitted elsewhere
 }
 
 void AudioPlayer::Dispose() {
