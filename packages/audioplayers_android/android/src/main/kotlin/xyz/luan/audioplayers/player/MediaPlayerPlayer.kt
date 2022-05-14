@@ -64,12 +64,21 @@ class MediaPlayerPlayer(
     }
 
     override fun stop() {
-        mediaPlayer.stop()
+        try {
+           mediaPlayer.stop()
+        }catch(e: Exception) {
+        }       
     }
 
     override fun release() {
-        mediaPlayer.reset()
-        mediaPlayer.release()
+        try {
+            mediaPlayer.reset()
+        }catch(e: Exception) {
+        }
+        try {            
+            mediaPlayer.release()
+        }catch(e: Exception) {
+        }
     }
 
     override fun seekTo(position: Int) {
