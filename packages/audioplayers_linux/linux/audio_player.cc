@@ -40,9 +40,8 @@ void AudioPlayer::SourceSetup(GstElement *playbin, GstElement *source,
 void AudioPlayer::SetSourceUrl(std::string url) {
     if (_url != url) {
         _url = url;
-        if (_url.empty()) {
-            gst_element_set_state(playbin, GST_STATE_NULL);
-        } else {
+        gst_element_set_state(playbin, GST_STATE_NULL);
+        if (!_url.empty()) {
             g_object_set(playbin, "uri", _url.c_str(), NULL);
             if (playbin->current_state != GST_STATE_READY) {
                 gst_element_set_state(playbin, GST_STATE_READY);
