@@ -36,34 +36,42 @@ class _SourcesTabState extends State<SourcesTab> {
     return TabWrapper(
       children: [
         Btn(
+          key: const Key('setSource-url-remote-wav-1'),
           txt: 'Remote URL WAV 1 - coins.wav',
           onPressed: () => setSource(UrlSource(_wavUrl1)),
         ),
         Btn(
+          key: const Key('setSource-url-remote-wav-2'),
           txt: 'Remote URL WAV 2 - laser.wav',
           onPressed: () => setSource(UrlSource(_wavUrl2)),
         ),
         Btn(
+          key: const Key('setSource-url-remote-mp3-1'),
           txt: 'Remote URL MP3 1 - ambient_c_motion.mp3',
           onPressed: () => setSource(UrlSource(_mp3Url1)),
         ),
         Btn(
+          key: const Key('setSource-url-remote-mp3-2'),
           txt: 'Remote URL MP3 2 - nasa_on_a_mission.mp3',
           onPressed: () => setSource(UrlSource(_mp3Url2)),
         ),
         Btn(
+          key: const Key('setSource-url-remote-m3u8'),
           txt: 'Remote URL 3 - BBC stream',
           onPressed: () => setSource(UrlSource(_streamUrl)),
         ),
         Btn(
+          key: const Key('setSource-asset-wav'),
           txt: 'Asset 1 - laser.wav',
           onPressed: () => setSource(AssetSource(_asset1)),
         ),
         Btn(
+          key: const Key('setSource-asset-mp3'),
           txt: 'Asset 2 - nasa.mp3',
           onPressed: () => setSource(AssetSource(_asset2)),
         ),
         Btn(
+          key: const Key('setSource-bytes-local'),
           txt: 'Bytes - Local - laser.wav',
           onPressed: () async {
             final bytes = await AudioCache.instance.loadAsBytes(_asset1);
@@ -71,6 +79,7 @@ class _SourcesTabState extends State<SourcesTab> {
           },
         ),
         Btn(
+          key: const Key('setSource-bytes-remote'),
           txt: 'Bytes - Remote - ambient.mp3',
           onPressed: () async {
             final bytes = await readBytes(Uri.parse(_mp3Url1));

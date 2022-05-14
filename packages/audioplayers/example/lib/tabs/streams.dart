@@ -63,21 +63,29 @@ class _StreamsTabState extends State<StreamsTab> {
         Row(
           children: [
             Btn(
-              txt: 'getPosition',
+              key: const Key('getPosition'),
+              txt: 'Get Position',
               onPressed: getPosition,
             ),
             const Pad(width: 8.0),
-            Text(position?.toString() ?? '-'),
+            Text(
+              position?.toString() ?? '-',
+              key: const Key('positionText'),
+            ),
           ],
         ),
         Row(
           children: [
             Btn(
-              txt: 'getDuration',
+              key: const Key('getDuration'),
+              txt: 'Get Duration',
               onPressed: getDuration,
             ),
             const Pad(width: 8.0),
-            Text(duration?.toString() ?? '-'),
+            Text(
+              duration?.toString() ?? '-',
+              key: const Key('durationText'),
+            ),
           ],
         ),
         const Divider(color: Colors.black),

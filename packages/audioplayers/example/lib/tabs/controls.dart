@@ -46,10 +46,26 @@ class _ControlsTabState extends State<ControlsTab> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Btn(txt: 'Pause', onPressed: widget.player.pause),
-            Btn(txt: 'Stop', onPressed: widget.player.stop),
-            Btn(txt: 'Resume', onPressed: widget.player.resume),
-            Btn(txt: 'Release', onPressed: widget.player.release),
+            Btn(
+              key: const Key('control-pause'),
+              txt: 'Pause',
+              onPressed: widget.player.pause,
+            ),
+            Btn(
+              key: const Key('control-stop'),
+              txt: 'Stop',
+              onPressed: widget.player.stop,
+            ),
+            Btn(
+              key: const Key('control-resume'),
+              txt: 'Resume',
+              onPressed: widget.player.resume,
+            ),
+            Btn(
+              key: const Key('control-release'),
+              txt: 'Release',
+              onPressed: widget.player.release,
+            ),
           ],
         ),
         Row(

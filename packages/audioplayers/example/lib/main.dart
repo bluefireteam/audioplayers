@@ -46,13 +46,33 @@ class _ExampleAppState extends State<ExampleApp> {
           ),
           Expanded(
             child: Tabs(
-              tabs: {
-                'Src': SourcesTab(player: selectedPlayer),
-                'Ctrl': ControlsTab(player: selectedPlayer),
-                'Stream': StreamsTab(player: selectedPlayer),
-                'Ctx': AudioContextTab(player: selectedPlayer),
-                'Log': const LoggerTab(),
-              },
+              tabs: [
+                TabData(
+                  key: 'sourcesTab',
+                  label: 'Src',
+                  content: SourcesTab(player: selectedPlayer),
+                ),
+                TabData(
+                  key: 'controlsTab',
+                  label: 'Ctrl',
+                  content: ControlsTab(player: selectedPlayer),
+                ),
+                TabData(
+                  key: 'streamsTab',
+                  label: 'Stream',
+                  content: StreamsTab(player: selectedPlayer),
+                ),
+                TabData(
+                  key: 'audioContextTab',
+                  label: 'Ctx',
+                  content: AudioContextTab(player: selectedPlayer),
+                ),
+                TabData(
+                  key: 'loggerTab',
+                  label: 'Log',
+                  content: const LoggerTab(),
+                ),
+              ],
             ),
           ),
         ],

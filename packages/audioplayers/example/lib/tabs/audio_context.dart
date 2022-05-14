@@ -45,11 +45,23 @@ class _AudioContextTabState extends State<AudioContextTab> {
         Container(
           height: 500,
           child: Tabs(
-            tabs: {
-              'Generic Flags': _genericTab(),
-              'Android': _androidTab(),
-              'iOS': _iosTab(),
-            },
+            tabs: [
+              TabData(
+                key: 'contextTab-genericFlags',
+                label: 'Generic Flags',
+                content: _genericTab(),
+              ),
+              TabData(
+                key: 'contextTab-android',
+                label: 'Android',
+                content: _androidTab(),
+              ),
+              TabData(
+                key: 'contextTab-ios',
+                label: 'iOS',
+                content: _iosTab(),
+              ),
+            ],
           ),
         ),
       ],
