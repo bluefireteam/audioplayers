@@ -1,10 +1,9 @@
 import 'package:audioplayers/audioplayers.dart';
+import 'package:audioplayers_example/components/btn.dart';
+import 'package:audioplayers_example/components/tab_wrapper.dart';
+import 'package:audioplayers_example/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
-
-import '../components/btn.dart';
-import '../components/tab_wrapper.dart';
-import '../utils.dart';
 
 const _wavUrl1 = 'https://luan.xyz/files/audio/coins.wav';
 const _wavUrl2 = 'https://luan.xyz/files/audio/laser.wav';
