@@ -27,15 +27,18 @@ class AudioCache {
   /// A reference to the loaded files absolute URLs.
   ///
   /// This is a map of fileNames to pre-loaded URIs.
-  /// On mobile/desktop, the URIs are from local files where the bytes have been copied.
+  /// On mobile/desktop, the URIs are from local files where the bytes have been
+  /// copied.
   /// On web, the URIs are external links for pre-loaded files.
   Map<String, Uri> loadedFiles = {};
 
   /// This is the path inside your assets folder where your files lie.
   ///
-  /// For example, Flame uses the prefix 'assets/audio/' (you must include the final slash!).
+  /// For example, Flame uses the prefix 'assets/audio/' (you must include the 
+  /// final slash!).
   /// The default prefix (if not provided) is 'assets/'
-  /// Your files will be found at <prefix><fileName> (so the trailing slash is crucial).
+  /// Your files will be found at <prefix><fileName> (so the trailing slash is 
+  /// crucial).
   String prefix;
 
   AudioCache({this.prefix = 'assets/'});
@@ -43,7 +46,8 @@ class AudioCache {
   /// Clears the cache for the file [fileName].
   ///
   /// Does nothing if the file was not on cache.
-  /// Note: web relies on the browser cache which is handled entirely by the browser, thus this will no-op.
+  /// Note: web relies on the browser cache which is handled entirely by the 
+  /// browser, thus this will no-op.
   Future<void> clear(Uri fileName) async {
     final uri = loadedFiles.remove(fileName);
     if (uri != null && !kIsWeb) {
@@ -79,7 +83,7 @@ class AudioCache {
 
   Uri _sanitizeURLForWeb(String fileName) {
     final tryAbsolute = Uri.tryParse(fileName);
-    if (tryAbsolute?.isAbsolute == true) {
+    if (tryAbsolute?.isAbsolute ?? false) {
       return tryAbsolute!;
     }
 

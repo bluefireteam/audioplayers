@@ -12,10 +12,12 @@ import 'tabs/streams.dart';
 typedef OnError = void Function(Exception exception);
 
 void main() {
-  runApp(MaterialApp(home: ExampleApp()));
+  runApp(const MaterialApp(home: ExampleApp()));
 }
 
 class ExampleApp extends StatefulWidget {
+  const ExampleApp({Key? key}) : super(key: key);
+
   @override
   _ExampleAppState createState() => _ExampleAppState();
 }
