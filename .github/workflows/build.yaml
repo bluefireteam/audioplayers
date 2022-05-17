@@ -17,6 +17,9 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+      - name: Preload common dependencies # Remove when https://github.com/flutter/flutter/issues/103981 is resolved
+        run: flutter pub get
+        working-directory: ./packages/audioplayers
       - uses: bluefireteam/melos-action@main
 
       - run: melos run format-check
@@ -33,6 +36,9 @@ jobs:
      - uses: subosito/flutter-action@v2
        with:
          channel: stable
+     - name: Preload common dependencies # Remove when https://github.com/flutter/flutter/issues/103981 is resolved
+       run: flutter pub get
+       working-directory: ./packages/audioplayers
      - uses: bluefireteam/melos-action@main
 
      - name: Example App - Build web app
@@ -70,6 +76,9 @@ jobs:
      - uses: subosito/flutter-action@v2
        with:
          channel: stable
+     - name: Preload common dependencies # Remove when https://github.com/flutter/flutter/issues/103981 is resolved
+       run: flutter pub get
+       working-directory: ./packages/audioplayers
      - uses: bluefireteam/melos-action@main
 
      - name: Example App - Build android APK
@@ -119,6 +128,9 @@ jobs:
      - uses: subosito/flutter-action@v2
        with:
          channel: stable
+     - name: Preload common dependencies # Remove when https://github.com/flutter/flutter/issues/103981 is resolved
+       run: flutter pub get
+       working-directory: ./packages/audioplayers
      - uses: bluefireteam/melos-action@main
 
      - name: Example App - Build iOS
@@ -137,6 +149,9 @@ jobs:
      - uses: subosito/flutter-action@v2
        with:
          channel: stable
+     - name: Preload common dependencies # Remove when https://github.com/flutter/flutter/issues/103981 is resolved
+       run: flutter pub get
+       working-directory: ./packages/audioplayers
      - uses: bluefireteam/melos-action@main
 
      - name: setup-cocoapods
@@ -160,6 +175,9 @@ jobs:
      - uses: subosito/flutter-action@v2
        with:
          channel: stable
+     - name: Preload common dependencies # Remove when https://github.com/flutter/flutter/issues/103981 is resolved
+       run: flutter pub get
+       working-directory: ./packages/audioplayers
      - uses: bluefireteam/melos-action@main
      - name: Example App - Build windows app
        working-directory: ./packages/audioplayers/example
@@ -177,6 +195,9 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+      - name: Preload common dependencies # Remove when https://github.com/flutter/flutter/issues/103981 is resolved
+        run: flutter pub get
+        working-directory: ./packages/audioplayers
       - uses: bluefireteam/melos-action@main
       - name: Install Flutter requirements for Linux
         run: | 
