@@ -34,10 +34,10 @@ class AudioCache {
 
   /// This is the path inside your assets folder where your files lie.
   ///
-  /// For example, Flame uses the prefix 'assets/audio/' (you must include the
+  /// For example, Flame uses the prefix 'assets/audio/' (you must include the 
   /// final slash!).
   /// The default prefix (if not provided) is 'assets/'
-  /// Your files will be found at <prefix><fileName> (so the trailing slash is
+  /// Your files will be found at <prefix><fileName> (so the trailing slash is 
   /// crucial).
   String prefix;
 
@@ -46,7 +46,7 @@ class AudioCache {
   /// Clears the cache for the file [fileName].
   ///
   /// Does nothing if the file was not on cache.
-  /// Note: web relies on the browser cache which is handled entirely by the
+  /// Note: web relies on the browser cache which is handled entirely by the 
   /// browser, thus this will no-op.
   Future<void> clear(Uri fileName) async {
     final uri = loadedFiles.remove(fileName);

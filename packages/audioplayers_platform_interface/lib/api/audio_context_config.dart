@@ -2,21 +2,21 @@ import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
 
-/// This class contains flags to control several secondary, platform-specific
-/// aspects of audio playback, like how this audio interact with other audios,
-/// how is it played by the device and what happens when the app is
+/// This class contains flags to control several secondary, platform-specific 
+/// aspects of audio playback, like how this audio interact with other audios, 
+/// how is it played by the device and what happens when the app is 
 /// backgrounded.
 /// However, note that each platform has its nuances on how to configure audio.
-/// This class is a generic abstraction of some parameters that can be useful
+/// This class is a generic abstraction of some parameters that can be useful 
 /// across the board.
-/// Its flags are simple abstractions that are then translated to an
-/// [AudioContext] containing platform specific configurations:
+/// Its flags are simple abstractions that are then translated to an 
+/// [AudioContext] containing platform specific configurations: 
 /// [AudioContextAndroid] and [AudioContextIOS].
-/// If these simplified flags cannot fully reflect your goals, you must create
+/// If these simplified flags cannot fully reflect your goals, you must create 
 /// an [AudioContext] configuring each platform separately.
 class AudioContextConfig {
   /// Normally, audio played will respect the devices configured preferences.
-  /// However, if you want to bypass that and flag the system to use the
+  /// However, if you want to bypass that and flag the system to use the 
   /// built-in speakers, you can set this flag.
   ///
   /// On android, it will set `audioManager.isSpeakerphoneOn`.
@@ -26,21 +26,21 @@ class AudioContextConfig {
   /// * set the `.defaultToSpeaker` option OR
   /// * call `overrideOutputAudioPort(AVAudioSession.PortOverride.speaker)`
   ///
-  /// Note that, on iOS, this forces the category to be `.playAndRecord`, and
+  /// Note that, on iOS, this forces the category to be `.playAndRecord`, and 
   /// thus is forbidden when [respectSilence] is set.
   final bool forceSpeaker;
 
-  /// This flag determines how your audio interacts with other audio playing on
+  /// This flag determines how your audio interacts with other audio playing on 
   /// the device.
-  /// If your audio is playing, and another audio plays on top (like an alarm,
+  /// If your audio is playing, and another audio plays on top (like an alarm, 
   /// gps, etc), this determines what happens with your audio.
   ///
-  /// On Android, this will make an Audio Focus request with
+  /// On Android, this will make an Audio Focus request with 
   /// AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK when your audio starts playing.
   ///
-  /// On iOS, this will set the option `.duckOthers` option (the option
+  /// On iOS, this will set the option `.duckOthers` option (the option 
   /// `.mixWithOthers` is always set, regardless of these flags).
-  /// Note that, on iOS, this forces the category to be `.playAndRecord`, and
+  /// Note that, on iOS, this forces the category to be `.playAndRecord`, and 
   /// thus is forbidden when [respectSilence] is set.
   final bool duckAudio;
 
@@ -48,24 +48,24 @@ class AudioContextConfig {
   /// By default (false), if the device is on silent mode, the audio will not be
   /// played.
   ///
-  /// On Android, this will mandate the `USAGE_NOTIFICATION_RINGTONE` usage
+  /// On Android, this will mandate the `USAGE_NOTIFICATION_RINGTONE` usage 
   /// type.
   ///
   /// On iOS, setting this mandates the `.ambient` category, and it will be:
   ///  * silenced by rings
   ///  * silenced by the Silent switch
-  ///  * silenced by screen locking (note: read [stayAwake] for details on
+  ///  * silenced by screen locking (note: read [stayAwake] for details on 
   ///    this).
   final bool respectSilence;
 
-  /// By default, when the screen is locked, all the app's processing stops,
+  /// By default, when the screen is locked, all the app's processing stops, 
   /// including audio playback.
   /// You can set this flag to keep your audio playing even when locked.
   ///
   /// On Android, this sets the player "wake mode" to `PARTIAL_WAKE_LOCK`.
   ///
   /// On iOS, this will happen automatically as long as:
-  ///  * the category is `.playAndRecord` (thus setting this is forbidden when
+  ///  * the category is `.playAndRecord` (thus setting this is forbidden when 
   ///    [respectSilence] is set)
   ///  * the UIBackgroundModes audio key has been added to your app’s Info.plist
   ///    (check our FAQ for more details on that)
@@ -246,7 +246,7 @@ class AudioContextIOS {
 }
 
 enum AndroidContentType {
-  /// Content type value to use when the content type is unknown, or other than
+  /// Content type value to use when the content type is unknown, or other than 
   /// the ones defined.
   unknown,
 
@@ -261,7 +261,7 @@ enum AndroidContentType {
   movie,
 
   /// Content type value to use when the content type is a sound used to
-  /// accompany a user action, such as a beep or sound effect expressing a key
+  /// accompany a user action, such as a beep or sound effect expressing a key 
   /// click, or event, such as the type of a sound for a bonus being received in
   /// a game. These sounds are mostly synthesized or short Foley sounds.
   sonification,
@@ -288,52 +288,52 @@ enum AndroidUsageType {
   /// Usage value to use when the usage is unknown.
   unknown,
 
-  /// Usage value to use when the usage is media, such as music, or movie
+  /// Usage value to use when the usage is media, such as music, or movie 
   /// soundtracks.
   media,
 
-  /// Usage value to use when the usage is voice communications, such as
+  /// Usage value to use when the usage is voice communications, such as 
   /// telephony or VoIP.
   voiceCommunication,
 
-  /// Usage value to use when the usage is in-call signalling, such as with a
+  /// Usage value to use when the usage is in-call signalling, such as with a 
   /// "busy" beep, or DTMF tones.
   voiceCommunicationSignalling,
 
   /// Usage value to use when the usage is an alarm (e.g. wake-up alarm).
   alarm,
 
-  /// Usage value to use when the usage is notification. See other notification
+  /// Usage value to use when the usage is notification. See other notification 
   /// usages for more specialized uses.
   notification,
 
   /// Usage value to use when the usage is telephony ringtone.
   notificationRingtone,
 
-  /// Usage value to use when the usage is a request to enter/end a
+  /// Usage value to use when the usage is a request to enter/end a 
   /// communication, such as a VoIP communication or video-conference.
   notificationCommunicationRequest,
 
-  /// Usage value to use when the usage is notification for an "instant"
+  /// Usage value to use when the usage is notification for an "instant" 
   /// communication such as a chat, or SMS.
   notificationCommunicationInstant,
 
-  /// Usage value to use when the usage is notification for a non-immediate
+  /// Usage value to use when the usage is notification for a non-immediate 
   /// type of communication such as e-mail.
   notificationCommunicationDelayed,
 
-  /// Usage value to use when the usage is to attract the user's attention,
+  /// Usage value to use when the usage is to attract the user's attention, 
   /// such as a reminder or low battery warning.
   notificationEvent,
 
-  /// Usage value to use when the usage is for accessibility, such as with a
+  /// Usage value to use when the usage is for accessibility, such as with a 
   /// screen reader.
   assistanceAccessibility,
 
   /// Usage value to use when the usage is driving or navigation directions.
   assistanceNavigationGuidance,
 
-  /// Usage value to use when the usage is sonification, such as  with user
+  /// Usage value to use when the usage is sonification, such as  with user 
   /// interface sounds.
   assistanceSonification,
 
@@ -342,7 +342,7 @@ enum AndroidUsageType {
 
   /// @hide
   ///
-  /// Usage value to use when feeding audio to the platform and replacing
+  /// Usage value to use when feeding audio to the platform and replacing 
   /// "traditional" audio source, such as audio capture devices.
   virtualSource,
 
@@ -396,15 +396,15 @@ enum AndroidAudioFocus {
   /// Used to indicate no audio focus has been gained or lost, or requested.
   none,
 
-  /// Used to indicate a gain of audio focus, or a request of audio focus, of
+  /// Used to indicate a gain of audio focus, or a request of audio focus, of 
   /// unknown duration.
   ///
   /// @see OnAudioFocusChangeListener#onAudioFocusChange(int)
   /// @see #requestAudioFocus(OnAudioFocusChangeListener, int, int)
   gain,
 
-  /// Used to indicate a temporary gain or request of audio focus, anticipated
-  /// to last a short amount of time. Examples of temporary changes are the
+  /// Used to indicate a temporary gain or request of audio focus, anticipated 
+  /// to last a short amount of time. Examples of temporary changes are the 
   /// playback of driving directions, or an event notification.
   ///
   /// @see OnAudioFocusChangeListener#onAudioFocusChange(int)
@@ -412,7 +412,7 @@ enum AndroidAudioFocus {
   gainTransient,
 
   /// Used to indicate a temporary request of audio focus, anticipated to last a
-  /// short amount of time, and where it is acceptable for other audio
+  /// short amount of time, and where it is acceptable for other audio 
   /// applications to keep playing after having lowered their output level (also
   /// referred to as "ducking").
   /// Examples of temporary changes are the playback of driving directions where
@@ -423,10 +423,10 @@ enum AndroidAudioFocus {
   gainTransientMayDuck,
 
   /// Used to indicate a temporary request of audio focus, anticipated to last a
-  /// short amount of time, during which no other applications, or system
-  /// components, should play anything. Examples of exclusive and transient
-  /// audio focus requests are voice memo recording and speech recognition,
-  /// during which the system shouldn't play any notifications, and media
+  /// short amount of time, during which no other applications, or system 
+  /// components, should play anything. Examples of exclusive and transient 
+  /// audio focus requests are voice memo recording and speech recognition, 
+  /// during which the system shouldn't play any notifications, and media 
   /// playback should have paused.
   ///
   /// @see #requestAudioFocus(OnAudioFocusChangeListener, int, int)
@@ -454,7 +454,7 @@ extension AndroidAudioFocusValue on AndroidAudioFocus {
 ///
 /// Audio session category identifiers.
 /// An audio session category defines a set of audio behaviors.
-/// Choose a category that most accurately describes the audio behavior you
+/// Choose a category that most accurately describes the audio behavior you 
 /// require.
 enum AVAudioSessionCategory {
   /// Silenced by the Ring/Silent switch and by screen locking = Yes
@@ -469,23 +469,23 @@ enum AVAudioSessionCategory {
   soloAmbient,
 
   /// Silenced by the Ring/Silent switch and by screen locking = No
-  /// Interrupts nonmixable app’s audio = Yes by default; no by using override
+  /// Interrupts nonmixable app’s audio = Yes by default; no by using override 
   /// switch
-  /// Note: the switch is the `.mixWithOthers` option (+ other options like
+  /// Note: the switch is the `.mixWithOthers` option (+ other options like 
   /// `.duckOthers`).
   /// Output only
   playback,
 
-  /// Silenced by the Ring/Silent switch and by screen locking = No (recording
+  /// Silenced by the Ring/Silent switch and by screen locking = No (recording 
   /// continues with screen locked)
   /// Interrupts nonmixable app’s audio = Yes
   /// Input only
   record,
 
   /// Silenced by the Ring/Silent switch and by screen locking = No
-  /// Interrupts nonmixable app’s audio = Yes by default; no by using override
+  /// Interrupts nonmixable app’s audio = Yes by default; no by using override 
   /// switch
-  /// Note: the switch is the `.mixWithOthers` option (+ other options like
+  /// Note: the switch is the `.mixWithOthers` option (+ other options like 
   /// `.duckOthers`).
   /// Input and output
   playAndRecord,
@@ -498,10 +498,10 @@ enum AVAudioSessionCategory {
 
 /// This is a Dart representation of the equivalent enum on Swift.
 ///
-/// Constants that specify optional audio behaviors. Each option is valid only
+/// Constants that specify optional audio behaviors. Each option is valid only 
 /// for specific audio session categories.
 enum AVAudioSessionOptions {
-  /// An option that indicates whether audio from this session mixes with audio
+  /// An option that indicates whether audio from this session mixes with audio 
   /// from active sessions in other audio apps.
   mixWithOthers,
 
@@ -518,19 +518,19 @@ enum AVAudioSessionOptions {
   allowBluetooth,
 
   /// An option that determines whether you can stream audio from this session
-  /// to Bluetooth devices that support the Advanced Audio Distribution Profile
+  /// to Bluetooth devices that support the Advanced Audio Distribution Profile 
   /// (A2DP).
   allowBluetoothA2DP,
 
-  /// An option that determines whether you can stream audio from this session
+  /// An option that determines whether you can stream audio from this session 
   /// to AirPlay devices.
   allowAirPlay,
 
-  /// An option that determines whether audio from the session defaults to the
+  /// An option that determines whether audio from the session defaults to the 
   /// built-in speaker instead of the receiver.
   defaultToSpeaker,
 
-  /// An option that indicates whether the system interrupts the audio session
+  /// An option that indicates whether the system interrupts the audio session 
   /// when it mutes the built-in microphone.
   overrideMutedMicrophoneInterruption,
 }

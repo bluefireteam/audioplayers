@@ -10,10 +10,10 @@ void main() {
 
   final _channelLogs = <String>[];
   const MethodChannel('xyz.luan/audioplayers.global')
-      .setMockMethodCallHandler((MethodCall methodCall) async {
-    _channelLogs.add('${methodCall.method} ${methodCall.arguments}');
-    return 1;
-  });
+    .setMockMethodCallHandler((MethodCall methodCall) async {
+      _channelLogs.add('${methodCall.method} ${methodCall.arguments}');
+      return 1;
+    });
 
   final _print = OverridePrint();
   final _logger = GlobalPlatformInterface.instance;

@@ -11,11 +11,11 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 /// The interface that implementations of audioplayers must implement.
 ///
-/// Platform implementations should extend this class rather than implement it
-/// as `audioplayers` does not consider newly added methods to be breaking
-/// changes. Extending this class (using `extends`) ensures that the subclass
-/// will get the default implementation, while platform implementations that
-/// `implements` this interface will be broken by newly added
+/// Platform implementations should extend this class rather than implement it 
+/// as `audioplayers` does not consider newly added methods to be breaking 
+/// changes. Extending this class (using `extends`) ensures that the subclass 
+/// will get the default implementation, while platform implementations that 
+/// `implements` this interface will be broken by newly added 
 /// [AudioplayersPlatform] methods.
 abstract class AudioplayersPlatform extends PlatformInterface {
   AudioplayersPlatform() : super(token: _token);
