@@ -1,9 +1,10 @@
 import 'package:audioplayers/audioplayers.dart';
-import 'package:audioplayers_example/components/btn.dart';
-import 'package:audioplayers_example/components/cbx.dart';
-import 'package:audioplayers_example/components/tab_wrapper.dart';
-import 'package:audioplayers_example/components/tabs.dart';
 import 'package:flutter/material.dart';
+
+import '../components/btn.dart';
+import '../components/cbx.dart';
+import '../components/tab_wrapper.dart';
+import '../components/tabs.dart';
 
 class AudioContextTab extends StatefulWidget {
   final AudioPlayer player;

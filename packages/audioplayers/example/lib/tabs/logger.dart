@@ -1,7 +1,8 @@
 import 'package:audioplayers/audioplayers.dart';
-import 'package:audioplayers_example/components/btn.dart';
-import 'package:audioplayers_example/components/tab_wrapper.dart';
 import 'package:flutter/material.dart';
+
+import '../components/btn.dart';
+import '../components/tab_wrapper.dart';
 
 class LoggerTab extends StatefulWidget {
   const LoggerTab({Key? key}) : super(key: key);
