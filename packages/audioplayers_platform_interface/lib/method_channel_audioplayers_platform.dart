@@ -1,15 +1,14 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:audioplayers_platform_interface/api/audio_context_config.dart';
+import 'package:audioplayers_platform_interface/api/player_mode.dart';
+import 'package:audioplayers_platform_interface/api/release_mode.dart';
+import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
+import 'package:audioplayers_platform_interface/logger_platform_interface.dart';
+import 'package:audioplayers_platform_interface/method_channel_interface.dart';
+import 'package:audioplayers_platform_interface/streams_interface.dart';
 import 'package:flutter/services.dart';
-
-import 'api/audio_context_config.dart';
-import 'api/player_mode.dart';
-import 'api/release_mode.dart';
-import 'audioplayers_platform_interface.dart';
-import 'logger_platform_interface.dart';
-import 'method_channel_interface.dart';
-import 'streams_interface.dart';
 
 class MethodChannelAudioplayersPlatform extends AudioplayersPlatform
     with StreamsInterface {
@@ -146,7 +145,7 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform
   Future<void> platformCallHandler(MethodCall call) async {
     try {
       _doHandlePlatformCall(call);
-    } catch (ex) {
+    } on Exception catch (ex) {
       _logger.error('Unexpected error: $ex');
     }
   }

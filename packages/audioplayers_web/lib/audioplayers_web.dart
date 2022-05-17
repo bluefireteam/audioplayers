@@ -6,9 +6,8 @@ import 'package:audioplayers_platform_interface/api/player_mode.dart';
 import 'package:audioplayers_platform_interface/api/release_mode.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
 import 'package:audioplayers_platform_interface/streams_interface.dart';
+import 'package:audioplayers_web/wrapped_player.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
-
-import 'wrapped_player.dart';
 
 class AudioplayersPlugin extends AudioplayersPlatform with StreamsInterface {
   /// The entrypoint called by the generated plugin registrant.

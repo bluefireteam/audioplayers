@@ -19,8 +19,11 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flame_lint: 0.0.1
-  dartdoc: ^2.0.0
+  flame_lint:
+    git:
+      url: 'https://github.com/flame-engine/flame.git'
+      path: 'packages/flame_lint'
+  dartdoc: ^5.0.1
 
 environment:
   sdk: ">=2.14.0 <3.0.0"

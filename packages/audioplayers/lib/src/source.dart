@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'audioplayer.dart';
+import 'package:audioplayers/src/audioplayer.dart';
 
 /// A generic representation of a source from where audio can be pulled.
 ///
