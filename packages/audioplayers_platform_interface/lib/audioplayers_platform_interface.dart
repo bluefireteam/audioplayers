@@ -1,21 +1,21 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:audioplayers_platform_interface/api/audio_context_config.dart';
-import 'package:audioplayers_platform_interface/api/for_player.dart';
-import 'package:audioplayers_platform_interface/api/player_mode.dart';
-import 'package:audioplayers_platform_interface/api/player_state.dart';
-import 'package:audioplayers_platform_interface/api/release_mode.dart';
-import 'package:audioplayers_platform_interface/method_channel_audioplayers_platform.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+
+import 'api/audio_context_config.dart';
+import 'api/for_player.dart';
+import 'api/player_mode.dart';
+import 'api/player_state.dart';
+import 'api/release_mode.dart';
+import 'method_channel_audioplayers_platform.dart';
 
 /// The interface that implementations of audioplayers must implement.
 ///
-/// Platform implementations should extend this class rather than implement it 
-/// as `audioplayers` does not consider newly added methods to be breaking 
-/// changes. Extending this class (using `extends`) ensures that the subclass 
-/// will get the default implementation, while platform implementations that 
-/// `implements` this interface will be broken by newly added 
+/// Platform implementations should extend this class rather than implement it as `audioplayers`
+/// does not consider newly added methods to be breaking changes. Extending this class
+/// (using `extends`) ensures that the subclass will get the default implementation, while
+/// platform implementations that `implements` this interface will be broken by newly added
 /// [AudioplayersPlatform] methods.
 abstract class AudioplayersPlatform extends PlatformInterface {
   AudioplayersPlatform() : super(token: _token);
