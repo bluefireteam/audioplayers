@@ -21,7 +21,6 @@ class WrappedMediaPlayer {
     var looping: Bool
 
     var url: String?
-    var onReady: Completer?
     
     init(
         reference: SwiftAudioplayersDarwinPlugin,
@@ -54,11 +53,7 @@ class WrappedMediaPlayer {
     }
     
     func getDurationCMTime() -> CMTime? {
-        guard let currentItem = player?.currentItem else {
-            return nil
-        }
-        
-        return currentItem.asset.duration
+        return player?.currentItem?.asset.duration
     }
     
     func getDuration() -> Int? {
@@ -69,10 +64,7 @@ class WrappedMediaPlayer {
     }
     
     private func getCurrentCMTime() -> CMTime? {
-        guard let player = player else {
-            return nil
-        }
-        return player.currentTime()
+        return player?.currentTime()
     }
     
     func getCurrentPosition() -> Int? {
@@ -186,6 +178,7 @@ class WrappedMediaPlayer {
                 player = existingPlayer
             } else {
                 player = AVPlayer.init(playerItem: playerItem)
+                configParameters(player: player)
                 
                 self.player = player
                 self.observers = []
@@ -211,7 +204,6 @@ class WrappedMediaPlayer {
             self.observers.append(TimeObserver(player: player, observer: anObserver))
             
             // is sound ready
-            self.onReady = completer
             let newKeyValueObservation = playerItem.observe(\AVPlayerItem.status) { (playerItem, change) in
                 let status = playerItem.status
                 Logger.info("player status: %@ change: %@", status, change)
@@ -219,11 +211,7 @@ class WrappedMediaPlayer {
                 // Do something with the status...
                 if status == .readyToPlay {
                     self.updateDuration()
-                    
-                    if let onReady = self.onReady {
-                        self.onReady = nil
-                        onReady()
-                    }
+                    completer?()
                 } else if status == .failed {
                     self.reference.onError(playerId: self.playerId)
                 }
@@ -236,5 +224,10 @@ class WrappedMediaPlayer {
                 completer?()
             }
         }
+    }
+
+    func configParameters(player: AVPlayer) {
+        player.volume = Float(volume)
+        player.rate = Float(playbackRate)
     }
 }

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:html';
 
+import 'package:audioplayers_platform_interface/api/player_state.dart';
 import 'package:audioplayers_platform_interface/api/release_mode.dart';
 import 'package:audioplayers_platform_interface/streams_interface.dart';
 
@@ -17,6 +18,8 @@ class WrappedPlayer {
 
   AudioElement? player;
   StreamSubscription? playerTimeUpdateSubscription;
+  StreamSubscription? playerEndedSubscription;
+  StreamSubscription? playerLoadedDataSubscription;
 
   WrappedPlayer(this.playerId, this.streamsInterface);
 
@@ -47,16 +50,25 @@ class WrappedPlayer {
     if (currentUrl == null) {
       return;
     }
-    player = AudioElement(currentUrl);
-    player?.loop = shouldLoop();
-    player?.volume = currentVolume;
-    player?.playbackRate = currentPlaybackRate;
-    playerTimeUpdateSubscription = player?.onTimeUpdate.listen(
-      (_) {
-        final value = (1000 * (player?.currentTime ?? 0)).round();
-        streamsInterface.emitPosition(playerId, Duration(milliseconds: value));
-      },
-    );
+    Duration toDuration(num jsNum) => Duration(
+          milliseconds:
+              (1000 * (jsNum.toString() == 'NaN' ? 0 : jsNum)).round(),
+        );
+
+    final p = player = AudioElement(currentUrl);
+    p.loop = shouldLoop();
+    p.volume = currentVolume;
+    p.playbackRate = currentPlaybackRate;
+    playerLoadedDataSubscription = p.onLoadedData.listen((event) {
+      streamsInterface.emitDuration(playerId, toDuration(p.duration));
+    });
+    playerTimeUpdateSubscription = p.onTimeUpdate.listen((_) {
+      streamsInterface.emitPosition(playerId, toDuration(p.currentTime));
+    });
+    playerEndedSubscription = p.onEnded.listen((_) {
+      streamsInterface.emitPlayerState(playerId, PlayerState.stopped);
+      streamsInterface.emitComplete(playerId);
+    });
   }
 
   bool shouldLoop() => currentReleaseMode == ReleaseMode.loop;
@@ -70,8 +82,12 @@ class WrappedPlayer {
     _cancel();
     player = null;
 
+    playerLoadedDataSubscription?.cancel();
+    playerLoadedDataSubscription = null;
     playerTimeUpdateSubscription?.cancel();
     playerTimeUpdateSubscription = null;
+    playerEndedSubscription?.cancel();
+    playerEndedSubscription = null;
   }
 
   void start(double position) {

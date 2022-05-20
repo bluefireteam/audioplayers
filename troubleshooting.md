@@ -9,7 +9,8 @@ You can check a list of supported formats below:
 - [Android](https://developer.android.com/guide/topics/media/media-formats.html)
 - [iOS/macOS](https://www.techotopia.com/index.php/Playing_Audio_on_iOS_8_using_AVAudioPlayer#Supported_Audio_Formats)
 - web: audio formats supported by the browser you are using ([more details](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API))
-- windows: unclear at this point (if you can help with official documentation here please update this doc!)
+- Windows: unclear at this point (if you can help with official documentation here please update this doc!)
+- Linux: List of defined [audio types](https://gstreamer.freedesktop.org/documentation/plugin-development/advanced/media-types.html?gi-language=c#table-of-audio-types) and their according [Plugins](https://gstreamer.freedesktop.org/documentation/plugins_doc.html?gi-language=c)
 
 ## Unsafe HTTP when playing remote URLs
 
@@ -55,7 +56,7 @@ The remote URL must be accessible and not be a redirect. If it's not an audio fi
 
 **Warning**: If you are having any sort of build issues, you must read this first.
 
-Our [CI](https://github.com/luanpotter/audioplayers/blob/master/.github/workflows/build.yaml) builds our example app using audioplayers for Android, iOS, macOS, Windows, and web. So if the build is passing, any build errors (from android/ios sdk, gradle, java, kotlin, cocoa pods, swift, flutter, etc) is not a global issue and likely is something on your setup.
+Our [CI](https://github.com/luanpotter/audioplayers/blob/master/.github/workflows/build.yaml) builds our example app using audioplayers for Android, iOS, Linux, macOS, Windows, and web. So if the build is passing, any build errors (from android/ios sdk, gradle, java, kotlin, cocoa pods, swift, flutter, etc) is not a global issue and likely is something on your setup.
 
 Before opening an issue, you **must** try these steps:
 
@@ -71,6 +72,9 @@ flutter pub get
 1. If the issue persists, clone the audioplayers repo and run the `example` app on the platform you are having issues. If it works, then there is something wrong with your project, and you can compare it to the `example` app to see what the problem is.
 1. If the problem still persists, and no existing (open or closed) issue on this repo, no stack overflow question or existing discord discussion solves you problem, then you can open an issue. But you must follow the issue template, and refer to the problem on the example app (or start with its code and make only the necessary modifications to trigger the issue), not on your own app that we don't have access (because since step 2 the error must be reproducible on the example app).
 1. Again, only open an issue if you reached step 3 and follow the issue template closely. Build issues that do not follow these steps will be closed without warning.
+
+### [Linux] Build Requirements
+In order to use the package `audioplayers_linux` you need to fulfill [these requirements](packages/audioplayers_linux/requirements.md).
 
 ## [iOS] Background Audio
 
