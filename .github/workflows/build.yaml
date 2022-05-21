@@ -13,8 +13,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v1
-      - uses: subosito/flutter-action@v1
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
         with:
           channel: stable
       - uses: bluefireteam/melos-action@main
@@ -26,11 +26,11 @@ jobs:
   web:
     runs-on: ubuntu-latest
     steps:
-     - uses: actions/checkout@v1
+     - uses: actions/checkout@v3
 
      - uses: nanasess/setup-chromedriver@v1
 
-     - uses: subosito/flutter-action@v1
+     - uses: subosito/flutter-action@v2
        with:
          channel: stable
      - uses: bluefireteam/melos-action@main
@@ -56,7 +56,7 @@ jobs:
     runs-on: macOS-latest
 
     steps:
-     - uses: actions/checkout@v1
+     - uses: actions/checkout@v3
 
      - name: Setup Java 11
        uses: joschi/setup-jdk@v2
@@ -67,7 +67,7 @@ jobs:
      - name: Setup Android SDK
        uses: android-actions/setup-android@v2
 
-     - uses: subosito/flutter-action@v1
+     - uses: subosito/flutter-action@v2
        with:
          channel: stable
      - uses: bluefireteam/melos-action@main
@@ -106,7 +106,7 @@ jobs:
     runs-on: macOS-latest
 
     steps:
-     - uses: actions/checkout@v1
+     - uses: actions/checkout@v3
 
      - name: List all simulators
        run: "xcrun simctl list devices"
@@ -116,7 +116,7 @@ jobs:
          echo "Using simulator $UUID"
          xcrun simctl boot "${UDID:?No Simulator with this name iPhone found}"
 
-     - uses: subosito/flutter-action@v1
+     - uses: subosito/flutter-action@v2
        with:
          channel: stable
      - uses: bluefireteam/melos-action@main
@@ -133,8 +133,8 @@ jobs:
     runs-on: macOS-latest
 
     steps:
-     - uses: actions/checkout@v1
-     - uses: subosito/flutter-action@v1
+     - uses: actions/checkout@v3
+     - uses: subosito/flutter-action@v2
        with:
          channel: stable
      - uses: bluefireteam/melos-action@main
@@ -156,8 +156,8 @@ jobs:
     runs-on: windows-latest
 
     steps:
-     - uses: actions/checkout@v1
-     - uses: subosito/flutter-action@v1
+     - uses: actions/checkout@v3
+     - uses: subosito/flutter-action@v2
        with:
          channel: stable
      - uses: bluefireteam/melos-action@main
@@ -173,13 +173,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v1
-      - uses: subosito/flutter-action@v1
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
         with:
           channel: stable
       - uses: bluefireteam/melos-action@main
       - name: Install Flutter requirements for Linux
-        run: sudo apt-get install clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+        run: | 
+          sudo apt-get update
+          sudo apt-get install clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
       - name: Install GStreamer
         run: sudo apt-get install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
       - name: Example App - Build linux app
