@@ -292,8 +292,11 @@ void main() {
 }
 
 extension on CommonFinders {
-  Finder byKeyAndText(Key key,
-      {required String text, bool skipOffstage = true}) {
+  Finder byKeyAndText(
+    Key key, {
+    required String text,
+    bool skipOffstage = true,
+  }) {
     return find.byWidgetPredicate(
       (widget) {
         if (widget.key != key || widget is! Text) {
