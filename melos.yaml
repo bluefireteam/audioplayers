@@ -14,6 +14,9 @@ command:
     branch: main
     # Additionally build a changelog at the root of the workspace.
     workspaceChangelog: true
+  bootstrap:
+    # Avoid concurrent pub requests, remove when https://github.com/dart-lang/pub/issues/3404 is fixed
+    runPubGetInParallel: false
 
 scripts:
   lint:
