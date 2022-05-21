@@ -40,9 +40,8 @@ void AudioPlayer::SourceSetup(GstElement *playbin, GstElement *source,
 void AudioPlayer::SetSourceUrl(std::string url) {
     if (_url != url) {
         _url = url;
-        if (_url.empty()) {
-            gst_element_set_state(playbin, GST_STATE_NULL);
-        } else {
+        gst_element_set_state(playbin, GST_STATE_NULL);
+        if (!_url.empty()) {
             g_object_set(playbin, "uri", _url.c_str(), NULL);
             if (playbin->current_state != GST_STATE_READY) {
                 gst_element_set_state(playbin, GST_STATE_READY);
@@ -128,6 +127,7 @@ void AudioPlayer::OnMediaStateChange(GstObject *src, GstState *old_state,
         if (*new_state >= GST_STATE_READY) {
             if (!this->_isInitialized) {
                 this->_isInitialized = true;
+                Pause(); // Need to set to pause state, in order to get duration
             }
         } else if (this->_isInitialized) {
             this->_isInitialized = false;
@@ -256,7 +256,7 @@ void AudioPlayer::SetPlayback(int64_t position, double rate) {
 }
 
 void AudioPlayer::SetPlaybackRate(double rate) {
-    SetPlayback(GetPosition(), _playbackRate);
+    SetPlayback(GetPosition(), rate);
 }
 
 /**
@@ -308,6 +308,7 @@ void AudioPlayer::Pause() {
                 std::string("Unable to set the pipeline to the paused state."));
         return;
     }
+    OnPositionUpdate(); // Update to exact position when pausing
 }
 
 void AudioPlayer::Resume() {
@@ -321,6 +322,7 @@ void AudioPlayer::Resume() {
                 std::string("Unable to set the pipeline to the playing state."));
         return;
     }
+    OnDurationUpdate(); // Update duration when start playing, as no event is emitted elsewhere
 }
 
 void AudioPlayer::Dispose() {
