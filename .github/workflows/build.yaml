@@ -107,6 +107,10 @@ jobs:
 
     steps:
      - uses: actions/checkout@v3
+     - uses: subosito/flutter-action@v2
+       with:
+         channel: stable
+     - uses: bluefireteam/melos-action@main
 
      - name: List all simulators
        run: "xcrun simctl list devices"
@@ -115,11 +119,6 @@ jobs:
          UDID=$(xcrun simctl list devices | grep "iPhone" | sed -n 1p | awk -F '\\)? \\(' '{ print $2 }')
          echo "Using simulator $UUID"
          xcrun simctl boot "${UDID:?No Simulator with this name iPhone found}"
-
-     - uses: subosito/flutter-action@v2
-       with:
-         channel: stable
-     - uses: bluefireteam/melos-action@main
 
      - name: Example App - Build iOS
        working-directory: ./packages/audioplayers/example
