@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:audioplayers_example/main.dart' as app;
@@ -88,12 +89,12 @@ void main() {
       if (features.hasUrlSource)
         SourceTestData(
           sourceKey: 'url-remote-wav-2',
-          duration: const Duration(seconds: 1, milliseconds: 067),
+          duration: const Duration(seconds: 1, milliseconds: 068),
         ),
       if (features.hasUrlSource)
         SourceTestData(
           sourceKey: 'url-remote-mp3-1',
-          duration: const Duration(minutes: 3, seconds: 30, milliseconds: 76),
+          duration: const Duration(minutes: 3, seconds: 30, milliseconds: 77),
         ),
       if (features.hasUrlSource)
         SourceTestData(
@@ -108,7 +109,7 @@ void main() {
       if (features.hasAssetSource)
         SourceTestData(
           sourceKey: 'asset-wav',
-          duration: const Duration(seconds: 1, milliseconds: 067),
+          duration: const Duration(seconds: 1, milliseconds: 068),
         ),
       if (features.hasAssetSource)
         SourceTestData(
@@ -118,7 +119,7 @@ void main() {
       if (features.hasBytesSource)
         SourceTestData(
           sourceKey: 'bytes-local',
-          duration: const Duration(seconds: 1, milliseconds: 067),
+          duration: const Duration(seconds: 1, milliseconds: 068),
         ),
       if (features.hasBytesSource)
         SourceTestData(
@@ -133,47 +134,40 @@ void main() {
         Future<void> testDuration() async {
           await tester.tap(find.byKey(const Key('getDuration')));
           await tester.pumpAndSettle();
-          expect(
-            find.byKeyAndText(
-              const Key('durationText'),
-              text: audioSourceTestData.duration.toString(),
+          expectWidgetHasText(
+            const Key('durationText'),
+            // Calculation of duration only is precise up to hundredth of a second
+            matcher: contains(
+              audioSourceTestData.duration.toString().substring(0, 10),
             ),
-            findsOneWidget,
           );
         }
 
         Future<void> testPosition(String positionStr) async {
           await tester.tap(find.byKey(const Key('getPosition')));
           await tester.pumpAndSettle();
-          expect(
-            find.byKeyAndText(
-              const Key('positionText'),
-              text: positionStr,
-            ),
-            findsOneWidget,
+          expectWidgetHasText(
+            const Key('positionText'),
+            matcher: contains(positionStr),
           );
         }
 
         Future<void> testOnDuration() async {
           if (features.hasDurationEvent) {
-            expect(
-              find.byKeyAndText(
-                const Key('onDurationText'),
-                text: 'Stream Duration: ${audioSourceTestData.duration}',
+            expectWidgetHasText(
+              const Key('onDurationText'),
+              matcher: contains(
+                'Stream Duration: ${audioSourceTestData.duration.toString().substring(0, 10)}',
               ),
-              findsOneWidget,
             );
           }
         }
 
         Future<void> testOnPosition(String positionStr) async {
           if (features.hasPositionEvent) {
-            expect(
-              find.byKeyAndText(
-                const Key('onPositionText'),
-                text: 'Stream Position: $positionStr',
-              ),
-              findsOneWidget,
+            expectWidgetHasText(
+              const Key('onPositionText'),
+              matcher: contains('Stream Position: $positionStr'),
             );
           }
         }
@@ -185,8 +179,21 @@ void main() {
         await tester.tap(find.byKey(const Key('sourcesTab')));
         await tester.pumpAndSettle();
 
-        await tester
-            .tap(find.byKey(Key('setSource-${audioSourceTestData.sourceKey}')));
+        await tester.tap(
+          find.byKey(Key('setSource-${audioSourceTestData.sourceKey}')),
+        );
+
+        await tester.tap(find.byKey(const Key('sourcesTab')));
+
+        await tester.pumpAndSettle();
+
+        await waitFor(
+          () => expectWidgetHasText(
+            const Key('isSourceSet'),
+            matcher: equals('Source is set'),
+          ),
+          tester,
+        );
 
         // Streams
         await tester.tap(find.byKey(const Key('streamsTab')));
@@ -259,25 +266,63 @@ void main() {
   });
 }
 
-extension on CommonFinders {
-  Finder byKeyAndText(
-    Key key, {
-    required String text,
-    bool skipOffstage = true,
-  }) {
-    return find.byWidgetPredicate(
-      (widget) {
-        if (widget.key != key || widget is! Text) {
+void expectWidgetHasText(
+  Key key, {
+  required Matcher matcher,
+  bool skipOffstage = true,
+}) {
+  final widget =
+      find.byKey(key, skipOffstage: skipOffstage).evaluate().single.widget;
+  if (widget is Text) {
+    expect(widget.data, matcher);
+  } else {
+    throw 'Widget with key $key is not a Widget of type "Text"';
+  }
+}
+
+Future<void> waitFor(void Function() testExpectation, WidgetTester tester) =>
+    waitUntil(
+      () async {
+        try {
+          await tester.pumpAndSettle();
+          testExpectation();
+          return true;
+        } on TestFailure {
           return false;
         }
-        if (widget.data != null && widget.data!.contains(text)) {
-          return true;
-        }
-        return false;
       },
-      skipOffstage: skipOffstage,
     );
-  }
+
+/// Waits until the [condition] returns true
+/// Will raise a complete with a [TimeoutException] if the
+/// condition does not return true with the timeout period.
+/// Copied from: https://github.com/jonsamwell/flutter_gherkin/blob/02a4af91d7a2512e0a4540b9b1ab13e36d5c6f37/lib/src/flutter/utils/driver_utils.dart#L86
+Future<void> waitUntil(
+  Future<bool> Function() condition, {
+  Duration? timeout = const Duration(seconds: 15),
+  Duration? pollInterval = const Duration(milliseconds: 500),
+}) async {
+  return Future.microtask(
+    () async {
+      final completer = Completer<void>();
+      final maxAttempts =
+          (timeout!.inMilliseconds / pollInterval!.inMilliseconds).round();
+      var attempts = 0;
+
+      while (attempts < maxAttempts) {
+        final result = await condition();
+        if (result) {
+          completer.complete();
+          break;
+        } else {
+          await Future<void>.delayed(pollInterval);
+        }
+        attempts++;
+      }
+    },
+  ).timeout(
+    timeout!,
+  );
 }
 
 enum UserPlatform {

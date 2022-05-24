@@ -4,7 +4,6 @@ import 'package:http/http.dart';
 
 import '../components/btn.dart';
 import '../components/tab_wrapper.dart';
-import '../utils.dart';
 
 const _wavUrl1 = 'https://luan.xyz/files/audio/coins.wav';
 const _wavUrl2 = 'https://luan.xyz/files/audio/laser.wav';
@@ -26,15 +25,22 @@ class SourcesTab extends StatefulWidget {
 }
 
 class _SourcesTabState extends State<SourcesTab> {
+  bool isSourceSet = false;
+
   void setSource(Source source) async {
+    setState(() => isSourceSet = false);
     await widget.player.setSource(source);
-    toast('Completed setting source.');
+    setState(() => isSourceSet = true);
   }
 
   @override
   Widget build(BuildContext context) {
     return TabWrapper(
       children: [
+        Text(
+          isSourceSet ? 'Source is set' : 'Source is not set',
+          key: const Key('isSourceSet'),
+        ),
         Btn(
           key: const Key('setSource-url-remote-wav-1'),
           txt: 'Remote URL WAV 1 - coins.wav',

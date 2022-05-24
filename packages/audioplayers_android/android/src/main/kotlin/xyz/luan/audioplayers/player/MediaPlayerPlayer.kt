@@ -86,7 +86,8 @@ class MediaPlayerPlayer(
     }
 
     override fun prepare() {
-        mediaPlayer.prepareAsync()
+        // TODO what to do with streams, etc.
+        mediaPlayer.prepare()
     }
 
     override fun reset() {
