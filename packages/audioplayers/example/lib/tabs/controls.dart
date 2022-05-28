@@ -42,6 +42,7 @@ class _ControlsTabState extends State<ControlsTab>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return TabWrapper(
       children: [
         Row(

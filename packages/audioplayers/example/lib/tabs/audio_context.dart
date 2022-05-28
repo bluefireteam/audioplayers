@@ -23,6 +23,7 @@ class _AudioContextTabState extends State<AudioContextTab>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return TabWrapper(
       children: [
         const Text('Audio Context'),

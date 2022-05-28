@@ -59,6 +59,7 @@ class _StreamsTabState extends State<StreamsTab>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return TabWrapper(
       children: [
         Row(

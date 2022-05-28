@@ -36,6 +36,7 @@ class _SourcesTabState extends State<SourcesTab>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return TabWrapper(
       children: [
         Text(
