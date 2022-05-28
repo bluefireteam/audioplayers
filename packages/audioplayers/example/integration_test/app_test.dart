@@ -223,7 +223,7 @@ void main() {
           // See https://github.com/flutter/flutter/issues/65575
           return;
         }
-        
+
         await tester.tap(find.byKey(const Key('play_button')));
         await tester.pumpAndSettle();
 
