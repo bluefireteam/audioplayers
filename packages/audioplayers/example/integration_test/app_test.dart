@@ -136,9 +136,11 @@ void main() {
           await tester.pumpAndSettle();
           expectWidgetHasText(
             const Key('durationText'),
-            // Calculation of duration only is precise up to hundredth of a second
+            // Precision for duration:
+            // Android: hundredth of a second
+            // Windows: second
             matcher: contains(
-              audioSourceTestData.duration.toString().substring(0, 10),
+              audioSourceTestData.duration.toString().substring(0, 8),
             ),
           );
         }
@@ -157,7 +159,7 @@ void main() {
             expectWidgetHasText(
               const Key('onDurationText'),
               matcher: contains(
-                'Stream Duration: ${audioSourceTestData.duration.toString().substring(0, 10)}',
+                'Stream Duration: ${audioSourceTestData.duration.toString().substring(0, 8)}',
               ),
             );
           }
@@ -199,8 +201,9 @@ void main() {
         await tester.tap(find.byKey(const Key('streamsTab')));
         await tester.pumpAndSettle();
 
+        final isAudioStream = audioSourceTestData.sourceKey.contains('m3u8');
         // Stream position is tracked as soon as source is loaded
-        if (!audioSourceTestData.sourceKey.contains('m3u8')) {
+        if (!isAudioStream) {
           // Display position before playing
           await testPosition('0:00:00.000000');
         }
@@ -209,7 +212,7 @@ void main() {
         final isImmediateDurationSupported = features.hasMp3Duration ||
             !audioSourceTestData.sourceKey.contains('mp3');
 
-        if (isImmediateDurationSupported) {
+        if (!isAudioStream && isImmediateDurationSupported) {
           // Display duration before playing
           await testDuration();
         }
@@ -218,18 +221,20 @@ void main() {
         await tester.pumpAndSettle();
 
         // Test if onDurationText is set immediately.
-        if (isImmediateDurationSupported) {
+        if (!isAudioStream && isImmediateDurationSupported) {
           await testOnDuration();
         }
 
         const sampleDuration = Duration(seconds: 2);
         await tester.pump(sampleDuration);
 
-        // Test if position is set.
-        // Cannot test more precisely as initialization takes some time and
-        // a longer sampleDuration would decelerate length of overall tests.
-        // Better test position update in seek mode.
-        await testOnPosition('0:00:0');
+        if (!isAudioStream) {
+          // Test if position is set.
+          // Cannot test more precisely as initialization takes some time and
+          // a longer sampleDuration would decelerate length of overall tests.
+          // TODO test position update in seek mode.
+          await testOnPosition('0:00:0');
+        }
 
         // Display duration after end / stop (some samples are shorter than sampleDuration, so this test would fail)
         // TODO Not possible at the moment (shows duration of 0)
@@ -261,8 +266,8 @@ void main() {
   });
 
   group('play multiple sources', () {
-    // TODO simultaneously
-    // TODO one after another
+    // TODO play sources simultaneously
+    // TODO play one source after another
   });
 }
 
