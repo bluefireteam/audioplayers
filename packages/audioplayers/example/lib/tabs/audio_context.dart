@@ -15,7 +15,8 @@ class AudioContextTab extends StatefulWidget {
   _AudioContextTabState createState() => _AudioContextTabState();
 }
 
-class _AudioContextTabState extends State<AudioContextTab> {
+class _AudioContextTabState extends State<AudioContextTab>
+    with AutomaticKeepAliveClientMixin<AudioContextTab> {
   static GlobalPlatformInterface get _global => AudioPlayer.global;
 
   AudioContextConfig config = AudioContextConfig();
@@ -122,4 +123,7 @@ class _AudioContextTabState extends State<AudioContextTab> {
       ],
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

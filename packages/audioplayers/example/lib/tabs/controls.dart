@@ -16,7 +16,8 @@ class ControlsTab extends StatefulWidget {
   State<ControlsTab> createState() => _ControlsTabState();
 }
 
-class _ControlsTabState extends State<ControlsTab> {
+class _ControlsTabState extends State<ControlsTab>
+    with AutomaticKeepAliveClientMixin<ControlsTab> {
   String modalInputSeek = '';
 
   void update(Future<void> Function() fn) async {
@@ -183,4 +184,7 @@ class _ControlsTabState extends State<ControlsTab> {
       ],
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

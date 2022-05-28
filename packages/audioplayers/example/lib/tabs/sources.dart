@@ -24,7 +24,8 @@ class SourcesTab extends StatefulWidget {
   State<SourcesTab> createState() => _SourcesTabState();
 }
 
-class _SourcesTabState extends State<SourcesTab> {
+class _SourcesTabState extends State<SourcesTab>
+    with AutomaticKeepAliveClientMixin<SourcesTab> {
   bool isSourceSet = false;
 
   void setSource(Source source) async {
@@ -96,4 +97,7 @@ class _SourcesTabState extends State<SourcesTab> {
       ],
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

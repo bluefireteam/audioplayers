@@ -18,7 +18,8 @@ class StreamsTab extends StatefulWidget {
   State<StreamsTab> createState() => _StreamsTabState();
 }
 
-class _StreamsTabState extends State<StreamsTab> {
+class _StreamsTabState extends State<StreamsTab>
+    with AutomaticKeepAliveClientMixin<StreamsTab> {
   Duration? position, duration;
   late List<StreamSubscription> streams;
 
@@ -107,4 +108,7 @@ class _StreamsTabState extends State<StreamsTab> {
       ],
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
