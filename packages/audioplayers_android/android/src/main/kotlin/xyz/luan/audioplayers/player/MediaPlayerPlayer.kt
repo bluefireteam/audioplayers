@@ -86,7 +86,6 @@ class MediaPlayerPlayer(
     }
 
     override fun prepare() {
-        // TODO what to do with streams, etc.
         mediaPlayer.prepare()
     }
 
