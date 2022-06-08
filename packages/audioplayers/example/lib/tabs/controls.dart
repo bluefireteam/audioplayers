@@ -18,7 +18,7 @@ class ControlsTab extends StatefulWidget {
 class _ControlsTabState extends State<ControlsTab> {
   String modalInputSeek = '';
 
-  void update(Future<void> Function() fn) async {
+  Future<void> update(Future<void> Function() fn) async {
     await fn();
     // update everyone who listens to "player"
     setState(() {});

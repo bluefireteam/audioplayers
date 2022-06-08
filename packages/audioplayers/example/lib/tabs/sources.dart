@@ -25,7 +25,7 @@ class SourcesTab extends StatefulWidget {
 }
 
 class _SourcesTabState extends State<SourcesTab> {
-  void setSource(Source source) async {
+  Future<void> setSource(Source source) async {
     await widget.player.setSource(source);
     toast('Completed setting source.');
   }

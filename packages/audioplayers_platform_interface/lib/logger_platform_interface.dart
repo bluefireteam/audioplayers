@@ -14,6 +14,7 @@ abstract class GlobalPlatformInterface {
 
   void log(LogLevel level, String message) {
     if (level.getLevel() <= logLevel.getLevel()) {
+      // ignore: avoid_print
       print(message);
     }
   }

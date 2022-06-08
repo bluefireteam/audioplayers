@@ -45,12 +45,12 @@ class _StreamsTabState extends State<StreamsTab> {
     streams.forEach((it) => it.cancel());
   }
 
-  void getPosition() async {
+  Future<void> getPosition() async {
     final position = await widget.player.getCurrentPosition();
     setState(() => this.position = position);
   }
 
-  void getDuration() async {
+  Future<void> getDuration() async {
     final duration = await widget.player.getDuration();
     setState(() => this.duration = duration);
   }
