@@ -476,7 +476,8 @@ enum AVAudioSessionCategory {
   /// Output only
   playback,
 
-  /// Silenced by the Ring/Silent switch and by screen locking = No (recording continues with screen locked)
+  /// Silenced by the Ring/Silent switch and by screen locking = No (recording
+  /// continues with screen locked)
   /// Interrupts nonmixable app’s audio = Yes
   /// Input only
   record,
