@@ -1,8 +1,7 @@
+import 'package:audioplayers_platform_interface/api/audio_context_config.dart';
+import 'package:audioplayers_platform_interface/api/log_level.dart';
+import 'package:audioplayers_platform_interface/method_channel_interface.dart';
 import 'package:flutter/services.dart';
-
-import 'api/audio_context_config.dart';
-import 'api/log_level.dart';
-import 'method_channel_interface.dart';
 
 abstract class GlobalPlatformInterface {
   static GlobalPlatformInterface instance = MethodChannelGlobalPlatform();
@@ -15,6 +14,7 @@ abstract class GlobalPlatformInterface {
 
   void log(LogLevel level, String message) {
     if (level.getLevel() <= logLevel.getLevel()) {
+      // ignore: avoid_print
       print(message);
     }
   }

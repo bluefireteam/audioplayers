@@ -1,13 +1,12 @@
 import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:audioplayers_example/components/btn.dart';
+import 'package:audioplayers_example/components/pad.dart';
+import 'package:audioplayers_example/components/player_widget.dart';
+import 'package:audioplayers_example/components/tab_wrapper.dart';
+import 'package:audioplayers_example/utils.dart';
 import 'package:flutter/material.dart';
-
-import '../components/btn.dart';
-import '../components/pad.dart';
-import '../components/player_widget.dart';
-import '../components/tab_wrapper.dart';
-import '../utils.dart';
 
 class StreamsTab extends StatefulWidget {
   final AudioPlayer player;
@@ -46,12 +45,12 @@ class _StreamsTabState extends State<StreamsTab> {
     streams.forEach((it) => it.cancel());
   }
 
-  void getPosition() async {
+  Future<void> getPosition() async {
     final position = await widget.player.getCurrentPosition();
     setState(() => this.position = position);
   }
 
-  void getDuration() async {
+  Future<void> getDuration() async {
     final duration = await widget.player.getDuration();
     setState(() => this.duration = duration);
   }
