@@ -1,9 +1,8 @@
 import 'package:audioplayers/audioplayers.dart';
+import 'package:audioplayers_example/components/btn.dart';
+import 'package:audioplayers_example/components/tab_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
-
-import '../components/btn.dart';
-import '../components/tab_wrapper.dart';
 
 const _wavUrl1 = 'https://luan.xyz/files/audio/coins.wav';
 const _wavUrl2 = 'https://luan.xyz/files/audio/laser.wav';
@@ -28,7 +27,7 @@ class _SourcesTabState extends State<SourcesTab>
     with AutomaticKeepAliveClientMixin<SourcesTab> {
   bool isSourceSet = false;
 
-  void setSource(Source source) async {
+  Future<void> setSource(Source source) async {
     setState(() => isSourceSet = false);
     await widget.player.setSource(source);
     setState(() => isSourceSet = true);
@@ -94,7 +93,7 @@ class _SourcesTabState extends State<SourcesTab>
             setSource(BytesSource(bytes));
           },
         ),
-        // TODO(luan) add local files via file picker
+        // TODO(luan): add local files via file picker
       ],
     );
   }

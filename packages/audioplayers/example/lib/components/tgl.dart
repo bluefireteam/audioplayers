@@ -15,9 +15,9 @@ class Tgl extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ToggleButtons(
-      children: options.map((it) => Text(it)).toList(),
       isSelected: options.asMap().keys.map((it) => it == selected).toList(),
       onPressed: onChange,
+      children: options.map((it) => Text(it)).toList(),
     );
   }
 }
