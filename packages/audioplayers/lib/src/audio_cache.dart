@@ -34,8 +34,8 @@ class AudioCache {
 
   /// This is the path inside your assets folder where your files lie.
   ///
-  /// For example, Flame uses the prefix 'assets/audio/' (you must include the
-  /// final slash!).
+  /// For example, Flame uses the prefix 'assets/audio/'
+  /// (you must include the final slash!).
   /// The default prefix (if not provided) is 'assets/'
   /// Your files will be found at <prefix><fileName> (so the trailing slash is
   /// crucial).
