@@ -38,8 +38,8 @@ class AudioContextConfig {
   /// On Android, this will make an Audio Focus request with
   /// AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK when your audio starts playing.
   ///
-  /// On iOS, this will set the option `.duckOthers` option (the option
-  /// `.mixWithOthers` is always set, regardless of these flags).
+  /// On iOS, this will set the option `.duckOthers` option
+  /// (the option `.mixWithOthers` is always set, regardless of these flags).
   /// Note that, on iOS, this forces the category to be `.playAndRecord`, and
   /// thus is forbidden when [respectSilence] is set.
   final bool duckAudio;
@@ -67,8 +67,8 @@ class AudioContextConfig {
   /// On iOS, this will happen automatically as long as:
   ///  * the category is `.playAndRecord` (thus setting this is forbidden when
   ///    [respectSilence] is set)
-  ///  * the UIBackgroundModes audio key has been added to your app’s Info.plist
-  ///    (check our FAQ for more details on that)
+  ///  * the UIBackgroundModes audio key has been added to your app’s
+  ///    Info.plist (check our FAQ for more details on that)
   final bool stayAwake;
 
   AudioContextConfig({
@@ -318,12 +318,12 @@ enum AndroidUsageType {
   /// communication such as a chat, or SMS.
   notificationCommunicationInstant,
 
-  /// Usage value to use when the usage is notification for a non-immediate
-  /// type of communication such as e-mail.
+  /// Usage value to use when the usage is notification for a non-immediate type
+  /// of communication such as e-mail.
   notificationCommunicationDelayed,
 
-  /// Usage value to use when the usage is to attract the user's attention,
-  /// such as a reminder or low battery warning.
+  /// Usage value to use when the usage is to attract the user's attention, such
+  /// as a reminder or low battery warning.
   notificationEvent,
 
   /// Usage value to use when the usage is for accessibility, such as with a
@@ -413,8 +413,8 @@ enum AndroidAudioFocus {
 
   /// Used to indicate a temporary request of audio focus, anticipated to last a
   /// short amount of time, and where it is acceptable for other audio
-  /// applications to keep playing after having lowered their output level (also
-  /// referred to as "ducking").
+  /// applications to keep playing after having lowered their output level
+  /// (also referred to as "ducking").
   /// Examples of temporary changes are the playback of driving directions where
   /// playback of music in the background is acceptable.
   ///
@@ -470,9 +470,9 @@ enum AVAudioSessionCategory {
 
   /// Silenced by the Ring/Silent switch and by screen locking = No
   /// Interrupts nonmixable app’s audio = Yes by default; no by using override
-  /// switch
-  /// Note: the switch is the `.mixWithOthers` option (+ other options like
-  /// `.duckOthers`).
+  /// switch.
+  /// Note: the switch is the `.mixWithOthers` option
+  /// (+ other options like `.duckOthers`).
   /// Output only
   playback,
 
@@ -484,9 +484,9 @@ enum AVAudioSessionCategory {
 
   /// Silenced by the Ring/Silent switch and by screen locking = No
   /// Interrupts nonmixable app’s audio = Yes by default; no by using override
-  /// switch
-  /// Note: the switch is the `.mixWithOthers` option (+ other options like
-  /// `.duckOthers`).
+  /// switch.
+  /// Note: the switch is the `.mixWithOthers` option
+  /// (+ other options like `.duckOthers`).
   /// Input and output
   playAndRecord,
 
