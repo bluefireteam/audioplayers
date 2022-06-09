@@ -1,9 +1,8 @@
 import 'dart:async';
 
+import 'package:audioplayers_platform_interface/api/for_player.dart';
+import 'package:audioplayers_platform_interface/api/player_state.dart';
 import 'package:flutter/foundation.dart';
-
-import 'api/for_player.dart';
-import 'api/player_state.dart';
 
 mixin StreamsInterface {
   void emitSeekComplete(String playerId) {

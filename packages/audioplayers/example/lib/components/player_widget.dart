@@ -153,7 +153,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     await player.stop();
     setState(() {
       _playerState = PlayerState.stopped;
-      _position = const Duration();
+      _position = Duration.zero;
     });
   }
 }

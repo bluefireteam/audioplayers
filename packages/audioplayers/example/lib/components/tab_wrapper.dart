@@ -16,8 +16,8 @@ class TabWrapper extends StatelessWidget {
             children: children
                 .map(
                   (w) => Container(
-                    child: w,
                     padding: const EdgeInsets.all(6.0),
+                    child: w,
                   ),
                 )
                 .toList(),
