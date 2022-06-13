@@ -104,7 +104,7 @@ void main() {
       if (features.hasUrlSource)
         SourceTestData(
           sourceKey: 'url-remote-m3u8',
-          duration: const Duration(),
+          duration: Duration.zero,
         ),
       if (features.hasAssetSource)
         SourceTestData(
@@ -160,7 +160,8 @@ void main() {
               () => expectWidgetHasText(
                 const Key('onDurationText'),
                 matcher: contains(
-                  'Stream Duration: ${audioSourceTestData.duration.toString().substring(0, 8)}',
+                  'Stream Duration: '
+                  '${audioSourceTestData.duration.toString().substring(0, 8)}',
                 ),
               ),
               tester,
@@ -245,12 +246,12 @@ void main() {
           // Test if position is set.
           // Cannot test more precisely as initialization takes some time and
           // a longer sampleDuration would decelerate length of overall tests.
-          // TODO test position update in seek mode.
+          // TODO(Gustl22): test position update in seek mode.
           await testOnPosition('0:00:0');
         }
 
         // Display duration after end / stop (some samples are shorter than sampleDuration, so this test would fail)
-        // TODO Not possible at the moment (shows duration of 0)
+        // TODO(Gustl22): Not possible at the moment (shows duration of 0)
         // await testDuration();
         // await testOnDuration();
 
@@ -258,7 +259,7 @@ void main() {
         await tester.tap(find.byKey(const Key('stop_button')));
 
         // Controls
-        // TODO test volume, rate, player mode, release mode, seek
+        // TODO(Gustl22): test volume, rate, player mode, release mode, seek
         // await tester.tap(find.byKey(const Key('controlsTab')));
         // await tester.pumpAndSettle();
 
@@ -266,12 +267,12 @@ void main() {
         // await Future<void>.delayed(const Duration(seconds: 1));
 
         // Audio context
-        // TODO test generic flags
+        // TODO(Gustl22): test generic flags
         // await tester.tap(find.byKey(const Key('audioContextTab')));
         // await tester.pumpAndSettle();
 
         // Logs
-        // TODO may test logs
+        // TODO(Gustl22): may test logs
         // await tester.tap(find.byKey(const Key('loggerTab')));
         // await tester.pumpAndSettle();
       });
@@ -279,8 +280,8 @@ void main() {
   });
 
   group('play multiple sources', () {
-    // TODO play sources simultaneously
-    // TODO play one source after another
+    // TODO(Gustl22): play sources simultaneously
+    // TODO(Gustl22): play one source after another
   });
 }
 
