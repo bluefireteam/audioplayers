@@ -299,15 +299,15 @@ extension on WidgetTester {
   /// condition does not return true with the timeout period.
   /// Copied from: https://github.com/jonsamwell/flutter_gherkin/blob/02a4af91d7a2512e0a4540b9b1ab13e36d5c6f37/lib/src/flutter/utils/driver_utils.dart#L86
   Future<void> _waitUntil(
-      Future<bool> Function() condition, {
-        Duration? timeout = const Duration(seconds: 15),
-        Duration? pollInterval = const Duration(milliseconds: 500),
-      }) async {
+    Future<bool> Function() condition, {
+    Duration? timeout = const Duration(seconds: 15),
+    Duration? pollInterval = const Duration(milliseconds: 500),
+  }) async {
     return Future.microtask(
-          () async {
+      () async {
         final completer = Completer<void>();
         final maxAttempts =
-        (timeout!.inMilliseconds / pollInterval!.inMilliseconds).round();
+            (timeout!.inMilliseconds / pollInterval!.inMilliseconds).round();
         var attempts = 0;
 
         while (attempts < maxAttempts) {
