@@ -156,20 +156,26 @@ void main() {
 
         Future<void> testOnDuration() async {
           if (features.hasDurationEvent) {
-            expectWidgetHasText(
-              const Key('onDurationText'),
-              matcher: contains(
-                'Stream Duration: ${audioSourceTestData.duration.toString().substring(0, 8)}',
+            await waitFor(
+              () => expectWidgetHasText(
+                const Key('onDurationText'),
+                matcher: contains(
+                  'Stream Duration: ${audioSourceTestData.duration.toString().substring(0, 8)}',
+                ),
               ),
+              tester,
             );
           }
         }
 
         Future<void> testOnPosition(String positionStr) async {
           if (features.hasPositionEvent) {
-            expectWidgetHasText(
-              const Key('onPositionText'),
-              matcher: contains('Stream Position: $positionStr'),
+            await waitFor(
+              () => expectWidgetHasText(
+                const Key('onPositionText'),
+                matcher: contains('Stream Position: $positionStr'),
+              ),
+              tester,
             );
           }
         }

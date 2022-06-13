@@ -64,20 +64,6 @@ class _StreamsTabState extends State<StreamsTab>
         Row(
           children: [
             Btn(
-              key: const Key('getPosition'),
-              txt: 'Get Position',
-              onPressed: getPosition,
-            ),
-            const Pad(width: 8.0),
-            Text(
-              position?.toString() ?? '-',
-              key: const Key('positionText'),
-            ),
-          ],
-        ),
-        Row(
-          children: [
-            Btn(
               key: const Key('getDuration'),
               txt: 'Get Duration',
               onPressed: getDuration,
@@ -86,6 +72,20 @@ class _StreamsTabState extends State<StreamsTab>
             Text(
               duration?.toString() ?? '-',
               key: const Key('durationText'),
+            ),
+          ],
+        ),
+        Row(
+          children: [
+            Btn(
+              key: const Key('getPosition'),
+              txt: 'Get Position',
+              onPressed: getPosition,
+            ),
+            const Pad(width: 8.0),
+            Text(
+              position?.toString() ?? '-',
+              key: const Key('positionText'),
             ),
           ],
         ),
