@@ -12,10 +12,10 @@ sudo apt-get install clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
 sudo apt-get install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
 ```
 
-Optional GStreamer Bad Plugins (e.g. for `.m3u8`):
+Optional GStreamer Plugins (e.g. for `.m3u8`):
 
 ```bash
-sudo apt-get install gstreamer1.0-plugins-bad
+sudo apt-get install gstreamer1.0-plugins-good gstreamer1.0-plugins-bad
 ```
 
 ## ArchLinux
