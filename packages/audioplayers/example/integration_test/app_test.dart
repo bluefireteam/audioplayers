@@ -131,56 +131,6 @@ void main() {
     for (final audioSourceTestData in audioTestDataList) {
       testWidgets('test source $audioSourceTestData',
           (WidgetTester tester) async {
-        Future<void> testDuration() async {
-          await tester.tap(find.byKey(const Key('getDuration')));
-          await tester.pumpAndSettle();
-          expectWidgetHasText(
-            const Key('durationText'),
-            // Precision for duration:
-            // Android: hundredth of a second
-            // Windows: second
-            matcher: contains(
-              audioSourceTestData.duration.toString().substring(0, 8),
-            ),
-          );
-        }
-
-        Future<void> testPosition(String positionStr) async {
-          await tester.tap(find.byKey(const Key('getPosition')));
-          await tester.pumpAndSettle();
-          expectWidgetHasText(
-            const Key('positionText'),
-            matcher: contains(positionStr),
-          );
-        }
-
-        Future<void> testOnDuration() async {
-          if (features.hasDurationEvent) {
-            await waitFor(
-              () => expectWidgetHasText(
-                const Key('onDurationText'),
-                matcher: contains(
-                  'Stream Duration: '
-                  '${audioSourceTestData.duration.toString().substring(0, 8)}',
-                ),
-              ),
-              tester,
-            );
-          }
-        }
-
-        Future<void> testOnPosition(String positionStr) async {
-          if (features.hasPositionEvent) {
-            await waitFor(
-              () => expectWidgetHasText(
-                const Key('onPositionText'),
-                matcher: contains('Stream Position: $positionStr'),
-              ),
-              tester,
-            );
-          }
-        }
-
         app.main();
         await tester.pumpAndSettle();
 
@@ -188,20 +138,18 @@ void main() {
         await tester.tap(find.byKey(const Key('sourcesTab')));
         await tester.pumpAndSettle();
 
-        await tester.tap(
-          find.byKey(Key('setSource-${audioSourceTestData.sourceKey}')),
-        );
+        final sourceWidgetKey =
+            Key('setSource-${audioSourceTestData.sourceKey}');
+        await tester.scrollTo(sourceWidgetKey);
+        await tester.tap(find.byKey(sourceWidgetKey));
 
-        await tester.tap(find.byKey(const Key('sourcesTab')));
-
-        await tester.pumpAndSettle();
-
-        await waitFor(
+        const sourceSetKey = Key('isSourceSet');
+        await tester.scrollTo(sourceSetKey);
+        await tester.waitFor(
           () => expectWidgetHasText(
-            const Key('isSourceSet'),
+            sourceSetKey,
             matcher: equals('Source is set'),
           ),
-          tester,
         );
 
         // Streams
@@ -212,7 +160,7 @@ void main() {
         // Stream position is tracked as soon as source is loaded
         if (!isAudioStream) {
           // Display position before playing
-          await testPosition('0:00:00.000000');
+          await tester.testPosition('0:00:00.000000');
         }
 
         // MP3 duration is estimated: https://bugzilla.gnome.org/show_bug.cgi?id=726144
@@ -221,7 +169,7 @@ void main() {
 
         if (!isAudioStream && isImmediateDurationSupported) {
           // Display duration before playing
-          await testDuration();
+          await tester.testDuration(audioSourceTestData);
         }
 
         if (kIsWeb) {
@@ -236,7 +184,7 @@ void main() {
 
         // Test if onDurationText is set immediately.
         if (!isAudioStream && isImmediateDurationSupported) {
-          await testOnDuration();
+          await tester.testOnDuration(audioSourceTestData);
         }
 
         const sampleDuration = Duration(seconds: 2);
@@ -247,7 +195,7 @@ void main() {
           // Cannot test more precisely as initialization takes some time and
           // a longer sampleDuration would decelerate length of overall tests.
           // TODO(Gustl22): test position update in seek mode.
-          await testOnPosition('0:00:0');
+          await tester.testOnPosition('0:00:0');
         }
 
         // Display duration after end / stop (some samples are shorter than sampleDuration, so this test would fail)
@@ -285,6 +233,109 @@ void main() {
   });
 }
 
+extension on WidgetTester {
+  Future<void> testDuration(SourceTestData sourceTestData) async {
+    await tap(find.byKey(const Key('getDuration')));
+    await pumpAndSettle();
+    expectWidgetHasText(
+      const Key('durationText'),
+      // Precision for duration:
+      // Android: hundredth of a second
+      // Windows: second
+      matcher: contains(
+        sourceTestData.duration.toString().substring(0, 8),
+      ),
+    );
+  }
+
+  Future<void> testPosition(String positionStr) async {
+    await tap(find.byKey(const Key('getPosition')));
+    await pumpAndSettle();
+    expectWidgetHasText(
+      const Key('positionText'),
+      matcher: contains(positionStr),
+    );
+  }
+
+  Future<void> testOnDuration(SourceTestData sourceTestData) async {
+    if (features.hasDurationEvent) {
+      await waitFor(
+        () => expectWidgetHasText(
+          const Key('onDurationText'),
+          matcher: contains(
+            'Stream Duration: '
+            '${sourceTestData.duration.toString().substring(0, 8)}',
+          ),
+        ),
+      );
+    }
+  }
+
+  Future<void> testOnPosition(String positionStr) async {
+    if (features.hasPositionEvent) {
+      await waitFor(
+        () => expectWidgetHasText(
+          const Key('onPositionText'),
+          matcher: contains('Stream Position: $positionStr'),
+        ),
+      );
+    }
+  }
+
+  Future<void> waitFor(void Function() testExpectation) => _waitUntil(
+        () async {
+          try {
+            await pumpAndSettle();
+            testExpectation();
+            return true;
+          } on TestFailure {
+            return false;
+          }
+        },
+      );
+
+  /// Waits until the [condition] returns true
+  /// Will raise a complete with a [TimeoutException] if the
+  /// condition does not return true with the timeout period.
+  /// Copied from: https://github.com/jonsamwell/flutter_gherkin/blob/02a4af91d7a2512e0a4540b9b1ab13e36d5c6f37/lib/src/flutter/utils/driver_utils.dart#L86
+  Future<void> _waitUntil(
+      Future<bool> Function() condition, {
+        Duration? timeout = const Duration(seconds: 15),
+        Duration? pollInterval = const Duration(milliseconds: 500),
+      }) async {
+    return Future.microtask(
+          () async {
+        final completer = Completer<void>();
+        final maxAttempts =
+        (timeout!.inMilliseconds / pollInterval!.inMilliseconds).round();
+        var attempts = 0;
+
+        while (attempts < maxAttempts) {
+          final result = await condition();
+          if (result) {
+            completer.complete();
+            break;
+          } else {
+            await Future<void>.delayed(pollInterval);
+          }
+          attempts++;
+        }
+      },
+    ).timeout(
+      timeout!,
+    );
+  }
+
+  Future<void> scrollTo(Key widgetKey) async {
+    await dragUntilVisible(
+      find.byKey(widgetKey),
+      find.byType(SingleChildScrollView).first,
+      const Offset(0, 100),
+    );
+    await pumpAndSettle();
+  }
+}
+
 void expectWidgetHasText(
   Key key, {
   required Matcher matcher,
@@ -297,51 +348,6 @@ void expectWidgetHasText(
   } else {
     throw 'Widget with key $key is not a Widget of type "Text"';
   }
-}
-
-Future<void> waitFor(void Function() testExpectation, WidgetTester tester) =>
-    waitUntil(
-      () async {
-        try {
-          await tester.pumpAndSettle();
-          testExpectation();
-          return true;
-        } on TestFailure {
-          return false;
-        }
-      },
-    );
-
-/// Waits until the [condition] returns true
-/// Will raise a complete with a [TimeoutException] if the
-/// condition does not return true with the timeout period.
-/// Copied from: https://github.com/jonsamwell/flutter_gherkin/blob/02a4af91d7a2512e0a4540b9b1ab13e36d5c6f37/lib/src/flutter/utils/driver_utils.dart#L86
-Future<void> waitUntil(
-  Future<bool> Function() condition, {
-  Duration? timeout = const Duration(seconds: 15),
-  Duration? pollInterval = const Duration(milliseconds: 500),
-}) async {
-  return Future.microtask(
-    () async {
-      final completer = Completer<void>();
-      final maxAttempts =
-          (timeout!.inMilliseconds / pollInterval!.inMilliseconds).round();
-      var attempts = 0;
-
-      while (attempts < maxAttempts) {
-        final result = await condition();
-        if (result) {
-          completer.complete();
-          break;
-        } else {
-          await Future<void>.delayed(pollInterval);
-        }
-        attempts++;
-      }
-    },
-  ).timeout(
-    timeout!,
-  );
 }
 
 enum UserPlatform {
