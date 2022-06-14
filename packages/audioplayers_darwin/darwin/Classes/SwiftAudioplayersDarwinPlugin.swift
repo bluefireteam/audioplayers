@@ -176,6 +176,8 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
             // Note: there is no "release" on iOS; hence we only care if it's looping or not
             let looping = releaseMode.hasSuffix("loop")
             player.looping = looping
+        } else if method == "setPlayerMode" {
+            // no-op for darwin; only one player mode
         } else if method == "setAudioContext" {
             Logger.error("iOS does not allow for player-specific audio contexts; use setGlobalAudioContext instead.")
             result(0)
