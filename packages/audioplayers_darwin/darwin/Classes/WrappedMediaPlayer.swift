@@ -139,7 +139,7 @@ class WrappedMediaPlayer {
             }
         }
         
-        reference.controlAudioSession()
+        // reference.controlAudioSession()
         reference.onComplete(playerId: playerId)
     }
     
