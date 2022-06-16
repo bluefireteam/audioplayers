@@ -173,6 +173,13 @@ jobs:
          flutter build windows --release
      - name: Start audio server
        run: net start audiosrv
+     - name: Install virtual audio device
+       shell: powershell
+       run: |
+         Invoke-WebRequest https://github.com/duncanthrax/scream/releases/download/3.9/Scream3.9.zip -OutFile Scream3.9.zip
+         Expand-Archive -Path Scream3.9.zip -DestinationPath Scream
+         Import-Certificate -FilePath Scream\Install\driver\x64\Scream.cat -CertStoreLocation Cert:\LocalMachine\TrustedPublisher 
+         Scream\Install\helpers\devcon-x64.exe install Scream\Install\driver\x64\Scream.inf *Scream
      - name: Run Flutter Driver tests
        working-directory: ./packages/audioplayers/example
        run: "flutter test -d windows integration_test"
