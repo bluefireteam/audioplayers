@@ -171,6 +171,8 @@ jobs:
        working-directory: ./packages/audioplayers/example
        run: |
          flutter build windows --release
+     - name: Start audio server
+       run: net start audiosrv
      - name: Run Flutter Driver tests
        working-directory: ./packages/audioplayers/example
        run: "flutter test -d windows integration_test"
