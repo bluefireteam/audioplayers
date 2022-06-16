@@ -150,6 +150,7 @@ void main() {
             sourceSetKey,
             matcher: equals('Source is set'),
           ),
+          timeout: const Duration(seconds: 45),
         );
 
         // Streams
@@ -282,7 +283,11 @@ extension on WidgetTester {
     }
   }
 
-  Future<void> waitFor(void Function() testExpectation) => _waitUntil(
+  Future<void> waitFor(
+    void Function() testExpectation, {
+    Duration? timeout = const Duration(seconds: 15),
+  }) =>
+      _waitUntil(
         () async {
           try {
             await pumpAndSettle();
@@ -292,6 +297,7 @@ extension on WidgetTester {
             return false;
           }
         },
+        timeout: timeout,
       );
 
   /// Waits until the [condition] returns true
