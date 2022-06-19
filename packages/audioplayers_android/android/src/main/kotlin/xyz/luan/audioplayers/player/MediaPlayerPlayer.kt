@@ -48,6 +48,7 @@ class MediaPlayerPlayer(
     }
 
     override fun setSource(source: Source) {
+        reset()
         source.setForMediaPlayer(mediaPlayer)
     }
 

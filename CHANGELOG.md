@@ -3,6 +3,37 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2022-06-18
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`audioplayers` - `v1.0.1`](#audioplayers---v101)
+ - [`audioplayers_android` - `v1.0.1`](#audioplayers_android---v101)
+ - [`audioplayers_darwin` - `v1.0.1`](#audioplayers_darwin---v101)
+
+---
+
+#### `audioplayers` - `v1.0.1`
+
+ - **FIX**: Make sure onComplete resets the position even when not looping (#1175). ([6e6005ac](https://github.com/bluefireteam/audioplayers/commit/6e6005ac98765aeeea62208b58a6cc6d0cb4b084))
+
+#### `audioplayers_android` - `v1.0.1`
+
+ - **FIX**: getDuration, getPosition causes MEDIA_ERROR_UNKNOWN (#1172). ([51b4c73e](https://github.com/bluefireteam/audioplayers/commit/51b4c73eaff5c60d1c3c3e42ae783df07d34be09))
+
+#### `audioplayers_darwin` - `v1.0.1`
+
+ - **FIX**: Make sure onComplete resets the position even when not looping (#1175). ([6e6005ac](https://github.com/bluefireteam/audioplayers/commit/6e6005ac98765aeeea62208b58a6cc6d0cb4b084))
+
+
 ## 2022-06-12
 
 ### Changes
