@@ -131,11 +131,12 @@ class WrappedMediaPlayer {
         if !isPlaying {
             return
         }
-        
-        pause()
-        if looping {
-            seek(time: toCMTime(millis: 0)) {
+
+        seek(time: toCMTime(millis: 0)) {
+            if looping {
                 self.resume()
+            } else {
+                isPlaying = false
             }
         }
         
