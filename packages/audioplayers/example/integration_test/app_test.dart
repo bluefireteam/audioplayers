@@ -260,14 +260,19 @@ extension on WidgetTester {
 
   Future<void> testOnDuration(SourceTestData sourceTestData) async {
     if (features.hasDurationEvent) {
+      final durationStr = sourceTestData.duration.toString().substring(0, 8);
       await waitFor(
         () => expectWidgetHasText(
           const Key('onDurationText'),
           matcher: contains(
-            'Stream Duration: '
-            '${sourceTestData.duration.toString().substring(0, 8)}',
+            'Stream Duration: $durationStr',
           ),
         ),
+        stackTrace: [
+          StackTrace.current.toString(),
+          'Current: ${(find.byKey(const Key('onDurationText')).evaluate().single.widget as Text).data}',
+          'Expected: $durationStr',
+        ],
       );
     }
   }
@@ -279,13 +284,20 @@ extension on WidgetTester {
           const Key('onPositionText'),
           matcher: contains('Stream Position: $positionStr'),
         ),
+        stackTrace: [
+          StackTrace.current.toString(),
+          'Current: ${(find.byKey(const Key('onPositionText')).evaluate().single.widget as Text).data}',
+          'Expected: $positionStr',
+        ],
       );
     }
   }
 
+  // Add [stackTrace] to work around https://github.com/flutter/flutter/issues/89138
   Future<void> waitFor(
     void Function() testExpectation, {
-    Duration? timeout = const Duration(seconds: 15),
+    Duration? timeout = const Duration(seconds: 3),
+    List<String>? stackTrace,
   }) =>
       _waitUntil(
         () async {
@@ -298,6 +310,7 @@ extension on WidgetTester {
           }
         },
         timeout: timeout,
+        stackTrace: stackTrace,
       );
 
   /// Waits until the [condition] returns true
@@ -308,28 +321,33 @@ extension on WidgetTester {
     Future<bool> Function() condition, {
     Duration? timeout = const Duration(seconds: 15),
     Duration? pollInterval = const Duration(milliseconds: 500),
+    List<String>? stackTrace,
   }) async {
-    return Future.microtask(
-      () async {
-        final completer = Completer<void>();
-        final maxAttempts =
-            (timeout!.inMilliseconds / pollInterval!.inMilliseconds).round();
-        var attempts = 0;
+    try {
+      await Future.microtask(
+        () async {
+          final completer = Completer<void>();
+          final maxAttempts =
+              (timeout!.inMilliseconds / pollInterval!.inMilliseconds).round();
+          var attempts = 0;
 
-        while (attempts < maxAttempts) {
-          final result = await condition();
-          if (result) {
-            completer.complete();
-            break;
-          } else {
-            await Future<void>.delayed(pollInterval);
+          while (attempts < maxAttempts) {
+            final result = await condition();
+            if (result) {
+              completer.complete();
+              break;
+            } else {
+              await Future<void>.delayed(pollInterval);
+            }
+            attempts++;
           }
-          attempts++;
-        }
-      },
-    ).timeout(
-      timeout!,
-    );
+        },
+      ).timeout(
+        timeout!,
+      );
+    } on TimeoutException catch (e) {
+      throw Exception('$e\nStacktrace:\n${stackTrace?.join('\n')}');
+    }
   }
 
   Future<void> scrollTo(Key widgetKey) async {
