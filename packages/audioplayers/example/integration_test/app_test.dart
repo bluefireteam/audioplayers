@@ -261,6 +261,12 @@ extension on WidgetTester {
   Future<void> testOnDuration(SourceTestData sourceTestData) async {
     if (features.hasDurationEvent) {
       final durationStr = sourceTestData.duration.toString().substring(0, 8);
+      final currentDurationStr = (find
+              .byKey(const Key('onDurationText'))
+              .evaluate()
+              .single
+              .widget as Text)
+          .data;
       await waitFor(
         () => expectWidgetHasText(
           const Key('onDurationText'),
@@ -270,7 +276,7 @@ extension on WidgetTester {
         ),
         stackTrace: [
           StackTrace.current.toString(),
-          'Current: ${(find.byKey(const Key('onDurationText')).evaluate().single.widget as Text).data}',
+          'Current: $currentDurationStr',
           'Expected: $durationStr',
         ],
       );
@@ -279,6 +285,12 @@ extension on WidgetTester {
 
   Future<void> testOnPosition(String positionStr) async {
     if (features.hasPositionEvent) {
+      final currentPositionStr = (find
+              .byKey(const Key('onPositionText'))
+              .evaluate()
+              .single
+              .widget as Text)
+          .data;
       await waitFor(
         () => expectWidgetHasText(
           const Key('onPositionText'),
@@ -286,7 +298,7 @@ extension on WidgetTester {
         ),
         stackTrace: [
           StackTrace.current.toString(),
-          'Current: ${(find.byKey(const Key('onPositionText')).evaluate().single.widget as Text).data}',
+          'Current: $currentPositionStr',
           'Expected: $positionStr',
         ],
       );
