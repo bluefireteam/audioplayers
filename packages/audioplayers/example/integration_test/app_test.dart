@@ -145,12 +145,19 @@ void main() {
 
         const sourceSetKey = Key('isSourceSet');
         await tester.scrollTo(sourceSetKey);
+        final currentSourceSetStatusText =
+            (find.byKey(sourceSetKey).evaluate().single.widget as Text).data;
         await tester.waitFor(
           () => expectWidgetHasText(
             sourceSetKey,
             matcher: equals('Source is set'),
           ),
           timeout: const Duration(seconds: 45),
+          stackTrace: [
+            StackTrace.current.toString(),
+            'Current: $currentSourceSetStatusText',
+            'Expected: Source is set',
+          ],
         );
 
         // Streams
