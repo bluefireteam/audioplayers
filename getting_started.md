@@ -229,7 +229,7 @@ This Event is called when the audio finishes playing; it's used in the loop meth
 It does not fire when you interrupt the audio with pause or stop.
 
 ```dart
-  player.onPlayerCompletion.listen((event) {
+  player.onPlayerComplete.listen((event) {
     onComplete();
     setState(() {
       position = duration;
