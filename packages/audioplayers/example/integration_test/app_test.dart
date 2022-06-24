@@ -296,7 +296,7 @@ extension on WidgetTester {
   // Add [stackTrace] to work around https://github.com/flutter/flutter/issues/89138
   Future<void> waitFor(
     void Function() testExpectation, {
-    Duration? timeout = const Duration(seconds: 3),
+    Duration? timeout = const Duration(seconds: 15),
     List<String>? stackTrace,
   }) =>
       _waitUntil(
