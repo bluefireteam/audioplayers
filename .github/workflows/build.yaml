@@ -35,7 +35,7 @@ jobs:
 
      - uses: subosito/flutter-action@v2
        with:
-         channel: stable
+         channel: master
      - uses: bluefireteam/melos-action@main
 
      - name: Example App - Build web app
@@ -53,7 +53,7 @@ jobs:
          flutter drive \
           --driver=test_driver/integration_test.dart \
           --target=integration_test/app_test.dart \
-          -d web-server
+          -d web-server --web-browser-flag="--autoplay-policy=no-user-gesture-required"
 
   android:
     runs-on: macOS-latest

@@ -180,13 +180,6 @@ void main() {
           await tester.testDuration(audioSourceTestData);
         }
 
-        if (kIsWeb) {
-          // Cannot play on web: https://developer.chrome.com/blog/autoplay/
-          // Need to add flag: --autoplay-policy=no-user-gesture-required
-          // See https://github.com/flutter/flutter/issues/65575
-          return;
-        }
-
         await tester.tap(find.byKey(const Key('play_button')));
         await tester.pumpAndSettle();
 
