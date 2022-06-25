@@ -10,7 +10,7 @@ const _mp3Url1 = 'https://luan.xyz/files/audio/ambient_c_motion.mp3';
 const _mp3Url2 = 'https://luan.xyz/files/audio/nasa_on_a_mission.mp3';
 const _m3u8StreamUrl =
     'https://a.files.bbci.co.uk/media/live/manifesto/audio/simulcast/hls/nonuk/sbr_low/ak/bbc_radio_one.m3u8';
-const _mpgaStreamUrl ='https://timesradio.wireless.radio/stream';
+const _mpgaStreamUrl = 'https://timesradio.wireless.radio/stream';
 
 const _asset1 = 'laser.wav';
 const _asset2 = 'nasa_on_a_mission.mp3';
