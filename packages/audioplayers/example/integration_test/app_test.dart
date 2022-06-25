@@ -10,6 +10,7 @@ import 'package:integration_test/integration_test.dart';
 final PlatformFeatures features = kIsWeb
     ? PlatformFeatures(
         hasBytesSource: false,
+        hasPlaylistSourceType: false,
         hasLowLatency: false,
         hasReleaseMode: false,
         hasSeek: false,
@@ -101,10 +102,17 @@ void main() {
           sourceKey: 'url-remote-mp3-2',
           duration: const Duration(minutes: 1, seconds: 34, milliseconds: 119),
         ),
-      if (features.hasUrlSource)
+      if (features.hasUrlSource && features.hasPlaylistSourceType)
         SourceTestData(
           sourceKey: 'url-remote-m3u8',
           duration: Duration.zero,
+          isStream: true,
+        ),
+      if (features.hasUrlSource)
+        SourceTestData(
+          sourceKey: 'url-remote-mpga',
+          duration: Duration.zero,
+          isStream: true,
         ),
       if (features.hasAssetSource)
         SourceTestData(
@@ -164,9 +172,8 @@ void main() {
         await tester.tap(find.byKey(const Key('streamsTab')));
         await tester.pumpAndSettle();
 
-        final isAudioStream = audioSourceTestData.sourceKey.contains('m3u8');
         // Stream position is tracked as soon as source is loaded
-        if (!isAudioStream) {
+        if (!audioSourceTestData.isStream) {
           // Display position before playing
           await tester.testPosition('0:00:00.000000');
         }
@@ -175,7 +182,7 @@ void main() {
         final isImmediateDurationSupported = features.hasMp3Duration ||
             !audioSourceTestData.sourceKey.contains('mp3');
 
-        if (!isAudioStream && isImmediateDurationSupported) {
+        if (!audioSourceTestData.isStream && isImmediateDurationSupported) {
           // Display duration before playing
           await tester.testDuration(audioSourceTestData);
         }
@@ -184,14 +191,14 @@ void main() {
         await tester.pumpAndSettle();
 
         // Test if onDurationText is set immediately.
-        if (!isAudioStream && isImmediateDurationSupported) {
+        if (!audioSourceTestData.isStream && isImmediateDurationSupported) {
           await tester.testOnDuration(audioSourceTestData);
         }
 
         const sampleDuration = Duration(seconds: 2);
         await tester.pump(sampleDuration);
 
-        if (!isAudioStream) {
+        if (!audioSourceTestData.isStream) {
           // Test if position is set.
           // Cannot test more precisely as initialization takes some time and
           // a longer sampleDuration would decelerate length of overall tests.
@@ -401,11 +408,21 @@ class SourceTestData {
 
   Duration duration;
 
-  SourceTestData({required this.sourceKey, required this.duration});
+  bool isStream;
+
+  SourceTestData({
+    required this.sourceKey,
+    required this.duration,
+    this.isStream = false,
+  });
 
   @override
   String toString() {
-    return 'SourceTestData(sourceKey: $sourceKey, duration: $duration)';
+    return 'SourceTestData('
+        'sourceKey: $sourceKey, '
+        'duration: $duration, '
+        'isStream: $isStream'
+        ')';
   }
 }
 
@@ -413,6 +430,8 @@ class PlatformFeatures {
   final bool hasUrlSource;
   final bool hasAssetSource;
   final bool hasBytesSource;
+
+  final bool hasPlaylistSourceType;
 
   final bool hasLowLatency; // Not yet tested
   final bool hasReleaseMode; // Not yet tested
@@ -436,6 +455,7 @@ class PlatformFeatures {
     this.hasUrlSource = true,
     this.hasAssetSource = true,
     this.hasBytesSource = true,
+    this.hasPlaylistSourceType = true,
     this.hasLowLatency = true,
     this.hasReleaseMode = true,
     this.hasMp3Duration = true,

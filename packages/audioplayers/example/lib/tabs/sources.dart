@@ -8,8 +8,9 @@ const _wavUrl1 = 'https://luan.xyz/files/audio/coins.wav';
 const _wavUrl2 = 'https://luan.xyz/files/audio/laser.wav';
 const _mp3Url1 = 'https://luan.xyz/files/audio/ambient_c_motion.mp3';
 const _mp3Url2 = 'https://luan.xyz/files/audio/nasa_on_a_mission.mp3';
-const _streamUrl =
+const _m3u8StreamUrl =
     'https://a.files.bbci.co.uk/media/live/manifesto/audio/simulcast/hls/nonuk/sbr_low/ak/bbc_radio_one.m3u8';
+const _mpgaStreamUrl ='https://timesradio.wireless.radio/stream';
 
 const _asset1 = 'laser.wav';
 const _asset2 = 'nasa_on_a_mission.mp3';
@@ -64,8 +65,13 @@ class _SourcesTabState extends State<SourcesTab>
         ),
         Btn(
           key: const Key('setSource-url-remote-m3u8'),
-          txt: 'Remote URL 3 - BBC stream',
-          onPressed: () => setSource(UrlSource(_streamUrl)),
+          txt: 'Remote URL M3U8 3 - BBC stream',
+          onPressed: () => setSource(UrlSource(_m3u8StreamUrl)),
+        ),
+        Btn(
+          key: const Key('setSource-url-remote-mpga'),
+          txt: 'Remote URL MPGA 4 - Times stream',
+          onPressed: () => setSource(UrlSource(_mpgaStreamUrl)),
         ),
         Btn(
           key: const Key('setSource-asset-wav'),
