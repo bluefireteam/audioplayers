@@ -52,7 +52,7 @@ class WrappedPlayer {
     }
     Duration toDuration(num jsNum) => Duration(
           milliseconds:
-              (1000 * (jsNum.toString() == 'NaN' ? 0 : jsNum)).round(),
+              (1000 * (jsNum.isNaN || jsNum.isInfinite ? 0 : jsNum)).round(),
         );
 
     final p = player = AudioElement(currentUrl);
