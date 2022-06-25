@@ -160,7 +160,7 @@ void main() {
             sourceSetKey,
             matcher: equals('Source is set'),
           ),
-          timeout: const Duration(seconds: 45),
+          timeout: const Duration(seconds: 90),
           stackTrace: [
             StackTrace.current.toString(),
             'Current: $currentSourceSetStatusText',
