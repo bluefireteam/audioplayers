@@ -266,8 +266,6 @@ Flutter does not provide an easy way to play audio on your assets, but this clas
 
 It works as a cache because it keeps track of the copied files so that you can replay them without delay.
 
-You can find the full documentation for this class [here](https://github.com/luanpotter/audioplayers/blob/master/packages/audioplayers/doc/audio_cache.md).
-
 ### playerId
 
 By default, each time you initialize a new instance of AudioPlayer, a unique playerId is generated and assigned to it using the [uuid package](https://pub.dev/packages/uuid). This is used internally to route messages between multiple players, and it allows you to control multiple audios at the same time. If you want to specify the playerId, you can do so when creating the playing:
