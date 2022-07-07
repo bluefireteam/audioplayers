@@ -4,6 +4,10 @@ This tutorial should help you get started with the audioplayers library, coverin
 
 In order to install this package, add the [latest version](pub.dev/packages/audioplayers) of `audioplayers` to your `pubspec.yaml` file. This packages uses [the Federated Plugin](https://docs.flutter.dev/development/packages-and-plugins/developing-packages) guidelines to support multiple platforms, so it should just work on all supported platforms your app is built for without any extra configuration. You should not need to add the `audioplayers_*` packages directly.
 
+## Build Requirements
+
+Audioplayers for Linux (`audioplayers_linux`) is the only platform implementation which relies on additional dependencies. You need to fulfill [these requirements](packages/audioplayers_linux/requirements.md).
+
 ## AudioPlayer
 
 An `AudioPlayer` instance can play a single audio at a time (think of it as a single boombox). To create it, simply call the constructor:
@@ -261,8 +265,6 @@ In order to play Local Assets, you must use the `AudioCache` class. AudioCache i
 Flutter does not provide an easy way to play audio on your assets, but this class helps a lot. It actually copies the asset to a temporary folder in the device, where it is then played as a Local File.
 
 It works as a cache because it keeps track of the copied files so that you can replay them without delay.
-
-You can find the full documentation for this class [here](https://github.com/luanpotter/audioplayers/blob/master/packages/audioplayers/doc/audio_cache.md).
 
 ### playerId
 

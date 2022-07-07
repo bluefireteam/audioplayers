@@ -6,7 +6,7 @@ A Flutter plugin to play multiple simultaneously audio files, works for Android,
 
 <img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot1.png" width="250" /> <img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot2.png" width="250" /> <img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot3.png" width="250" />
 
-**Note**: all the docs have been update to reflect the content for the v1 release (currently `1.0.0-rc.4`). If you are looking for v0 specific information and guidance, please checkout [the version of this repo before the first v0 change](https://github.com/bluefireteam/audioplayers/tree/46816bf55859c9c88b204e3828cce6190ff87483).
+**Note**: all the docs have been update to reflect the content for the v1 release. If you are looking for v0 specific information and guidance, please checkout [the version of this repo before the first v0 change](https://github.com/bluefireteam/audioplayers/tree/46816bf55859c9c88b204e3828cce6190ff87483).
 
 If you are interest in migrating to v1, please check [our migration guide](migration_guide.md).
 
@@ -38,7 +38,7 @@ We tried to make audioplayers as simple to use as possible.
 
 Please follow our [Getting Started tutorial](getting_started.md) for all high-level information you need to know.
 
-Then, if you want to dig deeper, our code is very well documented with dartdocs, so check [our API reference](https://pub.dev/documentation/audioplayers/1.0.0-rc.1/) or the codebase itself on your IDE (or on GitHub).
+Then, if you want to dig deeper, our code is very well documented with dartdocs, so check [our API reference](https://pub.dev/documentation/audioplayers/latest/) or the codebase itself on your IDE (or on GitHub).
 
 If something is not clear on our docs, please send a PR to help us improve.
 
