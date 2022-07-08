@@ -241,21 +241,6 @@ It does not fire when you interrupt the audio with pause or stop.
   });
 ```
 
-#### Error Event
-
-This is called when an unexpected error is thrown in the native code.
-
-```dart
-  player.onPlayerError.listen((msg) {
-    print('audioPlayer error : $msg');
-    setState(() {
-      playerState = PlayerState.stopped;
-      duration = Duration(seconds: 0);
-      position = Duration(seconds: 0);
-    });
-  });
-```
-
 ## Advanced Concepts
 
 ### AudioCache
