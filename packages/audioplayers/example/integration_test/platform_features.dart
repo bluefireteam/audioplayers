@@ -26,6 +26,7 @@ class PlatformFeatures {
 
   static const iosPlatformFeatures = PlatformFeatures(
     hasBytesSource: false,
+    hasPlaylistSourceType: false,
     hasLowLatency: false,
     hasDuckAudio: false,
   );
@@ -43,7 +44,6 @@ class PlatformFeatures {
 
   static const linuxPlatformFeatures = PlatformFeatures(
     hasBytesSource: false,
-    hasPlaylistSourceType: false,
     hasLowLatency: false,
     hasMp3Duration: false,
     hasDuckAudio: false,
