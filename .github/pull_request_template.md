@@ -18,7 +18,7 @@ relevant checkboxes (`[x]`). This will ensure a smooth and quick review process.
 
 ## Breaking Change
 
-<!-- Does your PR require Flame users to manually update their apps to accommodate your change? 
+<!-- Does your PR require audioplayers users to manually update their apps to accommodate your change? 
 
 If the PR is a breaking change this should be indicated with suffix "!" 
 (for example, `feat!:`, `fix!:`). See [Conventional Commit] for details.
