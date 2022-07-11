@@ -17,7 +17,8 @@ class StreamsTab extends StatefulWidget {
   State<StreamsTab> createState() => _StreamsTabState();
 }
 
-class _StreamsTabState extends State<StreamsTab> {
+class _StreamsTabState extends State<StreamsTab>
+    with AutomaticKeepAliveClientMixin<StreamsTab> {
   Duration? position, duration;
   late List<StreamSubscription> streams;
 
@@ -57,36 +58,57 @@ class _StreamsTabState extends State<StreamsTab> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return TabWrapper(
       children: [
         Row(
           children: [
             Btn(
-              txt: 'getPosition',
-              onPressed: getPosition,
+              key: const Key('getDuration'),
+              txt: 'Get Duration',
+              onPressed: getDuration,
             ),
             const Pad(width: 8.0),
-            Text(position?.toString() ?? '-'),
+            Text(
+              duration?.toString() ?? '-',
+              key: const Key('durationText'),
+            ),
           ],
         ),
         Row(
           children: [
             Btn(
-              txt: 'getDuration',
-              onPressed: getDuration,
+              key: const Key('getPosition'),
+              txt: 'Get Position',
+              onPressed: getPosition,
             ),
             const Pad(width: 8.0),
-            Text(duration?.toString() ?? '-'),
+            Text(
+              position?.toString() ?? '-',
+              key: const Key('positionText'),
+            ),
           ],
         ),
         const Divider(color: Colors.black),
         const Text('Streams'),
-        Text('Stream Duration: $streamDuration'),
-        Text('Stream Position: $streamPosition'),
-        Text('Stream State: $state'),
+        Text(
+          'Stream Duration: $streamDuration',
+          key: const Key('onDurationText'),
+        ),
+        Text(
+          'Stream Position: $streamPosition',
+          key: const Key('onPositionText'),
+        ),
+        Text(
+          'Stream State: $state',
+          key: const Key('onStateText'),
+        ),
         const Divider(color: Colors.black),
         PlayerWidget(player: widget.player),
       ],
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
