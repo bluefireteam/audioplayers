@@ -52,7 +52,7 @@ Affected Platforms: <!-- all, android, ios, web, macos, linux, windows -->
      (if any, probably none) are necessary on the api level to add it to platform Y).
 -->
 <!-- Secondly, asses in which platforms this make sense to be added. 
-     Especially web/macos. There are some features that just don't make sense outside of the mobile world, for example. 
+     Especially web/desktop. There are some features that just don't make sense outside of the mobile world, for example. 
      Not everything needs to be present on all platforms. Please think about which platforms this should be added for, ideally. 
      That doesn't mean we will end up doing all of them to start, but just as the goal.
 -->
