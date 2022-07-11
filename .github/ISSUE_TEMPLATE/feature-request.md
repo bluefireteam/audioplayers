@@ -20,7 +20,7 @@ assignees: ''
 <!-- What API changes that are necessary?-->
 <!-- Are there any breaking changes expected? 
      Is it a new flag to pass through to android/ios?
-     Is it just manageable with some build in functions?
+     Is it just manageable with some built in functions?
 -->
 
 <details>
