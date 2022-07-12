@@ -30,12 +30,6 @@ extension WidgetTesterUtils on WidgetTester {
 
   Future<void> testOnDuration(SourceTestData sourceTestData) async {
     final durationStr = sourceTestData.duration.toString().substring(0, 8);
-    final currentDurationStr = (find
-            .byKey(const Key('onDurationText'))
-            .evaluate()
-            .single
-            .widget as Text)
-        .data;
     await waitFor(
       () => expectWidgetHasText(
         const Key('onDurationText'),
@@ -43,31 +37,17 @@ extension WidgetTesterUtils on WidgetTester {
           'Stream Duration: $durationStr',
         ),
       ),
-      stackTrace: [
-        StackTrace.current.toString(),
-        'Current: $currentDurationStr',
-        'Expected: $durationStr',
-      ],
+      stackTrace: StackTrace.current.toString(),
     );
   }
 
   Future<void> testOnPosition(String positionStr) async {
-    final currentPositionStr = (find
-            .byKey(const Key('onPositionText'))
-            .evaluate()
-            .single
-            .widget as Text)
-        .data;
     await waitFor(
       () => expectWidgetHasText(
         const Key('onPositionText'),
         matcher: contains('Stream Position: $positionStr'),
       ),
-      stackTrace: [
-        StackTrace.current.toString(),
-        'Current: $currentPositionStr',
-        'Expected: $positionStr',
-      ],
+      stackTrace: StackTrace.current.toString(),
     );
   }
 
@@ -75,15 +55,16 @@ extension WidgetTesterUtils on WidgetTester {
   Future<void> waitFor(
     void Function() testExpectation, {
     Duration? timeout = const Duration(seconds: 15),
-    List<String>? stackTrace,
+    String? stackTrace,
   }) =>
       _waitUntil(
-        () async {
+        (setFailureMessage) async {
           try {
             await pumpAndSettle();
             testExpectation();
             return true;
-          } on TestFailure {
+          } on TestFailure catch (e) {
+            setFailureMessage(e.message ?? '');
             return false;
           }
         },
@@ -96,11 +77,14 @@ extension WidgetTesterUtils on WidgetTester {
   /// condition does not return true with the timeout period.
   /// Copied from: https://github.com/jonsamwell/flutter_gherkin/blob/02a4af91d7a2512e0a4540b9b1ab13e36d5c6f37/lib/src/flutter/utils/driver_utils.dart#L86
   Future<void> _waitUntil(
-    Future<bool> Function() condition, {
+    Future<bool> Function(Function(String message) setFailureMessage)
+        condition, {
     Duration? timeout = const Duration(seconds: 15),
     Duration? pollInterval = const Duration(milliseconds: 500),
-    List<String>? stackTrace,
+    String? stackTrace,
   }) async {
+    var firstFailureMsg = '';
+    var lastFailureMsg = '';
     try {
       await Future.microtask(
         () async {
@@ -110,7 +94,12 @@ extension WidgetTesterUtils on WidgetTester {
           var attempts = 0;
 
           while (attempts < maxAttempts) {
-            final result = await condition();
+            final result = await condition((String message) {
+              if (firstFailureMsg.isEmpty) {
+                firstFailureMsg = message;
+              }
+              lastFailureMsg = message;
+            });
             if (result) {
               completer.complete();
               break;
@@ -124,7 +113,16 @@ extension WidgetTesterUtils on WidgetTester {
         timeout!,
       );
     } on TimeoutException catch (e) {
-      throw Exception('$e\nStacktrace:\n${stackTrace?.join('\n')}');
+      throw Exception(
+        '''$e
+
+Stacktrace: 
+$stackTrace
+First Failure: 
+$firstFailureMsg
+Last Failure: 
+$lastFailureMsg''',
+      );
     }
   }
 
