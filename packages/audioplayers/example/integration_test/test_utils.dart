@@ -7,24 +7,28 @@ import 'source_test_data.dart';
 extension WidgetTesterUtils on WidgetTester {
   Future<void> testDuration(SourceTestData sourceTestData) async {
     await tap(find.byKey(const Key('getDuration')));
-    await pumpAndSettle();
-    expectWidgetHasText(
-      const Key('durationText'),
-      // Precision for duration:
-      // Android: hundredth of a second
-      // Windows: second
-      matcher: contains(
-        sourceTestData.duration.toString().substring(0, 8),
+    await waitFor(
+      () => expectWidgetHasText(
+        const Key('durationText'),
+        // Precision for duration:
+        // Android: hundredth of a second
+        // Windows: second
+        matcher: contains(
+          sourceTestData.duration.toString().substring(0, 8),
+        ),
       ),
+      timeout: const Duration(seconds: 2),
     );
   }
 
   Future<void> testPosition(String positionStr) async {
     await tap(find.byKey(const Key('getPosition')));
-    await pumpAndSettle();
-    expectWidgetHasText(
-      const Key('positionText'),
-      matcher: contains(positionStr),
+    await waitFor(
+      () => expectWidgetHasText(
+        const Key('positionText'),
+        matcher: contains(positionStr),
+      ),
+      timeout: const Duration(seconds: 2),
     );
   }
 
