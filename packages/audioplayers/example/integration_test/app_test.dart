@@ -1,11 +1,14 @@
 import 'package:audioplayers_example/main.dart' as app;
-import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
 import 'platform_features.dart';
 import 'source_test_data.dart';
-import 'test_utils.dart';
+import 'tabs/context_tab_test.dart';
+import 'tabs/controls_tab_test.dart';
+import 'tabs/logs_tab_test.dart';
+import 'tabs/source_tab_test.dart';
+import 'tabs/stream_tab_test.dart';
 
 void main() {
   final features = PlatformFeatures.instance();
@@ -85,11 +88,11 @@ void main() {
         app.main();
         await tester.pumpAndSettle();
 
-        await _testSourcesTab(tester, audioSourceTestData, features);
-        await _testControlsTab(tester, audioSourceTestData, features);
-        await _testStreamsTab(tester, audioSourceTestData, features);
-        await _testContextTab(tester, audioSourceTestData, features);
-        await _testLogsTab(tester, audioSourceTestData, features);
+        await testSourcesTab(tester, audioSourceTestData, features);
+        await testControlsTab(tester, audioSourceTestData, features);
+        await testStreamsTab(tester, audioSourceTestData, features);
+        await testContextTab(tester, audioSourceTestData, features);
+        await testLogsTab(tester, audioSourceTestData, features);
       });
     }
   });
@@ -98,117 +101,4 @@ void main() {
     // TODO(Gustl22): play sources simultaneously
     // TODO(Gustl22): play one source after another
   });
-}
-
-Future<void> _testSourcesTab(
-  WidgetTester tester,
-  SourceTestData audioSourceTestData,
-  PlatformFeatures features,
-) async {
-  await tester.tap(find.byKey(const Key('sourcesTab')));
-  await tester.pumpAndSettle();
-
-  final sourceWidgetKey = Key('setSource-${audioSourceTestData.sourceKey}');
-  await tester.scrollTo(sourceWidgetKey);
-  await tester.tap(find.byKey(sourceWidgetKey));
-
-  const sourceSetKey = Key('isSourceSet');
-  await tester.scrollTo(sourceSetKey);
-  await tester.waitFor(
-    () => expectWidgetHasText(
-      sourceSetKey,
-      matcher: equals('Source is set'),
-    ),
-    timeout: const Duration(seconds: 180),
-    stackTrace: StackTrace.current.toString(),
-  );
-}
-
-Future<void> _testControlsTab(
-  WidgetTester tester,
-  SourceTestData audioSourceTestData,
-  PlatformFeatures features,
-) async {
-  // TODO(Gustl22): test volume, rate, player mode, release mode, seek
-  // await tester.tap(find.byKey(const Key('controlsTab')));
-  // await tester.pumpAndSettle();
-
-  // await tester.tap(find.byKey(const Key('control-resume')));
-  // await Future<void>.delayed(const Duration(seconds: 1));
-}
-
-Future<void> _testStreamsTab(
-  WidgetTester tester,
-  SourceTestData audioSourceTestData,
-  PlatformFeatures features,
-) async {
-  await tester.tap(find.byKey(const Key('streamsTab')));
-  await tester.pumpAndSettle();
-
-  // Stream position is tracked as soon as source is loaded
-  if (!audioSourceTestData.isStream) {
-    // Display position before playing
-    await tester.testPosition('0:00:00.000000');
-  }
-
-  // MP3 duration is estimated: https://bugzilla.gnome.org/show_bug.cgi?id=726144
-  final isImmediateDurationSupported =
-      features.hasMp3Duration || !audioSourceTestData.sourceKey.contains('mp3');
-
-  if (!audioSourceTestData.isStream && isImmediateDurationSupported) {
-    // Display duration before playing
-    await tester.testDuration(audioSourceTestData);
-  }
-
-  await tester.tap(find.byKey(const Key('play_button')));
-  await tester.pumpAndSettle();
-
-  // Test if onDurationText is set immediately.
-  if (!audioSourceTestData.isStream && isImmediateDurationSupported) {
-    if (features.hasDurationEvent) {
-      await tester.testOnDuration(audioSourceTestData);
-    }
-  }
-
-  const sampleDuration = Duration(seconds: 2);
-  await tester.pump(sampleDuration);
-
-  if (!audioSourceTestData.isStream) {
-    // Test if position is set.
-    // Cannot test more precisely as initialization takes some time and
-    // a longer sampleDuration would decelerate length of overall tests.
-    // TODO(Gustl22): test position update in seek mode.
-    if (features.hasPositionEvent) {
-      await tester.testOnPosition('0:00:0');
-    }
-  }
-
-  // Display duration after end / stop (some samples are shorter than sampleDuration, so this test would fail)
-  // TODO(Gustl22): Not possible at the moment (shows duration of 0)
-  // await testDuration();
-  // await testOnDuration();
-
-  await tester.tap(find.byKey(const Key('pause_button')));
-  await tester.tap(find.byKey(const Key('stop_button')));
-}
-
-Future<void> _testContextTab(
-  WidgetTester tester,
-  SourceTestData audioSourceTestData,
-  PlatformFeatures features,
-) async {
-  // Audio context
-  // TODO(Gustl22): test generic flags
-  // await tester.tap(find.byKey(const Key('audioContextTab')));
-  // await tester.pumpAndSettle();
-}
-
-Future<void> _testLogsTab(
-  WidgetTester tester,
-  SourceTestData audioSourceTestData,
-  PlatformFeatures features,
-) async {
-  // TODO(Gustl22): may test logs
-  // await tester.tap(find.byKey(const Key('loggerTab')));
-  // await tester.pumpAndSettle();
 }
