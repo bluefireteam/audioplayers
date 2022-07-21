@@ -1,70 +1,91 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../platform_features.dart';
 import '../source_test_data.dart';
+import 'stream_tab_test.dart';
 
 Future<void> testControlsTab(
-    WidgetTester tester,
-    SourceTestData audioSourceTestData,
-    PlatformFeatures features,
-    ) async {
-  // TODO(Gustl22): test volume, rate, player mode, release mode, seek
+  WidgetTester tester,
+  SourceTestData audioSourceTestData,
+  PlatformFeatures features,
+) async {
   await tester.tap(find.byKey(const Key('controlsTab')));
   await tester.pumpAndSettle();
 
-  // await tester.tap(find.byKey(const Key('control-resume')));
-  // await Future<void>.delayed(const Duration(seconds: 1));
+  if (features.hasVolume) {
+    await tester.testVolume('0.5');
+    await tester.pump(const Duration(seconds: 1));
+    await tester.testVolume('2.0');
+    await tester.pump(const Duration(seconds: 1));
+    await tester.tap(find.byKey(const Key('control-stop')));
+  }
+
+  if (features.hasPlaybackRate) {
+    await tester.testRate('0.5');
+    await tester.pump(const Duration(seconds: 1));
+    await tester.testRate('2.0');
+    await tester.pump(const Duration(seconds: 1));
+    await tester.tap(find.byKey(const Key('control-stop')));
+  }
+
+  if (features.hasSeek) {
+    await tester.testSeek('0.5');
+    await tester.tap(find.byKey(const Key('streamsTab')));
+    await tester.pumpAndSettle();
+    await tester.testPosition(
+      Duration(milliseconds: audioSourceTestData.duration.inMilliseconds ~/ 2)
+          .toString()
+          .substring(0, 8),
+    );
+    await tester.tap(find.byKey(const Key('controlsTab')));
+    await tester.pumpAndSettle();
+    
+    await tester.pump(const Duration(seconds: 1));
+    await tester.testSeek('2.0');
+    await tester.pump(const Duration(seconds: 1));
+    await tester.tap(find.byKey(const Key('control-stop')));
+  }
+
+  if (features.hasLowLatency) {
+    await tester.testPlayerMode(PlayerMode.lowLatency);
+  }
+
+  if (features.hasReleaseMode) {
+    await tester.testReleaseMode(ReleaseMode.loop);
+    await tester.testReleaseMode(ReleaseMode.release);
+  }
 }
-//
-// extension ControlsWidgetTester on WidgetTester {
-//   Future<void> testDuration(SourceTestData sourceTestData) async {
-//     await tap(find.byKey(const Key('getDuration')));
-//     await waitFor(
-//       () => expectWidgetHasText(
-//         const Key('durationText'),
-//         // Precision for duration:
-//         // Android: hundredth of a second
-//         // Windows: second
-//         matcher: contains(
-//           sourceTestData.duration.toString().substring(0, 8),
-//         ),
-//       ),
-//       timeout: const Duration(seconds: 2),
-//     );
-//   }
-//
-//   Future<void> testPosition(String positionStr) async {
-//     await tap(find.byKey(const Key('getPosition')));
-//     await waitFor(
-//       () => expectWidgetHasText(
-//         const Key('positionText'),
-//         matcher: contains(positionStr),
-//       ),
-//       timeout: const Duration(seconds: 2),
-//     );
-//   }
-//
-//   Future<void> testOnDuration(SourceTestData sourceTestData) async {
-//     final durationStr = sourceTestData.duration.toString().substring(0, 8);
-//     await waitFor(
-//       () => expectWidgetHasText(
-//         const Key('onDurationText'),
-//         matcher: contains(
-//           'Stream Duration: $durationStr',
-//         ),
-//       ),
-//       stackTrace: StackTrace.current.toString(),
-//     );
-//   }
-//
-//   Future<void> testOnPosition(String positionStr) async {
-//     await waitFor(
-//       () => expectWidgetHasText(
-//         const Key('onPositionText'),
-//         matcher: contains('Stream Position: $positionStr'),
-//       ),
-//       stackTrace: StackTrace.current.toString(),
-//     );
-//   }
-// }
+
+extension ControlsWidgetTester on WidgetTester {
+  Future<void> testVolume(String volume) async {
+    await tap(find.byKey(Key('control-volume-$volume')));
+    await tap(find.byKey(const Key('control-resume')));
+    // TODO(Gustl22): get volume from native implementation
+  }
+
+  Future<void> testRate(String rate) async {
+    await tap(find.byKey(Key('control-rate-$rate')));
+    await tap(find.byKey(const Key('control-resume')));
+    // TODO(Gustl22): get rate from native implementation
+  }
+
+  Future<void> testSeek(String seek) async {
+    await tap(find.byKey(Key('control-rate-$seek')));
+    await tap(find.byKey(const Key('control-resume')));
+    // TODO(Gustl22): get seek from native implementation
+  }
+
+  Future<void> testPlayerMode(PlayerMode mode) async {
+    await tap(find.byKey(Key('control-player-mode-${mode.name}')));
+    await tap(find.byKey(const Key('control-resume')));
+    // TODO(Gustl22): get player mode from native implementation
+  }
+
+  Future<void> testReleaseMode(ReleaseMode mode) async {
+    await tap(find.byKey(Key('control-release-mode-${mode.name}')));
+    await tap(find.byKey(const Key('control-resume')));
+    // TODO(Gustl22): get release mode from native implementation
+  }
+}
