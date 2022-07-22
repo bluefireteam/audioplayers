@@ -51,6 +51,7 @@ extension WidgetTesterUtils on WidgetTester {
         const Key('onPositionText'),
         matcher: contains('Stream Position: $positionStr'),
       ),
+      pollInterval: const Duration(milliseconds: 250),
       stackTrace: StackTrace.current.toString(),
     );
   }
@@ -59,6 +60,7 @@ extension WidgetTesterUtils on WidgetTester {
   Future<void> waitFor(
     void Function() testExpectation, {
     Duration? timeout = const Duration(seconds: 15),
+    Duration? pollInterval = const Duration(milliseconds: 500),
     String? stackTrace,
   }) =>
       _waitUntil(
@@ -73,6 +75,7 @@ extension WidgetTesterUtils on WidgetTester {
           }
         },
         timeout: timeout,
+        pollInterval: pollInterval,
         stackTrace: stackTrace,
       );
 

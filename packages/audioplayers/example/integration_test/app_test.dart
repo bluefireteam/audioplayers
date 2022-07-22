@@ -134,18 +134,17 @@ void main() {
           }
         }
 
-        const sampleDuration = Duration(seconds: 2);
-        await tester.pump(sampleDuration);
-
         if (!audioSourceTestData.isStream) {
           // Test if position is set.
-          // Cannot test more precisely as initialization takes some time and
-          // a longer sampleDuration would decelerate length of overall tests.
+          // Cannot test more precisely as it is dependent on pollInterval.
           // TODO(Gustl22): test position update in seek mode.
           if (features.hasPositionEvent) {
-            await tester.testOnPosition('0:00:0');
+            await tester.testOnPosition('0:00:00');
           }
         }
+
+        const sampleDuration = Duration(seconds: 2);
+        await tester.pump(sampleDuration);
 
         // Display duration after end / stop (some samples are shorter than sampleDuration, so this test would fail)
         // TODO(Gustl22): Not possible at the moment (shows duration of 0)
