@@ -42,6 +42,15 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   }
 
   @override
+  void setState(VoidCallback fn) {
+    // Subscriptions only can be closed asynchronously,
+    // so events can occur after widget has been disposed.
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
+  @override
   void dispose() {
     _durationSubscription?.cancel();
     _positionSubscription?.cancel();
