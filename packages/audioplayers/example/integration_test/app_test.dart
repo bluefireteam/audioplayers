@@ -125,21 +125,21 @@ void main() {
         }
 
         await tester.tap(find.byKey(const Key('play_button')));
-        await tester.pumpAndSettle();
-
-        // Test if onDurationText is set immediately.
-        if (!audioSourceTestData.isStream && isImmediateDurationSupported) {
-          if (features.hasDurationEvent) {
-            await tester.testOnDuration(audioSourceTestData);
-          }
-        }
+        await tester.pump();
 
         if (!audioSourceTestData.isStream) {
-          // Test if position is set.
+          // Test if onPositionText is set.
           // Cannot test more precisely as it is dependent on pollInterval.
           // TODO(Gustl22): test position update in seek mode.
           if (features.hasPositionEvent) {
             await tester.testOnPosition('0:00:00');
+          }
+        }
+
+        if (!audioSourceTestData.isStream && isImmediateDurationSupported) {
+          // Test if onDurationText is set.
+          if (features.hasDurationEvent) {
+            await tester.testOnDuration(audioSourceTestData);
           }
         }
 

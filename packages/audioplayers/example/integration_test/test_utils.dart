@@ -66,7 +66,7 @@ extension WidgetTesterUtils on WidgetTester {
       _waitUntil(
         (setFailureMessage) async {
           try {
-            await pumpAndSettle();
+            await pump();
             testExpectation();
             return true;
           } on TestFailure catch (e) {
