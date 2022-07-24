@@ -39,7 +39,7 @@ void AudioPlayer::SetSourceUrl(std::string url) {
         // An application can skip this step and instantiate a custom IMFMediaSource implementation instead.
         winrt::com_ptr<IMFSourceResolver> sourceResolver;
         THROW_IF_FAILED(MFCreateSourceResolver(sourceResolver.put()));
-        constexpr uint32_t sourceResolutionFlags = MF_RESOLUTION_MEDIASOURCE | MF_RESOLUTION_READ;
+        constexpr uint32_t sourceResolutionFlags = MF_RESOLUTION_MEDIASOURCE | MF_RESOLUTION_CONTENT_DOES_NOT_HAVE_TO_MATCH_EXTENSION_OR_MIME_TYPE | MF_RESOLUTION_READ;
         MF_OBJECT_TYPE objectType = {};
         
         winrt::com_ptr<IMFMediaSource> mediaSource;
