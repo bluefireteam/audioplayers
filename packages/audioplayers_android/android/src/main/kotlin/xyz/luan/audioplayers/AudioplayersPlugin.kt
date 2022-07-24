@@ -159,6 +159,13 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
         channel.invokeMethod("audio.onDuration", buildArguments(player.playerId, player.getDuration() ?: 0))
     }
 
+    fun handlePosition(player: WrappedPlayer) {
+        channel.invokeMethod(
+            "audio.onCurrentPosition",
+            buildArguments(player.playerId, player.getCurrentPosition() ?: 0)
+        )
+    }
+
     fun handleComplete(player: WrappedPlayer) {
         channel.invokeMethod("audio.onComplete", buildArguments(player.playerId))
     }
