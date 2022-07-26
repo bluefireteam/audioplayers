@@ -20,6 +20,8 @@ Future<void> testControlsTab(
     await tester.pump(const Duration(seconds: 1));
     await tester.testVolume('2.0');
     await tester.pump(const Duration(seconds: 1));
+    await tester.testVolume('1.0');
+    await tester.pump(const Duration(seconds: 1));
     await tester.tap(find.byKey(const Key('control-stop')));
   }
 
@@ -27,6 +29,8 @@ Future<void> testControlsTab(
     await tester.testRate('0.5');
     await tester.pump(const Duration(seconds: 1));
     await tester.testRate('2.0');
+    await tester.pump(const Duration(seconds: 1));
+    await tester.testRate('1.0');
     await tester.pump(const Duration(seconds: 1));
     await tester.tap(find.byKey(const Key('control-stop')));
   }
