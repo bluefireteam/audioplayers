@@ -36,7 +36,7 @@ Future<void> testControlsTab(
   }
 
   if (features.hasSeek) {
-    await tester.testSeek('0.5');
+    await tester.testSeek('0.5', isResume: false);
     await tester.tap(find.byKey(const Key('streamsTab')));
     await tester.pumpAndSettle();
     await tester.testPosition(
@@ -48,18 +48,24 @@ Future<void> testControlsTab(
     await tester.pumpAndSettle();
     
     await tester.pump(const Duration(seconds: 1));
-    await tester.testSeek('2.0');
+    await tester.testSeek('1.0');
     await tester.pump(const Duration(seconds: 1));
     await tester.tap(find.byKey(const Key('control-stop')));
   }
 
   if (features.hasLowLatency) {
     await tester.testPlayerMode(PlayerMode.lowLatency);
+    await tester.pump(const Duration(seconds: 1));
+    await tester.tap(find.byKey(const Key('control-stop')));
   }
 
   if (features.hasReleaseMode) {
     await tester.testReleaseMode(ReleaseMode.loop);
+    await tester.pump(const Duration(seconds: 1));
+    await tester.tap(find.byKey(const Key('control-stop')));
     await tester.testReleaseMode(ReleaseMode.release);
+    await tester.pump(const Duration(seconds: 1));
+    await tester.tap(find.byKey(const Key('control-stop')));
   }
 }
 
@@ -78,11 +84,12 @@ extension ControlsWidgetTester on WidgetTester {
     // TODO(Gustl22): get rate from native implementation
   }
 
-  Future<void> testSeek(String seek) async {
+  Future<void> testSeek(String seek, {bool isResume = true}) async {
     printOnFailure('Test Seek: $seek');
-    await tap(find.byKey(Key('control-rate-$seek')));
-    await tap(find.byKey(const Key('control-resume')));
-    // TODO(Gustl22): get seek from native implementation
+    await tap(find.byKey(Key('control-seek-$seek')));
+    if(isResume) {
+      await tap(find.byKey(const Key('control-resume')));
+    }
   }
 
   Future<void> testPlayerMode(PlayerMode mode) async {
