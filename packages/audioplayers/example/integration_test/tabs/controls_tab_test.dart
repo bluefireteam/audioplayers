@@ -57,10 +57,15 @@ Future<void> testControlsTab(
     await tester.testPlayerMode(PlayerMode.lowLatency);
     await tester.pump(const Duration(seconds: 1));
     await tester.tap(find.byKey(const Key('control-stop')));
+    await tester.testPlayerMode(PlayerMode.mediaPlayer);
+    await tester.tap(find.byKey(const Key('control-stop')));
   }
 
   if (features.hasReleaseMode) {
     await tester.testReleaseMode(ReleaseMode.loop);
+    await tester.pump(const Duration(seconds: 1));
+    await tester.tap(find.byKey(const Key('control-stop')));
+    await tester.testReleaseMode(ReleaseMode.stop);
     await tester.pump(const Duration(seconds: 1));
     await tester.tap(find.byKey(const Key('control-stop')));
     await tester.testReleaseMode(ReleaseMode.release);
