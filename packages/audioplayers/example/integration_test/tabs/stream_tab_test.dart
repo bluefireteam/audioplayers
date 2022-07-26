@@ -10,6 +10,7 @@ Future<void> testStreamsTab(
   SourceTestData audioSourceTestData,
   PlatformFeatures features,
 ) async {
+  printOnFailure('Test Streams Tab');
   await tester.tap(find.byKey(const Key('streamsTab')));
   await tester.pumpAndSettle();
 
@@ -61,6 +62,8 @@ Future<void> testStreamsTab(
 
 extension StreamWidgetTester on WidgetTester {
   Future<void> testDuration(SourceTestData sourceTestData) async {
+    final durationStr = sourceTestData.duration.toString().substring(0, 8);
+    printOnFailure('Test Duration: $durationStr');
     await tap(find.byKey(const Key('getDuration')));
     await waitFor(
       () => expectWidgetHasText(
@@ -68,15 +71,15 @@ extension StreamWidgetTester on WidgetTester {
         // Precision for duration:
         // Android: hundredth of a second
         // Windows: second
-        matcher: contains(
-          sourceTestData.duration.toString().substring(0, 8),
-        ),
+        // Linux: second
+        matcher: contains(durationStr),
       ),
       timeout: const Duration(seconds: 2),
     );
   }
 
   Future<void> testPosition(String positionStr) async {
+    printOnFailure('Test Position: $positionStr');
     await tap(find.byKey(const Key('getPosition')));
     await waitFor(
       () => expectWidgetHasText(
@@ -89,6 +92,7 @@ extension StreamWidgetTester on WidgetTester {
 
   Future<void> testOnDuration(SourceTestData sourceTestData) async {
     final durationStr = sourceTestData.duration.toString().substring(0, 8);
+    printOnFailure('Test OnDuration: $durationStr');
     await waitFor(
       () => expectWidgetHasText(
         const Key('onDurationText'),
@@ -101,6 +105,7 @@ extension StreamWidgetTester on WidgetTester {
   }
 
   Future<void> testOnPosition(String positionStr) async {
+    printOnFailure('Test OnPosition: $positionStr');
     await waitFor(
       () => expectWidgetHasText(
         const Key('onPositionText'),

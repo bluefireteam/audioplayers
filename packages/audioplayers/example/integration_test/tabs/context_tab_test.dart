@@ -8,6 +8,7 @@ Future<void> testContextTab(
   SourceTestData audioSourceTestData,
   PlatformFeatures features,
 ) async {
+  printOnFailure('Test Context Tab');
   // Audio context
   // TODO(Gustl22): test generic flags
   // await tester.tap(find.byKey(const Key('audioContextTab')));

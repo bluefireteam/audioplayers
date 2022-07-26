@@ -11,9 +11,10 @@ Future<void> testControlsTab(
   SourceTestData audioSourceTestData,
   PlatformFeatures features,
 ) async {
+  printOnFailure('Test Controls Tab');
   await tester.tap(find.byKey(const Key('controlsTab')));
   await tester.pumpAndSettle();
-
+  
   if (features.hasVolume) {
     await tester.testVolume('0.5');
     await tester.pump(const Duration(seconds: 1));
@@ -60,30 +61,35 @@ Future<void> testControlsTab(
 
 extension ControlsWidgetTester on WidgetTester {
   Future<void> testVolume(String volume) async {
+    printOnFailure('Test Volume: $volume');
     await tap(find.byKey(Key('control-volume-$volume')));
     await tap(find.byKey(const Key('control-resume')));
     // TODO(Gustl22): get volume from native implementation
   }
 
   Future<void> testRate(String rate) async {
+    printOnFailure('Test Rate: $rate');
     await tap(find.byKey(Key('control-rate-$rate')));
     await tap(find.byKey(const Key('control-resume')));
     // TODO(Gustl22): get rate from native implementation
   }
 
   Future<void> testSeek(String seek) async {
+    printOnFailure('Test Seek: $seek');
     await tap(find.byKey(Key('control-rate-$seek')));
     await tap(find.byKey(const Key('control-resume')));
     // TODO(Gustl22): get seek from native implementation
   }
 
   Future<void> testPlayerMode(PlayerMode mode) async {
+    printOnFailure('Test Player Mode: ${mode.name}');
     await tap(find.byKey(Key('control-player-mode-${mode.name}')));
     await tap(find.byKey(const Key('control-resume')));
     // TODO(Gustl22): get player mode from native implementation
   }
 
   Future<void> testReleaseMode(ReleaseMode mode) async {
+    printOnFailure('Test Release Mode: ${mode.name}');
     await tap(find.byKey(Key('control-release-mode-${mode.name}')));
     await tap(find.byKey(const Key('control-resume')));
     // TODO(Gustl22): get release mode from native implementation

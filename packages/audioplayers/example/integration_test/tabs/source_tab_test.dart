@@ -10,6 +10,7 @@ Future<void> testSourcesTab(
   SourceTestData audioSourceTestData,
   PlatformFeatures features,
 ) async {
+  printOnFailure('Test Sources Tab');
   await tester.tap(find.byKey(const Key('sourcesTab')));
   await tester.pumpAndSettle();
 

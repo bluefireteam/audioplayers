@@ -8,6 +8,7 @@ Future<void> testLogsTab(
   SourceTestData audioSourceTestData,
   PlatformFeatures features,
 ) async {
+  printOnFailure('Test Logs Tab');
   // TODO(Gustl22): may test logs
   // await tester.tap(find.byKey(const Key('loggerTab')));
   // await tester.pumpAndSettle();
