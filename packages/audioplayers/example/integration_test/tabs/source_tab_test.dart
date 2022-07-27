@@ -14,18 +14,25 @@ Future<void> testSourcesTab(
   await tester.tap(find.byKey(const Key('sourcesTab')));
   await tester.pumpAndSettle();
 
-  final sourceWidgetKey = Key('setSource-${audioSourceTestData.sourceKey}');
-  await tester.scrollTo(sourceWidgetKey);
-  await tester.tap(find.byKey(sourceWidgetKey));
+  await tester.testSource(audioSourceTestData.sourceKey);
+}
 
-  const sourceSetKey = Key('isSourceSet');
-  await tester.scrollTo(sourceSetKey);
-  await tester.waitFor(
-    () => expectWidgetHasText(
-      sourceSetKey,
-      matcher: equals('Source is set'),
-    ),
-    timeout: const Duration(seconds: 180),
-    stackTrace: StackTrace.current.toString(),
-  );
+extension ControlsWidgetTester on WidgetTester {
+  Future<void> testSource(String sourceKey) async {
+    printOnFailure('Test setting source: $sourceKey');
+    final sourceWidgetKey = Key('setSource-$sourceKey');
+    await scrollTo(sourceWidgetKey);
+    await tap(find.byKey(sourceWidgetKey));
+
+    const sourceSetKey = Key('isSourceSet');
+    await scrollTo(sourceSetKey);
+    await waitFor(
+          () => expectWidgetHasText(
+        sourceSetKey,
+        matcher: equals('Source is set'),
+      ),
+      timeout: const Duration(seconds: 180),
+      stackTrace: StackTrace.current.toString(),
+    );
+  }
 }

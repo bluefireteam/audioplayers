@@ -8,7 +8,6 @@ class PlatformFeatures {
     hasBytesSource: false,
     hasPlaylistSourceType: false,
     hasLowLatency: false,
-    hasReleaseMode: false,
     hasSeek: false,
     hasDuckAudio: false,
     hasRespectSilence: false,
@@ -27,6 +26,7 @@ class PlatformFeatures {
   static const iosPlatformFeatures = PlatformFeatures(
     hasBytesSource: false,
     hasPlaylistSourceType: false,
+    hasReleaseModeRelease: false,
     hasLowLatency: false,
     hasDuckAudio: false,
   );
@@ -45,6 +45,7 @@ class PlatformFeatures {
   static const linuxPlatformFeatures = PlatformFeatures(
     hasBytesSource: false,
     hasLowLatency: false,
+    hasReleaseModeRelease: false,
     hasMp3Duration: false,
     hasDuckAudio: false,
     hasRespectSilence: false,
@@ -70,7 +71,8 @@ class PlatformFeatures {
   final bool hasPlaylistSourceType;
 
   final bool hasLowLatency; // Not yet tested
-  final bool hasReleaseMode; // Not yet tested
+  final bool hasReleaseModeRelease; // Not yet tested
+  final bool hasReleaseModeLoop; // Not yet tested
   final bool hasVolume; // Not yet tested
   final bool hasSeek; // Not yet tested
   final bool hasMp3Duration; // Not yet tested
@@ -93,7 +95,8 @@ class PlatformFeatures {
     this.hasBytesSource = true,
     this.hasPlaylistSourceType = true,
     this.hasLowLatency = true,
-    this.hasReleaseMode = true,
+    this.hasReleaseModeRelease = true,
+    this.hasReleaseModeLoop = true,
     this.hasMp3Duration = true,
     this.hasVolume = true,
     this.hasSeek = true,

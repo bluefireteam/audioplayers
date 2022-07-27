@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../platform_features.dart';
 import '../source_test_data.dart';
+import 'source_tab_test.dart';
 import 'stream_tab_test.dart';
 
 Future<void> testControlsTab(
@@ -61,16 +62,29 @@ Future<void> testControlsTab(
     await tester.tap(find.byKey(const Key('control-stop')));
   }
 
-  if (features.hasReleaseMode) {
-    await tester.testReleaseMode(ReleaseMode.loop);
-    await tester.pump(const Duration(seconds: 1));
-    await tester.tap(find.byKey(const Key('control-stop')));
-    await tester.testReleaseMode(ReleaseMode.stop);
-    await tester.pump(const Duration(seconds: 1));
-    await tester.tap(find.byKey(const Key('control-stop')));
-    await tester.testReleaseMode(ReleaseMode.release);
-    await tester.pump(const Duration(seconds: 1));
-    await tester.tap(find.byKey(const Key('control-stop')));
+  if (audioSourceTestData.duration < const Duration(seconds: 2)) {
+    if (features.hasReleaseModeLoop) {
+      await tester.testReleaseMode(ReleaseMode.loop);
+      await tester.pump(const Duration(seconds: 3));
+      await tester.tap(find.byKey(const Key('control-stop')));
+      await tester.testReleaseMode(ReleaseMode.stop);
+    }
+
+    if (features.hasReleaseModeRelease) {
+      await tester.testReleaseMode(ReleaseMode.release);
+      await tester.pump(const Duration(seconds: 3));
+      // TODO(Gustl22): test if source was released
+
+      // Reinitialize source
+      await tester.tap(find.byKey(const Key('sourcesTab')));
+      await tester.pumpAndSettle();
+      await tester.testSource(audioSourceTestData.sourceKey);
+      
+      await tester.tap(find.byKey(const Key('controlsTab')));
+      await tester.pumpAndSettle();
+      
+      await tester.testReleaseMode(ReleaseMode.stop);
+    }
   }
 }
 
