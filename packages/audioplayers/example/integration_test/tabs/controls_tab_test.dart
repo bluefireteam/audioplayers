@@ -47,7 +47,7 @@ Future<void> testControlsTab(
     );
     await tester.tap(find.byKey(const Key('controlsTab')));
     await tester.pumpAndSettle();
-    
+
     await tester.pump(const Duration(seconds: 1));
     await tester.testSeek('1.0');
     await tester.pump(const Duration(seconds: 1));
@@ -58,8 +58,7 @@ Future<void> testControlsTab(
     await tester.testPlayerMode(PlayerMode.lowLatency);
     await tester.pump(const Duration(seconds: 1));
     await tester.tap(find.byKey(const Key('control-stop')));
-    await tester.testPlayerMode(PlayerMode.mediaPlayer);
-    await tester.tap(find.byKey(const Key('control-stop')));
+    await tester.testPlayerMode(PlayerMode.mediaPlayer, isResume: false);
   }
 
   if (audioSourceTestData.duration < const Duration(seconds: 2)) {
@@ -79,10 +78,10 @@ Future<void> testControlsTab(
       await tester.tap(find.byKey(const Key('sourcesTab')));
       await tester.pumpAndSettle();
       await tester.testSource(audioSourceTestData.sourceKey);
-      
+
       await tester.tap(find.byKey(const Key('controlsTab')));
       await tester.pumpAndSettle();
-      
+
       await tester.testReleaseMode(ReleaseMode.stop);
     }
   }
@@ -111,17 +110,21 @@ extension ControlsWidgetTester on WidgetTester {
     }
   }
 
-  Future<void> testPlayerMode(PlayerMode mode) async {
+  Future<void> testPlayerMode(PlayerMode mode, {bool isResume = true}) async {
     printOnFailure('Test Player Mode: ${mode.name}');
     await tap(find.byKey(Key('control-player-mode-${mode.name}')));
-    await tap(find.byKey(const Key('control-resume')));
+    if(isResume) {
+      await tap(find.byKey(const Key('control-resume')));
+    }
     // TODO(Gustl22): get player mode from native implementation
   }
 
-  Future<void> testReleaseMode(ReleaseMode mode) async {
+  Future<void> testReleaseMode(ReleaseMode mode, {bool isResume = true}) async {
     printOnFailure('Test Release Mode: ${mode.name}');
     await tap(find.byKey(Key('control-release-mode-${mode.name}')));
-    await tap(find.byKey(const Key('control-resume')));
+    if(isResume) {
+      await tap(find.byKey(const Key('control-resume')));
+    }
     // TODO(Gustl22): get release mode from native implementation
   }
 }
