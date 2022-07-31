@@ -26,7 +26,8 @@ Future<void> testControlsTab(
     await tester.tap(find.byKey(const Key('control-stop')));
   }
 
-  if (features.hasPlaybackRate) {
+  if (features.hasPlaybackRate && !audioSourceTestData.isStream) {
+    // TODO(Gustl22): also test for playback rate in streams
     await tester.testRate('0.5');
     await tester.pump(const Duration(seconds: 1));
     await tester.testRate('2.0');
@@ -36,7 +37,8 @@ Future<void> testControlsTab(
     await tester.tap(find.byKey(const Key('control-stop')));
   }
 
-  if (features.hasSeek) {
+  if (features.hasSeek && !audioSourceTestData.isStream) {
+    // TODO(Gustl22): also test seeking in streams
     await tester.testSeek('0.5', isResume: false);
     await tester.tap(find.byKey(const Key('streamsTab')));
     await tester.pumpAndSettle();
@@ -62,7 +64,8 @@ Future<void> testControlsTab(
     await tester.pumpAndSettle();
   }
 
-  if (audioSourceTestData.duration < const Duration(seconds: 2)) {
+  if (audioSourceTestData.duration < const Duration(seconds: 2) &&
+      !audioSourceTestData.isStream) {
     if (features.hasReleaseModeLoop) {
       await tester.testReleaseMode(ReleaseMode.loop);
       await tester.pump(const Duration(seconds: 3));
