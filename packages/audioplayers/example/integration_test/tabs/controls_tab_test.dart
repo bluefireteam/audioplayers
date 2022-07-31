@@ -59,6 +59,7 @@ Future<void> testControlsTab(
     await tester.pump(const Duration(seconds: 1));
     await tester.tap(find.byKey(const Key('control-stop')));
     await tester.testPlayerMode(PlayerMode.mediaPlayer, isResume: false);
+    await tester.pumpAndSettle();
   }
 
   if (audioSourceTestData.duration < const Duration(seconds: 2)) {
@@ -66,12 +67,14 @@ Future<void> testControlsTab(
       await tester.testReleaseMode(ReleaseMode.loop);
       await tester.pump(const Duration(seconds: 3));
       await tester.tap(find.byKey(const Key('control-stop')));
-      await tester.testReleaseMode(ReleaseMode.stop);
+      await tester.testReleaseMode(ReleaseMode.stop, isResume: false);
+      await tester.pumpAndSettle();
     }
 
     if (features.hasReleaseModeRelease) {
       await tester.testReleaseMode(ReleaseMode.release);
       await tester.pump(const Duration(seconds: 3));
+      // No need to call stop, as it should be released by now
       // TODO(Gustl22): test if source was released
 
       // Reinitialize source
@@ -82,7 +85,8 @@ Future<void> testControlsTab(
       await tester.tap(find.byKey(const Key('controlsTab')));
       await tester.pumpAndSettle();
 
-      await tester.testReleaseMode(ReleaseMode.stop);
+      await tester.testReleaseMode(ReleaseMode.stop, isResume: false);
+      await tester.pumpAndSettle();
     }
   }
 }
