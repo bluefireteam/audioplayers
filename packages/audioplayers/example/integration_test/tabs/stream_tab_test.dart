@@ -64,6 +64,7 @@ extension StreamWidgetTester on WidgetTester {
   Future<void> testDuration(SourceTestData sourceTestData) async {
     final durationStr = sourceTestData.duration.toString().substring(0, 8);
     printOnFailure('Test Duration: $durationStr');
+    final st = StackTrace.current.toString();
     await tap(find.byKey(const Key('getDuration')));
     await waitFor(
       () => expectWidgetHasText(
@@ -75,11 +76,13 @@ extension StreamWidgetTester on WidgetTester {
         matcher: contains(durationStr),
       ),
       timeout: const Duration(seconds: 2),
+      stackTrace: st,
     );
   }
 
   Future<void> testPosition(String positionStr) async {
     printOnFailure('Test Position: $positionStr');
+    final st = StackTrace.current.toString();
     await tap(find.byKey(const Key('getPosition')));
     await waitFor(
       () => expectWidgetHasText(
@@ -87,12 +90,14 @@ extension StreamWidgetTester on WidgetTester {
         matcher: contains(positionStr),
       ),
       timeout: const Duration(seconds: 2),
+      stackTrace: st,
     );
   }
 
   Future<void> testOnDuration(SourceTestData sourceTestData) async {
     final durationStr = sourceTestData.duration.toString().substring(0, 8);
     printOnFailure('Test OnDuration: $durationStr');
+    final st = StackTrace.current.toString();
     await waitFor(
       () => expectWidgetHasText(
         const Key('onDurationText'),
@@ -100,19 +105,20 @@ extension StreamWidgetTester on WidgetTester {
           'Stream Duration: $durationStr',
         ),
       ),
-      stackTrace: StackTrace.current.toString(),
+      stackTrace: st,
     );
   }
 
   Future<void> testOnPosition(String positionStr) async {
     printOnFailure('Test OnPosition: $positionStr');
+    final st = StackTrace.current.toString();
     await waitFor(
       () => expectWidgetHasText(
         const Key('onPositionText'),
         matcher: contains('Stream Position: $positionStr'),
       ),
       pollInterval: const Duration(milliseconds: 250),
-      stackTrace: StackTrace.current.toString(),
+      stackTrace: st,
     );
   }
 }

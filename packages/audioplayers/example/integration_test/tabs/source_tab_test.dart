@@ -20,6 +20,7 @@ Future<void> testSourcesTab(
 extension ControlsWidgetTester on WidgetTester {
   Future<void> testSource(String sourceKey) async {
     printOnFailure('Test setting source: $sourceKey');
+    final st = StackTrace.current.toString();
     final sourceWidgetKey = Key('setSource-$sourceKey');
     await scrollTo(sourceWidgetKey);
     await tap(find.byKey(sourceWidgetKey));
@@ -32,7 +33,7 @@ extension ControlsWidgetTester on WidgetTester {
         matcher: equals('Source is set'),
       ),
       timeout: const Duration(seconds: 180),
-      stackTrace: StackTrace.current.toString(),
+      stackTrace: st,
     );
   }
 }
