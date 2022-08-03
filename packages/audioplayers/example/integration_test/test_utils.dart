@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:audioplayers_example/components/tgl.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -100,6 +101,20 @@ void expectWidgetHasText(
       find.byKey(key, skipOffstage: skipOffstage).evaluate().single.widget;
   if (widget is Text) {
     expect(widget.data, matcher);
+  } else {
+    throw 'Widget with key $key is not a Widget of type "Text"';
+  }
+}
+
+void expectEnumToggleHasSelected(
+  Key key, {
+  required Matcher matcher,
+  bool skipOffstage = true,
+}) {
+  final widget =
+      find.byKey(key, skipOffstage: skipOffstage).evaluate().single.widget;
+  if (widget is EnumTgl) {
+    expect(widget.selected, matcher);
   } else {
     throw 'Widget with key $key is not a Widget of type "Text"';
   }

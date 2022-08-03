@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../platform_features.dart';
 import '../source_test_data.dart';
+import '../test_utils.dart';
 import 'source_tab_test.dart';
 import 'stream_tab_test.dart';
 
@@ -15,7 +16,7 @@ Future<void> testControlsTab(
   printOnFailure('Test Controls Tab');
   await tester.tap(find.byKey(const Key('controlsTab')));
   await tester.pumpAndSettle();
-  
+
   if (features.hasVolume) {
     await tester.testVolume('0.5');
     await tester.pump(const Duration(seconds: 1));
@@ -112,7 +113,7 @@ extension ControlsWidgetTester on WidgetTester {
   Future<void> testSeek(String seek, {bool isResume = true}) async {
     printOnFailure('Test Seek: $seek');
     await tap(find.byKey(Key('control-seek-$seek')));
-    if(isResume) {
+    if (isResume) {
       await tap(find.byKey(const Key('control-resume')));
     }
   }
@@ -120,7 +121,13 @@ extension ControlsWidgetTester on WidgetTester {
   Future<void> testPlayerMode(PlayerMode mode, {bool isResume = true}) async {
     printOnFailure('Test Player Mode: ${mode.name}');
     await tap(find.byKey(Key('control-player-mode-${mode.name}')));
-    if(isResume) {
+    await waitFor(
+      () => expectEnumToggleHasSelected(
+        const Key('control-player-mode'),
+        matcher: equals(mode),
+      ),
+    );
+    if (isResume) {
       await tap(find.byKey(const Key('control-resume')));
     }
     // TODO(Gustl22): get player mode from native implementation
@@ -129,7 +136,13 @@ extension ControlsWidgetTester on WidgetTester {
   Future<void> testReleaseMode(ReleaseMode mode, {bool isResume = true}) async {
     printOnFailure('Test Release Mode: ${mode.name}');
     await tap(find.byKey(Key('control-release-mode-${mode.name}')));
-    if(isResume) {
+    await waitFor(
+          () => expectEnumToggleHasSelected(
+        const Key('control-release-mode'),
+        matcher: equals(mode),
+      ),
+    );
+    if (isResume) {
       await tap(find.byKey(const Key('control-resume')));
     }
     // TODO(Gustl22): get release mode from native implementation
