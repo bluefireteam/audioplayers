@@ -165,6 +165,10 @@ void AudioPlayer::SetPlaybackSpeed(double playbackSpeed) {
     m_mediaEngineWrapper->SetPlaybackRate(playbackSpeed);
 }
 
+void AudioPlayer::SetBalance(double balance) {
+    m_mediaEngineWrapper->SetBalance(balance);
+}
+
 void AudioPlayer::Play() {
     m_mediaEngineWrapper->StartPlayingFrom(m_mediaEngineWrapper->GetMediaTime());
 }

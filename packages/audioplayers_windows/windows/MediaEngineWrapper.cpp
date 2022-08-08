@@ -169,6 +169,20 @@ void MediaEngineWrapper::Resume()
     });
 }
 
+void MediaEngineWrapper::SetBalance(double balance)
+{
+    RunSyncInMTA([&]()
+    {
+        auto lock = m_lock.lock();
+        if (m_mediaEngine == nullptr) {
+            return;
+        }
+
+        winrt::com_ptr<IMFMediaEngineEx> mediaEngineEx = m_mediaEngine.as<IMFMediaEngineEx>();
+        THROW_IF_FAILED(mediaEngineEx->SetBalance(balance));
+    });
+}
+
 void MediaEngineWrapper::SetPlaybackRate(double playbackRate)
 {
     RunSyncInMTA([&]()

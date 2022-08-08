@@ -62,6 +62,7 @@ public:
     void SetLooping(bool isLooping);
     void SetVolume(double volume);
     void SetPlaybackSpeed(double playbackSpeed);
+    void SetBalance(double balance);
     void Play();
     void Pause();
     void Resume();

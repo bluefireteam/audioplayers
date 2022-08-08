@@ -70,6 +70,18 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform
   }
 
   @override
+  Future<void> setBalance(
+      String playerId,
+      double balance,
+      ) {
+    return _call(
+      'setBalance',
+      playerId,
+      <String, dynamic>{'balance': balance},
+    );
+  }
+
+  @override
   Future<void> setPlayerMode(
     String playerId,
     PlayerMode playerMode,
