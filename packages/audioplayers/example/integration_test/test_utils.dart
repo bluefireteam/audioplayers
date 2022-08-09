@@ -4,7 +4,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 extension WidgetTesterUtils on WidgetTester {
-
   // Add [stackTrace] to work around https://github.com/flutter/flutter/issues/89138
   Future<void> waitFor(
     void Function() testExpectation, {

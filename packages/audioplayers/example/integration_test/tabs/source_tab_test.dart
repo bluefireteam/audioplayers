@@ -28,7 +28,7 @@ extension ControlsWidgetTester on WidgetTester {
     const sourceSetKey = Key('isSourceSet');
     await scrollTo(sourceSetKey);
     await waitFor(
-          () => expectWidgetHasText(
+      () => expectWidgetHasText(
         sourceSetKey,
         matcher: equals('Source is set'),
       ),
