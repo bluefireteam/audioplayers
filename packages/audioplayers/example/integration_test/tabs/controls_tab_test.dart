@@ -57,7 +57,10 @@ Future<void> testControlsTab(
     await tester.tap(find.byKey(const Key('control-stop')));
   }
 
-  if (features.hasLowLatency) {
+  final isBytesSource = audioSourceTestData.sourceKey.contains('bytes');
+  if (features.hasLowLatency &&
+      !audioSourceTestData.isStream &&
+      !isBytesSource) {
     await tester.testPlayerMode(PlayerMode.lowLatency);
     await tester.pump(const Duration(seconds: 1));
     await tester.tap(find.byKey(const Key('control-stop')));
@@ -137,7 +140,7 @@ extension ControlsWidgetTester on WidgetTester {
     printOnFailure('Test Release Mode: ${mode.name}');
     await tap(find.byKey(Key('control-release-mode-${mode.name}')));
     await waitFor(
-          () => expectEnumToggleHasSelected(
+      () => expectEnumToggleHasSelected(
         const Key('control-release-mode'),
         matcher: equals(mode),
       ),
