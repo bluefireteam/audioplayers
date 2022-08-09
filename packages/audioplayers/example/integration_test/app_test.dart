@@ -4,11 +4,11 @@ import 'package:integration_test/integration_test.dart';
 
 import 'platform_features.dart';
 import 'source_test_data.dart';
-import 'tabs/context_tab_test.dart';
-import 'tabs/controls_tab_test.dart';
-import 'tabs/logs_tab_test.dart';
-import 'tabs/source_tab_test.dart';
-import 'tabs/stream_tab_test.dart';
+import 'tabs/context_tab.dart';
+import 'tabs/controls_tab.dart';
+import 'tabs/logs_tab.dart';
+import 'tabs/source_tab.dart';
+import 'tabs/stream_tab.dart';
 
 void main() {
   final features = PlatformFeatures.instance();

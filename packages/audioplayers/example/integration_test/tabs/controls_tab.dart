@@ -5,8 +5,8 @@ import 'package:flutter_test/flutter_test.dart';
 import '../platform_features.dart';
 import '../source_test_data.dart';
 import '../test_utils.dart';
-import 'source_tab_test.dart';
-import 'stream_tab_test.dart';
+import 'source_tab.dart';
+import 'stream_tab.dart';
 
 Future<void> testControlsTab(
   WidgetTester tester,
