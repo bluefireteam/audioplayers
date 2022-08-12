@@ -8,6 +8,10 @@ In order to install this package, add the [latest version](pub.dev/packages/audi
 
 Audioplayers for Linux (`audioplayers_linux`) is the only platform implementation which relies on additional dependencies. You need to fulfill [these requirements](packages/audioplayers_linux/requirements.md).
 
+On windows audioplayers downloads dependencies using `nuget`.
+In case you encounter error like `Argument cannot be null or empty. Parameter name: primarySources`
+Please run `nuget sources Add -Name nuget.org -Source https://www.nuget.org/api/v2/` to set up dependencies source.
+
 ## AudioPlayer
 
 An `AudioPlayer` instance can play a single audio at a time (think of it as a single boombox). To create it, simply call the constructor:
