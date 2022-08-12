@@ -13,6 +13,25 @@ AudioPlayer::AudioPlayer(std::string playerId, FlMethodChannel *channel)
         return;
     }
 
+    // Setup stereo balance controller
+    panorama = gst_element_factory_make("audiopanorama", "audiopanorama");
+    if (panorama) {
+        GstElement *audiosink = gst_element_factory_make("alsasink", "audiosink");
+
+        GstElement *audiobin = gst_bin_new("audiobin");
+        gst_bin_add_many(GST_BIN(audiobin), panorama, audiosink, NULL);
+        gst_element_link(panorama, audiosink);
+
+        GstPad *sinkpad = gst_element_get_static_pad(panorama, "sink");
+        gst_element_add_pad(audiobin, gst_ghost_pad_new("sink", sinkpad));
+        gst_object_unref(GST_OBJECT(sinkpad));
+
+        g_object_set(G_OBJECT(playbin), "audio-sink", audiobin, NULL);
+        gst_object_unref(GST_OBJECT(audiobin));
+
+        g_object_set(G_OBJECT(panorama), "method", 1, NULL);
+    }
+
     // Setup source options
     g_signal_connect(playbin, "source-setup",
                      G_CALLBACK(AudioPlayer::SourceSetup), &source);
@@ -190,6 +209,20 @@ void AudioPlayer::OnPlaybackEnded() {
     }
 }
 
+void AudioPlayer::SetBalance(float balance) {
+    if (!panorama) {
+       Logger::Error(std::string("Audiopanorama was not initialized"));
+       return;
+    }
+
+    if (balance > 1.0f) {
+        balance = 1.0f;
+    } else if (balance < -1.0f) {
+        balance = -1.0f;
+    }
+    g_object_set(G_OBJECT(panorama), "panorama", balance, NULL);
+}
+
 void AudioPlayer::SetLooping(bool isLooping) {
     _isLooping = isLooping;
 }
@@ -331,6 +364,7 @@ void AudioPlayer::Dispose() {
     }
     gst_object_unref(bus);
     gst_object_unref(source);
+    gst_object_unref(panorama);
 
     gst_element_set_state(playbin, GST_STATE_NULL);
     gst_object_unref(playbin);
