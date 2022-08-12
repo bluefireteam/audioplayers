@@ -13,6 +13,10 @@ AudioPlayer::AudioPlayer(std::string playerId, FlMethodChannel *channel)
         return;
     }
 
+    // Add audiopanorama plugin
+    panorama = gst_element_factory_make("audiopanorama", "audiopanorama");
+    gst_bin_add(GST_BIN(playbin), panorama);
+
     // Setup source options
     g_signal_connect(playbin, "source-setup",
                      G_CALLBACK(AudioPlayer::SourceSetup), &source);
@@ -190,6 +194,16 @@ void AudioPlayer::OnPlaybackEnded() {
     }
 }
 
+void AudioPlayer::SetBalance(float balance) {
+    if (balance > 1.0f) {
+        balance = 1.0f;
+    } else if (balance < 0.0f) {
+        balance = 0.0f;
+    }
+    g_object_set(G_OBJECT(panorama), "method", 1, NULL);
+    g_object_set(G_OBJECT(panorama), "panorama", balance, NULL);
+}
+
 void AudioPlayer::SetLooping(bool isLooping) {
     _isLooping = isLooping;
 }
@@ -331,6 +345,7 @@ void AudioPlayer::Dispose() {
     }
     gst_object_unref(bus);
     gst_object_unref(source);
+    gst_object_unref(panorama);
 
     gst_element_set_state(playbin, GST_STATE_NULL);
     gst_object_unref(playbin);
