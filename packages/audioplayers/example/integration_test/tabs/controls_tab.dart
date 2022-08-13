@@ -43,11 +43,17 @@ Future<void> testControlsTab(
     await tester.testSeek('0.5', isResume: false);
     await tester.tap(find.byKey(const Key('streamsTab')));
     await tester.pumpAndSettle();
-    await tester.testPosition(
-      Duration(milliseconds: audioSourceTestData.duration.inMilliseconds ~/ 2)
-          .toString()
-          .substring(0, 8),
-    );
+    
+    final isImmediateDurationSupported =
+        features.hasMp3Duration || !audioSourceTestData.sourceKey.contains('mp3');
+    
+    if(isImmediateDurationSupported) {
+      await tester.testPosition(
+        Duration(milliseconds: audioSourceTestData.duration.inMilliseconds ~/ 2)
+            .toString()
+            .substring(0, 8),
+      );
+    }
     await tester.tap(find.byKey(const Key('controlsTab')));
     await tester.pumpAndSettle();
 

@@ -46,6 +46,8 @@ class PlatformFeatures {
     hasBytesSource: false,
     hasLowLatency: false,
     hasReleaseModeRelease: false,
+    // MP3 duration is estimated: https://bugzilla.gnome.org/show_bug.cgi?id=726144
+    // Use GstDiscoverer to get duration before playing: https://gstreamer.freedesktop.org/documentation/pbutils/gstdiscoverer.html?gi-language=c
     hasMp3Duration: false,
     hasDuckAudio: false,
     hasRespectSilence: false,

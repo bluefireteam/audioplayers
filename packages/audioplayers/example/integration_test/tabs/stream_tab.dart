@@ -20,7 +20,6 @@ Future<void> testStreamsTab(
     await tester.testPosition('0:00:00.000000');
   }
 
-  // MP3 duration is estimated: https://bugzilla.gnome.org/show_bug.cgi?id=726144
   final isImmediateDurationSupported =
       features.hasMp3Duration || !audioSourceTestData.sourceKey.contains('mp3');
 
