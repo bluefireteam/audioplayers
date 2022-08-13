@@ -19,23 +19,15 @@ Future<void> testControlsTab(
 
   if (features.hasVolume) {
     await tester.testVolume('0.5');
-    await tester.pump(const Duration(seconds: 1));
     await tester.testVolume('2.0');
-    await tester.pump(const Duration(seconds: 1));
     await tester.testVolume('1.0');
-    await tester.pump(const Duration(seconds: 1));
-    await tester.tap(find.byKey(const Key('control-stop')));
   }
 
   if (features.hasPlaybackRate && !audioSourceTestData.isStream) {
     // TODO(Gustl22): also test for playback rate in streams
     await tester.testRate('0.5');
-    await tester.pump(const Duration(seconds: 1));
     await tester.testRate('2.0');
-    await tester.pump(const Duration(seconds: 1));
     await tester.testRate('1.0');
-    await tester.pump(const Duration(seconds: 1));
-    await tester.tap(find.byKey(const Key('control-stop')));
   }
 
   if (features.hasSeek && !audioSourceTestData.isStream) {
@@ -43,11 +35,11 @@ Future<void> testControlsTab(
     await tester.testSeek('0.5', isResume: false);
     await tester.tap(find.byKey(const Key('streamsTab')));
     await tester.pumpAndSettle();
-    
-    final isImmediateDurationSupported =
-        features.hasMp3Duration || !audioSourceTestData.sourceKey.contains('mp3');
-    
-    if(isImmediateDurationSupported) {
+
+    final isImmediateDurationSupported = features.hasMp3Duration ||
+        !audioSourceTestData.sourceKey.contains('mp3');
+
+    if (isImmediateDurationSupported) {
       await tester.testPosition(
         Duration(milliseconds: audioSourceTestData.duration.inMilliseconds ~/ 2)
             .toString()
@@ -61,6 +53,7 @@ Future<void> testControlsTab(
     await tester.testSeek('1.0');
     await tester.pump(const Duration(seconds: 1));
     await tester.tap(find.byKey(const Key('control-stop')));
+    await tester.pumpAndSettle();
   }
 
   final isBytesSource = audioSourceTestData.sourceKey.contains('bytes');
@@ -105,18 +98,30 @@ Future<void> testControlsTab(
 }
 
 extension ControlsWidgetTester on WidgetTester {
-  Future<void> testVolume(String volume) async {
+  Future<void> testVolume(
+    String volume, {
+    Duration timeout = const Duration(seconds: 1),
+  }) async {
     printOnFailure('Test Volume: $volume');
     await tap(find.byKey(Key('control-volume-$volume')));
     await tap(find.byKey(const Key('control-resume')));
     // TODO(Gustl22): get volume from native implementation
+    await pump(timeout);
+    await tap(find.byKey(const Key('control-stop')));
+    await pumpAndSettle();
   }
 
-  Future<void> testRate(String rate) async {
+  Future<void> testRate(
+    String rate, {
+    Duration timeout = const Duration(seconds: 1),
+  }) async {
     printOnFailure('Test Rate: $rate');
     await tap(find.byKey(Key('control-rate-$rate')));
     await tap(find.byKey(const Key('control-resume')));
     // TODO(Gustl22): get rate from native implementation
+    await pump(timeout);
+    await tap(find.byKey(const Key('control-stop')));
+    await pumpAndSettle();
   }
 
   Future<void> testSeek(String seek, {bool isResume = true}) async {
