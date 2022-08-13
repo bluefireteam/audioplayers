@@ -32,12 +32,17 @@ Future<void> testControlsTab(
 
   if (features.hasSeek && !audioSourceTestData.isStream) {
     // TODO(Gustl22): also test seeking in streams
-    await tester.testSeek('0.5', isResume: false);
-    await tester.tap(find.byKey(const Key('streamsTab')));
-    await tester.pumpAndSettle();
-
     final isImmediateDurationSupported = features.hasMp3Duration ||
         !audioSourceTestData.sourceKey.contains('mp3');
+
+    // Linux cannot complete seek if duration is not present.
+    await tester.testSeek(
+      '0.5',
+      isResume: false,
+      seekCompletedBeforeResume: isImmediateDurationSupported,
+    );
+    await tester.tap(find.byKey(const Key('streamsTab')));
+    await tester.pumpAndSettle();
 
     if (isImmediateDurationSupported) {
       await tester.testPosition(
@@ -50,7 +55,10 @@ Future<void> testControlsTab(
     await tester.pumpAndSettle();
 
     await tester.pump(const Duration(seconds: 1));
-    await tester.testSeek('1.0');
+    await tester.testSeek(
+      '1.0',
+      seekCompletedBeforeResume: isImmediateDurationSupported,
+    );
     await tester.pump(const Duration(seconds: 1));
     await tester.tap(find.byKey(const Key('control-stop')));
     await tester.pumpAndSettle();
@@ -113,7 +121,7 @@ extension ControlsWidgetTester on WidgetTester {
 
   Future<void> testRate(
     String rate, {
-    Duration timeout = const Duration(seconds: 1),
+    Duration timeout = const Duration(seconds: 5),
   }) async {
     printOnFailure('Test Rate: $rate');
     await tap(find.byKey(Key('control-rate-$rate')));
@@ -124,11 +132,28 @@ extension ControlsWidgetTester on WidgetTester {
     await pumpAndSettle();
   }
 
-  Future<void> testSeek(String seek, {bool isResume = true}) async {
+  Future<void> testSeek(
+    String seek, {
+    bool isResume = true,
+    bool seekCompletedBeforeResume = true,
+  }) async {
     printOnFailure('Test Seek: $seek');
     await tap(find.byKey(Key('control-seek-$seek')));
+    Future<void> waitForToastSeekComplete() async {
+      await waitFor(
+            () => expect(
+            find.byKey(const Key('toast-seek-complete')), findsOneWidget),
+      );
+    }
+    
+    if (seekCompletedBeforeResume) {
+      await waitForToastSeekComplete();
+    }
     if (isResume) {
       await tap(find.byKey(const Key('control-resume')));
+      if (!seekCompletedBeforeResume) {
+        await waitForToastSeekComplete();
+      }
     }
   }
 
