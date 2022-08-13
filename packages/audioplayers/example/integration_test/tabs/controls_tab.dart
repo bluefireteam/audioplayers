@@ -36,11 +36,7 @@ Future<void> testControlsTab(
         !audioSourceTestData.sourceKey.contains('mp3');
 
     // Linux cannot complete seek if duration is not present.
-    await tester.testSeek(
-      '0.5',
-      isResume: false,
-      seekCompletedBeforeResume: isImmediateDurationSupported,
-    );
+    await tester.testSeek('0.5', isResume: false);
     await tester.tap(find.byKey(const Key('streamsTab')));
     await tester.pumpAndSettle();
 
@@ -55,10 +51,7 @@ Future<void> testControlsTab(
     await tester.pumpAndSettle();
 
     await tester.pump(const Duration(seconds: 1));
-    await tester.testSeek(
-      '1.0',
-      seekCompletedBeforeResume: isImmediateDurationSupported,
-    );
+    await tester.testSeek('1.0');
     await tester.pump(const Duration(seconds: 1));
     await tester.tap(find.byKey(const Key('control-stop')));
     await tester.pumpAndSettle();
@@ -135,34 +128,26 @@ extension ControlsWidgetTester on WidgetTester {
   Future<void> testSeek(
     String seek, {
     bool isResume = true,
-    bool seekCompletedBeforeResume = true,
   }) async {
     printOnFailure('Test Seek: $seek');
     await tap(find.byKey(Key('control-seek-$seek')));
-    Future<void> waitForToastSeekComplete() async {
-      // Wait until appearance and disappearance
-      await waitFor(
-        () => expect(
-          find.byKey(const Key('toast-seek-complete-0')),
-          findsOneWidget,
-        ),
-      );
-      await waitFor(
-        () => expect(
-          find.byKey(const Key('toast-seek-complete-0')),
-          findsNothing,
-        ),
-      );
-    }
 
-    if (seekCompletedBeforeResume) {
-      await waitForToastSeekComplete();
-    }
+    // Wait until appearance and disappearance
+    await waitFor(
+      () => expect(
+        find.byKey(const Key('toast-seek-complete-0')),
+        findsOneWidget,
+      ),
+    );
+    await waitFor(
+      () => expect(
+        find.byKey(const Key('toast-seek-complete-0')),
+        findsNothing,
+      ),
+    );
+
     if (isResume) {
       await tap(find.byKey(const Key('control-resume')));
-      if (!seekCompletedBeforeResume) {
-        await waitForToastSeekComplete();
-      }
     }
   }
 
