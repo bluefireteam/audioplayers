@@ -140,12 +140,21 @@ extension ControlsWidgetTester on WidgetTester {
     printOnFailure('Test Seek: $seek');
     await tap(find.byKey(Key('control-seek-$seek')));
     Future<void> waitForToastSeekComplete() async {
+      // Wait until appearance and disappearance
       await waitFor(
-            () => expect(
-            find.byKey(const Key('toast-seek-complete')), findsOneWidget),
+        () => expect(
+          find.byKey(const Key('toast-seek-complete-0')),
+          findsOneWidget,
+        ),
+      );
+      await waitFor(
+        () => expect(
+          find.byKey(const Key('toast-seek-complete-0')),
+          findsNothing,
+        ),
       );
     }
-    
+
     if (seekCompletedBeforeResume) {
       await waitForToastSeekComplete();
     }
