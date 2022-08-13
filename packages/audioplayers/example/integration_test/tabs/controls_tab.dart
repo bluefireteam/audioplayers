@@ -18,9 +18,10 @@ Future<void> testControlsTab(
   await tester.pumpAndSettle();
 
   if (features.hasVolume) {
+    await tester.testVolume('0.0');
     await tester.testVolume('0.5');
-    await tester.testVolume('2.0');
     await tester.testVolume('1.0');
+    // No tests for volume > 1
   }
 
   if (features.hasPlaybackRate && !audioSourceTestData.isStream) {
