@@ -121,7 +121,7 @@ extension ControlsWidgetTester on WidgetTester {
 
   Future<void> testRate(
     String rate, {
-    Duration timeout = const Duration(seconds: 5),
+    Duration timeout = const Duration(seconds: 2),
   }) async {
     printOnFailure('Test Rate: $rate');
     await tap(find.byKey(Key('control-rate-$rate')));
