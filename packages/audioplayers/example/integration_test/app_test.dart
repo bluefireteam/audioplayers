@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:audioplayers_example/main.dart' as app;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -132,7 +135,13 @@ void main() {
           // Cannot test more precisely as it is dependent on pollInterval.
           // TODO(Gustl22): test position update in seek mode.
           if (features.hasPositionEvent) {
-            await tester.testOnPosition('0:00:00');
+            // TODO(Gustl22): avoid flaky onPosition test for Android only.
+            // Reason is, that some frames are skipped on CI and position is not
+            // updated in time. Once one can reproduce it reliably, we can fix
+            // and enable it again.
+            if(kIsWeb || !Platform.isAndroid) {
+              await tester.testOnPosition('0:00:00');
+            }
           }
         }
 

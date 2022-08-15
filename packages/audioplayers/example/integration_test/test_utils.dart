@@ -11,7 +11,7 @@ extension WidgetTesterUtils on WidgetTester {
       () => expectWidgetHasText(
         const Key('durationText'),
         // Precision for duration:
-        // Android: hundredth of a second
+        // Android: two tenth of a second
         // Windows: second
         matcher: contains(
           sourceTestData.duration.toString().substring(0, 8),
