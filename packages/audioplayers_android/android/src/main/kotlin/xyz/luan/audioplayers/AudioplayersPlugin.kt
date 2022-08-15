@@ -126,7 +126,6 @@ class AudioplayersPlugin : FlutterPlugin {
                 val playerMode = call.enumArgument<PlayerMode>("playerMode")
                     ?: error("playerMode is required")
                 player.playerMode = playerMode
-                return
             }
             "setAudioContext" -> {
                 val audioContext = call.audioContext()
