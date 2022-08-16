@@ -108,6 +108,17 @@ void AudioPlayer::OnTimeUpdate() {
     }
 }
 
+void AudioPlayer::OnDurationUpdate() {
+    if(this->_channel) {
+        this->_channel->InvokeMethod("audio.onDuration",
+            std::make_unique<flutter::EncodableValue>(
+                flutter::EncodableMap({
+                    {flutter::EncodableValue("playerId"), flutter::EncodableValue(_playerId)},
+                    {flutter::EncodableValue("value"), flutter::EncodableValue((int64_t)m_mediaEngineWrapper->GetDuration() / 10000)}
+                })));
+    }
+}
+
 void AudioPlayer::OnSeekCompleted() {
     if(this->_channel) {
         this->_channel->InvokeMethod("audio.onSeekComplete",
@@ -120,20 +131,8 @@ void AudioPlayer::OnSeekCompleted() {
 }
 
 void AudioPlayer::SendInitialized() {
-    if(this->_channel) {
-        this->_channel->InvokeMethod("audio.onDuration",
-            std::make_unique<flutter::EncodableValue>(
-                flutter::EncodableMap({
-                    {flutter::EncodableValue("playerId"), flutter::EncodableValue(_playerId)},
-                    {flutter::EncodableValue("value"), flutter::EncodableValue((int64_t)m_mediaEngineWrapper->GetDuration() / 10000)}
-                })));
-        this->_channel->InvokeMethod("audio.onCurrentPosition",
-            std::make_unique<flutter::EncodableValue>(
-                flutter::EncodableMap({
-                    {flutter::EncodableValue("playerId"), flutter::EncodableValue(_playerId)},
-                    {flutter::EncodableValue("value"), flutter::EncodableValue((int64_t)m_mediaEngineWrapper->GetMediaTime() / 10000)}
-                })));
-    }
+    OnDurationUpdate();
+    OnTimeUpdate();
 }
 
 void AudioPlayer::Dispose() {
@@ -167,6 +166,7 @@ void AudioPlayer::SetPlaybackSpeed(double playbackSpeed) {
 
 void AudioPlayer::Play() {
     m_mediaEngineWrapper->StartPlayingFrom(m_mediaEngineWrapper->GetMediaTime());
+    OnDurationUpdate();
 }
 
 void AudioPlayer::Pause() {
@@ -175,6 +175,7 @@ void AudioPlayer::Pause() {
 
 void AudioPlayer::Resume() {
     m_mediaEngineWrapper->Resume();
+    OnDurationUpdate();
 }
 
 int64_t AudioPlayer::GetPosition() {
