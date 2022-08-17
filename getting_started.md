@@ -147,6 +147,14 @@ The Player Mode represents what kind of native SDK is used to playback audio, wh
 
 Normally you want to use `.mediaPlayer` unless you care about performance and your audios are short (i.e. for sound effects in games).
 
+### Balance
+
+Changes stereo balance. Defaults to `0.0` (both channels). `1.0` - right channel only, `-1.0` - left channel only.
+
+```dart
+  await player.setBalance(1.0); // right channel only
+```
+
 ## Logs
 
 You can globally control the amount of log messages that are emitted by this package:
