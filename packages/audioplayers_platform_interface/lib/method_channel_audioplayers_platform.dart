@@ -144,7 +144,7 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform
 
   Future<void> platformCallHandler(MethodCall call) async {
     try {
-      _doHandlePlatformCall(call);
+      await _doHandlePlatformCall(call);
     } on Exception catch (ex) {
       _logger.error('Unexpected error: $ex');
     }
