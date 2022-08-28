@@ -18,7 +18,7 @@ class AudioPlayer {
   /// Creates a new instance and assigns an unique id to it.
   AudioPlayer({String? playerId}) : playerId = playerId ?? _uuid.v4() {
     onPlayerComplete.listen((_) {
-      _playerState = PlayerState.completed;
+      state = PlayerState.completed;
     });
   }
   
