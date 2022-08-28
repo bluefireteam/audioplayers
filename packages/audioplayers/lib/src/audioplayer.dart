@@ -15,6 +15,13 @@ const _uuid = Uuid();
 /// It holds methods to play, loop, pause, stop, seek the audio, and some useful
 /// hooks for handlers and callbacks.
 class AudioPlayer {
+  /// Creates a new instance and assigns an unique id to it.
+  AudioPlayer({String? playerId}) : playerId = playerId ?? _uuid.v4() {
+    onPlayerStateChanged.listen((newState) {
+      state = newState;
+    });
+  }
+  
   static final global = GlobalPlatformInterface.instance;
   static final _platform = AudioplayersPlatform.instance;
 
@@ -85,9 +92,6 @@ class AudioPlayer {
   ReleaseMode _releaseMode = ReleaseMode.release;
 
   ReleaseMode get releaseMode => _releaseMode;
-
-  /// Creates a new instance and assigns an unique id to it.
-  AudioPlayer({String? playerId}) : playerId = playerId ?? _uuid.v4();
 
   Future<void> play(
     Source source, {

@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:audioplayers_platform_interface/api/audio_context_config.dart';
 import 'package:audioplayers_platform_interface/api/player_mode.dart';
+import 'package:audioplayers_platform_interface/api/player_state.dart';
 import 'package:audioplayers_platform_interface/api/release_mode.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
 import 'package:audioplayers_platform_interface/logger_platform_interface.dart';
@@ -165,6 +166,7 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform
         emitPosition(playerId, position);
         break;
       case 'audio.onComplete':
+        emitPlayerState(playerId, PlayerState.completed);
         emitComplete(playerId);
         break;
       case 'audio.onSeekComplete':
