@@ -8,14 +8,11 @@ class PlatformFeatures {
     hasBytesSource: false,
     hasPlaylistSourceType: false,
     hasLowLatency: false,
-    hasSeek: false,
     hasDuckAudio: false,
     hasRespectSilence: false,
     hasStayAwake: false,
     hasRecordingActive: false,
     hasPlayingRoute: false,
-    hasDurationEvent: false,
-    hasCompletionEvent: false,
     hasErrorEvent: false,
   );
 
