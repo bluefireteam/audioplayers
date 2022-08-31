@@ -169,6 +169,10 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
 
     fun handleSeekComplete(player: WrappedPlayer) {
         channel.invokeMethod("audio.onSeekComplete", buildArguments(player.playerId))
+        channel.invokeMethod(
+            "audio.onCurrentPosition",
+            buildArguments(player.playerId, player.getCurrentPosition() ?: 0)
+        )
     }
 
     override fun startUpdates() {
