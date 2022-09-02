@@ -152,7 +152,7 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform
     }
   }
 
-  Future<void> _doHandlePlatformCall(MethodCall call) async {
+  void _doHandlePlatformCall(MethodCall call) {
     final playerId = call.getString('playerId');
 
     switch (call.method) {
@@ -173,7 +173,8 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform
         emitSeekComplete(playerId);
         break;
       case 'audio.onError':
-        throw call.getString('value');
+        _logger.error('Unexpected platform error: ${call.getString('value')}');
+        break;
       default:
         _logger.error('Unknown method ${call.method} ');
     }
