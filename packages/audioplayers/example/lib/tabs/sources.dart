@@ -1,6 +1,7 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_example/components/btn.dart';
 import 'package:audioplayers_example/components/tab_wrapper.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 
@@ -99,7 +100,17 @@ class _SourcesTabState extends State<SourcesTab>
             setSource(BytesSource(bytes));
           },
         ),
-        // TODO(luan): Add local files via file picker
+        Btn(
+          key: const Key('setSource-url-local'),
+          txt: 'Pick local file',
+          onPressed: () async {
+            final result = await FilePicker.platform.pickFiles();
+            final path = result?.files.single.path;
+            if (path != null) {
+              setSource(DeviceFileSource(path));
+            }
+          },
+        ),
       ],
     );
   }
