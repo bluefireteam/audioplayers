@@ -15,7 +15,8 @@ class ControlsTab extends StatefulWidget {
   State<ControlsTab> createState() => _ControlsTabState();
 }
 
-class _ControlsTabState extends State<ControlsTab> {
+class _ControlsTabState extends State<ControlsTab>
+    with AutomaticKeepAliveClientMixin<ControlsTab> {
   String modalInputSeek = '';
 
   Future<void> update(Future<void> Function() fn) async {
@@ -40,15 +41,32 @@ class _ControlsTabState extends State<ControlsTab> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return TabWrapper(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Btn(txt: 'Pause', onPressed: widget.player.pause),
-            Btn(txt: 'Stop', onPressed: widget.player.stop),
-            Btn(txt: 'Resume', onPressed: widget.player.resume),
-            Btn(txt: 'Release', onPressed: widget.player.release),
+            Btn(
+              key: const Key('control-pause'),
+              txt: 'Pause',
+              onPressed: widget.player.pause,
+            ),
+            Btn(
+              key: const Key('control-stop'),
+              txt: 'Stop',
+              onPressed: widget.player.stop,
+            ),
+            Btn(
+              key: const Key('control-resume'),
+              txt: 'Resume',
+              onPressed: widget.player.resume,
+            ),
+            Btn(
+              key: const Key('control-release'),
+              txt: 'Release',
+              onPressed: widget.player.release,
+            ),
           ],
         ),
         Row(
@@ -166,4 +184,7 @@ class _ControlsTabState extends State<ControlsTab> {
       ],
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

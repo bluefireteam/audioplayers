@@ -12,6 +12,7 @@ class TabWrapper extends StatelessWidget {
         alignment: Alignment.topCenter,
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
+          controller: ScrollController(),
           child: Column(
             children: children
                 .map(

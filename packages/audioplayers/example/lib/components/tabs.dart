@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class Tabs extends StatelessWidget {
-  final Map<String, Widget> tabs;
+  final List<TabData> tabs;
+
   const Tabs({Key? key, required this.tabs}) : super(key: key);
 
   @override
@@ -14,11 +15,18 @@ class Tabs extends StatelessWidget {
           children: [
             TabBar(
               labelColor: Colors.black,
-              tabs: tabs.keys.map((key) => Tab(text: key)).toList(),
+              tabs: tabs
+                  .map(
+                    (tData) => Tab(
+                      key: tData.key != null ? Key(tData.key!) : null,
+                      text: tData.label,
+                    ),
+                  )
+                  .toList(),
             ),
             Expanded(
               child: TabBarView(
-                children: tabs.values.toList(),
+                children: tabs.map((tab) => tab.content).toList(),
               ),
             ),
           ],
@@ -26,4 +34,12 @@ class Tabs extends StatelessWidget {
       ),
     );
   }
+}
+
+class TabData {
+  final String? key;
+  final String label;
+  final Widget content;
+
+  TabData({this.key, required this.label, required this.content});
 }

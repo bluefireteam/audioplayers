@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:io';
+// TODO(gustl22): remove when upgrading min Flutter version to >=3.3.0
+// ignore: unnecessary_import
 import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';

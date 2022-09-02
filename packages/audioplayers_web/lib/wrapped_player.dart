@@ -52,7 +52,7 @@ class WrappedPlayer {
     }
     Duration toDuration(num jsNum) => Duration(
           milliseconds:
-              (1000 * (jsNum.toString() == 'NaN' ? 0 : jsNum)).round(),
+              (1000 * (jsNum.isNaN || jsNum.isInfinite ? 0 : jsNum)).round(),
         );
 
     final p = player = AudioElement(currentUrl);
@@ -66,6 +66,8 @@ class WrappedPlayer {
       streamsInterface.emitPosition(playerId, toDuration(p.currentTime));
     });
     playerEndedSubscription = p.onEnded.listen((_) {
+      pausedAt = 0;
+      player?.currentTime = 0;
       streamsInterface.emitPlayerState(playerId, PlayerState.stopped);
       streamsInterface.emitComplete(playerId);
     });
@@ -112,8 +114,9 @@ class WrappedPlayer {
   }
 
   void stop() {
-    pausedAt = 0;
     _cancel();
+    pausedAt = 0;
+    player?.currentTime = 0;
   }
 
   void seek(int position) {

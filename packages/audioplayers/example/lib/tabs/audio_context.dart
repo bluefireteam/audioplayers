@@ -14,13 +14,15 @@ class AudioContextTab extends StatefulWidget {
   _AudioContextTabState createState() => _AudioContextTabState();
 }
 
-class _AudioContextTabState extends State<AudioContextTab> {
+class _AudioContextTabState extends State<AudioContextTab>
+    with AutomaticKeepAliveClientMixin<AudioContextTab> {
   static GlobalPlatformInterface get _global => AudioPlayer.global;
 
   AudioContextConfig config = AudioContextConfig();
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return TabWrapper(
       children: [
         const Text('Audio Context'),
@@ -44,11 +46,23 @@ class _AudioContextTabState extends State<AudioContextTab> {
         Container(
           height: 500,
           child: Tabs(
-            tabs: {
-              'Generic Flags': _genericTab(),
-              'Android': _androidTab(),
-              'iOS': _iosTab(),
-            },
+            tabs: [
+              TabData(
+                key: 'contextTab-genericFlags',
+                label: 'Generic Flags',
+                content: _genericTab(),
+              ),
+              TabData(
+                key: 'contextTab-android',
+                label: 'Android',
+                content: _androidTab(),
+              ),
+              TabData(
+                key: 'contextTab-ios',
+                label: 'iOS',
+                content: _iosTab(),
+              ),
+            ],
           ),
         ),
       ],
@@ -109,4 +123,7 @@ class _AudioContextTabState extends State<AudioContextTab> {
       ],
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

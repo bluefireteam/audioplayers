@@ -81,10 +81,14 @@ class WrappedMediaPlayer {
     
     func resume() {
         isPlaying = true
-        if #available(iOS 10.0, macOS 10.12, *) {
-            player?.playImmediately(atRate: Float(playbackRate))
-        } else {
-            player?.play()
+        if let player = self.player {
+            configParameters(player: player)
+            if #available(iOS 10.0, macOS 10.12, *) {
+                player.playImmediately(atRate: Float(playbackRate))
+            } else {
+                player.play()
+            }
+            updateDuration()
         }
     }
     
@@ -131,11 +135,12 @@ class WrappedMediaPlayer {
         if !isPlaying {
             return
         }
-        
-        pause()
-        if looping {
-            seek(time: toCMTime(millis: 0)) {
+
+        seek(time: toCMTime(millis: 0)) {
+            if self.looping {
                 self.resume()
+            } else {
+                self.isPlaying = false
             }
         }
         
@@ -208,7 +213,6 @@ class WrappedMediaPlayer {
                 let status = playerItem.status
                 Logger.info("player status: %@ change: %@", status, change)
                 
-                // Do something with the status...
                 if status == .readyToPlay {
                     self.updateDuration()
                     completer?()
@@ -227,7 +231,9 @@ class WrappedMediaPlayer {
     }
 
     func configParameters(player: AVPlayer) {
-        player.volume = Float(volume)
-        player.rate = Float(playbackRate)
+        if (isPlaying) {
+            player.volume = Float(volume)
+            player.rate = Float(playbackRate)
+        }
     }
 }

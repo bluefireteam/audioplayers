@@ -39,7 +39,7 @@ void AudioPlayer::SetSourceUrl(std::string url) {
         // An application can skip this step and instantiate a custom IMFMediaSource implementation instead.
         winrt::com_ptr<IMFSourceResolver> sourceResolver;
         THROW_IF_FAILED(MFCreateSourceResolver(sourceResolver.put()));
-        constexpr uint32_t sourceResolutionFlags = MF_RESOLUTION_MEDIASOURCE | MF_RESOLUTION_READ;
+        constexpr uint32_t sourceResolutionFlags = MF_RESOLUTION_MEDIASOURCE | MF_RESOLUTION_CONTENT_DOES_NOT_HAVE_TO_MATCH_EXTENSION_OR_MIME_TYPE | MF_RESOLUTION_READ;
         MF_OBJECT_TYPE objectType = {};
         
         winrt::com_ptr<IMFMediaSource> mediaSource;
@@ -108,6 +108,17 @@ void AudioPlayer::OnTimeUpdate() {
     }
 }
 
+void AudioPlayer::OnDurationUpdate() {
+    if(this->_channel) {
+        this->_channel->InvokeMethod("audio.onDuration",
+            std::make_unique<flutter::EncodableValue>(
+                flutter::EncodableMap({
+                    {flutter::EncodableValue("playerId"), flutter::EncodableValue(_playerId)},
+                    {flutter::EncodableValue("value"), flutter::EncodableValue((int64_t)m_mediaEngineWrapper->GetDuration() / 10000)}
+                })));
+    }
+}
+
 void AudioPlayer::OnSeekCompleted() {
     if(this->_channel) {
         this->_channel->InvokeMethod("audio.onSeekComplete",
@@ -120,20 +131,8 @@ void AudioPlayer::OnSeekCompleted() {
 }
 
 void AudioPlayer::SendInitialized() {
-    if(this->_channel) {
-        this->_channel->InvokeMethod("audio.onDuration",
-            std::make_unique<flutter::EncodableValue>(
-                flutter::EncodableMap({
-                    {flutter::EncodableValue("playerId"), flutter::EncodableValue(_playerId)},
-                    {flutter::EncodableValue("value"), flutter::EncodableValue((int64_t)m_mediaEngineWrapper->GetDuration() / 10000)}
-                })));
-        this->_channel->InvokeMethod("audio.onCurrentPosition",
-            std::make_unique<flutter::EncodableValue>(
-                flutter::EncodableMap({
-                    {flutter::EncodableValue("playerId"), flutter::EncodableValue(_playerId)},
-                    {flutter::EncodableValue("value"), flutter::EncodableValue((int64_t)m_mediaEngineWrapper->GetMediaTime() / 10000)}
-                })));
-    }
+    OnDurationUpdate();
+    OnTimeUpdate();
 }
 
 void AudioPlayer::Dispose() {
@@ -167,6 +166,7 @@ void AudioPlayer::SetPlaybackSpeed(double playbackSpeed) {
 
 void AudioPlayer::Play() {
     m_mediaEngineWrapper->StartPlayingFrom(m_mediaEngineWrapper->GetMediaTime());
+    OnDurationUpdate();
 }
 
 void AudioPlayer::Pause() {
@@ -175,6 +175,7 @@ void AudioPlayer::Pause() {
 
 void AudioPlayer::Resume() {
     m_mediaEngineWrapper->Resume();
+    OnDurationUpdate();
 }
 
 int64_t AudioPlayer::GetPosition() {
