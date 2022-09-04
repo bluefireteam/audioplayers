@@ -17,7 +17,7 @@ const _uuid = Uuid();
 class AudioPlayer {
   /// Creates a new instance and assigns an unique id to it.
   AudioPlayer({String? playerId}) : playerId = playerId ?? _uuid.v4() {
-    onPlayerComplete.listen((_) {
+    _onPlayerCompleteStreamSubscription = onPlayerComplete.listen((_) {
       state = PlayerState.completed;
     });
   }
@@ -40,6 +40,8 @@ class AudioPlayer {
     }
     _playerState = state;
   }
+
+  StreamSubscription? _onPlayerCompleteStreamSubscription;
 
   final StreamController<PlayerState> _playerStateController =
       StreamController<PlayerState>.broadcast();
@@ -255,10 +257,13 @@ class AudioPlayer {
     // First stop and release all native resources.
     await release();
 
-    final futures = <Future>[];
-    if (!_playerStateController.isClosed) {
-      futures.add(_playerStateController.close());
-    }
+    final futures = <Future>[
+      if (!_playerStateController.isClosed)
+        _playerStateController.close(),
+      if (_onPlayerCompleteStreamSubscription != null)
+        _onPlayerCompleteStreamSubscription!.cancel()
+    ];
+
     await Future.wait<dynamic>(futures);
   }
 }
