@@ -2,10 +2,11 @@ import 'package:audioplayers_example/components/dlg.dart';
 import 'package:flutter/material.dart';
 
 extension StateExt<T extends StatefulWidget> on State<T> {
-  void toast(String message) {
+  void toast(String message, {Key? textKey}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
+        content: Text(message, key: textKey),
+        duration: const Duration(milliseconds: 500),
       ),
     );
   }

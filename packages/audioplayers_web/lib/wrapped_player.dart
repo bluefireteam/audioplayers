@@ -20,6 +20,8 @@ class WrappedPlayer {
   StreamSubscription? playerTimeUpdateSubscription;
   StreamSubscription? playerEndedSubscription;
   StreamSubscription? playerLoadedDataSubscription;
+  StreamSubscription? playerPlaySubscription;
+  StreamSubscription? playerSeekedSubscription;
 
   WrappedPlayer(this.playerId, this.streamsInterface);
 
@@ -59,11 +61,17 @@ class WrappedPlayer {
     p.loop = shouldLoop();
     p.volume = currentVolume;
     p.playbackRate = currentPlaybackRate;
-    playerLoadedDataSubscription = p.onLoadedData.listen((event) {
+    playerPlaySubscription = p.onPlay.listen((_) {
+      streamsInterface.emitDuration(playerId, toDuration(p.duration));
+    });
+    playerLoadedDataSubscription = p.onLoadedData.listen((_) {
       streamsInterface.emitDuration(playerId, toDuration(p.duration));
     });
     playerTimeUpdateSubscription = p.onTimeUpdate.listen((_) {
       streamsInterface.emitPosition(playerId, toDuration(p.currentTime));
+    });
+    playerSeekedSubscription = p.onSeeked.listen((_) {
+      streamsInterface.emitSeekComplete(playerId);
     });
     playerEndedSubscription = p.onEnded.listen((_) {
       pausedAt = 0;
@@ -90,6 +98,10 @@ class WrappedPlayer {
     playerTimeUpdateSubscription = null;
     playerEndedSubscription?.cancel();
     playerEndedSubscription = null;
+    playerSeekedSubscription?.cancel();
+    playerSeekedSubscription = null;
+    playerPlaySubscription?.cancel();
+    playerPlaySubscription = null;
   }
 
   void start(double position) {
@@ -110,7 +122,8 @@ class WrappedPlayer {
 
   void pause() {
     pausedAt = player?.currentTime as double?;
-    _cancel();
+    isPlaying = false;
+    player?.pause();
   }
 
   void stop() {
