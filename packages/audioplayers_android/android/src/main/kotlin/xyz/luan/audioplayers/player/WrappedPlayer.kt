@@ -178,15 +178,15 @@ class WrappedPlayer internal constructor(
         }
         if (releaseMode != ReleaseMode.RELEASE) {
             pause()
-            if (isLiveStream()) {
-                if (prepared) {
+            if(prepared) {
+                if (player?.isLiveStream() == true) {
                     player?.stop()
                     prepared = false
                     player?.prepare()
+                } else {
+                    // MediaPlayer does not allow to call player.seekTo after calling player.stop
+                    seek(0)
                 }
-            } else {
-                // MediaPlayer does not allow to call player.seekTo after calling player.stop
-                seek(0)
             }
         } else {
             release()
@@ -220,13 +220,11 @@ class WrappedPlayer internal constructor(
     // seek operations cannot be called until after
     // the player is ready.
     fun seek(position: Int) {
-        if (!isLiveStream()) {
-            shouldSeekTo = if (prepared) {
-                player?.seekTo(position)
-                -1
-            } else {
-                position
-            }
+        shouldSeekTo = if (prepared && player?.isLiveStream() != true) {
+            player?.seekTo(position)
+            -1
+        } else {
+            position
         }
     }
 
@@ -240,7 +238,7 @@ class WrappedPlayer internal constructor(
             player?.start()
             ref.handleIsPlaying()
         }
-        if (shouldSeekTo >= 0) {
+        if (shouldSeekTo >= 0 && player?.isLiveStream() != true) {
             player?.seekTo(shouldSeekTo)
         }
     }
@@ -310,10 +308,5 @@ class WrappedPlayer internal constructor(
         setVolume(volume)
         setLooping(isLooping)
         prepare()
-    }
-
-    private fun isLiveStream(): Boolean {
-        val duration = getDuration()
-        return duration == null || duration == 0
     }
 }

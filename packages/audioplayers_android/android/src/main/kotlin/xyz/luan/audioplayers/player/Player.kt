@@ -1,14 +1,13 @@
 package xyz.luan.audioplayers.player
 
-import android.media.MediaDataSource
 import xyz.luan.audioplayers.AudioContextAndroid
-import xyz.luan.audioplayers.ReleaseMode
 import xyz.luan.audioplayers.source.Source
 
 interface Player {
     fun getDuration(): Int?
     fun getCurrentPosition(): Int?
     fun isActuallyPlaying(): Boolean
+    fun isLiveStream(): Boolean
 
     fun start()
     fun pause()

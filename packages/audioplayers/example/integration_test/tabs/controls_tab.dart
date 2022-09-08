@@ -63,9 +63,30 @@ Future<void> testControlsTab(
       !audioSourceTestData.isStream &&
       !isBytesSource) {
     await tester.testPlayerMode(PlayerMode.lowLatency);
+    
+    // Test resume
+    await tester.tap(find.byKey(const Key('control-resume')));
+    await tester.pump(const Duration(seconds: 1));
+    // Test pause
+    await tester.tap(find.byKey(const Key('control-pause')));
+    await tester.tap(find.byKey(const Key('control-resume')));
     await tester.pump(const Duration(seconds: 1));
     await tester.tap(find.byKey(const Key('control-stop')));
-    await tester.testPlayerMode(PlayerMode.mediaPlayer, isResume: false);
+    await tester.pumpAndSettle();
+    
+    // Test volume
+    await tester.testVolume('0.5');
+    await tester.testVolume('1.0');
+
+    // Test release mode: loop
+    await tester.testReleaseMode(ReleaseMode.loop);
+    await tester.pump(const Duration(seconds: 3));
+    await tester.tap(find.byKey(const Key('control-stop')));
+    await tester.testReleaseMode(ReleaseMode.stop, isResume: false);
+    await tester.pumpAndSettle();
+    
+    // Reset to media player
+    await tester.testPlayerMode(PlayerMode.mediaPlayer);
     await tester.pumpAndSettle();
   }
 
@@ -152,7 +173,7 @@ extension ControlsWidgetTester on WidgetTester {
     }
   }
 
-  Future<void> testPlayerMode(PlayerMode mode, {bool isResume = true}) async {
+  Future<void> testPlayerMode(PlayerMode mode) async {
     printOnFailure('Test Player Mode: ${mode.name}');
     await tap(find.byKey(Key('control-player-mode-${mode.name}')));
     await waitFor(
@@ -161,10 +182,6 @@ extension ControlsWidgetTester on WidgetTester {
         matcher: equals(mode),
       ),
     );
-    if (isResume) {
-      await tap(find.byKey(const Key('control-resume')));
-    }
-    // TODO(Gustl22): get player mode from native implementation
   }
 
   Future<void> testReleaseMode(ReleaseMode mode, {bool isResume = true}) async {
