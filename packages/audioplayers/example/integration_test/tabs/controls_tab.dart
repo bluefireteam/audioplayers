@@ -63,7 +63,7 @@ Future<void> testControlsTab(
       !audioSourceTestData.isStream &&
       !isBytesSource) {
     await tester.testPlayerMode(PlayerMode.lowLatency);
-    
+
     // Test resume
     await tester.tap(find.byKey(const Key('control-resume')));
     await tester.pump(const Duration(seconds: 1));
@@ -73,7 +73,7 @@ Future<void> testControlsTab(
     await tester.pump(const Duration(seconds: 1));
     await tester.tap(find.byKey(const Key('control-stop')));
     await tester.pumpAndSettle();
-    
+
     // Test volume
     await tester.testVolume('0.5');
     await tester.testVolume('1.0');
@@ -84,7 +84,7 @@ Future<void> testControlsTab(
     await tester.tap(find.byKey(const Key('control-stop')));
     await tester.testReleaseMode(ReleaseMode.stop, isResume: false);
     await tester.pumpAndSettle();
-    
+
     // Reset to media player
     await tester.testPlayerMode(PlayerMode.mediaPlayer);
     await tester.pumpAndSettle();
