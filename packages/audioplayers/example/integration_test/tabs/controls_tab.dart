@@ -24,6 +24,12 @@ Future<void> testControlsTab(
     // No tests for volume > 1
   }
 
+  if (features.hasBalance) {
+    await tester.testBalance('-1.0');
+    await tester.testBalance('0.0');
+    await tester.testBalance('1.0');
+  }
+
   if (features.hasPlaybackRate && !audioSourceTestData.isStream) {
     // TODO(Gustl22): also test for playback rate in streams
     await tester.testRate('0.5');
@@ -108,6 +114,19 @@ extension ControlsWidgetTester on WidgetTester {
     await tap(find.byKey(Key('control-volume-$volume')));
     await tap(find.byKey(const Key('control-resume')));
     // TODO(Gustl22): get volume from native implementation
+    await pump(timeout);
+    await tap(find.byKey(const Key('control-stop')));
+    await pumpAndSettle();
+  }
+
+  Future<void> testBalance(
+      String balance, {
+        Duration timeout = const Duration(seconds: 1),
+      }) async {
+    printOnFailure('Test Balance: $balance');
+    await tap(find.byKey(Key('control-balance-$balance')));
+    await tap(find.byKey(const Key('control-resume')));
+    // TODO(novikov): get balance from native implementation
     await pump(timeout);
     await tap(find.byKey(const Key('control-stop')));
     await pumpAndSettle();
