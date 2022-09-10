@@ -35,7 +35,7 @@ jobs:
 
      - uses: subosito/flutter-action@v2
        with:
-         channel: master
+         channel: stable
      - uses: bluefireteam/melos-action@main
 
      - name: Example App - Build web app
@@ -89,8 +89,8 @@ jobs:
      - name: Download Android Emulator Image
        run: |
          export ANDROID_TOOLS="$ANDROID_HOME/cmdline-tools/latest/bin"
-         echo "y" | $ANDROID_TOOLS/sdkmanager --install "system-images;android-30;google_apis;x86"
-         echo "no" | $ANDROID_TOOLS/avdmanager create avd --force --name emu --device "Nexus 5X" -k 'system-images;android-30;google_apis;x86'
+         echo "y" | $ANDROID_TOOLS/sdkmanager --install "system-images;android-30;aosp_atd;x86"
+         echo "no" | $ANDROID_TOOLS/avdmanager create avd --force --name emu --device "Nexus 5X" -k 'system-images;android-30;aosp_atd;x86'
          $ANDROID_HOME/emulator/emulator -list-avds
      - name: "Start Android Emulator"
        timeout-minutes: 10

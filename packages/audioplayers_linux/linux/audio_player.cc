@@ -41,7 +41,7 @@ AudioPlayer::AudioPlayer(std::string playerId, FlMethodChannel *channel)
     // Watch bus messages for one time events
     gst_bus_add_watch(bus, (GstBusFunc) AudioPlayer::OnBusMessage, this);
 
-    // Refresh continuously to emit reoccuring events
+    // Refresh continuously to emit reoccurring events
     g_timeout_add(1000, (GSourceFunc) AudioPlayer::OnRefresh, this);
 }
 
@@ -355,7 +355,9 @@ void AudioPlayer::Resume() {
                 std::string("Unable to set the pipeline to the playing state."));
         return;
     }
-    OnDurationUpdate(); // Update duration when start playing, as no event is emitted elsewhere
+    // Update position and duration when start playing, as no event is emitted elsewhere
+    OnPositionUpdate(); 
+    OnDurationUpdate();
 }
 
 void AudioPlayer::Dispose() {

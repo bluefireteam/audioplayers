@@ -89,6 +89,7 @@ private:
     void OnMediaError(MF_MEDIA_ENGINE_ERR error, HRESULT hr);
     void OnMediaStateChange(media::MediaEngineWrapper::BufferingState bufferingState);
     void OnPlaybackEnded();
+    void OnDurationUpdate();
     void OnTimeUpdate();
     void OnSeekCompleted();
 

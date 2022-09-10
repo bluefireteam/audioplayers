@@ -1,6 +1,8 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_example/components/btn.dart';
 import 'package:audioplayers_example/components/tab_wrapper.dart';
+import 'package:audioplayers_example/utils.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 
@@ -26,12 +28,9 @@ class SourcesTab extends StatefulWidget {
 
 class _SourcesTabState extends State<SourcesTab>
     with AutomaticKeepAliveClientMixin<SourcesTab> {
-  bool isSourceSet = false;
-
   Future<void> setSource(Source source) async {
-    setState(() => isSourceSet = false);
     await widget.player.setSource(source);
-    setState(() => isSourceSet = true);
+    toast('Completed setting source.', textKey: const Key('toast-source-set'));
   }
 
   @override
@@ -39,10 +38,6 @@ class _SourcesTabState extends State<SourcesTab>
     super.build(context);
     return TabWrapper(
       children: [
-        Text(
-          isSourceSet ? 'Source is set' : 'Source is not set',
-          key: const Key('isSourceSet'),
-        ),
         Btn(
           key: const Key('setSource-url-remote-wav-1'),
           txt: 'Remote URL WAV 1 - coins.wav',
@@ -99,7 +94,17 @@ class _SourcesTabState extends State<SourcesTab>
             setSource(BytesSource(bytes));
           },
         ),
-        // TODO(luan): Add local files via file picker
+        Btn(
+          key: const Key('setSource-url-local'),
+          txt: 'Pick local file',
+          onPressed: () async {
+            final result = await FilePicker.platform.pickFiles();
+            final path = result?.files.single.path;
+            if (path != null) {
+              setSource(DeviceFileSource(path));
+            }
+          },
+        ),
       ],
     );
   }

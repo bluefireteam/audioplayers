@@ -1,93 +1,29 @@
 import 'dart:async';
+import 'package:audioplayers_example/components/tgl.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'source_test_data.dart';
-
 extension WidgetTesterUtils on WidgetTester {
-  Future<void> testDuration(SourceTestData sourceTestData) async {
-    await tap(find.byKey(const Key('getDuration')));
-    await pumpAndSettle();
-    expectWidgetHasText(
-      const Key('durationText'),
-      // Precision for duration:
-      // Android: hundredth of a second
-      // Windows: second
-      matcher: contains(
-        sourceTestData.duration.toString().substring(0, 8),
-      ),
-    );
-  }
-
-  Future<void> testPosition(String positionStr) async {
-    await tap(find.byKey(const Key('getPosition')));
-    await pumpAndSettle();
-    expectWidgetHasText(
-      const Key('positionText'),
-      matcher: contains(positionStr),
-    );
-  }
-
-  Future<void> testOnDuration(SourceTestData sourceTestData) async {
-    final durationStr = sourceTestData.duration.toString().substring(0, 8);
-    final currentDurationStr = (find
-            .byKey(const Key('onDurationText'))
-            .evaluate()
-            .single
-            .widget as Text)
-        .data;
-    await waitFor(
-      () => expectWidgetHasText(
-        const Key('onDurationText'),
-        matcher: contains(
-          'Stream Duration: $durationStr',
-        ),
-      ),
-      stackTrace: [
-        StackTrace.current.toString(),
-        'Current: $currentDurationStr',
-        'Expected: $durationStr',
-      ],
-    );
-  }
-
-  Future<void> testOnPosition(String positionStr) async {
-    final currentPositionStr = (find
-            .byKey(const Key('onPositionText'))
-            .evaluate()
-            .single
-            .widget as Text)
-        .data;
-    await waitFor(
-      () => expectWidgetHasText(
-        const Key('onPositionText'),
-        matcher: contains('Stream Position: $positionStr'),
-      ),
-      stackTrace: [
-        StackTrace.current.toString(),
-        'Current: $currentPositionStr',
-        'Expected: $positionStr',
-      ],
-    );
-  }
-
   // Add [stackTrace] to work around https://github.com/flutter/flutter/issues/89138
   Future<void> waitFor(
     void Function() testExpectation, {
     Duration? timeout = const Duration(seconds: 15),
-    List<String>? stackTrace,
+    Duration? pollInterval = const Duration(milliseconds: 500),
+    String? stackTrace,
   }) =>
       _waitUntil(
-        () async {
+        (setFailureMessage) async {
           try {
-            await pumpAndSettle();
+            await pump();
             testExpectation();
             return true;
-          } on TestFailure {
+          } on TestFailure catch (e) {
+            setFailureMessage(e.message ?? '');
             return false;
           }
         },
         timeout: timeout,
+        pollInterval: pollInterval,
         stackTrace: stackTrace,
       );
 
@@ -96,11 +32,14 @@ extension WidgetTesterUtils on WidgetTester {
   /// condition does not return true with the timeout period.
   /// Copied from: https://github.com/jonsamwell/flutter_gherkin/blob/02a4af91d7a2512e0a4540b9b1ab13e36d5c6f37/lib/src/flutter/utils/driver_utils.dart#L86
   Future<void> _waitUntil(
-    Future<bool> Function() condition, {
+    Future<bool> Function(Function(String message) setFailureMessage)
+        condition, {
     Duration? timeout = const Duration(seconds: 15),
     Duration? pollInterval = const Duration(milliseconds: 500),
-    List<String>? stackTrace,
+    String? stackTrace,
   }) async {
+    var firstFailureMsg = '';
+    var lastFailureMsg = '';
     try {
       await Future.microtask(
         () async {
@@ -110,7 +49,12 @@ extension WidgetTesterUtils on WidgetTester {
           var attempts = 0;
 
           while (attempts < maxAttempts) {
-            final result = await condition();
+            final result = await condition((String message) {
+              if (firstFailureMsg.isEmpty) {
+                firstFailureMsg = message;
+              }
+              lastFailureMsg = message;
+            });
             if (result) {
               completer.complete();
               break;
@@ -124,7 +68,16 @@ extension WidgetTesterUtils on WidgetTester {
         timeout!,
       );
     } on TimeoutException catch (e) {
-      throw Exception('$e\nStacktrace:\n${stackTrace?.join('\n')}');
+      throw Exception(
+        '''$e
+
+Stacktrace: 
+$stackTrace
+First Failure: 
+$firstFailureMsg
+Last Failure: 
+$lastFailureMsg''',
+      );
     }
   }
 
@@ -147,6 +100,20 @@ void expectWidgetHasText(
       find.byKey(key, skipOffstage: skipOffstage).evaluate().single.widget;
   if (widget is Text) {
     expect(widget.data, matcher);
+  } else {
+    throw 'Widget with key $key is not a Widget of type "Text"';
+  }
+}
+
+void expectEnumToggleHasSelected(
+  Key key, {
+  required Matcher matcher,
+  bool skipOffstage = true,
+}) {
+  final widget =
+      find.byKey(key, skipOffstage: skipOffstage).evaluate().single.widget;
+  if (widget is EnumTgl) {
+    expect(widget.selected, matcher);
   } else {
     throw 'Widget with key $key is not a Widget of type "Text"';
   }
