@@ -1,6 +1,5 @@
 package xyz.luan.audioplayers.player
 
-import android.media.MediaDataSource
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.PowerManager
@@ -92,5 +91,10 @@ class MediaPlayerPlayer(
 
     override fun reset() {
         mediaPlayer.reset()
+    }
+
+    override fun isLiveStream(): Boolean {
+        val duration = getDuration()
+        return duration == null || duration == 0
     }
 }
