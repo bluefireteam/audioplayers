@@ -217,7 +217,7 @@ This event returns the duration of the file, when it's available (it might take 
 This Event updates the current position of the audio. You can use it to make a progress bar, for instance.
 
 ```dart
-  player.onAudioPositionChanged.listen((Duration  p) => {
+  player.onPositionChanged.listen((Duration  p) => {
     print('Current position: $p');
     setState(() => position = p);
   });
