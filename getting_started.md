@@ -56,7 +56,7 @@ After the URL is set, you can use the following methods to control the player:
 Stops the playback but keeps the current position.
 
 ```dart
-  await player.pause(); // will resume where left off
+  await player.pause(); // will stop the audio on the current position 
 ```
 
 ### stop
