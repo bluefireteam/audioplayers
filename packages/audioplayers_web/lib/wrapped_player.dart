@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:html';
+import 'dart:web_audio';
 
 import 'package:audioplayers_platform_interface/api/player_state.dart';
 import 'package:audioplayers_platform_interface/api/release_mode.dart';
@@ -17,6 +18,7 @@ class WrappedPlayer {
   bool isPlaying = false;
 
   AudioElement? player;
+  StereoPannerNode? stereoPanner;
   StreamSubscription? playerTimeUpdateSubscription;
   StreamSubscription? playerEndedSubscription;
   StreamSubscription? playerLoadedDataSubscription;
@@ -43,6 +45,10 @@ class WrappedPlayer {
     player?.volume = volume;
   }
 
+  void setBalance(double balance) {
+    stereoPanner?.pan?.value = balance;
+  }
+
   void setPlaybackRate(double rate) {
     currentPlaybackRate = rate;
     player?.playbackRate = rate;
@@ -58,10 +64,18 @@ class WrappedPlayer {
         );
 
     final p = player = AudioElement(currentUrl);
+    p.crossOrigin = 'anonymous'; // need for stereo panning to work
     p.loop = shouldLoop();
     p.volume = currentVolume;
     p.playbackRate = currentPlaybackRate;
     playerPlaySubscription = p.onPlay.listen((_) {
+      // setup stereo panning
+      final audioContext = AudioContext();
+      final source = audioContext!.createMediaElementSource(player!);
+      stereoPanner = audioContext!.createStereoPanner();
+      source!.connectNode(stereoPanner!);
+      stereoPanner!.connectNode(audioContext!.destination!);
+
       streamsInterface.emitDuration(playerId, toDuration(p.duration));
     });
     playerLoadedDataSubscription = p.onLoadedData.listen((_) {
@@ -91,6 +105,7 @@ class WrappedPlayer {
   void release() {
     _cancel();
     player = null;
+    stereoPanner = null;
 
     playerLoadedDataSubscription?.cancel();
     playerLoadedDataSubscription = null;
@@ -146,6 +161,7 @@ class WrappedPlayer {
     player?.pause();
     if (currentReleaseMode == ReleaseMode.release) {
       player = null;
+      stereoPanner = null;
     }
   }
 }
