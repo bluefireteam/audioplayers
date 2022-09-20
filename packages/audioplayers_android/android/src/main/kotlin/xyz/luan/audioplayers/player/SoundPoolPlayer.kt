@@ -72,14 +72,20 @@ class SoundPoolPlayer(
         }
     }
 
+    /** The id of the sound of source which will be played */
     private var soundId: Int? = null
+    
+    /** The id of the stream / player */
     private var streamId: Int? = null
 
     private val urlSource: UrlSource?
         get() = wrappedPlayer.source as? UrlSource
 
     override fun stop() {
-        streamId?.let { soundPool.stop(it) }
+        streamId?.let {
+            soundPool.stop(it)
+            streamId = null
+        }
     }
 
     override fun release() {
@@ -169,7 +175,7 @@ class SoundPoolPlayer(
     override fun seekTo(position: Int) {
         if (position == 0) {
             streamId?.let {
-                soundPool.stop(it)
+                stop()
                 if (wrappedPlayer.playing) {
                     soundPool.resume(it)
                 }
@@ -204,6 +210,8 @@ class SoundPoolPlayer(
     override fun reset() {
         // TODO(luan) what do I do here?
     }
+
+    override fun isLiveStream() = false
 
     /** Integer representation of the loop mode used by Android */
     private fun Boolean.loopModeInteger(): Int = if (this) -1 else 0

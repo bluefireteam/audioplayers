@@ -1,61 +1,9 @@
 import 'dart:async';
+import 'package:audioplayers_example/components/tgl.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'source_test_data.dart';
-
 extension WidgetTesterUtils on WidgetTester {
-  Future<void> testDuration(SourceTestData sourceTestData) async {
-    await tap(find.byKey(const Key('getDuration')));
-    await waitFor(
-      () => expectWidgetHasText(
-        const Key('durationText'),
-        // Precision for duration:
-        // Android: two tenth of a second
-        // Windows: second
-        matcher: contains(
-          sourceTestData.duration.toString().substring(0, 8),
-        ),
-      ),
-      timeout: const Duration(seconds: 2),
-    );
-  }
-
-  Future<void> testPosition(String positionStr) async {
-    await tap(find.byKey(const Key('getPosition')));
-    await waitFor(
-      () => expectWidgetHasText(
-        const Key('positionText'),
-        matcher: contains(positionStr),
-      ),
-      timeout: const Duration(seconds: 2),
-    );
-  }
-
-  Future<void> testOnDuration(SourceTestData sourceTestData) async {
-    final durationStr = sourceTestData.duration.toString().substring(0, 8);
-    await waitFor(
-      () => expectWidgetHasText(
-        const Key('onDurationText'),
-        matcher: contains(
-          'Stream Duration: $durationStr',
-        ),
-      ),
-      stackTrace: StackTrace.current.toString(),
-    );
-  }
-
-  Future<void> testOnPosition(String positionStr) async {
-    await waitFor(
-      () => expectWidgetHasText(
-        const Key('onPositionText'),
-        matcher: contains('Stream Position: $positionStr'),
-      ),
-      pollInterval: const Duration(milliseconds: 250),
-      stackTrace: StackTrace.current.toString(),
-    );
-  }
-
   // Add [stackTrace] to work around https://github.com/flutter/flutter/issues/89138
   Future<void> waitFor(
     void Function() testExpectation, {
@@ -152,6 +100,20 @@ void expectWidgetHasText(
       find.byKey(key, skipOffstage: skipOffstage).evaluate().single.widget;
   if (widget is Text) {
     expect(widget.data, matcher);
+  } else {
+    throw 'Widget with key $key is not a Widget of type "Text"';
+  }
+}
+
+void expectEnumToggleHasSelected(
+  Key key, {
+  required Matcher matcher,
+  bool skipOffstage = true,
+}) {
+  final widget =
+      find.byKey(key, skipOffstage: skipOffstage).evaluate().single.widget;
+  if (widget is EnumTgl) {
+    expect(widget.selected, matcher);
   } else {
     throw 'Widget with key $key is not a Widget of type "Text"';
   }

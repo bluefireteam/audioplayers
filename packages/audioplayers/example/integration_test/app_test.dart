@@ -1,13 +1,14 @@
-import 'dart:io';
-
 import 'package:audioplayers_example/main.dart' as app;
-import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
 import 'platform_features.dart';
 import 'source_test_data.dart';
-import 'test_utils.dart';
+import 'tabs/context_tab.dart';
+import 'tabs/controls_tab.dart';
+import 'tabs/logs_tab.dart';
+import 'tabs/source_tab.dart';
+import 'tabs/stream_tab.dart';
 
 void main() {
   final features = PlatformFeatures.instance();
@@ -87,98 +88,11 @@ void main() {
         app.main();
         await tester.pumpAndSettle();
 
-        // Sources
-        await tester.tap(find.byKey(const Key('sourcesTab')));
-        await tester.pumpAndSettle();
-
-        final sourceWidgetKey =
-            Key('setSource-${audioSourceTestData.sourceKey}');
-        await tester.scrollTo(sourceWidgetKey);
-        await tester.tap(find.byKey(sourceWidgetKey));
-
-        const sourceSetKey = Key('isSourceSet');
-        await tester.scrollTo(sourceSetKey);
-        await tester.waitFor(
-          () => expectWidgetHasText(
-            sourceSetKey,
-            matcher: equals('Source is set'),
-          ),
-          timeout: const Duration(seconds: 180),
-          stackTrace: StackTrace.current.toString(),
-        );
-
-        // Streams
-        await tester.tap(find.byKey(const Key('streamsTab')));
-        await tester.pumpAndSettle();
-
-        // Stream position is tracked as soon as source is loaded
-        if (!audioSourceTestData.isStream) {
-          // Display position before playing
-          await tester.testPosition('0:00:00.000000');
-        }
-
-        // MP3 duration is estimated: https://bugzilla.gnome.org/show_bug.cgi?id=726144
-        final isImmediateDurationSupported = features.hasMp3Duration ||
-            !audioSourceTestData.sourceKey.contains('mp3');
-
-        if (!audioSourceTestData.isStream && isImmediateDurationSupported) {
-          // Display duration before playing
-          await tester.testDuration(audioSourceTestData);
-        }
-
-        await tester.tap(find.byKey(const Key('play_button')));
-        await tester.pump();
-
-        if (!audioSourceTestData.isStream) {
-          // Test if onPositionText is set.
-          // Cannot test more precisely as it is dependent on pollInterval.
-          // TODO(Gustl22): test position update in seek mode.
-          if (features.hasPositionEvent) {
-            // TODO(Gustl22): avoid flaky onPosition test for Android only.
-            // Reason is, that some frames are skipped on CI and position is not
-            // updated in time. Once one can reproduce it reliably, we can fix
-            // and enable it again.
-            if (kIsWeb || !Platform.isAndroid) {
-              await tester.testOnPosition('0:00:00');
-            }
-          }
-        }
-
-        if (!audioSourceTestData.isStream && isImmediateDurationSupported) {
-          // Test if onDurationText is set.
-          if (features.hasDurationEvent) {
-            await tester.testOnDuration(audioSourceTestData);
-          }
-        }
-
-        const sampleDuration = Duration(seconds: 2);
-        await tester.pump(sampleDuration);
-
-        // Display duration after end / stop (some samples are shorter than sampleDuration, so this test would fail)
-        // TODO(Gustl22): Not possible at the moment (shows duration of 0)
-        // await testDuration();
-        // await testOnDuration();
-
-        await tester.tap(find.byKey(const Key('pause_button')));
-        await tester.tap(find.byKey(const Key('stop_button')));
-
-        // Controls
-        // TODO(Gustl22): test volume, rate, player mode, release mode, seek
-        // await tester.tap(find.byKey(const Key('controlsTab')));
-        // await tester.pumpAndSettle();
-
-        // await tester.tap(find.byKey(const Key('control-resume')));
-        // await Future<void>.delayed(const Duration(seconds: 1));
-
-        // Audio context
-        // TODO(Gustl22): test generic flags
-        // await tester.tap(find.byKey(const Key('audioContextTab')));
-        // await tester.pumpAndSettle();
-
-        // Logs
-        // TODO(Gustl22): may test logs
-        // await tester.tap(find.byKey(const Key('loggerTab')));
-        // await tester.pumpAndSettle();
+        await testSourcesTab(tester, audioSourceTestData, features);
+        await testControlsTab(tester, audioSourceTestData, features);
+        await testStreamsTab(tester, audioSourceTestData, features);
+        await testContextTab(tester, audioSourceTestData, features);
+        await testLogsTab(tester, audioSourceTestData, features);
       });
     }
   });
