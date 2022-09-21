@@ -13,10 +13,6 @@ mixin StreamsInterface {
     _completeStreamController.add(ForPlayer(playerId, null));
   }
 
-  void emitPlayerState(String playerId, PlayerState value) {
-    _playerStateStreamController.add(ForPlayer(playerId, value));
-  }
-
   void emitDuration(String playerId, Duration value) {
     _durationStreamController.add(ForPlayer(playerId, value));
   }
@@ -34,9 +30,6 @@ mixin StreamsInterface {
   Stream<ForPlayer<Duration>> get durationStream =>
       _durationStreamController.stream;
 
-  Stream<ForPlayer<PlayerState>> get playerStateStream =>
-      _playerStateStreamController.stream;
-
   Stream<ForPlayer<Duration>> get positionStream =>
       _positionStreamController.stream;
 
@@ -49,9 +42,6 @@ mixin StreamsInterface {
   final StreamController<ForPlayer<Duration>> _durationStreamController =
       StreamController<ForPlayer<Duration>>.broadcast();
 
-  final StreamController<ForPlayer<PlayerState>> _playerStateStreamController =
-      StreamController<ForPlayer<PlayerState>>.broadcast();
-
   final StreamController<ForPlayer<Duration>> _positionStreamController =
       StreamController<ForPlayer<Duration>>.broadcast();
 
@@ -60,7 +50,6 @@ mixin StreamsInterface {
     _seekCompleteStreamController.close();
     _completeStreamController.close();
     _durationStreamController.close();
-    _playerStateStreamController.close();
     _positionStreamController.close();
   }
 }
