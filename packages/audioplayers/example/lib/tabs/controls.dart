@@ -90,7 +90,7 @@ class _ControlsTabState extends State<ControlsTab>
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Text('Balance'),
-            ...[-1.0, -0.5, 0.0, 0.5, 1.0].map((it) {
+            ...[-1.0, -0.5, 0.0, 1.0].map((it) {
               final formattedVal = it.toStringAsFixed(1);
               return Btn(
                 key: Key('control-balance-$formattedVal'),
