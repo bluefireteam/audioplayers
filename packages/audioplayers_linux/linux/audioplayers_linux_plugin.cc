@@ -187,8 +187,7 @@ static void audioplayers_linux_plugin_handle_method_call(
             flBalance == nullptr ? 0.0f : fl_value_get_float(flBalance);
         player->SetBalance(balance);
         result = 1;
-    }
-     else {
+    } else {
         response = FL_METHOD_RESPONSE(fl_method_not_implemented_response_new());
         fl_method_call_respond(method_call, response, nullptr);
         return;
