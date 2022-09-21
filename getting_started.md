@@ -56,7 +56,7 @@ After the URL is set, you can use the following methods to control the player:
 Stops the playback but keeps the current position.
 
 ```dart
-  await player.pause(); // will stop the audio on the current position 
+  await player.pause(); 
 ```
 
 ### stop
@@ -64,7 +64,7 @@ Stops the playback but keeps the current position.
 Stops the playback and also resets the current position.
 
 ```dart
-  await player.stop(); // will resume from beginning
+  await player.stop();
 ```
 
 ### release
@@ -79,7 +79,7 @@ Particularly on Android, the media player is quite resource-intensive, and this 
 
 ### resume
 
-Starts playback from current position (by default, from the start).
+Starts playback from last paused position or from start by default.
 
 ```dart
   await player.resume();
