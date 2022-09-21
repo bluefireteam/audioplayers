@@ -26,8 +26,8 @@ Future<void> testControlsTab(
 
   if (features.hasBalance) {
     await tester.testBalance('-1.0');
-    await tester.testBalance('1.0');
     await tester.testBalance('0.0');
+    await tester.testBalance('1.0');
   }
 
   if (features.hasPlaybackRate && !audioSourceTestData.isStream) {
@@ -141,9 +141,9 @@ extension ControlsWidgetTester on WidgetTester {
   }
 
   Future<void> testBalance(
-    String balance, {
-    Duration timeout = const Duration(seconds: 1),
-  }) async {
+      String balance, {
+        Duration timeout = const Duration(seconds: 1),
+      }) async {
     printOnFailure('Test Balance: $balance');
     await tap(find.byKey(Key('control-balance-$balance')));
     await tap(find.byKey(const Key('control-resume')));

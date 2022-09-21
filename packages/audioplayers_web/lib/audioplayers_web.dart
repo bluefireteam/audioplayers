@@ -107,11 +107,6 @@ class AudioplayersPlugin extends AudioplayersPlatform with StreamsInterface {
   }
 
   @override
-  Future<void> setBalance(String playerId, double balance) async {
-    getOrCreatePlayer(playerId).setBalance(balance);
-  }
-
-  @override
   Future<void> stop(String playerId) async {
     getOrCreatePlayer(playerId).stop();
   }
