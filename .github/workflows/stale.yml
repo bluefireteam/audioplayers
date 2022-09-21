@@ -1,4 +1,4 @@
-name: changes-requested
+name: stale
 
 on:
   schedule:
