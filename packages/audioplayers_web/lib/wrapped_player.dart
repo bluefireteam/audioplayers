@@ -76,7 +76,6 @@ class WrappedPlayer {
     playerEndedSubscription = p.onEnded.listen((_) {
       pausedAt = 0;
       player?.currentTime = 0;
-      streamsInterface.emitPlayerState(playerId, PlayerState.stopped);
       streamsInterface.emitComplete(playerId);
     });
   }

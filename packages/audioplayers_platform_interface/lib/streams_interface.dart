@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:audioplayers_platform_interface/api/for_player.dart';
-import 'package:audioplayers_platform_interface/api/player_state.dart';
 import 'package:flutter/foundation.dart';
 
 mixin StreamsInterface {
