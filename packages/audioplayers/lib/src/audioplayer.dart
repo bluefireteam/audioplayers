@@ -90,6 +90,13 @@ class AudioPlayer {
 
   ReleaseMode get releaseMode => _releaseMode;
 
+  /// Creates a new instance and assigns an unique id to it.
+  AudioPlayer({String? playerId}) : playerId = playerId ?? _uuid.v4() {
+    _onPlayerCompleteStreamSubscription = onPlayerComplete.listen((_) {
+      state = PlayerState.completed;
+    });
+  }
+
   Future<void> play(
     Source source, {
     double? volume,
