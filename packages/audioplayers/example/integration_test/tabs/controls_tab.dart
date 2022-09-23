@@ -175,13 +175,13 @@ extension ControlsWidgetTester on WidgetTester {
 
     // Wait until appearance and disappearance
     await waitFor(
-      () => expect(
+      () async => expect(
         find.byKey(const Key('toast-seek-complete-0')),
         findsOneWidget,
       ),
     );
     await waitFor(
-      () => expect(
+      () async => expect(
         find.byKey(const Key('toast-seek-complete-0')),
         findsNothing,
       ),
@@ -196,7 +196,7 @@ extension ControlsWidgetTester on WidgetTester {
     printOnFailure('Test Player Mode: ${mode.name}');
     await tap(find.byKey(Key('control-player-mode-${mode.name}')));
     await waitFor(
-      () => expectEnumToggleHasSelected(
+      () async => expectEnumToggleHasSelected(
         const Key('control-player-mode'),
         matcher: equals(mode),
       ),
@@ -207,7 +207,7 @@ extension ControlsWidgetTester on WidgetTester {
     printOnFailure('Test Release Mode: ${mode.name}');
     await tap(find.byKey(Key('control-release-mode-${mode.name}')));
     await waitFor(
-      () => expectEnumToggleHasSelected(
+      () async => expectEnumToggleHasSelected(
         const Key('control-release-mode'),
         matcher: equals(mode),
       ),

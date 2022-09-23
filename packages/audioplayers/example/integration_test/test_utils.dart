@@ -6,7 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 extension WidgetTesterUtils on WidgetTester {
   // Add [stackTrace] to work around https://github.com/flutter/flutter/issues/89138
   Future<void> waitFor(
-    void Function() testExpectation, {
+    Future<void> Function() testExpectation, {
     Duration? timeout = const Duration(seconds: 15),
     Duration? pollInterval = const Duration(milliseconds: 500),
     String? stackTrace,
@@ -15,7 +15,7 @@ extension WidgetTesterUtils on WidgetTester {
         (setFailureMessage) async {
           try {
             await pump();
-            testExpectation();
+            await testExpectation();
             return true;
           } on TestFailure catch (e) {
             setFailureMessage(e.message ?? '');

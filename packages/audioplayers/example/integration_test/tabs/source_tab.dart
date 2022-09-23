@@ -27,7 +27,7 @@ extension ControlsWidgetTester on WidgetTester {
 
     // Wait for toast appearance and disappearance
     await waitFor(
-      () => expect(
+      () async => expect(
         find.byKey(const Key('toast-source-set')),
         findsOneWidget,
       ),
@@ -35,7 +35,7 @@ extension ControlsWidgetTester on WidgetTester {
       stackTrace: st,
     );
     await waitFor(
-      () => expect(
+      () async => expect(
         find.byKey(const Key('toast-source-set')),
         findsNothing,
       ),

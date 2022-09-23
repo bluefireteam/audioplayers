@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -55,16 +56,36 @@ Future<void> testStreamsTab(
     }
   }
 
-  const sampleDuration = Duration(seconds: 2);
+  // Test player state: playing
+  await tester.testPlayerState(PlayerState.playing);
+
+  const sampleDuration = Duration(seconds: 3);
   await tester.pump(sampleDuration);
 
-  // Display duration after end / stop (some samples are shorter than sampleDuration, so this test would fail)
-  // TODO(Gustl22): Not possible at the moment (shows duration of 0)
-  // await testDuration();
-  // await testOnDuration();
+  // Test player states: pause, stop, completed
+  if (!audioSourceTestData.isStream) {
+    if (audioSourceTestData.duration < const Duration(seconds: 2)) {
+      await tester.testPlayerState(PlayerState.completed);
+    } else if (audioSourceTestData.duration > const Duration(seconds: 4)) {
+      await tester.tap(find.byKey(const Key('pause_button')));
+      await tester.testPlayerState(PlayerState.paused);
 
-  await tester.tap(find.byKey(const Key('pause_button')));
-  await tester.tap(find.byKey(const Key('stop_button')));
+      await tester.tap(find.byKey(const Key('stop_button')));
+      await tester.testPlayerState(PlayerState.stopped);
+    } else {
+      // Cannot say for sure, if it's stopped or completed, so we just stop
+      await tester.tap(find.byKey(const Key('stop_button')));
+    }
+  } else {
+    await tester.tap(find.byKey(const Key('stop_button')));
+    await tester.testPlayerState(PlayerState.stopped);
+  }
+
+  // Display duration after end / stop
+  await tester.testDuration(audioSourceTestData);
+  await tester.testOnDuration(audioSourceTestData);
+
+  // TODO test position after end / stop
 }
 
 extension StreamWidgetTester on WidgetTester {
@@ -72,16 +93,18 @@ extension StreamWidgetTester on WidgetTester {
     final durationStr = sourceTestData.duration.toString().substring(0, 8);
     printOnFailure('Test Duration: $durationStr');
     final st = StackTrace.current.toString();
-    await tap(find.byKey(const Key('getDuration')));
     await waitFor(
-      () => expectWidgetHasText(
-        const Key('durationText'),
-        // Precision for duration:
-        // Android: two tenth of a second
-        // Windows: second
-        // Linux: second
-        matcher: contains(durationStr),
-      ),
+      () async {
+        await tap(find.byKey(const Key('getDuration')));
+        expectWidgetHasText(
+          const Key('durationText'),
+          // Precision for duration:
+          // Android: two tenth of a second
+          // Windows: second
+          // Linux: second
+          matcher: contains(durationStr),
+        );
+      },
       timeout: const Duration(seconds: 2),
       stackTrace: st,
     );
@@ -90,12 +113,30 @@ extension StreamWidgetTester on WidgetTester {
   Future<void> testPosition(String positionStr) async {
     printOnFailure('Test Position: $positionStr');
     final st = StackTrace.current.toString();
-    await tap(find.byKey(const Key('getPosition')));
     await waitFor(
-      () => expectWidgetHasText(
-        const Key('positionText'),
-        matcher: contains(positionStr),
-      ),
+      () async {
+        await tap(find.byKey(const Key('getPosition')));
+        expectWidgetHasText(
+          const Key('positionText'),
+          matcher: contains(positionStr),
+        );
+      },
+      timeout: const Duration(seconds: 2),
+      stackTrace: st,
+    );
+  }
+
+  Future<void> testPlayerState(PlayerState playerState) async {
+    printOnFailure('Test PlayerState: $playerState');
+    final st = StackTrace.current.toString();
+    await waitFor(
+      () async {
+        await tap(find.byKey(const Key('getPlayerState')));
+        expectWidgetHasText(
+          const Key('playerStateText'),
+          matcher: contains(playerState.toString()),
+        );
+      },
       timeout: const Duration(seconds: 2),
       stackTrace: st,
     );
@@ -106,7 +147,7 @@ extension StreamWidgetTester on WidgetTester {
     printOnFailure('Test OnDuration: $durationStr');
     final st = StackTrace.current.toString();
     await waitFor(
-      () => expectWidgetHasText(
+      () async => expectWidgetHasText(
         const Key('onDurationText'),
         matcher: contains(
           'Stream Duration: $durationStr',
@@ -120,7 +161,7 @@ extension StreamWidgetTester on WidgetTester {
     printOnFailure('Test OnPosition: $positionStr');
     final st = StackTrace.current.toString();
     await waitFor(
-      () => expectWidgetHasText(
+      () async => expectWidgetHasText(
         const Key('onPositionText'),
         matcher: contains('Stream Position: $positionStr'),
       ),
