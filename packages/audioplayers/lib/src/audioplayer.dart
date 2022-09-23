@@ -253,10 +253,8 @@ class AudioPlayer {
     await release();
 
     final futures = <Future>[
-      if (!_playerStateController.isClosed)
-        _playerStateController.close(),
-      if (_onPlayerCompleteStreamSubscription != null)
-        _onPlayerCompleteStreamSubscription!.cancel()
+      if (!_playerStateController.isClosed) _playerStateController.close(),
+      _onPlayerCompleteStreamSubscription.cancel()
     ];
 
     await Future.wait<dynamic>(futures);
