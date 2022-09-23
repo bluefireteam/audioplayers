@@ -181,6 +181,12 @@ static void audioplayers_linux_plugin_handle_method_call(
         // TODO check support for low latency mode:
         // https://gstreamer.freedesktop.org/documentation/additional/design/latency.html?gi-language=c
         result = 1;
+    } else if (strcmp(method, "setBalance") == 0) {
+        auto flBalance = fl_value_lookup_string(args, "balance");
+        double balance =
+            flBalance == nullptr ? 0.0f : fl_value_get_float(flBalance);
+        player->SetBalance(balance);
+        result = 1;
     } else {
         response = FL_METHOD_RESPONSE(fl_method_not_implemented_response_new());
         fl_method_call_respond(method_call, response, nullptr);
