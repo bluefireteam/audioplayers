@@ -167,7 +167,6 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform
         emitPosition(playerId, position);
         break;
       case 'audio.onComplete':
-        emitPlayerState(playerId, PlayerState.completed);
         emitComplete(playerId);
         break;
       case 'audio.onSeekComplete':
