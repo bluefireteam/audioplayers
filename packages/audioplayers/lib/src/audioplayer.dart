@@ -36,7 +36,7 @@ class AudioPlayer {
     _playerState = state;
   }
 
-  StreamSubscription? _onPlayerCompleteStreamSubscription;
+  late StreamSubscription _onPlayerCompleteStreamSubscription;
 
   final StreamController<PlayerState> _playerStateController =
       StreamController<PlayerState>.broadcast();
