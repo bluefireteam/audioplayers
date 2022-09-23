@@ -16,7 +16,7 @@ AudioPlayer::AudioPlayer(std::string playerId, FlMethodChannel *channel)
     // Setup stereo balance controller
     panorama = gst_element_factory_make("audiopanorama", "audiopanorama");
     if (panorama) {
-        GstElement *audiosink = gst_element_factory_make("alsasink", "audiosink");
+        GstElement *audiosink = gst_element_factory_make("autoaudiosink", "audio_sink");
 
         GstElement *audiobin = gst_bin_new("audiobin");
         gst_bin_add_many(GST_BIN(audiobin), panorama, audiosink, NULL);
