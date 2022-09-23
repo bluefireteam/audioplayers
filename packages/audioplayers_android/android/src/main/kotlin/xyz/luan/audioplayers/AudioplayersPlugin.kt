@@ -107,6 +107,11 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
                 val volume = call.argument<Double>("volume") ?: error("volume is required")
                 player.volume = volume.toFloat()
             }
+            "setBalance" -> {
+                Logger.error("setBalance is not currently implemented on Android")
+                response.notImplemented()
+                return
+            }
             "setPlaybackRate" -> {
                 val rate = call.argument<Double>("playbackRate") ?: error("playbackRate is required")
                 player.rate = rate.toFloat()

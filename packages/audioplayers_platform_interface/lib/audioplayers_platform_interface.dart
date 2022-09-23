@@ -52,6 +52,13 @@ abstract class AudioplayersPlatform extends PlatformInterface {
   /// Moves the cursor to the desired position.
   Future<void> seek(String playerId, Duration position);
 
+  /// Sets the stereo balance.
+  ///
+  /// -1 - The left channel is at full volume; the right channel is silent.
+  ///  1 - The right channel is at full volume; the left channel is silent.
+  ///  0 - Both channels are at the same volume.
+  Future<void> setBalance(String playerId, double balance);
+
   /// Sets the volume (amplitude).
   ///
   /// 0 is mute and 1 is the max volume. The values between 0 and 1 are linearly

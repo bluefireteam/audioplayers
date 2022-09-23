@@ -1,4 +1,5 @@
 import 'dart:async';
+
 // TODO(gustl22): remove when upgrading min Flutter version to >=3.3.0
 // ignore: unnecessary_import
 import 'dart:typed_data';
@@ -68,6 +69,18 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform
       'setAudioContext',
       playerId,
       context.toJson(),
+    );
+  }
+
+  @override
+  Future<void> setBalance(
+    String playerId,
+    double balance,
+  ) {
+    return _call(
+      'setBalance',
+      playerId,
+      <String, dynamic>{'balance': balance},
     );
   }
 
