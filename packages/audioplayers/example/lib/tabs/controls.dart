@@ -89,6 +89,20 @@ class _ControlsTabState extends State<ControlsTab>
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            const Text('Balance'),
+            ...[-1.0, -0.5, 0.0, 1.0].map((it) {
+              final formattedVal = it.toStringAsFixed(1);
+              return Btn(
+                key: Key('control-balance-$formattedVal'),
+                txt: formattedVal,
+                onPressed: () => widget.player.setBalance(it),
+              );
+            }),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
             const Text('Rate'),
             ...[0.0, 0.5, 1.0, 2.0].map((it) {
               final formattedVal = it.toStringAsFixed(1);

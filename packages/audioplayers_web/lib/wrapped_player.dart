@@ -42,6 +42,10 @@ class WrappedPlayer {
     player?.volume = volume;
   }
 
+  void setBalance(double balance) {
+    throw UnimplementedError('setBalance is not currently implemented on Web');
+  }
+
   void setPlaybackRate(double rate) {
     currentPlaybackRate = rate;
     player?.playbackRate = rate;

@@ -199,6 +199,10 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
   } else if (method_call.method_name().compare("setPlayerMode") == 0) {
     // windows doesn't have multiple player modes, so this should no-op
     result->Success(EncodableValue(1));
+  } else if (method_call.method_name().compare("setBalance") == 0) {
+      auto balance = GetArgument<double>("balance", args, 0.0);
+      player->SetBalance(balance);
+      result->Success(EncodableValue(1));
   } else {
     result->NotImplemented();
   }
