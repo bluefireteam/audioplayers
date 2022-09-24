@@ -36,6 +36,8 @@ class AudioPlayer {
     _playerState = state;
   }
 
+  late StreamSubscription _onPlayerCompleteStreamSubscription;
+
   final StreamController<PlayerState> _playerStateController =
       StreamController<PlayerState>.broadcast();
 
@@ -89,11 +91,16 @@ class AudioPlayer {
   ReleaseMode get releaseMode => _releaseMode;
 
   /// Creates a new instance and assigns an unique id to it.
-  AudioPlayer({String? playerId}) : playerId = playerId ?? _uuid.v4();
+  AudioPlayer({String? playerId}) : playerId = playerId ?? _uuid.v4() {
+    _onPlayerCompleteStreamSubscription = onPlayerComplete.listen((_) {
+      state = PlayerState.completed;
+    });
+  }
 
   Future<void> play(
     Source source, {
     double? volume,
+    double? balance,
     AudioContext? ctx,
     Duration? position,
     PlayerMode? mode,
@@ -103,6 +110,9 @@ class AudioPlayer {
     }
     if (volume != null) {
       await setVolume(volume);
+    }
+    if (balance != null) {
+      await setBalance(balance);
     }
     if (ctx != null) {
       await setAudioContext(ctx);
@@ -159,6 +169,15 @@ class AudioPlayer {
   /// Moves the cursor to the desired position.
   Future<void> seek(Duration position) {
     return _platform.seek(playerId, position);
+  }
+
+  /// Sets the stereo balance.
+  ///
+  /// -1 - The left channel is at full volume; the right channel is silent.
+  ///  1 - The right channel is at full volume; the left channel is silent.
+  ///  0 - Both channels are at the same volume.
+  Future<void> setBalance(double balance) {
+    return _platform.setBalance(playerId, balance);
   }
 
   /// Sets the volume (amplitude).
@@ -253,10 +272,11 @@ class AudioPlayer {
     // First stop and release all native resources.
     await release();
 
-    final futures = <Future>[];
-    if (!_playerStateController.isClosed) {
-      futures.add(_playerStateController.close());
-    }
+    final futures = <Future>[
+      if (!_playerStateController.isClosed) _playerStateController.close(),
+      _onPlayerCompleteStreamSubscription.cancel()
+    ];
+
     await Future.wait<dynamic>(futures);
   }
 }

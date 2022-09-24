@@ -116,6 +116,14 @@ Changes the audio volume. Defaults to `1.0`. It can go from `0.0` (mute) to `1.0
   await player.setVolume(0.5);
 ```
 
+### Balance
+
+Changes stereo balance. Defaults to `0.0` (both channels). `1.0` - right channel only, `-1.0` - left channel only.
+
+```dart
+  await player.setBalance(1.0); // right channel only
+```
+
 ### Playback Rate
 
 Changes the playback rate (i.e. the "speed" of playback). Defaults to `1.0` (normal speed). `2.0` would be 2x speed, etc.
