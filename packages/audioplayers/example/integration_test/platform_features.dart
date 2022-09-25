@@ -73,15 +73,15 @@ class PlatformFeatures {
 
   final bool hasPlaylistSourceType;
 
-  final bool hasLowLatency; // Not yet tested
-  final bool hasReleaseModeRelease; // Not yet tested
-  final bool hasReleaseModeLoop; // Not yet tested
-  final bool hasVolume; // Not yet tested
-  final bool hasBalance; // Not yet tested
-  final bool hasSeek; // Not yet tested
-  final bool hasMp3Duration; // Not yet tested
+  final bool hasLowLatency;
+  final bool hasReleaseModeRelease;
+  final bool hasReleaseModeLoop;
+  final bool hasVolume;
+  final bool hasBalance;
+  final bool hasSeek;
+  final bool hasMp3Duration;
 
-  final bool hasPlaybackRate; // Not yet tested
+  final bool hasPlaybackRate;
   final bool hasDuckAudio; // Not yet tested
   final bool hasRespectSilence; // Not yet tested
   final bool hasStayAwake; // Not yet tested
@@ -90,7 +90,7 @@ class PlatformFeatures {
 
   final bool hasDurationEvent;
   final bool hasPositionEvent;
-  final bool hasCompletionEvent; // Not yet tested
+  final bool hasPlayerStateEvent;
   final bool hasErrorEvent; // Not yet tested
 
   const PlatformFeatures({
@@ -113,7 +113,7 @@ class PlatformFeatures {
     this.hasPlayingRoute = true,
     this.hasDurationEvent = true,
     this.hasPositionEvent = true,
-    this.hasCompletionEvent = true,
+    this.hasPlayerStateEvent = true,
     this.hasErrorEvent = true,
   });
 

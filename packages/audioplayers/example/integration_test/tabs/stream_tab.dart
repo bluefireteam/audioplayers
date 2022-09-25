@@ -18,7 +18,7 @@ Future<void> testStreamsTab(
   await tester.pumpAndSettle();
 
   // Stream position is tracked as soon as source is loaded
-  if (!audioSourceTestData.isStream) {
+  if (features.hasPositionEvent && !audioSourceTestData.isStream) {
     // Display position before playing
     await tester.testPosition('0:00:00.000000');
   }
@@ -26,7 +26,9 @@ Future<void> testStreamsTab(
   final isImmediateDurationSupported =
       features.hasMp3Duration || !audioSourceTestData.sourceKey.contains('mp3');
 
-  if (!audioSourceTestData.isStream && isImmediateDurationSupported) {
+  if (features.hasDurationEvent &&
+      !audioSourceTestData.isStream &&
+      isImmediateDurationSupported) {
     // Display duration before playing
     await tester.testDuration(audioSourceTestData);
   }
@@ -49,43 +51,58 @@ Future<void> testStreamsTab(
     }
   }
 
-  if (!audioSourceTestData.isStream && isImmediateDurationSupported) {
+  if (features.hasDurationEvent &&
+      !audioSourceTestData.isStream &&
+      isImmediateDurationSupported) {
     // Test if onDurationText is set.
-    if (features.hasDurationEvent) {
-      await tester.testOnDuration(audioSourceTestData);
-    }
+    await tester.testOnDuration(audioSourceTestData);
   }
 
   // Test player state: playing
-  await tester.testPlayerState(PlayerState.playing);
+  if (features.hasPlayerStateEvent &&
+      (audioSourceTestData.isStream ||
+          audioSourceTestData.duration > const Duration(seconds: 1))) {
+    // Only test, if there's enough time to be able to check playing state.
+    await tester.testPlayerState(PlayerState.playing);
+    await tester.testOnState(PlayerState.playing);
+  }
 
   const sampleDuration = Duration(seconds: 3);
   await tester.pump(sampleDuration);
 
   // Test player states: pause, stop, completed
-  if (!audioSourceTestData.isStream) {
-    if (audioSourceTestData.duration < const Duration(seconds: 2)) {
-      await tester.testPlayerState(PlayerState.completed);
-    } else if (audioSourceTestData.duration > const Duration(seconds: 4)) {
-      await tester.tap(find.byKey(const Key('pause_button')));
-      await tester.testPlayerState(PlayerState.paused);
+  if (features.hasPlayerStateEvent) {
+    if (!audioSourceTestData.isStream) {
+      if (audioSourceTestData.duration < const Duration(seconds: 2)) {
+        await tester.testPlayerState(PlayerState.completed);
+        await tester.testOnState(PlayerState.completed);
+      } else if (audioSourceTestData.duration > const Duration(seconds: 4)) {
+        await tester.tap(find.byKey(const Key('pause_button')));
+        await tester.testPlayerState(PlayerState.paused);
+        await tester.testOnState(PlayerState.paused);
 
+        await tester.tap(find.byKey(const Key('stop_button')));
+        await tester.testPlayerState(PlayerState.stopped);
+        await tester.testOnState(PlayerState.stopped);
+      } else {
+        // Cannot say for sure, if it's stopped or completed, so we just stop
+        await tester.tap(find.byKey(const Key('stop_button')));
+      }
+    } else {
       await tester.tap(find.byKey(const Key('stop_button')));
       await tester.testPlayerState(PlayerState.stopped);
-    } else {
-      // Cannot say for sure, if it's stopped or completed, so we just stop
-      await tester.tap(find.byKey(const Key('stop_button')));
+      await tester.testOnState(PlayerState.stopped);
     }
-  } else {
-    await tester.tap(find.byKey(const Key('stop_button')));
-    await tester.testPlayerState(PlayerState.stopped);
   }
 
-  // Display duration after end / stop
-  await tester.testDuration(audioSourceTestData);
-  await tester.testOnDuration(audioSourceTestData);
-
-  // TODO test position after end / stop
+  // Display duration & position after completion / stop
+  if (features.hasDurationEvent) {
+    await tester.testDuration(audioSourceTestData);
+    await tester.testOnDuration(audioSourceTestData);
+  }
+  if (features.hasPositionEvent && !audioSourceTestData.isStream) {
+    await tester.testPosition('0:00:00.000000');
+  }
 }
 
 extension StreamWidgetTester on WidgetTester {
@@ -164,6 +181,19 @@ extension StreamWidgetTester on WidgetTester {
       () async => expectWidgetHasText(
         const Key('onPositionText'),
         matcher: contains('Stream Position: $positionStr'),
+      ),
+      pollInterval: const Duration(milliseconds: 250),
+      stackTrace: st,
+    );
+  }
+
+  Future<void> testOnState(PlayerState playerState) async {
+    printOnFailure('Test OnState: $playerState');
+    final st = StackTrace.current.toString();
+    await waitFor(
+      () async => expectWidgetHasText(
+        const Key('onStateText'),
+        matcher: contains('Stream State: $playerState'),
       ),
       pollInterval: const Duration(milliseconds: 250),
       stackTrace: st,
