@@ -79,7 +79,7 @@ Particularly on Android, the media player is quite resource-intensive, and this 
 
 ### resume
 
-Starts playback from last paused position or from start by default.
+Starts playback from current position (by default, from the start).
 
 ```dart
   await player.resume();
