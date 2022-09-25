@@ -56,7 +56,7 @@ After the URL is set, you can use the following methods to control the player:
 Stops the playback but keeps the current position.
 
 ```dart
-  await player.pause(); // will resume where left off
+  await player.pause(); 
 ```
 
 ### stop
@@ -64,7 +64,7 @@ Stops the playback but keeps the current position.
 Stops the playback and also resets the current position.
 
 ```dart
-  await player.stop(); // will resume from beginning
+  await player.stop();
 ```
 
 ### release
