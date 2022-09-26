@@ -1,3 +1,8 @@
+## 1.0.2
+
+ - **FIX**: update platform to 9.0 in podspec. (#1171). ([f8cbd972](https://github.com/bluefireteam/audioplayers/commit/f8cbd972b56b75c8cf204af38f953f322dc98ab1))
+ - **FIX**: ios/macos no longer start audio when calling only setSourceUrl (#1206). ([c0e97f04](https://github.com/bluefireteam/audioplayers/commit/c0e97f04fb05fb109830d6363f5c44dccbd327b4))
+
 ## 1.0.1
 
  - **FIX**: Make sure onComplete resets the position even when not looping (#1175). ([6e6005ac](https://github.com/bluefireteam/audioplayers/commit/6e6005ac98765aeeea62208b58a6cc6d0cb4b084))

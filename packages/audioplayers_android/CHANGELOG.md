@@ -1,3 +1,12 @@
+## 1.1.0
+
+ - **FIX**: lowLatency bugs (closes #1176, closes #1193, closes #1165) (#1272). ([541578cc](https://github.com/bluefireteam/audioplayers/commit/541578cc50f3856c23c393faa1a71380b3b49222))
+ - **FIX**: revert compileSdkVersion to be compatible with flutter.compileSdkVersion (#1273). ([0b9fed43](https://github.com/bluefireteam/audioplayers/commit/0b9fed43d9dfa90870826dc9a34d1a0d730bd78d))
+ - **FIX**: emit onPositionChanged when seek is completed (closes #1259) (#1265). ([be7ac6a9](https://github.com/bluefireteam/audioplayers/commit/be7ac6a957fccadf5bcecf0f1fbea197d32bda21))
+ - **FIX**: bugs from integration tests (#1247). ([6fad1cc4](https://github.com/bluefireteam/audioplayers/commit/6fad1cc4443e623e5c94519f130b4004b2dc3857))
+ - **FIX**: Fix lowLatency mode for Android (#1193) (#1224). ([a25ca284](https://github.com/bluefireteam/audioplayers/commit/a25ca284835252147c85944575c7e71a3ef6abc4))
+ - **FEAT**: wait for source to be prepared (#1191). ([5eeca894](https://github.com/bluefireteam/audioplayers/commit/5eeca8940e764546023567fa2f6b1bc3802f97d3))
+
 ## 1.0.1
 
  - **FIX**: getDuration, getPosition causes MEDIA_ERROR_UNKNOWN (#1172). ([51b4c73e](https://github.com/bluefireteam/audioplayers/commit/51b4c73eaff5c60d1c3c3e42ae783df07d34be09))
