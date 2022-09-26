@@ -14,10 +14,12 @@ class PlatformFeatures {
     hasRecordingActive: false,
     hasPlayingRoute: false,
     hasErrorEvent: false,
+    hasBalance: false,
   );
 
   static const androidPlatformFeatures = PlatformFeatures(
     hasRecordingActive: false,
+    hasBalance: false,
   );
 
   static const iosPlatformFeatures = PlatformFeatures(
@@ -26,6 +28,7 @@ class PlatformFeatures {
     hasReleaseModeRelease: false,
     hasLowLatency: false,
     hasDuckAudio: false,
+    hasBalance: false,
   );
 
   static const macPlatformFeatures = PlatformFeatures(
@@ -37,6 +40,7 @@ class PlatformFeatures {
     hasStayAwake: false,
     hasRecordingActive: false,
     hasPlayingRoute: false,
+    hasBalance: false,
   );
 
   static const linuxPlatformFeatures = PlatformFeatures(
@@ -73,6 +77,7 @@ class PlatformFeatures {
   final bool hasReleaseModeRelease; // Not yet tested
   final bool hasReleaseModeLoop; // Not yet tested
   final bool hasVolume; // Not yet tested
+  final bool hasBalance; // Not yet tested
   final bool hasSeek; // Not yet tested
   final bool hasMp3Duration; // Not yet tested
 
@@ -98,6 +103,7 @@ class PlatformFeatures {
     this.hasReleaseModeLoop = true,
     this.hasMp3Duration = true,
     this.hasVolume = true,
+    this.hasBalance = true,
     this.hasSeek = true,
     this.hasPlaybackRate = true,
     this.hasDuckAudio = true,

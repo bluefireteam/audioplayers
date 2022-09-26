@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:html';
 
-import 'package:audioplayers_platform_interface/api/player_state.dart';
 import 'package:audioplayers_platform_interface/api/release_mode.dart';
 import 'package:audioplayers_platform_interface/streams_interface.dart';
 
@@ -43,6 +42,10 @@ class WrappedPlayer {
     player?.volume = volume;
   }
 
+  void setBalance(double balance) {
+    throw UnimplementedError('setBalance is not currently implemented on Web');
+  }
+
   void setPlaybackRate(double rate) {
     currentPlaybackRate = rate;
     player?.playbackRate = rate;
@@ -76,7 +79,6 @@ class WrappedPlayer {
     playerEndedSubscription = p.onEnded.listen((_) {
       pausedAt = 0;
       player?.currentTime = 0;
-      streamsInterface.emitPlayerState(playerId, PlayerState.stopped);
       streamsInterface.emitComplete(playerId);
     });
   }

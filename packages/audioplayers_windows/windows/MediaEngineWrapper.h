@@ -47,6 +47,7 @@ class MediaEngineWrapper : public winrt::implements<MediaEngineWrapper, IUnknown
     void Resume();
     void SetPlaybackRate(double playbackRate);
     void SetVolume(float volume);
+    void SetBalance(double balance);
     void SetLooping(bool isLooping);
     void SeekTo(uint64_t timeStamp);
 

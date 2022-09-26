@@ -56,7 +56,7 @@ After the URL is set, you can use the following methods to control the player:
 Stops the playback but keeps the current position.
 
 ```dart
-  await player.pause(); // will resume where left off
+  await player.pause(); 
 ```
 
 ### stop
@@ -64,7 +64,7 @@ Stops the playback but keeps the current position.
 Stops the playback and also resets the current position.
 
 ```dart
-  await player.stop(); // will resume from beginning
+  await player.stop();
 ```
 
 ### release
@@ -114,6 +114,14 @@ Changes the audio volume. Defaults to `1.0`. It can go from `0.0` (mute) to `1.0
 
 ```dart
   await player.setVolume(0.5);
+```
+
+### Balance
+
+Changes stereo balance. Defaults to `0.0` (both channels). `1.0` - right channel only, `-1.0` - left channel only.
+
+```dart
+  await player.setBalance(1.0); // right channel only
 ```
 
 ### Playback Rate

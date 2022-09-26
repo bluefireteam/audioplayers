@@ -142,7 +142,7 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
             }
             return
         } else if method == "setSourceBytes" {
-            Logger.error("setSourceBytes is not curretnly implemented on iOS")
+            Logger.error("setSourceBytes is not currently implemented on iOS")
             result(0)
             return
         } else if method == "getDuration" {
@@ -156,7 +156,11 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
             }
             
             player.setVolume(volume: volume)
-        } else if method == "getCurrentPosition" {
+        } else if method == "setBalance" {
+            Logger.error("setBalance is not currently implemented on iOS")
+            result(0)
+            return
+       } else if method == "getCurrentPosition" {
             let currentPosition = player.getCurrentPosition()
             result(currentPosition)
             return

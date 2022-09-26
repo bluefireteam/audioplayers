@@ -4,7 +4,6 @@ import 'dart:typed_data';
 import 'package:audioplayers_platform_interface/api/audio_context_config.dart';
 import 'package:audioplayers_platform_interface/api/for_player.dart';
 import 'package:audioplayers_platform_interface/api/player_mode.dart';
-import 'package:audioplayers_platform_interface/api/player_state.dart';
 import 'package:audioplayers_platform_interface/api/release_mode.dart';
 import 'package:audioplayers_platform_interface/method_channel_audioplayers_platform.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
@@ -51,6 +50,13 @@ abstract class AudioplayersPlatform extends PlatformInterface {
 
   /// Moves the cursor to the desired position.
   Future<void> seek(String playerId, Duration position);
+
+  /// Sets the stereo balance.
+  ///
+  /// -1 - The left channel is at full volume; the right channel is silent.
+  ///  1 - The right channel is at full volume; the left channel is silent.
+  ///  0 - Both channels are at the same volume.
+  Future<void> setBalance(String playerId, double balance);
 
   /// Sets the volume (amplitude).
   ///
@@ -112,8 +118,6 @@ abstract class AudioplayersPlatform extends PlatformInterface {
   ///  * source does not support operation (e.g. streams)
   ///  * otherwise not supported (e.g. LOW_LATENCY mode on Android)
   Future<int?> getCurrentPosition(String playerId);
-
-  Stream<ForPlayer<PlayerState>> get playerStateStream;
 
   Stream<ForPlayer<Duration>> get positionStream;
 
