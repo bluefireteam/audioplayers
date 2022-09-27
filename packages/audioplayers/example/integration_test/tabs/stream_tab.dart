@@ -25,7 +25,6 @@ Future<void> testStreamsTab(
       features.hasMp3Duration || !audioSourceTestData.sourceKey.contains('mp3');
 
   if (features.hasDurationEvent &&
-      !audioSourceTestData.isStream &&
       isImmediateDurationSupported) {
     // Display duration before playing
     await tester.testDuration(audioSourceTestData.duration);
