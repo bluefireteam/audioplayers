@@ -3,6 +3,7 @@ import 'dart:html';
 
 import 'package:audioplayers_platform_interface/api/release_mode.dart';
 import 'package:audioplayers_platform_interface/streams_interface.dart';
+import 'package:audioplayers_web/util.dart';
 
 class WrappedPlayer {
   final String playerId;
@@ -55,10 +56,6 @@ class WrappedPlayer {
     if (currentUrl == null) {
       return;
     }
-    Duration toDuration(num jsNum) => Duration(
-          milliseconds:
-              (1000 * (jsNum.isNaN || jsNum.isInfinite ? 0 : jsNum)).round(),
-        );
 
     final p = player = AudioElement(currentUrl);
     p.loop = shouldLoop();
