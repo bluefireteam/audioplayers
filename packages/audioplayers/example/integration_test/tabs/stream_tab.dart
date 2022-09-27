@@ -32,10 +32,18 @@ Future<void> testStreamsTab(
   await tester.tap(find.byKey(const Key('play_button')));
   await tester.pump();
 
-  if (!audioSourceTestData.isStream) {
+  // Cannot test more precisely as it is dependent on pollInterval
+  // and updateInterval of native implementation.
+  if (audioSourceTestData.isStream ||
+      audioSourceTestData.duration > const Duration(seconds: 2)) {
+    // Test player state: playing
+    if (features.hasPlayerStateEvent) {
+      // Only test, if there's enough time to be able to check playing state.
+      await tester.testPlayerState(PlayerState.playing);
+      await tester.testOnState(PlayerState.playing);
+    }
+
     // Test if onPositionText is set.
-    // Cannot test more precisely as it is dependent on pollInterval.
-    // TODO(Gustl22): test position update in seek mode.
     if (features.hasPositionEvent) {
       if (kIsWeb) {
         await tester.testOnPosition(Duration.zero, matcher: greaterThan);
@@ -43,20 +51,9 @@ Future<void> testStreamsTab(
     }
   }
 
-  if (features.hasDurationEvent &&
-      !audioSourceTestData.isStream &&
-      isImmediateDurationSupported) {
+  if (features.hasDurationEvent && !audioSourceTestData.isStream) {
     // Test if onDurationText is set.
     await tester.testOnDuration(audioSourceTestData.duration);
-  }
-
-  // Test player state: playing
-  if (features.hasPlayerStateEvent &&
-      (audioSourceTestData.isStream ||
-          audioSourceTestData.duration > const Duration(seconds: 2))) {
-    // Only test, if there's enough time to be able to check playing state.
-    await tester.testPlayerState(PlayerState.playing);
-    await tester.testOnState(PlayerState.playing);
   }
 
   const sampleDuration = Duration(seconds: 3);
@@ -68,7 +65,7 @@ Future<void> testStreamsTab(
       if (audioSourceTestData.duration < const Duration(seconds: 2)) {
         await tester.testPlayerState(PlayerState.completed);
         await tester.testOnState(PlayerState.completed);
-      } else if (audioSourceTestData.duration > const Duration(seconds: 4)) {
+      } else if (audioSourceTestData.duration > const Duration(seconds: 5)) {
         await tester.tap(find.byKey(const Key('pause_button')));
         await tester.testPlayerState(PlayerState.paused);
         await tester.testOnState(PlayerState.paused);
@@ -98,6 +95,18 @@ Future<void> testStreamsTab(
 }
 
 extension StreamWidgetTester on WidgetTester {
+  // Precision for duration & position:
+  // Android: two tenth of a second
+  // Windows: second
+  // Linux: second
+  // Web: second
+
+  // Update interval for duration & position:
+  // Android: two tenth of a second
+  // Windows: second
+  // Linux: second
+  // Web: second
+
   bool _durationRangeMatcher(
     Duration? actual,
     Duration? expected, {
@@ -120,10 +129,6 @@ extension StreamWidgetTester on WidgetTester {
         await tap(find.byKey(const Key('getDuration')));
         expectWidgetHasDuration(
           const Key('durationText'),
-          // Precision for duration:
-          // Android: two tenth of a second
-          // Windows: second
-          // Linux: second
           matcher: (Duration? actual) =>
               _durationRangeMatcher(actual, duration),
         );
