@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -20,7 +18,7 @@ Future<void> testStreamsTab(
   // Stream position is tracked as soon as source is loaded
   if (features.hasPositionEvent && !audioSourceTestData.isStream) {
     // Display position before playing
-    await tester.testPosition('0:00:00.000000');
+    await tester.testPosition(Duration.zero);
   }
 
   final isImmediateDurationSupported =
@@ -30,7 +28,7 @@ Future<void> testStreamsTab(
       !audioSourceTestData.isStream &&
       isImmediateDurationSupported) {
     // Display duration before playing
-    await tester.testDuration(audioSourceTestData);
+    await tester.testDuration(audioSourceTestData.duration);
   }
 
   await tester.tap(find.byKey(const Key('play_button')));
@@ -41,12 +39,8 @@ Future<void> testStreamsTab(
     // Cannot test more precisely as it is dependent on pollInterval.
     // TODO(Gustl22): test position update in seek mode.
     if (features.hasPositionEvent) {
-      // TODO(Gustl22): avoid flaky onPosition test for Android only.
-      // Reason is, that some frames are skipped on CI and position is not
-      // updated in time. Once one can reproduce it reliably, we can fix
-      // and enable it again.
-      if (kIsWeb || !Platform.isAndroid) {
-        await tester.testOnPosition('0:00:00');
+      if (kIsWeb) {
+        await tester.testOnPosition(Duration.zero, matcher: greaterThan);
       }
     }
   }
@@ -55,7 +49,7 @@ Future<void> testStreamsTab(
       !audioSourceTestData.isStream &&
       isImmediateDurationSupported) {
     // Test if onDurationText is set.
-    await tester.testOnDuration(audioSourceTestData);
+    await tester.testOnDuration(audioSourceTestData.duration);
   }
 
   // Test player state: playing
@@ -97,29 +91,30 @@ Future<void> testStreamsTab(
 
   // Display duration & position after completion / stop
   if (features.hasDurationEvent) {
-    await tester.testDuration(audioSourceTestData);
-    await tester.testOnDuration(audioSourceTestData);
+    await tester.testDuration(audioSourceTestData.duration);
+    await tester.testOnDuration(audioSourceTestData.duration);
   }
   if (features.hasPositionEvent && !audioSourceTestData.isStream) {
-    await tester.testPosition('0:00:00.000000');
+    await tester.testPosition(Duration.zero);
   }
 }
 
 extension StreamWidgetTester on WidgetTester {
-  Future<void> testDuration(SourceTestData sourceTestData) async {
-    final durationStr = sourceTestData.duration.toString().substring(0, 8);
-    printOnFailure('Test Duration: $durationStr');
+  Future<void> testDuration(Duration duration) async {
+    printOnFailure('Test Duration: $duration');
     final st = StackTrace.current.toString();
     await waitFor(
       () async {
         await tap(find.byKey(const Key('getDuration')));
-        expectWidgetHasText(
+        expectWidgetHasDuration(
           const Key('durationText'),
           // Precision for duration:
           // Android: two tenth of a second
           // Windows: second
           // Linux: second
-          matcher: contains(durationStr),
+          matcher: (Duration actual) =>
+              actual >= (duration - const Duration(seconds: 1)) &&
+              actual <= (duration + const Duration(seconds: 1)),
         );
       },
       timeout: const Duration(seconds: 2),
@@ -127,15 +122,18 @@ extension StreamWidgetTester on WidgetTester {
     );
   }
 
-  Future<void> testPosition(String positionStr) async {
-    printOnFailure('Test Position: $positionStr');
+  Future<void> testPosition(
+    Duration position, {
+    Matcher Function(Duration) matcher = equals,
+  }) async {
+    printOnFailure('Test Position: $position');
     final st = StackTrace.current.toString();
     await waitFor(
       () async {
         await tap(find.byKey(const Key('getPosition')));
-        expectWidgetHasText(
+        expectWidgetHasDuration(
           const Key('positionText'),
-          matcher: contains(positionStr),
+          matcher: matcher(position),
         );
       },
       timeout: const Duration(seconds: 2),
@@ -159,28 +157,30 @@ extension StreamWidgetTester on WidgetTester {
     );
   }
 
-  Future<void> testOnDuration(SourceTestData sourceTestData) async {
-    final durationStr = sourceTestData.duration.toString().substring(0, 8);
-    printOnFailure('Test OnDuration: $durationStr');
+  Future<void> testOnDuration(Duration duration) async {
+    printOnFailure('Test OnDuration: $duration');
     final st = StackTrace.current.toString();
     await waitFor(
-      () async => expectWidgetHasText(
+      () async => expectWidgetHasDuration(
         const Key('onDurationText'),
-        matcher: contains(
-          'Stream Duration: $durationStr',
-        ),
+        matcher: (Duration actual) =>
+            actual >= (duration - const Duration(seconds: 1)) &&
+            actual <= (duration + const Duration(seconds: 1)),
       ),
       stackTrace: st,
     );
   }
 
-  Future<void> testOnPosition(String positionStr) async {
-    printOnFailure('Test OnPosition: $positionStr');
+  Future<void> testOnPosition(
+    Duration position, {
+    Matcher Function(Duration) matcher = equals,
+  }) async {
+    printOnFailure('Test OnPosition: $position');
     final st = StackTrace.current.toString();
     await waitFor(
-      () async => expectWidgetHasText(
+      () async => expectWidgetHasDuration(
         const Key('onPositionText'),
-        matcher: contains('Stream Position: $positionStr'),
+        matcher: matcher(position),
       ),
       pollInterval: const Duration(milliseconds: 250),
       stackTrace: st,

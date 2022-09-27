@@ -49,9 +49,8 @@ Future<void> testControlsTab(
 
     if (isImmediateDurationSupported) {
       await tester.testPosition(
-        Duration(milliseconds: audioSourceTestData.duration.inMilliseconds ~/ 2)
-            .toString()
-            .substring(0, 8),
+        Duration(seconds: audioSourceTestData.duration.inSeconds ~/ 2),
+        matcher: greaterThanOrEqualTo,
       );
     }
     await tester.tap(find.byKey(const Key('controlsTab')));
