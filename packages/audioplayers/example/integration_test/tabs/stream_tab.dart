@@ -54,7 +54,7 @@ Future<void> testStreamsTab(
   // Test player state: playing
   if (features.hasPlayerStateEvent &&
       (audioSourceTestData.isStream ||
-          audioSourceTestData.duration > const Duration(seconds: 1))) {
+          audioSourceTestData.duration > const Duration(seconds: 2))) {
     // Only test, if there's enough time to be able to check playing state.
     await tester.testPlayerState(PlayerState.playing);
     await tester.testOnState(PlayerState.playing);
