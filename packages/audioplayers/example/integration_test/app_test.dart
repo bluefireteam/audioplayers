@@ -52,13 +52,13 @@ void main() {
         SourceTestData(
           sourceKey: 'url-remote-m3u8',
           duration: Duration.zero,
-          isStream: true,
+          isLiveStream: true,
         ),
       if (features.hasUrlSource)
         SourceTestData(
           sourceKey: 'url-remote-mpga',
           duration: Duration.zero,
-          isStream: true,
+          isLiveStream: true,
         ),
       if (features.hasAssetSource)
         SourceTestData(

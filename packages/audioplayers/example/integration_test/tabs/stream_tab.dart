@@ -16,7 +16,7 @@ Future<void> testStreamsTab(
   await tester.pumpAndSettle();
 
   // Stream position is tracked as soon as source is loaded
-  if (features.hasPositionEvent && !audioSourceTestData.isStream) {
+  if (features.hasPositionEvent && !audioSourceTestData.isLiveStream) {
     // Display position before playing
     await tester.testPosition(Duration.zero);
   }
@@ -34,7 +34,7 @@ Future<void> testStreamsTab(
 
   // Cannot test more precisely as it is dependent on pollInterval
   // and updateInterval of native implementation.
-  if (audioSourceTestData.isStream ||
+  if (audioSourceTestData.isLiveStream ||
       audioSourceTestData.duration > const Duration(seconds: 2)) {
     // Test player state: playing
     if (features.hasPlayerStateEvent) {
@@ -51,7 +51,7 @@ Future<void> testStreamsTab(
     }
   }
 
-  if (features.hasDurationEvent && !audioSourceTestData.isStream) {
+  if (features.hasDurationEvent && !audioSourceTestData.isLiveStream) {
     // Test if onDurationText is set.
     await tester.testOnDuration(audioSourceTestData.duration);
   }
@@ -61,7 +61,7 @@ Future<void> testStreamsTab(
 
   // Test player states: pause, stop, completed
   if (features.hasPlayerStateEvent) {
-    if (!audioSourceTestData.isStream) {
+    if (!audioSourceTestData.isLiveStream) {
       if (audioSourceTestData.duration < const Duration(seconds: 2)) {
         await tester.testPlayerState(PlayerState.completed);
         await tester.testOnState(PlayerState.completed);
@@ -87,9 +87,11 @@ Future<void> testStreamsTab(
   // Display duration & position after completion / stop
   if (features.hasDurationEvent) {
     await tester.testDuration(audioSourceTestData.duration);
-    await tester.testOnDuration(audioSourceTestData.duration);
+    if(!audioSourceTestData.isLiveStream) {
+      await tester.testOnDuration(audioSourceTestData.duration);
+    }
   }
-  if (features.hasPositionEvent && !audioSourceTestData.isStream) {
+  if (features.hasPositionEvent && !audioSourceTestData.isLiveStream) {
     await tester.testPosition(Duration.zero);
   }
 }
