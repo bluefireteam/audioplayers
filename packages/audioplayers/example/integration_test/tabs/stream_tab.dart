@@ -24,8 +24,7 @@ Future<void> testStreamsTab(
   final isImmediateDurationSupported =
       features.hasMp3Duration || !audioSourceTestData.sourceKey.contains('mp3');
 
-  if (features.hasDurationEvent &&
-      isImmediateDurationSupported) {
+  if (features.hasDurationEvent && isImmediateDurationSupported) {
     // Display duration before playing
     await tester.testDuration(audioSourceTestData.duration);
   }
@@ -99,6 +98,20 @@ Future<void> testStreamsTab(
 }
 
 extension StreamWidgetTester on WidgetTester {
+  bool _durationRangeMatcher(
+    Duration? actual,
+    Duration? expected, {
+    Duration deviation = const Duration(seconds: 1),
+  }) {
+    if (actual == null && expected == null) {
+      return true;
+    }
+    if (actual == null || expected == null) {
+      return false;
+    }
+    return actual >= (expected - deviation) && actual <= (expected + deviation);
+  }
+
   Future<void> testDuration(Duration duration) async {
     printOnFailure('Test Duration: $duration');
     final st = StackTrace.current.toString();
@@ -111,9 +124,8 @@ extension StreamWidgetTester on WidgetTester {
           // Android: two tenth of a second
           // Windows: second
           // Linux: second
-          matcher: (Duration actual) =>
-              actual >= (duration - const Duration(seconds: 1)) &&
-              actual <= (duration + const Duration(seconds: 1)),
+          matcher: (Duration? actual) =>
+              _durationRangeMatcher(actual, duration),
         );
       },
       timeout: const Duration(seconds: 2),
@@ -162,9 +174,7 @@ extension StreamWidgetTester on WidgetTester {
     await waitFor(
       () async => expectWidgetHasDuration(
         const Key('onDurationText'),
-        matcher: (Duration actual) =>
-            actual >= (duration - const Duration(seconds: 1)) &&
-            actual <= (duration + const Duration(seconds: 1)),
+        matcher: (Duration? actual) => _durationRangeMatcher(actual, duration),
       ),
       stackTrace: st,
     );
