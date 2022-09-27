@@ -87,7 +87,7 @@ Future<void> testStreamsTab(
   // Display duration & position after completion / stop
   if (features.hasDurationEvent) {
     await tester.testDuration(audioSourceTestData.duration);
-    if(!audioSourceTestData.isLiveStream) {
+    if (!audioSourceTestData.isLiveStream) {
       await tester.testOnDuration(audioSourceTestData.duration);
     }
   }
