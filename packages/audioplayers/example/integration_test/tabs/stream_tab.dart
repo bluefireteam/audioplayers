@@ -29,8 +29,9 @@ Future<void> testStreamsTab(
     await tester.testDuration(audioSourceTestData.duration);
   }
 
+  await tester.pumpAndSettle();
   await tester.tap(find.byKey(const Key('play_button')));
-  await tester.pump();
+  await tester.pumpAndSettle();
 
   // Cannot test more precisely as it is dependent on pollInterval
   // and updateInterval of native implementation.
@@ -40,7 +41,7 @@ Future<void> testStreamsTab(
     if (features.hasPlayerStateEvent) {
       // Only test, if there's enough time to be able to check playing state.
       await tester.testPlayerState(PlayerState.playing);
-      await tester.testOnState(PlayerState.playing);
+      await tester.testOnPlayerState(PlayerState.playing);
     }
 
     // Test if onPositionText is set.
@@ -64,15 +65,15 @@ Future<void> testStreamsTab(
     if (!audioSourceTestData.isLiveStream) {
       if (audioSourceTestData.duration < const Duration(seconds: 2)) {
         await tester.testPlayerState(PlayerState.completed);
-        await tester.testOnState(PlayerState.completed);
+        await tester.testOnPlayerState(PlayerState.completed);
       } else if (audioSourceTestData.duration > const Duration(seconds: 5)) {
         await tester.tap(find.byKey(const Key('pause_button')));
         await tester.testPlayerState(PlayerState.paused);
-        await tester.testOnState(PlayerState.paused);
+        await tester.testOnPlayerState(PlayerState.paused);
 
         await tester.tap(find.byKey(const Key('stop_button')));
         await tester.testPlayerState(PlayerState.stopped);
-        await tester.testOnState(PlayerState.stopped);
+        await tester.testOnPlayerState(PlayerState.stopped);
       } else {
         // Cannot say for sure, if it's stopped or completed, so we just stop
         await tester.tap(find.byKey(const Key('stop_button')));
@@ -80,7 +81,7 @@ Future<void> testStreamsTab(
     } else {
       await tester.tap(find.byKey(const Key('stop_button')));
       await tester.testPlayerState(PlayerState.stopped);
-      await tester.testOnState(PlayerState.stopped);
+      await tester.testOnPlayerState(PlayerState.stopped);
     }
   }
 
@@ -203,7 +204,7 @@ extension StreamWidgetTester on WidgetTester {
     );
   }
 
-  Future<void> testOnState(PlayerState playerState) async {
+  Future<void> testOnPlayerState(PlayerState playerState) async {
     printOnFailure('Test OnState: $playerState');
     final st = StackTrace.current.toString();
     await waitFor(
