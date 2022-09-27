@@ -1,3 +1,8 @@
+## 1.1.0
+
+ - **FIX**: send onDuration event when play/resume (#1245). ([8108ff42](https://github.com/bluefireteam/audioplayers/commit/8108ff42d05c7f995d8289345302c6ac6d298f67))
+ - **FEAT**: select decoder automatically on windows (#1221). ([ff78a42f](https://github.com/bluefireteam/audioplayers/commit/ff78a42f842e146df7dc98d6d00ae27821355653))
+
 ## 1.0.0
 
  - **FIX**: Windows Failed to seekTo longer than 3:30s (#1125). ([8db4dcaa](https://github.com/bluefireteam/audioplayers/commit/8db4dcaa1446e1442c63134df80b95af852c078f))
