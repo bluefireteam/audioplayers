@@ -1,5 +1,5 @@
 extension NumExtension on num {
-  /// converts num to the duration, if in seconds
+  /// Converts [num] (expected in seconds) to the duration.
   Duration fromSecondsToDuration() => Duration(
         seconds: (isNaN || isInfinite ? 0 : this).round(),
       );
