@@ -6,7 +6,7 @@ import 'package:audioplayers_platform_interface/api/player_mode.dart';
 import 'package:audioplayers_platform_interface/api/release_mode.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
 import 'package:audioplayers_platform_interface/streams_interface.dart';
-import 'package:audioplayers_web/util.dart';
+import 'package:audioplayers_web/num_extension.dart';
 import 'package:audioplayers_web/wrapped_player.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 
@@ -34,11 +34,11 @@ class AudioplayersPlugin extends AudioplayersPlatform with StreamsInterface {
 
   @override
   Future<int?> getDuration(String playerId) async {
-    final duration = getOrCreatePlayer(playerId).player?.duration;
-    if (duration == null) {
+    final jsDuration = getOrCreatePlayer(playerId).player?.duration;
+    if (jsDuration == null) {
       return null;
     }
-    return toDuration(duration).inMilliseconds;
+    return jsDuration.fromSecondsToDuration().inMilliseconds;
   }
 
   @override
