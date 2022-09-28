@@ -76,7 +76,7 @@ class WrappedPlayer {
     playerTimeUpdateSubscription = p.onTimeUpdate.listen((_) {
       streamsInterface.emitPosition(
         playerId,
-        p.duration.fromSecondsToDuration(),
+        p.currentTime.fromSecondsToDuration(),
       );
     });
     playerSeekedSubscription = p.onSeeked.listen((_) {
