@@ -1,4 +1,4 @@
-name: changes-requested
+name: stale
 
 on:
   schedule:
@@ -13,8 +13,8 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           # these are optional, if you want to configure:
-          days-until-close: 7
-          trigger-label: changes-requested
-          closing-comment: This issue was closed by the changes-requested bot due to inactivity.
+          days-until-close: 30
+          trigger-label: stale
+          closing-comment: This issue was closed by the stale bot due to inactivity.
           dry-run: false
   
