@@ -3,7 +3,7 @@ import 'dart:html';
 
 import 'package:audioplayers_platform_interface/api/release_mode.dart';
 import 'package:audioplayers_platform_interface/streams_interface.dart';
-import 'package:audioplayers_web/util.dart';
+import 'package:audioplayers_web/num_extension.dart';
 
 class WrappedPlayer {
   final String playerId;
@@ -62,13 +62,22 @@ class WrappedPlayer {
     p.volume = currentVolume;
     p.playbackRate = currentPlaybackRate;
     playerPlaySubscription = p.onPlay.listen((_) {
-      streamsInterface.emitDuration(playerId, toDuration(p.duration));
+      streamsInterface.emitDuration(
+        playerId,
+        p.duration.fromSecondsToDuration(),
+      );
     });
     playerLoadedDataSubscription = p.onLoadedData.listen((_) {
-      streamsInterface.emitDuration(playerId, toDuration(p.duration));
+      streamsInterface.emitDuration(
+        playerId,
+        p.duration.fromSecondsToDuration(),
+      );
     });
     playerTimeUpdateSubscription = p.onTimeUpdate.listen((_) {
-      streamsInterface.emitPosition(playerId, toDuration(p.currentTime));
+      streamsInterface.emitPosition(
+        playerId,
+        p.currentTime.fromSecondsToDuration(),
+      );
     });
     playerSeekedSubscription = p.onSeeked.listen((_) {
       streamsInterface.emitSeekComplete(playerId);
