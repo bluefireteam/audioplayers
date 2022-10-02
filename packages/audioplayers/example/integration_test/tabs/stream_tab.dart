@@ -46,9 +46,7 @@ Future<void> testStreamsTab(
 
     // Test if onPositionText is set.
     if (features.hasPositionEvent) {
-      if (kIsWeb) {
-        await tester.testOnPosition(Duration.zero, matcher: greaterThan);
-      }
+      await tester.testOnPosition(Duration.zero, matcher: greaterThan);
     }
   }
 
