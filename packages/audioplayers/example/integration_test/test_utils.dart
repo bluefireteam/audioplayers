@@ -10,7 +10,7 @@ extension WidgetTesterUtils on WidgetTester {
     Duration? timeout = const Duration(seconds: 15),
     Duration? pollInterval = const Duration(milliseconds: 500),
     String? stackTrace,
-  }) =>
+  }) async =>
       _waitUntil(
         (setFailureMessage) async {
           try {
@@ -32,7 +32,7 @@ extension WidgetTesterUtils on WidgetTester {
   /// condition does not return true with the timeout period.
   /// Copied from: https://github.com/jonsamwell/flutter_gherkin/blob/02a4af91d7a2512e0a4540b9b1ab13e36d5c6f37/lib/src/flutter/utils/driver_utils.dart#L86
   Future<void> _waitUntil(
-    Future<bool> Function(Function(String message) setFailureMessage)
+    Future<bool> Function(void Function(String message) setFailureMessage)
         condition, {
     Duration? timeout = const Duration(seconds: 15),
     Duration? pollInterval = const Duration(milliseconds: 500),
@@ -40,6 +40,13 @@ extension WidgetTesterUtils on WidgetTester {
   }) async {
     var firstFailureMsg = '';
     var lastFailureMsg = '';
+    void setFailureMessage(String message) {
+      if (firstFailureMsg.isEmpty) {
+        firstFailureMsg = message;
+      }
+      lastFailureMsg = message;
+    }
+
     try {
       await Future.microtask(
         () async {
@@ -49,12 +56,7 @@ extension WidgetTesterUtils on WidgetTester {
           var attempts = 0;
 
           while (attempts < maxAttempts) {
-            final result = await condition((String message) {
-              if (firstFailureMsg.isEmpty) {
-                firstFailureMsg = message;
-              }
-              lastFailureMsg = message;
-            });
+            final result = await condition(setFailureMessage);
             if (result) {
               completer.complete();
               break;
