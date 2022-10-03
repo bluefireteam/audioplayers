@@ -59,6 +59,7 @@ class PlatformFeatures {
 
   static const windowsPlatformFeatures = PlatformFeatures(
     hasBytesSource: false,
+    hasPlaylistSourceType: false,
     hasLowLatency: false,
     hasDuckAudio: false,
     hasRespectSilence: false,
