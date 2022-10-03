@@ -209,7 +209,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
                 return
             }
             var isAnyPlaying = false
-            while (player in mediaPlayers.values.toList()) {
+            for (player in mediaPlayers.values.toList()) {
                 if (!player.isActuallyPlaying()) {
                     continue
                 }
