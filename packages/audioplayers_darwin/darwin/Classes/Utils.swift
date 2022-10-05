@@ -20,6 +20,7 @@ func toCMTime(millis: Float) -> CMTime {
 }
 
 func fromCMTime(time: CMTime) -> Int {
+    guard CMTIME_IS_NUMERIC(time) else { return 0 }
     let seconds: Float64 = CMTimeGetSeconds(time)
     let milliseconds: Int = Int(seconds * 1000)
     return milliseconds
