@@ -21,7 +21,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   audioplayers_darwin: dcad41de4fbd0099cb3749f7ab3b0cb8f70b810c
   FlutterMacOS: ae6af50a8ea7d6103d888583d46bd8328a7e9811
-  path_provider_macos: 160cab0d5461f0c0e02995469a98f24bdb9a3f1f
+  path_provider_macos: 3c0c3b4b0d4a76d2bf989a913c2de869c5641a19
 
 PODFILE CHECKSUM: 6eac6b3292e5142cfc23bdeb71848a40ec51c14c
 
