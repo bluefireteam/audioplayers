@@ -39,6 +39,15 @@ class _StreamsTabState extends State<StreamsTab>
   }
 
   @override
+  void setState(VoidCallback fn) {
+    // Subscriptions only can be closed asynchronously,
+    // therefore events can occur after widget has been disposed.
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
+  @override
   void dispose() {
     super.dispose();
     streams.forEach((it) => it.cancel());

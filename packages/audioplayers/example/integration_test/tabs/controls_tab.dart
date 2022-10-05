@@ -30,14 +30,14 @@ Future<void> testControlsTab(
     await tester.testBalance('0.0');
   }
 
-  if (features.hasPlaybackRate && !audioSourceTestData.isStream) {
+  if (features.hasPlaybackRate && !audioSourceTestData.isLiveStream) {
     // TODO(Gustl22): also test for playback rate in streams
     await tester.testRate('0.5');
     await tester.testRate('2.0');
     await tester.testRate('1.0');
   }
 
-  if (features.hasSeek && !audioSourceTestData.isStream) {
+  if (features.hasSeek && !audioSourceTestData.isLiveStream) {
     // TODO(Gustl22): also test seeking in streams
     final isImmediateDurationSupported = features.hasMp3Duration ||
         !audioSourceTestData.sourceKey.contains('mp3');
@@ -49,9 +49,8 @@ Future<void> testControlsTab(
 
     if (isImmediateDurationSupported) {
       await tester.testPosition(
-        Duration(milliseconds: audioSourceTestData.duration.inMilliseconds ~/ 2)
-            .toString()
-            .substring(0, 8),
+        Duration(seconds: audioSourceTestData.duration.inSeconds ~/ 2),
+        matcher: greaterThanOrEqualTo,
       );
     }
     await tester.tap(find.byKey(const Key('controlsTab')));
@@ -66,7 +65,7 @@ Future<void> testControlsTab(
 
   final isBytesSource = audioSourceTestData.sourceKey.contains('bytes');
   if (features.hasLowLatency &&
-      !audioSourceTestData.isStream &&
+      !audioSourceTestData.isLiveStream &&
       !isBytesSource) {
     await tester.testPlayerMode(PlayerMode.lowLatency);
 
@@ -97,7 +96,7 @@ Future<void> testControlsTab(
   }
 
   if (audioSourceTestData.duration < const Duration(seconds: 2) &&
-      !audioSourceTestData.isStream) {
+      !audioSourceTestData.isLiveStream) {
     if (features.hasReleaseModeLoop) {
       await tester.testReleaseMode(ReleaseMode.loop);
       await tester.pump(const Duration(seconds: 3));
@@ -175,13 +174,13 @@ extension ControlsWidgetTester on WidgetTester {
 
     // Wait until appearance and disappearance
     await waitFor(
-      () => expect(
+      () async => expect(
         find.byKey(const Key('toast-seek-complete-0')),
         findsOneWidget,
       ),
     );
     await waitFor(
-      () => expect(
+      () async => expect(
         find.byKey(const Key('toast-seek-complete-0')),
         findsNothing,
       ),
@@ -196,7 +195,7 @@ extension ControlsWidgetTester on WidgetTester {
     printOnFailure('Test Player Mode: ${mode.name}');
     await tap(find.byKey(Key('control-player-mode-${mode.name}')));
     await waitFor(
-      () => expectEnumToggleHasSelected(
+      () async => expectEnumToggleHasSelected(
         const Key('control-player-mode'),
         matcher: equals(mode),
       ),
@@ -207,7 +206,7 @@ extension ControlsWidgetTester on WidgetTester {
     printOnFailure('Test Release Mode: ${mode.name}');
     await tap(find.byKey(Key('control-release-mode-${mode.name}')));
     await waitFor(
-      () => expectEnumToggleHasSelected(
+      () async => expectEnumToggleHasSelected(
         const Key('control-release-mode'),
         matcher: equals(mode),
       ),

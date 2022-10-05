@@ -4,12 +4,12 @@ class SourceTestData {
 
   Duration duration;
 
-  bool isStream;
+  bool isLiveStream;
 
   SourceTestData({
     required this.sourceKey,
     required this.duration,
-    this.isStream = false,
+    this.isLiveStream = false,
   });
 
   @override
@@ -17,7 +17,7 @@ class SourceTestData {
     return 'SourceTestData('
         'sourceKey: $sourceKey, '
         'duration: $duration, '
-        'isStream: $isStream'
+        'isLiveStream: $isLiveStream'
         ')';
   }
 }
