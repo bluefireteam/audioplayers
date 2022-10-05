@@ -39,12 +39,13 @@ extension WidgetTesterUtils on WidgetTester {
     String? stackTrace,
   }) async {
     var firstFailureMsg = '';
-    var lastFailureMsg = '';
+    var lastFailureMsg = 'same as first failure';
     void setFailureMessage(String message) {
       if (firstFailureMsg.isEmpty) {
         firstFailureMsg = message;
+      } else {
+        lastFailureMsg = message;
       }
-      lastFailureMsg = message;
     }
 
     try {
