@@ -128,7 +128,7 @@ extension StreamWidgetTester on WidgetTester {
     await waitFor(
       () async {
         await tap(find.byKey(const Key('getDuration')));
-        await pumpAndSettle();
+        await pump();
         expectWidgetHasDuration(
           const Key('durationText'),
           matcher: (Duration? actual) =>
@@ -149,7 +149,7 @@ extension StreamWidgetTester on WidgetTester {
     await waitFor(
       () async {
         await tap(find.byKey(const Key('getPosition')));
-        await pumpAndSettle();
+        await pump();
         expectWidgetHasDuration(
           const Key('positionText'),
           matcher: matcher(position),
@@ -166,7 +166,7 @@ extension StreamWidgetTester on WidgetTester {
     await waitFor(
       () async {
         await tap(find.byKey(const Key('getPlayerState')));
-        await pumpAndSettle();
+        await pump();
         expectWidgetHasText(
           const Key('playerStateText'),
           matcher: contains(playerState.toString()),
