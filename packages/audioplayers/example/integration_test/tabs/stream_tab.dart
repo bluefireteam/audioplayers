@@ -46,6 +46,7 @@ Future<void> testStreamsTab(
 
     // Test if onPositionText is set.
     if (features.hasPositionEvent) {
+      await tester.testPosition(Duration.zero, matcher: greaterThan);
       await tester.testOnPosition(Duration.zero, matcher: greaterThan);
     }
   }
@@ -135,7 +136,7 @@ extension StreamWidgetTester on WidgetTester {
               _durationRangeMatcher(actual, duration),
         );
       },
-      timeout: const Duration(seconds: 2),
+      timeout: const Duration(seconds: 4),
       stackTrace: st,
     );
   }
@@ -155,7 +156,7 @@ extension StreamWidgetTester on WidgetTester {
           matcher: matcher(position),
         );
       },
-      timeout: const Duration(seconds: 2),
+      timeout: const Duration(seconds: 4),
       stackTrace: st,
     );
   }
@@ -172,7 +173,7 @@ extension StreamWidgetTester on WidgetTester {
           matcher: contains(playerState.toString()),
         );
       },
-      timeout: const Duration(seconds: 2),
+      timeout: const Duration(seconds: 4),
       stackTrace: st,
     );
   }
