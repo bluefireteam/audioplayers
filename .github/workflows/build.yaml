@@ -67,6 +67,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      # https://stackoverflow.com/questions/5259849/mediaplayer-no-longer-working-on-the-emulator-since-r10
+      - name: Disable Bluetooth
+        run: |
+          brew install blueutil
+          blueutil -p 0
+
       - name: Setup Java
         uses: actions/setup-java@v2
         with:
@@ -121,12 +127,6 @@ jobs:
         with:
           channel: stable
       - uses: bluefireteam/melos-action@main
-      
-      # https://stackoverflow.com/questions/5259849/mediaplayer-no-longer-working-on-the-emulator-since-r10
-      - name: Disable Bluetooth
-        run: |
-          brew install blueutil
-          blueutil -p 0
 
       - name: List all simulators
         run: "xcrun simctl list devices"
