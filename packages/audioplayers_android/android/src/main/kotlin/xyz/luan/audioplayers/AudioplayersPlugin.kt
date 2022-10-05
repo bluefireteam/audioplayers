@@ -17,6 +17,7 @@ import xyz.luan.audioplayers.player.WrappedPlayer
 import xyz.luan.audioplayers.source.BytesSource
 import xyz.luan.audioplayers.source.UrlSource
 import java.lang.ref.WeakReference
+import java.util.concurrent.ConcurrentMap
 
 typealias FlutterHandler = (call: MethodCall, response: MethodChannel.Result) -> Unit
 
@@ -189,7 +190,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
     }
 
     private class UpdateRunnable(
-        mediaPlayers: Map<String, WrappedPlayer>,
+        mediaPlayers: ConcurrentMap<String, WrappedPlayer>,
         channel: MethodChannel,
         handler: Handler,
         updateCallback: IUpdateCallback,
@@ -209,7 +210,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
                 return
             }
             var isAnyPlaying = false
-            for (player in mediaPlayers.values.toList()) {
+            for (player in mediaPlayers.values) {
                 if (!player.isActuallyPlaying()) {
                     continue
                 }
