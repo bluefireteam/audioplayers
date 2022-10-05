@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -85,7 +87,8 @@ Future<void> testStreamsTab(
   }
 
   // Display duration & position after completion / stop
-  if (features.hasDurationEvent) {
+  // FIXME(Gustl22): Linux does not support duration after completion event
+  if (features.hasDurationEvent && (kIsWeb || !Platform.isLinux)) {
     await tester.testDuration(audioSourceTestData.duration);
     if (!audioSourceTestData.isLiveStream) {
       await tester.testOnDuration(audioSourceTestData.duration);
