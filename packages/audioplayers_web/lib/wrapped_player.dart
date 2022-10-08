@@ -60,7 +60,10 @@ class WrappedPlayer {
     }
 
     final p = player = AudioElement(currentUrl);
-    p.crossOrigin = 'anonymous'; // need for stereo panning to work
+    // As the AudioElement is created dynamically via script, 
+    // features like 'stereo panning' need the CORS header to be enabled. 
+    // See: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
+    p.crossOrigin = 'anonymous';
     p.loop = shouldLoop();
     p.volume = currentVolume;
     p.playbackRate = currentPlaybackRate;
