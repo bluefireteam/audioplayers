@@ -10,7 +10,8 @@ class JsAudioContext {
 
 extension JsAudioContextExtension on JsAudioContext {
   external MediaElementAudioSourceNode createMediaElementSource(
-      AudioElement element,);
+    AudioElement element,
+  );
 
   external StereoPannerNode createStereoPanner();
 
@@ -21,7 +22,6 @@ extension JsAudioContextExtension on JsAudioContext {
 @staticInterop
 abstract class AudioNode {
   external AudioNode();
-
 }
 
 extension AudioNodeExtension on AudioNode {
@@ -40,8 +40,7 @@ extension AudioParamExtension on AudioParam {
 
 @JS()
 @staticInterop
-class StereoPannerNode
-    implements AudioNode {
+class StereoPannerNode implements AudioNode {
   external StereoPannerNode();
 }
 
@@ -51,7 +50,6 @@ extension StereoPannerNodeExtension on StereoPannerNode {
 
 @JS()
 @staticInterop
-class MediaElementAudioSourceNode
-    implements AudioNode {
+class MediaElementAudioSourceNode implements AudioNode {
   external MediaElementAudioSourceNode();
 }
