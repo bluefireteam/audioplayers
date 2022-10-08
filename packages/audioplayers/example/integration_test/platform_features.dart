@@ -14,7 +14,6 @@ class PlatformFeatures {
     hasRecordingActive: false,
     hasPlayingRoute: false,
     hasErrorEvent: false,
-    hasBalance: false,
   );
 
   static const androidPlatformFeatures = PlatformFeatures(
