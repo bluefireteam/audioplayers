@@ -3,6 +3,42 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2022-10-08
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`audioplayers` - `v1.1.1`](#audioplayers---v111)
+ - [`audioplayers_android` - `v1.1.1`](#audioplayers_android---v111)
+ - [`audioplayers_darwin` - `v1.0.3`](#audioplayers_darwin---v103)
+ - [`audioplayers_web` - `v2.0.1`](#audioplayers_web---v201)
+
+---
+
+#### `audioplayers` - `v1.1.1`
+
+ - **FIX**: infinity / nan on getDuration ([#1298](https://github.com/bluefireteam/audioplayers/issues/1298)). ([a4474dcf](https://github.com/bluefireteam/audioplayers/commit/a4474dcf5e14fbd74db8b4f19223b9bfa40ed5f5))
+
+#### `audioplayers_android` - `v1.1.1`
+
+ - **FIX**: Avoid ConcurrentModificationException ([#1297](https://github.com/bluefireteam/audioplayers/issues/1297)). ([d15ef5ab](https://github.com/bluefireteam/audioplayers/commit/d15ef5ab93f11e2f19089af08f1533fcdc1397e6))
+
+#### `audioplayers_darwin` - `v1.0.3`
+
+ - **FIX**: infinity / nan on getDuration ([#1298](https://github.com/bluefireteam/audioplayers/issues/1298)). ([a4474dcf](https://github.com/bluefireteam/audioplayers/commit/a4474dcf5e14fbd74db8b4f19223b9bfa40ed5f5))
+
+#### `audioplayers_web` - `v2.0.1`
+
+ - **FIX**: handle infinite value on getDuration for live streams ([#1287](https://github.com/bluefireteam/audioplayers/issues/1287)). ([15f2c78f](https://github.com/bluefireteam/audioplayers/commit/15f2c78f79a68349fe33ac1a26ffc67cfaaf1211))
+
+
 ## 2022-09-26
 
 ### Changes
