@@ -17,6 +17,7 @@ import xyz.luan.audioplayers.player.WrappedPlayer
 import xyz.luan.audioplayers.source.BytesSource
 import xyz.luan.audioplayers.source.UrlSource
 import java.lang.ref.WeakReference
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 
 typealias FlutterHandler = (call: MethodCall, response: MethodChannel.Result) -> Unit
@@ -28,7 +29,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
     private lateinit var globalChannel: MethodChannel
     private lateinit var context: Context
 
-    private val players = mutableMapOf<String, WrappedPlayer>()
+    private val players = ConcurrentHashMap<String, WrappedPlayer>()
     private val handler = Handler(Looper.getMainLooper())
     private var updateRunnable: Runnable? = null
 
