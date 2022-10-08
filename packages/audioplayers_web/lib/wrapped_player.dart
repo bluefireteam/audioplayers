@@ -4,6 +4,7 @@ import 'dart:html';
 import 'package:audioplayers_platform_interface/api/release_mode.dart';
 import 'package:audioplayers_platform_interface/streams_interface.dart';
 import 'package:audioplayers_web/num_extension.dart';
+import 'package:audioplayers_web/web_audio_js.dart';
 
 class WrappedPlayer {
   final String playerId;
@@ -17,6 +18,7 @@ class WrappedPlayer {
   bool isPlaying = false;
 
   AudioElement? player;
+  StereoPannerNode? stereoPanner;
   StreamSubscription? playerTimeUpdateSubscription;
   StreamSubscription? playerEndedSubscription;
   StreamSubscription? playerLoadedDataSubscription;
@@ -44,7 +46,7 @@ class WrappedPlayer {
   }
 
   void setBalance(double balance) {
-    throw UnimplementedError('setBalance is not currently implemented on Web');
+    stereoPanner?.pan.value = balance;
   }
 
   void setPlaybackRate(double rate) {
@@ -58,9 +60,18 @@ class WrappedPlayer {
     }
 
     final p = player = AudioElement(currentUrl);
+    p.crossOrigin = 'anonymous'; // need for stereo panning to work
     p.loop = shouldLoop();
     p.volume = currentVolume;
     p.playbackRate = currentPlaybackRate;
+    
+    // setup stereo panning
+    final audioContext = JsAudioContext();
+    final source = audioContext.createMediaElementSource(player!);
+    stereoPanner = audioContext.createStereoPanner();
+    source.connect(stereoPanner!);
+    stereoPanner?.connect(audioContext.destination);
+
     playerPlaySubscription = p.onPlay.listen((_) {
       streamsInterface.emitDuration(
         playerId,
@@ -99,6 +110,7 @@ class WrappedPlayer {
   void release() {
     _cancel();
     player = null;
+    stereoPanner = null;
 
     playerLoadedDataSubscription?.cancel();
     playerLoadedDataSubscription = null;
