@@ -10,7 +10,7 @@ import '../test_utils.dart';
 
 Future<void> testStreamsTab(
   WidgetTester tester,
-  SourceTestData audioSourceTestData,
+  AppSourceTestData audioSourceTestData,
   PlatformFeatures features,
 ) async {
   printOnFailure('Test Streams Tab');

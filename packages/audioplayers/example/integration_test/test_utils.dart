@@ -185,6 +185,20 @@ void expectEnumToggleHasSelected(
   if (widget is EnumTgl) {
     expect(widget.selected, matcher);
   } else {
-    throw 'Widget with key $key is not a Widget of type "Text"';
+    throw 'Widget with key $key is not a Widget of type "EnumTgl"';
+  }
+}
+
+void expectToggleHasSelected(
+    Key key, {
+      required Matcher matcher,
+      bool skipOffstage = true,
+    }) {
+  final widget =
+      find.byKey(key, skipOffstage: skipOffstage).evaluate().single.widget;
+  if (widget is Tgl) {
+    expect(widget.selected, matcher);
+  } else {
+    throw 'Widget with key $key is not a Widget of type "Tgl"';
   }
 }
