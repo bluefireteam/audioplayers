@@ -190,10 +190,10 @@ void expectEnumToggleHasSelected(
 }
 
 void expectToggleHasSelected(
-    Key key, {
-      required Matcher matcher,
-      bool skipOffstage = true,
-    }) {
+  Key key, {
+  required Matcher matcher,
+  bool skipOffstage = true,
+}) {
   final widget =
       find.byKey(key, skipOffstage: skipOffstage).evaluate().single.widget;
   if (widget is Tgl) {
