@@ -13,22 +13,34 @@ abstract class Source {
 /// This can be an audio file to be downloaded or an audio stream.
 class UrlSource extends Source {
   final String url;
+
   UrlSource(this.url);
 
   @override
   Future<void> setOnPlayer(AudioPlayer player) {
     return player.setSourceUrl(url);
   }
+
+  @override
+  String toString() {
+    return 'UrlSource(url: $url)';
+  }
 }
 
 /// Source representing the absolute path of a file in the user's device.
 class DeviceFileSource extends Source {
   final String path;
+
   DeviceFileSource(this.path);
 
   @override
   Future<void> setOnPlayer(AudioPlayer player) {
     return player.setSourceDeviceFile(path);
+  }
+
+  @override
+  String toString() {
+    return 'DeviceFileSource(path: $path)';
   }
 }
 
@@ -38,11 +50,17 @@ class DeviceFileSource extends Source {
 /// instance.
 class AssetSource extends Source {
   final String path;
+
   AssetSource(this.path);
 
   @override
   Future<void> setOnPlayer(AudioPlayer player) {
     return player.setSourceAsset(path);
+  }
+
+  @override
+  String toString() {
+    return 'AssetSource(path: $path)';
   }
 }
 
@@ -51,6 +69,7 @@ class AssetSource extends Source {
 /// This is currently only supported for Android (SDK >= 23).
 class BytesSource extends Source {
   final Uint8List bytes;
+
   BytesSource(this.bytes);
 
   @override
