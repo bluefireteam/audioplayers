@@ -59,7 +59,7 @@ Note: LLM means Low Latency Mode.
         <tr><td>stay awake</td><td>yes (except LLM)</td><td>yes</td><td>no</td><td>no</td><td>no</td><td>no</td></tr>
         <tr><td>recording active</td><td>not yet</td><td>yes</td><td>no</td><td>no</td><td>no</td><td>no</td></tr>
         <tr><td>playing route</td><td>yes (except LLM)</td><td>yes</td><td>no</td><td>no</td><td>no</td><td>no</td></tr>
-        <tr><td>balance</td><td>no</td><td>no</td><td>no</td><td>no</td><td>yes</td><td>yes</td></tr>
+        <tr><td>balance</td><td>not yet</td><td>not yet</td><td>not yet</td><td>yes</td><td>yes</td><td>yes</td></tr>
         <tr><td colspan="7"><strong>Streams</strong></td></tr>
         <tr><td>duration event</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr>
         <tr><td>position event</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr>
