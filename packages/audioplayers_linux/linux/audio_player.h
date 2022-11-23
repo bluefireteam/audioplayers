@@ -59,6 +59,7 @@ private:
     GstBus *bus;
 
     bool _isInitialized = false;
+    bool _isPlaying = false;
     bool _isLooping = false;
     bool _isSeekCompleted = true;
     double _playbackRate = 1.0;
