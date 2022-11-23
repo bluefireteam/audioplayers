@@ -9,8 +9,8 @@ class Cbx extends StatelessWidget {
     this.label,
     this.value,
     this.update, {
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

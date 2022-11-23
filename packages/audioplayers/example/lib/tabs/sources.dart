@@ -21,7 +21,7 @@ const asset2 = 'nasa_on_a_mission.mp3';
 class SourcesTab extends StatefulWidget {
   final AudioPlayer player;
 
-  const SourcesTab({Key? key, required this.player}) : super(key: key);
+  const SourcesTab({super.key, required this.player});
 
   @override
   State<SourcesTab> createState() => _SourcesTabState();
