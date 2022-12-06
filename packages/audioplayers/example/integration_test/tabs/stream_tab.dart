@@ -102,13 +102,13 @@ Future<void> testStreamsTab(
 extension StreamWidgetTester on WidgetTester {
   // Precision for duration & position:
   // Android: two tenth of a second
-  // Windows: second
+  // Windows: millisecond
   // Linux: second
   // Web: second
 
   // Update interval for duration & position:
   // Android: two tenth of a second
-  // Windows: second
+  // Windows: ~250ms
   // Linux: second
   // Web: second
 
