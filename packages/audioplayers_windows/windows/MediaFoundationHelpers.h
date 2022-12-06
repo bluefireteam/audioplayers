@@ -148,7 +148,7 @@ constexpr uint64_t c_hnsPerSecond = 10000000;
 template<typename SecondsT>
 inline uint64_t ConvertSecondsToHns(SecondsT seconds)
 {
-    return static_cast<uint64_t>(seconds) * c_hnsPerSecond;
+    return static_cast<uint64_t>(seconds * c_hnsPerSecond);
 }
 
 template<typename HnsT>
