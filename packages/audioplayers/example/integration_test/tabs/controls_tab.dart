@@ -17,17 +17,20 @@ Future<void> testControlsTab(
   await tester.tap(find.byKey(const Key('controlsTab')));
   await tester.pumpAndSettle();
 
+  // Live stream takes some time to get initialized
+  final timeout = Duration(seconds: audioSourceTestData.isLiveStream ? 8 : 1);
+
   if (features.hasVolume) {
-    await tester.testVolume('0.0');
-    await tester.testVolume('0.5');
-    await tester.testVolume('1.0');
+    await tester.testVolume('0.5', timeout: timeout);
+    await tester.testVolume('0.0', timeout: timeout);
+    await tester.testVolume('1.0', timeout: timeout);
     // No tests for volume > 1
   }
 
   if (features.hasBalance) {
-    await tester.testBalance('-1.0');
-    await tester.testBalance('1.0');
-    await tester.testBalance('0.0');
+    await tester.testBalance('-1.0', timeout: timeout);
+    await tester.testBalance('1.0', timeout: timeout);
+    await tester.testBalance('0.0', timeout: timeout);
   }
 
   if (features.hasPlaybackRate && !audioSourceTestData.isLiveStream) {
@@ -71,10 +74,12 @@ Future<void> testControlsTab(
 
     // Test resume
     await tester.tap(find.byKey(const Key('control-resume')));
+    await tester.pumpAndSettle();
     await tester.pump(const Duration(seconds: 1));
     // Test pause
     await tester.tap(find.byKey(const Key('control-pause')));
     await tester.tap(find.byKey(const Key('control-resume')));
+    await tester.pumpAndSettle();
     await tester.pump(const Duration(seconds: 1));
     await tester.tap(find.byKey(const Key('control-stop')));
     await tester.pumpAndSettle();
@@ -133,6 +138,7 @@ extension ControlsWidgetTester on WidgetTester {
     printOnFailure('Test Volume: $volume');
     await tap(find.byKey(Key('control-volume-$volume')));
     await tap(find.byKey(const Key('control-resume')));
+    await pumpAndSettle();
     // TODO(Gustl22): get volume from native implementation
     await pump(timeout);
     await tap(find.byKey(const Key('control-stop')));
@@ -146,6 +152,7 @@ extension ControlsWidgetTester on WidgetTester {
     printOnFailure('Test Balance: $balance');
     await tap(find.byKey(Key('control-balance-$balance')));
     await tap(find.byKey(const Key('control-resume')));
+    await pumpAndSettle();
     // TODO(novikov): get balance from native implementation
     await pump(timeout);
     await tap(find.byKey(const Key('control-stop')));
@@ -159,6 +166,7 @@ extension ControlsWidgetTester on WidgetTester {
     printOnFailure('Test Rate: $rate');
     await tap(find.byKey(Key('control-rate-$rate')));
     await tap(find.byKey(const Key('control-resume')));
+    await pumpAndSettle();
     // TODO(Gustl22): get rate from native implementation
     await pump(timeout);
     await tap(find.byKey(const Key('control-stop')));
@@ -188,6 +196,7 @@ extension ControlsWidgetTester on WidgetTester {
 
     if (isResume) {
       await tap(find.byKey(const Key('control-resume')));
+      await pumpAndSettle();
     }
   }
 
@@ -213,6 +222,7 @@ extension ControlsWidgetTester on WidgetTester {
     );
     if (isResume) {
       await tap(find.byKey(const Key('control-resume')));
+      await pumpAndSettle();
     }
     // TODO(Gustl22): get release mode from native implementation
   }
