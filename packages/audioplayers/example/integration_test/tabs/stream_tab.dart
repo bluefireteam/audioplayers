@@ -84,18 +84,15 @@ Future<void> testStreamsTab(
         await tester.testPlayerState(PlayerState.paused);
         await tester.testOnPlayerState(PlayerState.paused);
 
-        await tester.tap(find.byKey(const Key('stop_button')));
-        await tester.pumpAndSettle();
+        await tester.stopStream();
         await tester.testPlayerState(PlayerState.stopped);
         await tester.testOnPlayerState(PlayerState.stopped);
       } else {
         // Cannot say for sure, if it's stopped or completed, so we just stop
-        await tester.tap(find.byKey(const Key('stop_button')));
-        await tester.pumpAndSettle();
+        await tester.stopStream();
       }
     } else {
-      await tester.tap(find.byKey(const Key('stop_button')));
-      await tester.pumpAndSettle();
+      await tester.stopStream();
       await tester.testPlayerState(PlayerState.stopped, timeout: timeout);
       await tester.testOnPlayerState(PlayerState.stopped, timeout: timeout);
     }
@@ -139,6 +136,14 @@ extension StreamWidgetTester on WidgetTester {
       return false;
     }
     return actual >= (expected - deviation) && actual <= (expected + deviation);
+  }
+
+  Future<void> stopStream() async {
+    final st = StackTrace.current.toString();
+
+    await tap(find.byKey(const Key('stop_button')));
+    await waitOneshot(const Key('toast-player-stopped-0'), stackTrace: st);
+    await pumpAndSettle();
   }
 
   Future<void> testDuration(
