@@ -1,5 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_example/tabs/sources.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'platform_features.dart';
@@ -42,12 +43,14 @@ void main() {
           duration: Duration.zero,
           isLiveStream: true,
         ),
-      if (features.hasAssetSource)
+      // FIXME(web): somehow assets cannot be downloaded via http.get on flutter
+      // driver command, although urls do exist.
+      if (!kIsWeb && features.hasAssetSource)
         LibSourceTestData(
           source: AssetSource(asset1),
           duration: const Duration(seconds: 1, milliseconds: 068),
         ),
-      if (features.hasAssetSource)
+      if (!kIsWeb && features.hasAssetSource)
         LibSourceTestData(
           source: AssetSource(asset2),
           duration: const Duration(minutes: 1, seconds: 34, milliseconds: 119),
