@@ -6,7 +6,7 @@ extension StateExt<T extends StatefulWidget> on State<T> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message, key: textKey),
-        duration: const Duration(milliseconds: 500),
+        duration: const Duration(milliseconds: 250),
       ),
     );
   }

@@ -37,11 +37,25 @@ class _ExampleAppState extends State<ExampleApp> {
     super.initState();
     players.asMap().forEach((index, player) {
       streams.add(
-        player.onPlayerComplete.listen(
-          (it) => toast(
-            'Player complete!',
-            textKey: Key('toast-player-complete-$index'),
-          ),
+        player.onPlayerStateChanged.listen(
+          (it) {
+            switch (it) {
+              case PlayerState.stopped:
+                toast(
+                  'Player stopped!',
+                  textKey: Key('toast-player-stopped-$index'),
+                );
+                break;
+              case PlayerState.completed:
+                toast(
+                  'Player complete!',
+                  textKey: Key('toast-player-complete-$index'),
+                );
+                break;
+              default:
+                break;
+            }
+          },
         ),
       );
       streams.add(

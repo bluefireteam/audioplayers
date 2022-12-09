@@ -62,8 +62,7 @@ Future<void> testControlsTab(
     await tester.pump(const Duration(seconds: 1));
     await tester.testSeek('1.0');
     await tester.pump(const Duration(seconds: 1));
-    await tester.tap(find.byKey(const Key('control-stop')));
-    await tester.pumpAndSettle();
+    await tester.stop();
   }
 
   final isBytesSource = audioSourceTestData.sourceKey.contains('bytes');
@@ -81,8 +80,7 @@ Future<void> testControlsTab(
     await tester.tap(find.byKey(const Key('control-resume')));
     await tester.pumpAndSettle();
     await tester.pump(const Duration(seconds: 1));
-    await tester.tap(find.byKey(const Key('control-stop')));
-    await tester.pumpAndSettle();
+    await tester.stop();
 
     // Test volume
     await tester.testVolume('0.5');
@@ -91,7 +89,7 @@ Future<void> testControlsTab(
     // Test release mode: loop
     await tester.testReleaseMode(ReleaseMode.loop);
     await tester.pump(const Duration(seconds: 3));
-    await tester.tap(find.byKey(const Key('control-stop')));
+    await tester.stop();
     await tester.testReleaseMode(ReleaseMode.stop, isResume: false);
     await tester.pumpAndSettle();
 
@@ -105,7 +103,7 @@ Future<void> testControlsTab(
     if (features.hasReleaseModeLoop) {
       await tester.testReleaseMode(ReleaseMode.loop);
       await tester.pump(const Duration(seconds: 3));
-      await tester.tap(find.byKey(const Key('control-stop')));
+      await tester.stop();
       await tester.testReleaseMode(ReleaseMode.stop, isResume: false);
       await tester.pumpAndSettle();
     }
@@ -131,6 +129,14 @@ Future<void> testControlsTab(
 }
 
 extension ControlsWidgetTester on WidgetTester {
+  Future<void> stop() async {
+    final st = StackTrace.current.toString();
+
+    await tap(find.byKey(const Key('control-stop')));
+    await waitOneshot(const Key('toast-player-stopped-0'), stackTrace: st);
+    await pumpAndSettle();
+  }
+
   Future<void> testVolume(
     String volume, {
     Duration timeout = const Duration(seconds: 1),
@@ -141,8 +147,7 @@ extension ControlsWidgetTester on WidgetTester {
     await pumpAndSettle();
     // TODO(Gustl22): get volume from native implementation
     await pump(timeout);
-    await tap(find.byKey(const Key('control-stop')));
-    await pumpAndSettle();
+    await stop();
   }
 
   Future<void> testBalance(
@@ -155,8 +160,7 @@ extension ControlsWidgetTester on WidgetTester {
     await pumpAndSettle();
     // TODO(novikov): get balance from native implementation
     await pump(timeout);
-    await tap(find.byKey(const Key('control-stop')));
-    await pumpAndSettle();
+    await stop();
   }
 
   Future<void> testRate(
@@ -169,8 +173,7 @@ extension ControlsWidgetTester on WidgetTester {
     await pumpAndSettle();
     // TODO(Gustl22): get rate from native implementation
     await pump(timeout);
-    await tap(find.byKey(const Key('control-stop')));
-    await pumpAndSettle();
+    await stop();
   }
 
   Future<void> testSeek(
@@ -178,21 +181,11 @@ extension ControlsWidgetTester on WidgetTester {
     bool isResume = true,
   }) async {
     printOnFailure('Test Seek: $seek');
+    final st = StackTrace.current.toString();
+
     await tap(find.byKey(Key('control-seek-$seek')));
 
-    // Wait until appearance and disappearance
-    await waitFor(
-      () async => expect(
-        find.byKey(const Key('toast-seek-complete-0')),
-        findsOneWidget,
-      ),
-    );
-    await waitFor(
-      () async => expect(
-        find.byKey(const Key('toast-seek-complete-0')),
-        findsNothing,
-      ),
-    );
+    await waitOneshot(const Key('toast-seek-complete-0'), stackTrace: st);
 
     if (isResume) {
       await tap(find.byKey(const Key('control-resume')));
@@ -202,23 +195,29 @@ extension ControlsWidgetTester on WidgetTester {
 
   Future<void> testPlayerMode(PlayerMode mode) async {
     printOnFailure('Test Player Mode: ${mode.name}');
+    final st = StackTrace.current.toString();
+
     await tap(find.byKey(Key('control-player-mode-${mode.name}')));
     await waitFor(
       () async => expectEnumToggleHasSelected(
         const Key('control-player-mode'),
         matcher: equals(mode),
       ),
+      stackTrace: st,
     );
   }
 
   Future<void> testReleaseMode(ReleaseMode mode, {bool isResume = true}) async {
     printOnFailure('Test Release Mode: ${mode.name}');
+    final st = StackTrace.current.toString();
+
     await tap(find.byKey(Key('control-release-mode-${mode.name}')));
     await waitFor(
       () async => expectEnumToggleHasSelected(
         const Key('control-release-mode'),
         matcher: equals(mode),
       ),
+      stackTrace: st,
     );
     if (isResume) {
       await tap(find.byKey(const Key('control-resume')));
