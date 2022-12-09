@@ -67,7 +67,7 @@ class AudioCache {
       final uri = _sanitizeURLForWeb(fileName);
       // We rely on browser caching here. Once the browser downloads this file,
       // the native side implementation should be able to access it from cache.
-      await http.get(uri);
+      await http.get(uri).timeout(const Duration(seconds: 30));
       return uri;
     }
 
