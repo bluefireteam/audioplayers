@@ -59,6 +59,11 @@ jobs:
            --driver=test_driver/integration_test.dart \
            --target=integration_test/app_test.dart \
            -d web-server --web-browser-flag="--autoplay-policy=no-user-gesture-required"
+          
+          flutter drive \
+           --driver=test_driver/integration_test.dart \
+           --target=integration_test/lib_test.dart \
+           -d web-server --web-browser-flag="--autoplay-policy=no-user-gesture-required"
 
   android:
     runs-on: macOS-latest
