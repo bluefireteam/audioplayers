@@ -72,13 +72,11 @@ Future<void> testControlsTab(
     await tester.testPlayerMode(PlayerMode.lowLatency);
 
     // Test resume
-    await tester.tap(find.byKey(const Key('control-resume')));
-    await tester.pumpAndSettle();
+    await tester.resume();
     await tester.pump(const Duration(seconds: 1));
     // Test pause
     await tester.tap(find.byKey(const Key('control-pause')));
-    await tester.tap(find.byKey(const Key('control-resume')));
-    await tester.pumpAndSettle();
+    await tester.resume();
     await tester.pump(const Duration(seconds: 1));
     await tester.stop();
 
@@ -129,6 +127,11 @@ Future<void> testControlsTab(
 }
 
 extension ControlsWidgetTester on WidgetTester {
+  Future<void> resume() async {
+    await tap(find.byKey(const Key('control-resume')));
+    await pumpAndSettle();
+  }
+  
   Future<void> stop() async {
     final st = StackTrace.current.toString();
 
@@ -143,8 +146,7 @@ extension ControlsWidgetTester on WidgetTester {
   }) async {
     printOnFailure('Test Volume: $volume');
     await tap(find.byKey(Key('control-volume-$volume')));
-    await tap(find.byKey(const Key('control-resume')));
-    await pumpAndSettle();
+    await resume();
     // TODO(Gustl22): get volume from native implementation
     await pump(timeout);
     await stop();
@@ -156,8 +158,7 @@ extension ControlsWidgetTester on WidgetTester {
   }) async {
     printOnFailure('Test Balance: $balance');
     await tap(find.byKey(Key('control-balance-$balance')));
-    await tap(find.byKey(const Key('control-resume')));
-    await pumpAndSettle();
+    await resume();
     // TODO(novikov): get balance from native implementation
     await pump(timeout);
     await stop();
@@ -169,8 +170,7 @@ extension ControlsWidgetTester on WidgetTester {
   }) async {
     printOnFailure('Test Rate: $rate');
     await tap(find.byKey(Key('control-rate-$rate')));
-    await tap(find.byKey(const Key('control-resume')));
-    await pumpAndSettle();
+    await resume();
     // TODO(Gustl22): get rate from native implementation
     await pump(timeout);
     await stop();
@@ -188,8 +188,7 @@ extension ControlsWidgetTester on WidgetTester {
     await waitOneshot(const Key('toast-seek-complete-0'), stackTrace: st);
 
     if (isResume) {
-      await tap(find.byKey(const Key('control-resume')));
-      await pumpAndSettle();
+      await resume();
     }
   }
 
@@ -220,8 +219,7 @@ extension ControlsWidgetTester on WidgetTester {
       stackTrace: st,
     );
     if (isResume) {
-      await tap(find.byKey(const Key('control-resume')));
-      await pumpAndSettle();
+      await resume();
     }
     // TODO(Gustl22): get release mode from native implementation
   }
