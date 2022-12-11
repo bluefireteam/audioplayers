@@ -122,7 +122,7 @@ Future<void> testControlsTab(
 
       await tester.testReleaseMode(ReleaseMode.stop, isResume: false);
       await tester.pumpAndSettle();
-      
+
       // TODO(Gustl22): test 'control-release'
     }
   }
@@ -133,7 +133,7 @@ extension ControlsWidgetTester on WidgetTester {
     await tap(find.byKey(const Key('control-resume')));
     await pumpAndSettle();
   }
-  
+
   Future<void> stop() async {
     final st = StackTrace.current.toString();
 
