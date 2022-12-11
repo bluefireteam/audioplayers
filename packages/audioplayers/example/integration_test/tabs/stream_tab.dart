@@ -31,6 +31,9 @@ Future<void> testStreamsTab(
     await tester.testDuration(audioSourceTestData.duration);
   }
 
+  // Live stream takes some time to get initialized
+  final timeout = Duration(seconds: audioSourceTestData.isLiveStream ? 8 : 1);
+
   await tester.pumpAndSettle();
   await tester.tap(find.byKey(const Key('play_button')));
   await tester.pumpAndSettle();
@@ -42,14 +45,22 @@ Future<void> testStreamsTab(
     // Test player state: playing
     if (features.hasPlayerStateEvent) {
       // Only test, if there's enough time to be able to check playing state.
-      await tester.testPlayerState(PlayerState.playing);
-      await tester.testOnPlayerState(PlayerState.playing);
+      await tester.testPlayerState(PlayerState.playing, timeout: timeout);
+      await tester.testOnPlayerState(PlayerState.playing, timeout: timeout);
     }
 
     // Test if onPositionText is set.
     if (features.hasPositionEvent) {
-      await tester.testPosition(Duration.zero, matcher: greaterThan);
-      await tester.testOnPosition(Duration.zero, matcher: greaterThan);
+      await tester.testPosition(
+        Duration.zero,
+        matcher: greaterThan,
+        timeout: timeout,
+      );
+      await tester.testOnPosition(
+        Duration.zero,
+        matcher: greaterThan,
+        timeout: timeout,
+      );
     }
   }
 
@@ -69,20 +80,21 @@ Future<void> testStreamsTab(
         await tester.testOnPlayerState(PlayerState.completed);
       } else if (audioSourceTestData.duration > const Duration(seconds: 5)) {
         await tester.tap(find.byKey(const Key('pause_button')));
+        await tester.pumpAndSettle();
         await tester.testPlayerState(PlayerState.paused);
         await tester.testOnPlayerState(PlayerState.paused);
 
-        await tester.tap(find.byKey(const Key('stop_button')));
+        await tester.stopStream();
         await tester.testPlayerState(PlayerState.stopped);
         await tester.testOnPlayerState(PlayerState.stopped);
       } else {
         // Cannot say for sure, if it's stopped or completed, so we just stop
-        await tester.tap(find.byKey(const Key('stop_button')));
+        await tester.stopStream();
       }
     } else {
-      await tester.tap(find.byKey(const Key('stop_button')));
-      await tester.testPlayerState(PlayerState.stopped);
-      await tester.testOnPlayerState(PlayerState.stopped);
+      await tester.stopStream();
+      await tester.testPlayerState(PlayerState.stopped, timeout: timeout);
+      await tester.testOnPlayerState(PlayerState.stopped, timeout: timeout);
     }
   }
 
@@ -126,7 +138,18 @@ extension StreamWidgetTester on WidgetTester {
     return actual >= (expected - deviation) && actual <= (expected + deviation);
   }
 
-  Future<void> testDuration(Duration duration) async {
+  Future<void> stopStream() async {
+    final st = StackTrace.current.toString();
+
+    await tap(find.byKey(const Key('stop_button')));
+    await waitOneshot(const Key('toast-player-stopped-0'), stackTrace: st);
+    await pumpAndSettle();
+  }
+
+  Future<void> testDuration(
+    Duration duration, {
+    Duration timeout = const Duration(seconds: 4),
+  }) async {
     printOnFailure('Test Duration: $duration');
     final st = StackTrace.current.toString();
     await waitFor(
@@ -139,7 +162,7 @@ extension StreamWidgetTester on WidgetTester {
               _durationRangeMatcher(actual, duration),
         );
       },
-      timeout: const Duration(seconds: 4),
+      timeout: timeout,
       stackTrace: st,
     );
   }
@@ -147,6 +170,7 @@ extension StreamWidgetTester on WidgetTester {
   Future<void> testPosition(
     Duration position, {
     Matcher Function(Duration) matcher = equals,
+    Duration timeout = const Duration(seconds: 4),
   }) async {
     printOnFailure('Test Position: $position');
     final st = StackTrace.current.toString();
@@ -159,12 +183,15 @@ extension StreamWidgetTester on WidgetTester {
           matcher: matcher(position),
         );
       },
-      timeout: const Duration(seconds: 4),
+      timeout: timeout,
       stackTrace: st,
     );
   }
 
-  Future<void> testPlayerState(PlayerState playerState) async {
+  Future<void> testPlayerState(
+    PlayerState playerState, {
+    Duration timeout = const Duration(seconds: 4),
+  }) async {
     printOnFailure('Test PlayerState: $playerState');
     final st = StackTrace.current.toString();
     await waitFor(
@@ -176,12 +203,15 @@ extension StreamWidgetTester on WidgetTester {
           matcher: contains(playerState.toString()),
         );
       },
-      timeout: const Duration(seconds: 4),
+      timeout: timeout,
       stackTrace: st,
     );
   }
 
-  Future<void> testOnDuration(Duration duration) async {
+  Future<void> testOnDuration(
+    Duration duration, {
+    Duration timeout = const Duration(seconds: 8),
+  }) async {
     printOnFailure('Test OnDuration: $duration');
     final st = StackTrace.current.toString();
     await waitFor(
@@ -189,6 +219,7 @@ extension StreamWidgetTester on WidgetTester {
         const Key('onDurationText'),
         matcher: (Duration? actual) => _durationRangeMatcher(actual, duration),
       ),
+      timeout: timeout,
       stackTrace: st,
     );
   }
@@ -196,6 +227,7 @@ extension StreamWidgetTester on WidgetTester {
   Future<void> testOnPosition(
     Duration position, {
     Matcher Function(Duration) matcher = equals,
+    Duration timeout = const Duration(seconds: 8),
   }) async {
     printOnFailure('Test OnPosition: $position');
     final st = StackTrace.current.toString();
@@ -205,11 +237,15 @@ extension StreamWidgetTester on WidgetTester {
         matcher: matcher(position),
       ),
       pollInterval: const Duration(milliseconds: 250),
+      timeout: timeout,
       stackTrace: st,
     );
   }
 
-  Future<void> testOnPlayerState(PlayerState playerState) async {
+  Future<void> testOnPlayerState(
+    PlayerState playerState, {
+    Duration timeout = const Duration(seconds: 8),
+  }) async {
     printOnFailure('Test OnState: $playerState');
     final st = StackTrace.current.toString();
     await waitFor(
@@ -218,6 +254,7 @@ extension StreamWidgetTester on WidgetTester {
         matcher: contains('Stream State: $playerState'),
       ),
       pollInterval: const Duration(milliseconds: 250),
+      timeout: timeout,
       stackTrace: st,
     );
   }

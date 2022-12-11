@@ -1,9 +1,34 @@
 import 'dart:async';
+
 import 'package:audioplayers_example/components/tgl.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 extension WidgetTesterUtils on WidgetTester {
+  /// Wait until appearance and disappearance
+  Future<void> waitOneshot(
+    Key key, {
+    Duration timeout = const Duration(seconds: 180),
+    String? stackTrace,
+  }) async {
+    await waitFor(
+      () async => expect(
+        find.byKey(key),
+        findsOneWidget,
+      ),
+      timeout: timeout,
+      pollInterval: const Duration(milliseconds: 100),
+      stackTrace: stackTrace,
+    );
+    await waitFor(
+      () async => expect(
+        find.byKey(key),
+        findsNothing,
+      ),
+      stackTrace: stackTrace,
+    );
+  }
+
   // Add [stackTrace] to work around https://github.com/flutter/flutter/issues/89138
   Future<void> waitFor(
     Future<void> Function() testExpectation, {

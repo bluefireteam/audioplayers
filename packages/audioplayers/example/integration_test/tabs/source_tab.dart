@@ -25,21 +25,6 @@ extension ControlsWidgetTester on WidgetTester {
     await scrollTo(sourceWidgetKey);
     await tap(find.byKey(sourceWidgetKey));
 
-    // Wait for toast appearance and disappearance
-    await waitFor(
-      () async => expect(
-        find.byKey(const Key('toast-source-set')),
-        findsOneWidget,
-      ),
-      timeout: const Duration(seconds: 180),
-      stackTrace: st,
-    );
-    await waitFor(
-      () async => expect(
-        find.byKey(const Key('toast-source-set')),
-        findsNothing,
-      ),
-      stackTrace: st,
-    );
+    await waitOneshot(const Key('toast-source-set'), stackTrace: st);
   }
 }

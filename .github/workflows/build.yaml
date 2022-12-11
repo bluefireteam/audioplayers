@@ -202,9 +202,12 @@ jobs:
       - name: Install Flutter requirements for Linux
         run: |
           sudo apt-get update
-          sudo apt-get install clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
       - name: Install GStreamer
-        run: sudo apt-get install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev gstreamer1.0-plugins-good gstreamer1.0-plugins-bad
+        # Install libunwind-dev, see https://github.com/actions/runner-images/issues/6399#issuecomment-1285011525
+        run: |
+          sudo apt install -y libunwind-dev
+          sudo apt-get install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev gstreamer1.0-plugins-good gstreamer1.0-plugins-bad
       - name: Example app - Build Linux app
         working-directory: ./packages/audioplayers/example
         run: |
