@@ -1,6 +1,5 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_example/tabs/sources.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'platform_features.dart';
@@ -43,14 +42,12 @@ void main() {
           duration: Duration.zero,
           isLiveStream: true,
         ),
-      // FIXME(web): somehow assets cannot be downloaded via http.get on flutter
-      // driver command, although urls do exist.
-      if (!kIsWeb && features.hasAssetSource)
+      if (features.hasAssetSource)
         LibSourceTestData(
           source: AssetSource(asset1),
           duration: const Duration(seconds: 1, milliseconds: 068),
         ),
-      if (!kIsWeb && features.hasAssetSource)
+      if (features.hasAssetSource)
         LibSourceTestData(
           source: AssetSource(asset2),
           duration: const Duration(minutes: 1, seconds: 34, milliseconds: 119),
@@ -59,46 +56,52 @@ void main() {
 
     testWidgets('play multiple sources simultaneously',
         (WidgetTester tester) async {
-      final players =
-          List.generate(audioTestDataList.length, (_) => AudioPlayer());
+      // TODO(gustl22): Wrap tests inside async call for web, as completer does not complete on setSource: https://github.com/flutter/flutter/issues/116984
+      await tester.runAsync(() async {
+        final players =
+            List.generate(audioTestDataList.length, (_) => AudioPlayer());
 
-      // Start all players simultaneously
-      final iterator = List<int>.generate(audioTestDataList.length, (i) => i);
-      await Future.wait<void>(
-        iterator.map((i) => players[i].play(audioTestDataList[i].source)),
-      );
-      await tester.pumpAndSettle();
-      await tester.pump(const Duration(seconds: 8));
-      for (var i = 0; i < audioTestDataList.length; i++) {
-        final td = audioTestDataList[i];
-        if (td.isLiveStream || td.duration > const Duration(seconds: 10)) {
-          await tester.pump();
-          final position = await players[i].getCurrentPosition();
-          printOnFailure('Test position: $td');
-          expect(position, greaterThan(Duration.zero));
+        // Start all players simultaneously
+        final iterator = List<int>.generate(audioTestDataList.length, (i) => i);
+        await Future.wait<void>(
+          iterator.map((i) => players[i].play(audioTestDataList[i].source)),
+        );
+        await tester.pumpAndSettle();
+        await tester.pump(const Duration(seconds: 8));
+        for (var i = 0; i < audioTestDataList.length; i++) {
+          final td = audioTestDataList[i];
+          if (td.isLiveStream || td.duration > const Duration(seconds: 10)) {
+            await tester.pump();
+            final position = await players[i].getCurrentPosition();
+            printOnFailure('Test position: $td');
+            expect(position, greaterThan(Duration.zero));
+          }
+          await players[i].stop();
         }
-        await players[i].stop();
-      }
+      });
     });
 
     testWidgets('play multiple sources consecutively',
         (WidgetTester tester) async {
-      final player = AudioPlayer();
+      // TODO(gustl22): see https://github.com/flutter/flutter/issues/116984
+      await tester.runAsync(() async {
+        final player = AudioPlayer();
 
-      for (var i = 0; i < audioTestDataList.length; i++) {
-        final td = audioTestDataList[i];
-        await player.play(td.source);
-        await tester.pumpAndSettle();
-        // Live stream takes some time to get initialized
-        await tester.pump(Duration(seconds: td.isLiveStream ? 8 : 2));
-        if (td.isLiveStream || td.duration > const Duration(seconds: 10)) {
-          await tester.pump();
-          final position = await player.getCurrentPosition();
-          printOnFailure('Test position: $td');
-          expect(position, greaterThan(Duration.zero));
+        for (var i = 0; i < audioTestDataList.length; i++) {
+          final td = audioTestDataList[i];
+          await player.play(td.source);
+          await tester.pumpAndSettle();
+          // Live stream takes some time to get initialized
+          await tester.pump(Duration(seconds: td.isLiveStream ? 8 : 2));
+          if (td.isLiveStream || td.duration > const Duration(seconds: 10)) {
+            await tester.pump();
+            final position = await player.getCurrentPosition();
+            printOnFailure('Test position: $td');
+            expect(position, greaterThan(Duration.zero));
+          }
+          await player.stop();
         }
-        await player.stop();
-      }
+      });
     });
   });
 }
