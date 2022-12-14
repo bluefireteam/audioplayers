@@ -57,12 +57,12 @@ jobs:
           
           flutter drive \
            --driver=test_driver/integration_test.dart \
-           --target=integration_test/app_test.dart \
+           --target=integration_test/lib_test.dart \
            -d web-server --web-browser-flag="--autoplay-policy=no-user-gesture-required"
           
           flutter drive \
            --driver=test_driver/integration_test.dart \
-           --target=integration_test/lib_test.dart \
+           --target=integration_test/app_test.dart \
            -d web-server --web-browser-flag="--autoplay-policy=no-user-gesture-required"
 
   android:
@@ -114,7 +114,10 @@ jobs:
           echo "Emulator started"
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
-        run: "flutter test integration_test"
+        # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
+        run: |
+          flutter test integration_test/lib_test.dart
+          flutter test integration_test/app_test.dart
 
   ios:
     runs-on: macOS-latest
@@ -141,7 +144,10 @@ jobs:
           flutter build ios --release --no-codesign
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
-        run: "flutter test integration_test"
+        # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
+        run: |
+          flutter test integration_test/lib_test.dart
+          flutter test integration_test/app_test.dart
 
   macos:
     runs-on: macOS-latest
@@ -165,7 +171,10 @@ jobs:
           flutter build macos --release
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
-        run: "flutter test -d macos integration_test"
+        # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
+        run: |
+          flutter test -d macos integration_test/lib_test.dart
+          flutter test -d macos integration_test/app_test.dart
 
   windows:
     runs-on: windows-latest
@@ -192,7 +201,10 @@ jobs:
           Scream\Install\helpers\devcon-x64.exe install Scream\Install\driver\x64\Scream.inf *Scream
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
-        run: "flutter test -d windows integration_test"
+        # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
+        run: |
+          flutter test -d windows integration_test/lib_test.dart
+          flutter test -d windows integration_test/app_test.dart
 
   linux:
     runs-on: ubuntu-latest
@@ -220,7 +232,9 @@ jobs:
           flutter build linux --release
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
+        # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         run: |
           export DISPLAY=:99
           sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
-          flutter test -d linux integration_test
+          flutter test -d linux integration_test/lib_test.dart
+          flutter test -d linux integration_test/app_test.dart
