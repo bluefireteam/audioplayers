@@ -89,8 +89,8 @@ void main() {
         final td = audioTestDataList[i];
         await player.play(td.source);
         await tester.pumpAndSettle();
-        // Live stream takes some time to get initialized
-        await tester.pump(Duration(seconds: td.isLiveStream ? 8 : 2));
+        // Sources take some time to get initialized
+        await tester.pump(const Duration(seconds: 8));
         if (td.isLiveStream || td.duration > const Duration(seconds: 10)) {
           await tester.pump();
           final position = await player.getCurrentPosition();
