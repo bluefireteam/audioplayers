@@ -1,0 +1,15 @@
+#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-TARGETDURATION:10
+#EXT-X-MEDIA-SEQUENCE:245
+#EXTINF:10.005333,
+nasa_power_of_the_rovers0.ts
+#EXTINF:10.005333,
+nasa_power_of_the_rovers1.ts
+#EXTINF:10.005333,
+nasa_power_of_the_rovers2.ts
+#EXTINF:10.005333,
+nasa_power_of_the_rovers3.ts
+#EXTINF:10.005333,
+nasa_power_of_the_rovers4.ts
+#EXT-X-ENDLIST

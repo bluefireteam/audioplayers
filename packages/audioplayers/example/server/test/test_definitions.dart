@@ -17,19 +17,6 @@ void runTests(
     expect(response.headers, containsPair('content-type', 'text/html'));
   });
 
-  testServer('time', (host) async {
-    final response = await get(Uri.parse('$host/time'));
-    expect(response.statusCode, 200);
-    final serverTime = DateTime.parse(response.body);
-    final now = DateTime.now();
-    expect(
-      serverTime.isAfter(now),
-      isFalse,
-      reason:
-          'Server time ($serverTime) should not be after current time ($now).',
-    );
-  });
-
   testServer('404', (host) async {
     var response = await get(Uri.parse('$host/not_here'));
     expect(response.statusCode, 404);
