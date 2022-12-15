@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" sizes="64x64" href="64.png">
+  <title>pkg:shelf example</title>
+</head>
+
+<style>
+  body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: sans-serif;
+  }
+
+  p {
+    margin-top: 1rem;
+    font-size: large;
+    max-width: 600px;
+  }
+
+  img {
+    max-width: 70vw;
+  }
+
+  code {
+    background: #eee;
+    padding: 3px;
+  }
+</style>
+
+<body>
+<h1>pkg:shelf example</h1>
+<img src="/dashland.jpeg" alt="Dashland">
+<p>This file is being served by <a
+    href="https://pub.dev/packages/shelf_static">package:shelf_static</a> from the
+  <code>/public</code> directory.</p>
+<!-- TODO: Link to new pkg:shelf docs once https://github.com/dart-lang/site-www/issues/3058 is fixed -->
+<p>This app uses <a
+    href="https://pub.dev/packages/shelf_router">package:shelf_router</a> to define several
+  code-based handlers:</p>
+<ul>
+  <li><a href="/helloworld">/helloworld</a></li>
+  <li><a href="/time">/time</a>
+  <li><a href="/info.json">/info.json</a> (also embedded as an <code>iframe</code> below)</li>
+  <li><code>/sum/&lt;a|[0-9]+&gt;/&lt;b|[0-9]+&gt;</code></li>
+</ul>
+
+<p>
+  The last handler is defined with regular expressions to handle requests to <a href="/sum/1/2">/sum/1/2</a>
+  and <a href="/sum/35/7">/sum/35/7</a>,
+  but not <a href="/sum/bob/john">/sum/bob/john</a> or <a href="/sum/1/2/3">/sum/1/2/3</a>.
+<p>
+
+<iframe width="400" height="100" src="info.json"></iframe>
+
+</body>
+
+</html>
