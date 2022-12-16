@@ -25,5 +25,8 @@ Future<void> main() async {
 }
 
 // Serve files from the file system.
-final _staticHandler =
-    shelf_static.createStaticHandler('public', defaultDocument: 'index.html');
+final _staticHandler = shelf_static.createStaticHandler(
+  'public',
+  defaultDocument: 'index.html',
+  serveFilesOutsidePath: true,
+);

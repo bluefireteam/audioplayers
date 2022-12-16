@@ -10,10 +10,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 
-// ignore: do_not_use_environment
 const useLocalServer = bool.fromEnvironment('USE_LOCAL_SERVER');
-// final useLocalServer =
-//     (Platform.environment['USE_LOCAL_SERVER'] ?? '').toLowerCase() == 'true';
 
 final localhost = kIsWeb || !Platform.isAndroid ? 'localhost' : '10.0.2.2';
 final host = useLocalServer ? 'http://$localhost:8080' : 'https://luan.xyz';
