@@ -19,7 +19,8 @@ final wavUrl1 = '$host/files/audio/coins.wav';
 final wavUrl2 = '$host/files/audio/laser.wav';
 final mp3Url1 = '$host/files/audio/ambient_c_motion.mp3';
 final mp3Url2 = '$host/files/audio/nasa_on_a_mission.mp3';
-final m3u8StreamUrl = useLocalServer
+// FIXME: Android: Unhandled Exception: PlatformException(Unexpected error!, Prepare failed.: status=0x1, java.io.IOException: Prepare failed.: status=0x1
+final m3u8StreamUrl = useLocalServer && (kIsWeb || !Platform.isAndroid)
     ? 'http://$localhost/files/live_streams/nasa_power_of_the_rovers.m3u8'
     : 'https://a.files.bbci.co.uk/media/live/manifesto/audio/simulcast/hls/nonuk/sbr_low/ak/bbc_radio_one.m3u8';
 const mpgaStreamUrl = 'https://timesradio.wireless.radio/stream';
