@@ -173,6 +173,17 @@ You can pick one of 3 options:
 
 **Note**: despite our best efforts, some native SDK implementations that we use spam a lot of log messages that we currently haven't figured out how to conform to this configuration (specially noticeable on Android). If you would like to contribute with a PR, they are more than welcome!
 
+### Error handler
+
+The error events are handled by default via `GlobalPlatformInterface.error()`.
+You can customize the behavior of error events.
+
+```dart
+  player.setErrorHandler((error) {
+    AudioPlayer.global.error(error);
+  });
+```
+
 ## Audio Context
 
 An Audio Context is a (mostly mobile-specific) set of secondary, platform-specific aspects of audio playback, typically related to how the act of playing audio interacts with other features of the device. In most cases, you do not need to change this.
@@ -241,7 +252,7 @@ This Event is called when the audio finishes playing; it's used in the loop meth
 It does not fire when you interrupt the audio with pause or stop.
 
 ```dart
-  player.onPlayerComplete.listen((event) {
+  player.onPlayerComplete.listen((_) {
     onComplete();
     setState(() {
       position = duration;

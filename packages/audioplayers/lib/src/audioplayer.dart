@@ -41,7 +41,9 @@ class AudioPlayer {
     _playerState = state;
   }
 
-  late StreamSubscription _onPlayerCompleteStreamSubscription;
+  late final StreamSubscription _onPlayerCompleteStreamSubscription;
+
+  late StreamSubscription _onErrorStreamSubscription;
 
   final StreamController<PlayerState> _playerStateController =
       StreamController<PlayerState>.broadcast();
@@ -80,6 +82,9 @@ class AudioPlayer {
   Stream<void> get onSeekComplete =>
       _platform.seekCompleteStream.filter(playerId);
 
+  /// Stream of error events.
+  Stream<String> get _onError => _platform.errorStream.filter(playerId);
+
   /// An unique ID generated for this instance of [AudioPlayer].
   ///
   /// This is used to properly exchange messages with the [MethodChannel].
@@ -102,6 +107,9 @@ class AudioPlayer {
       if (releaseMode == ReleaseMode.release) {
         _source = null;
       }
+    });
+    _onErrorStreamSubscription = _onError.listen((error) {
+      global.error('$error\nSource: $_source');
     });
   }
 
@@ -130,6 +138,11 @@ class AudioPlayer {
     }
     await setSource(source);
     return resume();
+  }
+
+  void setErrorHandler(void Function(String error)? errorHandler) {
+    _onErrorStreamSubscription.cancel();
+    _onErrorStreamSubscription = _onError.listen(errorHandler);
   }
 
   Future<void> setAudioContext(AudioContext ctx) {
@@ -287,7 +300,8 @@ class AudioPlayer {
 
     final futures = <Future>[
       if (!_playerStateController.isClosed) _playerStateController.close(),
-      _onPlayerCompleteStreamSubscription.cancel()
+      _onPlayerCompleteStreamSubscription.cancel(),
+      _onErrorStreamSubscription.cancel(),
     ];
 
     _source = null;
