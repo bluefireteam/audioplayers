@@ -20,6 +20,10 @@ mixin StreamsInterface {
     _positionStreamController.add(ForPlayer(playerId, value));
   }
 
+  void emitError(String playerId, String value) {
+    _errorStreamController.add(ForPlayer(playerId, value));
+  }
+
   Stream<ForPlayer<void>> get seekCompleteStream =>
       _seekCompleteStreamController.stream;
 
@@ -31,6 +35,8 @@ mixin StreamsInterface {
 
   Stream<ForPlayer<Duration>> get positionStream =>
       _positionStreamController.stream;
+
+  Stream<ForPlayer<String>> get errorStream => _errorStreamController.stream;
 
   final StreamController<ForPlayer<void>> _seekCompleteStreamController =
       StreamController<ForPlayer<void>>.broadcast();
@@ -44,11 +50,15 @@ mixin StreamsInterface {
   final StreamController<ForPlayer<Duration>> _positionStreamController =
       StreamController<ForPlayer<Duration>>.broadcast();
 
+  final StreamController<ForPlayer<String>> _errorStreamController =
+      StreamController<ForPlayer<String>>.broadcast();
+
   @mustCallSuper
   Future<void> dispose() async {
     _seekCompleteStreamController.close();
     _completeStreamController.close();
     _durationStreamController.close();
     _positionStreamController.close();
+    _errorStreamController.close();
   }
 }
