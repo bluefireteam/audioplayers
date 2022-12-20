@@ -34,5 +34,17 @@ void main() {
       await player.load('audio.mp3');
       expect(player.called, hasLength(0));
     });
+
+    test('clear cache', () async {
+      final player = MyAudioCache();
+      await player.load('audio.mp3');
+      expect(player.loadedFiles['audio.mp3'], isNotNull);
+      player.clearAll();
+      expect(player.loadedFiles, <String, Uri>{});
+      await player.load('audio.mp3');
+      expect(player.loadedFiles.isNotEmpty, isTrue);
+      player.clear('audio.mp3');
+      expect(player.loadedFiles, <String, Uri>{});
+    });
   });
 }
