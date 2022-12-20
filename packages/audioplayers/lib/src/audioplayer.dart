@@ -1,4 +1,5 @@
 import 'dart:async';
+
 // TODO(gustl22): remove when upgrading min Flutter version to >=3.3.0
 // ignore: unnecessary_import
 import 'dart:typed_data';
@@ -28,6 +29,10 @@ class AudioPlayer {
   PlayerState _playerState = PlayerState.stopped;
 
   PlayerState get state => _playerState;
+
+  Source? _source;
+
+  Source? get source => _source;
 
   set state(PlayerState state) {
     if (!_playerStateController.isClosed) {
@@ -94,6 +99,9 @@ class AudioPlayer {
   AudioPlayer({String? playerId}) : playerId = playerId ?? _uuid.v4() {
     _onPlayerCompleteStreamSubscription = onPlayerComplete.listen((_) {
       state = PlayerState.completed;
+      if (releaseMode == ReleaseMode.release) {
+        _source = null;
+      }
     });
   }
 
@@ -164,6 +172,7 @@ class AudioPlayer {
   Future<void> release() async {
     await _platform.release(playerId);
     state = PlayerState.stopped;
+    _source = null;
   }
 
   /// Moves the cursor to the desired position.
@@ -217,6 +226,7 @@ class AudioPlayer {
   /// The resources will start being fetched or buffered as soon as you call
   /// this method.
   Future<void> setSourceUrl(String url) {
+    _source = UrlSource(url);
     return _platform.setSourceUrl(playerId, url, isLocal: false);
   }
 
@@ -225,6 +235,7 @@ class AudioPlayer {
   /// The resources will start being fetched or buffered as soon as you call
   /// this method.
   Future<void> setSourceDeviceFile(String path) {
+    _source = DeviceFileSource(path);
     return _platform.setSourceUrl(playerId, path, isLocal: true);
   }
 
@@ -234,11 +245,13 @@ class AudioPlayer {
   /// The resources will start being fetched or buffered as soon as you call
   /// this method.
   Future<void> setSourceAsset(String path) async {
+    _source = AssetSource(path);
     final url = await audioCache.load(path);
     return _platform.setSourceUrl(playerId, url.path, isLocal: true);
   }
 
   Future<void> setSourceBytes(Uint8List bytes) {
+    _source = BytesSource(bytes);
     return _platform.setSourceBytes(playerId, bytes);
   }
 
@@ -276,6 +289,8 @@ class AudioPlayer {
       if (!_playerStateController.isClosed) _playerStateController.close(),
       _onPlayerCompleteStreamSubscription.cancel()
     ];
+
+    _source = null;
 
     await Future.wait<dynamic>(futures);
   }
