@@ -68,6 +68,7 @@ void main() {
         iterator.map((i) => players[i].play(audioTestDataList[i].source)),
       );
       await tester.pumpAndSettle();
+      // Sources take some time to get initialized
       await tester.pump(const Duration(seconds: 8));
       for (var i = 0; i < audioTestDataList.length; i++) {
         final td = audioTestDataList[i];
