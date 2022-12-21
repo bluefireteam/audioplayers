@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_print
 import 'dart:io';
 
 import 'package:shelf/shelf.dart';
@@ -14,10 +15,12 @@ Future<void> main() async {
   final handler = const Pipeline()
       .addMiddleware(logRequests())
       .addMiddleware(
-        (innerHandler) => ((req) async {
-          await Future.delayed(Duration(milliseconds: requestTimeoutMillis));
+        (innerHandler) => (req) async {
+          await Future<void>.delayed(
+            Duration(milliseconds: requestTimeoutMillis),
+          );
           return await innerHandler(req);
-        }),
+        },
       )
       .addHandler(cascade.handler);
 
