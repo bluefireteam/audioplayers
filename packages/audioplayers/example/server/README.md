@@ -9,5 +9,5 @@ $ dart run bin/server.dart
 
 Environment variables:
 
-- `REQUEST_TIMEOUT`: the timeout until the server should respond in milliseconds, default: `0`.
+- `LATENCY`: the timeout until the server should respond in milliseconds, default: `0`.
 - `PORT`: the port the server should listen on, default: `8080`.
