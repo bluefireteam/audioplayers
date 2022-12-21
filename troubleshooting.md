@@ -56,7 +56,7 @@ The remote URL must be accessible and not be a redirect. If it's not an audio fi
 
 **Warning**: If you are having any sort of build issues, you must read this first.
 
-Our [CI](https://github.com/luanpotter/audioplayers/blob/master/.github/workflows/build.yaml) builds our example app using audioplayers for Android, iOS, Linux, macOS, Windows, and web. So if the build is passing, any build errors (from android/ios sdk, gradle, java, kotlin, cocoa pods, swift, flutter, etc) is not a global issue and likely is something on your setup.
+Our [CI](https://github.com/bluefireteam/audioplayers/blob/master/.github/workflows/build.yaml) builds our example app using audioplayers for Android, iOS, Linux, macOS, Windows, and web. So if the build is passing, any build errors (from android/ios sdk, gradle, java, kotlin, cocoa pods, swift, flutter, etc) is not a global issue and likely is something on your setup.
 
 Before opening an issue, you **must** try these steps:
 
@@ -91,7 +91,7 @@ Or on XCode you can add it as a capability; more details [here](https://develope
 
 ## Audio Stream Issues
 
-One of the know reasons for streams not playing is that the stream is being gziped by the server, as described [here](https://github.com/luanpotter/audioplayers/issues/183).
+One of the know reasons for streams not playing is that the stream is being gziped by the server, as described [here](https://github.com/bluefireteam/audioplayers/issues/183).
 
 ## Gapless Looping
 
