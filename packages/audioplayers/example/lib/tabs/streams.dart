@@ -20,6 +20,7 @@ class _StreamsTabState extends State<StreamsTab>
     with AutomaticKeepAliveClientMixin<StreamsTab> {
   Duration? position, duration;
   PlayerState? state;
+  Source? source;
   late List<StreamSubscription> streams;
 
   Duration? streamDuration, streamPosition;
@@ -67,6 +68,10 @@ class _StreamsTabState extends State<StreamsTab>
     setState(() => state = widget.player.state);
   }
 
+  Future<void> getSource() async {
+    setState(() => source = widget.player.source);
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -111,6 +116,20 @@ class _StreamsTabState extends State<StreamsTab>
             Text(
               state?.toString() ?? '-',
               key: const Key('playerStateText'),
+            ),
+          ],
+        ),
+        Row(
+          children: [
+            Btn(
+              key: const Key('getSource'),
+              txt: 'Get Source',
+              onPressed: getSource,
+            ),
+            const Pad(width: 8.0),
+            Text(
+              source?.toString() ?? '-',
+              key: const Key('sourceText'),
             ),
           ],
         ),
