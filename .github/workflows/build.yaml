@@ -211,11 +211,11 @@ jobs:
           Import-Certificate -FilePath Scream\Install\driver\x64\Scream.cat -CertStoreLocation Cert:\LocalMachine\TrustedPublisher 
           Scream\Install\helpers\devcon-x64.exe install Scream\Install\driver\x64\Scream.inf *Scream
       - name: Run Flutter integration tests
-        shell: cmd
+        shell: powershell
         working-directory: ./packages/audioplayers/example
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         run: |
-          cd server && START /B dart run bin/server.dart && cd ..
+          Start-Process -NoNewWindow -WorkingDirectory "server" dart -ArgumentList "run", "bin/server.dart"
           flutter test -d windows integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
           flutter test -d windows integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
 
