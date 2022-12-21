@@ -157,7 +157,6 @@ jobs:
         run: |
           ( cd server; dart run bin/server.dart ) &
           flutter test integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
-          flutter test integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
 
   ios:
     runs-on: macOS-latest
