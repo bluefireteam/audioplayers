@@ -186,13 +186,10 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform
         emitSeekComplete(playerId);
         break;
       case 'audio.onError':
-        emitError(
-          playerId,
-          'Unexpected platform error: ${call.getString('value')}',
-        );
+        _logger.error('Unexpected platform error: ${call.getString('value')}');
         break;
       default:
-        emitError(playerId, 'Unknown method ${call.method} ');
+        _logger.error('Unknown method ${call.method} ');
     }
   }
 
