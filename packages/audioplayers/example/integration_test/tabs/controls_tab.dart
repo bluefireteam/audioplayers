@@ -75,7 +75,7 @@ Future<void> testControlsTab(
     await tester.resume();
     await tester.pump(const Duration(seconds: 1));
     // Test pause
-    await tester.tap(find.byKey(const Key('control-pause')));
+    await tester.scrollToAndTap(const Key('control-pause'));
     await tester.resume();
     await tester.pump(const Duration(seconds: 1));
     await tester.stop();
@@ -130,14 +130,14 @@ Future<void> testControlsTab(
 
 extension ControlsWidgetTester on WidgetTester {
   Future<void> resume() async {
-    await tap(find.byKey(const Key('control-resume')));
+    await scrollToAndTap(const Key('control-resume'));
     await pumpAndSettle();
   }
 
   Future<void> stop() async {
     final st = StackTrace.current.toString();
 
-    await tap(find.byKey(const Key('control-stop')));
+    await scrollToAndTap(const Key('control-stop'));
     await waitOneshot(const Key('toast-player-stopped-0'), stackTrace: st);
     await pumpAndSettle();
   }
@@ -147,7 +147,7 @@ extension ControlsWidgetTester on WidgetTester {
     Duration timeout = const Duration(seconds: 1),
   }) async {
     printOnFailure('Test Volume: $volume');
-    await tap(find.byKey(Key('control-volume-$volume')));
+    await scrollToAndTap(Key('control-volume-$volume'));
     await resume();
     // TODO(Gustl22): get volume from native implementation
     await pump(timeout);
@@ -159,7 +159,7 @@ extension ControlsWidgetTester on WidgetTester {
     Duration timeout = const Duration(seconds: 1),
   }) async {
     printOnFailure('Test Balance: $balance');
-    await tap(find.byKey(Key('control-balance-$balance')));
+    await scrollToAndTap(Key('control-balance-$balance'));
     await resume();
     // TODO(novikov): get balance from native implementation
     await pump(timeout);
@@ -171,7 +171,7 @@ extension ControlsWidgetTester on WidgetTester {
     Duration timeout = const Duration(seconds: 2),
   }) async {
     printOnFailure('Test Rate: $rate');
-    await tap(find.byKey(Key('control-rate-$rate')));
+    await scrollToAndTap(Key('control-rate-$rate'));
     await resume();
     // TODO(Gustl22): get rate from native implementation
     await pump(timeout);
@@ -185,7 +185,7 @@ extension ControlsWidgetTester on WidgetTester {
     printOnFailure('Test Seek: $seek');
     final st = StackTrace.current.toString();
 
-    await tap(find.byKey(Key('control-seek-$seek')));
+    await scrollToAndTap(Key('control-seek-$seek'));
 
     await waitOneshot(const Key('toast-seek-complete-0'), stackTrace: st);
 
@@ -198,7 +198,7 @@ extension ControlsWidgetTester on WidgetTester {
     printOnFailure('Test Player Mode: ${mode.name}');
     final st = StackTrace.current.toString();
 
-    await tap(find.byKey(Key('control-player-mode-${mode.name}')));
+    await scrollToAndTap(Key('control-player-mode-${mode.name}'));
     await waitFor(
       () async => expectEnumToggleHasSelected(
         const Key('control-player-mode'),
@@ -212,7 +212,7 @@ extension ControlsWidgetTester on WidgetTester {
     printOnFailure('Test Release Mode: ${mode.name}');
     final st = StackTrace.current.toString();
 
-    await tap(find.byKey(Key('control-release-mode-${mode.name}')));
+    await scrollToAndTap(Key('control-release-mode-${mode.name}'));
     await waitFor(
       () async => expectEnumToggleHasSelected(
         const Key('control-release-mode'),

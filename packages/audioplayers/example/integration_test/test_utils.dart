@@ -115,11 +115,14 @@ $lastFailureMsg''',
   }
 
   Future<void> scrollTo(Key widgetKey) async {
-    await dragUntilVisible(
-      find.byKey(widgetKey),
-      find.byType(SingleChildScrollView).first,
-      const Offset(0, 100),
-    );
+    final finder = find.byKey(widgetKey);
+    if (finder.hitTestable().evaluate().isEmpty) {
+      await scrollUntilVisible(
+        finder,
+        100,
+        scrollable: find.byType(Scrollable).first,
+      );
+    }
     await pumpAndSettle();
   }
 }
