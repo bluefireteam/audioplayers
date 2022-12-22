@@ -27,6 +27,21 @@ void main() {
   }
 
   group('AudioPlayers', () {
+    test('#setSource', () async {
+      calls.clear();
+      final player = AudioPlayer();
+      expect(player.source, null);
+
+      await player.setSource(UrlSource('internet.com/file.mp3'));
+      expect(popLastCall().method, 'setSourceUrl');
+      expect(player.source, isInstanceOf<UrlSource>());
+      final urlSource = player.source as UrlSource?;
+      expect(urlSource?.url, 'internet.com/file.mp3');
+
+      await player.release();
+      expect(player.source, null);
+    });
+
     test('#play', () async {
       calls.clear();
       final player = AudioPlayer();
