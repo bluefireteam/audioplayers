@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_example/tabs/sources.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -57,30 +60,36 @@ void main() {
         ),
     ];
 
-    testWidgets('play multiple sources simultaneously',
-        (WidgetTester tester) async {
-      final players =
-          List.generate(audioTestDataList.length, (_) => AudioPlayer());
+    testWidgets(
+      'play multiple sources simultaneously',
+      (WidgetTester tester) async {
+        final players =
+            List.generate(audioTestDataList.length, (_) => AudioPlayer());
 
-      // Start all players simultaneously
-      final iterator = List<int>.generate(audioTestDataList.length, (i) => i);
-      await Future.wait<void>(
-        iterator.map((i) => players[i].play(audioTestDataList[i].source)),
-      );
-      await tester.pumpAndSettle();
-      // Sources take some time to get initialized
-      await tester.pump(const Duration(seconds: 8));
-      for (var i = 0; i < audioTestDataList.length; i++) {
-        final td = audioTestDataList[i];
-        if (td.isLiveStream || td.duration > const Duration(seconds: 10)) {
-          await tester.pump();
-          final position = await players[i].getCurrentPosition();
-          printOnFailure('Test position: $td');
-          expect(position, greaterThan(Duration.zero));
+        // Start all players simultaneously
+        final iterator = List<int>.generate(audioTestDataList.length, (i) => i);
+        await Future.wait<void>(
+          iterator.map((i) => players[i].play(audioTestDataList[i].source)),
+        );
+        await tester.pumpAndSettle();
+        // Sources take some time to get initialized
+        await tester.pump(const Duration(seconds: 8));
+        for (var i = 0; i < audioTestDataList.length; i++) {
+          final td = audioTestDataList[i];
+          if (td.isLiveStream || td.duration > const Duration(seconds: 10)) {
+            await tester.pump();
+            final position = await players[i].getCurrentPosition();
+            printOnFailure('Test position: $td');
+            expect(position, greaterThan(Duration.zero));
+          }
+          await players[i].stop();
         }
-        await players[i].stop();
-      }
-    });
+      },
+      // FIXME: Causes media error on Android (see #1333)
+      // Unexpected platform error: MediaPlayer error with
+      // what:MEDIA_ERROR_UNKNOWN {what:1} extra:MEDIA_ERROR_SYSTEM
+      skip: !kIsWeb && Platform.isAndroid,
+    );
 
     testWidgets('play multiple sources consecutively',
         (WidgetTester tester) async {
@@ -92,14 +101,14 @@ void main() {
         await tester.pumpAndSettle();
         // Sources take some time to get initialized
         await tester.pump(const Duration(seconds: 8));
-        if (td.isLiveStream || td.duration > const Duration(seconds: 10)) {
-          await tester.pump();
-          final position = await player.getCurrentPosition();
-          printOnFailure('Test position: $td');
-          expect(position, greaterThan(Duration.zero));
-        }
-        await player.stop();
-      }
-    });
+            if (td.isLiveStream || td.duration > const Duration(seconds: 10)) {
+              await tester.pump();
+              final position = await player.getCurrentPosition();
+              printOnFailure('Test position: $td');
+              expect(position, greaterThan(Duration.zero));
+            }
+            await player.stop();
+          }
+        });
   });
 }
