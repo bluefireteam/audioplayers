@@ -22,8 +22,7 @@ extension ControlsWidgetTester on WidgetTester {
     printOnFailure('Test setting source: $sourceKey');
     final st = StackTrace.current.toString();
     final sourceWidgetKey = Key('setSource-$sourceKey');
-    await scrollTo(sourceWidgetKey);
-    await tap(find.byKey(sourceWidgetKey));
+    await scrollToAndTap(sourceWidgetKey);
 
     await waitOneshot(const Key('toast-source-set'), stackTrace: st);
   }

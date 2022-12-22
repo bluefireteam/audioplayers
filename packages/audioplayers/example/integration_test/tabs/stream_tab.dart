@@ -35,7 +35,7 @@ Future<void> testStreamsTab(
   final timeout = Duration(seconds: audioSourceTestData.isLiveStream ? 8 : 1);
 
   await tester.pumpAndSettle();
-  await tester.tap(find.byKey(const Key('play_button')));
+  await tester.scrollToAndTap(const Key('play_button'));
   await tester.pumpAndSettle();
 
   // Cannot test more precisely as it is dependent on pollInterval
@@ -79,7 +79,7 @@ Future<void> testStreamsTab(
         await tester.testPlayerState(PlayerState.completed);
         await tester.testOnPlayerState(PlayerState.completed);
       } else if (audioSourceTestData.duration > const Duration(seconds: 5)) {
-        await tester.tap(find.byKey(const Key('pause_button')));
+        await tester.scrollToAndTap(const Key('pause_button'));
         await tester.pumpAndSettle();
         await tester.testPlayerState(PlayerState.paused);
         await tester.testOnPlayerState(PlayerState.paused);
@@ -141,7 +141,7 @@ extension StreamWidgetTester on WidgetTester {
   Future<void> stopStream() async {
     final st = StackTrace.current.toString();
 
-    await tap(find.byKey(const Key('stop_button')));
+    await scrollToAndTap(const Key('stop_button'));
     await waitOneshot(const Key('toast-player-stopped-0'), stackTrace: st);
     await pumpAndSettle();
   }
@@ -154,7 +154,7 @@ extension StreamWidgetTester on WidgetTester {
     final st = StackTrace.current.toString();
     await waitFor(
       () async {
-        await tap(find.byKey(const Key('getDuration')));
+        await scrollToAndTap(const Key('getDuration'));
         await pump();
         expectWidgetHasDuration(
           const Key('durationText'),
@@ -176,7 +176,7 @@ extension StreamWidgetTester on WidgetTester {
     final st = StackTrace.current.toString();
     await waitFor(
       () async {
-        await tap(find.byKey(const Key('getPosition')));
+        await scrollToAndTap(const Key('getPosition'));
         await pump();
         expectWidgetHasDuration(
           const Key('positionText'),
@@ -196,7 +196,7 @@ extension StreamWidgetTester on WidgetTester {
     final st = StackTrace.current.toString();
     await waitFor(
       () async {
-        await tap(find.byKey(const Key('getPlayerState')));
+        await scrollToAndTap(const Key('getPlayerState'));
         await pump();
         expectWidgetHasText(
           const Key('playerStateText'),

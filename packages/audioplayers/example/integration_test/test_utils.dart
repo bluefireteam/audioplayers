@@ -109,6 +109,11 @@ $lastFailureMsg''',
     }
   }
 
+  Future<void> scrollToAndTap(Key widgetKey) async {
+    await scrollTo(widgetKey);
+    await tap(find.byKey(widgetKey));
+  }
+
   Future<void> scrollTo(Key widgetKey) async {
     await dragUntilVisible(
       find.byKey(widgetKey),
