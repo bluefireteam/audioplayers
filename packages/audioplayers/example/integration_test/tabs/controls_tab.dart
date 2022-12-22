@@ -17,8 +17,8 @@ Future<void> testControlsTab(
   await tester.tap(find.byKey(const Key('controlsTab')));
   await tester.pumpAndSettle();
 
-  // Live stream takes some time to get initialized
-  final timeout = Duration(seconds: audioSourceTestData.isLiveStream ? 8 : 1);
+  // Sources take some time to get initialized
+  const timeout = Duration(seconds: 8);
 
   if (features.hasVolume) {
     await tester.testVolume('0.5', timeout: timeout);
