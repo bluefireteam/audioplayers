@@ -9,11 +9,15 @@ Future<void> main() async {
   final port = int.parse(Platform.environment['PORT'] ?? '8080');
   final requestTimeoutMillis =
       int.parse(Platform.environment['LATENCY'] ?? '0');
+  final isLogRequests =
+      (Platform.environment['LOG_REQUESTS'] ?? 'false') == 'true';
 
   final cascade = Cascade().add(_staticHandler);
 
-  final handler = const Pipeline()
-      .addMiddleware(logRequests())
+  var pipeline = const Pipeline();
+  if (isLogRequests) pipeline = pipeline.addMiddleware(logRequests());
+
+  final handler = pipeline
       .addMiddleware(
         (innerHandler) => (req) async {
           await Future<void>.delayed(
