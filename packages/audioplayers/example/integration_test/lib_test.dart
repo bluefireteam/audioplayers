@@ -85,7 +85,7 @@ void main() {
           await players[i].stop();
         }
       },
-      // FIXME: Causes media error on Android (see #1333)
+      // FIXME: Causes media error on Android (see #1333, #1353)
       // Unexpected platform error: MediaPlayer error with
       // what:MEDIA_ERROR_UNKNOWN {what:1} extra:MEDIA_ERROR_SYSTEM
       skip: !kIsWeb && Platform.isAndroid,
