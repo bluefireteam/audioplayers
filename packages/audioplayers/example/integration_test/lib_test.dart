@@ -101,14 +101,14 @@ void main() {
         await tester.pumpAndSettle();
         // Sources take some time to get initialized
         await tester.pump(const Duration(seconds: 8));
-            if (td.isLiveStream || td.duration > const Duration(seconds: 10)) {
-              await tester.pump();
-              final position = await player.getCurrentPosition();
-              printOnFailure('Test position: $td');
-              expect(position, greaterThan(Duration.zero));
-            }
-            await player.stop();
-          }
-        });
+        if (td.isLiveStream || td.duration > const Duration(seconds: 10)) {
+          await tester.pump();
+          final position = await player.getCurrentPosition();
+          printOnFailure('Test position: $td');
+          expect(position, greaterThan(Duration.zero));
+        }
+        await player.stop();
+      }
+    });
   });
 }
