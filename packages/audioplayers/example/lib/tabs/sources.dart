@@ -4,15 +4,22 @@ import 'package:audioplayers_example/components/tab_wrapper.dart';
 import 'package:audioplayers_example/components/tgl.dart';
 import 'package:audioplayers_example/utils.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 
-const _wavUrl1 = 'https://luan.xyz/files/audio/coins.wav';
-const _wavUrl2 = 'https://luan.xyz/files/audio/laser.wav';
-const _mp3Url1 = 'https://luan.xyz/files/audio/ambient_c_motion.mp3';
-const _mp3Url2 = 'https://luan.xyz/files/audio/nasa_on_a_mission.mp3';
-const _m3u8StreamUrl =
-    'https://a.files.bbci.co.uk/media/live/manifesto/audio/simulcast/hls/nonuk/sbr_low/ak/bbc_radio_one.m3u8';
+const useLocalServer = bool.fromEnvironment('USE_LOCAL_SERVER');
+
+final localhost = kIsWeb || !Platform.isAndroid ? 'localhost' : '10.0.2.2';
+final host = useLocalServer ? 'http://$localhost:8080' : 'https://luan.xyz';
+
+final _wavUrl1 = '$host/files/audio/coins.wav';
+final _wavUrl2 = '$host/files/audio/laser.wav';
+final _mp3Url1 = '$host/files/audio/ambient_c_motion.mp3';
+final _mp3Url2 = '$host/files/audio/nasa_on_a_mission.mp3';
+final _m3u8StreamUrl = useLocalServer
+    ? '$host/files/live_streams/nasa_power_of_the_rovers.m3u8'
+    : 'https://a.files.bbci.co.uk/media/live/manifesto/audio/simulcast/hls/nonuk/sbr_low/ak/bbc_radio_one.m3u8';
 const _mpgaStreamUrl = 'https://timesradio.wireless.radio/stream';
 
 const _asset1 = 'laser.wav';
