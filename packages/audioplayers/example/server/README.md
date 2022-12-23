@@ -11,3 +11,4 @@ Environment variables:
 
 - `LATENCY`: the timeout until the server should respond in milliseconds, default: `0`.
 - `PORT`: the port the server should listen on, default: `8080`.
+- `LOG_REQUESTS`: log the network requests, default: `false`.
