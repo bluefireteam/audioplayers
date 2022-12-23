@@ -15,7 +15,9 @@ Future<void> main() async {
   final cascade = Cascade().add(_staticHandler);
 
   var pipeline = const Pipeline();
-  if (isLogRequests) pipeline = pipeline.addMiddleware(logRequests());
+  if (isLogRequests) {
+    pipeline = pipeline.addMiddleware(logRequests());
+  }
 
   final handler = pipeline
       .addMiddleware(
