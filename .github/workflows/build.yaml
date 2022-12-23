@@ -2,76 +2,71 @@ name: build
 on:
   workflow_dispatch:
     inputs:
-      test_android:
-        description: 'Test Android'
+      enable_android:
+        description: 'Build Android'
         required: false
         default: true
         type: boolean
-      test_web:
-        description: 'Test Web'
+      enable_web:
+        description: 'Build Web'
         required: false
         default: true
         type: boolean
-      test_ios:
-        description: 'Test IOS'
+      enable_ios:
+        description: 'Build IOS'
         required: false
         default: true
         type: boolean
-      test_windows:
-        description: 'Test Windows'
+      enable_windows:
+        description: 'Build Windows'
         required: false
         default: true
         type: boolean
-      test_linux:
-        description: 'Test Linux'
+      enable_linux:
+        description: 'Build Linux'
         required: false
         default: true
         type: boolean
-      test_macos:
-        description: 'Test MacOS'
+      enable_macos:
+        description: 'Build MacOS'
         required: false
         default: true
         type: boolean
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
-    types:
-      - opened
-      - reopened
-      - synchronize
-      - ready_for_review
+  workflow_call:
+    inputs:
+      enable_android:
+        required: false
+        default: true
+        type: boolean
+      enable_web:
+        required: false
+        default: true
+        type: boolean
+      enable_ios:
+        required: false
+        default: true
+        type: boolean
+      enable_windows:
+        required: false
+        default: true
+        type: boolean
+      enable_linux:
+        required: false
+        default: true
+        type: boolean
+      enable_macos:
+        required: false
+        default: true
+        type: boolean
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-
-    steps:
-      - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-      - uses: bluefireteam/melos-action@main
-
-      - run: melos run format-check
-      - run: melos run analyze
-      - run: melos run test
-
   web:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    if: inputs.test_web && github.event.pull_request.draft == false
+    if: inputs.enable_web
     steps:
       - uses: actions/checkout@v3
-
-      - uses: nanasess/setup-chromedriver@v1
-
       - uses: subosito/flutter-action@v2
-        with:
-          channel: stable
       - uses: bluefireteam/melos-action@main
 
       - name: Example app - Build Web app
@@ -79,35 +74,10 @@ jobs:
         run: |
           flutter build web
 
-      - name: Run Flutter integration tests
-        working-directory: ./packages/audioplayers/example
-        run: |
-          export DISPLAY=:99
-          sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
-          
-          chromedriver --port=4444 &
-          
-          ( cd server; dart run bin/server.dart ) &
-          flutter drive \
-           --driver=test_driver/integration_test.dart \
-           --target=integration_test/lib_test.dart \
-           -d web-server \
-           --web-browser-flag="--autoplay-policy=no-user-gesture-required" \
-           --web-browser-flag="--disable-web-security" \
-           --dart-define USE_LOCAL_SERVER=true
-          
-          flutter drive \
-           --driver=test_driver/integration_test.dart \
-           --target=integration_test/app_test.dart \
-           -d web-server \
-           --web-browser-flag="--autoplay-policy=no-user-gesture-required" \
-           --web-browser-flag="--disable-web-security" \
-           --dart-define USE_LOCAL_SERVER=true
-
   android:
-    runs-on: macOS-latest
-    timeout-minutes: 90
-    if: inputs.test_android && github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    if: inputs.enable_android
     steps:
       - uses: actions/checkout@v3
 
@@ -121,8 +91,6 @@ jobs:
         uses: android-actions/setup-android@v2
 
       - uses: subosito/flutter-action@v2
-        with:
-          channel: stable
       - uses: bluefireteam/melos-action@main
 
       - name: Example App - Build Android APK
@@ -130,75 +98,27 @@ jobs:
         run: |
           flutter build apk --release
 
-      - name: Run Android unit tests
-        working-directory: ./packages/audioplayers/example/android
-        run: |
-          ./gradlew test
-
-      - name: Download Android emulator image
-        run: |
-          export ANDROID_TOOLS="$ANDROID_HOME/cmdline-tools/latest/bin"
-          echo "y" | $ANDROID_TOOLS/sdkmanager --install "system-images;android-30;aosp_atd;x86"
-          echo "no" | $ANDROID_TOOLS/avdmanager create avd --force --name emu --device "Nexus 5X" -k 'system-images;android-30;aosp_atd;x86'
-          $ANDROID_HOME/emulator/emulator -list-avds
-      - name: Start Android emulator
-        timeout-minutes: 10
-        run: |
-          export ANDROID_TOOLS="$ANDROID_HOME/cmdline-tools/latest/bin"
-          echo "Starting emulator"
-          $ANDROID_TOOLS/sdkmanager "platform-tools" "platforms;android-30"
-          nohup $ANDROID_HOME/emulator/emulator -avd emu -no-audio -no-snapshot -no-window &
-          $ANDROID_HOME/platform-tools/adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed | tr -d '\r') ]]; do sleep 1; done; input keyevent 82'
-          $ANDROID_HOME/platform-tools/adb devices
-          echo "Emulator started"
-      - name: Run Flutter integration tests
-        working-directory: ./packages/audioplayers/example
-        # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
-        run: |
-          ( cd server; dart run bin/server.dart ) &
-          flutter test integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
-          flutter test integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
-
   ios:
     runs-on: macOS-latest
-    timeout-minutes: 60
-    if: inputs.test_ios && github.event.pull_request.draft == false
+    timeout-minutes: 30
+    if: inputs.enable_ios
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
-        with:
-          channel: stable
       - uses: bluefireteam/melos-action@main
-
-      - name: List all simulators
-        run: "xcrun simctl list devices"
-      - name: Start simulator
-        run: |
-          UDID=$(xcrun simctl list devices | grep "iPhone" | sed -n 1p | awk -F '\\)? \\(' '{ print $2 }')
-          echo "Using simulator $UDID"
-          xcrun simctl boot "${UDID:?No Simulator with this name iPhone found}"
 
       - name: Example app - Build iOS
         working-directory: ./packages/audioplayers/example
         run: |
           flutter build ios --release --no-codesign
-      - name: Run Flutter integration tests
-        working-directory: ./packages/audioplayers/example
-        # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
-        run: |
-          ( cd server; dart run bin/server.dart ) &
-          flutter test integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
-          flutter test integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
 
   macos:
     runs-on: macOS-latest
     timeout-minutes: 30
-    if: inputs.test_macos && github.event.pull_request.draft == false
+    if: inputs.enable_macos
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
-        with:
-          channel: stable
       - uses: bluefireteam/melos-action@main
 
       - name: setup-cocoapods
@@ -210,56 +130,30 @@ jobs:
         run: |
           flutter config --enable-macos-desktop
           flutter build macos --release
-      - name: Run Flutter integration tests
-        working-directory: ./packages/audioplayers/example
-        # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
-        run: |
-          ( cd server; dart run bin/server.dart ) &
-          flutter test -d macos integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
-          flutter test -d macos integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
 
   windows:
     runs-on: windows-latest
     timeout-minutes: 30
-    if: inputs.test_windows && github.event.pull_request.draft == false
+    if: inputs.enable_windows
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
-        with:
-          channel: stable
       - uses: bluefireteam/melos-action@main
+      
       - name: Example app - Build Windows app
         working-directory: ./packages/audioplayers/example
         run: |
           flutter build windows --release
-      - name: Start audio server
-        run: net start audiosrv
-      - name: Install virtual audio device
-        shell: powershell
-        run: |
-          Invoke-WebRequest https://github.com/duncanthrax/scream/releases/download/3.9/Scream3.9.zip -OutFile Scream3.9.zip
-          Expand-Archive -Path Scream3.9.zip -DestinationPath Scream
-          Import-Certificate -FilePath Scream\Install\driver\x64\Scream.cat -CertStoreLocation Cert:\LocalMachine\TrustedPublisher 
-          Scream\Install\helpers\devcon-x64.exe install Scream\Install\driver\x64\Scream.inf *Scream
-      - name: Run Flutter integration tests
-        shell: powershell
-        working-directory: ./packages/audioplayers/example
-        # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
-        run: |
-          Start-Process -NoNewWindow -WorkingDirectory "server" dart -ArgumentList "run", "bin/server.dart"
-          flutter test -d windows integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
-          flutter test -d windows integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
 
   linux:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    if: inputs.test_linux && github.event.pull_request.draft == false
+    if: inputs.enable_linux
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
-        with:
-          channel: stable
       - uses: bluefireteam/melos-action@main
+      
       - name: Install Flutter requirements for Linux
         run: |
           sudo apt-get update
@@ -268,18 +162,10 @@ jobs:
         # Install libunwind-dev, see https://github.com/actions/runner-images/issues/6399#issuecomment-1285011525
         run: |
           sudo apt install -y libunwind-dev
-          sudo apt-get install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev gstreamer1.0-plugins-good gstreamer1.0-plugins-bad
+          sudo apt-get install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
+                
       - name: Example app - Build Linux app
         working-directory: ./packages/audioplayers/example
         run: |
           flutter config --enable-linux-desktop
           flutter build linux --release
-      - name: Run Flutter integration tests
-        working-directory: ./packages/audioplayers/example
-        # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
-        run: |
-          export DISPLAY=:99
-          sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
-          ( cd server; dart run bin/server.dart ) &
-          flutter test -d linux integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
-          flutter test -d linux integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true

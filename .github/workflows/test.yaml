@@ -67,8 +67,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
-        with:
-          channel: stable
       - uses: bluefireteam/melos-action@main
 
       - run: melos run format-check
@@ -78,21 +76,12 @@ jobs:
   web:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    if: inputs.enable_web && github.event.pull_request.draft == false
+    if: inputs.enable_web
     steps:
       - uses: actions/checkout@v3
-
-      - uses: nanasess/setup-chromedriver@v1
-
       - uses: subosito/flutter-action@v2
-        with:
-          channel: stable
       - uses: bluefireteam/melos-action@main
-
-      - name: Example app - Build Web app
-        working-directory: ./packages/audioplayers/example
-        run: |
-          flutter build web
+      - uses: nanasess/setup-chromedriver@v1
 
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
@@ -122,7 +111,7 @@ jobs:
   android:
     runs-on: macOS-latest
     timeout-minutes: 90
-    if: inputs.enable_android && github.event.pull_request.draft == false
+    if: inputs.enable_android
     steps:
       - uses: actions/checkout@v3
 
@@ -136,14 +125,7 @@ jobs:
         uses: android-actions/setup-android@v2
 
       - uses: subosito/flutter-action@v2
-        with:
-          channel: stable
       - uses: bluefireteam/melos-action@main
-
-      - name: Example App - Build Android APK
-        working-directory: ./packages/audioplayers/example
-        run: |
-          flutter build apk --release
 
       - name: Run Android unit tests
         working-directory: ./packages/audioplayers/example/android
@@ -177,12 +159,10 @@ jobs:
   ios:
     runs-on: macOS-latest
     timeout-minutes: 60
-    if: inputs.enable_ios && github.event.pull_request.draft == false
+    if: inputs.enable_ios
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
-        with:
-          channel: stable
       - uses: bluefireteam/melos-action@main
 
       - name: List all simulators
@@ -193,10 +173,6 @@ jobs:
           echo "Using simulator $UDID"
           xcrun simctl boot "${UDID:?No Simulator with this name iPhone found}"
 
-      - name: Example app - Build iOS
-        working-directory: ./packages/audioplayers/example
-        run: |
-          flutter build ios --release --no-codesign
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
@@ -208,23 +184,17 @@ jobs:
   macos:
     runs-on: macOS-latest
     timeout-minutes: 30
-    if: inputs.enable_macos && github.event.pull_request.draft == false
+    if: inputs.enable_macos
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
-        with:
-          channel: stable
       - uses: bluefireteam/melos-action@main
 
       - name: setup-cocoapods
         uses: maxim-lobanov/setup-cocoapods@v1
         with:
           podfile-path: ./packages/audioplayers/example/macos/Podfile.lock
-      - name: Example app - Build macOS
-        working-directory: ./packages/audioplayers/example
-        run: |
-          flutter config --enable-macos-desktop
-          flutter build macos --release
+
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
@@ -236,17 +206,12 @@ jobs:
   windows:
     runs-on: windows-latest
     timeout-minutes: 30
-    if: inputs.enable_windows && github.event.pull_request.draft == false
+    if: inputs.enable_windows
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
-        with:
-          channel: stable
       - uses: bluefireteam/melos-action@main
-      - name: Example app - Build Windows app
-        working-directory: ./packages/audioplayers/example
-        run: |
-          flutter build windows --release
+      
       - name: Start audio server
         run: net start audiosrv
       - name: Install virtual audio device
@@ -268,12 +233,10 @@ jobs:
   linux:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    if: inputs.enable_linux && github.event.pull_request.draft == false
+    if: inputs.enable_linux
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
-        with:
-          channel: stable
       - uses: bluefireteam/melos-action@main
       - name: Install Flutter requirements for Linux
         run: |
@@ -284,11 +247,7 @@ jobs:
         run: |
           sudo apt install -y libunwind-dev
           sudo apt-get install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev gstreamer1.0-plugins-good gstreamer1.0-plugins-bad
-      - name: Example app - Build Linux app
-        working-directory: ./packages/audioplayers/example
-        run: |
-          flutter config --enable-linux-desktop
-          flutter build linux --release
+
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031

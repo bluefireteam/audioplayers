@@ -15,3 +15,8 @@ on:
 jobs:
   call-test:
     uses: ./.github/workflows/test.yml
+    if: github.event.pull_request.draft == false
+  
+  call-build:
+    uses: ./.github/workflows/build.yml
+    if: github.event.pull_request.draft == false
