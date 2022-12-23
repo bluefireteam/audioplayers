@@ -127,11 +127,6 @@ jobs:
       - uses: subosito/flutter-action@v2
       - uses: bluefireteam/melos-action@main
 
-      - name: Run Android unit tests
-        working-directory: ./packages/audioplayers/example/android
-        run: |
-          ./gradlew test
-
       - name: Download Android emulator image
         run: |
           export ANDROID_TOOLS="$ANDROID_HOME/cmdline-tools/latest/bin"

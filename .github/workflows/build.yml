@@ -97,6 +97,11 @@ jobs:
         working-directory: ./packages/audioplayers/example
         run: |
           flutter build apk --release
+          
+      - name: Run Android unit tests
+        working-directory: ./packages/audioplayers/example/android
+        run: |
+          ./gradlew test
 
   ios:
     runs-on: macOS-latest
