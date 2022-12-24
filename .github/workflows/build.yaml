@@ -55,10 +55,14 @@ jobs:
           chromedriver --port=4444 &
           sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 & # optional
           
+          ( cd server; dart run bin/server.dart ) &
           flutter drive \
            --driver=test_driver/integration_test.dart \
            --target=integration_test/app_test.dart \
-           -d web-server --web-browser-flag="--autoplay-policy=no-user-gesture-required"
+           -d web-server \
+           --web-browser-flag="--autoplay-policy=no-user-gesture-required" \
+           --web-browser-flag="--disable-web-security" \
+           --dart-define USE_LOCAL_SERVER=true
 
   android:
     runs-on: macOS-latest
@@ -109,7 +113,9 @@ jobs:
           echo "Emulator started"
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
-        run: "flutter test integration_test"
+        run: |
+          ( cd server; dart run bin/server.dart ) &
+          flutter test integration_test --dart-define USE_LOCAL_SERVER=true
 
   ios:
     runs-on: macOS-latest
@@ -136,7 +142,9 @@ jobs:
           flutter build ios --release --no-codesign
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
-        run: "flutter test integration_test"
+        run: |
+          ( cd server; dart run bin/server.dart ) &
+          flutter test integration_test --dart-define USE_LOCAL_SERVER=true
 
   macos:
     runs-on: macOS-latest
@@ -160,7 +168,9 @@ jobs:
           flutter build macos --release
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
-        run: "flutter test -d macos integration_test"
+        run: |
+          ( cd server; dart run bin/server.dart ) &
+          flutter test -d macos integration_test --dart-define USE_LOCAL_SERVER=true
 
   windows:
     runs-on: windows-latest
@@ -186,8 +196,11 @@ jobs:
           Import-Certificate -FilePath Scream\Install\driver\x64\Scream.cat -CertStoreLocation Cert:\LocalMachine\TrustedPublisher 
           Scream\Install\helpers\devcon-x64.exe install Scream\Install\driver\x64\Scream.inf *Scream
       - name: Run Flutter integration tests
+        shell: powershell
         working-directory: ./packages/audioplayers/example
-        run: "flutter test -d windows integration_test"
+        run: |
+          Start-Process -NoNewWindow -WorkingDirectory "server" dart -ArgumentList "run", "bin/server.dart"
+          flutter test -d windows integration_test --dart-define USE_LOCAL_SERVER=true
 
   linux:
     runs-on: ubuntu-latest
@@ -218,4 +231,5 @@ jobs:
         run: |
           export DISPLAY=:99
           sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
-          flutter test -d linux integration_test
+          ( cd server; dart run bin/server.dart ) &
+          flutter test -d linux integration_test --dart-define USE_LOCAL_SERVER=true
