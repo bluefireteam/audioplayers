@@ -5,10 +5,10 @@ class SimpleDlg extends StatelessWidget {
   final String message, action;
 
   const SimpleDlg({
-    Key? key,
+    super.key,
     required this.message,
     required this.action,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -28,9 +28,9 @@ class Dlg extends StatelessWidget {
   final List<Widget> children;
 
   const Dlg({
-    Key? key,
+    super.key,
     required this.children,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

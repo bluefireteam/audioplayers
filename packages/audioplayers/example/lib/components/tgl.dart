@@ -7,11 +7,11 @@ class Tgl extends StatelessWidget {
   final void Function(int) onChange;
 
   const Tgl({
-    Key? key,
+    super.key,
     required this.options,
     required this.selected,
     required this.onChange,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -38,11 +38,11 @@ class EnumTgl<T extends Enum> extends StatelessWidget {
   final void Function(T) onChange;
 
   const EnumTgl({
-    Key? key,
+    super.key,
     required this.options,
     required this.selected,
     required this.onChange,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

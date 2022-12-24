@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 class AudioContextTab extends StatefulWidget {
   final AudioPlayer player;
 
-  const AudioContextTab({Key? key, required this.player}) : super(key: key);
+  const AudioContextTab({super.key, required this.player});
 
   @override
   _AudioContextTabState createState() => _AudioContextTabState();
