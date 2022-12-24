@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class TabWrapper extends StatelessWidget {
   final List<Widget> children;
 
-  const TabWrapper({Key? key, required this.children}) : super(key: key);
+  const TabWrapper({super.key, required this.children});
 
   @override
   Widget build(BuildContext context) {

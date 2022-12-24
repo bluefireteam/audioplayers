@@ -4,7 +4,7 @@ import 'package:audioplayers_example/components/tab_wrapper.dart';
 import 'package:flutter/material.dart';
 
 class LoggerTab extends StatefulWidget {
-  const LoggerTab({Key? key}) : super(key: key);
+  const LoggerTab({super.key});
 
   @override
   _LoggerTabState createState() => _LoggerTabState();

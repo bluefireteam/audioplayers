@@ -4,10 +4,10 @@ class TxtBox extends StatefulWidget {
   final String value;
   final void Function(String) onChange;
   const TxtBox({
-    Key? key,
+    super.key,
     required this.value,
     required this.onChange,
-  }) : super(key: key);
+  });
 
   @override
   State<TxtBox> createState() => _TxtBoxState();

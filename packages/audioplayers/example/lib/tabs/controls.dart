@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 class ControlsTab extends StatefulWidget {
   final AudioPlayer player;
 
-  const ControlsTab({Key? key, required this.player}) : super(key: key);
+  const ControlsTab({super.key, required this.player});
 
   @override
   State<ControlsTab> createState() => _ControlsTabState();

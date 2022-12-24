@@ -7,9 +7,9 @@ class PlayerWidget extends StatefulWidget {
   final AudioPlayer player;
 
   const PlayerWidget({
-    Key? key,
+    super.key,
     required this.player,
-  }) : super(key: key);
+  });
 
   @override
   State<StatefulWidget> createState() {
