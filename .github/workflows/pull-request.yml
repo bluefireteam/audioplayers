@@ -1,0 +1,15 @@
+name: pull-request
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
+
+jobs:
+  call-test:
+    uses: ./.github/workflows/test.yml
+    if: github.event.pull_request.draft == false
