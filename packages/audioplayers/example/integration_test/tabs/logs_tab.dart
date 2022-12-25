@@ -5,7 +5,7 @@ import '../source_test_data.dart';
 
 Future<void> testLogsTab(
   WidgetTester tester,
-  SourceTestData audioSourceTestData,
+  AppSourceTestData audioSourceTestData,
   PlatformFeatures features,
 ) async {
   printOnFailure('Test Logs Tab');

@@ -10,7 +10,7 @@ import 'stream_tab.dart';
 
 Future<void> testControlsTab(
   WidgetTester tester,
-  SourceTestData audioSourceTestData,
+  AppSourceTestData audioSourceTestData,
   PlatformFeatures features,
 ) async {
   printOnFailure('Test Controls Tab');

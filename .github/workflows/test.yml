@@ -94,6 +94,14 @@ jobs:
           ( cd server; dart run bin/server.dart ) &
           flutter drive \
            --driver=test_driver/integration_test.dart \
+           --target=integration_test/lib_test.dart \
+           -d web-server \
+           --web-browser-flag="--autoplay-policy=no-user-gesture-required" \
+           --web-browser-flag="--disable-web-security" \
+           --dart-define USE_LOCAL_SERVER=true
+          
+          flutter drive \
+           --driver=test_driver/integration_test.dart \
            --target=integration_test/app_test.dart \
            -d web-server \
            --web-browser-flag="--autoplay-policy=no-user-gesture-required" \
@@ -102,7 +110,7 @@ jobs:
 
   android:
     runs-on: macOS-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
     if: inputs.enable_android
     steps:
       - uses: actions/checkout@v3
@@ -137,9 +145,11 @@ jobs:
           echo "Emulator started"
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
+        # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         run: |
           ( cd server; dart run bin/server.dart ) &
-          flutter test integration_test --dart-define USE_LOCAL_SERVER=true
+          flutter test integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
+          flutter test integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
 
   ios:
     runs-on: macOS-latest
@@ -160,9 +170,11 @@ jobs:
 
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
+        # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         run: |
           ( cd server; dart run bin/server.dart ) &
-          flutter test integration_test --dart-define USE_LOCAL_SERVER=true
+          flutter test integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
+          flutter test integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
 
   macos:
     runs-on: macOS-latest
@@ -180,9 +192,11 @@ jobs:
 
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
+        # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         run: |
           ( cd server; dart run bin/server.dart ) &
-          flutter test -d macos integration_test --dart-define USE_LOCAL_SERVER=true
+          flutter test -d macos integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
+          flutter test -d macos integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
 
   windows:
     runs-on: windows-latest
@@ -205,9 +219,11 @@ jobs:
       - name: Run Flutter integration tests
         shell: powershell
         working-directory: ./packages/audioplayers/example
+        # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         run: |
           Start-Process -NoNewWindow -WorkingDirectory "server" dart -ArgumentList "run", "bin/server.dart"
-          flutter test -d windows integration_test --dart-define USE_LOCAL_SERVER=true
+          flutter test -d windows integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
+          flutter test -d windows integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
 
   linux:
     runs-on: ubuntu-latest
@@ -229,8 +245,10 @@ jobs:
 
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
+        # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         run: |
           export DISPLAY=:99
           sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
           ( cd server; dart run bin/server.dart ) &
-          flutter test -d linux integration_test --dart-define USE_LOCAL_SERVER=true
+          flutter test -d linux integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
+          flutter test -d linux integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
