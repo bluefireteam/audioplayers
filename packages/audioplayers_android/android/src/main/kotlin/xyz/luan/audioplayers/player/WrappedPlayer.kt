@@ -178,7 +178,7 @@ class WrappedPlayer internal constructor(
         }
         if (releaseMode != ReleaseMode.RELEASE) {
             pause()
-            if(prepared) {
+            if (prepared) {
                 if (player?.isLiveStream() == true) {
                     player?.stop()
                     prepared = false
@@ -232,22 +232,43 @@ class WrappedPlayer internal constructor(
      * Player callbacks
      */
     fun onPrepared() {
-        prepared = true
-        ref.handleDuration(this)
-        if (playing) {
-            player?.start()
-            ref.handleIsPlaying()
-        }
-        if (shouldSeekTo >= 0 && player?.isLiveStream() != true) {
-            player?.seekTo(shouldSeekTo)
+        try {
+            prepared = true
+            ref.handleDuration(this)
+            if (playing) {
+                player?.start()
+                ref.handleIsPlaying()
+            }
+            if (shouldSeekTo >= 0 && player?.isLiveStream() != true) {
+                player?.seekTo(shouldSeekTo)
+            }
+        } catch (e: Exception) {
+            ref.handleError(this, "WrappedPlayer exception while OnPrepared event: $e")
         }
     }
 
     fun onCompletion() {
-        if (releaseMode != ReleaseMode.LOOP) {
-            stop()
+        try {
+            if (releaseMode != ReleaseMode.LOOP) {
+                stop()
+            }
+            ref.handleComplete(this)
+        } catch (e: Exception) {
+            ref.handleError(this, "WrappedPlayer exception while OnCompletion event: $e")
         }
-        ref.handleComplete(this)
+    }
+
+    @Suppress("UNUSED_PARAMETER")
+    fun onBuffering(percent: Int) {
+        // TODO(luan): expose this as a stream
+    }
+
+    fun onSeekComplete() {
+        try {
+            ref.handleSeekComplete(this)
+        } catch (e: Exception) {
+            ref.handleError(this, "WrappedPlayer exception while OnSeekComplete event: $e")
+        }
     }
 
     fun onError(what: Int, extra: Int): Boolean {
@@ -266,14 +287,6 @@ class WrappedPlayer internal constructor(
         }
         ref.handleError(this, "MediaPlayer error with what:$whatMsg extra:$extraMsg")
         return false
-    }
-
-    fun onBuffering(percent: Int) {
-        // TODO(luan) expose this as a stream
-    }
-
-    fun onSeekComplete() {
-        ref.handleSeekComplete(this)
     }
 
     /**
