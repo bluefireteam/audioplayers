@@ -10,7 +10,7 @@ import '../test_utils.dart';
 
 Future<void> testStreamsTab(
   WidgetTester tester,
-  SourceTestData audioSourceTestData,
+  AppSourceTestData audioSourceTestData,
   PlatformFeatures features,
 ) async {
   printOnFailure('Test Streams Tab');
@@ -66,7 +66,7 @@ Future<void> testStreamsTab(
 
   if (features.hasDurationEvent && !audioSourceTestData.isLiveStream) {
     // Test if onDurationText is set.
-    await tester.testOnDuration(audioSourceTestData.duration);
+    await tester.testOnDuration(audioSourceTestData.duration, timeout: timeout);
   }
 
   const sampleDuration = Duration(seconds: 3);
@@ -103,7 +103,10 @@ Future<void> testStreamsTab(
   if (features.hasDurationEvent && (kIsWeb || !Platform.isLinux)) {
     await tester.testDuration(audioSourceTestData.duration);
     if (!audioSourceTestData.isLiveStream) {
-      await tester.testOnDuration(audioSourceTestData.duration);
+      await tester.testOnDuration(
+        audioSourceTestData.duration,
+        timeout: timeout,
+      );
     }
   }
   if (features.hasPositionEvent && !audioSourceTestData.isLiveStream) {

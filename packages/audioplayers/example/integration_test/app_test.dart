@@ -29,54 +29,54 @@ void main() {
   group('test functionality of sources', () {
     final audioTestDataList = [
       if (features.hasUrlSource)
-        SourceTestData(
+        AppSourceTestData(
           sourceKey: 'url-remote-wav-1',
           duration: const Duration(milliseconds: 451),
         ),
       if (features.hasUrlSource)
-        SourceTestData(
+        AppSourceTestData(
           sourceKey: 'url-remote-wav-2',
           duration: const Duration(seconds: 1, milliseconds: 068),
         ),
       if (features.hasUrlSource)
-        SourceTestData(
+        AppSourceTestData(
           sourceKey: 'url-remote-mp3-1',
           duration: const Duration(minutes: 3, seconds: 30, milliseconds: 77),
         ),
       if (features.hasUrlSource)
-        SourceTestData(
+        AppSourceTestData(
           sourceKey: 'url-remote-mp3-2',
           duration: const Duration(minutes: 1, seconds: 34, milliseconds: 119),
         ),
       if (features.hasUrlSource && features.hasPlaylistSourceType)
-        SourceTestData(
+        AppSourceTestData(
           sourceKey: 'url-remote-m3u8',
           duration: Duration.zero,
           isLiveStream: true,
         ),
       if (features.hasUrlSource)
-        SourceTestData(
+        AppSourceTestData(
           sourceKey: 'url-remote-mpga',
           duration: Duration.zero,
           isLiveStream: true,
         ),
       if (features.hasAssetSource)
-        SourceTestData(
+        AppSourceTestData(
           sourceKey: 'asset-wav',
           duration: const Duration(seconds: 1, milliseconds: 068),
         ),
       if (features.hasAssetSource)
-        SourceTestData(
+        AppSourceTestData(
           sourceKey: 'asset-mp3',
           duration: const Duration(minutes: 1, seconds: 34, milliseconds: 119),
         ),
       if (features.hasBytesSource)
-        SourceTestData(
+        AppSourceTestData(
           sourceKey: 'bytes-local',
           duration: const Duration(seconds: 1, milliseconds: 068),
         ),
       if (features.hasBytesSource)
-        SourceTestData(
+        AppSourceTestData(
           sourceKey: 'bytes-remote',
           duration: const Duration(minutes: 3, seconds: 30, milliseconds: 76),
         ),
@@ -95,10 +95,5 @@ void main() {
         await testLogsTab(tester, audioSourceTestData, features);
       });
     }
-  });
-
-  group('play multiple sources', () {
-    // TODO(Gustl22): play sources simultaneously
-    // TODO(Gustl22): play one source after another
   });
 }

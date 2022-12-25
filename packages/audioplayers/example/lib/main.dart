@@ -87,6 +87,7 @@ class _ExampleAppState extends State<ExampleApp> {
             padding: const EdgeInsets.all(8.0),
             child: Center(
               child: Tgl(
+                key: const Key('playerTgl'),
                 options: ['P1', 'P2', 'P3', 'P4']
                     .asMap()
                     .map((key, value) => MapEntry('player-$key', value)),
