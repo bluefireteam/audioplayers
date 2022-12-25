@@ -1,0 +1,13 @@
+name: build
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  call-build-example:
+    uses: ./.github/workflows/build-example.yml
+  
+  call-test:
+    needs: call-build-example
+    uses: ./.github/workflows/test.yml
