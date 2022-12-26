@@ -1,8 +1,5 @@
-import 'dart:io';
-
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_example/tabs/sources.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -88,7 +85,7 @@ void main() {
       // FIXME: Causes media error on Android (see #1333, #1353)
       // Unexpected platform error: MediaPlayer error with
       // what:MEDIA_ERROR_UNKNOWN {what:1} extra:MEDIA_ERROR_SYSTEM
-      skip: !kIsWeb && Platform.isAndroid,
+      // skip: !kIsWeb && Platform.isAndroid,
     );
 
     testWidgets('play multiple sources consecutively',
