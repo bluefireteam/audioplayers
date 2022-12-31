@@ -31,7 +31,13 @@ class MediaPlayerPlayer(
     }
 
     override fun isActuallyPlaying(): Boolean {
-        return mediaPlayer.isPlaying
+        return try {
+            mediaPlayer.isPlaying
+        } catch (ex: IllegalStateException) {
+            // isPlaying throws IllegalStateException if the player is not ready or released
+            // that just means it is _not_ playing
+            false
+        }
     }
 
     override fun setVolume(volume: Float) {
