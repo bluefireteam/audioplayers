@@ -178,7 +178,7 @@ class WrappedPlayer internal constructor(
         }
         if (releaseMode != ReleaseMode.RELEASE) {
             pause()
-            if(prepared) {
+            if (prepared) {
                 if (player?.isLiveStream() == true) {
                     player?.stop()
                     prepared = false
