@@ -243,7 +243,7 @@ class WrappedPlayer internal constructor(
                 player?.seekTo(shouldSeekTo)
             }
         } catch (e: Exception) {
-            ref.handleError(this, "WrappedPlayer exception while OnPrepared event: $e")
+            ref.handleError(this, "WrappedPlayer exception while OnPrepared event:\n${e.printStackTrace()}")
         }
     }
 
@@ -254,7 +254,7 @@ class WrappedPlayer internal constructor(
             }
             ref.handleComplete(this)
         } catch (e: Exception) {
-            ref.handleError(this, "WrappedPlayer exception while OnCompletion event: $e")
+            ref.handleError(this, "WrappedPlayer exception while OnCompletion event:\n${e.printStackTrace()}")
         }
     }
 
@@ -267,7 +267,7 @@ class WrappedPlayer internal constructor(
         try {
             ref.handleSeekComplete(this)
         } catch (e: Exception) {
-            ref.handleError(this, "WrappedPlayer exception while OnSeekComplete event: $e")
+            ref.handleError(this, "WrappedPlayer exception while OnSeekComplete event:\n${e.printStackTrace()}")
         }
     }
 
