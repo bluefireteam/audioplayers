@@ -3,7 +3,7 @@ description: Demonstrates how to use the audioplayers plugin.
 publish_to: none
 
 dependencies:
-  audioplayers: ^1.1.1
+  audioplayers: ^1.2.0
   file_picker: ^5.0.1
   flutter:
     sdk: flutter

@@ -1,3 +1,8 @@
+## 1.1.3
+
+ - **FIX**: Avoid ConcurrentModificationException ([#1297](https://github.com/bluefireteam/audioplayers/issues/1297)). ([d15ef5ab](https://github.com/bluefireteam/audioplayers/commit/d15ef5ab93f11e2f19089af08f1533fcdc1397e6))
+ - **DOCS**: Fix repos and homepages on pubspecs ([#1349](https://github.com/bluefireteam/audioplayers/issues/1349)). ([0bdde4d9](https://github.com/bluefireteam/audioplayers/commit/0bdde4d9f8f62487cdcfe96221216eba03b31060))
+
 ## 1.1.1
 
  - **FIX**: Avoid ConcurrentModificationException ([#1297](https://github.com/bluefireteam/audioplayers/issues/1297)). ([d15ef5ab](https://github.com/bluefireteam/audioplayers/commit/d15ef5ab93f11e2f19089af08f1533fcdc1397e6))
