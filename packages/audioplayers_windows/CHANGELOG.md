@@ -1,3 +1,8 @@
+## 1.1.1
+
+ - **FIX**: Duration precision on Windows ([#1342](https://github.com/bluefireteam/audioplayers/issues/1342)). ([3cda1a65](https://github.com/bluefireteam/audioplayers/commit/3cda1a65dc0425c332ed2eb3619cd88531f0ea49))
+ - **DOCS**: Fix repos and homepages on pubspecs ([#1349](https://github.com/bluefireteam/audioplayers/issues/1349)). ([0bdde4d9](https://github.com/bluefireteam/audioplayers/commit/0bdde4d9f8f62487cdcfe96221216eba03b31060))
+
 ## 1.1.0
 
  - **FIX**: send onDuration event when play/resume (#1245). ([8108ff42](https://github.com/bluefireteam/audioplayers/commit/8108ff42d05c7f995d8289345302c6ac6d298f67))
