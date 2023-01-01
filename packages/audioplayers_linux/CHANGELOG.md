@@ -1,3 +1,8 @@
+## 1.0.2
+
+ - **FIX**: play sound, when initialized ([#1332](https://github.com/bluefireteam/audioplayers/issues/1332)). ([2ed91fee](https://github.com/bluefireteam/audioplayers/commit/2ed91feec4d3528a4edff635331bd3aad938afd7))
+ - **DOCS**: Fix repos and homepages on pubspecs ([#1349](https://github.com/bluefireteam/audioplayers/issues/1349)). ([0bdde4d9](https://github.com/bluefireteam/audioplayers/commit/0bdde4d9f8f62487cdcfe96221216eba03b31060))
+
 ## 1.0.1
 
  - **FIX**: emit position event immediately when resume (#1222). ([94c73482](https://github.com/bluefireteam/audioplayers/commit/94c73482b0141d5f6c202219948fc79bac40b288))
