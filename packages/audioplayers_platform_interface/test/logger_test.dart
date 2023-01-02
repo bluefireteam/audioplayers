@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:audioplayers_platform_interface/api/log_level.dart';
+import 'package:audioplayers_platform_interface/api/log.dart';
 import 'package:audioplayers_platform_interface/logger_platform_interface.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';

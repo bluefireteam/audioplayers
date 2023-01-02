@@ -61,7 +61,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
             try {
                 handler(call, response)
             } catch (e: Exception) {
-                Logger.error("Unexpected error!", e)
+                // TODO(gustl22): log via global logger log("Unexpected error!", e)
                 response.error("Unexpected error!", e.message, e)
             }
         }
@@ -69,10 +69,6 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
 
     private fun globalHandler(call: MethodCall, response: MethodChannel.Result) {
         when (call.method) {
-            "changeLogLevel" -> {
-                val value = call.enumArgument<LogLevel>("value") ?: error("value is required")
-                Logger.logLevel = value
-            }
             "setGlobalAudioContext" -> {
                 defaultAudioContext = call.audioContext()
             }
@@ -90,6 +86,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
                 val isLocal = call.argument<Boolean>("isLocal") ?: false
                 player.source = UrlSource(url, isLocal)
             }
+
             "setSourceBytes" -> {
                 val bytes = call.argument<ByteArray>("bytes") ?: error("bytes are required")
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
@@ -97,6 +94,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
                 }
                 player.source = BytesSource(bytes)
             }
+
             "resume" -> player.play()
             "pause" -> player.pause()
             "stop" -> player.stop()
@@ -105,41 +103,50 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
                 val position = call.argument<Int>("position") ?: error("position is required")
                 player.seek(position)
             }
+
             "setVolume" -> {
                 val volume = call.argument<Double>("volume") ?: error("volume is required")
                 player.volume = volume.toFloat()
             }
+
             "setBalance" -> {
-                Logger.error("setBalance is not currently implemented on Android")
+                handleLog(player, "setBalance is not currently implemented on Android", LogLevel.ERROR)
                 response.notImplemented()
                 return
             }
+
             "setPlaybackRate" -> {
                 val rate = call.argument<Double>("playbackRate") ?: error("playbackRate is required")
                 player.rate = rate.toFloat()
             }
+
             "getDuration" -> {
                 response.success(player.getDuration() ?: 0)
                 return
             }
+
             "getCurrentPosition" -> {
                 response.success(player.getCurrentPosition() ?: 0)
                 return
             }
+
             "setReleaseMode" -> {
                 val releaseMode = call.enumArgument<ReleaseMode>("releaseMode")
                     ?: error("releaseMode is required")
                 player.releaseMode = releaseMode
             }
+
             "setPlayerMode" -> {
                 val playerMode = call.enumArgument<PlayerMode>("playerMode")
                     ?: error("playerMode is required")
                 player.playerMode = playerMode
             }
+
             "setAudioContext" -> {
                 val audioContext = call.audioContext()
                 player.updateAudioContext(audioContext)
             }
+
             else -> {
                 response.notImplemented()
                 return
@@ -170,8 +177,14 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
         channel.invokeMethod("audio.onComplete", buildArguments(player.playerId))
     }
 
-    fun handleError(player: WrappedPlayer, message: String) {
-        channel.invokeMethod("audio.onError", buildArguments(player.playerId, message))
+    fun handleLog(player: WrappedPlayer, message: String, level: LogLevel) {
+        channel.invokeMethod(
+            "audio.onLog", HashMap<String, Any>(
+                "playerId" to player.playerId,
+                "value" to message,
+                "level" to level.value
+            )
+        )
     }
 
     fun handleSeekComplete(player: WrappedPlayer) {

@@ -5,7 +5,7 @@ import android.media.AudioManager
 import android.media.SoundPool
 import android.os.Build
 import xyz.luan.audioplayers.AudioContextAndroid
-import xyz.luan.audioplayers.Logger
+import xyz.luan.audioplayers.LogLevel
 import xyz.luan.audioplayers.source.Source
 import xyz.luan.audioplayers.source.UrlSource
 import java.util.Collections.synchronizedMap
@@ -50,7 +50,7 @@ class SoundPoolPlayer(
 
         init {
             soundPool.setOnLoadCompleteListener { _, sampleId, _ ->
-                Logger.info("Loaded $sampleId")
+                // TODO(gustl22): may add global logger, too: globallogger.onLog("Loaded $sampleId", LogLevel.INFO)
                 val loadingPlayer = soundIdToPlayer[sampleId]
                 val urlSource = loadingPlayer?.urlSource
                 if (urlSource != null) {
@@ -59,10 +59,10 @@ class SoundPoolPlayer(
                     synchronized(urlToPlayers) {
                         val urlPlayers = urlToPlayers[urlSource] ?: listOf()
                         for (player in urlPlayers) {
-                            Logger.info("Marking $player as loaded")
+                            player.wrappedPlayer.onLog("Marking $player as loaded", LogLevel.INFO)
                             player.wrappedPlayer.prepared = true
                             if (player.wrappedPlayer.playing) {
-                                Logger.info("Delayed start of $player")
+                                player.wrappedPlayer.onLog("Delayed start of $player", LogLevel.INFO)
                                 player.start()
                             }
                         }
@@ -74,7 +74,7 @@ class SoundPoolPlayer(
 
     /** The id of the sound of source which will be played */
     private var soundId: Int? = null
-    
+
     /** The id of the stream / player */
     private var streamId: Int? = null
 
@@ -100,7 +100,7 @@ class SoundPoolPlayer(
                 soundPool.unload(soundId)
                 soundIdToPlayer.remove(soundId)
                 this.soundId = null
-                Logger.info("unloaded soundId $soundId")
+                wrappedPlayer.onLog("unloaded soundId $soundId", LogLevel.INFO)
             } else {
                 // This is not the last player using the soundId, just remove it from the list.
                 playersForSoundId.remove(this)
@@ -134,19 +134,25 @@ class SoundPoolPlayer(
                 val prepared = originalPlayer.wrappedPlayer.prepared
                 wrappedPlayer.prepared = prepared
                 soundId = originalPlayer.soundId
-                Logger.info("Reusing soundId $soundId for $urlSource is prepared=$prepared $this")
+                wrappedPlayer.onLog(
+                    "Reusing soundId $soundId for $urlSource is prepared=$prepared $this",
+                    LogLevel.INFO
+                )
             } else {
                 // First one for this URL - load it.
                 val start = System.currentTimeMillis()
 
                 wrappedPlayer.prepared = false
-                Logger.info("Fetching actual URL for $urlSource")
+                wrappedPlayer.onLog("Fetching actual URL for $urlSource", LogLevel.INFO)
                 val actualUrl = urlSource.getAudioPathForSoundPool()
-                Logger.info("Now loading $actualUrl")
+                wrappedPlayer.onLog("Now loading $actualUrl", LogLevel.INFO)
                 soundId = soundPool.load(actualUrl, 1)
                 soundIdToPlayer[soundId] = this
 
-                Logger.info("time to call load() for $urlSource: ${System.currentTimeMillis() - start} player=$this")
+                wrappedPlayer.onLog(
+                    "time to call load() for $urlSource: ${System.currentTimeMillis() - start} player=$this",
+                    LogLevel.INFO
+                )
             }
             urlPlayers.add(this)
         }
@@ -208,7 +214,7 @@ class SoundPoolPlayer(
     }
 
     override fun reset() {
-        // TODO(luan) what do I do here?
+        // TODO(luan): what do I do here?
     }
 
     override fun isLiveStream() = false

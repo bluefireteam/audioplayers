@@ -43,7 +43,7 @@ class AudioPlayer {
 
   late final StreamSubscription _onPlayerCompleteStreamSubscription;
 
-  late StreamSubscription _onErrorStreamSubscription;
+  late StreamSubscription _onLogStreamSubscription;
 
   final StreamController<PlayerState> _playerStateController =
       StreamController<PlayerState>.broadcast();
@@ -82,8 +82,8 @@ class AudioPlayer {
   Stream<void> get onSeekComplete =>
       _platform.seekCompleteStream.filter(playerId);
 
-  /// Stream of error events.
-  Stream<String> get _onError => _platform.errorStream.filter(playerId);
+  /// Stream of log events.
+  Stream<Log> get _onLog => _platform.logStream.filter(playerId);
 
   /// An unique ID generated for this instance of [AudioPlayer].
   ///
@@ -108,8 +108,8 @@ class AudioPlayer {
         _source = null;
       }
     });
-    _onErrorStreamSubscription = _onError.listen((error) {
-      global.error('$error\nSource: $_source');
+    _onLogStreamSubscription = _onLog.listen((log) {
+      global.log(log.level, '${log.message}\nSource: $_source');
     });
   }
 
@@ -140,9 +140,9 @@ class AudioPlayer {
     return resume();
   }
 
-  void setErrorHandler(void Function(String error)? errorHandler) {
-    _onErrorStreamSubscription.cancel();
-    _onErrorStreamSubscription = _onError.listen(errorHandler);
+  void setLogHandler(void Function(Log log)? logHandler) {
+    _onLogStreamSubscription.cancel();
+    _onLogStreamSubscription = _onLog.listen(logHandler);
   }
 
   Future<void> setAudioContext(AudioContext ctx) {
@@ -301,7 +301,7 @@ class AudioPlayer {
     final futures = <Future>[
       if (!_playerStateController.isClosed) _playerStateController.close(),
       _onPlayerCompleteStreamSubscription.cancel(),
-      _onErrorStreamSubscription.cancel(),
+      _onLogStreamSubscription.cancel(),
     ];
 
     _source = null;

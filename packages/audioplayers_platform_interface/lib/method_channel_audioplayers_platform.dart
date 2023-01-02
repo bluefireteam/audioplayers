@@ -5,6 +5,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:audioplayers_platform_interface/api/audio_context_config.dart';
+import 'package:audioplayers_platform_interface/api/log.dart';
 import 'package:audioplayers_platform_interface/api/player_mode.dart';
 import 'package:audioplayers_platform_interface/api/release_mode.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
@@ -185,14 +186,23 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform
       case 'audio.onSeekComplete':
         emitSeekComplete(playerId);
         break;
-      case 'audio.onError':
-        emitError(
+      case 'audio.onLog':
+        emitLog(
           playerId,
-          'Unexpected platform error: ${call.getString('value')}',
+          Log(
+            'Unexpected platform error: ${call.getString('value')}',
+            level: LogLevelExtension.fromInt(call.getInt('level')),
+          ),
         );
         break;
       default:
-        emitError(playerId, 'Unknown method ${call.method} ');
+        emitLog(
+          playerId,
+          Log(
+            'Unknown method ${call.method}',
+            level: LogLevel.error,
+          ),
+        );
     }
   }
 

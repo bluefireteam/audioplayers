@@ -3,12 +3,9 @@ package xyz.luan.audioplayers.player
 import android.content.Context
 import android.media.AudioManager
 import android.media.MediaPlayer
-import xyz.luan.audioplayers.AudioContextAndroid
-import xyz.luan.audioplayers.AudioplayersPlugin
-import xyz.luan.audioplayers.PlayerMode
+import xyz.luan.audioplayers.*
 import xyz.luan.audioplayers.PlayerMode.LOW_LATENCY
 import xyz.luan.audioplayers.PlayerMode.MEDIA_PLAYER
-import xyz.luan.audioplayers.ReleaseMode
 import xyz.luan.audioplayers.source.Source
 
 // For some reason this cannot be accessed from MediaPlayer.MEDIA_ERROR_SYSTEM
@@ -243,7 +240,10 @@ class WrappedPlayer internal constructor(
                 player?.seekTo(shouldSeekTo)
             }
         } catch (e: Exception) {
-            ref.handleError(this, "WrappedPlayer exception while OnPrepared event:\n${e.printStackTrace()}")
+            onLog(
+                "WrappedPlayer exception while OnPrepared event:\n${e.printStackTrace()}",
+                LogLevel.ERROR
+            )
         }
     }
 
@@ -254,7 +254,10 @@ class WrappedPlayer internal constructor(
             }
             ref.handleComplete(this)
         } catch (e: Exception) {
-            ref.handleError(this, "WrappedPlayer exception while OnCompletion event:\n${e.printStackTrace()}")
+            onLog(
+                "WrappedPlayer exception while OnCompletion event:\n${e.printStackTrace()}",
+                LogLevel.ERROR
+            )
         }
     }
 
@@ -267,8 +270,19 @@ class WrappedPlayer internal constructor(
         try {
             ref.handleSeekComplete(this)
         } catch (e: Exception) {
-            ref.handleError(this, "WrappedPlayer exception while OnSeekComplete event:\n${e.printStackTrace()}")
+            onLog(
+                "WrappedPlayer exception while OnSeekComplete event:\n${e.printStackTrace()}",
+                LogLevel.ERROR
+            )
         }
+    }
+
+    fun onLog(message: String, level: LogLevel) {
+        ref.handleLog(
+            this,
+            message,
+            level,
+        )
     }
 
     fun onError(what: Int, extra: Int): Boolean {
@@ -285,7 +299,7 @@ class WrappedPlayer internal constructor(
             MediaPlayer.MEDIA_ERROR_TIMED_OUT -> "MEDIA_ERROR_TIMED_OUT"
             else -> "MEDIA_ERROR_UNKNOWN {extra:$extra}"
         }
-        ref.handleError(this, "MediaPlayer error with what:$whatMsg extra:$extraMsg")
+        onLog("MediaPlayer error with what:$whatMsg extra:$extraMsg", LogLevel.ERROR)
         return false
     }
 

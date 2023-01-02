@@ -1,5 +1,5 @@
 import 'package:audioplayers_platform_interface/api/audio_context_config.dart';
-import 'package:audioplayers_platform_interface/api/log_level.dart';
+import 'package:audioplayers_platform_interface/api/log.dart';
 import 'package:audioplayers_platform_interface/method_channel_interface.dart';
 import 'package:flutter/services.dart';
 
@@ -13,7 +13,7 @@ abstract class GlobalPlatformInterface {
   Future<void> setGlobalAudioContext(AudioContext ctx);
 
   void log(LogLevel level, String message) {
-    if (level.getLevel() <= logLevel.getLevel()) {
+    if (level.toInt() <= logLevel.toInt()) {
       // ignore: avoid_print
       print(message);
     }
