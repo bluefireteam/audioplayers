@@ -179,7 +179,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
 
     fun handleLog(player: WrappedPlayer, message: String, level: LogLevel) {
         channel.invokeMethod(
-            "audio.onLog", HashMap<String, Any>(
+            "audio.onLog", hashMapOf(
                 "playerId" to player.playerId,
                 "value" to message,
                 "level" to level.value
