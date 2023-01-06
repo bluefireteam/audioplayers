@@ -52,6 +52,7 @@ static void audioplayers_linux_plugin_handle_global_method_call(
     FlValue *args = fl_method_call_get_args(method_call);
 
     if (strcmp(method, "changeLogLevel") == 0) {
+    // TODO
         auto flValueName = fl_value_lookup_string(args, "value");
         if (flValueName == nullptr) {
             Logger::Error("Null value received on changeLogLevel");

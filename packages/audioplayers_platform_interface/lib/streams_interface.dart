@@ -25,6 +25,10 @@ mixin StreamsInterface {
     _logStreamController.add(ForPlayer(playerId, value));
   }
 
+  void emitGlobalLog(Log value) {
+    _globalLogStreamController.add(value);
+  }
+
   Stream<ForPlayer<void>> get seekCompleteStream =>
       _seekCompleteStreamController.stream;
 
@@ -38,6 +42,8 @@ mixin StreamsInterface {
       _positionStreamController.stream;
 
   Stream<ForPlayer<Log>> get logStream => _logStreamController.stream;
+
+  Stream<Log> get globalLogStream => _globalLogStreamController.stream;
 
   final StreamController<ForPlayer<void>> _seekCompleteStreamController =
       StreamController<ForPlayer<void>>.broadcast();
@@ -54,6 +60,9 @@ mixin StreamsInterface {
   final StreamController<ForPlayer<Log>> _logStreamController =
       StreamController<ForPlayer<Log>>.broadcast();
 
+  final StreamController<Log> _globalLogStreamController =
+      StreamController<Log>.broadcast();
+
   @mustCallSuper
   Future<void> dispose() async {
     _seekCompleteStreamController.close();
@@ -61,5 +70,6 @@ mixin StreamsInterface {
     _durationStreamController.close();
     _positionStreamController.close();
     _logStreamController.close();
+    _globalLogStreamController.close();
   }
 }

@@ -122,7 +122,7 @@ class _ExampleAppState extends State<ExampleApp> {
                 TabData(
                   key: 'loggerTab',
                   label: 'Log',
-                  content: const LoggerTab(),
+                  content: LoggerTab(player: selectedPlayer),
                 ),
               ],
             ),

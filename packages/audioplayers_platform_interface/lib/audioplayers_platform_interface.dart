@@ -129,4 +129,6 @@ abstract class AudioplayersPlatform extends PlatformInterface {
   Stream<ForPlayer<void>> get seekCompleteStream;
 
   Stream<ForPlayer<Log>> get logStream;
+
+  Stream<Log> get globalLogStream;
 }

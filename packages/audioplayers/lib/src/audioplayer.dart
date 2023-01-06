@@ -20,6 +20,7 @@ const _uuid = Uuid();
 class AudioPlayer {
   static final global = GlobalPlatformInterface.instance;
   static final _platform = AudioplayersPlatform.instance;
+  static final logger = Logger.instance;
 
   /// This is the [AudioCache] instance used by this player.
   /// Unless you want to control multiple caches separately, you don't need to
@@ -44,6 +45,11 @@ class AudioPlayer {
   late final StreamSubscription _onPlayerCompleteStreamSubscription;
 
   late StreamSubscription _onLogStreamSubscription;
+
+  static StreamSubscription _onGlobalLogStreamSubscription =
+      _onGlobalLog.listen((log) {
+    logger.log(log.level, log.message);
+  });
 
   final StreamController<PlayerState> _playerStateController =
       StreamController<PlayerState>.broadcast();
@@ -85,6 +91,9 @@ class AudioPlayer {
   /// Stream of log events.
   Stream<Log> get _onLog => _platform.logStream.filter(playerId);
 
+  /// Stream of global log events.
+  static Stream<Log> get _onGlobalLog => _platform.globalLogStream;
+
   /// An unique ID generated for this instance of [AudioPlayer].
   ///
   /// This is used to properly exchange messages with the [MethodChannel].
@@ -109,7 +118,7 @@ class AudioPlayer {
       }
     });
     _onLogStreamSubscription = _onLog.listen((log) {
-      global.log(log.level, '${log.message}\nSource: $_source');
+      logger.log(log.level, '${log.message}\nSource: $_source');
     });
   }
 
@@ -143,6 +152,11 @@ class AudioPlayer {
   void setLogHandler(void Function(Log log)? logHandler) {
     _onLogStreamSubscription.cancel();
     _onLogStreamSubscription = _onLog.listen(logHandler);
+  }
+
+  static void setGlobalLogHandler(void Function(Log log)? logHandler) {
+    _onGlobalLogStreamSubscription.cancel();
+    _onGlobalLogStreamSubscription = _onGlobalLog.listen(logHandler);
   }
 
   Future<void> setAudioContext(AudioContext ctx) {

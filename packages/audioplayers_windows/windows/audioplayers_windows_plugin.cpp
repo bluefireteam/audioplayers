@@ -101,6 +101,7 @@ void AudioplayersWindowsPlugin::HandleGlobalMethodCall(
   auto args = method_call.arguments();
 
   if (method_call.method_name().compare("changeLogLevel") == 0) {
+    // TODO
     auto valueName = GetArgument<std::string>("value", args, std::string());
     if(valueName.empty()) {
         Logger::Error("Null value received on changeLogLevel");

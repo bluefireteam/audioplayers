@@ -9,7 +9,6 @@ import 'package:audioplayers_platform_interface/api/log.dart';
 import 'package:audioplayers_platform_interface/api/player_mode.dart';
 import 'package:audioplayers_platform_interface/api/release_mode.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
-import 'package:audioplayers_platform_interface/logger_platform_interface.dart';
 import 'package:audioplayers_platform_interface/method_channel_interface.dart';
 import 'package:audioplayers_platform_interface/streams_interface.dart';
 import 'package:flutter/services.dart';
@@ -21,9 +20,6 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform
   MethodChannelAudioplayersPlatform() {
     _channel.setMethodCallHandler(platformCallHandler);
   }
-
-  static GlobalPlatformInterface get _logger =>
-      GlobalPlatformInterface.instance;
 
   @override
   Future<int?> getCurrentPosition(String playerId) {
@@ -162,7 +158,7 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform
     try {
       _doHandlePlatformCall(call);
     } on Exception catch (ex) {
-      _logger.error('Unexpected error: $ex');
+      emitGlobalLog(Log('Unexpected error: $ex', level: LogLevel.error));
     }
   }
 
@@ -191,6 +187,14 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform
           playerId,
           Log(
             'Unexpected platform error: ${call.getString('value')}',
+            level: LogLevelExtension.fromInt(call.getInt('level')),
+          ),
+        );
+        break;
+      case 'audio.onGlobalLog':
+        emitGlobalLog(
+          Log(
+            'Unexpected global platform error: ${call.getString('value')}',
             level: LogLevelExtension.fromInt(call.getInt('level')),
           ),
         );

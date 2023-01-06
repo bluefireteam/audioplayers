@@ -106,6 +106,38 @@ void main() {
         }
         await player.stop();
       }
+        });
+  });
+
+  group('Logging', () {
+    private fun mockLogger()
+    : MutableList<String> {
+    val logs = mutableListOf<String>()
+    Logger.androidLogger = { _, m, _ -> logs.add(m) }
+    return logs
+    }
+    testWidgets('when set to INFO everything is logged', (widgetTester) {
+    val logs = mockLogger()
+    Logger.logLevel = LogLevel.INFO
+    Logger.info("info")
+    Logger.error("error")
+    assertThat(logs).containsExactly("info", "error")
+    });
+
+    testWidgets('when set to ERROR only errors are logged', (widgetTester) {
+    val logs = mockLogger()
+    Logger.logLevel = LogLevel.ERROR
+    Logger.info("info")
+    Logger.error("error")
+    assertThat(logs).containsExactly("error")
+    });
+
+    testWidgets('when set to NONE nothing is logged', (widgetTester) {
+    val logs = mockLogger()
+    Logger.logLevel = LogLevel.NONE
+    Logger.info("info")
+    Logger.error("error")
+    assertThat(logs).isEmpty()
     });
   });
 }

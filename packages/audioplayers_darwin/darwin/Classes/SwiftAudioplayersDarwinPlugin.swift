@@ -71,6 +71,7 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
 
         // global handlers (no playerId)
         if method == "changeLogLevel" {
+            // TODO
             guard let valueName = args["value"] as! String? else {
                 Logger.error("Null value received on changeLogLevel")
                 result(0)
