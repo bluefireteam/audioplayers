@@ -61,7 +61,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
             try {
                 handler(call, response)
             } catch (e: Exception) {
-                // TODO(gustl22): log via global logger log("Unexpected error!", e)
+                handleGlobalLog("Unexpected error:\n${e.printStackTrace()}", LogLevel.ERROR)
                 response.error("Unexpected error!", e.message, e)
             }
         }
@@ -178,13 +178,26 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
     }
 
     fun handleLog(player: WrappedPlayer, message: String, level: LogLevel) {
-        channel.invokeMethod(
-            "audio.onLog", hashMapOf(
-                "playerId" to player.playerId,
-                "value" to message,
-                "level" to level.value
+        handler.post {
+            channel.invokeMethod(
+                "audio.onLog", hashMapOf(
+                    "playerId" to player.playerId,
+                    "value" to message,
+                    "level" to level.value
+                )
             )
-        )
+        }
+    }
+
+    fun handleGlobalLog(message: String, level: LogLevel) {
+        handler.post {
+            channel.invokeMethod(
+                "audio.onGlobalLog", hashMapOf(
+                    "value" to message,
+                    "level" to level.value
+                )
+            )
+        }
     }
 
     fun handleSeekComplete(player: WrappedPlayer) {
@@ -241,7 +254,6 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
                 updateCallback.stopUpdates()
             }
         }
-
     }
 
     companion object {

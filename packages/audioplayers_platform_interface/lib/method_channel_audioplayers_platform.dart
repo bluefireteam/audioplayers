@@ -186,7 +186,7 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform
         emitLog(
           playerId,
           Log(
-            'Unexpected platform error: ${call.getString('value')}',
+            call.getString('value'),
             level: LogLevelExtension.fromInt(call.getInt('level')),
           ),
         );
@@ -194,7 +194,7 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform
       case 'audio.onGlobalLog':
         emitGlobalLog(
           Log(
-            'Unexpected global platform error: ${call.getString('value')}',
+            call.getString('value'),
             level: LogLevelExtension.fromInt(call.getInt('level')),
           ),
         );
