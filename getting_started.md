@@ -160,7 +160,7 @@ Normally you want to use `.mediaPlayer` unless you care about performance and yo
 You can globally control the amount of log messages that are emitted by this package:
 
 ```dart
-  await AudioPlayer.global.changeLogLevel(LogLevel.info);
+  AudioPlayer.logger.logLevel = LogLevel.info;
 ```
 
 You can pick one of 3 options:
@@ -173,14 +173,22 @@ You can pick one of 3 options:
 
 **Note**: despite our best efforts, some native SDK implementations that we use spam a lot of log messages that we currently haven't figured out how to conform to this configuration (specially noticeable on Android). If you would like to contribute with a PR, they are more than welcome!
 
-### Error handler
+### Log handler
 
-The error events are handled by default via `GlobalPlatformInterface.error()`.
-You can customize the behavior of error events.
+The log events are handled by default via `AudioPlayer.logger.log()`.
+You can customize the behavior of player log events.
 
 ```dart
-  player.setErrorHandler((error) {
-    AudioPlayer.global.error(error);
+  player.setLogHandler((log) {
+    AudioPlayer.logger.log(log.level, log.message);
+  });
+```
+
+Or change the behavior of global log events.
+
+```dart
+  AudioPlayer.setGlobalLogHandler((log) {
+    AudioPlayer.logger.log(log.level, log.message);
   });
 ```
 
