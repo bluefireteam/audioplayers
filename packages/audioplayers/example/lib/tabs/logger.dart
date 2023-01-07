@@ -15,19 +15,20 @@ class _LoggerTabState extends State<LoggerTab>
     with AutomaticKeepAliveClientMixin<LoggerTab> {
   static Logger get _logger => AudioPlayer.logger;
 
-  LogLevel currentLogLevel = _logger.logLevel;
+  LogLevel currentLogLevel = LogLevel.info;
 
-  List<String> logs = [];
-  List<String> globalLogs = [];
+  List<Log> logs = [];
+  List<Log> globalLogs = [];
 
   @override
   void initState() {
     super.initState();
+    _logger.logLevel = currentLogLevel;
     AudioPlayer.setGlobalLogHandler((log) {
       if (log.level.toInt() <= currentLogLevel.toInt()) {
         _logger.log(log.level, log.message);
         setState(() {
-          globalLogs.add('${log.level.toString()}: ${log.message}');
+          globalLogs.add(log);
         });
       }
     });
@@ -36,7 +37,7 @@ class _LoggerTabState extends State<LoggerTab>
         final msg = '${log.message}\nSource: ${widget.player.source}';
         _logger.log(log.level, msg);
         setState(() {
-          logs.add('${log.level.toString()}: $msg');
+          logs.add(Log(msg, level: log.level));
         });
       }
     });
@@ -44,6 +45,7 @@ class _LoggerTabState extends State<LoggerTab>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -94,7 +96,7 @@ class _LoggerTabState extends State<LoggerTab>
 
 class LogView extends StatelessWidget {
   final String title;
-  final List<String> logs;
+  final List<Log> logs;
   final VoidCallback onDelete;
 
   const LogView({
@@ -119,10 +121,13 @@ class LogView extends StatelessWidget {
           child: ListView(
             children: logs
                 .map(
-                  (s) => Column(
+                  (log) => Column(
                     children: [
                       SelectableText(
-                        s,
+                        '${log.level.toString()}: ${log.message}',
+                        style: log.level == LogLevel.error
+                            ? const TextStyle(color: Colors.red)
+                            : null,
                       ),
                       Divider(color: Colors.grey.shade400)
                     ],
