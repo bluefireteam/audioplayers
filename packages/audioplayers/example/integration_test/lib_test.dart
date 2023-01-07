@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_example/tabs/sources.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -11,52 +13,52 @@ void main() {
 
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  group('play multiple sources', () {
-    final audioTestDataList = [
-      if (features.hasUrlSource)
-        LibSourceTestData(
-          source: UrlSource(wavUrl1),
-          duration: const Duration(milliseconds: 451),
-        ),
-      if (features.hasUrlSource)
-        LibSourceTestData(
-          source: UrlSource(wavUrl2),
-          duration: const Duration(seconds: 1, milliseconds: 068),
-        ),
-      if (features.hasUrlSource)
-        LibSourceTestData(
-          source: UrlSource(mp3Url1),
-          duration: const Duration(minutes: 3, seconds: 30, milliseconds: 77),
-        ),
-      if (features.hasUrlSource)
-        LibSourceTestData(
-          source: UrlSource(mp3Url2),
-          duration: const Duration(minutes: 1, seconds: 34, milliseconds: 119),
-        ),
-      if (features.hasUrlSource && features.hasPlaylistSourceType)
-        LibSourceTestData(
-          source: UrlSource(m3u8StreamUrl),
-          duration: Duration.zero,
-          isLiveStream: true,
-        ),
-      if (features.hasUrlSource)
-        LibSourceTestData(
-          source: UrlSource(mpgaStreamUrl),
-          duration: Duration.zero,
-          isLiveStream: true,
-        ),
-      if (features.hasAssetSource)
-        LibSourceTestData(
-          source: AssetSource(asset1),
-          duration: const Duration(seconds: 1, milliseconds: 068),
-        ),
-      if (features.hasAssetSource)
-        LibSourceTestData(
-          source: AssetSource(asset2),
-          duration: const Duration(minutes: 1, seconds: 34, milliseconds: 119),
-        ),
-    ];
+  final audioTestDataList = [
+    if (features.hasUrlSource)
+      LibSourceTestData(
+        source: UrlSource(wavUrl1),
+        duration: const Duration(milliseconds: 451),
+      ),
+    if (features.hasUrlSource)
+      LibSourceTestData(
+        source: UrlSource(wavUrl2),
+        duration: const Duration(seconds: 1, milliseconds: 068),
+      ),
+    if (features.hasUrlSource)
+      LibSourceTestData(
+        source: UrlSource(mp3Url1),
+        duration: const Duration(minutes: 3, seconds: 30, milliseconds: 77),
+      ),
+    if (features.hasUrlSource)
+      LibSourceTestData(
+        source: UrlSource(mp3Url2),
+        duration: const Duration(minutes: 1, seconds: 34, milliseconds: 119),
+      ),
+    if (features.hasUrlSource && features.hasPlaylistSourceType)
+      LibSourceTestData(
+        source: UrlSource(m3u8StreamUrl),
+        duration: Duration.zero,
+        isLiveStream: true,
+      ),
+    if (features.hasUrlSource)
+      LibSourceTestData(
+        source: UrlSource(mpgaStreamUrl),
+        duration: Duration.zero,
+        isLiveStream: true,
+      ),
+    if (features.hasAssetSource)
+      LibSourceTestData(
+        source: AssetSource(asset1),
+        duration: const Duration(seconds: 1, milliseconds: 068),
+      ),
+    if (features.hasAssetSource)
+      LibSourceTestData(
+        source: AssetSource(asset2),
+        duration: const Duration(minutes: 1, seconds: 34, milliseconds: 119),
+      ),
+  ];
 
+  group('play multiple sources', () {
     testWidgets(
       'play multiple sources simultaneously',
       (WidgetTester tester) async {
@@ -106,38 +108,18 @@ void main() {
         }
         await player.stop();
       }
-        });
+    });
   });
 
   group('Logging', () {
-    private fun mockLogger()
-    : MutableList<String> {
-    val logs = mutableListOf<String>()
-    Logger.androidLogger = { _, m, _ -> logs.add(m) }
-    return logs
-    }
-    testWidgets('when set to INFO everything is logged', (widgetTester) {
-    val logs = mockLogger()
-    Logger.logLevel = LogLevel.INFO
-    Logger.info("info")
-    Logger.error("error")
-    assertThat(logs).containsExactly("info", "error")
-    });
-
-    testWidgets('when set to ERROR only errors are logged', (widgetTester) {
-    val logs = mockLogger()
-    Logger.logLevel = LogLevel.ERROR
-    Logger.info("info")
-    Logger.error("error")
-    assertThat(logs).containsExactly("error")
-    });
-
-    testWidgets('when set to NONE nothing is logged', (widgetTester) {
-    val logs = mockLogger()
-    Logger.logLevel = LogLevel.NONE
-    Logger.info("info")
-    Logger.error("error")
-    assertThat(logs).isEmpty()
+    testWidgets('Platforms show INFO log, when start playing', (tester) async {
+      final completer = Completer<Log>();
+      final player = AudioPlayer();
+      player.setLogHandler(completer.complete);
+      await player.play(audioTestDataList[0].source);
+      final log = await completer.future;
+      expect(log.level, LogLevel.info);
+      expect(log.message, 'RESUME');
     });
   });
 }

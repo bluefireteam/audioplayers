@@ -166,6 +166,7 @@ class WrappedPlayer internal constructor(
                 currentPlayer.start()
                 ref.handleIsPlaying()
             }
+            onLog("RESUME", LogLevel.INFO)
         }
     }
 
