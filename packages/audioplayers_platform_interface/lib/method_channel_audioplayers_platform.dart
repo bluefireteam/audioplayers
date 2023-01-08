@@ -158,55 +158,66 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform
     try {
       _doHandlePlatformCall(call);
     } on Exception catch (ex) {
-      emitGlobalLog(Log('Unexpected error: $ex', level: LogLevel.error));
+      emitGlobalLog(Log('Unexpected exception: $ex', level: LogLevel.error));
     }
   }
 
   void _doHandlePlatformCall(MethodCall call) {
-    final playerId = call.getString('playerId');
-
-    switch (call.method) {
-      case 'audio.onDuration':
-        final millis = call.getInt('value');
-        final duration = Duration(milliseconds: millis);
-        emitDuration(playerId, duration);
-        break;
-      case 'audio.onCurrentPosition':
-        final millis = call.getInt('value');
-        final position = Duration(milliseconds: millis);
-        emitPosition(playerId, position);
-        break;
-      case 'audio.onComplete':
-        emitComplete(playerId);
-        break;
-      case 'audio.onSeekComplete':
-        emitSeekComplete(playerId);
-        break;
-      case 'audio.onLog':
-        emitLog(
-          playerId,
-          Log(
-            call.getString('value'),
-            level: LogLevelExtension.fromInt(call.getInt('level')),
-          ),
-        );
-        break;
-      case 'audio.onGlobalLog':
-        emitGlobalLog(
-          Log(
-            call.getString('value'),
-            level: LogLevelExtension.fromInt(call.getInt('level')),
-          ),
-        );
-        break;
-      default:
-        emitLog(
-          playerId,
-          Log(
-            'Unknown method ${call.method}',
-            level: LogLevel.error,
-          ),
-        );
+    if (call.containsKey('playerId')) {
+      final playerId = call.getString('playerId');
+      switch (call.method) {
+        case 'audio.onDuration':
+          final millis = call.getInt('value');
+          final duration = Duration(milliseconds: millis);
+          emitDuration(playerId, duration);
+          break;
+        case 'audio.onCurrentPosition':
+          final millis = call.getInt('value');
+          final position = Duration(milliseconds: millis);
+          emitPosition(playerId, position);
+          break;
+        case 'audio.onComplete':
+          emitComplete(playerId);
+          break;
+        case 'audio.onSeekComplete':
+          emitSeekComplete(playerId);
+          break;
+        case 'audio.onLog':
+          emitLog(
+            playerId,
+            Log(
+              call.getString('value'),
+              level: LogLevelExtension.fromInt(call.getInt('level')),
+            ),
+          );
+          break;
+        default:
+          emitLog(
+            playerId,
+            Log(
+              'Unknown method ${call.method}',
+              level: LogLevel.error,
+            ),
+          );
+      }
+    } else {
+      switch (call.method) {
+        case 'audio.onGlobalLog':
+          emitGlobalLog(
+            Log(
+              call.getString('value'),
+              level: LogLevelExtension.fromInt(call.getInt('level')),
+            ),
+          );
+          break;
+        default:
+          emitGlobalLog(
+            Log(
+              'Unknown method ${call.method}',
+              level: LogLevel.error,
+            ),
+          );
+      }
     }
   }
 

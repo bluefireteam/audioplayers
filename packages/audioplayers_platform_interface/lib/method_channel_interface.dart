@@ -13,6 +13,8 @@ extension StandardMethodChannel on MethodChannel {
 extension StandardMethodCall on MethodCall {
   Map<dynamic, dynamic> get args => arguments as Map<dynamic, dynamic>;
 
+  bool containsKey(String key) => args.containsKey(key);
+  
   String getString(String key) {
     return args[key] as String;
   }
