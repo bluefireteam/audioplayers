@@ -118,12 +118,12 @@ class AudioContextConfig {
       validateIOS();
     }
     return AudioContextIOS(
-      defaultToSpeaker: forceSpeaker,
       category: respectSilence
           ? AVAudioSessionCategory.ambient
           : AVAudioSessionCategory.playback,
       options: [AVAudioSessionOptions.mixWithOthers] +
-          (duckAudio ? [AVAudioSessionOptions.duckOthers] : []),
+          (duckAudio ? [AVAudioSessionOptions.duckOthers] : []) +
+          (forceSpeaker ? [AVAudioSessionOptions.defaultToSpeaker] : []),
     );
   }
 
@@ -141,9 +141,9 @@ class AudioContext {
   final AudioContextAndroid android;
   final AudioContextIOS iOS;
 
-  AudioContext({
-    required this.android,
-    required this.iOS,
+  const AudioContext({
+    this.android = const AudioContextAndroid(),
+    this.iOS = const AudioContextIOS(),
   });
 
   AudioContext copy({
@@ -178,12 +178,12 @@ class AudioContextAndroid {
   final AndroidUsageType usageType;
   final AndroidAudioFocus? audioFocus;
 
-  AudioContextAndroid({
-    required this.isSpeakerphoneOn,
-    required this.stayAwake,
-    required this.contentType,
-    required this.usageType,
-    required this.audioFocus,
+  const AudioContextAndroid({
+    this.isSpeakerphoneOn = true,
+    this.stayAwake = true,
+    this.contentType = AndroidContentType.music,
+    this.usageType = AndroidUsageType.media,
+    this.audioFocus = AndroidAudioFocus.gain,
   });
 
   AudioContextAndroid copy({
@@ -214,23 +214,22 @@ class AudioContextAndroid {
 }
 
 class AudioContextIOS {
-  final bool defaultToSpeaker;
   final AVAudioSessionCategory category;
   final List<AVAudioSessionOptions> options;
 
-  AudioContextIOS({
-    required this.defaultToSpeaker,
-    required this.category,
-    required this.options,
+  const AudioContextIOS({
+    this.category = AVAudioSessionCategory.playback,
+    this.options = const [
+      AVAudioSessionOptions.mixWithOthers,
+      AVAudioSessionOptions.defaultToSpeaker
+    ],
   });
 
   AudioContextIOS copy({
-    bool? defaultToSpeaker,
     AVAudioSessionCategory? category,
     List<AVAudioSessionOptions>? options,
   }) {
     return AudioContextIOS(
-      defaultToSpeaker: defaultToSpeaker ?? this.defaultToSpeaker,
       category: category ?? this.category,
       options: options ?? this.options,
     );
@@ -238,7 +237,6 @@ class AudioContextIOS {
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
-      'defaultToSpeaker': defaultToSpeaker,
       'category': category.name,
       'options': options.map((e) => e.name).toList(),
     };
