@@ -1,3 +1,7 @@
+## 1.1.4
+
+ - Update a dependency to the latest release.
+
 ## 1.1.3
 
  - **FIX**: Avoid ConcurrentModificationException ([#1297](https://github.com/bluefireteam/audioplayers/issues/1297)). ([d15ef5ab](https://github.com/bluefireteam/audioplayers/commit/d15ef5ab93f11e2f19089af08f1533fcdc1397e6))
