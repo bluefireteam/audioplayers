@@ -3,22 +3,18 @@ import MediaPlayer
 struct AudioContext {
     let category: AVAudioSession.Category
     let options: [AVAudioSession.CategoryOptions]
-    let defaultToSpeaker: Bool
     
     init() {
         self.category = .playAndRecord
         self.options = [.mixWithOthers]
-        self.defaultToSpeaker = false
     }
     
     init(
         category: AVAudioSession.Category,
-        options: [AVAudioSession.CategoryOptions],
-        defaultToSpeaker: Bool
+        options: [AVAudioSession.CategoryOptions]
     ) {
         self.category = category
         self.options = options
-        self.defaultToSpeaker = defaultToSpeaker
     }
     
     func activateAudioSession(
@@ -60,15 +56,9 @@ struct AudioContext {
             return nil
         }
         
-        guard let defaultToSpeaker = args["defaultToSpeaker"] as! Bool? else {
-            Logger.error("Null value received for defaultToSpeaker")
-            return nil
-        }
-        
         return AudioContext(
             category: category,
-            options: options,
-            defaultToSpeaker: defaultToSpeaker
+            options: options
         )
     }
 
