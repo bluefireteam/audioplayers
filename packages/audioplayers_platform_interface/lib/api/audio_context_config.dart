@@ -103,7 +103,6 @@ class AudioContextConfig {
     return AudioContextAndroid(
       isSpeakerphoneOn: forceSpeaker,
       stayAwake: stayAwake,
-      contentType: AndroidContentType.music,
       usageType: respectSilence
           ? AndroidUsageType.notificationRingtone
           : AndroidUsageType.media,
