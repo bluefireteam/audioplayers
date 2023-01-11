@@ -1,13 +1,14 @@
 This file describes some common pitfalls and how to solve them. Please always refer to this before opening an issue.
 
-## Supported Formats/Encodings
+## Supported Formats / Encodings
 
 Not all formats are supported by all platforms. Essentially `audioplayers` is just centralized interface that communicate with native audio players on each platform. We are not parsing the bytes of your song. Each platform has its own native support. Please do not open issues regarding encoding/file format compatibility unless it is an AudioPlayers specific issue.
 
 You can check a list of supported formats below:
 
 - [Android](https://developer.android.com/guide/topics/media/media-formats.html)
-- [iOS/macOS](https://www.techotopia.com/index.php/Playing_Audio_on_iOS_8_using_AVAudioPlayer#Supported_Audio_Formats)
+- [iOS](https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/MultimediaPG/UsingAudio/UsingAudio.html#//apple_ref/doc/uid/TP40009767-CH2-SW33)
+- [macOS](https://developer.apple.com/library/archive/documentation/MusicAudio/Conceptual/CoreAudioOverview/SupportedAudioFormatsMacOSX/SupportedAudioFormatsMacOSX.html#//apple_ref/doc/uid/TP40003577-CH7-SW1)
 - Web: audio formats supported by the browser you are using ([more details](https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Audio_codecs))
 - [Windows](https://learn.microsoft.com/en-us/windows/win32/medfound/supported-media-formats-in-media-foundation)
 - Linux: List of defined [audio types](https://gstreamer.freedesktop.org/documentation/plugin-development/advanced/media-types.html?gi-language=c#table-of-audio-types) and their according [Plugins](https://gstreamer.freedesktop.org/documentation/plugins_doc.html?gi-language=c)
