@@ -95,7 +95,7 @@ One of the know reasons for streams not playing is that the stream is being gzip
 
 ## Gapless Looping
 
-Depending on the file format and platform, when audioplayers uses the native implementation of the "looping" feature, there will be gaps between plays, witch might not be noticeable for non-continuous SFX but will definitely be noticeable for looping songs.
+Depending on the file format and platform, when audioplayers uses the native implementation of the "looping" feature, there will be gaps between plays, which might not be noticeable for non-continuous SFX but will definitely be noticeable for looping songs.
 
 TODO(luan): break down alternatives here, low latency mode, audio pool, gapless_audioplayer, ocarina, etc
 
