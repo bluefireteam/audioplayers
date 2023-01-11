@@ -8,15 +8,15 @@ A Flutter plugin to play multiple simultaneously audio files, works for Android,
 
 **Note**: all the docs have been update to reflect the content for the v1 release. If you are looking for v0 specific information and guidance, please checkout [the version of this repo before the first v0 change](https://github.com/bluefireteam/audioplayers/tree/46816bf55859c9c88b204e3828cce6190ff87483).
 
-If you are interest in migrating to v1, please check [our migration guide](migration_guide.md).
+If you are interest in migrating to v1, please check [our migration guide](https://github.com/bluefireteam/audioplayers/blob/main/migration_guide.md).
 
 ## Help
 
 If you have any problems, please follow these steps before opening an issue.
 
-1. Carefully read the [Getting Started tutorial](getting_started.md) before anything else. Re-read if necessary.
+1. Carefully read the [Getting Started tutorial](https://github.com/bluefireteam/audioplayers/blob/main/getting_started.md) before anything else. Re-read if necessary.
 1. Check our [Troubleshooting Guide](https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md) for solutions for most problems.
-1. If you have a missing feature report or feature request, please first check the [Feature Parity Table](feature_parity_table.md) to understand our roadmap and what we know is missing. We love contributions!
+1. If you have a missing feature report or feature request, please first check the [Feature Parity Table](https://github.com/bluefireteam/audioplayers/blob/main/feature_parity_table.md) to understand our roadmap and what we know is missing. We love contributions!
 1. Join [Blue Fire's Discord server](https://discord.gg/5unKpdQD78) and ask for directions. Maybe it's not a bug, or it's a known issue.
 1. If you are more comfortable with StackOverflow, you can also create a question there. Add the generic [Flame tag](https://stackoverflow.com/questions/tagged/flame), so that anyone following the tag can help out.
 1. If the issue still persists, go to the [create an issue](https://github.com/bluefireteam/audioplayers/issues/new/choose) page and follow the step-by-step there before submitting.
@@ -26,9 +26,9 @@ Any issues created not following the list above can be flagged or closed by our 
 
 ## Contributing
 
-All help is appreciated but if you have questions, bug reports, issues, feature requests, pull requests, etc, please first refer to our [Contributing Guide](contributing.md).
+All help is appreciated but if you have questions, bug reports, issues, feature requests, pull requests, etc, please first refer to our [Contributing Guide](https://github.com/bluefireteam/audioplayers/blob/main/contributing.md).
 
-Be sure to check the [Feature Parity Table](feature_parity_table.md) to understand if your suggestion is already tracked, on the roadmap, or out of scope for this project.
+Be sure to check the [Feature Parity Table](https://github.com/bluefireteam/audioplayers/blob/main/feature_parity_table.md) to understand if your suggestion is already tracked, on the roadmap, or out of scope for this project.
 
 Also, as always, please give us a star to help!
 
@@ -36,7 +36,7 @@ Also, as always, please give us a star to help!
 
 We tried to make audioplayers as simple to use as possible.
 
-Please follow our [Getting Started tutorial](getting_started.md) for all high-level information you need to know.
+Please follow our [Getting Started tutorial](https://github.com/bluefireteam/audioplayers/blob/main/getting_started.md) for all high-level information you need to know.
 
 Then, if you want to dig deeper, our code is very well documented with dartdocs, so check [our API reference](https://pub.dev/documentation/audioplayers/latest/) or the codebase itself on your IDE (or on GitHub).
 
@@ -58,7 +58,7 @@ Or by making a single donation by buying us a coffee:
 
 ## Feature Parity Table
 
-Not all features are available on all platforms. [Click here](feature_parity_table.md) to see a table relating what features can be used on each target.
+Not all features are available on all platforms. [Click here](https://github.com/bluefireteam/audioplayers/blob/main/feature_parity_table.md) to see a table relating what features can be used on each target.
 
 Feel free to use it for ideas for possible PRs and contributions you can help with on our roadmap! If you are submitting a PR, don't forget to update the table.
 

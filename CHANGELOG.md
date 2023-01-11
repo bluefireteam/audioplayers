@@ -3,6 +3,49 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2023-01-10
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - [`audioplayers` - `v2.0.0`](#audioplayers---v200)
+ - [`audioplayers_darwin` - `v2.0.0`](#audioplayers_darwin---v200)
+ - [`audioplayers_platform_interface` - `v3.0.0`](#audioplayers_platform_interface---v300)
+
+Packages with other changes:
+
+ - [`audioplayers_android` - `v1.1.4`](#audioplayers_android---v114)
+ - [`audioplayers_windows` - `v1.1.2`](#audioplayers_windows---v112)
+ - [`audioplayers_linux` - `v1.0.3`](#audioplayers_linux---v103)
+ - [`audioplayers_web` - `v2.1.1`](#audioplayers_web---v211)
+
+Packages with dependency updates only:
+
+> Packages listed below depend on other packages in this workspace that have had changes. Their versions have been incremented to bump the minimum dependency versions of the packages they depend upon in this project.
+
+ - `audioplayers_android` - `v1.1.4`
+ - `audioplayers_windows` - `v1.1.2`
+ - `audioplayers_linux` - `v1.0.3`
+ - `audioplayers_web` - `v2.1.1`
+
+---
+
+#### `audioplayers` - `v2.0.0`
+
+ - **BREAKING** **FIX**: remove unused `defaultToSpeaker` in `AudioContextIOS` and replace with `AVAudioSessionOptions.defaultToSpeaker` ([#1374](https://github.com/bluefireteam/audioplayers/issues/1374)). ([d844ef9d](https://github.com/bluefireteam/audioplayers/commit/d844ef9def06fd5047076d9f4c371ad3be4c8dd5))
+
+#### `audioplayers_darwin` - `v2.0.0`
+
+ - **BREAKING** **FIX**: remove unused `defaultToSpeaker` in `AudioContextIOS` and replace with `AVAudioSessionOptions.defaultToSpeaker` ([#1374](https://github.com/bluefireteam/audioplayers/issues/1374)). ([d844ef9d](https://github.com/bluefireteam/audioplayers/commit/d844ef9def06fd5047076d9f4c371ad3be4c8dd5))
+
+#### `audioplayers_platform_interface` - `v3.0.0`
+
+ - **BREAKING** **FIX**: remove unused `defaultToSpeaker` in `AudioContextIOS` and replace with `AVAudioSessionOptions.defaultToSpeaker` ([#1374](https://github.com/bluefireteam/audioplayers/issues/1374)). ([d844ef9d](https://github.com/bluefireteam/audioplayers/commit/d844ef9def06fd5047076d9f4c371ad3be4c8dd5))
+
+
 ## 2023-01-01
 
 ### Changes
