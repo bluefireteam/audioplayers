@@ -4,11 +4,11 @@ Despite several major infrastructural changes in v1.0.0, it should be very easy 
 
 This document contains the list of major changes to be aware of.
 
-First step is to add the lastest version (see [pub.dev](https://pub.dev/packages/audioplayers) for the latest version) to your `pubspec.yaml`:
+First step is to add the latest version (see [pub.dev](https://pub.dev/packages/audioplayers) for the latest version) to your `pubspec.yaml`:
 
 ```yaml
   dependencies:
-    audioplayers: ^1.0.1
+    audioplayers: ^2.0.0
 ```
 
 ## Federation, simplified platform interface
