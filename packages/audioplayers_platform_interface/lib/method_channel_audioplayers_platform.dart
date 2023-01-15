@@ -1,5 +1,4 @@
 import 'dart:async';
-
 // TODO(gustl22): remove when upgrading min Flutter version to >=3.3.0
 // ignore: unnecessary_import
 import 'dart:typed_data';
@@ -8,7 +7,7 @@ import 'package:audioplayers_platform_interface/api/audio_context_config.dart';
 import 'package:audioplayers_platform_interface/api/player_mode.dart';
 import 'package:audioplayers_platform_interface/api/release_mode.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
-import 'package:audioplayers_platform_interface/logger_platform_interface.dart';
+import 'package:audioplayers_platform_interface/global_platform_interface.dart';
 import 'package:audioplayers_platform_interface/method_channel_interface.dart';
 import 'package:audioplayers_platform_interface/streams_interface.dart';
 import 'package:flutter/services.dart';
