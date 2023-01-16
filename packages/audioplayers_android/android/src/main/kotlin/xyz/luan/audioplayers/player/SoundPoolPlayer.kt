@@ -190,7 +190,7 @@ class SoundPoolPlayer(
 }
 
 class SoundPoolWrapper {
-    lateinit var soundPools: HashMap<AudioContextAndroid, SoundPool>
+    var soundPools = HashMap<AudioContextAndroid, SoundPool>()
 
     /** For the onLoadComplete listener, track which sound id is associated with which player. An entry only exists until
      * it has been loaded.
