@@ -1,3 +1,7 @@
+## 1.0.3
+
+ - Update a dependency to the latest release.
+
 ## 1.0.2
 
  - **FIX**: play sound, when initialized ([#1332](https://github.com/bluefireteam/audioplayers/issues/1332)). ([2ed91fee](https://github.com/bluefireteam/audioplayers/commit/2ed91feec4d3528a4edff635331bd3aad938afd7))

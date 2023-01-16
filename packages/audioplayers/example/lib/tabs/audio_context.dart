@@ -117,7 +117,6 @@ class _AudioContextTabState extends State<AudioContextTab>
     final i = config.buildIOS();
     return Column(
       children: [
-        Text('defaultToSpeaker: ${i.defaultToSpeaker}'),
         Text('category: ${i.category}'),
         Text('options: ${i.options}'),
       ],

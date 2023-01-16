@@ -5,7 +5,7 @@ import 'package:js/js.dart';
 @JS('AudioContext')
 @staticInterop
 class JsAudioContext {
-  external JsAudioContext();
+  external factory JsAudioContext();
 }
 
 extension JsAudioContextExtension on JsAudioContext {
@@ -21,7 +21,7 @@ extension JsAudioContextExtension on JsAudioContext {
 @JS()
 @staticInterop
 abstract class AudioNode {
-  external AudioNode();
+  external factory AudioNode();
 }
 
 extension AudioNodeExtension on AudioNode {
@@ -31,7 +31,7 @@ extension AudioNodeExtension on AudioNode {
 @JS()
 @staticInterop
 class AudioParam {
-  external AudioParam();
+  external factory AudioParam();
 }
 
 extension AudioParamExtension on AudioParam {
@@ -41,7 +41,7 @@ extension AudioParamExtension on AudioParam {
 @JS()
 @staticInterop
 class StereoPannerNode implements AudioNode {
-  external StereoPannerNode();
+  external factory StereoPannerNode();
 }
 
 extension StereoPannerNodeExtension on StereoPannerNode {
@@ -51,5 +51,5 @@ extension StereoPannerNodeExtension on StereoPannerNode {
 @JS()
 @staticInterop
 class MediaElementAudioSourceNode implements AudioNode {
-  external MediaElementAudioSourceNode();
+  external factory MediaElementAudioSourceNode();
 }
