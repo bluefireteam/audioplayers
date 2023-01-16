@@ -207,7 +207,6 @@ class SoundPoolWrapper {
     fun createSoundPool(maxStreams: Int, audioContext: AudioContextAndroid) {
         if (!soundPools.containsKey(audioContext)) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                // TODO(luan): this should consider updateAttributes configs. we would need one pool per config
                 val attrs = audioContext.buildAttributes()
                 soundPools[audioContext] = SoundPool.Builder()
                     .setAudioAttributes(attrs)

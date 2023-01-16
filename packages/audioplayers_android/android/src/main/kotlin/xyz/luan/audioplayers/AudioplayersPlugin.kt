@@ -39,12 +39,12 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
 
     override fun onAttachedToEngine(binding: FlutterPluginBinding) {
         context = binding.applicationContext
+        soundPoolWrapper = SoundPoolWrapper()
         channel = MethodChannel(binding.binaryMessenger, "xyz.luan/audioplayers")
         channel.setMethodCallHandler { call, response -> safeCall(call, response, ::handler) }
         globalChannel = MethodChannel(binding.binaryMessenger, "xyz.luan/audioplayers.global")
         globalChannel.setMethodCallHandler { call, response -> safeCall(call, response, ::globalHandler) }
         updateRunnable = UpdateRunnable(players, channel, handler, this)
-        soundPoolWrapper = SoundPoolWrapper()
     }
 
     override fun onDetachedFromEngine(binding: FlutterPluginBinding) {

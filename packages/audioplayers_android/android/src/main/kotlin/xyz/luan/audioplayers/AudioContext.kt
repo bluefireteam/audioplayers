@@ -7,7 +7,7 @@ import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Build
 import androidx.annotation.RequiresApi
-import java.util.*
+import java.util.Objects
 
 data class AudioContextAndroid(
     val isSpeakerphoneOn: Boolean,
