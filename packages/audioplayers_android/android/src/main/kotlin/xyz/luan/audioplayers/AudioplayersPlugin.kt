@@ -13,6 +13,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import xyz.luan.audioplayers.player.SoundPoolWrapper
 import xyz.luan.audioplayers.player.WrappedPlayer
 import xyz.luan.audioplayers.source.BytesSource
 import xyz.luan.audioplayers.source.UrlSource
@@ -28,6 +29,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
     private lateinit var channel: MethodChannel
     private lateinit var globalChannel: MethodChannel
     private lateinit var context: Context
+    private lateinit var soundPoolWrapper: SoundPoolWrapper
 
     private val players = ConcurrentHashMap<String, WrappedPlayer>()
     private val handler = Handler(Looper.getMainLooper())
@@ -42,6 +44,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
         globalChannel = MethodChannel(binding.binaryMessenger, "xyz.luan/audioplayers.global")
         globalChannel.setMethodCallHandler { call, response -> safeCall(call, response, ::globalHandler) }
         updateRunnable = UpdateRunnable(players, channel, handler, this)
+        soundPoolWrapper = SoundPoolWrapper()
     }
 
     override fun onDetachedFromEngine(binding: FlutterPluginBinding) {
@@ -50,6 +53,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
         players.values.forEach { it.release() }
         players.clear()
         mainScope.cancel()
+        soundPoolWrapper.dispose()
     }
 
     private fun safeCall(
@@ -150,7 +154,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
 
     private fun getPlayer(playerId: String): WrappedPlayer {
         return players.getOrPut(playerId) {
-            WrappedPlayer(this, playerId, defaultAudioContext.copy())
+            WrappedPlayer(this, playerId, defaultAudioContext.copy(), soundPoolWrapper)
         }
     }
 

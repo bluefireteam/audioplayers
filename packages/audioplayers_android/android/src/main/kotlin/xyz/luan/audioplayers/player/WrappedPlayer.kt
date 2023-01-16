@@ -18,6 +18,7 @@ class WrappedPlayer internal constructor(
     private val ref: AudioplayersPlugin,
     val playerId: String,
     var context: AudioContextAndroid,
+    private val soundPoolWrapper: SoundPoolWrapper,
 ) {
     private var player: Player? = null
 
@@ -286,7 +287,7 @@ class WrappedPlayer internal constructor(
     private fun createPlayer(): Player {
         return when (playerMode) {
             MEDIA_PLAYER -> MediaPlayerPlayer(this)
-            LOW_LATENCY -> SoundPoolPlayer(this)
+            LOW_LATENCY -> SoundPoolPlayer(this, soundPoolWrapper)
         }
     }
 
