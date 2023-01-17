@@ -78,11 +78,11 @@ class SoundPoolPlayer(
     }
 
     override fun updateContext(context: AudioContextAndroid) {
-        audioContext = context
         soundPoolManager.createSoundPool(MAX_STREAMS, context)
-        val tmpSoundPool = soundPoolManager.soundPoolWrappers[audioContext]
+        val tmpSoundPool = soundPoolManager.soundPoolWrappers[context]
         if (tmpSoundPool != null) {
             release()
+            audioContext = context
             soundPoolWrapper = tmpSoundPool
             soundPool = soundPoolWrapper.soundPool
             urlSource?.let { setUrlSource(it) }
