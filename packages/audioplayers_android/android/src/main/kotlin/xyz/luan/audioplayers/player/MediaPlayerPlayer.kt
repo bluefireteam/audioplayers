@@ -7,7 +7,7 @@ import xyz.luan.audioplayers.AudioContextAndroid
 import xyz.luan.audioplayers.source.Source
 
 class MediaPlayerPlayer(
-    private val wrappedPlayer: WrappedPlayer,
+        private val wrappedPlayer: WrappedPlayer,
 ) : Player {
     private val mediaPlayer = createMediaPlayer(wrappedPlayer)
 
@@ -42,7 +42,9 @@ class MediaPlayerPlayer(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             mediaPlayer.playbackParams = mediaPlayer.playbackParams.setSpeed(rate)
         } else {
-            error("Changing the playback rate is only available for Android M/23+ or using LOW_LATENCY mode.")
+            if (rate != 1.0f) {
+                error("Changing the playback rate is only available for Android M/23+ or using LOW_LATENCY mode.")
+            }
         }
     }
 
