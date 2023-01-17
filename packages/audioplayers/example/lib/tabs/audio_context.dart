@@ -192,12 +192,53 @@ class _AudioContextTabState extends State<AudioContextTab>
   }
 
   Widget _iosTab() {
-    final i = config.buildIOS();
     return Column(
       children: [
-        Text('category: ${i.category}'),
-        Text('options: ${i.options}'),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('category'),
+            EnumTgl<AVAudioSessionCategory>(
+              key: const Key('category'),
+              options: {
+                for (var e in AVAudioSessionCategory.values)
+                  'category-${e.name}': e
+              },
+              selected: audioContext.iOS.category,
+              onChange: (v) => updateAudioContextIOS(
+                audioContext.iOS.copy(category: v),
+              ),
+            ),
+          ],
+        ),
+        getIosOptionsCbx(AVAudioSessionOptions.defaultToSpeaker),
+        getIosOptionsCbx(AVAudioSessionOptions.allowAirPlay),
+        getIosOptionsCbx(AVAudioSessionOptions.allowBluetooth),
+        getIosOptionsCbx(AVAudioSessionOptions.allowBluetoothA2DP),
+        getIosOptionsCbx(AVAudioSessionOptions.duckOthers),
+        getIosOptionsCbx(
+            AVAudioSessionOptions.interruptSpokenAudioAndMixWithOthers,),
+        getIosOptionsCbx(AVAudioSessionOptions.mixWithOthers),
+        getIosOptionsCbx(
+            AVAudioSessionOptions.overrideMutedMicrophoneInterruption,),
       ],
+    );
+  }
+
+  Widget getIosOptionsCbx(AVAudioSessionOptions option) {
+    return Cbx(
+      option.name,
+      audioContext.iOS.options.contains(option),
+      (v) {
+        if (v) {
+          audioContext.iOS.options.add(option);
+        } else {
+          audioContext.iOS.options.remove(option);
+        }
+        updateAudioContextIOS(
+          audioContext.iOS.copy(options: audioContext.iOS.options),
+        );
+      },
     );
   }
 
