@@ -217,7 +217,7 @@ class SoundPoolManager(initialAudioContext: AudioContextAndroid) {
     init {
         createSoundPool(MAX_STREAMS, initialAudioContext)
         for (soundPoolEntry in soundPoolWrappers) {
-            val soundPoolWrapper = soundPoolEntry.value;
+            val soundPoolWrapper = soundPoolEntry.value
             soundPoolWrapper.soundPool.setOnLoadCompleteListener { _, sampleId, _ ->
                 Logger.info("Loaded $sampleId")
                 val loadingPlayer = soundPoolWrapper.soundIdToPlayer[sampleId]
