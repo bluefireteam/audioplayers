@@ -1,6 +1,5 @@
 package xyz.luan.audioplayers.player
 
-import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.SoundPool
 import android.os.Build
@@ -23,7 +22,7 @@ class SoundPoolPlayer(
 
     /** The id of the stream / player */
     private var streamId: Int? = null
-    
+
     private var audioContext = wrappedPlayer.context
 
     val urlSource: UrlSource?
@@ -189,7 +188,7 @@ class SoundPoolPlayer(
     }
 }
 
-class SoundPoolWrapper {
+class SoundPoolWrapper(initialAudioContext: AudioContextAndroid) {
     var soundPools = HashMap<AudioContextAndroid, SoundPool>()
 
     /** For the onLoadComplete listener, track which sound id is associated with which player. An entry only exists until
@@ -220,16 +219,7 @@ class SoundPoolWrapper {
     }
 
     init {
-        createSoundPool(
-            MAX_STREAMS,
-            AudioContextAndroid(
-                isSpeakerphoneOn = false,
-                stayAwake = false,
-                contentType = AudioAttributes.CONTENT_TYPE_MUSIC,
-                usageType = AudioAttributes.USAGE_GAME,
-                audioFocus = null
-            ),
-        )
+        createSoundPool(MAX_STREAMS, initialAudioContext)
         for (soundPoolEntry in soundPools) {
             soundPoolEntry.value.setOnLoadCompleteListener { _, sampleId, _ ->
                 Logger.info("Loaded $sampleId")

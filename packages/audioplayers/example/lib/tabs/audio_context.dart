@@ -3,6 +3,7 @@ import 'package:audioplayers_example/components/btn.dart';
 import 'package:audioplayers_example/components/cbx.dart';
 import 'package:audioplayers_example/components/tab_wrapper.dart';
 import 'package:audioplayers_example/components/tabs.dart';
+import 'package:audioplayers_example/components/tgl.dart';
 import 'package:flutter/material.dart';
 
 class AudioContextTab extends StatefulWidget {
@@ -18,7 +19,11 @@ class _AudioContextTabState extends State<AudioContextTab>
     with AutomaticKeepAliveClientMixin<AudioContextTab> {
   static GlobalPlatformInterface get _global => AudioPlayer.global;
 
+  /// Set config for all platforms
   AudioContextConfig config = AudioContextConfig();
+
+  /// Set config for each platform individually
+  AudioContext audioContext = const AudioContext();
 
   @override
   Widget build(BuildContext context) {
@@ -35,11 +40,11 @@ class _AudioContextTabState extends State<AudioContextTab>
             ),
             Btn(
               txt: 'Global',
-              onPressed: () => _global.setGlobalAudioContext(config.build()),
+              onPressed: () => _global.setGlobalAudioContext(audioContext),
             ),
             Btn(
               txt: 'Local',
-              onPressed: () => widget.player.setAudioContext(config.build()),
+              onPressed: () => widget.player.setAudioContext(audioContext),
             )
           ],
         ),
@@ -70,7 +75,22 @@ class _AudioContextTabState extends State<AudioContextTab>
   }
 
   void updateConfig(AudioContextConfig newConfig) {
-    setState(() => config = newConfig);
+    setState(() {
+      config = newConfig;
+      audioContext = config.build();
+    });
+  }
+
+  void updateAudioContextAndroid(AudioContextAndroid contextAndroid) {
+    setState(() {
+      audioContext = audioContext.copy(android: contextAndroid);
+    });
+  }
+
+  void updateAudioContextIOS(AudioContextIOS contextIOS) {
+    setState(() {
+      audioContext = audioContext.copy(iOS: contextIOS);
+    });
   }
 
   Widget _genericTab() {
@@ -101,14 +121,72 @@ class _AudioContextTabState extends State<AudioContextTab>
   }
 
   Widget _androidTab() {
-    final a = config.buildAndroid();
     return Column(
       children: [
-        Text('isSpeakerphoneOn: ${a.isSpeakerphoneOn}'),
-        Text('stayAwake: ${a.stayAwake}'),
-        Text('contentType: ${a.contentType}'),
-        Text('usageType: ${a.usageType}'),
-        Text('audioFocus: ${a.audioFocus}'),
+        Cbx(
+          'isSpeakerphoneOn',
+          audioContext.android.isSpeakerphoneOn,
+          (v) => updateAudioContextAndroid(
+            audioContext.android.copy(isSpeakerphoneOn: v),
+          ),
+        ),
+        Cbx(
+          'stayAwake',
+          audioContext.android.stayAwake,
+          (v) => updateAudioContextAndroid(
+            audioContext.android.copy(stayAwake: v),
+          ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('contentType'),
+            EnumTgl<AndroidContentType>(
+              key: const Key('contentType'),
+              options: {
+                for (var e in AndroidContentType.values)
+                  'contentType-${e.name}': e
+              },
+              selected: audioContext.android.contentType,
+              onChange: (v) => updateAudioContextAndroid(
+                audioContext.android.copy(contentType: v),
+              ),
+            ),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('usageType'),
+            EnumTgl<AndroidUsageType>(
+              key: const Key('usageType'),
+              options: {
+                for (var e in AndroidUsageType.values) 'usageType-${e.name}': e
+              },
+              selected: audioContext.android.usageType,
+              onChange: (v) => updateAudioContextAndroid(
+                audioContext.android.copy(usageType: v),
+              ),
+            ),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('audioFocus'),
+            EnumTgl<AndroidAudioFocus?>(
+              key: const Key('audioFocus'),
+              options: {
+                for (var e in AndroidAudioFocus.values)
+                  'audioFocus-${e.name}': e
+              },
+              selected: audioContext.android.audioFocus,
+              onChange: (v) => updateAudioContextAndroid(
+                audioContext.android.copy(audioFocus: v),
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }
