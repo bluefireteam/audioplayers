@@ -82,8 +82,10 @@ class SoundPoolPlayer(
         soundPoolManager.createSoundPool(MAX_STREAMS, context)
         val tmpSoundPool = soundPoolManager.soundPoolWrappers[audioContext]
         if (tmpSoundPool != null) {
+            release()
             soundPoolWrapper = tmpSoundPool
             soundPool = soundPoolWrapper.soundPool
+            urlSource?.let { setUrlSource(it) }
         }
     }
 
