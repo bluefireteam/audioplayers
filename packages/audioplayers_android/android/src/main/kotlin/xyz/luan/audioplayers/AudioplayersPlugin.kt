@@ -13,7 +13,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import xyz.luan.audioplayers.player.SoundPoolWrapper
+import xyz.luan.audioplayers.player.SoundPoolManager
 import xyz.luan.audioplayers.player.WrappedPlayer
 import xyz.luan.audioplayers.source.BytesSource
 import xyz.luan.audioplayers.source.UrlSource
@@ -29,7 +29,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
     private lateinit var channel: MethodChannel
     private lateinit var globalChannel: MethodChannel
     private lateinit var context: Context
-    private lateinit var soundPoolWrapper: SoundPoolWrapper
+    private lateinit var soundPoolWrapper: SoundPoolManager
 
     private val players = ConcurrentHashMap<String, WrappedPlayer>()
     private val handler = Handler(Looper.getMainLooper())
@@ -39,7 +39,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
 
     override fun onAttachedToEngine(binding: FlutterPluginBinding) {
         context = binding.applicationContext
-        soundPoolWrapper = SoundPoolWrapper()
+        soundPoolWrapper = SoundPoolManager()
         channel = MethodChannel(binding.binaryMessenger, "xyz.luan/audioplayers")
         channel.setMethodCallHandler { call, response -> safeCall(call, response, ::handler) }
         globalChannel = MethodChannel(binding.binaryMessenger, "xyz.luan/audioplayers.global")

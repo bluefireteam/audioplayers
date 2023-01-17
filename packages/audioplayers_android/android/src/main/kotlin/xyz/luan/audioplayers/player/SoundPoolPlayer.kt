@@ -14,7 +14,7 @@ const val MAX_STREAMS = 100
 
 class SoundPoolPlayer(
     val wrappedPlayer: WrappedPlayer,
-    private val soundPoolWrapper: SoundPoolWrapper,
+    private val soundPoolManager: SoundPoolManager,
 ) : Player {
 
     /** The id of the sound of source which will be played */
@@ -29,16 +29,19 @@ class SoundPoolPlayer(
         get() = wrappedPlayer.source as? UrlSource
 
     /** The android sound pool */
+    private lateinit var soundPoolWrapper: SoundPoolWrapper
+
     private lateinit var soundPool: SoundPool
 
     init {
-        var tmpSoundPool = soundPoolWrapper.soundPools[audioContext]
+        var tmpSoundPool = soundPoolManager.soundPoolWrappers[audioContext]
         if (tmpSoundPool == null) {
-            soundPoolWrapper.createSoundPool(MAX_STREAMS, audioContext)
-            tmpSoundPool = soundPoolWrapper.soundPools[audioContext]
+            soundPoolManager.createSoundPool(MAX_STREAMS, audioContext)
+            tmpSoundPool = soundPoolManager.soundPoolWrappers[audioContext]
         }
         if (tmpSoundPool != null) {
-            soundPool = tmpSoundPool
+            soundPoolWrapper = tmpSoundPool
+            soundPool = soundPoolWrapper.soundPool
         }
     }
 
@@ -76,10 +79,11 @@ class SoundPoolPlayer(
 
     override fun updateContext(context: AudioContextAndroid) {
         audioContext = context
-        soundPoolWrapper.createSoundPool(MAX_STREAMS, context)
-        val tmpSoundPool = soundPoolWrapper.soundPools[audioContext]
+        soundPoolManager.createSoundPool(MAX_STREAMS, context)
+        val tmpSoundPool = soundPoolManager.soundPoolWrappers[audioContext]
         if (tmpSoundPool != null) {
-            soundPool = tmpSoundPool
+            soundPoolWrapper = tmpSoundPool
+            soundPool = soundPoolWrapper.soundPool
         }
     }
 
@@ -188,48 +192,39 @@ class SoundPoolPlayer(
     }
 }
 
-class SoundPoolWrapper(initialAudioContext: AudioContextAndroid) {
-    var soundPools = HashMap<AudioContextAndroid, SoundPool>()
-
-    /** For the onLoadComplete listener, track which sound id is associated with which player. An entry only exists until
-     * it has been loaded.
-     */
-    val soundIdToPlayer: MutableMap<Int, SoundPoolPlayer> = synchronizedMap(mutableMapOf<Int, SoundPoolPlayer>())
-
-    /** This is to keep track of the players which share the same sound id, referenced by url. When a player release()s, it
-     * is removed from the associated player list. The last player to be removed actually unloads() the sound id and then
-     * the url is removed from this map.
-     */
-    val urlToPlayers: MutableMap<UrlSource, MutableList<SoundPoolPlayer>> =
-        synchronizedMap(mutableMapOf<UrlSource, MutableList<SoundPoolPlayer>>())
+class SoundPoolManager(initialAudioContext: AudioContextAndroid) {
+    var soundPoolWrappers = HashMap<AudioContextAndroid, SoundPoolWrapper>()
 
     fun createSoundPool(maxStreams: Int, audioContext: AudioContextAndroid) {
         if (!soundPools.containsKey(audioContext)) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 val attrs = audioContext.buildAttributes()
-                soundPools[audioContext] = SoundPool.Builder()
-                    .setAudioAttributes(attrs)
-                    .setMaxStreams(maxStreams)
-                    .build()
+                soundPoolWrappers[audioContext] = SoundPoolWrapper(
+                    SoundPool.Builder()
+                        .setAudioAttributes(attrs)
+                        .setMaxStreams(maxStreams)
+                        .build()
+                )
             } else {
                 @Suppress("DEPRECATION")
-                soundPools[audioContext] = SoundPool(maxStreams, AudioManager.STREAM_MUSIC, 0)
+                soundPoolWrappers[audioContext] = SoundPoolWrapper(SoundPool(maxStreams, AudioManager.STREAM_MUSIC, 0))
             }
         }
     }
 
     init {
         createSoundPool(MAX_STREAMS, initialAudioContext)
-        for (soundPoolEntry in soundPools) {
-            soundPoolEntry.value.setOnLoadCompleteListener { _, sampleId, _ ->
+        for (soundPoolEntry in soundPoolWrappers) {
+            val soundPoolWrapper = soundPoolEntry.value;
+            soundPoolWrapper.soundPool.setOnLoadCompleteListener { _, sampleId, _ ->
                 Logger.info("Loaded $sampleId")
-                val loadingPlayer = soundIdToPlayer[sampleId]
+                val loadingPlayer = soundPoolWrapper.soundIdToPlayer[sampleId]
                 val urlSource = loadingPlayer?.urlSource
                 if (urlSource != null) {
-                    soundIdToPlayer.remove(loadingPlayer.soundId)
+                    soundPoolWrapper.soundIdToPlayer.remove(loadingPlayer.soundId)
                     // Now mark all players using this sound as not loading and start them if necessary
-                    synchronized(urlToPlayers) {
-                        val urlPlayers = urlToPlayers[urlSource] ?: listOf()
+                    synchronized(soundPoolWrapper.urlToPlayers) {
+                        val urlPlayers = soundPoolWrapper.urlToPlayers[urlSource] ?: listOf()
                         for (player in urlPlayers) {
                             Logger.info("Marking $player as loaded")
                             player.wrappedPlayer.prepared = true
@@ -245,10 +240,29 @@ class SoundPoolWrapper(initialAudioContext: AudioContextAndroid) {
     }
 
     fun dispose() {
-        for (soundPoolEntry in soundPools) {
-            soundPoolEntry.value.release()
+        for (soundPoolEntry in soundPoolWrappers) {
+            soundPoolEntry.value.dispose()
         }
-        soundPools.clear()
+        soundPoolWrappers.clear()
+    }
+}
+
+class SoundPoolWrapper(val soundPool: SoundPool) {
+
+    /** For the onLoadComplete listener, track which sound id is associated with which player. An entry only exists until
+     * it has been loaded.
+     */
+    val soundIdToPlayer: MutableMap<Int, SoundPoolPlayer> = synchronizedMap(mutableMapOf<Int, SoundPoolPlayer>())
+
+    /** This is to keep track of the players which share the same sound id, referenced by url. When a player release()s, it
+     * is removed from the associated player list. The last player to be removed actually unloads() the sound id and then
+     * the url is removed from this map.
+     */
+    val urlToPlayers: MutableMap<UrlSource, MutableList<SoundPoolPlayer>> =
+        synchronizedMap(mutableMapOf<UrlSource, MutableList<SoundPoolPlayer>>())
+
+    fun dispose() {
+        soundPool.release()
         soundIdToPlayer.clear()
         urlToPlayers.clear()
     }

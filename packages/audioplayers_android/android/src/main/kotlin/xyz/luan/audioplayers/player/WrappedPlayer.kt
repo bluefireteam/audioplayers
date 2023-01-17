@@ -18,7 +18,7 @@ class WrappedPlayer internal constructor(
     private val ref: AudioplayersPlugin,
     val playerId: String,
     var context: AudioContextAndroid,
-    private val soundPoolWrapper: SoundPoolWrapper,
+    private val soundPoolWrapper: SoundPoolManager,
 ) {
     private var player: Player? = null
 
