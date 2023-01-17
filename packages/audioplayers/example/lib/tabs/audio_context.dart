@@ -141,12 +141,9 @@ class _AudioContextTabState extends State<AudioContextTab>
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Text('contentType'),
-            EnumTgl<AndroidContentType>(
+            CustomDropDown<AndroidContentType>(
               key: const Key('contentType'),
-              options: {
-                for (var e in AndroidContentType.values)
-                  'contentType-${e.name}': e
-              },
+              options: {for (var e in AndroidContentType.values) e: e.name},
               selected: audioContext.android.contentType,
               onChange: (v) => updateAudioContextAndroid(
                 audioContext.android.copy(contentType: v),
@@ -158,10 +155,10 @@ class _AudioContextTabState extends State<AudioContextTab>
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Text('usageType'),
-            EnumTgl<AndroidUsageType>(
+            CustomDropDown<AndroidUsageType>(
               key: const Key('usageType'),
               options: {
-                for (var e in AndroidUsageType.values) 'usageType-${e.name}': e
+                for (var e in AndroidUsageType.values) e: e.name
               },
               selected: audioContext.android.usageType,
               onChange: (v) => updateAudioContextAndroid(
@@ -174,11 +171,11 @@ class _AudioContextTabState extends State<AudioContextTab>
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Text('audioFocus'),
-            EnumTgl<AndroidAudioFocus?>(
+            CustomDropDown<AndroidAudioFocus?>(
               key: const Key('audioFocus'),
               options: {
                 for (var e in AndroidAudioFocus.values)
-                  'audioFocus-${e.name}': e
+                  e: e.name
               },
               selected: audioContext.android.audioFocus,
               onChange: (v) => updateAudioContextAndroid(
@@ -198,11 +195,11 @@ class _AudioContextTabState extends State<AudioContextTab>
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Text('category'),
-            EnumTgl<AVAudioSessionCategory>(
+            CustomDropDown<AVAudioSessionCategory>(
               key: const Key('category'),
               options: {
                 for (var e in AVAudioSessionCategory.values)
-                  'category-${e.name}': e
+                  e: e.name
               },
               selected: audioContext.iOS.category,
               onChange: (v) => updateAudioContextIOS(
@@ -217,10 +214,12 @@ class _AudioContextTabState extends State<AudioContextTab>
         getIosOptionsCbx(AVAudioSessionOptions.allowBluetoothA2DP),
         getIosOptionsCbx(AVAudioSessionOptions.duckOthers),
         getIosOptionsCbx(
-            AVAudioSessionOptions.interruptSpokenAudioAndMixWithOthers,),
+          AVAudioSessionOptions.interruptSpokenAudioAndMixWithOthers,
+        ),
         getIosOptionsCbx(AVAudioSessionOptions.mixWithOthers),
         getIosOptionsCbx(
-            AVAudioSessionOptions.overrideMutedMicrophoneInterruption,),
+          AVAudioSessionOptions.overrideMutedMicrophoneInterruption,
+        ),
       ],
     );
   }
