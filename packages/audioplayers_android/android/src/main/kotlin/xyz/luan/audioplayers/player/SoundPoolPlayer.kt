@@ -198,7 +198,7 @@ class SoundPoolManager(initialAudioContext: AudioContextAndroid) {
     var soundPoolWrappers = HashMap<AudioContextAndroid, SoundPoolWrapper>()
 
     fun createSoundPool(maxStreams: Int, audioContext: AudioContextAndroid) {
-        if (!soundPools.containsKey(audioContext)) {
+        if (!soundPoolWrappers.containsKey(audioContext)) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 val attrs = audioContext.buildAttributes()
                 soundPoolWrappers[audioContext] = SoundPoolWrapper(
