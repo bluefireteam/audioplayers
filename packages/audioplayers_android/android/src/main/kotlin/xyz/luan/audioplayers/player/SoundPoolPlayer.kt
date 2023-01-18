@@ -199,7 +199,6 @@ class SoundPoolManager(initialAudioContext: AudioContextAndroid) {
                     .setAudioAttributes(attrs)
                     .setMaxStreams(maxStreams)
                     .build()
-
             } else {
                 @Suppress("DEPRECATION")
                 SoundPool(maxStreams, AudioManager.STREAM_MUSIC, 0)
@@ -207,11 +206,11 @@ class SoundPoolManager(initialAudioContext: AudioContextAndroid) {
         }
     }
 
+    var soundPoolWrappers = HashMap<AudioContextAndroid, SoundPoolWrapper>()
+    
     init {
         createSoundPool(MAX_STREAMS, initialAudioContext)
     }
-
-    var soundPoolWrappers = HashMap<AudioContextAndroid, SoundPoolWrapper>()
 
     /**
      * @param maxStreams the maximum number of simultaneous streams for this
