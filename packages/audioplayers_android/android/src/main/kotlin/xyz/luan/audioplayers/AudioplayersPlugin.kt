@@ -79,6 +79,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
             }
 
             "setGlobalAudioContext" -> {
+                // TODO(Gustl22): may also change AudioManager global values instantly
                 defaultAudioContext = call.audioContext()
             }
         }
@@ -280,5 +281,6 @@ private fun MethodCall.audioContext(): AudioContextAndroid {
         contentType = argument<Int>("contentType") ?: error("contentType is required"),
         usageType = argument<Int>("usageType") ?: error("usageType is required"),
         audioFocus = argument<Int>("audioFocus"),
+        audioMode = argument<Int>("audioMode") ?: error("audioMode is required"),
     )
 }

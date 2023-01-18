@@ -15,6 +15,7 @@ data class AudioContextAndroid(
     val contentType: Int,
     val usageType: Int,
     val audioFocus: Int?,
+    val audioMode: Int,
 ) {
     @SuppressLint("InlinedApi") // we are just using numerical constants
     constructor() : this(
@@ -23,6 +24,7 @@ data class AudioContextAndroid(
         contentType = CONTENT_TYPE_MUSIC,
         usageType = USAGE_MEDIA,
         audioFocus = null,
+        audioMode = AudioManager.MODE_NORMAL,
     )
 
     fun setAttributesOnPlayer(player: MediaPlayer) {
@@ -51,7 +53,7 @@ data class AudioContextAndroid(
         }
     }
 
-    override fun hashCode() = Objects.hash(isSpeakerphoneOn, stayAwake, contentType, usageType, audioFocus)
+    override fun hashCode() = Objects.hash(isSpeakerphoneOn, stayAwake, contentType, usageType, audioFocus, audioMode)
 
     override fun equals(other: Any?) = (other is AudioContextAndroid)
             && isSpeakerphoneOn == other.isSpeakerphoneOn
@@ -59,4 +61,5 @@ data class AudioContextAndroid(
             && contentType == other.contentType
             && usageType == other.usageType
             && audioFocus == other.audioFocus
+            && audioMode == other.audioMode
 }

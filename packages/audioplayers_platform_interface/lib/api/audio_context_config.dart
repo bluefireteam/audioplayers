@@ -176,6 +176,7 @@ class AudioContextAndroid {
   final AndroidContentType contentType;
   final AndroidUsageType usageType;
   final AndroidAudioFocus? audioFocus;
+  final AndroidAudioMode audioMode;
 
   const AudioContextAndroid({
     this.isSpeakerphoneOn = true,
@@ -183,6 +184,7 @@ class AudioContextAndroid {
     this.contentType = AndroidContentType.music,
     this.usageType = AndroidUsageType.media,
     this.audioFocus = AndroidAudioFocus.gain,
+    this.audioMode = AndroidAudioMode.normal,
   });
 
   AudioContextAndroid copy({
@@ -191,6 +193,7 @@ class AudioContextAndroid {
     AndroidContentType? contentType,
     AndroidUsageType? usageType,
     AndroidAudioFocus? audioFocus,
+    AndroidAudioMode? audioMode,
   }) {
     return AudioContextAndroid(
       isSpeakerphoneOn: isSpeakerphoneOn ?? this.isSpeakerphoneOn,
@@ -198,6 +201,7 @@ class AudioContextAndroid {
       contentType: contentType ?? this.contentType,
       usageType: usageType ?? this.usageType,
       audioFocus: audioFocus ?? this.audioFocus,
+      audioMode: audioMode ?? this.audioMode,
     );
   }
 
@@ -208,6 +212,7 @@ class AudioContextAndroid {
       'contentType': contentType.value,
       'usageType': usageType.value,
       'audioFocus': audioFocus?.value,
+      'audioMode': audioMode.value,
     };
   }
 }
@@ -442,6 +447,41 @@ extension AndroidAudioFocusValue on AndroidAudioFocus {
       case AndroidAudioFocus.gainTransientMayDuck:
         return 3;
       case AndroidAudioFocus.gainTransientExclusive:
+        return 4;
+    }
+  }
+}
+
+enum AndroidAudioMode {
+  /// Normal audio mode: not ringing and no call established.
+  normal,
+
+  /// Ringing audio mode. An incoming is being signaled.
+  ringtone,
+
+  /// In call audio mode. A telephony call is established.
+  inCall,
+
+  /// In communication audio mode. An audio/video chat or VoIP call is established.
+  inCommunication,
+
+  /// Call screening in progress. Call is connected and audio is accessible to
+  /// call screening applications but other audio use cases are still possible.
+  callScreening
+}
+
+extension AndroidAudioModeValue on AndroidAudioMode {
+  int get value {
+    switch (this) {
+      case AndroidAudioMode.normal:
+        return 0;
+      case AndroidAudioMode.ringtone:
+        return 1;
+      case AndroidAudioMode.inCall:
+        return 2;
+      case AndroidAudioMode.inCommunication:
+        return 3;
+      case AndroidAudioMode.callScreening:
         return 4;
     }
   }

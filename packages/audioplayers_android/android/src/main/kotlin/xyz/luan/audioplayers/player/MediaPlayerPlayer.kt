@@ -1,5 +1,6 @@
 package xyz.luan.audioplayers.player
 
+import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.PowerManager
@@ -79,7 +80,8 @@ class MediaPlayerPlayer(
     }
 
     override fun updateContext(context: AudioContextAndroid) {
-        // TODO(luan): is isSpeakerphoneOn global?
+        // TODO(luan): are AudioManager values global?
+        wrappedPlayer.audioManager.mode = context.audioMode
         wrappedPlayer.audioManager.isSpeakerphoneOn = context.isSpeakerphoneOn
         context.setAttributesOnPlayer(mediaPlayer)
         if (context.stayAwake) {
