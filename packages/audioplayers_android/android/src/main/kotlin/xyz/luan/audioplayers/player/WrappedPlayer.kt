@@ -269,8 +269,9 @@ class WrappedPlayer internal constructor(
         return false
     }
 
+    @Suppress("UNUSED_PARAMETER")
     fun onBuffering(percent: Int) {
-        // TODO(luan) expose this as a stream
+        // TODO(luan): expose this as a stream
     }
 
     fun onSeekComplete() {
