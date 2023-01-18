@@ -157,9 +157,7 @@ class _AudioContextTabState extends State<AudioContextTab>
             const Text('usageType'),
             CustomDropDown<AndroidUsageType>(
               key: const Key('usageType'),
-              options: {
-                for (var e in AndroidUsageType.values) e: e.name
-              },
+              options: {for (var e in AndroidUsageType.values) e: e.name},
               selected: audioContext.android.usageType,
               onChange: (v) => updateAudioContextAndroid(
                 audioContext.android.copy(usageType: v),
@@ -173,10 +171,7 @@ class _AudioContextTabState extends State<AudioContextTab>
             const Text('audioFocus'),
             CustomDropDown<AndroidAudioFocus?>(
               key: const Key('audioFocus'),
-              options: {
-                for (var e in AndroidAudioFocus.values)
-                  e: e.name
-              },
+              options: {for (var e in AndroidAudioFocus.values) e: e.name},
               selected: audioContext.android.audioFocus,
               onChange: (v) => updateAudioContextAndroid(
                 audioContext.android.copy(audioFocus: v),
@@ -189,18 +184,33 @@ class _AudioContextTabState extends State<AudioContextTab>
   }
 
   Widget _iosTab() {
+    final iosOptions = AVAudioSessionOptions.values
+        .map(
+          (option) => Cbx(
+            option.name,
+            audioContext.iOS.options.contains(option),
+            (v) {
+              if (v) {
+                audioContext.iOS.options.add(option);
+              } else {
+                audioContext.iOS.options.remove(option);
+              }
+              updateAudioContextIOS(
+                audioContext.iOS.copy(options: audioContext.iOS.options),
+              );
+            },
+          ),
+        )
+        .toList();
     return Column(
-      children: [
+      children: <Widget>[
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Text('category'),
             CustomDropDown<AVAudioSessionCategory>(
               key: const Key('category'),
-              options: {
-                for (var e in AVAudioSessionCategory.values)
-                  e: e.name
-              },
+              options: {for (var e in AVAudioSessionCategory.values) e: e.name},
               selected: audioContext.iOS.category,
               onChange: (v) => updateAudioContextIOS(
                 audioContext.iOS.copy(category: v),
@@ -208,36 +218,8 @@ class _AudioContextTabState extends State<AudioContextTab>
             ),
           ],
         ),
-        getIosOptionsCbx(AVAudioSessionOptions.defaultToSpeaker),
-        getIosOptionsCbx(AVAudioSessionOptions.allowAirPlay),
-        getIosOptionsCbx(AVAudioSessionOptions.allowBluetooth),
-        getIosOptionsCbx(AVAudioSessionOptions.allowBluetoothA2DP),
-        getIosOptionsCbx(AVAudioSessionOptions.duckOthers),
-        getIosOptionsCbx(
-          AVAudioSessionOptions.interruptSpokenAudioAndMixWithOthers,
-        ),
-        getIosOptionsCbx(AVAudioSessionOptions.mixWithOthers),
-        getIosOptionsCbx(
-          AVAudioSessionOptions.overrideMutedMicrophoneInterruption,
-        ),
+        ...iosOptions
       ],
-    );
-  }
-
-  Widget getIosOptionsCbx(AVAudioSessionOptions option) {
-    return Cbx(
-      option.name,
-      audioContext.iOS.options.contains(option),
-      (v) {
-        if (v) {
-          audioContext.iOS.options.add(option);
-        } else {
-          audioContext.iOS.options.remove(option);
-        }
-        updateAudioContextIOS(
-          audioContext.iOS.copy(options: audioContext.iOS.options),
-        );
-      },
     );
   }
 
