@@ -54,32 +54,3 @@ class EnumTgl<T extends Enum> extends StatelessWidget {
     );
   }
 }
-
-class CustomDropDown<T> extends StatelessWidget {
-  final Map<T, String> options;
-  final T selected;
-  final void Function(T?) onChange;
-
-  const CustomDropDown({
-    super.key,
-    required this.options,
-    required this.selected,
-    required this.onChange,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return DropdownButton<T>(
-      value: selected,
-      onChanged: onChange,
-      items: options.entries
-          .map<DropdownMenuItem<T>>(
-            (entry) => DropdownMenuItem<T>(
-              value: entry.key,
-              child: Text(entry.value),
-            ),
-          )
-          .toList(),
-    );
-  }
-}

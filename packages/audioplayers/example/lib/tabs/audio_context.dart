@@ -1,9 +1,9 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_example/components/btn.dart';
 import 'package:audioplayers_example/components/cbx.dart';
-import 'package:audioplayers_example/components/tab_wrapper.dart';
+import 'package:audioplayers_example/components/drop_down.dart';
+import 'package:audioplayers_example/components/tab_content.dart';
 import 'package:audioplayers_example/components/tabs.dart';
-import 'package:audioplayers_example/components/tgl.dart';
 import 'package:flutter/material.dart';
 
 class AudioContextTab extends StatefulWidget {
@@ -28,9 +28,12 @@ class _AudioContextTabState extends State<AudioContextTab>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return TabWrapper(
+    return Column(
       children: [
-        const Text('Audio Context'),
+        const Padding(
+          padding: EdgeInsets.symmetric(vertical: 8),
+          child: Text('Audio Context'),
+        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
@@ -48,8 +51,7 @@ class _AudioContextTabState extends State<AudioContextTab>
             )
           ],
         ),
-        Container(
-          height: 500,
+        Expanded(
           child: Tabs(
             tabs: [
               TabData(
@@ -94,7 +96,7 @@ class _AudioContextTabState extends State<AudioContextTab>
   }
 
   Widget _genericTab() {
-    return Column(
+    return TabContent(
       children: [
         Cbx(
           'Force Speaker',
@@ -121,7 +123,7 @@ class _AudioContextTabState extends State<AudioContextTab>
   }
 
   Widget _androidTab() {
-    return Column(
+    return TabContent(
       children: [
         Cbx(
           'isSpeakerphoneOn',
@@ -137,47 +139,41 @@ class _AudioContextTabState extends State<AudioContextTab>
             audioContext.android.copy(stayAwake: v),
           ),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text('contentType'),
-            CustomDropDown<AndroidContentType>(
-              key: const Key('contentType'),
-              options: {for (var e in AndroidContentType.values) e: e.name},
-              selected: audioContext.android.contentType,
-              onChange: (v) => updateAudioContextAndroid(
-                audioContext.android.copy(contentType: v),
-              ),
-            ),
-          ],
+        LabeledDropDown<AndroidContentType>(
+          label: 'contentType',
+          key: const Key('contentType'),
+          options: {for (var e in AndroidContentType.values) e: e.name},
+          selected: audioContext.android.contentType,
+          onChange: (v) => updateAudioContextAndroid(
+            audioContext.android.copy(contentType: v),
+          ),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text('usageType'),
-            CustomDropDown<AndroidUsageType>(
-              key: const Key('usageType'),
-              options: {for (var e in AndroidUsageType.values) e: e.name},
-              selected: audioContext.android.usageType,
-              onChange: (v) => updateAudioContextAndroid(
-                audioContext.android.copy(usageType: v),
-              ),
-            ),
-          ],
+        LabeledDropDown<AndroidUsageType>(
+          label: 'usageType',
+          key: const Key('usageType'),
+          options: {for (var e in AndroidUsageType.values) e: e.name},
+          selected: audioContext.android.usageType,
+          onChange: (v) => updateAudioContextAndroid(
+            audioContext.android.copy(usageType: v),
+          ),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text('audioFocus'),
-            CustomDropDown<AndroidAudioFocus?>(
-              key: const Key('audioFocus'),
-              options: {for (var e in AndroidAudioFocus.values) e: e.name},
-              selected: audioContext.android.audioFocus,
-              onChange: (v) => updateAudioContextAndroid(
-                audioContext.android.copy(audioFocus: v),
-              ),
-            ),
-          ],
+        LabeledDropDown<AndroidAudioFocus?>(
+          key: const Key('audioFocus'),
+          label: 'audioFocus',
+          options: {for (var e in AndroidAudioFocus.values) e: e.name},
+          selected: audioContext.android.audioFocus,
+          onChange: (v) => updateAudioContextAndroid(
+            audioContext.android.copy(audioFocus: v),
+          ),
+        ),
+        LabeledDropDown<AndroidAudioMode>(
+          key: const Key('audioMode'),
+          label: 'audioMode',
+          options: {for (var e in AndroidAudioMode.values) e: e.name},
+          selected: audioContext.android.audioMode,
+          onChange: (v) => updateAudioContextAndroid(
+            audioContext.android.copy(audioMode: v),
+          ),
         ),
       ],
     );
@@ -202,21 +198,16 @@ class _AudioContextTabState extends State<AudioContextTab>
           ),
         )
         .toList();
-    return Column(
+    return TabContent(
       children: <Widget>[
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text('category'),
-            CustomDropDown<AVAudioSessionCategory>(
-              key: const Key('category'),
-              options: {for (var e in AVAudioSessionCategory.values) e: e.name},
-              selected: audioContext.iOS.category,
-              onChange: (v) => updateAudioContextIOS(
-                audioContext.iOS.copy(category: v),
-              ),
-            ),
-          ],
+        LabeledDropDown<AVAudioSessionCategory>(
+          key: const Key('category'),
+          label: 'category',
+          options: {for (var e in AVAudioSessionCategory.values) e: e.name},
+          selected: audioContext.iOS.category,
+          onChange: (v) => updateAudioContextIOS(
+            audioContext.iOS.copy(category: v),
+          ),
         ),
         ...iosOptions
       ],

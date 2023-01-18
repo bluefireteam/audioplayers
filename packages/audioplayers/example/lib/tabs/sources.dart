@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_example/components/btn.dart';
-import 'package:audioplayers_example/components/tab_wrapper.dart';
+import 'package:audioplayers_example/components/tab_content.dart';
 import 'package:audioplayers_example/components/tgl.dart';
 import 'package:audioplayers_example/utils.dart';
 import 'package:file_picker/file_picker.dart';
@@ -61,7 +61,7 @@ class _SourcesTabState extends State<SourcesTab>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return TabWrapper(
+    return TabContent(
       children: [
         EnumTgl(
           options: {for (var e in InitMode.values) 'initMode-${e.name}': e},

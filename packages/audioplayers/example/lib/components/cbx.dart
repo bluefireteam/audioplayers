@@ -14,11 +14,10 @@ class Cbx extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Text(label),
-        Checkbox(value: value, onChanged: (v) => update(v!)),
-      ],
+    return CheckboxListTile(
+      title: Text(label),
+      value: value,
+      onChanged: (v) => update(v!),
     );
   }
 }
