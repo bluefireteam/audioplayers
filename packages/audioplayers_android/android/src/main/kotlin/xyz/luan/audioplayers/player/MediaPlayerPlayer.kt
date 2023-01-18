@@ -1,6 +1,5 @@
 package xyz.luan.audioplayers.player
 
-import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.PowerManager
