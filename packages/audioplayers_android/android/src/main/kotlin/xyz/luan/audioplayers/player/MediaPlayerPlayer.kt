@@ -79,7 +79,7 @@ class MediaPlayerPlayer(
     }
 
     override fun updateContext(context: AudioContextAndroid) {
-        // Set audioContext for single player
+        // TODO(luan): is isSpeakerphoneOn global?
         wrappedPlayer.audioManager.isSpeakerphoneOn = context.isSpeakerphoneOn
         context.setAttributesOnPlayer(mediaPlayer)
         if (context.stayAwake) {
