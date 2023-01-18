@@ -30,20 +30,15 @@ class SoundPoolPlayer(
         get() = wrappedPlayer.source as? UrlSource
 
     /** The android sound pool */
-    private lateinit var soundPoolWrapper: SoundPoolWrapper
+    private var soundPoolWrapper: SoundPoolWrapper
 
-    private lateinit var soundPool: SoundPool
+    private var soundPool: SoundPool
 
     init {
-        var tmpSoundPool = soundPoolManager.soundPoolWrappers[audioContext]
-        if (tmpSoundPool == null) {
-            soundPoolManager.createSoundPool(MAX_STREAMS, audioContext)
-            tmpSoundPool = soundPoolManager.soundPoolWrappers[audioContext]
-        }
-        if (tmpSoundPool != null) {
-            soundPoolWrapper = tmpSoundPool
-            soundPool = soundPoolWrapper.soundPool
-        }
+        soundPoolManager.createSoundPool(MAX_STREAMS, audioContext)
+        soundPoolWrapper = soundPoolManager.soundPoolWrappers[audioContext]
+            ?: error("Could not create SoundPool $audioContext")
+        soundPool = soundPoolWrapper.soundPool
     }
 
     override fun stop() {
@@ -79,12 +74,12 @@ class SoundPoolPlayer(
     }
 
     override fun updateContext(context: AudioContextAndroid) {
-        soundPoolManager.createSoundPool(MAX_STREAMS, context)
-        val tmpSoundPool = soundPoolManager.soundPoolWrappers[context]
-        if (tmpSoundPool != null) {
+        if (audioContext != context) {
             release()
             audioContext = context
-            soundPoolWrapper = tmpSoundPool
+            soundPoolManager.createSoundPool(MAX_STREAMS, context)
+            soundPoolWrapper = soundPoolManager.soundPoolWrappers[context]
+                ?: error("Could not create SoundPool $context")
             soundPool = soundPoolWrapper.soundPool
             urlSource?.let { setUrlSource(it) }
         }
