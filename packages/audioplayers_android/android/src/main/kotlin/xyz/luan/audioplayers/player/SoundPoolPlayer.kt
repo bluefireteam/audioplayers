@@ -65,7 +65,6 @@ class SoundPoolPlayer(
                 playersForSoundId.remove(this)
             }
             this.soundId = null
-
         }
     }
 
@@ -81,7 +80,6 @@ class SoundPoolPlayer(
             soundPoolWrapper = soundPoolManager.soundPoolWrappers[context]
                 ?: error("Could not create SoundPool $context")
             soundPool = soundPoolWrapper.soundPool
-            urlSource?.let { setUrlSource(it) }
         }
     }
 

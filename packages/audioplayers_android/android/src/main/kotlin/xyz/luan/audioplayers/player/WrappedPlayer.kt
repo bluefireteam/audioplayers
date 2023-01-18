@@ -123,7 +123,21 @@ class WrappedPlayer internal constructor(
             focusManager.handleStop()
         }
         this.context = audioContext.copy()
-        player?.updateContext(context)
+
+        // AudioManager values are set globally
+        audioManager.mode = context.audioMode
+        audioManager.isSpeakerphoneOn = context.isSpeakerphoneOn
+
+        player?.let { p ->
+            p.stop()
+            prepared = false
+            // Context is only applied, once the player.reset() was called
+            p.updateContext(context)
+            source?.let {
+                p.setSource(it)
+                p.configAndPrepare()
+            }
+        }
     }
 
     // Getters
@@ -150,7 +164,7 @@ class WrappedPlayer internal constructor(
         get() = ref.getApplicationContext()
 
     val audioManager: AudioManager
-        get() = applicationContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        get() = ref.getAudioManager()
 
     /**
      * Playback handling methods

@@ -2,6 +2,7 @@ package xyz.luan.audioplayers
 
 
 import android.content.Context
+import android.media.AudioManager
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -79,7 +80,10 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
             }
 
             "setGlobalAudioContext" -> {
-                // TODO(Gustl22): may also change AudioManager global values instantly
+                val audioManager = getAudioManager()
+                audioManager.mode = defaultAudioContext.audioMode
+                audioManager.isSpeakerphoneOn = defaultAudioContext.isSpeakerphoneOn
+                
                 defaultAudioContext = call.audioContext()
             }
         }
@@ -173,6 +177,10 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
 
     fun getApplicationContext(): Context {
         return context.applicationContext
+    }
+
+    fun getAudioManager(): AudioManager {
+        return context.applicationContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     }
 
     fun handleIsPlaying() {
