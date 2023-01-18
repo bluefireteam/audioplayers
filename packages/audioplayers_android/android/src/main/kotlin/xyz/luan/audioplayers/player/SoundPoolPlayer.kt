@@ -9,8 +9,9 @@ import xyz.luan.audioplayers.source.Source
 import xyz.luan.audioplayers.source.UrlSource
 import java.util.Collections.synchronizedMap
 
+/// Value should not exceed 32
 // TODO(luan): make this configurable
-const val MAX_STREAMS = 100
+const val MAX_STREAMS = 32
 
 class SoundPoolPlayer(
     val wrappedPlayer: WrappedPlayer,
@@ -63,12 +64,12 @@ class SoundPoolPlayer(
                 soundPoolWrapper.urlToPlayers.remove(urlSource)
                 soundPool.unload(soundId)
                 soundPoolWrapper.soundIdToPlayer.remove(soundId)
-                this.soundId = null
                 Logger.info("unloaded soundId $soundId")
             } else {
                 // This is not the last player using the soundId, just remove it from the list.
                 playersForSoundId.remove(this)
             }
+            this.soundId = null
 
         }
     }
@@ -195,29 +196,35 @@ class SoundPoolPlayer(
 }
 
 class SoundPoolManager(initialAudioContext: AudioContextAndroid) {
-    var soundPoolWrappers = HashMap<AudioContextAndroid, SoundPoolWrapper>()
-
-    fun createSoundPool(maxStreams: Int, audioContext: AudioContextAndroid) {
-        if (!soundPoolWrappers.containsKey(audioContext)) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+    companion object {
+        private fun getSoundPool(maxStreams: Int, audioContext: AudioContextAndroid): SoundPool {
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 val attrs = audioContext.buildAttributes()
-                soundPoolWrappers[audioContext] = SoundPoolWrapper(
-                    SoundPool.Builder()
-                        .setAudioAttributes(attrs)
-                        .setMaxStreams(maxStreams)
-                        .build()
-                )
+                SoundPool.Builder()
+                    .setAudioAttributes(attrs)
+                    .setMaxStreams(maxStreams)
+                    .build()
+
             } else {
                 @Suppress("DEPRECATION")
-                soundPoolWrappers[audioContext] = SoundPoolWrapper(SoundPool(maxStreams, AudioManager.STREAM_MUSIC, 0))
+                SoundPool(maxStreams, AudioManager.STREAM_MUSIC, 0)
             }
         }
     }
 
     init {
         createSoundPool(MAX_STREAMS, initialAudioContext)
-        for (soundPoolEntry in soundPoolWrappers) {
-            val soundPoolWrapper = soundPoolEntry.value
+    }
+
+    var soundPoolWrappers = HashMap<AudioContextAndroid, SoundPoolWrapper>()
+
+    /**
+     * @param maxStreams the maximum number of simultaneous streams for this
+     *                   SoundPool object, see [SoundPool.Builder.setMaxStreams]
+     */
+    fun createSoundPool(maxStreams: Int, audioContext: AudioContextAndroid) {
+        if (!soundPoolWrappers.containsKey(audioContext)) {
+            val soundPoolWrapper = SoundPoolWrapper(getSoundPool(maxStreams, audioContext))
             soundPoolWrapper.soundPool.setOnLoadCompleteListener { _, sampleId, _ ->
                 Logger.info("Loaded $sampleId")
                 val loadingPlayer = soundPoolWrapper.soundIdToPlayer[sampleId]
@@ -238,6 +245,7 @@ class SoundPoolManager(initialAudioContext: AudioContextAndroid) {
                     }
                 }
             }
+            soundPoolWrappers[audioContext] = soundPoolWrapper
         }
     }
 
