@@ -190,7 +190,7 @@ class SoundPoolPlayer(
     }
 }
 
-class SoundPoolManager(initialAudioContext: AudioContextAndroid) {
+class SoundPoolManager() {
     companion object {
         private fun getSoundPool(maxStreams: Int, audioContext: AudioContextAndroid): SoundPool {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -207,10 +207,6 @@ class SoundPoolManager(initialAudioContext: AudioContextAndroid) {
     }
 
     var soundPoolWrappers = HashMap<AudioContextAndroid, SoundPoolWrapper>()
-    
-    init {
-        createSoundPool(MAX_STREAMS, initialAudioContext)
-    }
 
     /**
      * @param maxStreams the maximum number of simultaneous streams for this
