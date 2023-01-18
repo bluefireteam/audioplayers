@@ -14,52 +14,52 @@ void main() {
 
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  group('play multiple sources', () {
-    final audioTestDataList = [
-      if (features.hasUrlSource)
-        LibSourceTestData(
-          source: UrlSource(wavUrl1),
-          duration: const Duration(milliseconds: 451),
-        ),
-      if (features.hasUrlSource)
-        LibSourceTestData(
-          source: UrlSource(wavUrl2),
-          duration: const Duration(seconds: 1, milliseconds: 068),
-        ),
-      if (features.hasUrlSource)
-        LibSourceTestData(
-          source: UrlSource(mp3Url1),
-          duration: const Duration(minutes: 3, seconds: 30, milliseconds: 77),
-        ),
-      if (features.hasUrlSource)
-        LibSourceTestData(
-          source: UrlSource(mp3Url2),
-          duration: const Duration(minutes: 1, seconds: 34, milliseconds: 119),
-        ),
-      if (features.hasUrlSource && features.hasPlaylistSourceType)
-        LibSourceTestData(
-          source: UrlSource(m3u8StreamUrl),
-          duration: Duration.zero,
-          isLiveStream: true,
-        ),
-      if (features.hasUrlSource)
-        LibSourceTestData(
-          source: UrlSource(mpgaStreamUrl),
-          duration: Duration.zero,
-          isLiveStream: true,
-        ),
-      if (features.hasAssetSource)
-        LibSourceTestData(
-          source: AssetSource(asset1),
-          duration: const Duration(seconds: 1, milliseconds: 068),
-        ),
-      if (features.hasAssetSource)
-        LibSourceTestData(
-          source: AssetSource(asset2),
-          duration: const Duration(minutes: 1, seconds: 34, milliseconds: 119),
-        ),
-    ];
+  final audioTestDataList = [
+    if (features.hasUrlSource)
+      LibSourceTestData(
+        source: UrlSource(wavUrl1),
+        duration: const Duration(milliseconds: 451),
+      ),
+    if (features.hasUrlSource)
+      LibSourceTestData(
+        source: UrlSource(wavUrl2),
+        duration: const Duration(seconds: 1, milliseconds: 068),
+      ),
+    if (features.hasUrlSource)
+      LibSourceTestData(
+        source: UrlSource(mp3Url1),
+        duration: const Duration(minutes: 3, seconds: 30, milliseconds: 77),
+      ),
+    if (features.hasUrlSource)
+      LibSourceTestData(
+        source: UrlSource(mp3Url2),
+        duration: const Duration(minutes: 1, seconds: 34, milliseconds: 119),
+      ),
+    if (features.hasUrlSource && features.hasPlaylistSourceType)
+      LibSourceTestData(
+        source: UrlSource(m3u8StreamUrl),
+        duration: Duration.zero,
+        isLiveStream: true,
+      ),
+    if (features.hasUrlSource)
+      LibSourceTestData(
+        source: UrlSource(mpgaStreamUrl),
+        duration: Duration.zero,
+        isLiveStream: true,
+      ),
+    if (features.hasAssetSource)
+      LibSourceTestData(
+        source: AssetSource(asset1),
+        duration: const Duration(seconds: 1, milliseconds: 068),
+      ),
+    if (features.hasAssetSource)
+      LibSourceTestData(
+        source: AssetSource(asset2),
+        duration: const Duration(minutes: 1, seconds: 34, milliseconds: 119),
+      ),
+  ];
 
+  group('play multiple sources', () {
     testWidgets(
       'play multiple sources simultaneously',
       (WidgetTester tester) async {
@@ -110,5 +110,71 @@ void main() {
         await player.stop();
       }
     });
+  });
+
+  group('Audio Context', () {
+    testWidgets(
+      'play AudioContextConfig:forceSpeaker',
+      (WidgetTester tester) async {
+        final player = AudioPlayer()..setReleaseMode(ReleaseMode.stop);
+
+        final td = audioTestDataList[0];
+
+        //ignore: avoid_redundant_argument_values
+        var audioContext = AudioContextConfig(forceSpeaker: true).build();
+        await AudioPlayer.global.setGlobalAudioContext(audioContext);
+        await player.setAudioContext(audioContext);
+
+        await player.play(td.source);
+        await tester.pumpAndSettle();
+        await tester.pump(td.duration + const Duration(seconds: 8));
+        expect(player.state, PlayerState.completed);
+
+        audioContext = AudioContextConfig(forceSpeaker: false).build();
+        await AudioPlayer.global.setGlobalAudioContext(audioContext);
+        await player.setAudioContext(audioContext);
+
+        await player.resume();
+        await tester.pumpAndSettle();
+        await tester.pump(td.duration + const Duration(seconds: 8));
+        expect(player.state, PlayerState.completed);
+      },
+      skip: !features.hasForceSpeaker,
+    );
+
+    testWidgets(
+      'play AudioContextConfig:forceSpeaker in LOW_LATENCY mode',
+      (WidgetTester tester) async {
+        final player = AudioPlayer()..setReleaseMode(ReleaseMode.stop);
+        player.setPlayerMode(PlayerMode.lowLatency);
+
+        final td = audioTestDataList[0];
+
+        //ignore: avoid_redundant_argument_values
+        var audioContext = AudioContextConfig(forceSpeaker: true).build();
+        await AudioPlayer.global.setGlobalAudioContext(audioContext);
+        await player.setAudioContext(audioContext);
+
+        await player.setSource(td.source);
+        await player.resume();
+        await tester.pumpAndSettle();
+        await tester.pump(td.duration + const Duration(seconds: 8));
+        expect(player.state, PlayerState.playing);
+        await player.stop();
+        expect(player.state, PlayerState.stopped);
+
+        audioContext = AudioContextConfig(forceSpeaker: false).build();
+        await AudioPlayer.global.setGlobalAudioContext(audioContext);
+        await player.setAudioContext(audioContext);
+
+        await player.resume();
+        await tester.pumpAndSettle();
+        await tester.pump(td.duration + const Duration(seconds: 8));
+        expect(player.state, PlayerState.playing);
+        await player.stop();
+        expect(player.state, PlayerState.stopped);
+      },
+      skip: !features.hasForceSpeaker || !features.hasLowLatency,
+    );
   });
 }
