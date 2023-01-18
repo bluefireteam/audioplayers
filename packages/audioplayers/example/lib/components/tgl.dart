@@ -32,7 +32,7 @@ class Tgl extends StatelessWidget {
   }
 }
 
-class EnumTgl<T extends Enum?> extends StatelessWidget {
+class EnumTgl<T extends Enum> extends StatelessWidget {
   final Map<String, T> options;
   final T selected;
   final void Function(T) onChange;
@@ -48,8 +48,7 @@ class EnumTgl<T extends Enum?> extends StatelessWidget {
   Widget build(BuildContext context) {
     final optionValues = options.values.toList();
     return Tgl(
-      options:
-          options.map((key, value) => MapEntry(key, value?.name ?? 'null')),
+      options: options.map((key, value) => MapEntry(key, value.name)),
       selected: optionValues.indexOf(selected),
       onChange: (it) => onChange(optionValues[it]),
     );
