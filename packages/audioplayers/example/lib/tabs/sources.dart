@@ -35,10 +35,8 @@ enum InitMode {
 
 class SourcesTab extends StatefulWidget {
   final AudioPlayerState playerState;
-  final AudioPlayer player;
 
-  SourcesTab({super.key, required this.playerState})
-      : player = playerState.player;
+  const SourcesTab({super.key, required this.playerState});
 
   @override
   State<SourcesTab> createState() => _SourcesTabState();
@@ -46,16 +44,20 @@ class SourcesTab extends StatefulWidget {
 
 class _SourcesTabState extends State<SourcesTab>
     with AutomaticKeepAliveClientMixin<SourcesTab> {
+  AudioPlayerState get playerState => widget.playerState;
+
+  AudioPlayer get player => widget.playerState.player;
+
   Future<void> setSource(Source source) async {
-    if (widget.playerState.initMode == InitMode.setSource) {
-      await widget.player.setSource(source);
+    if (playerState.initMode == InitMode.setSource) {
+      await player.setSource(source);
       toast(
         'Completed setting source.',
         textKey: const Key('toast-source-set'),
       );
     } else {
-      await widget.player.stop();
-      await widget.player.play(source);
+      await player.stop();
+      await player.play(source);
     }
   }
 

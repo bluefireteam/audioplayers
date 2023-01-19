@@ -105,6 +105,7 @@ class _ExampleAppState extends State<ExampleApp> {
                   key: 'sourcesTab',
                   label: 'Src',
                   content: SourcesTab(
+                    key: selectedPlayerState.sourcesKey,
                     playerState: selectedPlayerState,
                   ),
                 ),
@@ -112,6 +113,7 @@ class _ExampleAppState extends State<ExampleApp> {
                   key: 'controlsTab',
                   label: 'Ctrl',
                   content: ControlsTab(
+                    key: selectedPlayerState.controlsKey,
                     player: selectedPlayerState.player,
                   ),
                 ),
@@ -119,6 +121,7 @@ class _ExampleAppState extends State<ExampleApp> {
                   key: 'streamsTab',
                   label: 'Stream',
                   content: StreamsTab(
+                    key: selectedPlayerState.streamsKey,
                     player: selectedPlayerState.player,
                   ),
                 ),
@@ -126,13 +129,16 @@ class _ExampleAppState extends State<ExampleApp> {
                   key: 'audioContextTab',
                   label: 'Ctx',
                   content: AudioContextTab(
-                    player: selectedPlayerState.player,
+                    key: selectedPlayerState.contextKey,
+                    playerState: selectedPlayerState,
                   ),
                 ),
                 TabData(
                   key: 'loggerTab',
                   label: 'Log',
-                  content: const LoggerTab(),
+                  content: LoggerTab(
+                    key: selectedPlayerState.loggerKey,
+                  ),
                 ),
               ],
             ),
@@ -143,10 +149,26 @@ class _ExampleAppState extends State<ExampleApp> {
   }
 }
 
+/// A helper class to save the UI state of the individual players.
+/// Note that not every property is saved here, such as stream values,
+/// which in most cases can be initialized with player values.
 class AudioPlayerState {
   final AudioPlayer player;
 
+  AudioPlayerState(this.player);
+
+  // Needed to force recreating tabs, if player has changed, but keep tab state.
+  final sourcesKey = GlobalKey();
+  final controlsKey = GlobalKey();
+  final streamsKey = GlobalKey();
+  final contextKey = GlobalKey();
+  final loggerKey = GlobalKey();
+
   InitMode initMode = InitMode.setSource;
 
-  AudioPlayerState(this.player);
+  /// Set config for all platforms
+  AudioContextConfig audioContextConfig = AudioContextConfig();
+
+  /// Set config for each platform individually
+  AudioContext audioContext = const AudioContext();
 }

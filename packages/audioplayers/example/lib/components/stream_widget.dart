@@ -18,15 +18,24 @@ class _StreamWidgetState extends State<StreamWidget> {
   PlayerState? streamState;
   late List<StreamSubscription> streams;
 
+  AudioPlayer get player => widget.player;
+
   @override
   void initState() {
     super.initState();
+    // Use initial values from player
+    streamState = player.state;
+    player.getDuration().then((it) => setState(() => streamDuration = it));
+    player.getCurrentPosition().then(
+          (it) => setState(() => streamPosition = it),
+        );
+
     streams = <StreamSubscription>[
-      widget.player.onDurationChanged
+      player.onDurationChanged
           .listen((it) => setState(() => streamDuration = it)),
-      widget.player.onPlayerStateChanged
+      player.onPlayerStateChanged
           .listen((it) => setState(() => streamState = it)),
-      widget.player.onPositionChanged
+      player.onPositionChanged
           .listen((it) => setState(() => streamPosition = it)),
     ];
   }

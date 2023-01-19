@@ -3,12 +3,13 @@ import 'package:audioplayers_example/components/cbx.dart';
 import 'package:audioplayers_example/components/drop_down.dart';
 import 'package:audioplayers_example/components/tab_content.dart';
 import 'package:audioplayers_example/components/tabs.dart';
+import 'package:audioplayers_example/main.dart';
 import 'package:flutter/material.dart';
 
 class AudioContextTab extends StatefulWidget {
-  final AudioPlayer player;
+  final AudioPlayerState playerState;
 
-  const AudioContextTab({super.key, required this.player});
+  const AudioContextTab({super.key, required this.playerState});
 
   @override
   _AudioContextTabState createState() => _AudioContextTabState();
@@ -18,11 +19,11 @@ class _AudioContextTabState extends State<AudioContextTab>
     with AutomaticKeepAliveClientMixin<AudioContextTab> {
   static GlobalPlatformInterface get _global => AudioPlayer.global;
 
-  /// Set config for all platforms
-  AudioContextConfig config = AudioContextConfig();
+  AudioPlayer get player => widget.playerState.player;
 
-  /// Set config for each platform individually
-  AudioContext audioContext = const AudioContext();
+  AudioContextConfig get config => widget.playerState.audioContextConfig;
+
+  AudioContext get audioContext => widget.playerState.audioContext;
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +47,7 @@ class _AudioContextTabState extends State<AudioContextTab>
             ElevatedButton.icon(
               icon: const Icon(Icons.looks_one),
               label: const Text('Local'),
-              onPressed: () => widget.player.setAudioContext(audioContext),
+              onPressed: () => player.setAudioContext(audioContext),
             )
           ],
         ),
@@ -77,20 +78,21 @@ class _AudioContextTabState extends State<AudioContextTab>
 
   void updateConfig(AudioContextConfig newConfig) {
     setState(() {
-      config = newConfig;
-      audioContext = config.build();
+      widget.playerState.audioContextConfig = newConfig;
+      widget.playerState.audioContext = config.build();
     });
   }
 
   void updateAudioContextAndroid(AudioContextAndroid contextAndroid) {
     setState(() {
-      audioContext = audioContext.copy(android: contextAndroid);
+      widget.playerState.audioContext =
+          audioContext.copy(android: contextAndroid);
     });
   }
 
   void updateAudioContextIOS(AudioContextIOS contextIOS) {
     setState(() {
-      audioContext = audioContext.copy(iOS: contextIOS);
+      widget.playerState.audioContext = audioContext.copy(iOS: contextIOS);
     });
   }
 
