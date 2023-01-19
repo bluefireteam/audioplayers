@@ -132,7 +132,7 @@ class _ExampleAppState extends State<ExampleApp> {
                 TabData(
                   key: 'loggerTab',
                   label: 'Log',
-                  content: LoggerTab(),
+                  content: const LoggerTab(),
                 ),
               ],
             ),

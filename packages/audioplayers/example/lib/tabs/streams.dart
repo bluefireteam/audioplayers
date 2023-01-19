@@ -38,7 +38,7 @@ class _StreamsTabState extends State<StreamsTab>
 class _StreamsWidget extends StatefulWidget {
   final AudioPlayer player;
 
-  const _StreamsWidget({super.key, required this.player});
+  const _StreamsWidget({required this.player});
 
   @override
   State<_StreamsWidget> createState() => _StreamsWidgetState();
@@ -114,7 +114,7 @@ class _StreamsWidgetState extends State<_StreamsWidget> {
 class _PropertiesWidget extends StatefulWidget {
   final AudioPlayer player;
 
-  const _PropertiesWidget({super.key, required this.player});
+  const _PropertiesWidget({required this.player});
 
   @override
   State<_PropertiesWidget> createState() => _PropertiesWidgetState();
