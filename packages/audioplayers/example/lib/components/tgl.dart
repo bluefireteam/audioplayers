@@ -20,11 +20,16 @@ class Tgl extends StatelessWidget {
           .mapIndexed((index, element) => index == selected)
           .toList(),
       onPressed: onChange,
+      borderRadius: const BorderRadius.all(Radius.circular(8)),
+      selectedBorderColor: Theme.of(context).primaryColor,
       children: options.entries
           .map(
-            (entry) => Text(
-              entry.value,
-              key: Key(entry.key),
+            (entry) => Padding(
+              padding: const EdgeInsets.all(8),
+              child: Text(
+                entry.value,
+                key: Key(entry.key),
+              ),
             ),
           )
           .toList(),
