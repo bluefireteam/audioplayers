@@ -125,6 +125,20 @@ $lastFailureMsg''',
     }
     await pumpAndSettle();
   }
+
+  bool durationRangeMatcher(
+      Duration? actual,
+      Duration? expected, {
+        Duration deviation = const Duration(seconds: 1),
+      }) {
+    if (actual == null && expected == null) {
+      return true;
+    }
+    if (actual == null || expected == null) {
+      return false;
+    }
+    return actual >= (expected - deviation) && actual <= (expected + deviation);
+  }
 }
 
 void expectWidgetHasText(

@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import '../platform_features.dart';
 import '../source_test_data.dart';
 import '../test_utils.dart';
+import 'properties.dart';
 
 Future<void> testStreamsTab(
   WidgetTester tester,
@@ -127,88 +128,12 @@ extension StreamWidgetTester on WidgetTester {
   // Linux: second
   // Web: second
 
-  bool _durationRangeMatcher(
-    Duration? actual,
-    Duration? expected, {
-    Duration deviation = const Duration(seconds: 1),
-  }) {
-    if (actual == null && expected == null) {
-      return true;
-    }
-    if (actual == null || expected == null) {
-      return false;
-    }
-    return actual >= (expected - deviation) && actual <= (expected + deviation);
-  }
-
   Future<void> stopStream() async {
     final st = StackTrace.current.toString();
 
     await scrollToAndTap(const Key('stop_button'));
     await waitOneshot(const Key('toast-player-stopped-0'), stackTrace: st);
     await pumpAndSettle();
-  }
-
-  Future<void> testDuration(
-    Duration duration, {
-    Duration timeout = const Duration(seconds: 4),
-  }) async {
-    printOnFailure('Test Duration: $duration');
-    final st = StackTrace.current.toString();
-    await waitFor(
-      () async {
-        await scrollToAndTap(const Key('refreshButton'));
-        await pump();
-        expectWidgetHasDuration(
-          const Key('durationText'),
-          matcher: (Duration? actual) =>
-              _durationRangeMatcher(actual, duration),
-        );
-      },
-      timeout: timeout,
-      stackTrace: st,
-    );
-  }
-
-  Future<void> testPosition(
-    Duration position, {
-    Matcher Function(Duration) matcher = equals,
-    Duration timeout = const Duration(seconds: 4),
-  }) async {
-    printOnFailure('Test Position: $position');
-    final st = StackTrace.current.toString();
-    await waitFor(
-      () async {
-        await scrollToAndTap(const Key('refreshButton'));
-        await pump();
-        expectWidgetHasDuration(
-          const Key('positionText'),
-          matcher: matcher(position),
-        );
-      },
-      timeout: timeout,
-      stackTrace: st,
-    );
-  }
-
-  Future<void> testPlayerState(
-    PlayerState playerState, {
-    Duration timeout = const Duration(seconds: 4),
-  }) async {
-    printOnFailure('Test PlayerState: $playerState');
-    final st = StackTrace.current.toString();
-    await waitFor(
-      () async {
-        await scrollToAndTap(const Key('refreshButton'));
-        await pump();
-        expectWidgetHasText(
-          const Key('playerStateText'),
-          matcher: contains(playerState.toString()),
-        );
-      },
-      timeout: timeout,
-      stackTrace: st,
-    );
   }
 
   Future<void> testOnDuration(
@@ -220,7 +145,7 @@ extension StreamWidgetTester on WidgetTester {
     await waitFor(
       () async => expectWidgetHasDuration(
         const Key('onDurationText'),
-        matcher: (Duration? actual) => _durationRangeMatcher(actual, duration),
+        matcher: (Duration? actual) => durationRangeMatcher(actual, duration),
       ),
       timeout: timeout,
       stackTrace: st,

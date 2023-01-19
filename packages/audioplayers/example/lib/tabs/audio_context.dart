@@ -1,5 +1,4 @@
 import 'package:audioplayers/audioplayers.dart';
-import 'package:audioplayers_example/components/btn.dart';
 import 'package:audioplayers_example/components/cbx.dart';
 import 'package:audioplayers_example/components/drop_down.dart';
 import 'package:audioplayers_example/components/tab_content.dart';
@@ -30,23 +29,23 @@ class _AudioContextTabState extends State<AudioContextTab>
     super.build(context);
     return Column(
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 8),
-          child: Text('Audio Context'),
-        ),
+        const ListTile(title: Text('Audio Context')),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            Btn(
-              txt: 'Reset',
+            ElevatedButton.icon(
+              icon: const Icon(Icons.undo),
+              label: const Text('Reset'),
               onPressed: () => updateConfig(AudioContextConfig()),
             ),
-            Btn(
-              txt: 'Global',
+            ElevatedButton.icon(
+              icon: const Icon(Icons.public),
+              label: const Text('Global'),
               onPressed: () => _global.setGlobalAudioContext(audioContext),
             ),
-            Btn(
-              txt: 'Local',
+            ElevatedButton.icon(
+              icon: const Icon(Icons.looks_one),
+              label: const Text('Local'),
               onPressed: () => widget.player.setAudioContext(audioContext),
             )
           ],

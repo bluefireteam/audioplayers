@@ -1,5 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_example/components/player_widget.dart';
+import 'package:audioplayers_example/components/properties_widget.dart';
 import 'package:audioplayers_example/components/stream_widget.dart';
 import 'package:audioplayers_example/components/tab_content.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +21,8 @@ class _StreamsTabState extends State<StreamsTab>
     super.build(context);
     return TabContent(
       children: [
+        PropertiesWidget(player: widget.player),
+        const Divider(color: Colors.black),
         StreamWidget(player: widget.player),
         const Divider(color: Colors.black),
         PlayerWidget(player: widget.player),

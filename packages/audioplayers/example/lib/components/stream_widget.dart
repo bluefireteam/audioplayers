@@ -50,13 +50,13 @@ class _StreamWidgetState extends State<StreamWidget> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const Text('Streams'),
+        const ListTile(title: Text('Streams')),
         ListTile(
           title: Text(
             streamDuration?.toString() ?? '-',
             key: const Key('onDurationText'),
           ),
-          subtitle: const Text('Stream Duration'),
+          subtitle: const Text('Duration Stream'),
           leading: const Icon(Icons.timelapse),
         ),
         ListTile(
@@ -64,7 +64,7 @@ class _StreamWidgetState extends State<StreamWidget> {
             streamPosition?.toString() ?? '-',
             key: const Key('onPositionText'),
           ),
-          subtitle: const Text('Stream Position'),
+          subtitle: const Text('Position Stream'),
           leading: const Icon(Icons.timer),
         ),
         ListTile(
@@ -72,7 +72,7 @@ class _StreamWidgetState extends State<StreamWidget> {
             streamState?.toString() ?? '-',
             key: const Key('onStateText'),
           ),
-          subtitle: const Text('Stream State'),
+          subtitle: const Text('State Stream'),
           leading: Icon(streamState?.getIcon() ?? Icons.stop),
         ),
       ],
