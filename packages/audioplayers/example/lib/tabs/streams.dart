@@ -4,7 +4,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_example/components/btn.dart';
 import 'package:audioplayers_example/components/pad.dart';
 import 'package:audioplayers_example/components/player_widget.dart';
-import 'package:audioplayers_example/components/tab_wrapper.dart';
+import 'package:audioplayers_example/components/tab_content.dart';
 import 'package:flutter/material.dart';
 
 class StreamsTab extends StatefulWidget {
@@ -75,7 +75,7 @@ class _StreamsTabState extends State<StreamsTab>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return TabWrapper(
+    return TabContent(
       children: [
         Row(
           children: [

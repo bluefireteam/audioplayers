@@ -1,6 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_example/components/btn.dart';
-import 'package:audioplayers_example/components/tab_wrapper.dart';
+import 'package:audioplayers_example/components/tab_content.dart';
 import 'package:flutter/material.dart';
 
 class LoggerTab extends StatefulWidget {
@@ -17,7 +17,7 @@ class _LoggerTabState extends State<LoggerTab> {
 
   @override
   Widget build(BuildContext context) {
-    return TabWrapper(
+    return TabContent(
       children: [
         Text('Log Level: $currentLogLevel'),
         Row(
