@@ -179,7 +179,7 @@ extension StreamWidgetTester on WidgetTester {
     await waitFor(
       () async => expectWidgetHasText(
         const Key('onStateText'),
-        matcher: contains('Stream State: $playerState'),
+        matcher: equals(playerState.toString()),
       ),
       pollInterval: const Duration(milliseconds: 250),
       timeout: timeout,
