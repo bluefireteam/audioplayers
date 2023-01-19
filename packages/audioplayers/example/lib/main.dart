@@ -25,19 +25,19 @@ class ExampleApp extends StatefulWidget {
 }
 
 class _ExampleAppState extends State<ExampleApp> {
-  List<AudioPlayerState> playerStates = List.generate(
+  List<PlayerUiState> playerUiStates = List.generate(
     4,
-    (_) => AudioPlayerState(AudioPlayer()..setReleaseMode(ReleaseMode.stop)),
+    (_) => PlayerUiState(AudioPlayer()..setReleaseMode(ReleaseMode.stop)),
   );
   int selectedPlayerIdx = 0;
 
-  AudioPlayerState get selectedPlayerState => playerStates[selectedPlayerIdx];
+  PlayerUiState get selectedPlayerUiState => playerUiStates[selectedPlayerIdx];
   List<StreamSubscription> streams = [];
 
   @override
   void initState() {
     super.initState();
-    playerStates.asMap().forEach((index, playerState) {
+    playerUiStates.asMap().forEach((index, playerState) {
       streams.add(
         playerState.player.onPlayerStateChanged.listen(
           (it) {
@@ -105,39 +105,39 @@ class _ExampleAppState extends State<ExampleApp> {
                   key: 'sourcesTab',
                   label: 'Src',
                   content: SourcesTab(
-                    key: selectedPlayerState.sourcesKey,
-                    playerState: selectedPlayerState,
+                    key: selectedPlayerUiState.sourcesKey,
+                    playerUiState: selectedPlayerUiState,
                   ),
                 ),
                 TabData(
                   key: 'controlsTab',
                   label: 'Ctrl',
                   content: ControlsTab(
-                    key: selectedPlayerState.controlsKey,
-                    player: selectedPlayerState.player,
+                    key: selectedPlayerUiState.controlsKey,
+                    player: selectedPlayerUiState.player,
                   ),
                 ),
                 TabData(
                   key: 'streamsTab',
                   label: 'Stream',
                   content: StreamsTab(
-                    key: selectedPlayerState.streamsKey,
-                    player: selectedPlayerState.player,
+                    key: selectedPlayerUiState.streamsKey,
+                    player: selectedPlayerUiState.player,
                   ),
                 ),
                 TabData(
                   key: 'audioContextTab',
                   label: 'Ctx',
                   content: AudioContextTab(
-                    key: selectedPlayerState.contextKey,
-                    playerState: selectedPlayerState,
+                    key: selectedPlayerUiState.contextKey,
+                    playerUiState: selectedPlayerUiState,
                   ),
                 ),
                 TabData(
                   key: 'loggerTab',
                   label: 'Log',
                   content: LoggerTab(
-                    key: selectedPlayerState.loggerKey,
+                    key: selectedPlayerUiState.loggerKey,
                   ),
                 ),
               ],
@@ -152,10 +152,10 @@ class _ExampleAppState extends State<ExampleApp> {
 /// A helper class to save the UI state of the individual players.
 /// Note that not every property is saved here, such as stream values,
 /// which in most cases can be initialized with player values.
-class AudioPlayerState {
+class PlayerUiState {
   final AudioPlayer player;
 
-  AudioPlayerState(this.player);
+  PlayerUiState(this.player);
 
   // Needed to force recreating tabs, if player has changed, but keep tab state.
   final sourcesKey = GlobalKey();

@@ -7,9 +7,9 @@ import 'package:audioplayers_example/main.dart';
 import 'package:flutter/material.dart';
 
 class AudioContextTab extends StatefulWidget {
-  final AudioPlayerState playerState;
+  final PlayerUiState playerUiState;
 
-  const AudioContextTab({super.key, required this.playerState});
+  const AudioContextTab({super.key, required this.playerUiState});
 
   @override
   _AudioContextTabState createState() => _AudioContextTabState();
@@ -19,11 +19,11 @@ class _AudioContextTabState extends State<AudioContextTab>
     with AutomaticKeepAliveClientMixin<AudioContextTab> {
   static GlobalPlatformInterface get _global => AudioPlayer.global;
 
-  AudioPlayer get player => widget.playerState.player;
+  AudioPlayer get player => widget.playerUiState.player;
 
-  AudioContextConfig get config => widget.playerState.audioContextConfig;
+  AudioContextConfig get config => widget.playerUiState.audioContextConfig;
 
-  AudioContext get audioContext => widget.playerState.audioContext;
+  AudioContext get audioContext => widget.playerUiState.audioContext;
 
   @override
   Widget build(BuildContext context) {
@@ -78,21 +78,21 @@ class _AudioContextTabState extends State<AudioContextTab>
 
   void updateConfig(AudioContextConfig newConfig) {
     setState(() {
-      widget.playerState.audioContextConfig = newConfig;
-      widget.playerState.audioContext = config.build();
+      widget.playerUiState.audioContextConfig = newConfig;
+      widget.playerUiState.audioContext = config.build();
     });
   }
 
   void updateAudioContextAndroid(AudioContextAndroid contextAndroid) {
     setState(() {
-      widget.playerState.audioContext =
+      widget.playerUiState.audioContext =
           audioContext.copy(android: contextAndroid);
     });
   }
 
   void updateAudioContextIOS(AudioContextIOS contextIOS) {
     setState(() {
-      widget.playerState.audioContext = audioContext.copy(iOS: contextIOS);
+      widget.playerUiState.audioContext = audioContext.copy(iOS: contextIOS);
     });
   }
 
