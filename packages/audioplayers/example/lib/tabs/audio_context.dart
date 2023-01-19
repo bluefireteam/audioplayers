@@ -3,13 +3,12 @@ import 'package:audioplayers_example/components/cbx.dart';
 import 'package:audioplayers_example/components/drop_down.dart';
 import 'package:audioplayers_example/components/tab_content.dart';
 import 'package:audioplayers_example/components/tabs.dart';
-import 'package:audioplayers_example/main.dart';
 import 'package:flutter/material.dart';
 
 class AudioContextTab extends StatefulWidget {
-  final PlayerUiState playerUiState;
+  final AudioPlayer player;
 
-  const AudioContextTab({super.key, required this.playerUiState});
+  const AudioContextTab({super.key, required this.player});
 
   @override
   _AudioContextTabState createState() => _AudioContextTabState();
@@ -19,11 +18,13 @@ class _AudioContextTabState extends State<AudioContextTab>
     with AutomaticKeepAliveClientMixin<AudioContextTab> {
   static GlobalPlatformInterface get _global => AudioPlayer.global;
 
-  AudioPlayer get player => widget.playerUiState.player;
+  AudioPlayer get player => widget.player;
 
-  AudioContextConfig get config => widget.playerUiState.audioContextConfig;
+  /// Set config for all platforms
+  AudioContextConfig audioContextConfig = AudioContextConfig();
 
-  AudioContext get audioContext => widget.playerUiState.audioContext;
+  /// Set config for each platform individually
+  AudioContext audioContext = const AudioContext();
 
   @override
   Widget build(BuildContext context) {
@@ -78,21 +79,20 @@ class _AudioContextTabState extends State<AudioContextTab>
 
   void updateConfig(AudioContextConfig newConfig) {
     setState(() {
-      widget.playerUiState.audioContextConfig = newConfig;
-      widget.playerUiState.audioContext = config.build();
+      audioContextConfig = newConfig;
+      audioContext = audioContextConfig.build();
     });
   }
 
   void updateAudioContextAndroid(AudioContextAndroid contextAndroid) {
     setState(() {
-      widget.playerUiState.audioContext =
-          audioContext.copy(android: contextAndroid);
+      audioContext = audioContext.copy(android: contextAndroid);
     });
   }
 
   void updateAudioContextIOS(AudioContextIOS contextIOS) {
     setState(() {
-      widget.playerUiState.audioContext = audioContext.copy(iOS: contextIOS);
+      audioContext = audioContext.copy(iOS: contextIOS);
     });
   }
 
@@ -101,23 +101,23 @@ class _AudioContextTabState extends State<AudioContextTab>
       children: [
         Cbx(
           'Force Speaker',
-          config.forceSpeaker,
-          (v) => updateConfig(config.copy(forceSpeaker: v)),
+          audioContextConfig.forceSpeaker,
+          (v) => updateConfig(audioContextConfig.copy(forceSpeaker: v)),
         ),
         Cbx(
           'Duck Audio',
-          config.duckAudio,
-          (v) => updateConfig(config.copy(duckAudio: v)),
+          audioContextConfig.duckAudio,
+          (v) => updateConfig(audioContextConfig.copy(duckAudio: v)),
         ),
         Cbx(
           'Respect Silence',
-          config.respectSilence,
-          (v) => updateConfig(config.copy(respectSilence: v)),
+          audioContextConfig.respectSilence,
+          (v) => updateConfig(audioContextConfig.copy(respectSilence: v)),
         ),
         Cbx(
           'Stay Awake',
-          config.stayAwake,
-          (v) => updateConfig(config.copy(stayAwake: v)),
+          audioContextConfig.stayAwake,
+          (v) => updateConfig(audioContextConfig.copy(stayAwake: v)),
         ),
       ],
     );
