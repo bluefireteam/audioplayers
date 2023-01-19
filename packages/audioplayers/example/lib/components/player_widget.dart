@@ -6,10 +6,7 @@ import 'package:flutter/material.dart';
 class PlayerWidget extends StatefulWidget {
   final AudioPlayer player;
 
-  const PlayerWidget({
-    super.key,
-    required this.player,
-  });
+  const PlayerWidget({super.key, required this.player});
 
   @override
   State<StatefulWidget> createState() {
@@ -18,19 +15,21 @@ class PlayerWidget extends StatefulWidget {
 }
 
 class _PlayerWidgetState extends State<PlayerWidget> {
-  PlayerState? _audioPlayerState;
+  PlayerState? _playerState;
   Duration? _duration;
   Duration? _position;
 
-  PlayerState _playerState = PlayerState.stopped;
   StreamSubscription? _durationSubscription;
   StreamSubscription? _positionSubscription;
   StreamSubscription? _playerCompleteSubscription;
   StreamSubscription? _playerStateChangeSubscription;
 
   bool get _isPlaying => _playerState == PlayerState.playing;
+
   bool get _isPaused => _playerState == PlayerState.paused;
+
   String get _durationText => _duration?.toString().split('.').first ?? '';
+
   String get _positionText => _position?.toString().split('.').first ?? '';
 
   AudioPlayer get player => widget.player;
@@ -38,6 +37,18 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   @override
   void initState() {
     super.initState();
+    // Use initial values from player
+    _playerState = player.state;
+    player.getDuration().then(
+          (value) => setState(() {
+            _duration = value;
+          }),
+        );
+    player.getCurrentPosition().then(
+          (value) => setState(() {
+            _position = value;
+          }),
+        );
     _initStreams();
   }
 
@@ -114,7 +125,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                   : '',
           style: const TextStyle(fontSize: 16.0),
         ),
-        Text('State: $_audioPlayerState'),
+        Text('State: ${_playerState ?? '-'}'),
       ],
     );
   }
@@ -138,7 +149,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     _playerStateChangeSubscription =
         player.onPlayerStateChanged.listen((state) {
       setState(() {
-        _audioPlayerState = state;
+        _playerState = state;
       });
     });
   }

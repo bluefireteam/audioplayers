@@ -19,7 +19,10 @@ class _LoggerTabState extends State<LoggerTab> {
   Widget build(BuildContext context) {
     return TabContent(
       children: [
-        Text('Log Level: $currentLogLevel'),
+        ListTile(
+          title: Text(currentLogLevel.toString()),
+          subtitle: const Text('Log Level'),
+        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: LogLevel.values

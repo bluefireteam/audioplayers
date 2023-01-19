@@ -1,15 +1,15 @@
 import 'package:audioplayers/audioplayers.dart';
-import 'package:audioplayers_example/components/btn.dart';
 import 'package:audioplayers_example/components/cbx.dart';
 import 'package:audioplayers_example/components/drop_down.dart';
 import 'package:audioplayers_example/components/tab_content.dart';
 import 'package:audioplayers_example/components/tabs.dart';
+import 'package:audioplayers_example/main.dart';
 import 'package:flutter/material.dart';
 
 class AudioContextTab extends StatefulWidget {
-  final AudioPlayer player;
+  final PlayerUiState playerUiState;
 
-  const AudioContextTab({super.key, required this.player});
+  const AudioContextTab({super.key, required this.playerUiState});
 
   @override
   _AudioContextTabState createState() => _AudioContextTabState();
@@ -19,35 +19,35 @@ class _AudioContextTabState extends State<AudioContextTab>
     with AutomaticKeepAliveClientMixin<AudioContextTab> {
   static GlobalPlatformInterface get _global => AudioPlayer.global;
 
-  /// Set config for all platforms
-  AudioContextConfig config = AudioContextConfig();
+  AudioPlayer get player => widget.playerUiState.player;
 
-  /// Set config for each platform individually
-  AudioContext audioContext = const AudioContext();
+  AudioContextConfig get config => widget.playerUiState.audioContextConfig;
+
+  AudioContext get audioContext => widget.playerUiState.audioContext;
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
     return Column(
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 8),
-          child: Text('Audio Context'),
-        ),
+        const ListTile(title: Text('Audio Context')),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            Btn(
-              txt: 'Reset',
+            ElevatedButton.icon(
+              icon: const Icon(Icons.undo),
+              label: const Text('Reset'),
               onPressed: () => updateConfig(AudioContextConfig()),
             ),
-            Btn(
-              txt: 'Global',
+            ElevatedButton.icon(
+              icon: const Icon(Icons.public),
+              label: const Text('Global'),
               onPressed: () => _global.setGlobalAudioContext(audioContext),
             ),
-            Btn(
-              txt: 'Local',
-              onPressed: () => widget.player.setAudioContext(audioContext),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.looks_one),
+              label: const Text('Local'),
+              onPressed: () => player.setAudioContext(audioContext),
             )
           ],
         ),
@@ -78,20 +78,21 @@ class _AudioContextTabState extends State<AudioContextTab>
 
   void updateConfig(AudioContextConfig newConfig) {
     setState(() {
-      config = newConfig;
-      audioContext = config.build();
+      widget.playerUiState.audioContextConfig = newConfig;
+      widget.playerUiState.audioContext = config.build();
     });
   }
 
   void updateAudioContextAndroid(AudioContextAndroid contextAndroid) {
     setState(() {
-      audioContext = audioContext.copy(android: contextAndroid);
+      widget.playerUiState.audioContext =
+          audioContext.copy(android: contextAndroid);
     });
   }
 
   void updateAudioContextIOS(AudioContextIOS contextIOS) {
     setState(() {
-      audioContext = audioContext.copy(iOS: contextIOS);
+      widget.playerUiState.audioContext = audioContext.copy(iOS: contextIOS);
     });
   }
 
