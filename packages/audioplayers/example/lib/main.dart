@@ -25,19 +25,21 @@ class ExampleApp extends StatefulWidget {
 }
 
 class _ExampleAppState extends State<ExampleApp> {
-  List<AudioPlayer> players =
-      List.generate(4, (_) => AudioPlayer()..setReleaseMode(ReleaseMode.stop));
+  List<AudioPlayerState> playerStates = List.generate(
+    4,
+    (_) => AudioPlayerState(AudioPlayer()..setReleaseMode(ReleaseMode.stop)),
+  );
   int selectedPlayerIdx = 0;
 
-  AudioPlayer get selectedPlayer => players[selectedPlayerIdx];
+  AudioPlayerState get selectedPlayerState => playerStates[selectedPlayerIdx];
   List<StreamSubscription> streams = [];
 
   @override
   void initState() {
     super.initState();
-    players.asMap().forEach((index, player) {
+    playerStates.asMap().forEach((index, playerState) {
       streams.add(
-        player.onPlayerStateChanged.listen(
+        playerState.player.onPlayerStateChanged.listen(
           (it) {
             switch (it) {
               case PlayerState.stopped:
@@ -59,7 +61,7 @@ class _ExampleAppState extends State<ExampleApp> {
         ),
       );
       streams.add(
-        player.onSeekComplete.listen(
+        playerState.player.onSeekComplete.listen(
           (it) => toast(
             'Seek complete!',
             textKey: Key('toast-seek-complete-$index'),
@@ -102,27 +104,35 @@ class _ExampleAppState extends State<ExampleApp> {
                 TabData(
                   key: 'sourcesTab',
                   label: 'Src',
-                  content: SourcesTab(player: selectedPlayer),
+                  content: SourcesTab(
+                    playerState: selectedPlayerState,
+                  ),
                 ),
                 TabData(
                   key: 'controlsTab',
                   label: 'Ctrl',
-                  content: ControlsTab(player: selectedPlayer),
+                  content: ControlsTab(
+                    player: selectedPlayerState.player,
+                  ),
                 ),
                 TabData(
                   key: 'streamsTab',
                   label: 'Stream',
-                  content: StreamsTab(player: selectedPlayer),
+                  content: StreamsTab(
+                    player: selectedPlayerState.player,
+                  ),
                 ),
                 TabData(
                   key: 'audioContextTab',
                   label: 'Ctx',
-                  content: AudioContextTab(player: selectedPlayer),
+                  content: AudioContextTab(
+                    player: selectedPlayerState.player,
+                  ),
                 ),
                 TabData(
                   key: 'loggerTab',
                   label: 'Log',
-                  content: const LoggerTab(),
+                  content: LoggerTab(),
                 ),
               ],
             ),
@@ -131,4 +141,12 @@ class _ExampleAppState extends State<ExampleApp> {
       ),
     );
   }
+}
+
+class AudioPlayerState {
+  final AudioPlayer player;
+
+  InitMode initMode = InitMode.setSource;
+
+  AudioPlayerState(this.player);
 }

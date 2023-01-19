@@ -4,6 +4,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_example/components/btn.dart';
 import 'package:audioplayers_example/components/tab_content.dart';
 import 'package:audioplayers_example/components/tgl.dart';
+import 'package:audioplayers_example/main.dart';
 import 'package:audioplayers_example/utils.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -27,24 +28,26 @@ const mpgaStreamUrl = 'https://timesradio.wireless.radio/stream';
 const asset1 = 'laser.wav';
 const asset2 = 'nasa_on_a_mission.mp3';
 
-class SourcesTab extends StatefulWidget {
-  final AudioPlayer player;
-
-  const SourcesTab({super.key, required this.player});
-
-  @override
-  State<SourcesTab> createState() => _SourcesTabState();
-}
-
 enum InitMode {
   setSource,
   play,
 }
 
+class SourcesTab extends StatefulWidget {
+  final AudioPlayerState playerState;
+  final AudioPlayer player;
+
+  SourcesTab({super.key, required this.playerState})
+      : player = playerState.player;
+
+  @override
+  State<SourcesTab> createState() => _SourcesTabState();
+}
+
 class _SourcesTabState extends State<SourcesTab>
     with AutomaticKeepAliveClientMixin<SourcesTab> {
   Future<void> setSource(Source source) async {
-    if (initMode == InitMode.setSource) {
+    if (widget.playerState.initMode == InitMode.setSource) {
       await widget.player.setSource(source);
       toast(
         'Completed setting source.',
@@ -56,8 +59,6 @@ class _SourcesTabState extends State<SourcesTab>
     }
   }
 
-  InitMode initMode = InitMode.setSource;
-
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -65,9 +66,9 @@ class _SourcesTabState extends State<SourcesTab>
       children: [
         EnumTgl(
           options: {for (var e in InitMode.values) 'initMode-${e.name}': e},
-          selected: initMode,
+          selected: widget.playerState.initMode,
           onChange: (InitMode m) => setState(() {
-            initMode = m;
+            widget.playerState.initMode = m;
           }),
         ),
         Btn(
