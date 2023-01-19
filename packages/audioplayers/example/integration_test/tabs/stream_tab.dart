@@ -157,7 +157,7 @@ extension StreamWidgetTester on WidgetTester {
     final st = StackTrace.current.toString();
     await waitFor(
       () async {
-        await scrollToAndTap(const Key('getDuration'));
+        await scrollToAndTap(const Key('refreshButton'));
         await pump();
         expectWidgetHasDuration(
           const Key('durationText'),
@@ -179,7 +179,7 @@ extension StreamWidgetTester on WidgetTester {
     final st = StackTrace.current.toString();
     await waitFor(
       () async {
-        await scrollToAndTap(const Key('getPosition'));
+        await scrollToAndTap(const Key('refreshButton'));
         await pump();
         expectWidgetHasDuration(
           const Key('positionText'),
@@ -199,7 +199,7 @@ extension StreamWidgetTester on WidgetTester {
     final st = StackTrace.current.toString();
     await waitFor(
       () async {
-        await scrollToAndTap(const Key('getPlayerState'));
+        await scrollToAndTap(const Key('refreshButton'));
         await pump();
         expectWidgetHasText(
           const Key('playerStateText'),

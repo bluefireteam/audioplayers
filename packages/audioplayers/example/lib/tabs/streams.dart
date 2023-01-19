@@ -1,10 +1,9 @@
 import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
-import 'package:audioplayers_example/components/btn.dart';
-import 'package:audioplayers_example/components/pad.dart';
 import 'package:audioplayers_example/components/player_widget.dart';
 import 'package:audioplayers_example/components/tab_content.dart';
+import 'package:audioplayers_example/utils.dart';
 import 'package:flutter/material.dart';
 
 class StreamsTab extends StatefulWidget {
@@ -18,13 +17,37 @@ class StreamsTab extends StatefulWidget {
 
 class _StreamsTabState extends State<StreamsTab>
     with AutomaticKeepAliveClientMixin<StreamsTab> {
-  Duration? position, duration;
-  PlayerState? state;
-  Source? source;
-  late List<StreamSubscription> streams;
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return TabContent(
+      children: [
+        _PropertiesWidget(player: widget.player),
+        const Divider(color: Colors.black),
+        _StreamsWidget(player: widget.player),
+        const Divider(color: Colors.black),
+        PlayerWidget(player: widget.player),
+      ],
+    );
+  }
 
+  @override
+  bool get wantKeepAlive => true;
+}
+
+class _StreamsWidget extends StatefulWidget {
+  final AudioPlayer player;
+
+  const _StreamsWidget({super.key, required this.player});
+
+  @override
+  State<_StreamsWidget> createState() => _StreamsWidgetState();
+}
+
+class _StreamsWidgetState extends State<_StreamsWidget> {
   Duration? streamDuration, streamPosition;
   PlayerState? streamState;
+  late List<StreamSubscription> streams;
 
   @override
   void initState() {
@@ -40,6 +63,12 @@ class _StreamsTabState extends State<StreamsTab>
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    streams.forEach((it) => it.cancel());
+  }
+
+  @override
   void setState(VoidCallback fn) {
     // Subscriptions only can be closed asynchronously,
     // therefore events can occur after widget has been disposed.
@@ -49,110 +78,107 @@ class _StreamsTabState extends State<StreamsTab>
   }
 
   @override
-  void dispose() {
-    super.dispose();
-    streams.forEach((it) => it.cancel());
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const Text('Streams'),
+        ListTile(
+          title: Text(
+            streamDuration?.toString() ?? '-',
+            key: const Key('onDurationText'),
+          ),
+          subtitle: const Text('Stream Duration'),
+          leading: const Icon(Icons.timelapse),
+        ),
+        ListTile(
+          title: Text(
+            streamPosition?.toString() ?? '-',
+            key: const Key('onPositionText'),
+          ),
+          subtitle: const Text('Stream Position'),
+          leading: const Icon(Icons.timer),
+        ),
+        ListTile(
+          title: Text(
+            streamState?.toString() ?? '-',
+            key: const Key('onStateText'),
+          ),
+          subtitle: const Text('Stream State'),
+          leading: Icon(streamState?.getIcon() ?? Icons.stop),
+        ),
+      ],
+    );
   }
+}
 
-  Future<void> getPosition() async {
-    final position = await widget.player.getCurrentPosition();
-    setState(() => this.position = position);
-  }
+class _PropertiesWidget extends StatefulWidget {
+  final AudioPlayer player;
 
-  Future<void> getDuration() async {
-    final duration = await widget.player.getDuration();
-    setState(() => this.duration = duration);
-  }
+  const _PropertiesWidget({super.key, required this.player});
 
-  Future<void> getPlayerState() async {
-    setState(() => state = widget.player.state);
-  }
+  @override
+  State<_PropertiesWidget> createState() => _PropertiesWidgetState();
+}
 
-  Future<void> getSource() async {
-    setState(() => source = widget.player.source);
+class _PropertiesWidgetState extends State<_PropertiesWidget> {
+  Future<void> refresh() async {
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
-    return TabContent(
+    return Column(
       children: [
-        Row(
-          children: [
-            Btn(
-              key: const Key('getDuration'),
-              txt: 'Get Duration',
-              onPressed: getDuration,
-            ),
-            const Pad(width: 8.0),
-            Text(
-              duration?.toString() ?? '-',
-              key: const Key('durationText'),
-            ),
-          ],
+        const Text('Properties'),
+        ListTile(
+          title: FutureBuilder<Duration?>(
+            future: widget.player.getDuration(),
+            builder: (context, snap) {
+              return Text(
+                snap.data?.toString() ?? '-',
+                key: const Key('durationText'),
+              );
+            },
+          ),
+          subtitle: const Text('Duration'),
+          leading: const Icon(Icons.timelapse),
         ),
-        Row(
-          children: [
-            Btn(
-              key: const Key('getPosition'),
-              txt: 'Get Position',
-              onPressed: getPosition,
-            ),
-            const Pad(width: 8.0),
-            Text(
-              position?.toString() ?? '-',
-              key: const Key('positionText'),
-            ),
-          ],
+        ListTile(
+          title: FutureBuilder<Duration?>(
+            future: widget.player.getCurrentPosition(),
+            builder: (context, snap) {
+              return Text(
+                snap.data?.toString() ?? '-',
+                key: const Key('positionText'),
+              );
+            },
+          ),
+          subtitle: const Text('Position'),
+          leading: const Icon(Icons.timer),
         ),
-        Row(
-          children: [
-            Btn(
-              key: const Key('getPlayerState'),
-              txt: 'Get State',
-              onPressed: getPlayerState,
-            ),
-            const Pad(width: 8.0),
-            Text(
-              state?.toString() ?? '-',
-              key: const Key('playerStateText'),
-            ),
-          ],
+        ListTile(
+          title: Text(
+            widget.player.state.toString(),
+            key: const Key('playerStateText'),
+          ),
+          subtitle: const Text('State'),
+          leading: Icon(widget.player.state.getIcon()),
         ),
-        Row(
-          children: [
-            Btn(
-              key: const Key('getSource'),
-              txt: 'Get Source',
-              onPressed: getSource,
-            ),
-            const Pad(width: 8.0),
-            Text(
-              source?.toString() ?? '-',
-              key: const Key('sourceText'),
-            ),
-          ],
+        ListTile(
+          title: Text(
+            widget.player.source?.toString() ?? '-',
+            key: const Key('sourceText'),
+          ),
+          subtitle: const Text('Source'),
+          leading: const Icon(Icons.audio_file),
         ),
-        const Divider(color: Colors.black),
-        const Text('Streams'),
-        Text(
-          'Stream Duration: $streamDuration',
-          key: const Key('onDurationText'),
+        ElevatedButton.icon(
+          icon: const Icon(Icons.refresh),
+          key: const Key('refreshButton'),
+          label: const Text('Refresh'),
+          onPressed: refresh,
         ),
-        Text(
-          'Stream Position: $streamPosition',
-          key: const Key('onPositionText'),
-        ),
-        Text(
-          'Stream State: $streamState',
-          key: const Key('onStateText'),
-        ),
-        const Divider(color: Colors.black),
-        PlayerWidget(player: widget.player),
       ],
     );
   }
-
-  @override
-  bool get wantKeepAlive => true;
 }

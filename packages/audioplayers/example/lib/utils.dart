@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_example/components/dlg.dart';
 import 'package:flutter/material.dart';
 
@@ -27,5 +28,15 @@ extension StateExt<T extends StatefulWidget> on State<T> {
         return Dlg(children: children);
       },
     );
+  }
+}
+
+extension PlayerStateIcon on PlayerState {
+  IconData getIcon() {
+    return this == PlayerState.playing
+        ? Icons.play_arrow
+        : (this == PlayerState.paused
+            ? Icons.pause
+            : (this == PlayerState.stopped ? Icons.stop : Icons.stop_circle));
   }
 }
