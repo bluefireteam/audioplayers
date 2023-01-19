@@ -127,10 +127,10 @@ $lastFailureMsg''',
   }
 
   bool durationRangeMatcher(
-      Duration? actual,
-      Duration? expected, {
-        Duration deviation = const Duration(seconds: 1),
-      }) {
+    Duration? actual,
+    Duration? expected, {
+    Duration deviation = const Duration(seconds: 1),
+  }) {
     if (actual == null && expected == null) {
       return true;
     }
