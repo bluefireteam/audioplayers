@@ -1,5 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_example/components/btn.dart';
+import 'package:audioplayers_example/components/properties_widget.dart';
 import 'package:audioplayers_example/components/tab_content.dart';
 import 'package:audioplayers_example/components/tgl.dart';
 import 'package:audioplayers_example/components/txt.dart';
@@ -212,6 +213,8 @@ class _ControlsTabState extends State<ControlsTab>
             ),
           ],
         ),
+        const Divider(color: Colors.black),
+        PropertiesWidget(player: widget.player),
       ],
     );
   }
