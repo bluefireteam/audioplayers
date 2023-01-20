@@ -47,170 +47,143 @@ class _ControlsTabState extends State<ControlsTab>
     super.build(context);
     return TabContent(
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Btn(
-              key: const Key('control-pause'),
-              txt: 'Pause',
-              onPressed: widget.player.pause,
-            ),
-            Btn(
-              key: const Key('control-stop'),
-              txt: 'Stop',
-              onPressed: widget.player.stop,
-            ),
-            Btn(
-              key: const Key('control-resume'),
-              txt: 'Resume',
-              onPressed: widget.player.resume,
-            ),
-            Btn(
-              key: const Key('control-release'),
-              txt: 'Release',
-              onPressed: widget.player.release,
-            ),
-          ],
+        ListTile(
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Btn(
+                key: const Key('control-pause'),
+                txt: 'Pause',
+                onPressed: widget.player.pause,
+              ),
+              Btn(
+                key: const Key('control-stop'),
+                txt: 'Stop',
+                onPressed: widget.player.stop,
+              ),
+              Btn(
+                key: const Key('control-resume'),
+                txt: 'Resume',
+                onPressed: widget.player.resume,
+              ),
+              Btn(
+                key: const Key('control-release'),
+                txt: 'Release',
+                onPressed: widget.player.release,
+              ),
+            ],
+          ),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text('Volume'),
-            ...[0.0, 0.5, 1.0, 2.0].map((it) {
+        ListTile(
+          leading: const Text('Volume'),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [0.0, 0.5, 1.0, 2.0].map((it) {
               final formattedVal = it.toStringAsFixed(1);
               return Btn(
                 key: Key('control-volume-$formattedVal'),
                 txt: formattedVal,
                 onPressed: () => widget.player.setVolume(it),
               );
-            }),
-          ],
+            }).toList(),
+          ),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text('Balance'),
-            ...[-1.0, -0.5, 0.0, 1.0].map((it) {
+        ListTile(
+          leading: const Text('Balance'),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [-1.0, -0.5, 0.0, 1.0].map((it) {
               final formattedVal = it.toStringAsFixed(1);
               return Btn(
                 key: Key('control-balance-$formattedVal'),
                 txt: formattedVal,
                 onPressed: () => widget.player.setBalance(it),
               );
-            }),
-          ],
+            }).toList(),
+          ),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text('Rate'),
-            ...[0.0, 0.5, 1.0, 2.0].map((it) {
+        ListTile(
+          leading: const Text('Rate'),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [0.0, 0.5, 1.0, 2.0].map((it) {
               final formattedVal = it.toStringAsFixed(1);
               return Btn(
                 key: Key('control-rate-$formattedVal'),
                 txt: formattedVal,
                 onPressed: () => widget.player.setPlaybackRate(it),
               );
-            }),
-          ],
+            }).toList(),
+          ),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text('Player Mode'),
-            EnumTgl<PlayerMode>(
-              key: const Key('control-player-mode'),
-              options: {
-                for (var e in PlayerMode.values)
-                  'control-player-mode-${e.name}': e
-              },
-              selected: widget.player.mode,
-              onChange: (playerMode) async {
-                await _update(() => widget.player.setPlayerMode(playerMode));
-              },
-            ),
-          ],
+        ListTile(
+          leading: const Text('Player Mode'),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              EnumTgl<PlayerMode>(
+                key: const Key('control-player-mode'),
+                options: {
+                  for (var e in PlayerMode.values)
+                    'control-player-mode-${e.name}': e
+                },
+                selected: widget.player.mode,
+                onChange: (playerMode) async {
+                  await _update(() => widget.player.setPlayerMode(playerMode));
+                },
+              ),
+            ],
+          ),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text('Release Mode'),
-            EnumTgl<ReleaseMode>(
-              key: const Key('control-release-mode'),
-              options: {
-                for (var e in ReleaseMode.values)
-                  'control-release-mode-${e.name}': e
-              },
-              selected: widget.player.releaseMode,
-              onChange: (releaseMode) async {
-                await _update(() => widget.player.setReleaseMode(releaseMode));
-              },
-            ),
-          ],
+        ListTile(
+          leading: const Text('Release Mode'),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              EnumTgl<ReleaseMode>(
+                key: const Key('control-release-mode'),
+                options: {
+                  for (var e in ReleaseMode.values)
+                    'control-release-mode-${e.name}': e
+                },
+                selected: widget.player.releaseMode,
+                onChange: (releaseMode) async {
+                  await _update(
+                    () => widget.player.setReleaseMode(releaseMode),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text('Seek'),
-            ...[0.0, 0.5, 1.0].map((it) {
-              final formattedVal = it.toStringAsFixed(1);
-              return Btn(
-                key: Key('control-seek-$formattedVal'),
-                txt: formattedVal,
-                onPressed: () => _seekPercent(it),
-              );
-            }),
-            Btn(
-              txt: 'Custom',
-              onPressed: () async {
-                dialog([
-                  const Text('Pick a duration and unit to seek'),
-                  TxtBox(
-                    value: modalInputSeek,
-                    onChange: (it) => setState(() => modalInputSeek = it),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Btn(
-                        txt: 'millis',
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                          _seekDuration(
-                            Duration(
-                              milliseconds: int.parse(modalInputSeek),
-                            ),
-                          );
-                        },
-                      ),
-                      Btn(
-                        txt: 'seconds',
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                          _seekDuration(
-                            Duration(
-                              seconds: int.parse(modalInputSeek),
-                            ),
-                          );
-                        },
-                      ),
-                      Btn(
-                        txt: '%',
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                          _seekPercent(double.parse(modalInputSeek));
-                        },
-                      ),
-                      Btn(
-                        txt: 'Cancel',
-                        onPressed: Navigator.of(context).pop,
-                      ),
-                    ],
-                  ),
-                ]);
-              },
-            ),
-          ],
+        ListTile(
+          leading: const Text('Seek'),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              ...[0.0, 0.5, 1.0].map((it) {
+                final formattedVal = it.toStringAsFixed(1);
+                return Btn(
+                  key: Key('control-seek-$formattedVal'),
+                  txt: formattedVal,
+                  onPressed: () => _seekPercent(it),
+                );
+              }),
+              Btn(
+                txt: 'Custom',
+                onPressed: () async {
+                  dialog(
+                    SeekDialog(
+                      value: modalInputSeek,
+                      setValue: (it) => setState(() => modalInputSeek = it),
+                      seekDuration: _seekDuration,
+                      seekPercent: _seekPercent,
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -218,4 +191,74 @@ class _ControlsTabState extends State<ControlsTab>
 
   @override
   bool get wantKeepAlive => true;
+}
+
+class SeekDialog extends StatelessWidget {
+  final void Function(Duration duration) seekDuration;
+  final void Function(double val) seekPercent;
+  final void Function(String val) setValue;
+  String value;
+
+  SeekDialog({
+    super.key,
+    required this.seekDuration,
+    required this.seekPercent,
+    required this.value,
+    required this.setValue,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Text('Pick a duration and unit to seek'),
+        TxtBox(
+          value: value,
+          onChange: (v) {
+            value = v;
+            setValue(v);
+          },
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Btn(
+              txt: 'millis',
+              onPressed: () {
+                Navigator.of(context).pop();
+                seekDuration(
+                  Duration(
+                    milliseconds: int.parse(value),
+                  ),
+                );
+              },
+            ),
+            Btn(
+              txt: 'seconds',
+              onPressed: () {
+                Navigator.of(context).pop();
+                seekDuration(
+                  Duration(
+                    seconds: int.parse(value),
+                  ),
+                );
+              },
+            ),
+            Btn(
+              txt: '%',
+              onPressed: () {
+                Navigator.of(context).pop();
+                seekPercent(double.parse(value));
+              },
+            ),
+            Btn(
+              txt: 'Cancel',
+              onPressed: Navigator.of(context).pop,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
 }

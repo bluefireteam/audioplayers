@@ -8,9 +8,10 @@ class Btn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ButtonTheme(
-      minWidth: 48.0,
+    return Padding(
+      padding: const EdgeInsets.all(4),
       child: ElevatedButton(
+        style: ElevatedButton.styleFrom(minimumSize: const Size(48, 36)),
         onPressed: onPressed,
         child: Text(txt),
       ),

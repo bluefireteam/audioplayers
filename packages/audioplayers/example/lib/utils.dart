@@ -21,11 +21,11 @@ extension StateExt<T extends StatefulWidget> on State<T> {
     );
   }
 
-  void dialog(List<Widget> children) {
+  void dialog(Widget child) {
     showDialog<void>(
       context: context,
       builder: (_) {
-        return Dlg(children: children);
+        return Dlg(child: child);
       },
     );
   }
