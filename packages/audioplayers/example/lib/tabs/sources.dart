@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_example/components/btn.dart';
-import 'package:audioplayers_example/components/tab_wrapper.dart';
+import 'package:audioplayers_example/components/tab_content.dart';
 import 'package:audioplayers_example/components/tgl.dart';
 import 'package:audioplayers_example/utils.dart';
 import 'package:file_picker/file_picker.dart';
@@ -27,6 +27,11 @@ const mpgaStreamUrl = 'https://timesradio.wireless.radio/stream';
 const asset1 = 'laser.wav';
 const asset2 = 'nasa_on_a_mission.mp3';
 
+enum InitMode {
+  setSource,
+  play,
+}
+
 class SourcesTab extends StatefulWidget {
   final AudioPlayer player;
 
@@ -36,32 +41,29 @@ class SourcesTab extends StatefulWidget {
   State<SourcesTab> createState() => _SourcesTabState();
 }
 
-enum InitMode {
-  setSource,
-  play,
-}
-
 class _SourcesTabState extends State<SourcesTab>
     with AutomaticKeepAliveClientMixin<SourcesTab> {
+  InitMode initMode = InitMode.setSource;
+
+  AudioPlayer get player => widget.player;
+
   Future<void> setSource(Source source) async {
     if (initMode == InitMode.setSource) {
-      await widget.player.setSource(source);
+      await player.setSource(source);
       toast(
         'Completed setting source.',
         textKey: const Key('toast-source-set'),
       );
     } else {
-      await widget.player.stop();
-      await widget.player.play(source);
+      await player.stop();
+      await player.play(source);
     }
   }
-
-  InitMode initMode = InitMode.setSource;
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return TabWrapper(
+    return TabContent(
       children: [
         EnumTgl(
           options: {for (var e in InitMode.values) 'initMode-${e.name}': e},

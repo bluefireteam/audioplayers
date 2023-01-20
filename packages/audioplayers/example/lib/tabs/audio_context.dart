@@ -1,7 +1,7 @@
 import 'package:audioplayers/audioplayers.dart';
-import 'package:audioplayers_example/components/btn.dart';
 import 'package:audioplayers_example/components/cbx.dart';
-import 'package:audioplayers_example/components/tab_wrapper.dart';
+import 'package:audioplayers_example/components/drop_down.dart';
+import 'package:audioplayers_example/components/tab_content.dart';
 import 'package:audioplayers_example/components/tabs.dart';
 import 'package:flutter/material.dart';
 
@@ -18,33 +18,41 @@ class _AudioContextTabState extends State<AudioContextTab>
     with AutomaticKeepAliveClientMixin<AudioContextTab> {
   static GlobalPlatformInterface get _global => AudioPlayer.global;
 
-  AudioContextConfig config = AudioContextConfig();
+  AudioPlayer get player => widget.player;
+
+  /// Set config for all platforms
+  AudioContextConfig audioContextConfig = AudioContextConfig();
+
+  /// Set config for each platform individually
+  AudioContext audioContext = const AudioContext();
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return TabWrapper(
+    return Column(
       children: [
-        const Text('Audio Context'),
+        const ListTile(title: Text('Audio Context')),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            Btn(
-              txt: 'Reset',
+            ElevatedButton.icon(
+              icon: const Icon(Icons.undo),
+              label: const Text('Reset'),
               onPressed: () => updateConfig(AudioContextConfig()),
             ),
-            Btn(
-              txt: 'Global',
-              onPressed: () => _global.setGlobalAudioContext(config.build()),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.public),
+              label: const Text('Global'),
+              onPressed: () => _global.setGlobalAudioContext(audioContext),
             ),
-            Btn(
-              txt: 'Local',
-              onPressed: () => widget.player.setAudioContext(config.build()),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.looks_one),
+              label: const Text('Local'),
+              onPressed: () => player.setAudioContext(audioContext),
             )
           ],
         ),
-        Container(
-          height: 500,
+        Expanded(
           child: Tabs(
             tabs: [
               TabData(
@@ -70,55 +78,130 @@ class _AudioContextTabState extends State<AudioContextTab>
   }
 
   void updateConfig(AudioContextConfig newConfig) {
-    setState(() => config = newConfig);
+    setState(() {
+      audioContextConfig = newConfig;
+      audioContext = audioContextConfig.build();
+    });
+  }
+
+  void updateAudioContextAndroid(AudioContextAndroid contextAndroid) {
+    setState(() {
+      audioContext = audioContext.copy(android: contextAndroid);
+    });
+  }
+
+  void updateAudioContextIOS(AudioContextIOS contextIOS) {
+    setState(() {
+      audioContext = audioContext.copy(iOS: contextIOS);
+    });
   }
 
   Widget _genericTab() {
-    return Column(
+    return TabContent(
       children: [
         Cbx(
           'Force Speaker',
-          config.forceSpeaker,
-          (v) => updateConfig(config.copy(forceSpeaker: v)),
+          audioContextConfig.forceSpeaker,
+          (v) => updateConfig(audioContextConfig.copy(forceSpeaker: v)),
         ),
         Cbx(
           'Duck Audio',
-          config.duckAudio,
-          (v) => updateConfig(config.copy(duckAudio: v)),
+          audioContextConfig.duckAudio,
+          (v) => updateConfig(audioContextConfig.copy(duckAudio: v)),
         ),
         Cbx(
           'Respect Silence',
-          config.respectSilence,
-          (v) => updateConfig(config.copy(respectSilence: v)),
+          audioContextConfig.respectSilence,
+          (v) => updateConfig(audioContextConfig.copy(respectSilence: v)),
         ),
         Cbx(
           'Stay Awake',
-          config.stayAwake,
-          (v) => updateConfig(config.copy(stayAwake: v)),
+          audioContextConfig.stayAwake,
+          (v) => updateConfig(audioContextConfig.copy(stayAwake: v)),
         ),
       ],
     );
   }
 
   Widget _androidTab() {
-    final a = config.buildAndroid();
-    return Column(
+    return TabContent(
       children: [
-        Text('isSpeakerphoneOn: ${a.isSpeakerphoneOn}'),
-        Text('stayAwake: ${a.stayAwake}'),
-        Text('contentType: ${a.contentType}'),
-        Text('usageType: ${a.usageType}'),
-        Text('audioFocus: ${a.audioFocus}'),
+        Cbx(
+          'isSpeakerphoneOn',
+          audioContext.android.isSpeakerphoneOn,
+          (v) => updateAudioContextAndroid(
+            audioContext.android.copy(isSpeakerphoneOn: v),
+          ),
+        ),
+        Cbx(
+          'stayAwake',
+          audioContext.android.stayAwake,
+          (v) => updateAudioContextAndroid(
+            audioContext.android.copy(stayAwake: v),
+          ),
+        ),
+        LabeledDropDown<AndroidContentType>(
+          label: 'contentType',
+          key: const Key('contentType'),
+          options: {for (var e in AndroidContentType.values) e: e.name},
+          selected: audioContext.android.contentType,
+          onChange: (v) => updateAudioContextAndroid(
+            audioContext.android.copy(contentType: v),
+          ),
+        ),
+        LabeledDropDown<AndroidUsageType>(
+          label: 'usageType',
+          key: const Key('usageType'),
+          options: {for (var e in AndroidUsageType.values) e: e.name},
+          selected: audioContext.android.usageType,
+          onChange: (v) => updateAudioContextAndroid(
+            audioContext.android.copy(usageType: v),
+          ),
+        ),
+        LabeledDropDown<AndroidAudioFocus?>(
+          key: const Key('audioFocus'),
+          label: 'audioFocus',
+          options: {for (var e in AndroidAudioFocus.values) e: e.name},
+          selected: audioContext.android.audioFocus,
+          onChange: (v) => updateAudioContextAndroid(
+            audioContext.android.copy(audioFocus: v),
+          ),
+        ),
       ],
     );
   }
 
   Widget _iosTab() {
-    final i = config.buildIOS();
-    return Column(
-      children: [
-        Text('category: ${i.category}'),
-        Text('options: ${i.options}'),
+    final iosOptions = AVAudioSessionOptions.values
+        .map(
+          (option) => Cbx(
+            option.name,
+            audioContext.iOS.options.contains(option),
+            (v) {
+              if (v) {
+                audioContext.iOS.options.add(option);
+              } else {
+                audioContext.iOS.options.remove(option);
+              }
+              updateAudioContextIOS(
+                audioContext.iOS.copy(options: audioContext.iOS.options),
+              );
+            },
+          ),
+        )
+        .toList();
+    return TabContent(
+      children: <Widget>[
+        LabeledDropDown<AVAudioSessionCategory>(
+          key: const Key('category'),
+          label: 'category',
+          options: {for (var e in AVAudioSessionCategory.values) e: e.name},
+          selected: audioContext.iOS.category,
+          onChange: (v) => updateAudioContextIOS(
+            audioContext.iOS.copy(category: v),
+          ),
+        ),
+        ...iosOptions
       ],
     );
   }
