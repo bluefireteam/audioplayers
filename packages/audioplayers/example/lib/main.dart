@@ -80,7 +80,7 @@ class _ExampleAppState extends State<ExampleApp> {
     super.dispose();
   }
 
-  void handleAction(PopupAction value) {
+  void _handleAction(PopupAction value) {
     switch (value) {
       case PopupAction.add:
         setState(() {
@@ -89,9 +89,17 @@ class _ExampleAppState extends State<ExampleApp> {
         break;
       case PopupAction.remove:
         setState(() {
-          selectedAudioPlayer.stop();
-          selectedAudioPlayer.release();
-          audioPlayers.removeAt(selectedPlayerIdx);
+          if (audioPlayers.isNotEmpty) {
+            selectedAudioPlayer.stop();
+            selectedAudioPlayer.release();
+            audioPlayers.removeAt(selectedPlayerIdx);
+          }
+          // Adjust index to be in valid range
+          if (audioPlayers.isEmpty) {
+            selectedPlayerIdx = 0;
+          } else if (selectedPlayerIdx >= audioPlayers.length) {
+            selectedPlayerIdx = audioPlayers.length - 1;
+          }
         });
         break;
     }
@@ -104,7 +112,7 @@ class _ExampleAppState extends State<ExampleApp> {
         title: const Text('audioplayers example'),
         actions: [
           PopupMenuButton<PopupAction>(
-            onSelected: handleAction,
+            onSelected: _handleAction,
             itemBuilder: (BuildContext context) {
               return PopupAction.values.map((PopupAction choice) {
                 return PopupMenuItem<PopupAction>(
