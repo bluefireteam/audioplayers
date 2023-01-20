@@ -125,13 +125,16 @@ class _ExampleAppState extends State<ExampleApp> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Center(
-              child: Tgl(
-                key: const Key('playerTgl'),
-                options: [for (var i = 1; i <= audioPlayers.length; i++) i]
-                    .asMap()
-                    .map((key, val) => MapEntry('player-$key', 'P$val')),
-                selected: selectedPlayerIdx,
-                onChange: (v) => setState(() => selectedPlayerIdx = v),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Tgl(
+                  key: const Key('playerTgl'),
+                  options: [for (var i = 1; i <= audioPlayers.length; i++) i]
+                      .asMap()
+                      .map((key, val) => MapEntry('player-$key', 'P$val')),
+                  selected: selectedPlayerIdx,
+                  onChange: (v) => setState(() => selectedPlayerIdx = v),
+                ),
               ),
             ),
           ),
