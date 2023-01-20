@@ -30,15 +30,15 @@ class SoundPoolPlayer(
         get() = wrappedPlayer.source as? UrlSource
 
     /** The android sound pool */
-    private var soundPoolWrapper: SoundPoolWrapper
+    private val soundPoolWrapper: SoundPoolWrapper
+        get() = soundPoolManager.soundPoolWrappers[audioContext]
+            ?: error("Could not create SoundPool $audioContext")
 
-    private var soundPool: SoundPool
+    private val soundPool: SoundPool
+        get() = soundPoolWrapper.soundPool
 
     init {
         soundPoolManager.createSoundPool(MAX_STREAMS, audioContext)
-        soundPoolWrapper = soundPoolManager.soundPoolWrappers[audioContext]
-            ?: error("Could not create SoundPool $audioContext")
-        soundPool = soundPoolWrapper.soundPool
     }
 
     override fun stop() {
@@ -75,11 +75,8 @@ class SoundPoolPlayer(
     override fun updateContext(context: AudioContextAndroid) {
         if (audioContext != context) {
             release()
-            audioContext = context
             soundPoolManager.createSoundPool(MAX_STREAMS, context)
-            soundPoolWrapper = soundPoolManager.soundPoolWrappers[context]
-                ?: error("Could not create SoundPool $context")
-            soundPool = soundPoolWrapper.soundPool
+            audioContext = context
         }
     }
 
@@ -188,7 +185,7 @@ class SoundPoolPlayer(
     }
 }
 
-class SoundPoolManager() {
+class SoundPoolManager {
     companion object {
         private fun getSoundPool(maxStreams: Int, audioContext: AudioContextAndroid): SoundPool {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
