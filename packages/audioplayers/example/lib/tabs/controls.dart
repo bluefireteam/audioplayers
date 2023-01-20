@@ -38,8 +38,10 @@ class _ControlsTabState extends State<ControlsTab>
     _seekDuration(position);
   }
 
-  Future<void> _seekDuration(Duration duration) async {
-    await _update(() => widget.player.seek(duration));
+  Future<void> _seekDuration(Duration position) async {
+    await _update(
+      () => widget.player.seek(position),
+    );
   }
 
   @override
@@ -176,8 +178,14 @@ class _ControlsTabState extends State<ControlsTab>
                     SeekDialog(
                       value: modalInputSeek,
                       setValue: (it) => setState(() => modalInputSeek = it),
-                      seekDuration: _seekDuration,
-                      seekPercent: _seekPercent,
+                      seekDuration: () => _seekDuration(
+                        Duration(
+                          milliseconds: int.parse(modalInputSeek),
+                        ),
+                      ),
+                      seekPercent: () => _seekPercent(
+                        double.parse(modalInputSeek),
+                      ),
                     ),
                   );
                 },
@@ -194,12 +202,12 @@ class _ControlsTabState extends State<ControlsTab>
 }
 
 class SeekDialog extends StatelessWidget {
-  final void Function(Duration duration) seekDuration;
-  final void Function(double val) seekPercent;
+  final VoidCallback seekDuration;
+  final VoidCallback seekPercent;
   final void Function(String val) setValue;
-  String value;
+  final String value;
 
-  SeekDialog({
+  const SeekDialog({
     super.key,
     required this.seekDuration,
     required this.seekPercent,
@@ -215,10 +223,7 @@ class SeekDialog extends StatelessWidget {
         const Text('Pick a duration and unit to seek'),
         TxtBox(
           value: value,
-          onChange: (v) {
-            value = v;
-            setValue(v);
-          },
+          onChange: setValue,
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -227,29 +232,21 @@ class SeekDialog extends StatelessWidget {
               txt: 'millis',
               onPressed: () {
                 Navigator.of(context).pop();
-                seekDuration(
-                  Duration(
-                    milliseconds: int.parse(value),
-                  ),
-                );
+                seekDuration();
               },
             ),
             Btn(
               txt: 'seconds',
               onPressed: () {
                 Navigator.of(context).pop();
-                seekDuration(
-                  Duration(
-                    seconds: int.parse(value),
-                  ),
-                );
+                seekDuration();
               },
             ),
             Btn(
               txt: '%',
               onPressed: () {
                 Navigator.of(context).pop();
-                seekPercent(double.parse(value));
+                seekPercent();
               },
             ),
             Btn(
