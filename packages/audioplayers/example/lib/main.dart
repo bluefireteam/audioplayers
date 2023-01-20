@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:audioplayers_example/components/indexed_stack.dart';
 import 'package:audioplayers_example/components/tabs.dart';
 import 'package:audioplayers_example/components/tgl.dart';
 import 'package:audioplayers_example/tabs/audio_context.dart';
@@ -10,6 +11,8 @@ import 'package:audioplayers_example/tabs/sources.dart';
 import 'package:audioplayers_example/tabs/streams.dart';
 import 'package:audioplayers_example/utils.dart';
 import 'package:flutter/material.dart';
+
+const playerCount = 4;
 
 typedef OnError = void Function(Exception exception);
 
@@ -25,21 +28,21 @@ class ExampleApp extends StatefulWidget {
 }
 
 class _ExampleAppState extends State<ExampleApp> {
-  List<PlayerUiState> playerUiStates = List.generate(
-    4,
-    (_) => PlayerUiState(AudioPlayer()..setReleaseMode(ReleaseMode.stop)),
+  List<AudioPlayer> audioPlayers = List.generate(
+    playerCount,
+    (_) => AudioPlayer()..setReleaseMode(ReleaseMode.stop),
   );
   int selectedPlayerIdx = 0;
 
-  PlayerUiState get selectedPlayerUiState => playerUiStates[selectedPlayerIdx];
+  AudioPlayer get selectedAudioPlayer => audioPlayers[selectedPlayerIdx];
   List<StreamSubscription> streams = [];
 
   @override
   void initState() {
     super.initState();
-    playerUiStates.asMap().forEach((index, playerState) {
+    audioPlayers.asMap().forEach((index, player) {
       streams.add(
-        playerState.player.onPlayerStateChanged.listen(
+        player.onPlayerStateChanged.listen(
           (it) {
             switch (it) {
               case PlayerState.stopped:
@@ -61,7 +64,7 @@ class _ExampleAppState extends State<ExampleApp> {
         ),
       );
       streams.add(
-        playerState.player.onSeekComplete.listen(
+        player.onSeekComplete.listen(
           (it) => toast(
             'Seek complete!',
             textKey: Key('toast-seek-complete-$index'),
@@ -90,85 +93,62 @@ class _ExampleAppState extends State<ExampleApp> {
             child: Center(
               child: Tgl(
                 key: const Key('playerTgl'),
-                options: ['P1', 'P2', 'P3', 'P4']
+                options: [for (var i = 1; i <= audioPlayers.length; i++) i]
                     .asMap()
-                    .map((key, value) => MapEntry('player-$key', value)),
+                    .map((key, val) => MapEntry('player-$key', 'P$val')),
                 selected: selectedPlayerIdx,
                 onChange: (v) => setState(() => selectedPlayerIdx = v),
               ),
             ),
           ),
           Expanded(
-            child: Tabs(
-              tabs: [
-                TabData(
-                  key: 'sourcesTab',
-                  label: 'Src',
-                  content: SourcesTab(
-                    key: selectedPlayerUiState.sourcesKey,
-                    playerUiState: selectedPlayerUiState,
-                  ),
-                ),
-                TabData(
-                  key: 'controlsTab',
-                  label: 'Ctrl',
-                  content: ControlsTab(
-                    key: selectedPlayerUiState.controlsKey,
-                    player: selectedPlayerUiState.player,
-                  ),
-                ),
-                TabData(
-                  key: 'streamsTab',
-                  label: 'Stream',
-                  content: StreamsTab(
-                    key: selectedPlayerUiState.streamsKey,
-                    player: selectedPlayerUiState.player,
-                  ),
-                ),
-                TabData(
-                  key: 'audioContextTab',
-                  label: 'Ctx',
-                  content: AudioContextTab(
-                    key: selectedPlayerUiState.contextKey,
-                    playerUiState: selectedPlayerUiState,
-                  ),
-                ),
-                TabData(
-                  key: 'loggerTab',
-                  label: 'Log',
-                  content: LoggerTab(
-                    key: selectedPlayerUiState.loggerKey,
-                  ),
-                ),
-              ],
+            child: IndexedStack2(
+              index: selectedPlayerIdx,
+              children: audioPlayers
+                  .map(
+                    (player) => Tabs(
+                      tabs: [
+                        TabData(
+                          key: 'sourcesTab',
+                          label: 'Src',
+                          content: SourcesTab(
+                            player: player,
+                          ),
+                        ),
+                        TabData(
+                          key: 'controlsTab',
+                          label: 'Ctrl',
+                          content: ControlsTab(
+                            player: player,
+                          ),
+                        ),
+                        TabData(
+                          key: 'streamsTab',
+                          label: 'Stream',
+                          content: StreamsTab(
+                            player: player,
+                          ),
+                        ),
+                        TabData(
+                          key: 'audioContextTab',
+                          label: 'Ctx',
+                          content: AudioContextTab(
+                            player: player,
+                          ),
+                        ),
+                        TabData(
+                          key: 'loggerTab',
+                          label: 'Log',
+                          content: const LoggerTab(),
+                        ),
+                      ],
+                    ),
+                  )
+                  .toList(),
             ),
           ),
         ],
       ),
     );
   }
-}
-
-/// A helper class to save the UI state of the individual players.
-/// Note that not every property is saved here, such as stream values,
-/// which in most cases can be initialized with player values.
-class PlayerUiState {
-  final AudioPlayer player;
-
-  PlayerUiState(this.player);
-
-  // Needed to force recreating tabs, if player has changed, but keep tab state.
-  final sourcesKey = GlobalKey();
-  final controlsKey = GlobalKey();
-  final streamsKey = GlobalKey();
-  final contextKey = GlobalKey();
-  final loggerKey = GlobalKey();
-
-  InitMode initMode = InitMode.setSource;
-
-  /// Set config for all platforms
-  AudioContextConfig audioContextConfig = AudioContextConfig();
-
-  /// Set config for each platform individually
-  AudioContext audioContext = const AudioContext();
 }

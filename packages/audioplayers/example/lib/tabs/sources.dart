@@ -4,7 +4,6 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_example/components/btn.dart';
 import 'package:audioplayers_example/components/tab_content.dart';
 import 'package:audioplayers_example/components/tgl.dart';
-import 'package:audioplayers_example/main.dart';
 import 'package:audioplayers_example/utils.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -34,9 +33,9 @@ enum InitMode {
 }
 
 class SourcesTab extends StatefulWidget {
-  final PlayerUiState playerUiState;
+  final AudioPlayer player;
 
-  const SourcesTab({super.key, required this.playerUiState});
+  const SourcesTab({super.key, required this.player});
 
   @override
   State<SourcesTab> createState() => _SourcesTabState();
@@ -44,12 +43,12 @@ class SourcesTab extends StatefulWidget {
 
 class _SourcesTabState extends State<SourcesTab>
     with AutomaticKeepAliveClientMixin<SourcesTab> {
-  PlayerUiState get playerUiState => widget.playerUiState;
+  InitMode initMode = InitMode.setSource;
 
-  AudioPlayer get player => widget.playerUiState.player;
+  AudioPlayer get player => widget.player;
 
   Future<void> setSource(Source source) async {
-    if (playerUiState.initMode == InitMode.setSource) {
+    if (initMode == InitMode.setSource) {
       await player.setSource(source);
       toast(
         'Completed setting source.',
@@ -68,9 +67,9 @@ class _SourcesTabState extends State<SourcesTab>
       children: [
         EnumTgl(
           options: {for (var e in InitMode.values) 'initMode-${e.name}': e},
-          selected: playerUiState.initMode,
+          selected: initMode,
           onChange: (InitMode m) => setState(() {
-            playerUiState.initMode = m;
+            initMode = m;
           }),
         ),
         Btn(
