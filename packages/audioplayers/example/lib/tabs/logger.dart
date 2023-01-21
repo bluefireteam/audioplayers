@@ -50,7 +50,10 @@ class _LoggerTabState extends State<LoggerTab>
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          Text('Log Level: $currentLogLevel'),
+          ListTile(
+            title: Text(currentLogLevel.toString()),
+            subtitle: const Text('Log Level'),
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: LogLevel.values

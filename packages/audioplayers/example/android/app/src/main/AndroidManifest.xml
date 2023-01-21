@@ -1,7 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="xyz.luan.audioplayers.example">
    <uses-permission android:name="android.permission.INTERNET"/>
-   <application
+   <uses-permission android:name="android.permission.WAKE_LOCK" />
+   <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <application
         android:label="example"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"

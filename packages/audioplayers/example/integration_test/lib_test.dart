@@ -111,6 +111,94 @@ void main() {
     });
   });
 
+  group('Audio Context', () {
+    /// Android and iOS only: Play the same sound twice with a different audio
+    /// context each. This test can be executed on a device, with either
+    /// "Silent", "Vibrate" or "Ring" mode. In "Silent" or "Vibrate" mode
+    /// the second sound should not be audible.
+    testWidgets(
+      'test changing AudioContextConfigs',
+      (WidgetTester tester) async {
+        final player = AudioPlayer()..setReleaseMode(ReleaseMode.stop);
+
+        final td = audioTestDataList[0];
+
+        var audioContext = AudioContextConfig(
+          //ignore: avoid_redundant_argument_values
+          forceSpeaker: true,
+          //ignore: avoid_redundant_argument_values
+          respectSilence: false,
+        ).build();
+        await AudioPlayer.global.setGlobalAudioContext(audioContext);
+        await player.setAudioContext(audioContext);
+
+        await player.play(td.source);
+        await tester.pumpAndSettle();
+        await tester.pump(td.duration + const Duration(seconds: 8));
+        expect(player.state, PlayerState.completed);
+
+        audioContext = AudioContextConfig(
+          forceSpeaker: false,
+          respectSilence: true,
+        ).build();
+        await AudioPlayer.global.setGlobalAudioContext(audioContext);
+        await player.setAudioContext(audioContext);
+
+        await player.resume();
+        await tester.pumpAndSettle();
+        await tester.pump(td.duration + const Duration(seconds: 8));
+        expect(player.state, PlayerState.completed);
+      },
+      skip: !features.hasForceSpeaker,
+    );
+
+    /// Android and iOS only: Play the same sound twice with a different audio
+    /// context each. This test can be executed on a device, with either
+    /// "Silent", "Vibrate" or "Ring" mode. In "Silent" or "Vibrate" mode
+    /// the second sound should not be audible.
+    testWidgets(
+      'test changing AudioContextConfigs in LOW_LATENCY mode',
+      (WidgetTester tester) async {
+        final player = AudioPlayer()..setReleaseMode(ReleaseMode.stop);
+        player.setPlayerMode(PlayerMode.lowLatency);
+
+        final td = audioTestDataList[0];
+
+        var audioContext = AudioContextConfig(
+          //ignore: avoid_redundant_argument_values
+          forceSpeaker: true,
+          //ignore: avoid_redundant_argument_values
+          respectSilence: false,
+        ).build();
+        await AudioPlayer.global.setGlobalAudioContext(audioContext);
+        await player.setAudioContext(audioContext);
+
+        await player.setSource(td.source);
+        await player.resume();
+        await tester.pumpAndSettle();
+        await tester.pump(td.duration + const Duration(seconds: 8));
+        expect(player.state, PlayerState.playing);
+        await player.stop();
+        expect(player.state, PlayerState.stopped);
+
+        audioContext = AudioContextConfig(
+          forceSpeaker: false,
+          respectSilence: true,
+        ).build();
+        await AudioPlayer.global.setGlobalAudioContext(audioContext);
+        await player.setAudioContext(audioContext);
+
+        await player.resume();
+        await tester.pumpAndSettle();
+        await tester.pump(td.duration + const Duration(seconds: 8));
+        expect(player.state, PlayerState.playing);
+        await player.stop();
+        expect(player.state, PlayerState.stopped);
+      },
+      skip: !features.hasForceSpeaker || !features.hasLowLatency,
+    );
+  });
+
   group('Logging', () {
     testWidgets('Platforms show INFO log, when start playing', (tester) async {
       final completer = Completer<Log>();

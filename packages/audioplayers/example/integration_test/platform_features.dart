@@ -9,6 +9,7 @@ class PlatformFeatures {
     hasPlaylistSourceType: false,
     hasLowLatency: false,
     hasReleaseModeRelease: false,
+    hasForceSpeaker: false,
     hasDuckAudio: false,
     hasRespectSilence: false,
     hasStayAwake: false,
@@ -28,7 +29,6 @@ class PlatformFeatures {
     hasPlaylistSourceType: false,
     hasReleaseModeRelease: false,
     hasLowLatency: false,
-    hasDuckAudio: false,
     hasBalance: false,
   );
 
@@ -37,6 +37,7 @@ class PlatformFeatures {
     hasPlaylistSourceType: false,
     hasLowLatency: false,
     hasReleaseModeRelease: false,
+    hasForceSpeaker: false,
     hasDuckAudio: false,
     hasRespectSilence: false,
     hasStayAwake: false,
@@ -52,6 +53,7 @@ class PlatformFeatures {
     // MP3 duration is estimated: https://bugzilla.gnome.org/show_bug.cgi?id=726144
     // Use GstDiscoverer to get duration before playing: https://gstreamer.freedesktop.org/documentation/pbutils/gstdiscoverer.html?gi-language=c
     hasMp3Duration: false,
+    hasForceSpeaker: false,
     hasDuckAudio: false,
     hasRespectSilence: false,
     hasStayAwake: false,
@@ -64,6 +66,7 @@ class PlatformFeatures {
     hasPlaylistSourceType: false,
     hasLowLatency: false,
     hasReleaseModeRelease: false,
+    hasForceSpeaker: false,
     hasDuckAudio: false,
     hasRespectSilence: false,
     hasStayAwake: false,
@@ -87,6 +90,7 @@ class PlatformFeatures {
   final bool hasMp3Duration;
 
   final bool hasPlaybackRate;
+  final bool hasForceSpeaker;
   final bool hasDuckAudio; // Not yet tested
   final bool hasRespectSilence; // Not yet tested
   final bool hasStayAwake; // Not yet tested
@@ -112,6 +116,7 @@ class PlatformFeatures {
     this.hasBalance = true,
     this.hasSeek = true,
     this.hasPlaybackRate = true,
+    this.hasForceSpeaker = true,
     this.hasDuckAudio = true,
     this.hasRespectSilence = true,
     this.hasStayAwake = true,

@@ -15,7 +15,7 @@ class WrappedPlayer internal constructor(
     private val ref: AudioplayersPlugin,
     val playerId: String,
     var context: AudioContextAndroid,
-    private val soundPoolWrapper: SoundPoolWrapper,
+    private val soundPoolManager: SoundPoolManager,
 ) {
     private var player: Player? = null
 
@@ -120,7 +120,21 @@ class WrappedPlayer internal constructor(
             focusManager.handleStop()
         }
         this.context = audioContext.copy()
-        player?.updateContext(context)
+
+        // AudioManager values are set globally
+        audioManager.mode = context.audioMode
+        audioManager.isSpeakerphoneOn = context.isSpeakerphoneOn
+
+        player?.let { p ->
+            p.stop()
+            prepared = false
+            // Context is only applied, once the player.reset() was called
+            p.updateContext(context)
+            source?.let {
+                p.setSource(it)
+                p.configAndPrepare()
+            }
+        }
     }
 
     // Getters
@@ -147,7 +161,7 @@ class WrappedPlayer internal constructor(
         get() = ref.getApplicationContext()
 
     val audioManager: AudioManager
-        get() = applicationContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        get() = ref.getAudioManager()
 
     /**
      * Playback handling methods
@@ -315,7 +329,7 @@ class WrappedPlayer internal constructor(
     private fun createPlayer(): Player {
         return when (playerMode) {
             MEDIA_PLAYER -> MediaPlayerPlayer(this)
-            LOW_LATENCY -> SoundPoolPlayer(this, soundPoolWrapper)
+            LOW_LATENCY -> SoundPoolPlayer(this, soundPoolManager)
         }
     }
 

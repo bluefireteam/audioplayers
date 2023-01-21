@@ -2,6 +2,7 @@ package xyz.luan.audioplayers
 
 
 import android.content.Context
+import android.media.AudioManager
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -13,7 +14,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import xyz.luan.audioplayers.player.SoundPoolWrapper
+import xyz.luan.audioplayers.player.SoundPoolManager
 import xyz.luan.audioplayers.player.WrappedPlayer
 import xyz.luan.audioplayers.source.BytesSource
 import xyz.luan.audioplayers.source.UrlSource
@@ -29,7 +30,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
     private lateinit var channel: MethodChannel
     private lateinit var globalChannel: MethodChannel
     private lateinit var context: Context
-    private lateinit var soundPoolWrapper: SoundPoolWrapper
+    private lateinit var soundPoolManager: SoundPoolManager
 
     private val players = ConcurrentHashMap<String, WrappedPlayer>()
     private val handler = Handler(Looper.getMainLooper())
@@ -39,12 +40,12 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
 
     override fun onAttachedToEngine(binding: FlutterPluginBinding) {
         context = binding.applicationContext
+        soundPoolManager = SoundPoolManager()
         channel = MethodChannel(binding.binaryMessenger, "xyz.luan/audioplayers")
         channel.setMethodCallHandler { call, response -> safeCall(call, response, ::handler) }
         globalChannel = MethodChannel(binding.binaryMessenger, "xyz.luan/audioplayers.global")
         globalChannel.setMethodCallHandler { call, response -> safeCall(call, response, ::globalHandler) }
         updateRunnable = UpdateRunnable(players, channel, handler, this)
-        soundPoolWrapper = SoundPoolWrapper(this)
     }
 
     override fun onDetachedFromEngine(binding: FlutterPluginBinding) {
@@ -53,7 +54,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
         players.values.forEach { it.release() }
         players.clear()
         mainScope.cancel()
-        soundPoolWrapper.dispose()
+        soundPoolManager.dispose()
     }
 
     private fun safeCall(
@@ -74,6 +75,10 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
     private fun globalHandler(call: MethodCall, response: MethodChannel.Result) {
         when (call.method) {
             "setGlobalAudioContext" -> {
+                val audioManager = getAudioManager()
+                audioManager.mode = defaultAudioContext.audioMode
+                audioManager.isSpeakerphoneOn = defaultAudioContext.isSpeakerphoneOn
+                
                 defaultAudioContext = call.audioContext()
             }
         }
@@ -161,12 +166,16 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
 
     private fun getPlayer(playerId: String): WrappedPlayer {
         return players.getOrPut(playerId) {
-            WrappedPlayer(this, playerId, defaultAudioContext.copy(), soundPoolWrapper)
+            WrappedPlayer(this, playerId, defaultAudioContext.copy(), soundPoolManager)
         }
     }
 
     fun getApplicationContext(): Context {
         return context.applicationContext
+    }
+
+    fun getAudioManager(): AudioManager {
+        return context.applicationContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     }
 
     fun handleIsPlaying() {
@@ -293,5 +302,6 @@ private fun MethodCall.audioContext(): AudioContextAndroid {
         contentType = argument<Int>("contentType") ?: error("contentType is required"),
         usageType = argument<Int>("usageType") ?: error("usageType is required"),
         audioFocus = argument<Int>("audioFocus"),
+        audioMode = argument<Int>("audioMode") ?: error("audioMode is required"),
     )
 }
