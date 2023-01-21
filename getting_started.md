@@ -181,7 +181,7 @@ An Audio Context is a (mostly mobile-specific) set of secondary, platform-specif
 The Audio Context configuration can be set globally via:
 
 ```dart
-  AudioPlayer.global.setGlobalAudioContext(AudioContextConfig(...).build());
+  AudioPlayer.global.setGlobalAudioContext(AudioContextConfig(/*...*/).build());
 ```
 
 This will naturally apply to all players. On iOS, that is the only option.
@@ -189,7 +189,7 @@ On Android only, each player can have different Audio Context configuration.
 To configure player specific Audio Context (if desired), use:
 
 ```dart
-  player.setAudioContext(AudioContextConfig(...).build());
+  player.setAudioContext(AudioContextConfig(/*...*/).build());
 ```
 
 While each platform has its own set of configurations, they are somewhat related, and you can create them using a unified interface call [`AudioContextConfig`](https://pub.dev/documentation/audioplayers_platform_interface/latest/api_audio_context_config/api_audio_context_config-library.html).
@@ -201,8 +201,8 @@ Note that if this process is not perfect, you can create your configuration from
 
 ```dart
   player.setAudioContext(AudioContext(
-    android: AudioContextAndroid(...),
-    ios: AudioContextIOS(...),
+    android: AudioContextAndroid(/*...*/),
+    ios: AudioContextIOS(/*...*/),
   ));
 ```
 
