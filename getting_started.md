@@ -202,7 +202,7 @@ Note that if this process is not perfect, you can create your configuration from
 ```dart
   player.setAudioContext(AudioContext(
     android: AudioContextAndroid(/*...*/),
-    ios: AudioContextIOS(/*...*/),
+    iOS: AudioContextIOS(/*...*/),
   ));
 ```
 
