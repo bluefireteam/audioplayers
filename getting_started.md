@@ -206,8 +206,6 @@ Note that if this process is not perfect, you can create your configuration from
   ));
 ```
 
-The [`AudioContextConfig` class has documentation about each parameter](https://github.com/bluefireteam/audioplayers/blob/main/packages/audioplayers_platform_interface/lib/api/audio_context_config.dart), what they are for, and what configurations they reflect on native code.
-
 ## Streams
 
 Each player has a variety of streams that can be used to listen to events, state changes, and other useful information coming from the player.
