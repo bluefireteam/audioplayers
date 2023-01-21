@@ -11,7 +11,7 @@ import java.util.Collections.synchronizedMap
 
 /// Value should not exceed 32
 // TODO(luan): make this configurable
-const val MAX_STREAMS = 32
+private const val MAX_STREAMS = 32
 
 class SoundPoolPlayer(
     val wrappedPlayer: WrappedPlayer,
