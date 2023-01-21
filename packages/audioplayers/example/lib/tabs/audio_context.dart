@@ -167,6 +167,15 @@ class _AudioContextTabState extends State<AudioContextTab>
             audioContext.android.copy(audioFocus: v),
           ),
         ),
+        LabeledDropDown<AndroidAudioMode>(
+          key: const Key('audioMode'),
+          label: 'audioMode',
+          options: {for (var e in AndroidAudioMode.values) e: e.name},
+          selected: audioContext.android.audioMode,
+          onChange: (v) => updateAudioContextAndroid(
+            audioContext.android.copy(audioMode: v),
+          ),
+        ),
       ],
     );
   }

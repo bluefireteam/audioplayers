@@ -12,13 +12,15 @@ class MediaPlayerPlayer(
     private val mediaPlayer = createMediaPlayer(wrappedPlayer)
 
     private fun createMediaPlayer(wrappedPlayer: WrappedPlayer): MediaPlayer {
-        return MediaPlayer().apply {
+        val mediaPlayer = MediaPlayer().apply {
             setOnPreparedListener { wrappedPlayer.onPrepared() }
             setOnCompletionListener { wrappedPlayer.onCompletion() }
             setOnSeekCompleteListener { wrappedPlayer.onSeekComplete() }
             setOnErrorListener { _, what, extra -> wrappedPlayer.onError(what, extra) }
             setOnBufferingUpdateListener { _, percent -> wrappedPlayer.onBuffering(percent) }
         }
+        wrappedPlayer.context.setAttributesOnPlayer(mediaPlayer)
+        return mediaPlayer
     }
 
     override fun getDuration(): Int? {
@@ -77,8 +79,6 @@ class MediaPlayerPlayer(
     }
 
     override fun updateContext(context: AudioContextAndroid) {
-        // TODO(luan) is this global?
-        wrappedPlayer.audioManager.isSpeakerphoneOn = context.isSpeakerphoneOn
         context.setAttributesOnPlayer(mediaPlayer)
         if (context.stayAwake) {
             mediaPlayer.setWakeMode(wrappedPlayer.applicationContext, PowerManager.PARTIAL_WAKE_LOCK)
