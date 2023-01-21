@@ -177,16 +177,16 @@ class AudioContext {
 /// Android audio stream.
 class AudioContextAndroid {
   /// Sets the speakerphone on or off, globally.
-  /// 
-  /// This method should only be used by applications that replace the 
-  /// platform-wide management of audio settings or the main telephony 
+  ///
+  /// This method should only be used by applications that replace the
+  /// platform-wide management of audio settings or the main telephony
   /// application.
   final bool isSpeakerphoneOn;
 
   /// Sets the audio mode, globally.
-  /// 
-  /// This method should only be used by applications that replace the 
-  /// platform-wide management of audio settings or the main telephony 
+  ///
+  /// This method should only be used by applications that replace the
+  /// platform-wide management of audio settings or the main telephony
   /// application, see [AndroidAudioMode].
   final AndroidAudioMode audioMode;
 
