@@ -136,9 +136,8 @@ class AudioContextConfig {
   }
 }
 
-
-/// An Audio Context is a set of secondary, platform-specific aspects of audio 
-/// playback, typically related to how the act of playing audio interacts with 
+/// An Audio Context is a set of secondary, platform-specific aspects of audio
+/// playback, typically related to how the act of playing audio interacts with
 /// other features of the device. [AudioContext] is containing platform specific
 /// configurations: [AudioContextAndroid] and [AudioContextIOS].
 class AudioContext {
@@ -256,10 +255,10 @@ class AudioContextIOS {
   }
 }
 
-/// "what" you are playing. The content type expresses the general category of 
-/// the content. This information is optional. But in case it is known (for 
-/// instance [movie] for a movie streaming service or [music] for a music 
-/// playback application) this information might be used by the audio framework 
+/// "what" you are playing. The content type expresses the general category of
+/// the content. This information is optional. But in case it is known (for
+/// instance [movie] for a movie streaming service or [music] for a music
+/// playback application) this information might be used by the audio framework
 /// to selectively configure some audio post-processing blocks.
 enum AndroidContentType {
   /// Content type value to use when the content type is unknown, or other than
@@ -301,12 +300,12 @@ extension AndroidContentTypeValue on AndroidContentType {
 }
 
 /// "why" you are playing a sound, what is this sound used for. This is achieved
-/// with the "usage" information. Examples of usage are [media] and [alarm]. 
-/// These two examples are the closest to stream types, but more detailed use 
-/// cases are available. Usage information is more expressive than a stream 
-/// type, and allows certain platforms or routing policies to use this 
-/// information for more refined volume or routing decisions. Usage is the most 
-/// important information to supply in [AudioContextAndroid] and it is 
+/// with the "usage" information. Examples of usage are [media] and [alarm].
+/// These two examples are the closest to stream types, but more detailed use
+/// cases are available. Usage information is more expressive than a stream
+/// type, and allows certain platforms or routing policies to use this
+/// information for more refined volume or routing decisions. Usage is the most
+/// important information to supply in [AudioContextAndroid] and it is
 /// recommended to build any instance with this information supplied.
 enum AndroidUsageType {
   /// Usage value to use when the usage is unknown.
@@ -474,11 +473,11 @@ extension AndroidAudioFocusValue on AndroidAudioFocus {
   }
 }
 
-/// The audio mode encompasses audio routing AND the behavior of the telephony 
-/// layer. Therefore this method should only be used by applications that 
+/// The audio mode encompasses audio routing AND the behavior of the telephony
+/// layer. Therefore this method should only be used by applications that
 /// replace the platform-wide management of audio settings or the main telephony
-/// application. In particular, the [inCall] mode should only be used by the 
-/// telephony application when it places a phone call, as it will cause signals 
+/// application. In particular, the [inCall] mode should only be used by the
+/// telephony application when it places a phone call, as it will cause signals
 /// from the radio layer to feed the platform mixer.
 enum AndroidAudioMode {
   /// Normal audio mode: not ringing and no call established.
