@@ -176,49 +176,60 @@ class AudioContext {
 /// A platform-specific class to encapsulate a collection of attributes about an
 /// Android audio stream.
 class AudioContextAndroid {
-  /// audioManager.isSpeakerphoneOn
+  /// Sets the speakerphone on or off, globally.
+  /// 
+  /// This method should only be used by applications that replace the 
+  /// platform-wide management of audio settings or the main telephony 
+  /// application.
   final bool isSpeakerphoneOn;
+
+  /// Sets the audio mode, globally.
+  /// 
+  /// This method should only be used by applications that replace the 
+  /// platform-wide management of audio settings or the main telephony 
+  /// application, see [AndroidAudioMode].
+  final AndroidAudioMode audioMode;
+
   final bool stayAwake;
   final AndroidContentType contentType;
   final AndroidUsageType usageType;
   final AndroidAudioFocus? audioFocus;
-  final AndroidAudioMode audioMode;
 
   const AudioContextAndroid({
     this.isSpeakerphoneOn = true,
+    this.audioMode = AndroidAudioMode.normal,
     this.stayAwake = true,
     this.contentType = AndroidContentType.music,
     this.usageType = AndroidUsageType.media,
     this.audioFocus = AndroidAudioFocus.gain,
-    this.audioMode = AndroidAudioMode.normal,
   });
 
   AudioContextAndroid copy({
     bool? isSpeakerphoneOn,
+    AndroidAudioMode? audioMode,
     bool? stayAwake,
     AndroidContentType? contentType,
     AndroidUsageType? usageType,
     AndroidAudioFocus? audioFocus,
-    AndroidAudioMode? audioMode,
   }) {
     return AudioContextAndroid(
       isSpeakerphoneOn: isSpeakerphoneOn ?? this.isSpeakerphoneOn,
+      audioMode: audioMode ?? this.audioMode,
       stayAwake: stayAwake ?? this.stayAwake,
       contentType: contentType ?? this.contentType,
       usageType: usageType ?? this.usageType,
       audioFocus: audioFocus ?? this.audioFocus,
-      audioMode: audioMode ?? this.audioMode,
     );
   }
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
       'isSpeakerphoneOn': isSpeakerphoneOn,
+      'audioMode': audioMode.value,
       'stayAwake': stayAwake,
       'contentType': contentType.value,
       'usageType': usageType.value,
       'audioFocus': audioFocus?.value,
-      'audioMode': audioMode.value,
     };
   }
 }
@@ -474,7 +485,7 @@ extension AndroidAudioFocusValue on AndroidAudioFocus {
 }
 
 /// The audio mode encompasses audio routing AND the behavior of the telephony
-/// layer. Therefore this method should only be used by applications that
+/// layer. Therefore this flag should only be used by applications that
 /// replace the platform-wide management of audio settings or the main telephony
 /// application. In particular, the [inCall] mode should only be used by the
 /// telephony application when it places a phone call, as it will cause signals
