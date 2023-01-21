@@ -28,6 +28,7 @@ class SoundPoolPlayer(
     private var audioContext = wrappedPlayer.context
         set(value) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                // AudioAttributes are compared by its property values.
                 if (field.buildAttributes() != value.buildAttributes()) {
                     release()
                     soundPoolManager.createSoundPoolWrapper(MAX_STREAMS, value)
@@ -197,9 +198,16 @@ class SoundPoolManager {
     // Only needed for legacy apps with SDK < 21
     private var legacySoundPoolWrapper: SoundPoolWrapper? = null
 
+    /**
+     * Lazy store one [SoundPoolWrapper] for each [AudioAttributes] configuration.
+     * [AudioAttributes] are compared by its property values, so it can be used as key.
+     */
     private val soundPoolWrappers = HashMap<AudioAttributes, SoundPoolWrapper>()
 
     /**
+     * Create a SoundPoolWrapper with the given [maxStreams] and the according [audioContext] and save it to be 
+     * globally accessible for every player.
+     * 
      * @param maxStreams the maximum number of simultaneous streams for this
      *                   SoundPool object, see [SoundPool.Builder.setMaxStreams]
      */
@@ -243,6 +251,9 @@ class SoundPoolManager {
         }
     }
 
+    /**
+     * Get the [SoundPoolWrapper] with the given [audioContext].
+     */
     fun getSoundPoolWrapper(audioContext: AudioContextAndroid): SoundPoolWrapper? {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             val attrs = audioContext.buildAttributes()
