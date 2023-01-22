@@ -19,6 +19,7 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform
 
   MethodChannelAudioplayersPlatform() {
     _channel.setMethodCallHandler(platformCallHandler);
+    _platformEventHandler();
   }
 
   @override
@@ -219,6 +220,52 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform
           );
       }
     }
+  }
+
+  void _platformEventHandler() {
+    const eventChannel = EventChannel('xyz.luan/audioplayers/events');
+
+    eventChannel.receiveBroadcastStream().listen((dynamic event) {
+      final map = event as Map<dynamic, dynamic>;
+      final eventType = map.getString('event');
+      final playerId = map.getString('playerId');
+      switch (eventType) {
+        case 'audio.onLog':
+          final value = map.getString('value');
+          emitLog(playerId, Log(value));
+          break;
+        default:
+          emitLog(
+            playerId,
+            Log('Event Method does not exist $eventType',
+                level: LogLevel.error),
+          );
+      }
+    }, onError: (dynamic e) {
+      // TODO make local
+      emitGlobalLog(Log(e.toString(), level: LogLevel.error));
+    });
+
+    const globalEventChannel =
+        EventChannel('xyz.luan/audioplayers.global/events');
+    globalEventChannel.receiveBroadcastStream().listen((dynamic event) {
+      final map = event as Map<dynamic, dynamic>;
+      final eventType = map.getString('event');
+      switch (eventType) {
+        case 'audio.onGlobalLog':
+          final value = map.getString('value');
+          emitGlobalLog(Log(value));
+          break;
+        default:
+          emitGlobalLog(
+            Log('Global Event Method does not exist $eventType',
+                level: LogLevel.error),
+          );
+      }
+    }, onError: (dynamic e) {
+      // TODO make local
+      emitGlobalLog(Log(e.toString(), level: LogLevel.error));
+    });
   }
 
   Future<void> _call(

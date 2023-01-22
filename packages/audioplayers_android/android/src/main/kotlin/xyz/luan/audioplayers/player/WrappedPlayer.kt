@@ -180,7 +180,7 @@ class WrappedPlayer internal constructor(
                 currentPlayer.start()
                 ref.handleIsPlaying()
             }
-            onLog("RESUME", LogLevel.INFO)
+            handleLog("RESUME")
         }
     }
 
@@ -256,10 +256,7 @@ class WrappedPlayer internal constructor(
                 player?.seekTo(shouldSeekTo)
             }
         } catch (e: Exception) {
-            onLog(
-                "WrappedPlayer exception while OnPrepared event:\n${e.printStackTrace()}",
-                LogLevel.ERROR
-            )
+            handleError(e)
         }
     }
 
@@ -270,10 +267,7 @@ class WrappedPlayer internal constructor(
             }
             ref.handleComplete(this)
         } catch (e: Exception) {
-            onLog(
-                "WrappedPlayer exception while OnCompletion event:\n${e.printStackTrace()}",
-                LogLevel.ERROR
-            )
+            handleError(e)
         }
     }
 
@@ -286,18 +280,20 @@ class WrappedPlayer internal constructor(
         try {
             ref.handleSeekComplete(this)
         } catch (e: Exception) {
-            onLog(
-                "WrappedPlayer exception while OnSeekComplete event:\n${e.printStackTrace()}",
-                LogLevel.ERROR
-            )
+            handleError(e)
         }
     }
 
-    fun onLog(message: String, level: LogLevel) {
+    fun handleLog(message: String) {
         ref.handleLog(
             this,
             message,
-            level,
+        )
+    }
+
+    fun handleError(error: Throwable) {
+        ref.handleError(
+            this, error,
         )
     }
 
@@ -315,7 +311,7 @@ class WrappedPlayer internal constructor(
             MediaPlayer.MEDIA_ERROR_TIMED_OUT -> "MEDIA_ERROR_TIMED_OUT"
             else -> "MEDIA_ERROR_UNKNOWN {extra:$extra}"
         }
-        onLog("MediaPlayer error with what:$whatMsg extra:$extraMsg", LogLevel.ERROR)
+        handleError(Exception("MediaPlayer error with what:$whatMsg extra:$extraMsg"))
         return false
     }
 
