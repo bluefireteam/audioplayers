@@ -201,13 +201,15 @@ void main() {
 
   group('Logging', () {
     testWidgets('Platforms show INFO log, when start playing', (tester) async {
-      final completer = Completer<Log>();
+      final completer = Completer<String>();
       final player = AudioPlayer();
-      player.setLogHandler(completer.complete);
+      player.setLogHandler(
+        completer.complete,
+        onError: completer.completeError,
+      );
       await player.play(audioTestDataList[0].source);
       final log = await completer.future;
-      expect(log.level, LogLevel.info);
-      expect(log.message, 'RESUME');
+      expect(log, 'RESUME');
     });
   });
 }

@@ -23,24 +23,49 @@ class _LoggerTabState extends State<LoggerTab>
   @override
   void initState() {
     super.initState();
-    _logger.logLevel = currentLogLevel;
-    AudioPlayer.setGlobalLogHandler((log) {
-      if (log.level.toInt() <= currentLogLevel.toInt()) {
-        _logger.log(log.level, log.message);
-        setState(() {
-          globalLogs.add(log);
-        });
-      }
-    });
-    widget.player.setLogHandler((log) {
-      if (log.level.toInt() <= currentLogLevel.toInt()) {
-        final msg = '${log.message}\nSource: ${widget.player.source}';
-        _logger.log(log.level, msg);
-        setState(() {
-          logs.add(Log(msg, level: log.level));
-        });
-      }
-    });
+    AudioPlayer.setGlobalLogHandler(
+      (log) {
+        _logger.log(log);
+        if (LogLevel.info.toInt() <= currentLogLevel.toInt()) {
+          setState(() {
+            globalLogs.add(Log(log, level: LogLevel.info));
+          });
+        }
+      },
+      onError: (Object o) {
+        _logger.error(o);
+        if (LogLevel.error.toInt() <= currentLogLevel.toInt()) {
+          setState(() {
+            globalLogs.add(Log(Logger.errorToString(o), level: LogLevel.error));
+          });
+        }
+      },
+    );
+    widget.player.setLogHandler(
+      (log) {
+        _logger.log(log);
+        if (LogLevel.info.toInt() <= currentLogLevel.toInt()) {
+          final msg = '$log\nSource: ${widget.player.source}';
+          setState(() {
+            logs.add(Log(msg, level: LogLevel.info));
+          });
+        }
+      },
+      onError: (Object o) {
+        _logger.error(o);
+        if (LogLevel.error.toInt() <= currentLogLevel.toInt()) {
+          setState(() {
+            globalLogs.add(
+              Log(
+                  Logger.errorToString(
+                    AudioPlayerException(widget.player, throwable: o),
+                  ),
+                  level: LogLevel.error),
+            );
+          });
+        }
+      },
+    );
   }
 
   @override
@@ -61,8 +86,7 @@ class _LoggerTabState extends State<LoggerTab>
                   (level) => Btn(
                     txt: level.toString().replaceAll('LogLevel.', ''),
                     onPressed: () {
-                      _logger.logLevel = level;
-                      setState(() => currentLogLevel = _logger.logLevel);
+                      setState(() => currentLogLevel = level);
                     },
                   ),
                 )
@@ -141,5 +165,38 @@ class LogView extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+enum LogLevel { info, error, none }
+
+class Log {
+  Log(this.message, {required this.level});
+
+  final LogLevel level;
+  final String message;
+}
+
+extension LogLevelExtension on LogLevel {
+  int toInt() {
+    switch (this) {
+      case LogLevel.info:
+        return 2;
+      case LogLevel.error:
+        return 1;
+      case LogLevel.none:
+        return 0;
+    }
+  }
+
+  static LogLevel fromInt(int level) {
+    switch (level) {
+      case 2:
+        return LogLevel.info;
+      case 1:
+        return LogLevel.error;
+      default:
+        return LogLevel.none;
+    }
   }
 }

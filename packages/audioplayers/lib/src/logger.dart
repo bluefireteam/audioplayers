@@ -1,18 +1,34 @@
-import 'package:audioplayers_platform_interface/api/log.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 class Logger {
   static Logger instance = Logger();
 
-  LogLevel logLevel = LogLevel.error;
-
-  void log(LogLevel level, String message) {
-    if (level.toInt() <= logLevel.toInt()) {
-      // ignore: avoid_print
-      print('${level.toString()}: $message');
-    }
+  void log(String message) {
+    // ignore: avoid_print
+    print('AudioPlayers Log: $message');
   }
 
-  void info(String message) => log(LogLevel.info, message);
+  void error(Object o) {
+    // ignore: avoid_print
+    print(errorToString(o));
+  }
 
-  void error(String message) => log(LogLevel.error, message);
+  static String errorToString(Object o) {
+    if (o is Error) {
+      return 'AudioPlayers Error: $o\n${o.stackTrace}';
+    } else if (o is Exception) {
+      return 'AudioPlayers Exception: $o';
+    }
+  }
+}
+
+class AudioPlayerException implements Exception {
+  Object? throwable;
+  AudioPlayer player;
+
+  AudioPlayerException(this.player, {this.throwable});
+
+  @override
+  String toString() =>
+      'AudioPlayerException(\n\t${player.source}, \n\t$throwable';
 }

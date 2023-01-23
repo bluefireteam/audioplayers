@@ -5,7 +5,6 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:audioplayers_platform_interface/api/audio_context_config.dart';
-import 'package:audioplayers_platform_interface/api/log.dart';
 import 'package:audioplayers_platform_interface/api/player_mode.dart';
 import 'package:audioplayers_platform_interface/api/release_mode.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
@@ -159,7 +158,7 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform
     try {
       _doHandlePlatformCall(call);
     } on Exception catch (ex) {
-      emitGlobalLog(Log('Unexpected exception: $ex', level: LogLevel.error));
+      emitGlobalError(ex);
     }
   }
 
@@ -186,38 +185,22 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform
         case 'audio.onLog':
           emitLog(
             playerId,
-            Log(
-              call.getString('value'),
-              level: LogLevelExtension.fromInt(call.getInt('level')),
-            ),
+            call.getString('value'),
           );
           break;
         default:
-          emitLog(
+          emitError(
             playerId,
-            Log(
-              'Unknown method ${call.method}',
-              level: LogLevel.error,
-            ),
+            UnimplementedError('Unknown method ${call.method}'),
           );
       }
     } else {
       switch (call.method) {
         case 'audio.onGlobalLog':
-          emitGlobalLog(
-            Log(
-              call.getString('value'),
-              level: LogLevelExtension.fromInt(call.getInt('level')),
-            ),
-          );
+          emitGlobalLog(call.getString('value'));
           break;
         default:
-          emitGlobalLog(
-            Log(
-              'Unknown method ${call.method}',
-              level: LogLevel.error,
-            ),
-          );
+          emitGlobalError(UnimplementedError('Unknown method ${call.method}'));
       }
     }
   }
@@ -232,18 +215,18 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform
       switch (eventType) {
         case 'audio.onLog':
           final value = map.getString('value');
-          emitLog(playerId, Log(value));
+          emitLog(playerId, value);
           break;
         default:
-          emitLog(
+          emitError(
             playerId,
-            Log('Event Method does not exist $eventType',
-                level: LogLevel.error),
+            UnimplementedError('Event Method does not exist $eventType'),
           );
       }
-    }, onError: (dynamic e) {
+    }, onError: (Object e) {
       // TODO make local
-      emitGlobalLog(Log(e.toString(), level: LogLevel.error));
+      // emitError(playerId, e);
+      emitGlobalError(e);
     });
 
     const globalEventChannel =
@@ -254,17 +237,14 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform
       switch (eventType) {
         case 'audio.onGlobalLog':
           final value = map.getString('value');
-          emitGlobalLog(Log(value));
+          emitGlobalLog(value);
           break;
         default:
-          emitGlobalLog(
-            Log('Global Event Method does not exist $eventType',
-                level: LogLevel.error),
-          );
+          emitGlobalError(UnimplementedError(
+              'Global Event Method does not exist $eventType'));
       }
-    }, onError: (dynamic e) {
-      // TODO make local
-      emitGlobalLog(Log(e.toString(), level: LogLevel.error));
+    }, onError: (Object e) {
+      emitGlobalError(e);
     });
   }
 

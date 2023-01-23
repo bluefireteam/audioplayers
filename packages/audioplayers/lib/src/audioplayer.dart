@@ -47,9 +47,7 @@ class AudioPlayer {
   late StreamSubscription _onLogStreamSubscription;
 
   static StreamSubscription _onGlobalLogStreamSubscription =
-      _onGlobalLog.listen((log) {
-    logger.log(log.level, log.message);
-  });
+      _onGlobalLog.listen(logger.log, onError: logger.error);
 
   final StreamController<PlayerState> _playerStateController =
       StreamController<PlayerState>.broadcast();
@@ -89,10 +87,10 @@ class AudioPlayer {
       _platform.seekCompleteStream.filter(playerId);
 
   /// Stream of log events.
-  Stream<Log> get _onLog => _platform.logStream.filter(playerId);
+  Stream<String> get _onLog => _platform.logStream.filter(playerId);
 
   /// Stream of global log events.
-  static Stream<Log> get _onGlobalLog => _platform.globalLogStream;
+  static Stream<String> get _onGlobalLog => _platform.globalLogStream;
 
   /// An unique ID generated for this instance of [AudioPlayer].
   ///
@@ -118,7 +116,9 @@ class AudioPlayer {
       }
     });
     _onLogStreamSubscription = _onLog.listen((log) {
-      logger.log(log.level, '${log.message}\nSource: $_source');
+      logger.log('$log\nSource: $_source');
+    }, onError: (Object e) {
+      logger.error(AudioPlayerException(this, throwable: e));
     });
   }
 
@@ -149,14 +149,22 @@ class AudioPlayer {
     return resume();
   }
 
-  void setLogHandler(void Function(Log log)? logHandler) {
+  void setLogHandler(
+    void Function(String log)? onLog, {
+    void Function(Object o)? onError,
+  }) {
     _onLogStreamSubscription.cancel();
-    _onLogStreamSubscription = _onLog.listen(logHandler);
+    _onLogStreamSubscription =
+        _onLog.listen(onLog, onError: onError ?? logger.error);
   }
 
-  static void setGlobalLogHandler(void Function(Log log)? logHandler) {
+  static void setGlobalLogHandler(
+    void Function(String log)? onLog, {
+    void Function(Object o)? onError,
+  }) {
     _onGlobalLogStreamSubscription.cancel();
-    _onGlobalLogStreamSubscription = _onGlobalLog.listen(logHandler);
+    _onGlobalLogStreamSubscription =
+        _onGlobalLog.listen(onLog, onError: onError ?? logger.error);
   }
 
   Future<void> setAudioContext(AudioContext ctx) {
