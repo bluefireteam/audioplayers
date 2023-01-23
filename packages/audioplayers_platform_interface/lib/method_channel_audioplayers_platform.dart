@@ -5,6 +5,8 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:audioplayers_platform_interface/api/audio_context_config.dart';
+import 'package:audioplayers_platform_interface/api/global_event.dart';
+import 'package:audioplayers_platform_interface/api/player_event.dart';
 import 'package:audioplayers_platform_interface/api/player_mode.dart';
 import 'package:audioplayers_platform_interface/api/release_mode.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
@@ -18,7 +20,6 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform
 
   MethodChannelAudioplayersPlatform() {
     _channel.setMethodCallHandler(platformCallHandler);
-    _platformEventHandler();
   }
 
   @override
@@ -154,14 +155,25 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform
     return _call('stop', playerId);
   }
 
+  @override
+  Stream<PlayerEvent> getEventStream(String playerId) {
+    return _eventChannelFor(playerId);
+  }
+
+  @override
+  Stream<GlobalEvent> getGlobalEventStream() {
+    return _globalEventChannel();
+  }
+
   Future<void> platformCallHandler(MethodCall call) async {
     try {
       _doHandlePlatformCall(call);
     } on Exception catch (ex) {
-      emitGlobalError(ex);
+      // TODO should be replaced anyways
     }
   }
 
+  // TODO replace with event stream
   void _doHandlePlatformCall(MethodCall call) {
     if (call.containsKey('playerId')) {
       final playerId = call.getString('playerId');
@@ -182,69 +194,46 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform
         case 'audio.onSeekComplete':
           emitSeekComplete(playerId);
           break;
-        case 'audio.onLog':
-          emitLog(
-            playerId,
-            call.getString('value'),
-          );
-          break;
         default:
-          emitError(
-            playerId,
-            UnimplementedError('Unknown method ${call.method}'),
-          );
-      }
-    } else {
-      switch (call.method) {
-        case 'audio.onGlobalLog':
-          emitGlobalLog(call.getString('value'));
-          break;
-        default:
-          emitGlobalError(UnimplementedError('Unknown method ${call.method}'));
+        // TODO throw UnimplementedError
       }
     }
   }
 
-  void _platformEventHandler() {
-    const eventChannel = EventChannel('xyz.luan/audioplayers/events');
+  Stream<PlayerEvent> _eventChannelFor(String playerId) {
+    final eventChannel = EventChannel('xyz.luan/audioplayers/events/$playerId');
 
-    eventChannel.receiveBroadcastStream().listen((dynamic event) {
-      final map = event as Map<dynamic, dynamic>;
-      final eventType = map.getString('event');
-      final playerId = map.getString('playerId');
-      switch (eventType) {
-        case 'audio.onLog':
-          final value = map.getString('value');
-          emitLog(playerId, value);
-          break;
-        default:
-          emitError(
-            playerId,
-            UnimplementedError('Event Method does not exist $eventType'),
-          );
-      }
-    }, onError: (Object e) {
-      // TODO make local
-      // emitError(playerId, e);
-      emitGlobalError(e);
-    });
+    return eventChannel.receiveBroadcastStream().map(
+      (dynamic event) {
+        final map = event as Map<dynamic, dynamic>;
+        final eventType = map.getString('event');
+        switch (eventType) {
+          case 'audio.onLog':
+            final value = map.getString('value');
+            return PlayerEvent(
+                eventType: PlayerEventType.log, logMessage: value);
+          default:
+            throw UnimplementedError('Event Method does not exist $eventType');
+        }
+      },
+    );
+  }
 
+  Stream<GlobalEvent> _globalEventChannel() {
     const globalEventChannel =
         EventChannel('xyz.luan/audioplayers.global/events');
-    globalEventChannel.receiveBroadcastStream().listen((dynamic event) {
+    return globalEventChannel.receiveBroadcastStream().map((dynamic event) {
       final map = event as Map<dynamic, dynamic>;
       final eventType = map.getString('event');
       switch (eventType) {
         case 'audio.onGlobalLog':
           final value = map.getString('value');
-          emitGlobalLog(value);
-          break;
+          return GlobalEvent(eventType: GlobalEventType.log, logMessage: value);
         default:
-          emitGlobalError(UnimplementedError(
-              'Global Event Method does not exist $eventType'));
+          throw UnimplementedError(
+            'Global Event Method does not exist $eventType',
+          );
       }
-    }, onError: (Object e) {
-      emitGlobalError(e);
     });
   }
 

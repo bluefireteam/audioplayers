@@ -50,6 +50,8 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
         globalChannel.setMethodCallHandler { call, response -> safeCall(call, response, ::globalHandler) }
         updateRunnable = UpdateRunnable(players, channel, handler, this)
 
+        // TODO create event channel for each player:
+        // https://github.com/flutter/plugins/tree/main/packages/video_player/video_player_android/android/src/main/java/io/flutter/plugins/videoplayer
         events = EventHandler(EventChannel(binding.binaryMessenger, "xyz.luan/audioplayers/events"))
         globalEvents = EventHandler(EventChannel(binding.binaryMessenger, "xyz.luan/audioplayers.global/events"))
     }

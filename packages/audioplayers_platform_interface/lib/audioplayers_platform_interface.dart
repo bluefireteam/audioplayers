@@ -2,7 +2,8 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:audioplayers_platform_interface/api/audio_context_config.dart';
-import 'package:audioplayers_platform_interface/api/for_player.dart';
+import 'package:audioplayers_platform_interface/api/global_event.dart';
+import 'package:audioplayers_platform_interface/api/player_event.dart';
 import 'package:audioplayers_platform_interface/api/player_mode.dart';
 import 'package:audioplayers_platform_interface/api/release_mode.dart';
 import 'package:audioplayers_platform_interface/method_channel_audioplayers_platform.dart';
@@ -119,15 +120,7 @@ abstract class AudioplayersPlatform extends PlatformInterface {
   ///  * otherwise not supported (e.g. LOW_LATENCY mode on Android)
   Future<int?> getCurrentPosition(String playerId);
 
-  Stream<ForPlayer<Duration>> get positionStream;
+  Stream<PlayerEvent> getEventStream(String playerId);
 
-  Stream<ForPlayer<Duration>> get durationStream;
-
-  Stream<ForPlayer<void>> get completeStream;
-
-  Stream<ForPlayer<void>> get seekCompleteStream;
-
-  Stream<ForPlayer<String>> get logStream;
-
-  Stream<String> get globalLogStream;
+  Stream<GlobalEvent> getGlobalEventStream();
 }

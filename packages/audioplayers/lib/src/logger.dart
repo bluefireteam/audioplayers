@@ -19,6 +19,7 @@ class Logger {
     } else if (o is Exception) {
       return 'AudioPlayers Exception: $o';
     }
+    return 'AudioPlayers throw: $o';
   }
 }
 

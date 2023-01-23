@@ -5,6 +5,8 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:audioplayers_platform_interface/api/global_event.dart';
+import 'package:audioplayers_platform_interface/api/player_event.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
 import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
@@ -46,6 +48,11 @@ class AudioPlayer {
 
   late StreamSubscription _onLogStreamSubscription;
 
+  late Stream<PlayerEvent> _eventStream;
+
+  static Stream<GlobalEvent> _globalEventStream =
+      _platform.getGlobalEventStream();
+
   static StreamSubscription _onGlobalLogStreamSubscription =
       _onGlobalLog.listen(logger.log, onError: logger.error);
 
@@ -61,15 +68,17 @@ class AudioPlayer {
   /// position of the playback if the status is [PlayerState.playing].
   ///
   /// You can use it on a progress bar, for instance.
-  Stream<Duration> get onPositionChanged =>
-      _platform.positionStream.filter(playerId);
+  Stream<Duration> get onPositionChanged => _eventStream
+      .where((event) => event.eventType == PlayerEventType.position)
+      .map((event) => event.position!);
 
   /// Stream of changes on audio duration.
   ///
   /// An event is going to be sent as soon as the audio duration is available
   /// (it might take a while to download or buffer it).
-  Stream<Duration> get onDurationChanged =>
-      _platform.durationStream.filter(playerId);
+  Stream<Duration> get onDurationChanged => _eventStream
+      .where((event) => event.eventType == PlayerEventType.duration)
+      .map((event) => event.duration!);
 
   /// Stream of player completions.
   ///
@@ -77,20 +86,24 @@ class AudioPlayer {
   /// sent when an audio is paused or stopped.
   ///
   /// [ReleaseMode.loop] also sends events to this stream.
-  Stream<void> get onPlayerComplete =>
-      _platform.completeStream.filter(playerId);
+  Stream<void> get onPlayerComplete => _eventStream
+      .where((event) => event.eventType == PlayerEventType.complete);
 
   /// Stream of seek completions.
   ///
   /// An event is going to be sent as soon as the audio seek is finished.
-  Stream<void> get onSeekComplete =>
-      _platform.seekCompleteStream.filter(playerId);
+  Stream<void> get onSeekComplete => _eventStream
+      .where((event) => event.eventType == PlayerEventType.seekComplete);
 
   /// Stream of log events.
-  Stream<String> get _onLog => _platform.logStream.filter(playerId);
+  Stream<String> get _onLog => _eventStream
+      .where((event) => event.eventType == PlayerEventType.log)
+      .map((event) => event.logMessage!);
 
   /// Stream of global log events.
-  static Stream<String> get _onGlobalLog => _platform.globalLogStream;
+  static Stream<String> get _onGlobalLog => _globalEventStream
+      .where((event) => event.eventType == GlobalEventType.log)
+      .map((event) => event.logMessage!);
 
   /// An unique ID generated for this instance of [AudioPlayer].
   ///
@@ -120,6 +133,7 @@ class AudioPlayer {
     }, onError: (Object e) {
       logger.error(AudioPlayerException(this, throwable: e));
     });
+    _eventStream = _platform.getEventStream(this.playerId);
   }
 
   Future<void> play(

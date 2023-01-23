@@ -20,22 +20,6 @@ mixin StreamsInterface {
     _positionStreamController.add(ForPlayer(playerId, value));
   }
 
-  void emitLog(String playerId, String value) {
-    _logStreamController.add(ForPlayer(playerId, value));
-  }
-
-  void emitGlobalLog(String value) {
-    _globalLogStreamController.add(value);
-  }
-
-  void emitError(String playerId, Object value) {
-    _logStreamController.addError(ForPlayer(playerId, value));
-  }
-
-  void emitGlobalError(Object value) {
-    _globalLogStreamController.addError(value);
-  }
-
   Stream<ForPlayer<void>> get seekCompleteStream =>
       _seekCompleteStreamController.stream;
 
@@ -47,10 +31,6 @@ mixin StreamsInterface {
 
   Stream<ForPlayer<Duration>> get positionStream =>
       _positionStreamController.stream;
-
-  Stream<ForPlayer<String>> get logStream => _logStreamController.stream;
-
-  Stream<String> get globalLogStream => _globalLogStreamController.stream;
 
   final StreamController<ForPlayer<void>> _seekCompleteStreamController =
       StreamController<ForPlayer<void>>.broadcast();
@@ -64,19 +44,11 @@ mixin StreamsInterface {
   final StreamController<ForPlayer<Duration>> _positionStreamController =
       StreamController<ForPlayer<Duration>>.broadcast();
 
-  final StreamController<ForPlayer<String>> _logStreamController =
-      StreamController<ForPlayer<String>>.broadcast();
-
-  final StreamController<String> _globalLogStreamController =
-      StreamController<String>.broadcast();
-
   @mustCallSuper
   Future<void> dispose() async {
     _seekCompleteStreamController.close();
     _completeStreamController.close();
     _durationStreamController.close();
     _positionStreamController.close();
-    _logStreamController.close();
-    _globalLogStreamController.close();
   }
 }
