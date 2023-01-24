@@ -11,15 +11,21 @@ import 'package:audioplayers_platform_interface/api/player_mode.dart';
 import 'package:audioplayers_platform_interface/api/release_mode.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
 import 'package:audioplayers_platform_interface/method_channel_interface.dart';
-import 'package:audioplayers_platform_interface/streams_interface.dart';
 import 'package:flutter/services.dart';
 
-class MethodChannelAudioplayersPlatform extends AudioplayersPlatform
-    with StreamsInterface {
+class MethodChannelAudioplayersPlatform extends AudioplayersPlatform {
   final MethodChannel _channel = const MethodChannel('xyz.luan/audioplayers');
 
-  MethodChannelAudioplayersPlatform() {
-    _channel.setMethodCallHandler(platformCallHandler);
+  MethodChannelAudioplayersPlatform();
+
+  @override
+  Future<void> create(String playerId) {
+    return _call('create', playerId);
+  }
+
+  @override
+  Future<void> dispose(String playerId) {
+    return _call('dispose', playerId);
   }
 
   @override
@@ -165,41 +171,6 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform
     return _globalEventChannel();
   }
 
-  Future<void> platformCallHandler(MethodCall call) async {
-    try {
-      _doHandlePlatformCall(call);
-    } on Exception catch (ex) {
-      // TODO should be replaced anyways
-    }
-  }
-
-  // TODO replace with event stream
-  void _doHandlePlatformCall(MethodCall call) {
-    if (call.containsKey('playerId')) {
-      final playerId = call.getString('playerId');
-      switch (call.method) {
-        case 'audio.onDuration':
-          final millis = call.getInt('value');
-          final duration = Duration(milliseconds: millis);
-          emitDuration(playerId, duration);
-          break;
-        case 'audio.onCurrentPosition':
-          final millis = call.getInt('value');
-          final position = Duration(milliseconds: millis);
-          emitPosition(playerId, position);
-          break;
-        case 'audio.onComplete':
-          emitComplete(playerId);
-          break;
-        case 'audio.onSeekComplete':
-          emitSeekComplete(playerId);
-          break;
-        default:
-        // TODO throw UnimplementedError
-      }
-    }
-  }
-
   Stream<PlayerEvent> _eventChannelFor(String playerId) {
     final eventChannel = EventChannel('xyz.luan/audioplayers/events/$playerId');
 
@@ -208,10 +179,30 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform
         final map = event as Map<dynamic, dynamic>;
         final eventType = map.getString('event');
         switch (eventType) {
+          case 'audio.onDuration':
+            final millis = map.getInt('value');
+            final duration = Duration(milliseconds: millis);
+            return PlayerEvent(
+              eventType: PlayerEventType.duration,
+              duration: duration,
+            );
+          case 'audio.onCurrentPosition':
+            final millis = map.getInt('value');
+            final position = Duration(milliseconds: millis);
+            return PlayerEvent(
+              eventType: PlayerEventType.position,
+              position: position,
+            );
+          case 'audio.onComplete':
+            return const PlayerEvent(eventType: PlayerEventType.complete);
+          case 'audio.onSeekComplete':
+            return const PlayerEvent(eventType: PlayerEventType.seekComplete);
           case 'audio.onLog':
             final value = map.getString('value');
             return PlayerEvent(
-                eventType: PlayerEventType.log, logMessage: value);
+              eventType: PlayerEventType.log,
+              logMessage: value,
+            );
           default:
             throw UnimplementedError('Event Method does not exist $eventType');
         }

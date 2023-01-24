@@ -44,13 +44,20 @@ class AudioPlayer {
     _playerState = state;
   }
 
+  /// Completer to wait until native player and event stream is created.
+  final _creatingCompleter = Completer<void>();
+
   late final StreamSubscription _onPlayerCompleteStreamSubscription;
 
   late StreamSubscription _onLogStreamSubscription;
 
-  late Stream<PlayerEvent> _eventStream;
+  /// Stream controller to be able to get a stream on initialization, before the
+  /// native event stream is ready via [create] method.
+  final _eventStreamController = StreamController<PlayerEvent>.broadcast();
+  late final StreamSubscription _eventStreamSubscription;
+  late final Stream<PlayerEvent> _eventStream = _eventStreamController.stream;
 
-  static Stream<GlobalEvent> _globalEventStream =
+  static final Stream<GlobalEvent> _globalEventStream =
       _platform.getGlobalEventStream();
 
   static StreamSubscription _onGlobalLogStreamSubscription =
@@ -122,6 +129,13 @@ class AudioPlayer {
 
   /// Creates a new instance and assigns an unique id to it.
   AudioPlayer({String? playerId}) : playerId = playerId ?? _uuid.v4() {
+    create();
+  }
+
+  Future<void> create() async {
+    await _platform.create(playerId);
+    _eventStreamSubscription =
+        _platform.getEventStream(playerId).listen(_eventStreamController.add);
     _onPlayerCompleteStreamSubscription = onPlayerComplete.listen((_) {
       state = PlayerState.completed;
       if (releaseMode == ReleaseMode.release) {
@@ -131,9 +145,9 @@ class AudioPlayer {
     _onLogStreamSubscription = _onLog.listen((log) {
       logger.log('$log\nSource: $_source');
     }, onError: (Object e) {
-      logger.error(AudioPlayerException(this, throwable: e));
+      logger.error(AudioPlayerException(this, cause: e));
     });
-    _eventStream = _platform.getEventStream(this.playerId);
+    _creatingCompleter.complete();
   }
 
   Future<void> play(
@@ -181,12 +195,14 @@ class AudioPlayer {
         _onGlobalLog.listen(onLog, onError: onError ?? logger.error);
   }
 
-  Future<void> setAudioContext(AudioContext ctx) {
+  Future<void> setAudioContext(AudioContext ctx) async {
+    await _creatingCompleter.future;
     return _platform.setAudioContext(playerId, ctx);
   }
 
-  Future<void> setPlayerMode(PlayerMode mode) {
+  Future<void> setPlayerMode(PlayerMode mode) async {
     _mode = mode;
+    await _creatingCompleter.future;
     return _platform.setPlayerMode(playerId, mode);
   }
 
@@ -195,6 +211,7 @@ class AudioPlayer {
   /// If you call [resume] later, the audio will resume from the point that it
   /// has been paused.
   Future<void> pause() async {
+    await _creatingCompleter.future;
     await _platform.pause(playerId);
     state = PlayerState.paused;
   }
@@ -204,12 +221,14 @@ class AudioPlayer {
   /// The position is going to be reset and you will no longer be able to resume
   /// from the last point.
   Future<void> stop() async {
+    await _creatingCompleter.future;
     await _platform.stop(playerId);
     state = PlayerState.stopped;
   }
 
   /// Resumes the audio that has been paused or stopped.
   Future<void> resume() async {
+    await _creatingCompleter.future;
     await _platform.resume(playerId);
     state = PlayerState.playing;
   }
@@ -219,13 +238,15 @@ class AudioPlayer {
   /// The resources are going to be fetched or buffered again as soon as you
   /// call [resume] or change the source.
   Future<void> release() async {
+    await _creatingCompleter.future;
     await _platform.release(playerId);
     state = PlayerState.stopped;
     _source = null;
   }
 
   /// Moves the cursor to the desired position.
-  Future<void> seek(Duration position) {
+  Future<void> seek(Duration position) async {
+    await _creatingCompleter.future;
     return _platform.seek(playerId, position);
   }
 
@@ -234,7 +255,8 @@ class AudioPlayer {
   /// -1 - The left channel is at full volume; the right channel is silent.
   ///  1 - The right channel is at full volume; the left channel is silent.
   ///  0 - Both channels are at the same volume.
-  Future<void> setBalance(double balance) {
+  Future<void> setBalance(double balance) async {
+    await _creatingCompleter.future;
     return _platform.setBalance(playerId, balance);
   }
 
@@ -242,15 +264,17 @@ class AudioPlayer {
   ///
   /// 0 is mute and 1 is the max volume. The values between 0 and 1 are linearly
   /// interpolated.
-  Future<void> setVolume(double volume) {
+  Future<void> setVolume(double volume) async {
+    await _creatingCompleter.future;
     return _platform.setVolume(playerId, volume);
   }
 
   /// Sets the release mode.
   ///
   /// Check [ReleaseMode]'s doc to understand the difference between the modes.
-  Future<void> setReleaseMode(ReleaseMode releaseMode) {
+  Future<void> setReleaseMode(ReleaseMode releaseMode) async {
     _releaseMode = releaseMode;
+    await _creatingCompleter.future;
     return _platform.setReleaseMode(playerId, releaseMode);
   }
 
@@ -258,7 +282,8 @@ class AudioPlayer {
   ///
   /// iOS and macOS have limits between 0.5 and 2x
   /// Android SDK version should be 23 or higher
-  Future<void> setPlaybackRate(double playbackRate) {
+  Future<void> setPlaybackRate(double playbackRate) async {
+    await _creatingCompleter.future;
     return _platform.setPlaybackRate(playerId, playbackRate);
   }
 
@@ -266,7 +291,8 @@ class AudioPlayer {
   ///
   /// This will delegate to one of the specific methods below depending on
   /// the source type.
-  Future<void> setSource(Source source) {
+  Future<void> setSource(Source source) async {
+    await _creatingCompleter.future;
     return source.setOnPlayer(this);
   }
 
@@ -274,8 +300,9 @@ class AudioPlayer {
   ///
   /// The resources will start being fetched or buffered as soon as you call
   /// this method.
-  Future<void> setSourceUrl(String url) {
+  Future<void> setSourceUrl(String url) async {
     _source = UrlSource(url);
+    await _creatingCompleter.future;
     return _platform.setSourceUrl(playerId, url, isLocal: false);
   }
 
@@ -283,8 +310,9 @@ class AudioPlayer {
   ///
   /// The resources will start being fetched or buffered as soon as you call
   /// this method.
-  Future<void> setSourceDeviceFile(String path) {
+  Future<void> setSourceDeviceFile(String path) async {
     _source = DeviceFileSource(path);
+    await _creatingCompleter.future;
     return _platform.setSourceUrl(playerId, path, isLocal: true);
   }
 
@@ -296,11 +324,13 @@ class AudioPlayer {
   Future<void> setSourceAsset(String path) async {
     _source = AssetSource(path);
     final url = await audioCache.load(path);
+    await _creatingCompleter.future;
     return _platform.setSourceUrl(playerId, url.path, isLocal: true);
   }
 
-  Future<void> setSourceBytes(Uint8List bytes) {
+  Future<void> setSourceBytes(Uint8List bytes) async {
     _source = BytesSource(bytes);
+    await _creatingCompleter.future;
     return _platform.setSourceBytes(playerId, bytes);
   }
 
@@ -310,6 +340,7 @@ class AudioPlayer {
   /// It will be available as soon as the audio duration is available
   /// (it might take a while to download or buffer it if file is not local).
   Future<Duration?> getDuration() async {
+    await _creatingCompleter.future;
     final milliseconds = await _platform.getDuration(playerId);
     if (milliseconds == null) {
       return null;
@@ -319,6 +350,7 @@ class AudioPlayer {
 
   // Gets audio current playing position
   Future<Duration?> getCurrentPosition() async {
+    await _creatingCompleter.future;
     final milliseconds = await _platform.getCurrentPosition(playerId);
     if (milliseconds == null) {
       return null;
@@ -335,13 +367,17 @@ class AudioPlayer {
     await release();
 
     final futures = <Future>[
+      _creatingCompleter.future,
       if (!_playerStateController.isClosed) _playerStateController.close(),
       _onPlayerCompleteStreamSubscription.cancel(),
       _onLogStreamSubscription.cancel(),
+      _eventStreamSubscription.cancel(),
+      _eventStreamController.close(),
     ];
 
     _source = null;
 
     await Future.wait<dynamic>(futures);
+    await _platform.dispose(playerId);
   }
 }

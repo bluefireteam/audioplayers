@@ -10,24 +10,6 @@ extension StandardMethodChannel on MethodChannel {
   }
 }
 
-extension StandardMethodCall on MethodCall {
-  Map<dynamic, dynamic> get args => arguments as Map<dynamic, dynamic>;
-
-  bool containsKey(String key) => args.containsKey(key);
-
-  String getString(String key) {
-    return args[key] as String;
-  }
-
-  int getInt(String key) {
-    return args[key] as int;
-  }
-
-  bool getBool(String key) {
-    return args[key] as bool;
-  }
-}
-
 extension MapParser on Map<dynamic, dynamic> {
   bool containsKey(String key) => this.containsKey(key);
 

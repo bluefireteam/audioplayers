@@ -58,7 +58,7 @@ class _LoggerTabState extends State<LoggerTab>
             globalLogs.add(
               Log(
                   Logger.errorToString(
-                    AudioPlayerException(widget.player, throwable: o),
+                    AudioPlayerException(widget.player, cause: o),
                   ),
                   level: LogLevel.error),
             );

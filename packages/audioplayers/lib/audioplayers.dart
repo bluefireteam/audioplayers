@@ -1,5 +1,4 @@
 export 'package:audioplayers_platform_interface/api/audio_context_config.dart';
-export 'package:audioplayers_platform_interface/api/for_player.dart';
 export 'package:audioplayers_platform_interface/api/player_mode.dart';
 export 'package:audioplayers_platform_interface/api/player_state.dart';
 export 'package:audioplayers_platform_interface/api/release_mode.dart';

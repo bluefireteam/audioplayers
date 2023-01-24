@@ -29,6 +29,12 @@ abstract class AudioplayersPlatform extends PlatformInterface {
   /// class that extends [AudioplayersPlatform] when they register themselves.
   static AudioplayersPlatform instance = MethodChannelAudioplayersPlatform();
 
+  /// Create a player instance for the given playerId.
+  Future<void> create(String playerId);
+
+  /// Dispose the player instance with the given playerId.
+  Future<void> dispose(String playerId);
+  
   /// Pauses the audio that is currently playing.
   ///
   /// If you call [resume] later, the audio will resume from the point that it

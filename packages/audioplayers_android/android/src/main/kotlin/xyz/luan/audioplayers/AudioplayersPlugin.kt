@@ -8,6 +8,7 @@ import android.os.Handler
 import android.os.Looper
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterPluginBinding
+import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -30,9 +31,9 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
 
     private lateinit var channel: MethodChannel
     private lateinit var globalChannel: MethodChannel
-    private lateinit var events: EventHandler
     private lateinit var globalEvents: EventHandler
     private lateinit var context: Context
+    private lateinit var binaryMessenger: BinaryMessenger
     private lateinit var soundPoolManager: SoundPoolManager
 
     private val players = ConcurrentHashMap<String, WrappedPlayer>()
@@ -43,27 +44,23 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
 
     override fun onAttachedToEngine(binding: FlutterPluginBinding) {
         context = binding.applicationContext
+        binaryMessenger = binding.binaryMessenger
         soundPoolManager = SoundPoolManager(this)
         channel = MethodChannel(binding.binaryMessenger, "xyz.luan/audioplayers")
         channel.setMethodCallHandler { call, response -> safeCall(call, response, ::handler) }
         globalChannel = MethodChannel(binding.binaryMessenger, "xyz.luan/audioplayers.global")
         globalChannel.setMethodCallHandler { call, response -> safeCall(call, response, ::globalHandler) }
         updateRunnable = UpdateRunnable(players, channel, handler, this)
-
-        // TODO create event channel for each player:
-        // https://github.com/flutter/plugins/tree/main/packages/video_player/video_player_android/android/src/main/java/io/flutter/plugins/videoplayer
-        events = EventHandler(EventChannel(binding.binaryMessenger, "xyz.luan/audioplayers/events"))
         globalEvents = EventHandler(EventChannel(binding.binaryMessenger, "xyz.luan/audioplayers.global/events"))
     }
 
     override fun onDetachedFromEngine(binding: FlutterPluginBinding) {
         stopUpdates()
         updateRunnable = null
-        players.values.forEach { it.release() }
+        players.values.forEach { it.dispose() }
         players.clear()
         mainScope.cancel()
         soundPoolManager.dispose()
-        events.endOfStream()
         globalEvents.endOfStream()
     }
 
@@ -98,8 +95,20 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
 
     private fun handler(call: MethodCall, response: MethodChannel.Result) {
         val playerId = call.argument<String>("playerId") ?: return
+        if (call.method == "create") {
+            val eventHandler = EventHandler(EventChannel(binaryMessenger, "xyz.luan/audioplayers/events/$playerId"))
+            players[playerId] =
+                WrappedPlayer(this, playerId, defaultAudioContext.copy(), eventHandler, soundPoolManager)
+            response.success(1)
+            return
+        }
         val player = getPlayer(playerId)
         when (call.method) {
+            "dispose" -> {
+                player.dispose()
+                players.remove(playerId)
+            }
+
             "setSourceUrl" -> {
                 val url = call.argument<String>("url") ?: error("url is required")
                 val isLocal = call.argument<Boolean>("isLocal") ?: false
@@ -173,9 +182,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
     }
 
     private fun getPlayer(playerId: String): WrappedPlayer {
-        return players.getOrPut(playerId) {
-            WrappedPlayer(this, playerId, defaultAudioContext.copy(), soundPoolManager)
-        }
+        return players[playerId] ?: error("Player with id $playerId was not created!")
     }
 
     fun getApplicationContext(): Context {
@@ -191,48 +198,33 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
     }
 
     fun handleDuration(player: WrappedPlayer) {
-        channel.invokeMethod("audio.onDuration", buildArguments(player.playerId, player.getDuration() ?: 0))
+        player.eventHandler.success("audio.onDuration", hashMapOf("value" to (player.getDuration() ?: 0)))
     }
 
     fun handleComplete(player: WrappedPlayer) {
-        channel.invokeMethod("audio.onComplete", buildArguments(player.playerId))
+        player.eventHandler.success("audio.onComplete")
     }
 
     fun handleLog(player: WrappedPlayer, message: String) {
-        handler.post {
-            events.success(
-                "audio.onLog", buildArguments(player.playerId, message)
-            )
-        }
+        handler.post { player.eventHandler.success("audio.onLog", hashMapOf("value" to message)) }
     }
 
     fun handleGlobalLog(message: String) {
-        handler.post {
-            globalEvents.success(
-                "audio.onGlobalLog", hashMapOf(
-                    "value" to message,
-                )
-            )
-        }
+        handler.post { globalEvents.success("audio.onGlobalLog", hashMapOf("value" to message)) }
     }
 
     fun handleError(player: WrappedPlayer, error: Throwable) {
-        // TODO how to encode player
-        handler.post {
-            events.error(error.javaClass.name, error.message, error.stackTraceToString())
-        }
+        handler.post { player.eventHandler.error(error.javaClass.name, error.message, error.stackTraceToString()) }
     }
 
     fun handleGlobalError(error: Throwable) {
-        handler.post {
-            globalEvents.error(error.javaClass.name, error.message, error.stackTraceToString())
-        }
+        handler.post { globalEvents.error(error.javaClass.name, error.message, error.stackTraceToString()) }
     }
 
     fun handleSeekComplete(player: WrappedPlayer) {
-        channel.invokeMethod("audio.onSeekComplete", buildArguments(player.playerId))
-        channel.invokeMethod(
-            "audio.onCurrentPosition", buildArguments(player.playerId, player.getCurrentPosition() ?: 0)
+        player.eventHandler.success("audio.onSeekComplete")
+        player.eventHandler.success(
+            "audio.onCurrentPosition", hashMapOf("value" to (player.getCurrentPosition() ?: 0))
         )
     }
 
@@ -270,26 +262,16 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
                     continue
                 }
                 isAnyPlaying = true
-                val key = player.playerId
                 val duration = player.getDuration()
                 val time = player.getCurrentPosition()
-                channel.invokeMethod("audio.onDuration", buildArguments(key, duration ?: 0))
-                channel.invokeMethod("audio.onCurrentPosition", buildArguments(key, time ?: 0))
+                player.eventHandler.success("audio.onDuration", hashMapOf("value" to (duration ?: 0)))
+                player.eventHandler.success("audio.onCurrentPosition", hashMapOf("value" to (time ?: 0)))
             }
             if (isAnyPlaying) {
                 handler.postDelayed(this, 200)
             } else {
                 updateCallback.stopUpdates()
             }
-        }
-    }
-
-    companion object {
-        private fun buildArguments(playerId: String, value: Any? = null): Map<String, Any> {
-            return listOfNotNull(
-                "playerId" to playerId,
-                value?.let { "value" to it },
-            ).toMap()
         }
     }
 }
@@ -334,7 +316,7 @@ class EventHandler(channel: EventChannel) : EventChannel.StreamHandler {
         eventSink = null
     }
 
-    fun success(method: String, arguments: Map<String, Any>) {
+    fun success(method: String, arguments: Map<String, Any> = HashMap()) {
         eventSink?.success(arguments + Pair("event", method))
     }
 

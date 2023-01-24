@@ -15,6 +15,7 @@ class WrappedPlayer internal constructor(
     private val ref: AudioplayersPlugin,
     val playerId: String,
     var context: AudioContextAndroid,
+    val eventHandler: EventHandler,
     private val soundPoolManager: SoundPoolManager,
 ) {
     private var player: Player? = null
@@ -347,5 +348,10 @@ class WrappedPlayer internal constructor(
         setVolume(volume)
         setLooping(isLooping)
         prepare()
+    }
+    
+    fun dispose() {
+        release()
+        eventHandler.endOfStream()
     }
 }

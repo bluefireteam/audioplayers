@@ -24,12 +24,12 @@ class Logger {
 }
 
 class AudioPlayerException implements Exception {
-  Object? throwable;
+  Object? cause;
   AudioPlayer player;
 
-  AudioPlayerException(this.player, {this.throwable});
+  AudioPlayerException(this.player, {this.cause});
 
   @override
   String toString() =>
-      'AudioPlayerException(\n\t${player.source}, \n\t$throwable';
+      'AudioPlayerException(\n\t${player.source}, \n\t$cause';
 }
