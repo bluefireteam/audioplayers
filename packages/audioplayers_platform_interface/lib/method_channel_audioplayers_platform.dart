@@ -171,6 +171,7 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform {
     return _globalEventChannel();
   }
 
+  // Only can be used after have created the event channel on the native side.
   Stream<PlayerEvent> _eventChannelFor(String playerId) {
     final eventChannel = EventChannel('xyz.luan/audioplayers/events/$playerId');
 

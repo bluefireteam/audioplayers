@@ -142,11 +142,10 @@ class AudioPlayer {
         _source = null;
       }
     });
-    _onLogStreamSubscription = _onLog.listen((log) {
-      logger.log('$log\nSource: $_source');
-    }, onError: (Object e) {
-      logger.error(AudioPlayerException(this, cause: e));
-    });
+    _onLogStreamSubscription = _onLog.listen(
+      (log) => logger.log('$log\nSource: $_source'),
+      onError: (Object e) => logger.error(AudioPlayerException(this, cause: e)),
+    );
     _creatingCompleter.complete();
   }
 
