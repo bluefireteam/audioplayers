@@ -1,3 +1,9 @@
+## 2.2.0
+
+ - **FIX**: use external factory for classes tagged with "@staticInterop" ([#1379](https://github.com/bluefireteam/audioplayers/issues/1379)). ([21d70504](https://github.com/bluefireteam/audioplayers/commit/21d7050455351b0c4ead9a3e2efbc8857115f247))
+ - **FEAT**: add setBalance ([#58](https://github.com/bluefireteam/audioplayers/issues/58)) ([#1282](https://github.com/bluefireteam/audioplayers/issues/1282)). ([782fc9df](https://github.com/bluefireteam/audioplayers/commit/782fc9dff24a2ab9681496fd7c4c8fed451eac35))
+ - **DOCS**: Fix repos and homepages on pubspecs ([#1349](https://github.com/bluefireteam/audioplayers/issues/1349)). ([0bdde4d9](https://github.com/bluefireteam/audioplayers/commit/0bdde4d9f8f62487cdcfe96221216eba03b31060))
+
 ## 2.1.1
 
  - Update a dependency to the latest release.
