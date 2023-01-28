@@ -1,3 +1,7 @@
+## 2.2.0
+
+ - **FIX**: use external factory for classes tagged with "@staticInterop" ([#1379](https://github.com/bluefireteam/audioplayers/issues/1379)). ([21d70504](https://github.com/bluefireteam/audioplayers/commit/21d7050455351b0c4ead9a3e2efbc8857115f247))
+
 ## 2.1.1
 
  - Update a dependency to the latest release.
