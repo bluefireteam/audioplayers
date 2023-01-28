@@ -3,7 +3,6 @@
 > Note: This release has breaking changes.
 
  - **FIX**: playing at playback rate `1.0` in android API level < 23 (fixes [#1344](https://github.com/bluefireteam/audioplayers/issues/1344)) ([#1390](https://github.com/bluefireteam/audioplayers/issues/1390)). ([b248e71d](https://github.com/bluefireteam/audioplayers/commit/b248e71dabf923072f1fd14355b4e0230c9a6593))
- - **DOCS**: Fix repos and homepages on pubspecs ([#1349](https://github.com/bluefireteam/audioplayers/issues/1349)). ([0bdde4d9](https://github.com/bluefireteam/audioplayers/commit/0bdde4d9f8f62487cdcfe96221216eba03b31060))
  - **BREAKING** **FEAT**: configurable SoundPool and `AudioManager.mode` ([#1388](https://github.com/bluefireteam/audioplayers/issues/1388)). ([5697f187](https://github.com/bluefireteam/audioplayers/commit/5697f187bcca64de2e519f8f49aaf4817fcf6398))
 
 ## 1.1.4
