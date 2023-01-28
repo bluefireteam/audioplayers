@@ -13,7 +13,7 @@ dependencies:
   provider: 5.0.0
 
 dev_dependencies:
-  flame_lint: 0.1.0
+  flame_lint: 0.2.0
   integration_test:
     sdk: flutter
 
