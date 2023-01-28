@@ -28,7 +28,7 @@ Packages with dependency updates only:
 
 #### `audioplayers_darwin` - `v3.0.1`
 
- - Fix duplicated plugin providers
+ - Fix duplicated path_providers plugins
 
 
 ## 2023-01-24
