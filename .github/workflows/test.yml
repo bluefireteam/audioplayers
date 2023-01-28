@@ -183,7 +183,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
-        # TODO: Once github ci supports metal we should bump the Flutter version to latest.
+        # TODO: Once GitHub CI supports metal we should bump the Flutter version to latest. (#1405)
         with:
           flutter-version: '3.3.10'
           channel: 'stable'
