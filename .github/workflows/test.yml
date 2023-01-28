@@ -183,6 +183,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
+        # TODO: Once github ci supports metal we should bump the Flutter version to latest.
+        with:
+          flutter-version: '3.3.10'
+          channel: 'stable'
       - uses: bluefireteam/melos-action@main
 
       - name: setup-cocoapods
