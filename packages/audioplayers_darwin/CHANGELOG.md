@@ -1,6 +1,6 @@
 ## 3.0.1
 
- - Fix duplicated plugin providers
+ - **FIX**: Remove one of the duplicated path_providers plugins
 
 ## 3.0.0
 
