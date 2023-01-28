@@ -4,6 +4,7 @@ publish_to: none
 
 dependencies:
   audioplayers: ^3.0.0
+  collection: ^1.17.0
   file_picker: ^5.0.1
   flutter:
     sdk: flutter
@@ -13,7 +14,9 @@ dependencies:
   provider: ^6.0.5
 
 dev_dependencies:
-  flame_lint: 0.2.0
+  flame_lint: ^0.2.0
+  flutter_test:
+    sdk: flutter
   integration_test:
     sdk: flutter
 
