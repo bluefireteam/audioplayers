@@ -10,5 +10,5 @@ dependencies:
   shelf_static: ^1.0.0
 
 dev_dependencies:
-  flame_lint: ^0.1.0
+  flame_lint: ^0.2.0
   http: ^0.13.0
