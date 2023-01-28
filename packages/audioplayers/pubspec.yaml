@@ -20,9 +20,6 @@ flutter:
       windows:
         default_package: audioplayers_windows
 
-  assets:
-    - assets/empty.mp3
-
 dependencies:
   audioplayers_android: ^2.0.0
   audioplayers_darwin: ^3.0.0

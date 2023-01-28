@@ -2,6 +2,8 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'audio_cache_test.dart';
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -12,26 +14,28 @@ void main() {
   channel.setMockMethodCallHandler((MethodCall call) async => 1);
 
   group('AudioPool', () {
+    AudioCache.instance = MyAudioCache();
+    
     test('creates instance', () async {
       final pool =
-          await AudioPool.create(soundPath: 'empty.mp3', maxPlayers: 3);
+          await AudioPool.create(soundPath: 'audio.mp3', maxPlayers: 3);
       final stop = await pool.start();
 
-      expect((pool.source as AssetSource).path, 'empty.mp3');
-      expect(pool.audioCache.loadedFiles.keys.first, 'empty.mp3');
+      expect((pool.source as AssetSource).path, 'audio.mp3');
+      expect(pool.audioCache.loadedFiles.keys.first, 'audio.mp3');
       stop();
-      expect((pool.source as AssetSource).path, 'empty.mp3');
+      expect((pool.source as AssetSource).path, 'audio.mp3');
     });
 
     test('multiple players running', () async {
       final pool =
-          await AudioPool.create(soundPath: 'empty.mp3', maxPlayers: 3);
+          await AudioPool.create(soundPath: 'audio.mp3', maxPlayers: 3);
       final stop1 = await pool.start();
       final stop2 = await pool.start();
       final stop3 = await pool.start();
 
-      expect((pool.source as AssetSource).path, 'empty.mp3');
-      expect(pool.audioCache.loadedFiles.keys.first, 'empty.mp3');
+      expect((pool.source as AssetSource).path, 'audio.mp3');
+      expect(pool.audioCache.loadedFiles.keys.first, 'audio.mp3');
       expect(pool.availablePlayers.isEmpty, isTrue);
       expect(pool.currentPlayers.length, 3);
 
@@ -44,7 +48,7 @@ void main() {
 
     test('keeps the minPlayers/maxPlayers contract', () async {
       final pool =
-          await AudioPool.create(soundPath: 'empty.mp3', maxPlayers: 3);
+          await AudioPool.create(soundPath: 'audio.mp3', maxPlayers: 3);
       final stopFunctions =
           await Future.wait(List.generate(5, (_) => pool.start()));
 
