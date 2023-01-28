@@ -3,6 +3,34 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2023-01-28
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`audioplayers_darwin` - `v3.0.1`](#audioplayers_darwin---v301)
+ - [`audioplayers` - `v3.0.1`](#audioplayers---v301)
+
+Packages with dependency updates only:
+
+> Packages listed below depend on other packages in this workspace that have had changes. Their versions have been incremented to bump the minimum dependency versions of the packages they depend upon in this project.
+
+ - `audioplayers` - `v3.0.1`
+
+---
+
+#### `audioplayers_darwin` - `v3.0.1`
+
+ - Fix duplicated plugin providers
+
+
 ## 2023-01-24
 
 ### Changes

@@ -1,3 +1,7 @@
+## 3.0.1
+
+ - Fix duplicated plugin providers
+
 ## 3.0.0
 
 > Note: This release does not have breaking changes, it was an accidental bump.
