@@ -14,11 +14,12 @@ void main() {
   channel.setMockMethodCallHandler((MethodCall call) async => 1);
 
   group('AudioPool', () {
-    AudioCache.instance = MyAudioCache();
-    
     test('creates instance', () async {
-      final pool =
-          await AudioPool.create(soundPath: 'audio.mp3', maxPlayers: 3);
+      final pool = await AudioPool.create(
+        soundPath: 'audio.mp3',
+        maxPlayers: 3,
+        audioCache: MyAudioCache(),
+      );
       final stop = await pool.start();
 
       expect((pool.source as AssetSource).path, 'audio.mp3');
@@ -28,8 +29,11 @@ void main() {
     });
 
     test('multiple players running', () async {
-      final pool =
-          await AudioPool.create(soundPath: 'audio.mp3', maxPlayers: 3);
+      final pool = await AudioPool.create(
+        soundPath: 'audio.mp3',
+        maxPlayers: 3,
+        audioCache: MyAudioCache(),
+      );
       final stop1 = await pool.start();
       final stop2 = await pool.start();
       final stop3 = await pool.start();
@@ -47,8 +51,11 @@ void main() {
     });
 
     test('keeps the minPlayers/maxPlayers contract', () async {
-      final pool =
-          await AudioPool.create(soundPath: 'audio.mp3', maxPlayers: 3);
+      final pool = await AudioPool.create(
+        soundPath: 'audio.mp3',
+        maxPlayers: 3,
+        audioCache: MyAudioCache(),
+      );
       final stopFunctions =
           await Future.wait(List.generate(5, (_) => pool.start()));
 
