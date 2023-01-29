@@ -43,26 +43,26 @@ class AudioPool {
   AudioPool._({
     required this.minPlayers,
     required this.maxPlayers,
-    String? soundPath,
+    String? assetPath,
     Source? source,
     AudioCache? audioCache,
   })  : assert(
-          (soundPath != null) ^ (source != null),
-          'Either provide a soundPath or a source.',
+          (assetPath != null) ^ (source != null),
+          'Either provide a assetPath or a source.',
         ),
         audioCache = audioCache ?? AudioCache.instance,
-        source = source ?? AssetSource(soundPath!);
+        source = source ?? AssetSource(assetPath!);
 
   /// Creates an [AudioPool] instance with the given parameters.
-  static Future<AudioPool> create({
-    String? soundPath,
+  static Future<AudioPool> _create({
+    String? assetPath,
     Source? source,
     AudioCache? audioCache,
     int minPlayers = 1,
     required int maxPlayers,
   }) async {
     final instance = AudioPool._(
-      soundPath: soundPath,
+      assetPath: assetPath,
       source: source,
       audioCache: audioCache,
       maxPlayers: maxPlayers,
@@ -74,6 +74,36 @@ class AudioPool {
     );
 
     return instance..availablePlayers.addAll(players);
+  }
+
+  /// Creates an [AudioPool] instance from the given [source]..
+  static Future<AudioPool> create({
+    required Source source,
+    AudioCache? audioCache,
+    int minPlayers = 1,
+    required int maxPlayers,
+  }) async {
+    return _create(
+      source: source,
+      audioCache: audioCache,
+      minPlayers: minPlayers,
+      maxPlayers: maxPlayers,
+    );
+  }
+
+  /// Creates an [AudioPool] instance with the asset from the given [assetPath].
+  static Future<AudioPool> createFromAsset({
+    required String assetPath,
+    AudioCache? audioCache,
+    int minPlayers = 1,
+    required int maxPlayers,
+  }) async {
+    return _create(
+      assetPath: assetPath,
+      audioCache: audioCache,
+      minPlayers: minPlayers,
+      maxPlayers: maxPlayers,
+    );
   }
 
   /// Starts playing the audio, returns a function that can stop the audio.
