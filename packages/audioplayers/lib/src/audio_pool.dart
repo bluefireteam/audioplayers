@@ -43,15 +43,9 @@ class AudioPool {
   AudioPool._({
     required this.minPlayers,
     required this.maxPlayers,
-    String? assetPath,
-    Source? source,
+    required this.source,
     AudioCache? audioCache,
-  })  : assert(
-          (assetPath != null) ^ (source != null),
-          'Either provide a assetPath or a source.',
-        ),
-        audioCache = audioCache ?? AudioCache.instance,
-        source = source ?? AssetSource(assetPath!);
+  }) : audioCache = audioCache ?? AudioCache.instance;
 
   /// Creates an [AudioPool] instance from the given [source].
   static Future<AudioPool> create({
@@ -68,15 +62,15 @@ class AudioPool {
     );
   }
 
-  /// Creates an [AudioPool] instance with the asset from the given [assetPath].
+  /// Creates an [AudioPool] instance with the asset from the given [path].
   static Future<AudioPool> createFromAsset({
-    required String assetPath,
+    required String path,
     AudioCache? audioCache,
     int minPlayers = 1,
     required int maxPlayers,
   }) async {
     return _create(
-      assetPath: assetPath,
+      source: AssetSource(path),
       audioCache: audioCache,
       minPlayers: minPlayers,
       maxPlayers: maxPlayers,
@@ -85,14 +79,12 @@ class AudioPool {
 
   /// Creates an [AudioPool] instance with the given parameters.
   static Future<AudioPool> _create({
-    String? assetPath,
-    Source? source,
+    required Source source,
     AudioCache? audioCache,
     int minPlayers = 1,
     required int maxPlayers,
   }) async {
     final instance = AudioPool._(
-      assetPath: assetPath,
       source: source,
       audioCache: audioCache,
       maxPlayers: maxPlayers,
