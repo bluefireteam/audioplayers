@@ -53,30 +53,7 @@ class AudioPool {
         audioCache = audioCache ?? AudioCache.instance,
         source = source ?? AssetSource(assetPath!);
 
-  /// Creates an [AudioPool] instance with the given parameters.
-  static Future<AudioPool> _create({
-    String? assetPath,
-    Source? source,
-    AudioCache? audioCache,
-    int minPlayers = 1,
-    required int maxPlayers,
-  }) async {
-    final instance = AudioPool._(
-      assetPath: assetPath,
-      source: source,
-      audioCache: audioCache,
-      maxPlayers: maxPlayers,
-      minPlayers: minPlayers,
-    );
-
-    final players = await Future.wait(
-      List.generate(minPlayers, (_) => instance._createNewAudioPlayer()),
-    );
-
-    return instance..availablePlayers.addAll(players);
-  }
-
-  /// Creates an [AudioPool] instance from the given [source]..
+  /// Creates an [AudioPool] instance from the given [source].
   static Future<AudioPool> create({
     required Source source,
     AudioCache? audioCache,
@@ -104,6 +81,29 @@ class AudioPool {
       minPlayers: minPlayers,
       maxPlayers: maxPlayers,
     );
+  }
+
+  /// Creates an [AudioPool] instance with the given parameters.
+  static Future<AudioPool> _create({
+    String? assetPath,
+    Source? source,
+    AudioCache? audioCache,
+    int minPlayers = 1,
+    required int maxPlayers,
+  }) async {
+    final instance = AudioPool._(
+      assetPath: assetPath,
+      source: source,
+      audioCache: audioCache,
+      maxPlayers: maxPlayers,
+      minPlayers: minPlayers,
+    );
+
+    final players = await Future.wait(
+      List.generate(minPlayers, (_) => instance._createNewAudioPlayer()),
+    );
+
+    return instance..availablePlayers.addAll(players);
   }
 
   /// Starts playing the audio, returns a function that can stop the audio.

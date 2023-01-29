@@ -15,8 +15,8 @@ void main() {
 
   group('AudioPool', () {
     test('creates instance', () async {
-      final pool = await AudioPool.create(
-        soundPath: 'audio.mp3',
+      final pool = await AudioPool.createFromAsset(
+        assetPath: 'audio.mp3',
         maxPlayers: 3,
         audioCache: MyAudioCache(),
       );
@@ -29,8 +29,8 @@ void main() {
     });
 
     test('multiple players running', () async {
-      final pool = await AudioPool.create(
-        soundPath: 'audio.mp3',
+      final pool = await AudioPool.createFromAsset(
+        assetPath: 'audio.mp3',
         maxPlayers: 3,
         audioCache: MyAudioCache(),
       );
@@ -51,8 +51,8 @@ void main() {
     });
 
     test('keeps the minPlayers/maxPlayers contract', () async {
-      final pool = await AudioPool.create(
-        soundPath: 'audio.mp3',
+      final pool = await AudioPool.createFromAsset(
+        assetPath: 'audio.mp3',
         maxPlayers: 3,
         audioCache: MyAudioCache(),
       );
