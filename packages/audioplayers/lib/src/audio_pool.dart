@@ -10,7 +10,7 @@ typedef StopFunction = Future<void> Function();
 /// An AudioPool is a provider of AudioPlayers that are pre-loaded with an asset
 /// to minimize delays.
 ///
-/// All AudioPlayers are loaded with the same file from `soundPath` or [source].
+/// All AudioPlayers are loaded with the same audio [source].
 /// If you want multiple sounds use multiple [AudioPool]s.
 ///
 /// Use this class if you for example have extremely quick firing, repetitive
