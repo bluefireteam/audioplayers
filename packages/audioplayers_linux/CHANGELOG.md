@@ -1,3 +1,7 @@
+## 1.0.4
+
+> Note: This release was an accidental bump.
+
 ## 1.0.3
 
  - Update a dependency to the latest release.

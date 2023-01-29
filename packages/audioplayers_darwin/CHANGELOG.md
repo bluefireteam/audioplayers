@@ -1,3 +1,11 @@
+## 3.0.1
+
+ - **FIX**: Remove one of the duplicated path_providers plugins
+
+## 3.0.0
+
+> Note: This release does not have breaking changes, it was an accidental bump.
+
 ## 2.0.0
 
 > Note: This release has breaking changes.

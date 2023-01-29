@@ -5,6 +5,7 @@ export 'package:audioplayers_platform_interface/api/release_mode.dart';
 export 'package:audioplayers_platform_interface/global_platform_interface.dart';
 
 export 'src/audio_cache.dart';
+export 'src/audio_pool.dart';
 export 'src/audioplayer.dart';
 export 'src/logger.dart';
 export 'src/source.dart';
