@@ -22,6 +22,10 @@ class SoundPoolPlayer(
     /** The id of the sound of source which will be played */
     var soundId: Int? = null
 
+    /* Keep track of latest volume and balance */
+    private var volume = 1.0f;
+    private var balance = 0.0f;
+
     /** The id of the stream / player */
     private var streamId: Int? = null
 
@@ -125,7 +129,25 @@ class SoundPoolPlayer(
     }
 
     override fun setVolume(volume: Float) {
-        streamId?.let { soundPool.setVolume(it, volume, volume) }
+        this.volume = volume
+        changeVolume();
+    }
+    override fun setBalance(balance: Float) {
+        this.balance = balance;
+        changeVolume();
+    }
+
+    ///
+    /// Set Volume based on both balance and volume.
+    ///
+    private fun changeVolume(){
+        val leftVolume = map(balance,-1.0f,1.0f,1.0f,0.0f) * volume;
+        val rightVolume = map(balance,-1.0f,1.0f,0.0f,1.0f) * volume;
+        streamId?.let { soundPool.setVolume(it, leftVolume.toFloat(), rightVolume.toFloat()) }
+    }
+
+    private fun map(x: Float, inMin: Float, inMax: Float, outMin: Float, outMax: Float): Float {
+        return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin
     }
 
     override fun setRate(rate: Float) {

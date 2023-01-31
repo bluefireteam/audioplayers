@@ -48,6 +48,15 @@ class WrappedPlayer internal constructor(
                 }
             }
         }
+    var balance = 0.0f
+        set(value) {
+            if (field != value) {
+                field = value
+                if (!released) {
+                    player?.setBalance(value)
+                }
+            }
+        }
 
     var rate = 1.0f
         set(value) {
@@ -322,6 +331,7 @@ class WrappedPlayer internal constructor(
     private fun Player.configAndPrepare() {
         setRate(rate)
         setVolume(volume)
+        setBalance(balance)
         setLooping(isLooping)
         prepare()
     }

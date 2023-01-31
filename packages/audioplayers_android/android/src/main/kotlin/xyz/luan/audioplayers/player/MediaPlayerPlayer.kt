@@ -9,6 +9,12 @@ import xyz.luan.audioplayers.source.Source
 class MediaPlayerPlayer(
     private val wrappedPlayer: WrappedPlayer,
 ) : Player {
+    //
+    // Keep track of Last Balance and Volume
+    //
+    private var volume = 1.0f;
+    private var balance = 0.0f;
+
     private val mediaPlayer = createMediaPlayer(wrappedPlayer)
 
     private fun createMediaPlayer(wrappedPlayer: WrappedPlayer): MediaPlayer {
@@ -37,8 +43,33 @@ class MediaPlayerPlayer(
     }
 
     override fun setVolume(volume: Float) {
-        mediaPlayer.setVolume(volume, volume)
+        this.volume= volume;
+        changeVolume()
     }
+
+
+    override fun setBalance(balance: Float) {
+        this.balance = balance;
+        changeVolume()
+    }
+    
+    ///
+    /// Set Volume based on both balance and volume.
+    ///
+    private fun changeVolume(){
+
+        val leftVolume = map(balance,-1.0f,1.0f,1.0f,0.0f) * volume;
+
+        val rightVolume = map(balance,-1.0f,1.0f,0.0f,1.0f) * volume;
+
+        mediaPlayer.setVolume(leftVolume, rightVolume)
+
+    }
+
+   private fun map(x: Float, inMin: Float, inMax: Float, outMin: Float, outMax: Float): Float {
+        return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin
+    }
+
 
     override fun setRate(rate: Float) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

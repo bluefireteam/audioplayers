@@ -124,8 +124,9 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
             }
 
             "setBalance" -> {
-                Logger.error("setBalance is not currently implemented on Android")
-                response.notImplemented()
+                val balance = call.argument<Double>("balance") ?: error("Balance is required")
+                player.balance = balance.toFloat()
+
                 return
             }
 
