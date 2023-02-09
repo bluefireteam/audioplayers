@@ -1,8 +1,23 @@
-# AudioPlayers
+<p align="center" style="margin-bottom:0; padding-bottom:0;">
+  <a href="https://flame-engine.org">
+    <img alt="flame" width="100px" src="images/icon_ap.svg">
+  </a>
+</p>
+<h1 align="center" style="margin-top:0; padding-top:0;">
+  AudioPlayers
+</h1>
+<p align="center">
+  A Flutter plugin to play multiple simultaneously audio files, works for Android, iOS, Linux, macOS, Windows, and web.
+</p>
 
-[![Pub](https://img.shields.io/pub/v/audioplayers.svg?style=popout&include_prereleases)](https://pub.dartlang.org/packages/audioplayers) [![Build Status](https://github.com/bluefireteam/audioplayers/workflows/build/badge.svg?branch=main)](https://github.com/bluefireteam/audioplayers/actions?query=workflow%3A"build"+branch%3Amain) [![Discord](https://img.shields.io/discord/509714518008528896.svg)](https://discord.gg/pxrBmy4) [![Melos](https://img.shields.io/badge/maintained%20with-melos-f700ff.svg)](https://github.com/invertase/melos)
+<p align="center">
+  <a title="Pub" href="https://pub.dev/packages/audioplayers"><img src="https://img.shields.io/pub/v/audioplayers.svg?style=popout&include_prereleases"/></a>
+  <img src="https://github.com/bluefireteam/audioplayers/workflows/build/badge.svg?branch=main" alt="Build Status"/>
+  <a title="Discord" href="https://discord.gg/pxrBmy4"><img src="https://img.shields.io/discord/509714518008528896.svg"/></a>
+  <a title="Melos" href="https://github.com/invertase/melos"><img src="https://img.shields.io/badge/maintained%20with-melos-f700ff.svg"/></a>
+</p>
 
-A Flutter plugin to play multiple simultaneously audio files, works for Android, iOS, Linux, macOS, Windows, and web.
+---
 
 <img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot1.png" width="250" /> <img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot2.png" width="250" /> <img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot3.png" width="250" />
 
