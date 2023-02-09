@@ -52,6 +52,7 @@ class _AudioContextTabState extends State<AudioContextTab>
             )
           ],
         ),
+        const SizedBox(height: 8),
         Expanded(
           child: Tabs(
             tabs: [

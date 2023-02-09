@@ -21,11 +21,11 @@ class _StreamsTabState extends State<StreamsTab>
     super.build(context);
     return TabContent(
       children: [
-        PropertiesWidget(player: widget.player),
-        const Divider(color: Colors.black),
-        StreamWidget(player: widget.player),
-        const Divider(color: Colors.black),
         PlayerWidget(player: widget.player),
+        const Divider(),
+        StreamWidget(player: widget.player),
+        const Divider(),
+        PropertiesWidget(player: widget.player),
       ],
     );
   }
