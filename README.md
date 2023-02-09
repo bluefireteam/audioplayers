@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://pub.dev/packages/audioplayers">
-    <img alt="AudioPlayers" height="80px" src="images/logo_ap_horizontal.svg">
+    <img alt="AudioPlayers" height="80px" src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/logo_ap_horizontal.svg">
   </a>
 </p>
 <p align="center">
