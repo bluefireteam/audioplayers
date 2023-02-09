@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" id="Ebene_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="688px" height="127.5px" viewBox="0 0 688 127.5" enable-background="new 0 0 688 127.5" xml:space="preserve">
+<text transform="matrix(1 0 0 1 112.4688 101.8018)" fill="#757575" font-family="'Roboto-Regular'" font-size="103.9189" letter-spacing="-1">AudioPlayers</text>
+<g id="g8">
+	<path id="path2" fill="#54C5F8" d="M52.28,98.198V55.631l-16.406-16.41l-0.002,45.628c-5.4-0.874-11.555-0.189-17.542,2.293
+		c-13.774,5.712-21.442,18.773-17.13,29.176c4.313,10.401,18.977,14.204,32.75,8.493c9.292-3.854,15.808-11.052,17.737-18.521
+		C52.076,104.787,52.28,101.686,52.28,98.198L52.28,98.198z"/>
+	<polygon id="polygon4" fill="#29B6F6" points="35.872,0 35.875,39.221 52.28,55.631 52.28,16.408 	"/>
+	<polygon id="polygon6" fill="#01579B" points="52.28,16.408 52.28,55.631 68.67,72.021 68.67,32.797 	"/>
+	
+		<linearGradient id="polygon11_1_" gradientUnits="userSpaceOnUse" x1="68.9067" y1="33.5293" x2="49.1038" y2="37.0211" gradientTransform="matrix(1 0 0 1 -0.1797 -0.4102)">
+		<stop  offset="0" style="stop-color:#01579B;stop-opacity:0"/>
+		<stop  offset="1" style="stop-color:#062649"/>
+	</linearGradient>
+	<polygon id="polygon11" fill="url(#polygon11_1_)" points="52.277,16.408 52.277,55.624 52.284,55.63 68.67,49.96 68.67,32.797 	
+		"/>
+</g>
+</svg>

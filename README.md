@@ -1,10 +1,7 @@
-<p align="center" style="margin-bottom:0; padding-bottom:0;">
-  <a href="https://flame-engine.org">
-    <img alt="flame" width="100px" src="images/icon_ap.svg">
+<p align="center">
+  <a href="https://pub.dev/packages/audioplayers">
+    <img alt="AudioPlayers" height="80px" src="images/logo_ap_horizontal.svg">
   </a>
-</p>
-<p align="center" style="margin-top:0; padding-top:0; font-size: 2em; line-height: 1.25; font-weight: 600;">
-  AudioPlayers
 </p>
 <p align="center">
   A Flutter plugin to play multiple simultaneously audio files, works for Android, iOS, Linux, macOS, Windows, and web.
