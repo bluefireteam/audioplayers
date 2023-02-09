@@ -3,9 +3,9 @@
     <img alt="flame" width="100px" src="images/icon_ap.svg">
   </a>
 </p>
-<h1 align="center" style="margin-top:0; padding-top:0;">
+<p align="center" style="margin-top:0; padding-top:0; font-size: 2em; line-height: 1.25; font-weight: 600;">
   AudioPlayers
-</h1>
+</p>
 <p align="center">
   A Flutter plugin to play multiple simultaneously audio files, works for Android, iOS, Linux, macOS, Windows, and web.
 </p>
