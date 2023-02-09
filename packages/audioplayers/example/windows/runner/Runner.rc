@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "xyz.luan.audioplayers" "\0"
-            VALUE "FileDescription", "example" "\0"
+            VALUE "FileDescription", "AudioPlayers Example" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "example" "\0"
+            VALUE "InternalName", "AudioPlayers Example" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2022 xyz.luan.audioplayers. All rights reserved." "\0"
-            VALUE "OriginalFilename", "example.exe" "\0"
-            VALUE "ProductName", "example" "\0"
+            VALUE "OriginalFilename", "audioplayers_example.exe" "\0"
+            VALUE "ProductName", "AudioPlayers Example" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END
