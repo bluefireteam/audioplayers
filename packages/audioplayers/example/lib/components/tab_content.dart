@@ -12,15 +12,11 @@ class TabContent extends StatelessWidget {
         alignment: Alignment.topCenter,
         child: SingleChildScrollView(
           controller: ScrollController(),
-          child: Column(
-            children: children
-                .map(
-                  (w) => Container(
-                    padding: const EdgeInsets.all(8.0),
-                    child: w,
-                  ),
-                )
-                .toList(),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Column(
+              children: children,
+            ),
           ),
         ),
       ),

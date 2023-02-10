@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
-project(example LANGUAGES CXX)
+project(audioplayers_example LANGUAGES CXX)
 
-set(BINARY_NAME "example")
+set(BINARY_NAME "audioplayers_example")
 
 cmake_policy(SET CMP0063 NEW)
 

@@ -109,7 +109,7 @@ class _ExampleAppState extends State<ExampleApp> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('audioplayers example'),
+        title: const Text('AudioPlayers example'),
         actions: [
           PopupMenuButton<PopupAction>(
             onSelected: _handleAction,
@@ -154,6 +154,7 @@ class _ExampleAppState extends State<ExampleApp> {
                     children: audioPlayers
                         .map(
                           (player) => Tabs(
+                            key: GlobalObjectKey(player),
                             tabs: [
                               TabData(
                                 key: 'sourcesTab',

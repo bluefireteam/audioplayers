@@ -1,9 +1,7 @@
 import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
-import 'package:audioplayers_example/components/btn.dart';
 import 'package:audioplayers_example/components/tab_content.dart';
-import 'package:audioplayers_example/components/tgl.dart';
 import 'package:audioplayers_example/utils.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -27,11 +25,6 @@ const mpgaStreamUrl = 'https://timesradio.wireless.radio/stream';
 const asset1 = 'laser.wav';
 const asset2 = 'nasa_on_a_mission.mp3';
 
-enum InitMode {
-  setSource,
-  play,
-}
-
 class SourcesTab extends StatefulWidget {
   final AudioPlayer player;
 
@@ -43,20 +36,62 @@ class SourcesTab extends StatefulWidget {
 
 class _SourcesTabState extends State<SourcesTab>
     with AutomaticKeepAliveClientMixin<SourcesTab> {
-  InitMode initMode = InitMode.setSource;
-
   AudioPlayer get player => widget.player;
 
-  Future<void> setSource(Source source) async {
-    if (initMode == InitMode.setSource) {
-      await player.setSource(source);
-      toast(
-        'Completed setting source.',
-        textKey: const Key('toast-source-set'),
+  Future<void> _setSource(Source source) async {
+    await player.setSource(source);
+    toast(
+      'Completed setting source.',
+      textKey: const Key('toast-set-source'),
+    );
+  }
+
+  Future<void> _play(Source source) async {
+    await player.stop();
+    await player.play(source);
+    toast(
+      'Set and playing source.',
+      textKey: const Key('toast-set-play'),
+    );
+  }
+
+  Widget _createSourceTile({
+    required String title,
+    required String subtitle,
+    required Source source,
+    Key? setSourceKey,
+    Key? playKey,
+  }) =>
+      _SourceTile(
+        setSource: () => _setSource(source),
+        play: () => _play(source),
+        title: title,
+        subtitle: subtitle,
+        setSourceKey: setSourceKey,
+        playKey: playKey,
       );
-    } else {
-      await player.stop();
-      await player.play(source);
+
+  Future<void> _setSourceBytesAsset(
+    Future<void> Function(Source) fun, {
+    required String asset,
+  }) async {
+    final bytes = await AudioCache.instance.loadAsBytes(asset);
+    await fun(BytesSource(bytes));
+  }
+
+  Future<void> _setSourceBytesRemote(
+    Future<void> Function(Source) fun, {
+    required String url,
+  }) async {
+    final bytes = await readBytes(Uri.parse(url));
+    await fun(BytesSource(bytes));
+  }
+
+  Future<void> _setSourceFilePicker(Future<void> Function(Source) fun) async {
+    final result = await FilePicker.platform.pickFiles();
+    final path = result?.files.single.path;
+    if (path != null) {
+      _setSource(DeviceFileSource(path));
     }
   }
 
@@ -65,79 +100,74 @@ class _SourcesTabState extends State<SourcesTab>
     super.build(context);
     return TabContent(
       children: [
-        EnumTgl(
-          options: {for (var e in InitMode.values) 'initMode-${e.name}': e},
-          selected: initMode,
-          onChange: (InitMode m) => setState(() {
-            initMode = m;
-          }),
+        _createSourceTile(
+          setSourceKey: const Key('setSource-url-remote-wav-1'),
+          title: 'Remote URL WAV 1',
+          subtitle: 'coins.wav',
+          source: UrlSource(wavUrl1),
         ),
-        Btn(
-          key: const Key('setSource-url-remote-wav-1'),
-          txt: 'Remote URL WAV 1 - coins.wav',
-          onPressed: () => setSource(UrlSource(wavUrl1)),
+        _createSourceTile(
+          setSourceKey: const Key('setSource-url-remote-wav-2'),
+          title: 'Remote URL WAV 2',
+          subtitle: 'laser.wav',
+          source: UrlSource(wavUrl2),
         ),
-        Btn(
-          key: const Key('setSource-url-remote-wav-2'),
-          txt: 'Remote URL WAV 2 - laser.wav',
-          onPressed: () => setSource(UrlSource(wavUrl2)),
+        _createSourceTile(
+          setSourceKey: const Key('setSource-url-remote-mp3-1'),
+          title: 'Remote URL MP3 1',
+          subtitle: 'ambient_c_motion.mp3',
+          source: UrlSource(mp3Url1),
         ),
-        Btn(
-          key: const Key('setSource-url-remote-mp3-1'),
-          txt: 'Remote URL MP3 1 - ambient_c_motion.mp3',
-          onPressed: () => setSource(UrlSource(mp3Url1)),
+        _createSourceTile(
+          setSourceKey: const Key('setSource-url-remote-mp3-2'),
+          title: 'Remote URL MP3 2',
+          subtitle: 'nasa_on_a_mission.mp3',
+          source: UrlSource(mp3Url2),
         ),
-        Btn(
-          key: const Key('setSource-url-remote-mp3-2'),
-          txt: 'Remote URL MP3 2 - nasa_on_a_mission.mp3',
-          onPressed: () => setSource(UrlSource(mp3Url2)),
+        _createSourceTile(
+          setSourceKey: const Key('setSource-url-remote-m3u8'),
+          title: 'Remote URL M3U8',
+          subtitle: 'BBC stream',
+          source: UrlSource(m3u8StreamUrl),
         ),
-        Btn(
-          key: const Key('setSource-url-remote-m3u8'),
-          txt: 'Remote URL M3U8 3 - BBC stream',
-          onPressed: () => setSource(UrlSource(m3u8StreamUrl)),
+        _createSourceTile(
+          setSourceKey: const Key('setSource-url-remote-mpga'),
+          title: 'Remote URL MPGA',
+          subtitle: 'Times stream',
+          source: UrlSource(mpgaStreamUrl),
         ),
-        Btn(
-          key: const Key('setSource-url-remote-mpga'),
-          txt: 'Remote URL MPGA 4 - Times stream',
-          onPressed: () => setSource(UrlSource(mpgaStreamUrl)),
+        _createSourceTile(
+          setSourceKey: const Key('setSource-asset-wav'),
+          title: 'Asset 1',
+          subtitle: 'laser.wav',
+          source: AssetSource(asset1),
         ),
-        Btn(
-          key: const Key('setSource-asset-wav'),
-          txt: 'Asset 1 - laser.wav',
-          onPressed: () => setSource(AssetSource(asset1)),
+        _createSourceTile(
+          setSourceKey: const Key('setSource-asset-mp3'),
+          title: 'Asset 2',
+          subtitle: 'nasa.mp3',
+          source: AssetSource(asset2),
         ),
-        Btn(
-          key: const Key('setSource-asset-mp3'),
-          txt: 'Asset 2 - nasa.mp3',
-          onPressed: () => setSource(AssetSource(asset2)),
+        _SourceTile(
+          setSource: () => _setSourceBytesAsset(_setSource, asset: asset1),
+          setSourceKey: const Key('setSource-bytes-local'),
+          play: () => _setSourceBytesAsset(_play, asset: asset1),
+          title: 'Bytes - Local',
+          subtitle: 'laser.wav',
         ),
-        Btn(
-          key: const Key('setSource-bytes-local'),
-          txt: 'Bytes - Local - laser.wav',
-          onPressed: () async {
-            final bytes = await AudioCache.instance.loadAsBytes(asset1);
-            setSource(BytesSource(bytes));
-          },
+        _SourceTile(
+          setSource: () => _setSourceBytesRemote(_setSource, url: mp3Url1),
+          setSourceKey: const Key('setSource-bytes-remote'),
+          play: () => _setSourceBytesRemote(_play, url: mp3Url1),
+          title: 'Bytes - Remote',
+          subtitle: 'ambient.mp3',
         ),
-        Btn(
-          key: const Key('setSource-bytes-remote'),
-          txt: 'Bytes - Remote - ambient.mp3',
-          onPressed: () async {
-            final bytes = await readBytes(Uri.parse(mp3Url1));
-            setSource(BytesSource(bytes));
-          },
-        ),
-        Btn(
-          key: const Key('setSource-url-local'),
-          txt: 'Pick local file',
-          onPressed: () async {
-            final result = await FilePicker.platform.pickFiles();
-            final path = result?.files.single.path;
-            if (path != null) {
-              setSource(DeviceFileSource(path));
-            }
-          },
+        _SourceTile(
+          setSource: () => _setSourceFilePicker(_setSource),
+          setSourceKey: const Key('setSource-url-local'),
+          play: () => _setSourceFilePicker(_play),
+          title: 'Device File',
+          subtitle: 'Pick local file from device',
         ),
       ],
     );
@@ -145,4 +175,49 @@ class _SourcesTabState extends State<SourcesTab>
 
   @override
   bool get wantKeepAlive => true;
+}
+
+class _SourceTile extends StatelessWidget {
+  final void Function() setSource;
+  final void Function() play;
+  final String title;
+  final String? subtitle;
+  final Key? setSourceKey;
+  final Key? playKey;
+
+  const _SourceTile({
+    required this.setSource,
+    required this.play,
+    required this.title,
+    this.subtitle,
+    this.setSourceKey,
+    this.playKey,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      title: Text(title),
+      subtitle: subtitle != null ? Text(subtitle!) : null,
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            tooltip: 'Set Source',
+            key: setSourceKey,
+            onPressed: setSource,
+            icon: const Icon(Icons.upload_file),
+            color: Theme.of(context).primaryColor,
+          ),
+          IconButton(
+            key: playKey,
+            tooltip: 'Play',
+            onPressed: play,
+            icon: const Icon(Icons.play_arrow),
+            color: Theme.of(context).primaryColor,
+          ),
+        ],
+      ),
+    );
+  }
 }

@@ -9,40 +9,18 @@
 
 <p align="center">
   <a title="Pub" href="https://pub.dev/packages/audioplayers"><img src="https://img.shields.io/pub/v/audioplayers.svg?style=popout&include_prereleases"/></a>
-  <img src="https://github.com/bluefireteam/audioplayers/workflows/build/badge.svg?branch=main" alt="Build Status"/>
+  <a title="Build Status" href="https://github.com/bluefireteam/audioplayers/actions?query=workflow%3Abuild+branch%3Amain"><img src="https://github.com/bluefireteam/audioplayers/workflows/build/badge.svg?branch=main"/></a>
   <a title="Discord" href="https://discord.gg/pxrBmy4"><img src="https://img.shields.io/discord/509714518008528896.svg"/></a>
   <a title="Melos" href="https://github.com/invertase/melos"><img src="https://img.shields.io/badge/maintained%20with-melos-f700ff.svg"/></a>
 </p>
 
 ---
 
-<img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot1.png" width="250" /> <img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot2.png" width="250" /> <img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot3.png" width="250" />
+<img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot_src.png" width="25%"/><img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot_ctrl.png" width="25%"/><img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot_stream.png" width="25%"/><img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot_ctx.png" width="25%"/>
 
 **Note**: all the docs have been update to reflect the content for the v1 release. If you are looking for v0 specific information and guidance, please checkout [the version of this repo before the first v0 change](https://github.com/bluefireteam/audioplayers/tree/46816bf55859c9c88b204e3828cce6190ff87483).
 
 If you are interest in migrating to v1, please check [our migration guide](https://github.com/bluefireteam/audioplayers/blob/main/migration_guide.md).
-
-## Help
-
-If you have any problems, please follow these steps before opening an issue.
-
-1. Carefully read the [Getting Started tutorial](https://github.com/bluefireteam/audioplayers/blob/main/getting_started.md) before anything else. Re-read if necessary.
-1. Check our [Troubleshooting Guide](https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md) for solutions for most problems.
-1. If you have a missing feature report or feature request, please first check the [Feature Parity Table](https://github.com/bluefireteam/audioplayers/blob/main/feature_parity_table.md) to understand our roadmap and what we know is missing. We love contributions!
-1. Join [Blue Fire's Discord server](https://discord.gg/5unKpdQD78) and ask for directions. Maybe it's not a bug, or it's a known issue.
-1. If you are more comfortable with StackOverflow, you can also create a question there. Add the generic [Flame tag](https://stackoverflow.com/questions/tagged/flame), so that anyone following the tag can help out.
-1. If the issue still persists, go to the [create an issue](https://github.com/bluefireteam/audioplayers/issues/new/choose) page and follow the step-by-step there before submitting.
-1. If the step-by-step there doesn't give you any help, then proceed to create the issue **following the template**. Do not skip mandatory sections. Do not include the literal text of the template, rather replace the sections with what they should contain.
-
-Any issues created not following the list above can be flagged or closed by our team.
-
-## Contributing
-
-All help is appreciated but if you have questions, bug reports, issues, feature requests, pull requests, etc, please first refer to our [Contributing Guide](https://github.com/bluefireteam/audioplayers/blob/main/contributing.md).
-
-Be sure to check the [Feature Parity Table](https://github.com/bluefireteam/audioplayers/blob/main/feature_parity_table.md) to understand if your suggestion is already tracked, on the roadmap, or out of scope for this project.
-
-Also, as always, please give us a star to help!
 
 ## Getting Started
 
@@ -53,6 +31,26 @@ Please follow our [Getting Started tutorial](https://github.com/bluefireteam/aud
 Then, if you want to dig deeper, our code is very well documented with dartdocs, so check [our API reference](https://pub.dev/documentation/audioplayers/latest/) or the codebase itself on your IDE (or on GitHub).
 
 If something is not clear on our docs, please send a PR to help us improve.
+
+## Help
+
+If you have any problems, please follow these steps before opening an issue.
+
+1. Carefully read the [Getting Started tutorial](https://github.com/bluefireteam/audioplayers/blob/main/getting_started.md) before anything else. Re-read if necessary.
+1. Check our [Troubleshooting Guide](https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md) for solutions for most problems.
+1. If you have a missing feature report or feature request, please first check the [Feature Parity Table](https://github.com/bluefireteam/audioplayers/blob/main/feature_parity_table.md) to understand our roadmap and what we know is missing. We love contributions!
+1. Join [Blue Fire's Discord server](https://discord.gg/5unKpdQD78) and ask for directions. Maybe it's not a bug, or it's a known issue.
+1. If you are more comfortable with StackOverflow, you can also create a question there. Add the [flutter-audioplayers tag](https://stackoverflow.com/questions/tagged/flutter-audioplayers), so that anyone following the tag can help out.
+1. If the issue still persists, go to the [create an issue](https://github.com/bluefireteam/audioplayers/issues/new/choose) page and follow the step-by-step there before submitting.
+1. If the step-by-step there doesn't give you any help, then proceed to create the issue **following the template**. Do not skip mandatory sections. Do not include the literal text of the template, rather replace the sections with what they should contain.
+
+Any issues created not following the list above can be flagged or closed by our team.
+
+## Feature Parity Table
+
+Not all features are available on all platforms. [Click here](https://github.com/bluefireteam/audioplayers/blob/main/feature_parity_table.md) to see a table relating what features can be used on each target.
+
+Feel free to use it for ideas for possible PRs and contributions you can help with on our roadmap! If you are submitting a PR, don't forget to update the table.
 
 ## Support
 
@@ -68,12 +66,13 @@ Or by making a single donation by buying us a coffee:
 
 **Note**: this software was made by the community, for the community, on our spare time, with no commercial affiliation. It is provided as is and any positive contribution is appreciated. Be kind and mindful of the free time that a battalion of people has gifted on behalf of the community to craft and maintain this.
 
-## Feature Parity Table
+## Contributing
 
-Not all features are available on all platforms. [Click here](https://github.com/bluefireteam/audioplayers/blob/main/feature_parity_table.md) to see a table relating what features can be used on each target.
+All help is appreciated but if you have questions, bug reports, issues, feature requests, pull requests, etc, please first refer to our [Contributing Guide](https://github.com/bluefireteam/audioplayers/blob/main/contributing.md).
 
-Feel free to use it for ideas for possible PRs and contributions you can help with on our roadmap! If you are submitting a PR, don't forget to update the table.
+Be sure to check the [Feature Parity Table](https://github.com/bluefireteam/audioplayers/blob/main/feature_parity_table.md) to understand if your suggestion is already tracked, on the roadmap, or out of scope for this project.
 
+Also, as always, please give us a star to help!
 
 ## Credits
 
