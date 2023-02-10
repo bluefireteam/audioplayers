@@ -25,11 +25,6 @@ const mpgaStreamUrl = 'https://timesradio.wireless.radio/stream';
 const asset1 = 'laser.wav';
 const asset2 = 'nasa_on_a_mission.mp3';
 
-enum InitMode {
-  setSource,
-  play,
-}
-
 class SourcesTab extends StatefulWidget {
   final AudioPlayer player;
 
