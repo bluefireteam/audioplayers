@@ -182,24 +182,25 @@ class _AudioContextTabState extends State<AudioContextTab>
   }
 
   Widget _iosTab() {
-    final iosOptions = AVAudioSessionOptions.values
-        .map(
-          (option) => Cbx(
-            option.name,
-            audioContext.iOS.options.contains(option),
-            (v) {
-              if (v) {
-                audioContext.iOS.options.add(option);
-              } else {
-                audioContext.iOS.options.remove(option);
-              }
-              updateAudioContextIOS(
-                audioContext.iOS.copy(options: audioContext.iOS.options),
-              );
-            },
-          ),
-        )
-        .toList();
+    final iosOptions = AVAudioSessionOptions.values.map(
+      (option) {
+        final options = audioContext.iOS.options.toList();
+        return Cbx(
+          option.name,
+          options.contains(option),
+          (v) {
+            if (v) {
+              options.add(option);
+            } else {
+              options.remove(option);
+            }
+            updateAudioContextIOS(
+              audioContext.iOS.copy(options: options),
+            );
+          },
+        );
+      },
+    ).toList();
     return TabContent(
       children: <Widget>[
         LabeledDropDown<AVAudioSessionCategory>(
