@@ -154,6 +154,7 @@ class _ExampleAppState extends State<ExampleApp> {
                     children: audioPlayers
                         .map(
                           (player) => Tabs(
+                            key: GlobalObjectKey(player),
                             tabs: [
                               TabData(
                                 key: 'sourcesTab',
