@@ -1,6 +1,6 @@
 # Feature Parity Table
 
-Not every feature is available on every platform yet. Use this table to keep track of our work and progress, and please help if you want :)
+Not every feature is available on every platform yet. Use this table to keep track of our work and progress, and please help out if you want to. :)
 
 ## Note on Linux Support
 
@@ -18,7 +18,7 @@ If you would like to assist us on implementing further steps, please reach our o
 
 Giving support to old Android devices is very hard, on this plugin we set the minSdk as 16, but we only ensure support >= 23 as that is the minimum version that the team has devices available to test changes and new features.
 
-This mean that, audioplayers should work on older devices, but we can't give any guarantees, we will not be able to look after issues regarding API < 23. But we would glady take any pull requests from the community that fixes or improve support on those old versions.
+This mean that, audioplayers should work on older devices, but we can't give any guarantees, we will not be able to look after issues regarding API < 23. But we would gladly take any pull requests from the community that fixes or improve support on those old versions.
 
 
 ## Main Features

@@ -142,7 +142,8 @@ The release mode is controlling what happens when the playback ends. There are 3
 
 **Note**: you can control exactly what happens when the playback ends using the `onPlayerComplete` stream (see Streams below).
 
-**Note**: there are caveats when looping audio without gaps. Depending on the file format and platform, when audioplayers uses the native implementation of the "looping" feature, there will be gaps between plays, witch might not be noticeable for non-continuous SFX but will definitely be noticeable for looping songs. Please check out the Gapless Loop section on our [Troubleshooting Guide](https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md) for more details.
+**Note**: there are caveats when looping audio without gaps. Depending on the file format and platform, when audioplayers uses the native implementation of the "looping" feature, there will be gaps between plays, which might not be noticeable for non-continuous SFX but will definitely be noticeable for looping songs. Please check out the Gapless Loop section on our [Troubleshooting Guide](https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md) for more details.
+
 
 ### Player Mode
 
@@ -177,25 +178,33 @@ You can pick one of 3 options:
 
 An Audio Context is a (mostly mobile-specific) set of secondary, platform-specific aspects of audio playback, typically related to how the act of playing audio interacts with other features of the device. In most cases, you do not need to change this.
 
-The Audio Context configuration can be set globally via:
+The Audio Context configuration can be set globally for all players via:
 
 ```dart
-  AudioPlayer.global.setGlobalAudioContext(config);
+  AudioPlayer.global.setGlobalAudioContext(AudioContextConfig(/*...*/).build());
 ```
 
-This will naturally apply to all players. On iOS, that is the only option.
-On Android only, each player can have different Audio Context configuration.
-To configure player specific Audio Context (if desired), use:
+To configure a player specific Audio Context (if desired), use:
 
 ```dart
-  player.setAudioContext(config);
+  player.setAudioContext(AudioContextConfig(/*...*/).build());
 ```
 
-While each platform has its own set of configurations, they are somewhat related, and you can create them using a unified interface call `AudioContextConfig` -- it provides generic abstractions that convey intent, that are then converted to platform specific configurations.
+**Note:** As the iOS platform can not handle contexts for each player individually, for convenience this would also set the Audio Context globally.
 
-Note that if this process is not perfect, you can create your configuration from scratch by providing exact details for each platform.
+While each platform has its own set of configurations, they are somewhat related, and you can create them using a unified interface call [`AudioContextConfig`](https://pub.dev/documentation/audioplayers_platform_interface/latest/api_audio_context_config/api_audio_context_config-library.html).
+It provides generic abstractions that convey intent, that are then converted to platform specific configurations.
 
-The [`AudioContextConfig` class has documentation about each parameter](https://github.com/bluefireteam/audioplayers/blob/main/packages/audioplayers_platform_interface/lib/api/audio_context_config.dart), what they are for, and what configurations they reflect on native code.
+Note that if this process is not perfect, you can create your configuration from scratch by providing exact details for each platform via
+[AudioContextAndroid](https://pub.dev/documentation/audioplayers_platform_interface/latest/api_audio_context_config/AudioContextAndroid-class.html) and 
+[AudioContextIOS](https://pub.dev/documentation/audioplayers_platform_interface/latest/api_audio_context_config/AudioContextIOS-class.html).
+
+```dart
+  player.setAudioContext(AudioContext(
+    android: AudioContextAndroid(/*...*/),
+    iOS: AudioContextIOS(/*...*/),
+  ));
+```
 
 ## Streams
 

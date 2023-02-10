@@ -1,0 +1,125 @@
+name: Feature Request
+description: File a suggestion or feature request
+labels: ["feature-request", "triage"]
+body:
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:             
+        - label: I made sure that the issue I am raising doesn't already exist
+          required: true
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use case / Problem
+      description: |
+        Which problem would be solved with this feature?
+        Why it fits in this package (and not a standalone package for example)
+      placeholder: Tell us your use case!
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal / Solution
+      description: |
+        What do you propose as a solution? Add as much information as you can!
+        What API changes that are necessary? Are there any breaking changes expected?
+      placeholder: Tell us, how to solve the problem?
+    validations:
+      required: false
+  - type: textarea
+    id: code-example
+    attributes:
+      label: Example Code
+      description: |
+        If your feature requires an API change, provide a very concise code example of how it would be used in a Flutter app.
+        You can also link an example repo (if wanted) but keep it simple. Or use the [example project](https://github.com/bluefireteam/audioplayers/tree/main/packages/audioplayers/example).
+      value: |
+        <details>
+        <summary>Example Code</summary>
+        
+        ```dart
+        void main() {
+        }
+        ```
+        
+        </details>
+    validations:
+      required: false
+  - type: dropdown
+    id: platforms
+    attributes:
+      label: Affected platforms
+      description: What platforms are you seeing the problem on?
+      multiple: true
+      options:
+        - Android
+        - iOS
+        - web
+        - Windows
+        - Linux
+        - macOS
+        - other
+    validations:
+      required: true
+  - type: textarea
+    id: platform-details
+    attributes:
+      label: Platform details
+      description: |
+        * It's ok to not implement the feature for every platform. On some it doesn't even make sense (e.g. Mobile vs. Desktop). Write down your thoughts!
+        * What needs to be changed to port an existing feature to other platforms?
+        * Will the feature require a specific API level or package to work?
+    validations:
+      required: false
+  - type: textarea
+    id: sources
+    attributes:
+      label: Audio Files/URLs/Sources
+      description: |
+        * Provide the files or URLs which are involved in your feature request, e.g. support a new file type.
+        * Make private URLs or actual files accessible, by uploading them (e.g. wrap them in a `zip` file for GitHub).
+      placeholder: |
+        Drag and drop your source files here or provide a link!
+        
+        * Sample Url: https://luan.xyz/files/audio/coins.wav
+        * Sample Stream: https://example.com/my_stream.m3u8
+    validations:
+      required: false
+  - type: textarea
+    id: mockups
+    attributes:
+      label: Mockups
+      description: |
+        If applicable, add mockup screenshots or videos to help to explain what this feature would look like. 
+        It can also be screenshots/screen recordings of existing apps, built using other libraries (like native libraries).
+      placeholder: Drag and drop your screenshots here!
+    validations:
+      required: false
+  - type: textarea
+    id: more-info
+    attributes:
+      label: Related issues / more information
+      description: |
+        Do you have any other useful information about this feature report?
+        References to other issues / sites / repositories / apps / tutorials with similar functionality?
+      placeholder: |
+        App xyz already provides this feature.
+        See abc repository for inspiration.
+        Related: #123, #456
+    validations:
+      required: false
+  - type: dropdown
+    id: working-pull-request
+    attributes:
+      label: Working on PR
+      description: Are you interested in working on a PR for this?
+      multiple: false
+      # For some reason GH forms does not allow "yes" as option.
+      options:
+        - no way
+        - yeah
+    validations:
+      required: true

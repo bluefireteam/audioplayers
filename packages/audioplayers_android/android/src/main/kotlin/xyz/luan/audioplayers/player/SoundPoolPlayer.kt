@@ -10,76 +10,48 @@ import xyz.luan.audioplayers.source.Source
 import xyz.luan.audioplayers.source.UrlSource
 import java.util.Collections.synchronizedMap
 
-// TODO(luan) make this configurable
-private const val MAX_STREAMS = 100
+/// Value should not exceed 32
+// TODO(luan): make this configurable
+private const val MAX_STREAMS = 32
 
 class SoundPoolPlayer(
-    private val wrappedPlayer: WrappedPlayer,
+    val wrappedPlayer: WrappedPlayer,
+    private val soundPoolManager: SoundPoolManager,
 ) : Player {
-    companion object {
-        private val soundPool = createSoundPool()
-
-        /** For the onLoadComplete listener, track which sound id is associated with which player. An entry only exists until
-         * it has been loaded.
-         */
-        private val soundIdToPlayer = synchronizedMap(mutableMapOf<Int, SoundPoolPlayer>())
-
-        /** This is to keep track of the players which share the same sound id, referenced by url. When a player release()s, it
-         * is removed from the associated player list. The last player to be removed actually unloads() the sound id and then
-         * the url is removed from this map.
-         */
-        private val urlToPlayers = synchronizedMap(mutableMapOf<UrlSource, MutableList<SoundPoolPlayer>>())
-
-        private fun createSoundPool(): SoundPool {
-            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                // TODO(luan) this should consider updateAttributes configs. we would need one pool per config
-                val attrs = AudioAttributes.Builder().setLegacyStreamType(AudioManager.USE_DEFAULT_STREAM_TYPE)
-                    .setUsage(AudioAttributes.USAGE_GAME)
-                    .build()
-                // make a new SoundPool, allowing up to 100 streams
-                SoundPool.Builder()
-                    .setAudioAttributes(attrs)
-                    .setMaxStreams(MAX_STREAMS)
-                    .build()
-            } else {
-                // make a new SoundPool, allowing up to 100 streams
-                @Suppress("DEPRECATION")
-                SoundPool(MAX_STREAMS, AudioManager.STREAM_MUSIC, 0)
-            }
-        }
-
-        init {
-            soundPool.setOnLoadCompleteListener { _, sampleId, _ ->
-                Logger.info("Loaded $sampleId")
-                val loadingPlayer = soundIdToPlayer[sampleId]
-                val urlSource = loadingPlayer?.urlSource
-                if (urlSource != null) {
-                    soundIdToPlayer.remove(loadingPlayer.soundId)
-                    // Now mark all players using this sound as not loading and start them if necessary
-                    synchronized(urlToPlayers) {
-                        val urlPlayers = urlToPlayers[urlSource] ?: listOf()
-                        for (player in urlPlayers) {
-                            Logger.info("Marking $player as loaded")
-                            player.wrappedPlayer.prepared = true
-                            if (player.wrappedPlayer.playing) {
-                                Logger.info("Delayed start of $player")
-                                player.start()
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
 
     /** The id of the sound of source which will be played */
-    private var soundId: Int? = null
-    
+    var soundId: Int? = null
+
     /** The id of the stream / player */
     private var streamId: Int? = null
 
-    private val urlSource: UrlSource?
+    private var audioContext = wrappedPlayer.context
+        set(value) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                // AudioAttributes are compared by its property values.
+                if (field.buildAttributes() != value.buildAttributes()) {
+                    release()
+                    soundPoolManager.createSoundPoolWrapper(MAX_STREAMS, value)
+                    soundPoolWrapper = soundPoolManager.getSoundPoolWrapper(value)
+                        ?: error("Could not create SoundPool $value")
+                }
+            }
+            field = value
+        }
+
+    private var soundPoolWrapper: SoundPoolWrapper
+
+    val urlSource: UrlSource?
         get() = wrappedPlayer.source as? UrlSource
+
+    private val soundPool: SoundPool
+        get() = soundPoolWrapper.soundPool
+
+    init {
+        soundPoolManager.createSoundPoolWrapper(MAX_STREAMS, audioContext)
+        soundPoolWrapper = soundPoolManager.getSoundPoolWrapper(audioContext)
+            ?: error("Could not create SoundPool $audioContext")
+    }
 
     override fun stop() {
         streamId?.let {
@@ -93,19 +65,18 @@ class SoundPoolPlayer(
         val soundId = this.soundId ?: return
         val urlSource = this.urlSource ?: return
 
-        synchronized(urlToPlayers) {
-            val playersForSoundId = urlToPlayers[urlSource] ?: return
+        synchronized(soundPoolWrapper.urlToPlayers) {
+            val playersForSoundId = soundPoolWrapper.urlToPlayers[urlSource] ?: return
             if (playersForSoundId.singleOrNull() === this) {
-                urlToPlayers.remove(urlSource)
+                soundPoolWrapper.urlToPlayers.remove(urlSource)
                 soundPool.unload(soundId)
-                soundIdToPlayer.remove(soundId)
-                this.soundId = null
+                soundPoolWrapper.soundIdToPlayer.remove(soundId)
                 Logger.info("unloaded soundId $soundId")
             } else {
                 // This is not the last player using the soundId, just remove it from the list.
                 playersForSoundId.remove(this)
             }
-
+            this.soundId = null
         }
     }
 
@@ -114,7 +85,7 @@ class SoundPoolPlayer(
     }
 
     override fun updateContext(context: AudioContextAndroid) {
-        // no-op
+        audioContext = context
     }
 
     override fun setSource(source: Source) {
@@ -125,8 +96,8 @@ class SoundPoolPlayer(
         if (soundId != null) {
             release()
         }
-        synchronized(urlToPlayers) {
-            val urlPlayers = urlToPlayers.getOrPut(urlSource) { mutableListOf() }
+        synchronized(soundPoolWrapper.urlToPlayers) {
+            val urlPlayers = soundPoolWrapper.urlToPlayers.getOrPut(urlSource) { mutableListOf() }
             val originalPlayer = urlPlayers.firstOrNull()
 
             if (originalPlayer != null) {
@@ -143,8 +114,9 @@ class SoundPoolPlayer(
                 Logger.info("Fetching actual URL for $urlSource")
                 val actualUrl = urlSource.getAudioPathForSoundPool()
                 Logger.info("Now loading $actualUrl")
-                soundId = soundPool.load(actualUrl, 1)
-                soundIdToPlayer[soundId] = this
+                val intSoundId = soundPool.load(actualUrl, 1)
+                soundPoolWrapper.soundIdToPlayer[intSoundId] = this
+                soundId = intSoundId
 
                 Logger.info("time to call load() for $urlSource: ${System.currentTimeMillis() - start} player=$this")
             }
@@ -208,7 +180,7 @@ class SoundPoolPlayer(
     }
 
     override fun reset() {
-        // TODO(luan) what do I do here?
+        // TODO(luan): what do I do here?
     }
 
     override fun isLiveStream() = false
@@ -218,5 +190,104 @@ class SoundPoolPlayer(
 
     private fun unsupportedOperation(message: String): Nothing {
         throw UnsupportedOperationException("LOW_LATENCY mode does not support: $message")
+    }
+}
+
+class SoundPoolManager {
+
+    // Only needed for legacy apps with SDK < 21
+    private var legacySoundPoolWrapper: SoundPoolWrapper? = null
+
+    /**
+     * Lazy store one [SoundPoolWrapper] for each [AudioAttributes] configuration.
+     * [AudioAttributes] are compared by its property values, so it can be used as key.
+     */
+    private val soundPoolWrappers = HashMap<AudioAttributes, SoundPoolWrapper>()
+
+    /**
+     * Create a SoundPoolWrapper with the given [maxStreams] and the according [audioContext] and save it to be 
+     * globally accessible for every player.
+     * 
+     * @param maxStreams the maximum number of simultaneous streams for this
+     *                   SoundPool object, see [SoundPool.Builder.setMaxStreams]
+     */
+    fun createSoundPoolWrapper(maxStreams: Int, audioContext: AudioContextAndroid) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            val attrs = audioContext.buildAttributes()
+            if (!soundPoolWrappers.containsKey(attrs)) {
+                val soundPool = SoundPool.Builder()
+                    .setAudioAttributes(attrs)
+                    .setMaxStreams(maxStreams)
+                    .build()
+                Logger.info("Create SoundPool with $attrs")
+                val soundPoolWrapper = SoundPoolWrapper(soundPool)
+                soundPoolWrapper.soundPool.setOnLoadCompleteListener { _, sampleId, _ ->
+                    Logger.info("Loaded $sampleId")
+                    val loadingPlayer = soundPoolWrapper.soundIdToPlayer[sampleId]
+                    val urlSource = loadingPlayer?.urlSource
+                    if (urlSource != null) {
+                        soundPoolWrapper.soundIdToPlayer.remove(loadingPlayer.soundId)
+                        // Now mark all players using this sound as not loading and start them if necessary
+                        synchronized(soundPoolWrapper.urlToPlayers) {
+                            val urlPlayers = soundPoolWrapper.urlToPlayers[urlSource] ?: listOf()
+                            for (player in urlPlayers) {
+                                Logger.info("Marking $player as loaded")
+                                player.wrappedPlayer.prepared = true
+                                if (player.wrappedPlayer.playing) {
+                                    Logger.info("Delayed start of $player")
+                                    player.start()
+                                }
+                            }
+                        }
+                    }
+                }
+                soundPoolWrappers[attrs] = soundPoolWrapper
+            }
+        } else if (legacySoundPoolWrapper == null) {
+            @Suppress("DEPRECATION")
+            val soundPool = SoundPool(maxStreams, AudioManager.STREAM_MUSIC, 0)
+            Logger.info("Create legacy SoundPool")
+            legacySoundPoolWrapper = SoundPoolWrapper(soundPool)
+        }
+    }
+
+    /**
+     * Get the [SoundPoolWrapper] with the given [audioContext].
+     */
+    fun getSoundPoolWrapper(audioContext: AudioContextAndroid): SoundPoolWrapper? {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            val attrs = audioContext.buildAttributes()
+            soundPoolWrappers[attrs]
+        } else {
+            legacySoundPoolWrapper
+        }
+    }
+
+    fun dispose() {
+        for (soundPoolEntry in soundPoolWrappers) {
+            soundPoolEntry.value.dispose()
+        }
+        soundPoolWrappers.clear()
+    }
+}
+
+class SoundPoolWrapper(val soundPool: SoundPool) {
+
+    /** For the onLoadComplete listener, track which sound id is associated with which player. An entry only exists until
+     * it has been loaded.
+     */
+    val soundIdToPlayer: MutableMap<Int, SoundPoolPlayer> = synchronizedMap(mutableMapOf<Int, SoundPoolPlayer>())
+
+    /** This is to keep track of the players which share the same sound id, referenced by url. When a player release()s, it
+     * is removed from the associated player list. The last player to be removed actually unloads() the sound id and then
+     * the url is removed from this map.
+     */
+    val urlToPlayers: MutableMap<UrlSource, MutableList<SoundPoolPlayer>> =
+        synchronizedMap(mutableMapOf<UrlSource, MutableList<SoundPoolPlayer>>())
+
+    fun dispose() {
+        soundPool.release()
+        soundIdToPlayer.clear()
+        urlToPlayers.clear()
     }
 }

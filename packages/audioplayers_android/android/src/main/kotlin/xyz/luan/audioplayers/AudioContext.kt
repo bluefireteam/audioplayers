@@ -7,6 +7,7 @@ import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Build
 import androidx.annotation.RequiresApi
+import java.util.Objects
 
 data class AudioContextAndroid(
     val isSpeakerphoneOn: Boolean,
@@ -14,14 +15,16 @@ data class AudioContextAndroid(
     val contentType: Int,
     val usageType: Int,
     val audioFocus: Int?,
+    val audioMode: Int,
 ) {
     @SuppressLint("InlinedApi") // we are just using numerical constants
     constructor() : this(
-        isSpeakerphoneOn = false,
+        isSpeakerphoneOn = true,
         stayAwake = false,
         contentType = CONTENT_TYPE_MUSIC,
         usageType = USAGE_MEDIA,
         audioFocus = null,
+        audioMode = AudioManager.MODE_NORMAL,
     )
 
     fun setAttributesOnPlayer(player: MediaPlayer) {
@@ -49,4 +52,14 @@ data class AudioContextAndroid(
             else -> AudioManager.STREAM_MUSIC
         }
     }
+
+    override fun hashCode() = Objects.hash(isSpeakerphoneOn, stayAwake, contentType, usageType, audioFocus, audioMode)
+
+    override fun equals(other: Any?) = (other is AudioContextAndroid)
+            && isSpeakerphoneOn == other.isSpeakerphoneOn
+            && stayAwake == other.stayAwake
+            && contentType == other.contentType
+            && usageType == other.usageType
+            && audioFocus == other.audioFocus
+            && audioMode == other.audioMode
 }

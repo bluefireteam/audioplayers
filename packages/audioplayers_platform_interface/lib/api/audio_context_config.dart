@@ -72,7 +72,7 @@ class AudioContextConfig {
   final bool stayAwake;
 
   AudioContextConfig({
-    this.forceSpeaker = false,
+    this.forceSpeaker = true,
     this.duckAudio = false,
     this.respectSilence = false,
     this.stayAwake = true,
@@ -103,7 +103,6 @@ class AudioContextConfig {
     return AudioContextAndroid(
       isSpeakerphoneOn: forceSpeaker,
       stayAwake: stayAwake,
-      contentType: AndroidContentType.music,
       usageType: respectSilence
           ? AndroidUsageType.notificationRingtone
           : AndroidUsageType.media,
@@ -118,12 +117,12 @@ class AudioContextConfig {
       validateIOS();
     }
     return AudioContextIOS(
-      defaultToSpeaker: forceSpeaker,
       category: respectSilence
           ? AVAudioSessionCategory.ambient
           : AVAudioSessionCategory.playback,
       options: [AVAudioSessionOptions.mixWithOthers] +
-          (duckAudio ? [AVAudioSessionOptions.duckOthers] : []),
+          (duckAudio ? [AVAudioSessionOptions.duckOthers] : []) +
+          (forceSpeaker ? [AVAudioSessionOptions.defaultToSpeaker] : []),
     );
   }
 
@@ -137,13 +136,17 @@ class AudioContextConfig {
   }
 }
 
+/// An Audio Context is a set of secondary, platform-specific aspects of audio
+/// playback, typically related to how the act of playing audio interacts with
+/// other features of the device. [AudioContext] is containing platform specific
+/// configurations: [AudioContextAndroid] and [AudioContextIOS].
 class AudioContext {
   final AudioContextAndroid android;
   final AudioContextIOS iOS;
 
-  AudioContext({
-    required this.android,
-    required this.iOS,
+  const AudioContext({
+    this.android = const AudioContextAndroid(),
+    this.iOS = const AudioContextIOS(),
   });
 
   AudioContext copy({
@@ -170,24 +173,40 @@ class AudioContext {
   }
 }
 
+/// A platform-specific class to encapsulate a collection of attributes about an
+/// Android audio stream.
 class AudioContextAndroid {
-  /// audioManager.isSpeakerphoneOn
+  /// Sets the speakerphone on or off, globally.
+  ///
+  /// This method should only be used by applications that replace the
+  /// platform-wide management of audio settings or the main telephony
+  /// application.
   final bool isSpeakerphoneOn;
+
+  /// Sets the audio mode, globally.
+  ///
+  /// This method should only be used by applications that replace the
+  /// platform-wide management of audio settings or the main telephony
+  /// application, see [AndroidAudioMode].
+  final AndroidAudioMode audioMode;
+
   final bool stayAwake;
   final AndroidContentType contentType;
   final AndroidUsageType usageType;
   final AndroidAudioFocus? audioFocus;
 
-  AudioContextAndroid({
-    required this.isSpeakerphoneOn,
-    required this.stayAwake,
-    required this.contentType,
-    required this.usageType,
-    required this.audioFocus,
+  const AudioContextAndroid({
+    this.isSpeakerphoneOn = true,
+    this.audioMode = AndroidAudioMode.normal,
+    this.stayAwake = true,
+    this.contentType = AndroidContentType.music,
+    this.usageType = AndroidUsageType.media,
+    this.audioFocus = AndroidAudioFocus.gain,
   });
 
   AudioContextAndroid copy({
     bool? isSpeakerphoneOn,
+    AndroidAudioMode? audioMode,
     bool? stayAwake,
     AndroidContentType? contentType,
     AndroidUsageType? usageType,
@@ -195,6 +214,7 @@ class AudioContextAndroid {
   }) {
     return AudioContextAndroid(
       isSpeakerphoneOn: isSpeakerphoneOn ?? this.isSpeakerphoneOn,
+      audioMode: audioMode ?? this.audioMode,
       stayAwake: stayAwake ?? this.stayAwake,
       contentType: contentType ?? this.contentType,
       usageType: usageType ?? this.usageType,
@@ -205,6 +225,7 @@ class AudioContextAndroid {
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
       'isSpeakerphoneOn': isSpeakerphoneOn,
+      'audioMode': audioMode.value,
       'stayAwake': stayAwake,
       'contentType': contentType.value,
       'usageType': usageType.value,
@@ -213,24 +234,25 @@ class AudioContextAndroid {
   }
 }
 
+/// A platform-specific class to encapsulate a collection of attributes about an
+/// iOS audio stream.
 class AudioContextIOS {
-  final bool defaultToSpeaker;
   final AVAudioSessionCategory category;
   final List<AVAudioSessionOptions> options;
 
-  AudioContextIOS({
-    required this.defaultToSpeaker,
-    required this.category,
-    required this.options,
+  const AudioContextIOS({
+    this.category = AVAudioSessionCategory.playback,
+    this.options = const [
+      AVAudioSessionOptions.mixWithOthers,
+      AVAudioSessionOptions.defaultToSpeaker
+    ],
   });
 
   AudioContextIOS copy({
-    bool? defaultToSpeaker,
     AVAudioSessionCategory? category,
     List<AVAudioSessionOptions>? options,
   }) {
     return AudioContextIOS(
-      defaultToSpeaker: defaultToSpeaker ?? this.defaultToSpeaker,
       category: category ?? this.category,
       options: options ?? this.options,
     );
@@ -238,13 +260,17 @@ class AudioContextIOS {
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
-      'defaultToSpeaker': defaultToSpeaker,
       'category': category.name,
       'options': options.map((e) => e.name).toList(),
     };
   }
 }
 
+/// "what" you are playing. The content type expresses the general category of
+/// the content. This information is optional. But in case it is known (for
+/// instance [movie] for a movie streaming service or [music] for a music
+/// playback application) this information might be used by the audio framework
+/// to selectively configure some audio post-processing blocks.
 enum AndroidContentType {
   /// Content type value to use when the content type is unknown, or other than
   /// the ones defined.
@@ -284,6 +310,14 @@ extension AndroidContentTypeValue on AndroidContentType {
   }
 }
 
+/// "why" you are playing a sound, what is this sound used for. This is achieved
+/// with the "usage" information. Examples of usage are [media] and [alarm].
+/// These two examples are the closest to stream types, but more detailed use
+/// cases are available. Usage information is more expressive than a stream
+/// type, and allows certain platforms or routing policies to use this
+/// information for more refined volume or routing decisions. Usage is the most
+/// important information to supply in [AudioContextAndroid] and it is
+/// recommended to build any instance with this information supplied.
 enum AndroidUsageType {
   /// Usage value to use when the usage is unknown.
   unknown,
@@ -445,6 +479,47 @@ extension AndroidAudioFocusValue on AndroidAudioFocus {
       case AndroidAudioFocus.gainTransientMayDuck:
         return 3;
       case AndroidAudioFocus.gainTransientExclusive:
+        return 4;
+    }
+  }
+}
+
+/// The audio mode encompasses audio routing AND the behavior of the telephony
+/// layer. Therefore this flag should only be used by applications that
+/// replace the platform-wide management of audio settings or the main telephony
+/// application. In particular, the [inCall] mode should only be used by the
+/// telephony application when it places a phone call, as it will cause signals
+/// from the radio layer to feed the platform mixer.
+enum AndroidAudioMode {
+  /// Normal audio mode: not ringing and no call established.
+  normal,
+
+  /// Ringing audio mode. An incoming is being signaled.
+  ringtone,
+
+  /// In call audio mode. A telephony call is established.
+  inCall,
+
+  /// In communication audio mode. An audio/video chat or VoIP call is established.
+  inCommunication,
+
+  /// Call screening in progress. Call is connected and audio is accessible to
+  /// call screening applications but other audio use cases are still possible.
+  callScreening
+}
+
+extension AndroidAudioModeValue on AndroidAudioMode {
+  int get value {
+    switch (this) {
+      case AndroidAudioMode.normal:
+        return 0;
+      case AndroidAudioMode.ringtone:
+        return 1;
+      case AndroidAudioMode.inCall:
+        return 2;
+      case AndroidAudioMode.inCommunication:
+        return 3;
+      case AndroidAudioMode.callScreening:
         return 4;
     }
   }

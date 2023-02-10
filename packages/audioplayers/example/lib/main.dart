@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:audioplayers_example/components/indexed_stack.dart';
 import 'package:audioplayers_example/components/tabs.dart';
 import 'package:audioplayers_example/components/tgl.dart';
 import 'package:audioplayers_example/tabs/audio_context.dart';
@@ -10,6 +11,8 @@ import 'package:audioplayers_example/tabs/sources.dart';
 import 'package:audioplayers_example/tabs/streams.dart';
 import 'package:audioplayers_example/utils.dart';
 import 'package:flutter/material.dart';
+
+const defaultPlayerCount = 4;
 
 typedef OnError = void Function(Exception exception);
 
@@ -25,17 +28,19 @@ class ExampleApp extends StatefulWidget {
 }
 
 class _ExampleAppState extends State<ExampleApp> {
-  List<AudioPlayer> players =
-      List.generate(4, (_) => AudioPlayer()..setReleaseMode(ReleaseMode.stop));
+  List<AudioPlayer> audioPlayers = List.generate(
+    defaultPlayerCount,
+    (_) => AudioPlayer()..setReleaseMode(ReleaseMode.stop),
+  );
   int selectedPlayerIdx = 0;
 
-  AudioPlayer get selectedPlayer => players[selectedPlayerIdx];
+  AudioPlayer get selectedAudioPlayer => audioPlayers[selectedPlayerIdx];
   List<StreamSubscription> streams = [];
 
   @override
   void initState() {
     super.initState();
-    players.asMap().forEach((index, player) {
+    audioPlayers.asMap().forEach((index, player) {
       streams.add(
         player.onPlayerStateChanged.listen(
           (it) {
@@ -75,60 +80,128 @@ class _ExampleAppState extends State<ExampleApp> {
     super.dispose();
   }
 
+  void _handleAction(PopupAction value) {
+    switch (value) {
+      case PopupAction.add:
+        setState(() {
+          audioPlayers.add(AudioPlayer()..setReleaseMode(ReleaseMode.stop));
+        });
+        break;
+      case PopupAction.remove:
+        setState(() {
+          if (audioPlayers.isNotEmpty) {
+            selectedAudioPlayer.stop();
+            selectedAudioPlayer.release();
+            audioPlayers.removeAt(selectedPlayerIdx);
+          }
+          // Adjust index to be in valid range
+          if (audioPlayers.isEmpty) {
+            selectedPlayerIdx = 0;
+          } else if (selectedPlayerIdx >= audioPlayers.length) {
+            selectedPlayerIdx = audioPlayers.length - 1;
+          }
+        });
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('audioplayers example'),
+        title: const Text('AudioPlayers example'),
+        actions: [
+          PopupMenuButton<PopupAction>(
+            onSelected: _handleAction,
+            itemBuilder: (BuildContext context) {
+              return PopupAction.values.map((PopupAction choice) {
+                return PopupMenuItem<PopupAction>(
+                  value: choice,
+                  child: Text(
+                    choice == PopupAction.add
+                        ? 'Add player'
+                        : 'Remove selected player',
+                  ),
+                );
+              }).toList();
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Center(
-              child: Tgl(
-                key: const Key('playerTgl'),
-                options: ['P1', 'P2', 'P3', 'P4']
-                    .asMap()
-                    .map((key, value) => MapEntry('player-$key', value)),
-                selected: selectedPlayerIdx,
-                onChange: (v) => setState(() => selectedPlayerIdx = v),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Tgl(
+                  key: const Key('playerTgl'),
+                  options: [for (var i = 1; i <= audioPlayers.length; i++) i]
+                      .asMap()
+                      .map((key, val) => MapEntry('player-$key', 'P$val')),
+                  selected: selectedPlayerIdx,
+                  onChange: (v) => setState(() => selectedPlayerIdx = v),
+                ),
               ),
             ),
           ),
           Expanded(
-            child: Tabs(
-              tabs: [
-                TabData(
-                  key: 'sourcesTab',
-                  label: 'Src',
-                  content: SourcesTab(player: selectedPlayer),
-                ),
-                TabData(
-                  key: 'controlsTab',
-                  label: 'Ctrl',
-                  content: ControlsTab(player: selectedPlayer),
-                ),
-                TabData(
-                  key: 'streamsTab',
-                  label: 'Stream',
-                  content: StreamsTab(player: selectedPlayer),
-                ),
-                TabData(
-                  key: 'audioContextTab',
-                  label: 'Ctx',
-                  content: AudioContextTab(player: selectedPlayer),
-                ),
-                TabData(
-                  key: 'loggerTab',
-                  label: 'Log',
-                  content: const LoggerTab(),
-                ),
-              ],
-            ),
+            child: audioPlayers.isEmpty
+                ? const Text('No AudioPlayer available!')
+                : IndexedStack2(
+                    index: selectedPlayerIdx,
+                    children: audioPlayers
+                        .map(
+                          (player) => Tabs(
+                            key: GlobalObjectKey(player),
+                            tabs: [
+                              TabData(
+                                key: 'sourcesTab',
+                                label: 'Src',
+                                content: SourcesTab(
+                                  player: player,
+                                ),
+                              ),
+                              TabData(
+                                key: 'controlsTab',
+                                label: 'Ctrl',
+                                content: ControlsTab(
+                                  player: player,
+                                ),
+                              ),
+                              TabData(
+                                key: 'streamsTab',
+                                label: 'Stream',
+                                content: StreamsTab(
+                                  player: player,
+                                ),
+                              ),
+                              TabData(
+                                key: 'audioContextTab',
+                                label: 'Ctx',
+                                content: AudioContextTab(
+                                  player: player,
+                                ),
+                              ),
+                              TabData(
+                                key: 'loggerTab',
+                                label: 'Log',
+                                content: const LoggerTab(),
+                              ),
+                            ],
+                          ),
+                        )
+                        .toList(),
+                  ),
           ),
         ],
       ),
     );
   }
+}
+
+enum PopupAction {
+  add,
+  remove,
 }

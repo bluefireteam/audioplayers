@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   version="1.1"
+   id="logo_vector"
+   x="0px"
+   y="0px"
+   width="595.27502"
+   height="595.27502"
+   viewBox="0 0 595.275 595.275"
+   enable-background="new 0 0 595.275 595.275"
+   xml:space="preserve"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"><defs
+   id="defs15" />
+<g
+   id="g8">
+	<path
+   id="path2"
+   fill="#54c5f8"
+   d="M 335.951,458.555 V 259.784 l -76.609,-76.634 -0.008,213.069 c -25.217,-4.079 -53.957,-0.886 -81.912,10.705 -64.323,26.675 -100.131,87.668 -79.995,136.244 20.145,48.573 88.618,66.327 152.931,39.66 43.389,-17.991 73.82,-51.604 82.828,-86.482 1.812,-7.022 2.765,-21.5 2.765,-37.791 z" />
+	<polygon
+   id="polygon4"
+   fill="#29b6f6"
+   points="259.332,0.002 259.342,183.15 335.951,259.784 335.951,76.619 " />
+	<polygon
+   id="polygon6"
+   fill="#01579b"
+   points="335.951,76.619 335.951,259.784 412.49,336.323 412.49,153.158 " />
+	
+		<linearGradient
+   id="polygon11_1_"
+   gradientUnits="userSpaceOnUse"
+   x1="412.88959"
+   y1="440.1738"
+   x2="320.41971"
+   y2="423.8688"
+   gradientTransform="matrix(1,0,0,-1,-0.1348,594.8301)">
+		<stop
+   offset="0"
+   style="stop-color:#01579B;stop-opacity:0"
+   id="stop5" />
+		<stop
+   offset="1"
+   style="stop-color:#062649"
+   id="stop7" />
+	</linearGradient>
+	<polygon
+   id="polygon11"
+   fill="url(#polygon11_1_)"
+   points="335.939,76.619 335.939,259.749 335.969,259.778 412.49,233.299 412.49,153.158 "
+   style="fill:url(#polygon11_1_)" />
+</g>
+</svg>

@@ -13,23 +13,26 @@ class SimpleDlg extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dlg(
-      children: [
-        Text(message),
-        Btn(
-          txt: action,
-          onPressed: Navigator.of(context).pop,
-        ),
-      ],
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(message),
+          Btn(
+            txt: action,
+            onPressed: Navigator.of(context).pop,
+          ),
+        ],
+      ),
     );
   }
 }
 
 class Dlg extends StatelessWidget {
-  final List<Widget> children;
+  final Widget child;
 
   const Dlg({
     super.key,
-    required this.children,
+    required this.child,
   });
 
   @override
@@ -48,9 +51,6 @@ class Dlg extends StatelessWidget {
   }
 
   Widget contentBox(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: children,
-    );
+    return child;
   }
 }

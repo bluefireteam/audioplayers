@@ -24,6 +24,6 @@ extension ControlsWidgetTester on WidgetTester {
     final sourceWidgetKey = Key('setSource-$sourceKey');
     await scrollToAndTap(sourceWidgetKey);
 
-    await waitOneshot(const Key('toast-source-set'), stackTrace: st);
+    await waitOneshot(const Key('toast-set-source'), stackTrace: st);
   }
 }
