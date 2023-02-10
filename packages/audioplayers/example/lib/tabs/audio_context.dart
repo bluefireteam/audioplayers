@@ -49,7 +49,7 @@ class _AudioContextTabState extends State<AudioContextTab>
               icon: const Icon(Icons.looks_one),
               label: const Text('Local'),
               onPressed: () => player.setAudioContext(audioContext),
-            )
+            ),
           ],
         ),
         const SizedBox(height: 8),
