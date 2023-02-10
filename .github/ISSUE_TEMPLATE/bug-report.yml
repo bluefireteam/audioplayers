@@ -35,6 +35,29 @@ body:
         3. ... <!-- for example "Tap on X and see a crash" -->
     validations:
       required: false
+  - type: textarea
+    id: code-sample
+    attributes:
+      label: Code sample
+      description: |
+        Provide a [minimal reproducible example](https://stackoverflow.com/help/minimal-reproducible-example), i.e., code that allows us to replicate the bug. You have the following options:
+        * "One liner", if it already is enough to reproduce (rarely is).
+        * A bigger example with all your relevant code. You **must** use code blocks to put your code in.
+        * Link a newly created sample repo reproducing the issue:
+          * Either use a newly created sample, e.g. via `flutter create my_bug`
+          * Or use the existing [example](https://github.com/bluefireteam/audioplayers/tree/main/packages/audioplayers/example) 
+      value: |
+        <details>
+        <summary>Code sample</summary>
+        
+        ```dart
+        void main() {
+        }
+        ```
+        
+        </details>
+    validations:
+      required: false
   - type: dropdown
     id: platforms
     attributes:
@@ -80,29 +103,6 @@ body:
         - debug
         - profile
         - release
-    validations:
-      required: false
-  - type: textarea
-    id: code-sample
-    attributes:
-      label: Code sample
-      description: |
-        Provide a [minimal reproducible example](https://stackoverflow.com/help/minimal-reproducible-example), i.e., code that allows us to replicate the bug. You have the following options:
-        * "One liner", if it already is enough to reproduce (rarely is).
-        * A bigger example with all your relevant code. You **must** use code blocks to put your code in.
-        * Link a newly created sample repo reproducing the issue:
-          * Either use a newly created sample, e.g. via `flutter create my_bug`
-          * Or use the existing [example](https://github.com/bluefireteam/audioplayers/tree/main/packages/audioplayers/example) 
-      value: |
-        <details>
-        <summary>Code sample</summary>
-        
-        ```dart
-        void main() {
-        }
-        ```
-        
-        </details>
     validations:
       required: false
   - type: textarea
