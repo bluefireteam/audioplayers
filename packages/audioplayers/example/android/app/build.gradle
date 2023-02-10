@@ -55,7 +55,6 @@ android {
             signingConfig signingConfigs.debug
         }
     }
-    namespace 'xyz.luan.audioplayers.example'
 }
 
 flutter {
