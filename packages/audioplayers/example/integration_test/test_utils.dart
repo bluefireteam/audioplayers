@@ -67,9 +67,9 @@ extension WidgetTesterUtils on WidgetTester {
     var lastFailureMsg = 'same as first failure';
     void setFailureMessage(String message) {
       if (firstFailureMsg.isEmpty) {
-        firstFailureMsg = message;
+        firstFailureMsg = '${DateTime.now()}:\n $message';
       } else {
-        lastFailureMsg = message;
+        lastFailureMsg = '${DateTime.now()}:\n $message';
       }
     }
 
@@ -215,4 +215,8 @@ void expectToggleHasSelected(
   } else {
     throw 'Widget with key $key is not a Widget of type "Tgl"';
   }
+}
+
+void printWithTimeOnFailure(String message) {
+  printOnFailure('${DateTime.now()}: $message');
 }

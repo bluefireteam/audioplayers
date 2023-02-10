@@ -14,7 +14,7 @@ Future<void> testStreamsTab(
   AppSourceTestData audioSourceTestData,
   PlatformFeatures features,
 ) async {
-  printOnFailure('Test Streams Tab');
+  printWithTimeOnFailure('Test Streams Tab');
   await tester.tap(find.byKey(const Key('streamsTab')));
   await tester.pumpAndSettle();
 
@@ -140,7 +140,7 @@ extension StreamWidgetTester on WidgetTester {
     Duration duration, {
     Duration timeout = const Duration(seconds: 10),
   }) async {
-    printOnFailure('Test OnDuration: $duration');
+    printWithTimeOnFailure('Test OnDuration: $duration');
     final st = StackTrace.current.toString();
     await waitFor(
       () async => expectWidgetHasDuration(
@@ -157,7 +157,7 @@ extension StreamWidgetTester on WidgetTester {
     Matcher Function(Duration) matcher = equals,
     Duration timeout = const Duration(seconds: 10),
   }) async {
-    printOnFailure('Test OnPosition: $position');
+    printWithTimeOnFailure('Test OnPosition: $position');
     final st = StackTrace.current.toString();
     await waitFor(
       () async => expectWidgetHasDuration(
@@ -174,7 +174,7 @@ extension StreamWidgetTester on WidgetTester {
     PlayerState playerState, {
     Duration timeout = const Duration(seconds: 10),
   }) async {
-    printOnFailure('Test OnState: $playerState');
+    printWithTimeOnFailure('Test OnState: $playerState');
     final st = StackTrace.current.toString();
     await waitFor(
       () async => expectWidgetHasText(
