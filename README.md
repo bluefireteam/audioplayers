@@ -31,6 +31,16 @@
 
 If you are interest in migrating to v1, please check [our migration guide](https://github.com/bluefireteam/audioplayers/blob/main/migration_guide.md).
 
+## Getting Started
+
+We tried to make audioplayers as simple to use as possible.
+
+Please follow our [Getting Started tutorial](https://github.com/bluefireteam/audioplayers/blob/main/getting_started.md) for all high-level information you need to know.
+
+Then, if you want to dig deeper, our code is very well documented with dartdocs, so check [our API reference](https://pub.dev/documentation/audioplayers/latest/) or the codebase itself on your IDE (or on GitHub).
+
+If something is not clear on our docs, please send a PR to help us improve.
+
 ## Help
 
 If you have any problems, please follow these steps before opening an issue.
@@ -45,23 +55,11 @@ If you have any problems, please follow these steps before opening an issue.
 
 Any issues created not following the list above can be flagged or closed by our team.
 
-## Contributing
+## Feature Parity Table
 
-All help is appreciated but if you have questions, bug reports, issues, feature requests, pull requests, etc, please first refer to our [Contributing Guide](https://github.com/bluefireteam/audioplayers/blob/main/contributing.md).
+Not all features are available on all platforms. [Click here](https://github.com/bluefireteam/audioplayers/blob/main/feature_parity_table.md) to see a table relating what features can be used on each target.
 
-Be sure to check the [Feature Parity Table](https://github.com/bluefireteam/audioplayers/blob/main/feature_parity_table.md) to understand if your suggestion is already tracked, on the roadmap, or out of scope for this project.
-
-Also, as always, please give us a star to help!
-
-## Getting Started
-
-We tried to make audioplayers as simple to use as possible.
-
-Please follow our [Getting Started tutorial](https://github.com/bluefireteam/audioplayers/blob/main/getting_started.md) for all high-level information you need to know.
-
-Then, if you want to dig deeper, our code is very well documented with dartdocs, so check [our API reference](https://pub.dev/documentation/audioplayers/latest/) or the codebase itself on your IDE (or on GitHub).
-
-If something is not clear on our docs, please send a PR to help us improve.
+Feel free to use it for ideas for possible PRs and contributions you can help with on our roadmap! If you are submitting a PR, don't forget to update the table.
 
 ## Support
 
@@ -77,12 +75,13 @@ Or by making a single donation by buying us a coffee:
 
 **Note**: this software was made by the community, for the community, on our spare time, with no commercial affiliation. It is provided as is and any positive contribution is appreciated. Be kind and mindful of the free time that a battalion of people has gifted on behalf of the community to craft and maintain this.
 
-## Feature Parity Table
+## Contributing
 
-Not all features are available on all platforms. [Click here](https://github.com/bluefireteam/audioplayers/blob/main/feature_parity_table.md) to see a table relating what features can be used on each target.
+All help is appreciated but if you have questions, bug reports, issues, feature requests, pull requests, etc, please first refer to our [Contributing Guide](https://github.com/bluefireteam/audioplayers/blob/main/contributing.md).
 
-Feel free to use it for ideas for possible PRs and contributions you can help with on our roadmap! If you are submitting a PR, don't forget to update the table.
+Be sure to check the [Feature Parity Table](https://github.com/bluefireteam/audioplayers/blob/main/feature_parity_table.md) to understand if your suggestion is already tracked, on the roadmap, or out of scope for this project.
 
+Also, as always, please give us a star to help!
 
 ## Credits
 
