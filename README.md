@@ -16,16 +16,7 @@
 
 ---
 
-<table>
-  <tbody>
-    <tr>
-      <td><img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot_src.png"/></td>
-      <td><img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot_ctrl.png"/></td>
-      <td><img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot_stream.png"/></td>
-      <td><img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot_ctx.png"/></td>
-    </tr>
-  </tbody>
-</table>
+<img src="images/screenshot_src.png" width="25%"/><img src="images/screenshot_ctrl.png" width="25%"/><img src="images/screenshot_stream.png" width="25%"/><img src="images/screenshot_ctx.png" width="25%"/>
 
 **Note**: all the docs have been update to reflect the content for the v1 release. If you are looking for v0 specific information and guidance, please checkout [the version of this repo before the first v0 change](https://github.com/bluefireteam/audioplayers/tree/46816bf55859c9c88b204e3828cce6190ff87483).
 
