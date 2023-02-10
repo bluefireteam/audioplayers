@@ -183,9 +183,13 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
         } else if method == "setPlayerMode" {
             // no-op for darwin; only one player mode
         } else if method == "setAudioContext" {
-            Logger.error("iOS does not allow for player-specific audio contexts; use setGlobalAudioContext instead.")
-            result(0)
-            return
+            Logger.info("iOS does not allow for player-specific audio contexts; `setAudioContext` will set the global audio context instead (like `setGlobalAudioContext`).")
+            guard let context = AudioContext.parse(args: args) else {
+                result(0)
+                return
+            }
+            globalContext = context
+            globalContext.apply()
         } else {
             Logger.error("Called not implemented method: %@", method)
             result(FlutterMethodNotImplemented)
