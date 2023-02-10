@@ -19,10 +19,10 @@
 <table>
   <tbody>
     <tr>
-      <td><img src="images/screenshot_src.png"/></td>
-      <td><img src="images/screenshot_ctrl.png"/></td>
-      <td><img src="images/screenshot_stream.png"/></td>
-      <td><img src="images/screenshot_ctx.png"/></td>
+      <td><img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot_src.png"/></td>
+      <td><img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot_ctrl.png"/></td>
+      <td><img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot_stream.png"/></td>
+      <td><img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot_ctx.png"/></td>
     </tr>
   </tbody>
 </table>
