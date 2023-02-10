@@ -43,8 +43,6 @@ android {
     lint {
         disable 'InvalidPackage'
     }
-
-    namespace 'xyz.luan.audioplayers'
 }
 
 allprojects {
