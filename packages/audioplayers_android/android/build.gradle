@@ -29,7 +29,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'de.mannodermaus.android-junit5'
 
 android {
-    compileSdkVersion 31
+    compileSdk 33
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
@@ -40,7 +40,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     
-    lintOptions {
+    lint {
         disable 'InvalidPackage'
     }
 
