@@ -40,7 +40,7 @@ If you have any problems, please follow these steps before opening an issue.
 1. Check our [Troubleshooting Guide](https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md) for solutions for most problems.
 1. If you have a missing feature report or feature request, please first check the [Feature Parity Table](https://github.com/bluefireteam/audioplayers/blob/main/feature_parity_table.md) to understand our roadmap and what we know is missing. We love contributions!
 1. Join [Blue Fire's Discord server](https://discord.gg/5unKpdQD78) and ask for directions. Maybe it's not a bug, or it's a known issue.
-1. If you are more comfortable with StackOverflow, you can also create a question there. Add the generic [AudioPlayers tag](https://stackoverflow.com/questions/tagged/audioplayers), so that anyone following the tag can help out.
+1. If you are more comfortable with StackOverflow, you can also create a question there. Add the [flutter-audioplayers tag](https://stackoverflow.com/questions/tagged/flutter-audioplayers), so that anyone following the tag can help out.
 1. If the issue still persists, go to the [create an issue](https://github.com/bluefireteam/audioplayers/issues/new/choose) page and follow the step-by-step there before submitting.
 1. If the step-by-step there doesn't give you any help, then proceed to create the issue **following the template**. Do not skip mandatory sections. Do not include the literal text of the template, rather replace the sections with what they should contain.
 
