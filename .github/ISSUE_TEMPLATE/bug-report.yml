@@ -1,0 +1,186 @@
+name: Bug Report
+description: File a bug report
+labels: ["bug", "triage"]
+body:
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I read the [troubleshooting guide](https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md) before raising this issue
+          required: true                  
+        - label: I made sure that the issue I am raising doesn't already exist
+          required: true
+  - type: textarea
+    id: current-bug
+    attributes:
+      label: Current bug behaviour
+      placeholder: Tell us what you see!
+    validations:
+      required: true
+  - type: textarea
+    id: expected-bug
+    attributes:
+      label: Expected behaviour
+      placeholder: Tell us, what did you expect to happen?
+    validations:
+      required: false
+  - type: textarea
+    id: reproduction-steps
+    attributes:
+      label: Steps to reproduce
+      value: |
+        1. Execute `flutter run` on the code sample <!-- (see "Code sample" section below) -->
+        2. ... <!-- describe steps to demonstrate bug -->
+        3. ... <!-- for example "Tap on X and see a crash" -->
+    validations:
+      required: false
+  - type: dropdown
+    id: platforms
+    attributes:
+      label: Affected platforms
+      description: What platforms are you seeing the problem on?
+      multiple: true
+      options:
+        - Android
+        - iOS
+        - web
+        - Windows
+        - Linux
+        - macOS
+        - other
+    validations:
+      required: true
+  - type: textarea
+    id: platform-details
+    attributes:
+      label: Platform details
+      description: If relevant, what exact device(s) or operating system do you use?
+      placeholder: |
+        * Platform 1: iOS 16.3, Apple iPhone 12
+        * Platform 2: Windows 11, Microsoft Surface Laptop 4
+        * Platform 3: Android 12 (API 32), Android Emulator
+        * Platform 4: Chrome `109.0.5414.121`, MacBook Pro 13" 2022 M2
+    validations:
+      required: false
+  - type: input
+    id: ap-version
+    attributes:
+      label: AudioPlayers Version
+      description: In which AudioPlayers version does the issue occur?
+      placeholder: main, 1.0.2, 3.0.1
+    validations:
+      required: true
+  - type: dropdown
+    id: build-mode
+    attributes:
+      label: Build mode
+      multiple: true
+      options:
+        - debug
+        - profile
+        - release
+    validations:
+      required: false
+  - type: textarea
+    id: code-sample
+    attributes:
+      label: Code sample
+      description: |
+        Provide a [minimal reproducible example](https://stackoverflow.com/help/minimal-reproducible-example), i.e., code that allows us to replicate the bug. You have the following options:
+        * "One liner", if it already is enough to reproduce (rarely is).
+        * A bigger example with all your relevant code. You **must** use code blocks to put your code in.
+        * Link a newly created sample repo reproducing the issue:
+          * Either use a newly created sample, e.g. via `flutter create my_bug`
+          * Or use the existing [example](https://github.com/bluefireteam/audioplayers/tree/main/packages/audioplayers/example) 
+      value: |
+        <details>
+        <summary>Code sample</summary>
+        
+        ```dart
+        void main() {
+        }
+        ```
+        
+        </details>
+    validations:
+      required: false
+  - type: textarea
+    id: sources
+    attributes:
+      label: Audio Files/URLs/Sources
+      description: |
+        * Provide the files or URLs which may affect the issue. 
+        * Test your code with some of the [sample files](https://github.com/luanpotter/audioplayers/tree/master/example/assets). If the problem persists you don't need to provide your own source, otherwise, this section is **mandatory**.
+        * Rewrite URLs here which are already somewhere in your sample code. 
+        * Make private URLs or actual files accessible, by uploading them (e.g. wrap them in a `zip` file for GitHub).
+      placeholder: |
+        Drag and drop your source files here or provide a link!
+        
+        * Sample Url: https://luan.xyz/files/audio/coins.wav
+        * Sample Stream: https://example.com/my_stream.m3u8
+    validations:
+      required: false
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: |
+        If applicable, add screenshots or video recordings to help explain your problem. This is totally optional. 
+        You can upload them directly on GitHub. Beware that video file size is limited to 10MB.
+      placeholder: Drag and drop your screenshots here!
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: |
+        * Relevant logs
+        * Full logs
+        * Flutter doctor
+      value: |
+        <!-- Code block with 2-3 relevant log lines -->
+        ```
+        my relevant logs
+        ```
+
+        <details>
+          <summary>Full Logs</summary>
+
+          <!-- You **must** use code blocks (or link gists) to paste in log lines. -->
+
+          ```
+          my full logs or a link to a gist
+          ```
+
+          Flutter doctor:
+          ```
+          Output of: flutter doctor -v
+          ```
+        </details>
+    validations:
+      required: false
+  - type: textarea
+    id: more-info
+    attributes:
+      label: Related issues / more information
+      description: |
+        Do you have any other useful information about this bug report?
+        References to other issues / sites / repositories?
+      placeholder: |
+        Related: #123, #456
+    validations:
+      required: false
+  - type: dropdown
+    id: working-pull-request
+    attributes:
+      label: Working on PR
+      description: Are you interested in working on a PR for this?
+      multiple: false
+      # For some reason GH forms does not allow "yes" as option.
+      options:
+        - no way
+        - yeah
+    validations:
+      required: true
