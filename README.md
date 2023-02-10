@@ -18,7 +18,7 @@
 
 <img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot_src.png" width="25%"/><img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot_ctrl.png" width="25%"/><img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot_stream.png" width="25%"/><img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot_ctx.png" width="25%"/>
 
-**Note**: all the docs have been update to reflect the content for the v1 release. If you are looking for v0 specific information and guidance, please checkout [the version of this repo before the first v0 change](https://github.com/bluefireteam/audioplayers/tree/46816bf55859c9c88b204e3828cce6190ff87483).
+**Note**: all the docs are kept up to date to reflect the content of the current newest release. If you are looking for older information and guidance, please checkout the tag related to the version that you are looking for.
 
 If you are interest in migrating to v1, please check [our migration guide](https://github.com/bluefireteam/audioplayers/blob/main/migration_guide.md).
 
