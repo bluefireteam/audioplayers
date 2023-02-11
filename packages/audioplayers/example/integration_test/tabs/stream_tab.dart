@@ -77,8 +77,8 @@ Future<void> testStreamsTab(
   if (features.hasPlayerStateEvent) {
     if (!audioSourceTestData.isLiveStream) {
       if (audioSourceTestData.duration < const Duration(seconds: 2)) {
-        await tester.testPlayerState(PlayerState.completed);
-        await tester.testOnPlayerState(PlayerState.completed);
+        await tester.testPlayerState(PlayerState.completed, timeout: timeout);
+        await tester.testOnPlayerState(PlayerState.completed, timeout: timeout);
       } else if (audioSourceTestData.duration > const Duration(seconds: 5)) {
         await tester.scrollToAndTap(const Key('pause_button'));
         await tester.pumpAndSettle();
