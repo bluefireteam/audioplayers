@@ -8,6 +8,7 @@ import 'package:integration_test/integration_test.dart';
 
 import 'platform_features.dart';
 import 'source_test_data.dart';
+import 'test_utils.dart';
 
 void main() {
   final features = PlatformFeatures.instance();
@@ -79,7 +80,7 @@ void main() {
           if (td.isLiveStream || td.duration > const Duration(seconds: 10)) {
             await tester.pump();
             final position = await players[i].getCurrentPosition();
-            printOnFailure('Test position: $td');
+            printWithTimeOnFailure('Test position: $td');
             expect(position, greaterThan(Duration.zero));
           }
           await players[i].stop();
@@ -104,7 +105,7 @@ void main() {
         if (td.isLiveStream || td.duration > const Duration(seconds: 10)) {
           await tester.pump();
           final position = await player.getCurrentPosition();
-          printOnFailure('Test position: $td');
+          printWithTimeOnFailure('Test position: $td');
           expect(position, greaterThan(Duration.zero));
         }
         await player.stop();

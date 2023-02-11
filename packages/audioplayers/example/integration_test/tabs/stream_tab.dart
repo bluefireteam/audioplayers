@@ -14,7 +14,7 @@ Future<void> testStreamsTab(
   AppSourceTestData audioSourceTestData,
   PlatformFeatures features,
 ) async {
-  printOnFailure('Test Streams Tab');
+  printWithTimeOnFailure('Test Streams Tab');
   await tester.tap(find.byKey(const Key('streamsTab')));
   await tester.pumpAndSettle();
 
@@ -77,8 +77,8 @@ Future<void> testStreamsTab(
   if (features.hasPlayerStateEvent) {
     if (!audioSourceTestData.isLiveStream) {
       if (audioSourceTestData.duration < const Duration(seconds: 2)) {
-        await tester.testPlayerState(PlayerState.completed);
-        await tester.testOnPlayerState(PlayerState.completed);
+        await tester.testPlayerState(PlayerState.completed, timeout: timeout);
+        await tester.testOnPlayerState(PlayerState.completed, timeout: timeout);
       } else if (audioSourceTestData.duration > const Duration(seconds: 5)) {
         await tester.scrollToAndTap(const Key('pause_button'));
         await tester.pumpAndSettle();
@@ -140,7 +140,7 @@ extension StreamWidgetTester on WidgetTester {
     Duration duration, {
     Duration timeout = const Duration(seconds: 10),
   }) async {
-    printOnFailure('Test OnDuration: $duration');
+    printWithTimeOnFailure('Test OnDuration: $duration');
     final st = StackTrace.current.toString();
     await waitFor(
       () async => expectWidgetHasDuration(
@@ -157,7 +157,7 @@ extension StreamWidgetTester on WidgetTester {
     Matcher Function(Duration) matcher = equals,
     Duration timeout = const Duration(seconds: 10),
   }) async {
-    printOnFailure('Test OnPosition: $position');
+    printWithTimeOnFailure('Test OnPosition: $position');
     final st = StackTrace.current.toString();
     await waitFor(
       () async => expectWidgetHasDuration(
@@ -174,7 +174,7 @@ extension StreamWidgetTester on WidgetTester {
     PlayerState playerState, {
     Duration timeout = const Duration(seconds: 10),
   }) async {
-    printOnFailure('Test OnState: $playerState');
+    printWithTimeOnFailure('Test OnState: $playerState');
     final st = StackTrace.current.toString();
     await waitFor(
       () async => expectWidgetHasText(
