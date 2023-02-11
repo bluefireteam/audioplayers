@@ -208,7 +208,7 @@ void main() {
     /// reproduce on the native side.
     /// Nether the less: common native unit tests are preferred.
     testWidgets(
-      'test #1260 - mp2',
+      'test #1260 - setting .mp2 on Android should not crash',
       (WidgetTester tester) async {
         final completer = Completer<void>();
         final player = AudioPlayer();
@@ -221,7 +221,7 @@ void main() {
         // not thrown while preparing the source, but returned via error stream.
         await player.play(AssetSource(mp2Asset));
         await completer.future;
-        // TODO(gustl22): check error via stream, if supported via #1352
+        // TODO(gustl22): check error with stream, if supported via #1352
         // Unexpected platform error: MediaPlayer error with 
         // what:MEDIA_ERROR_UNKNOWN {what:1} extra:MEDIA_ERROR_SYSTEM
       },
