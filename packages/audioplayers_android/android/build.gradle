@@ -11,7 +11,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.2.2'
+        classpath 'com.android.tools.build:gradle:7.3.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "de.mannodermaus.gradle.plugins:android-junit5:1.7.1.1"
     }
@@ -29,7 +29,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'de.mannodermaus.android-junit5'
 
 android {
-    compileSdkVersion 31
+    compileSdk 33
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
@@ -39,7 +39,8 @@ android {
         minSdkVersion 16
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
-    lintOptions {
+    
+    lint {
         disable 'InvalidPackage'
     }
 }
@@ -53,7 +54,7 @@ allprojects {
 }
 
 dependencies {
-    implementation "androidx.core:core-ktx:1.8.0"
+    implementation "androidx.core:core-ktx:1.9.0"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
