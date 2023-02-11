@@ -247,22 +247,47 @@ class WrappedPlayer internal constructor(
      * Player callbacks
      */
     fun onPrepared() {
-        prepared = true
-        ref.handleDuration(this)
-        if (playing) {
-            player?.start()
-            ref.handleIsPlaying()
-        }
-        if (shouldSeekTo >= 0 && player?.isLiveStream() != true) {
-            player?.seekTo(shouldSeekTo)
+        try {
+            prepared = true
+            ref.handleDuration(this)
+            if (playing) {
+                player?.start()
+                ref.handleIsPlaying()
+            }
+            if (shouldSeekTo >= 0 && player?.isLiveStream() != true) {
+                player?.seekTo(shouldSeekTo)
+            }
+        } catch (e: Exception) {
+            handleError(e)
         }
     }
 
     fun onCompletion() {
-        if (releaseMode != ReleaseMode.LOOP) {
-            stop()
+        try {
+            if (releaseMode != ReleaseMode.LOOP) {
+                stop()
+            }
+            ref.handleComplete(this)
+        } catch (e: Exception) {
+            handleError(e)
         }
-        ref.handleComplete(this)
+    }
+
+    @Suppress("UNUSED_PARAMETER")
+    fun onBuffering(percent: Int) {
+        // TODO(luan): expose this as a stream
+    }
+
+    fun onSeekComplete() {
+        try {
+            ref.handleSeekComplete(this)
+        } catch (e: Exception) {
+            handleError(e)
+        }
+    }
+
+    private fun handleError(error: Throwable) {
+        ref.handleError(this, error.stackTraceToString())
     }
 
     fun onError(what: Int, extra: Int): Boolean {
@@ -281,15 +306,6 @@ class WrappedPlayer internal constructor(
         }
         ref.handleError(this, "MediaPlayer error with what:$whatMsg extra:$extraMsg")
         return false
-    }
-
-    @Suppress("UNUSED_PARAMETER")
-    fun onBuffering(percent: Int) {
-        // TODO(luan): expose this as a stream
-    }
-
-    fun onSeekComplete() {
-        ref.handleSeekComplete(this)
     }
 
     /**
