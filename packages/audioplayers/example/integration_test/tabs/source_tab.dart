@@ -10,7 +10,7 @@ Future<void> testSourcesTab(
   AppSourceTestData audioSourceTestData,
   PlatformFeatures features,
 ) async {
-  printOnFailure('Test Sources Tab');
+  printWithTimeOnFailure('Test Sources Tab');
   await tester.tap(find.byKey(const Key('sourcesTab')));
   await tester.pumpAndSettle();
 
@@ -19,11 +19,11 @@ Future<void> testSourcesTab(
 
 extension ControlsWidgetTester on WidgetTester {
   Future<void> testSource(String sourceKey) async {
-    printOnFailure('Test setting source: $sourceKey');
+    printWithTimeOnFailure('Test setting source: $sourceKey');
     final st = StackTrace.current.toString();
     final sourceWidgetKey = Key('setSource-$sourceKey');
     await scrollToAndTap(sourceWidgetKey);
 
-    await waitOneshot(const Key('toast-source-set'), stackTrace: st);
+    await waitOneshot(const Key('toast-set-source'), stackTrace: st);
   }
 }

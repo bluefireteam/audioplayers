@@ -13,7 +13,7 @@ Future<void> testControlsTab(
   AppSourceTestData audioSourceTestData,
   PlatformFeatures features,
 ) async {
-  printOnFailure('Test Controls Tab');
+  printWithTimeOnFailure('Test Controls Tab');
   await tester.tap(find.byKey(const Key('controlsTab')));
   await tester.pumpAndSettle();
 
@@ -146,7 +146,7 @@ extension ControlsWidgetTester on WidgetTester {
     String volume, {
     Duration timeout = const Duration(seconds: 1),
   }) async {
-    printOnFailure('Test Volume: $volume');
+    printWithTimeOnFailure('Test Volume: $volume');
     await scrollToAndTap(Key('control-volume-$volume'));
     await resume();
     // TODO(Gustl22): get volume from native implementation
@@ -158,7 +158,7 @@ extension ControlsWidgetTester on WidgetTester {
     String balance, {
     Duration timeout = const Duration(seconds: 1),
   }) async {
-    printOnFailure('Test Balance: $balance');
+    printWithTimeOnFailure('Test Balance: $balance');
     await scrollToAndTap(Key('control-balance-$balance'));
     await resume();
     // TODO(novikov): get balance from native implementation
@@ -170,7 +170,7 @@ extension ControlsWidgetTester on WidgetTester {
     String rate, {
     Duration timeout = const Duration(seconds: 2),
   }) async {
-    printOnFailure('Test Rate: $rate');
+    printWithTimeOnFailure('Test Rate: $rate');
     await scrollToAndTap(Key('control-rate-$rate'));
     await resume();
     // TODO(Gustl22): get rate from native implementation
@@ -182,7 +182,7 @@ extension ControlsWidgetTester on WidgetTester {
     String seek, {
     bool isResume = true,
   }) async {
-    printOnFailure('Test Seek: $seek');
+    printWithTimeOnFailure('Test Seek: $seek');
     final st = StackTrace.current.toString();
 
     await scrollToAndTap(Key('control-seek-$seek'));
@@ -195,7 +195,7 @@ extension ControlsWidgetTester on WidgetTester {
   }
 
   Future<void> testPlayerMode(PlayerMode mode) async {
-    printOnFailure('Test Player Mode: ${mode.name}');
+    printWithTimeOnFailure('Test Player Mode: ${mode.name}');
     final st = StackTrace.current.toString();
 
     await scrollToAndTap(Key('control-player-mode-${mode.name}'));
@@ -209,7 +209,7 @@ extension ControlsWidgetTester on WidgetTester {
   }
 
   Future<void> testReleaseMode(ReleaseMode mode, {bool isResume = true}) async {
-    printOnFailure('Test Release Mode: ${mode.name}');
+    printWithTimeOnFailure('Test Release Mode: ${mode.name}');
     final st = StackTrace.current.toString();
 
     await scrollToAndTap(Key('control-release-mode-${mode.name}'));

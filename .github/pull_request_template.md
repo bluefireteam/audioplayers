@@ -29,6 +29,14 @@ If the PR is a breaking change this should be indicated with suffix "!"
 
 <!-- ### Migration instructions
 
+Before:
+```
+```
+
+After:
+```
+```
+
 If the PR is breaking, uncomment this header and add instructions for how to migrate from the
 currently released version to the new proposed way.
 -->

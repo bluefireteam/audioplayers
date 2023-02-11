@@ -72,6 +72,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final color = Theme.of(context).primaryColor;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
@@ -83,21 +84,21 @@ class _PlayerWidgetState extends State<PlayerWidget> {
               onPressed: _isPlaying ? null : _play,
               iconSize: 48.0,
               icon: const Icon(Icons.play_arrow),
-              color: Colors.cyan,
+              color: color,
             ),
             IconButton(
               key: const Key('pause_button'),
               onPressed: _isPlaying ? _pause : null,
               iconSize: 48.0,
               icon: const Icon(Icons.pause),
-              color: Colors.cyan,
+              color: color,
             ),
             IconButton(
               key: const Key('stop_button'),
               onPressed: _isPlaying || _isPaused ? _stop : null,
               iconSize: 48.0,
               icon: const Icon(Icons.stop),
-              color: Colors.cyan,
+              color: color,
             ),
           ],
         ),

@@ -20,7 +20,7 @@ void main() {
       app.main();
       await tester.pumpAndSettle();
       expect(
-        find.text('Remote URL WAV 1 - coins.wav'),
+        find.text('Remote URL WAV 1'),
         findsOneWidget,
       );
     });

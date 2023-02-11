@@ -9,7 +9,7 @@ extension PropertiesWidgetTester on WidgetTester {
     Duration duration, {
     Duration timeout = const Duration(seconds: 4),
   }) async {
-    printOnFailure('Test Duration: $duration');
+    printWithTimeOnFailure('Test Duration: $duration');
     final st = StackTrace.current.toString();
     await waitFor(
       () async {
@@ -30,7 +30,7 @@ extension PropertiesWidgetTester on WidgetTester {
     Matcher Function(Duration) matcher = equals,
     Duration timeout = const Duration(seconds: 4),
   }) async {
-    printOnFailure('Test Position: $position');
+    printWithTimeOnFailure('Test Position: $position');
     final st = StackTrace.current.toString();
     await waitFor(
       () async {
@@ -50,7 +50,7 @@ extension PropertiesWidgetTester on WidgetTester {
     PlayerState playerState, {
     Duration timeout = const Duration(seconds: 4),
   }) async {
-    printOnFailure('Test PlayerState: $playerState');
+    printWithTimeOnFailure('Test PlayerState: $playerState');
     final st = StackTrace.current.toString();
     await waitFor(
       () async {
