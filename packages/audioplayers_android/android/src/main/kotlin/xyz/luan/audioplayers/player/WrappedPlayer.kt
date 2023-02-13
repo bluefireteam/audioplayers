@@ -247,50 +247,28 @@ class WrappedPlayer internal constructor(
      * Player callbacks
      */
     fun onPrepared() {
-        try {
-            prepared = true
-            ref.handleDuration(this)
-            if (playing) {
-                player?.start()
-                ref.handleIsPlaying()
-            }
-            if (shouldSeekTo >= 0 && player?.isLiveStream() != true) {
-                player?.seekTo(shouldSeekTo)
-            }
-        } catch (e: Exception) {
-            handleError(e)
+        prepared = true
+        ref.handleDuration(this)
+        if (playing) {
+            player?.start()
+            ref.handleIsPlaying()
+        }
+        if (shouldSeekTo >= 0 && player?.isLiveStream() != true) {
+            player?.seekTo(shouldSeekTo)
         }
     }
 
     fun onCompletion() {
-        try {
-            if (releaseMode != ReleaseMode.LOOP) {
-                stop()
-            }
-            ref.handleComplete(this)
-        } catch (e: Exception) {
-            handleError(e)
+        if (releaseMode != ReleaseMode.LOOP) {
+            stop()
         }
-    }
-
-    @Suppress("UNUSED_PARAMETER")
-    fun onBuffering(percent: Int) {
-        // TODO(luan): expose this as a stream
-    }
-
-    fun onSeekComplete() {
-        try {
-            ref.handleSeekComplete(this)
-        } catch (e: Exception) {
-            handleError(e)
-        }
-    }
-
-    private fun handleError(error: Throwable) {
-        ref.handleError(this, error.stackTraceToString())
+        ref.handleComplete(this)
     }
 
     fun onError(what: Int, extra: Int): Boolean {
+        // When an error occurs, reset player to not [prepared].
+        // Then no functions will be called, which end up in an illegal player state.
+        prepared = false
         val whatMsg = if (what == MediaPlayer.MEDIA_ERROR_SERVER_DIED) {
             "MEDIA_ERROR_SERVER_DIED"
         } else {
@@ -306,6 +284,15 @@ class WrappedPlayer internal constructor(
         }
         ref.handleError(this, "MediaPlayer error with what:$whatMsg extra:$extraMsg")
         return false
+    }
+
+    @Suppress("UNUSED_PARAMETER")
+    fun onBuffering(percent: Int) {
+        // TODO(luan): expose this as a stream
+    }
+
+    fun onSeekComplete() {
+        ref.handleSeekComplete(this)
     }
 
     /**
