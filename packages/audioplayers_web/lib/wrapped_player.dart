@@ -10,72 +10,72 @@ class WrappedPlayer {
   final String playerId;
   final eventStreamController = StreamController<PlayerEvent>.broadcast();
 
-  double? pausedAt;
-  double currentVolume = 1.0;
-  double currentPlaybackRate = 1.0;
-  ReleaseMode currentReleaseMode = ReleaseMode.release;
-  String? currentUrl;
-  bool isPlaying = false;
+  double? _pausedAt;
+  double _currentVolume = 1.0;
+  double _currentPlaybackRate = 1.0;
+  ReleaseMode _currentReleaseMode = ReleaseMode.release;
+  String? _currentUrl;
+  bool _isPlaying = false;
 
   AudioElement? player;
-  StereoPannerNode? stereoPanner;
-  StreamSubscription? playerTimeUpdateSubscription;
-  StreamSubscription? playerEndedSubscription;
-  StreamSubscription? playerLoadedDataSubscription;
-  StreamSubscription? playerPlaySubscription;
-  StreamSubscription? playerSeekedSubscription;
+  StereoPannerNode? _stereoPanner;
+  StreamSubscription? _playerTimeUpdateSubscription;
+  StreamSubscription? _playerEndedSubscription;
+  StreamSubscription? _playerLoadedDataSubscription;
+  StreamSubscription? _playerPlaySubscription;
+  StreamSubscription? _playerSeekedSubscription;
 
   WrappedPlayer(this.playerId);
 
   void setUrl(String url) {
-    if (currentUrl == url) {
+    if (_currentUrl == url) {
       return; // nothing to do
     }
-    currentUrl = url;
+    _currentUrl = url;
 
     stop();
     recreateNode();
-    if (isPlaying) {
+    if (_isPlaying) {
       resume();
     }
   }
 
   void setVolume(double volume) {
-    currentVolume = volume;
+    _currentVolume = volume;
     player?.volume = volume;
   }
 
   void setBalance(double balance) {
-    stereoPanner?.pan.value = balance;
+    _stereoPanner?.pan.value = balance;
   }
 
   void setPlaybackRate(double rate) {
-    currentPlaybackRate = rate;
+    _currentPlaybackRate = rate;
     player?.playbackRate = rate;
   }
 
   void recreateNode() {
-    if (currentUrl == null) {
+    if (_currentUrl == null) {
       return;
     }
 
-    final p = player = AudioElement(currentUrl);
+    final p = player = AudioElement(_currentUrl);
     // As the AudioElement is created dynamically via script,
     // features like 'stereo panning' need the CORS header to be enabled.
     // See: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
     p.crossOrigin = 'anonymous';
     p.loop = shouldLoop();
-    p.volume = currentVolume;
-    p.playbackRate = currentPlaybackRate;
+    p.volume = _currentVolume;
+    p.playbackRate = _currentPlaybackRate;
 
     // setup stereo panning
     final audioContext = JsAudioContext();
     final source = audioContext.createMediaElementSource(player!);
-    stereoPanner = audioContext.createStereoPanner();
-    source.connect(stereoPanner!);
-    stereoPanner?.connect(audioContext.destination);
+    _stereoPanner = audioContext.createStereoPanner();
+    source.connect(_stereoPanner!);
+    _stereoPanner?.connect(audioContext.destination);
 
-    playerPlaySubscription = p.onPlay.listen(
+    _playerPlaySubscription = p.onPlay.listen(
       (_) {
         eventStreamController.add(
           PlayerEvent(
@@ -86,7 +86,7 @@ class WrappedPlayer {
       },
       onError: eventStreamController.addError,
     );
-    playerLoadedDataSubscription = p.onLoadedData.listen(
+    _playerLoadedDataSubscription = p.onLoadedData.listen(
       (_) {
         eventStreamController.add(
           PlayerEvent(
@@ -97,7 +97,7 @@ class WrappedPlayer {
       },
       onError: eventStreamController.addError,
     );
-    playerTimeUpdateSubscription = p.onTimeUpdate.listen(
+    _playerTimeUpdateSubscription = p.onTimeUpdate.listen(
       (_) {
         eventStreamController.add(
           PlayerEvent(
@@ -108,7 +108,7 @@ class WrappedPlayer {
       },
       onError: eventStreamController.addError,
     );
-    playerSeekedSubscription = p.onSeeked.listen(
+    _playerSeekedSubscription = p.onSeeked.listen(
       (_) {
         eventStreamController.add(
           const PlayerEvent(eventType: PlayerEventType.seekComplete),
@@ -116,9 +116,9 @@ class WrappedPlayer {
       },
       onError: eventStreamController.addError,
     );
-    playerEndedSubscription = p.onEnded.listen(
+    _playerEndedSubscription = p.onEnded.listen(
       (_) {
-        pausedAt = 0;
+        _pausedAt = 0;
         player?.currentTime = 0;
         eventStreamController.add(
           const PlayerEvent(eventType: PlayerEventType.complete),
@@ -128,33 +128,33 @@ class WrappedPlayer {
     );
   }
 
-  bool shouldLoop() => currentReleaseMode == ReleaseMode.loop;
+  bool shouldLoop() => _currentReleaseMode == ReleaseMode.loop;
 
   void setReleaseMode(ReleaseMode releaseMode) {
-    currentReleaseMode = releaseMode;
+    _currentReleaseMode = releaseMode;
     player?.loop = shouldLoop();
   }
 
   void release() {
     _cancel();
     player = null;
-    stereoPanner = null;
+    _stereoPanner = null;
 
-    playerLoadedDataSubscription?.cancel();
-    playerLoadedDataSubscription = null;
-    playerTimeUpdateSubscription?.cancel();
-    playerTimeUpdateSubscription = null;
-    playerEndedSubscription?.cancel();
-    playerEndedSubscription = null;
-    playerSeekedSubscription?.cancel();
-    playerSeekedSubscription = null;
-    playerPlaySubscription?.cancel();
-    playerPlaySubscription = null;
+    _playerLoadedDataSubscription?.cancel();
+    _playerLoadedDataSubscription = null;
+    _playerTimeUpdateSubscription?.cancel();
+    _playerTimeUpdateSubscription = null;
+    _playerEndedSubscription?.cancel();
+    _playerEndedSubscription = null;
+    _playerSeekedSubscription?.cancel();
+    _playerSeekedSubscription = null;
+    _playerPlaySubscription?.cancel();
+    _playerPlaySubscription = null;
   }
 
   void start(double position) {
-    isPlaying = true;
-    if (currentUrl == null) {
+    _isPlaying = true;
+    if (_currentUrl == null) {
       return; // nothing to play yet
     }
     if (player == null) {
@@ -165,18 +165,21 @@ class WrappedPlayer {
   }
 
   void resume() {
-    start(pausedAt ?? 0);
+    start(_pausedAt ?? 0);
+    eventStreamController.add(
+      const PlayerEvent(eventType: PlayerEventType.log, logMessage: 'RESUME'),
+    );
   }
 
   void pause() {
-    pausedAt = player?.currentTime as double?;
-    isPlaying = false;
+    _pausedAt = player?.currentTime as double?;
+    _isPlaying = false;
     player?.pause();
   }
 
   void stop() {
     _cancel();
-    pausedAt = 0;
+    _pausedAt = 0;
     player?.currentTime = 0;
   }
 
@@ -184,15 +187,15 @@ class WrappedPlayer {
     final seekPosition = position / 1000.0;
     player?.currentTime = seekPosition;
 
-    if (!isPlaying) {
-      pausedAt = seekPosition;
+    if (!_isPlaying) {
+      _pausedAt = seekPosition;
     }
   }
 
   void _cancel() {
-    isPlaying = false;
+    _isPlaying = false;
     player?.pause();
-    if (currentReleaseMode == ReleaseMode.release) {
+    if (_currentReleaseMode == ReleaseMode.release) {
       player = null;
     }
   }
