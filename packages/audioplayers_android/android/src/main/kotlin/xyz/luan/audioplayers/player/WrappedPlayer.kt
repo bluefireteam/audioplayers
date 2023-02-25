@@ -299,6 +299,9 @@ class WrappedPlayer internal constructor(
     }
 
     fun onError(what: Int, extra: Int): Boolean {
+        // When an error occurs, reset player to not [prepared].
+        // Then no functions will be called, which end up in an illegal player state.
+        prepared = false
         val whatMsg = if (what == MediaPlayer.MEDIA_ERROR_SERVER_DIED) {
             "MEDIA_ERROR_SERVER_DIED"
         } else {
