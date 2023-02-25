@@ -97,8 +97,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
         val playerId = call.argument<String>("playerId") ?: return
         if (call.method == "create") {
             val eventHandler = EventHandler(EventChannel(binaryMessenger, "xyz.luan/audioplayers/events/$playerId"))
-            players[playerId] =
-                WrappedPlayer(this, playerId, defaultAudioContext.copy(), eventHandler, soundPoolManager)
+            players[playerId] = WrappedPlayer(this, eventHandler, defaultAudioContext.copy(), soundPoolManager)
             response.success(1)
             return
         }

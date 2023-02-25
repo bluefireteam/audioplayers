@@ -13,9 +13,8 @@ private const val MEDIA_ERROR_SYSTEM = -2147483648
 
 class WrappedPlayer internal constructor(
     private val ref: AudioplayersPlugin,
-    val playerId: String,
-    var context: AudioContextAndroid,
     val eventHandler: EventHandler,
+    var context: AudioContextAndroid,
     private val soundPoolManager: SoundPoolManager,
 ) {
     private var player: Player? = null
@@ -246,30 +245,22 @@ class WrappedPlayer internal constructor(
      * Player callbacks
      */
     fun onPrepared() {
-        try {
-            prepared = true
-            ref.handleDuration(this)
-            if (playing) {
-                player?.start()
-                ref.handleIsPlaying()
-            }
-            if (shouldSeekTo >= 0 && player?.isLiveStream() != true) {
-                player?.seekTo(shouldSeekTo)
-            }
-        } catch (e: Exception) {
-            handleError(e)
+        prepared = true
+        ref.handleDuration(this)
+        if (playing) {
+            player?.start()
+            ref.handleIsPlaying()
+        }
+        if (shouldSeekTo >= 0 && player?.isLiveStream() != true) {
+            player?.seekTo(shouldSeekTo)
         }
     }
 
     fun onCompletion() {
-        try {
-            if (releaseMode != ReleaseMode.LOOP) {
-                stop()
-            }
-            ref.handleComplete(this)
-        } catch (e: Exception) {
-            handleError(e)
+        if (releaseMode != ReleaseMode.LOOP) {
+            stop()
         }
+        ref.handleComplete(this)
     }
 
     @Suppress("UNUSED_PARAMETER")
@@ -278,24 +269,15 @@ class WrappedPlayer internal constructor(
     }
 
     fun onSeekComplete() {
-        try {
-            ref.handleSeekComplete(this)
-        } catch (e: Exception) {
-            handleError(e)
-        }
+        ref.handleSeekComplete(this)
     }
 
     fun handleLog(message: String) {
-        ref.handleLog(
-            this,
-            message,
-        )
+        ref.handleLog(this, message)
     }
 
     fun handleError(error: Throwable) {
-        ref.handleError(
-            this, error,
-        )
+        ref.handleError(this, error)
     }
 
     fun onError(what: Int, extra: Int): Boolean {
