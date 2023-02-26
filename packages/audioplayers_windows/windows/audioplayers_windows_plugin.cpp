@@ -80,9 +80,9 @@ namespace {
         virtual ~AudioplayersWindowsPlugin();
 
     private:
-
         std::map <std::string, std::unique_ptr<AudioPlayer>> audioPlayers;
 
+        static inline BinaryMessenger *binaryMessenger;
         static inline std::unique_ptr <MethodChannel<EncodableValue>> channel{};
         static inline std::unique_ptr <MethodChannel<EncodableValue>> globalChannel{};
         static inline std::unique_ptr <EventChannel<EncodableValue>> globalEvents;
@@ -104,18 +104,16 @@ namespace {
     // static
     void AudioplayersWindowsPlugin::RegisterWithRegistrar(
             PluginRegistrarWindows *registrar) {
-        channel =
-                std::make_unique < MethodChannel < EncodableValue >> (
-                        registrar->messenger(), "xyz.luan/audioplayers",
-                                &StandardMethodCodec::GetInstance());
-        globalChannel =
-                std::make_unique < MethodChannel < EncodableValue >> (
-                        registrar->messenger(), "xyz.luan/audioplayers.global",
-                                &StandardMethodCodec::GetInstance());
-        globalEvents =
-                std::make_unique < EventChannel < EncodableValue >> (
-                        registrar->messenger(), "xyz.luan/audioplayers.global/events",
-                                &StandardMethodCodec::GetInstance());
+        binaryMessenger = registrar->messenger();
+        channel = std::make_unique < MethodChannel < EncodableValue >> (
+                binaryMessenger, "xyz.luan/audioplayers",
+                        &StandardMethodCodec::GetInstance());
+        globalChannel = std::make_unique < MethodChannel < EncodableValue >> (
+                binaryMessenger, "xyz.luan/audioplayers.global",
+                        &StandardMethodCodec::GetInstance());
+        globalEvents = std::make_unique < EventChannel < EncodableValue >> (
+                binaryMessenger, "xyz.luan/audioplayers.global/events",
+                        &StandardMethodCodec::GetInstance());
 
         auto plugin = std::make_unique<AudioplayersWindowsPlugin>();
 
@@ -243,6 +241,11 @@ namespace {
     }
 
     void AudioplayersWindowsPlugin::CreatePlayer(std::string playerId) {
+        auto events = std::make_unique < EventChannel < EncodableValue >> (
+                binaryMessenger, "xyz.luan/audioplayers/events/" + playerId,
+                        &StandardMethodCodec::GetInstance());
+
+        // TODO(Gustl22): add event channel to player
         auto player = std::make_unique<AudioPlayer>(playerId, channel.get());
         audioPlayers.insert(std::make_pair(playerId, std::move(player)));
     }
