@@ -6,6 +6,7 @@
 // For getPlatformVersion; remove unless needed for your plugin implementation.
 #include <VersionHelpers.h>
 
+#include <flutter/event_channel.h>
 #include <flutter/method_channel.h>
 #include <flutter/plugin_registrar_windows.h>
 #include <flutter/standard_method_codec.h>
@@ -16,6 +17,7 @@
 
 #include <map>
 #include <memory>
+#include <mutex>
 #include <sstream>
 
 namespace {
@@ -36,6 +38,34 @@ T GetArgument(const std::string arg, const EncodableValue* args, T fallback) {
   return result;
 }
 
+template<typename T = EncodableValue>
+class EventStreamHandler: public StreamHandler<T> {
+public:
+    EventStreamHandler () = default;
+    virtual ~EventStreamHandler () = default;
+
+    void on_callback (EncodableValue _data) {
+        std::unique_lock<std::mutex> _ul (m_mtx);
+        if (m_sink.get ())
+            m_sink.get ()->Success (_data);
+    }
+protected:
+    std::unique_ptr<StreamHandlerError<T>> OnListenInternal (const T *arguments, std::unique_ptr<EventSink<T>> &&events) override {
+        std::unique_lock<std::mutex> _ul (m_mtx);
+        m_sink = std::move (events);
+        return nullptr;
+    }
+    std::unique_ptr<StreamHandlerError<T>> OnCancelInternal (const T *arguments) override {
+        std::unique_lock<std::mutex> _ul (m_mtx);
+        m_sink.release ();
+        return nullptr;
+    }
+private:
+    EncodableValue m_value;
+    std::mutex m_mtx;
+    std::unique_ptr<EventSink<T>> m_sink;
+};
+
 class AudioplayersWindowsPlugin : public Plugin {
  public:
   static void RegisterWithRegistrar(PluginRegistrarWindows *registrar);
@@ -50,6 +80,7 @@ class AudioplayersWindowsPlugin : public Plugin {
 
   static inline std::unique_ptr<MethodChannel<EncodableValue>> channel{};
   static inline std::unique_ptr<MethodChannel<EncodableValue>> globalChannel{};
+  static inline std::unique_ptr<EventChannel<EncodableValue>> globalEvents;
 
   // Called when a method is called on this plugin's channel from Dart.
   void HandleMethodCall(
@@ -74,6 +105,10 @@ void AudioplayersWindowsPlugin::RegisterWithRegistrar(
       std::make_unique<MethodChannel<EncodableValue>>(
           registrar->messenger(), "xyz.luan/audioplayers.global",
           &StandardMethodCodec::GetInstance());
+  globalEvents =
+      std::make_unique<EventChannel<EncodableValue>>(
+          registrar->messenger(), "xyz.luan/audioplayers.global/events",
+          &StandardMethodCodec::GetInstance());
 
   auto plugin = std::make_unique<AudioplayersWindowsPlugin>();
 
@@ -87,6 +122,11 @@ void AudioplayersWindowsPlugin::RegisterWithRegistrar(
         plugin_pointer->HandleGlobalMethodCall(call, std::move(result));
       });
 
+  EventStreamHandler<>* _globalEventStreamHandler = new EventStreamHandler<>();
+  auto _obj_stm_handle = static_cast<StreamHandler<EncodableValue>*>(_globalEventStreamHandler);
+  std::unique_ptr<StreamHandler<EncodableValue>> _ptr {_obj_stm_handle};
+  globalEvents->SetStreamHandler(std::move (_ptr));
+
   registrar->AddPlugin(std::move(plugin));
 }
 
@@ -98,30 +138,10 @@ void AudioplayersWindowsPlugin::HandleGlobalMethodCall(
     const MethodCall<EncodableValue> &method_call,
     std::unique_ptr<MethodResult<EncodableValue>> result) {
 
-  auto args = method_call.arguments();
+  // auto args = method_call.arguments();
 
-  if (method_call.method_name().compare("changeLogLevel") == 0) {
-    // TODO
-    auto valueName = GetArgument<std::string>("value", args, std::string());
-    if(valueName.empty()) {
-        Logger::Error("Null value received on changeLogLevel");
-        result->Success(EncodableValue(0));
-        return;
-    }
-    LogLevel value;
-    if (valueName.compare("LogLevel.info") == 0) {
-      value = LogLevel::Info;
-    } else if (valueName.compare("LogLevel.error") == 0) {
-      value = LogLevel::Error;
-    } else if (valueName.compare("LogLevel.none") == 0) {
-      value = LogLevel::None;
-    } else {
-      Logger::Error("Invalid value received on changeLogLevel");
-      result->Success(EncodableValue(0));
-      return;
-    }
-
-    Logger::logLevel = value;
+  if (method_call.method_name().compare("setGlobalAudioContext") == 0) {
+    Logger::Error("Setting AudioContext is not supported for Windows");
   }
 
   result->Success(EncodableValue(1));
