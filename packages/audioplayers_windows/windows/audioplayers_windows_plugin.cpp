@@ -91,7 +91,9 @@ class AudioplayersWindowsPlugin : public Plugin {
       const MethodCall<EncodableValue> &method_call,
       std::unique_ptr<MethodResult<EncodableValue>> result);
 
-  AudioPlayer* GetPlayer(std::string playerId, std::string mode);
+  void CreatePlayer(std::string playerId);
+
+  AudioPlayer* GetPlayer(std::string playerId);
 };
 
 // static
@@ -158,8 +160,14 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
     Logger::Error("Call missing mandatory parameter playerId.");
     result->Success(EncodableValue(0));
   }
-  auto mode = GetArgument<std::string>("mode", args, std::string());
-  auto player = GetPlayer(playerId, mode);
+
+    if (method_call.method_name().compare("create") == 0) {
+        CreatePlayer(playerId);
+        result->Success(EncodableValue(1));
+        return;
+    }
+
+  auto player = GetPlayer(playerId);
 
   if (method_call.method_name().compare("pause") == 0) {
     player->Pause();
@@ -229,16 +237,14 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
   }
 }
 
-AudioPlayer* AudioplayersWindowsPlugin::GetPlayer(std::string playerId, std::string mode) {
-  auto searchPlayer = audioPlayers.find(playerId);
-  if(searchPlayer != audioPlayers.end()) {
-    return searchPlayer->second.get();
-  } else {
+void AudioplayersWindowsPlugin::CreatePlayer(std::string playerId) {
     auto player = std::make_unique<AudioPlayer>(playerId, channel.get());
-    auto playerPtr = player.get();
     audioPlayers.insert(std::make_pair(playerId, std::move(player)));
-    return playerPtr;
-  }
+}
+
+AudioPlayer* AudioplayersWindowsPlugin::GetPlayer(std::string playerId) {
+  auto searchPlayer = audioPlayers.find(playerId);
+  return searchPlayer->second.get();
 }
 
 }  // namespace
