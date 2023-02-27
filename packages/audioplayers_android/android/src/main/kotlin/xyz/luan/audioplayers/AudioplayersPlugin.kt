@@ -29,8 +29,8 @@ typealias FlutterHandler = (call: MethodCall, response: MethodChannel.Result) ->
 class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
     private val mainScope = CoroutineScope(Dispatchers.Main)
 
-    private lateinit var channel: MethodChannel
-    private lateinit var globalChannel: MethodChannel
+    private lateinit var methods: MethodChannel
+    private lateinit var globalMethods: MethodChannel
     private lateinit var globalEvents: EventHandler
     private lateinit var context: Context
     private lateinit var binaryMessenger: BinaryMessenger
@@ -46,11 +46,11 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
         context = binding.applicationContext
         binaryMessenger = binding.binaryMessenger
         soundPoolManager = SoundPoolManager(this)
-        channel = MethodChannel(binding.binaryMessenger, "xyz.luan/audioplayers")
-        channel.setMethodCallHandler { call, response -> safeCall(call, response, ::handler) }
-        globalChannel = MethodChannel(binding.binaryMessenger, "xyz.luan/audioplayers.global")
-        globalChannel.setMethodCallHandler { call, response -> safeCall(call, response, ::globalHandler) }
-        updateRunnable = UpdateRunnable(players, channel, handler, this)
+        methods = MethodChannel(binding.binaryMessenger, "xyz.luan/audioplayers")
+        methods.setMethodCallHandler { call, response -> safeCall(call, response, ::handler) }
+        globalMethods = MethodChannel(binding.binaryMessenger, "xyz.luan/audioplayers.global")
+        globalMethods.setMethodCallHandler { call, response -> safeCall(call, response, ::globalHandler) }
+        updateRunnable = UpdateRunnable(players, methods, handler, this)
         globalEvents = EventHandler(EventChannel(binding.binaryMessenger, "xyz.luan/audioplayers.global/events"))
     }
 
@@ -237,18 +237,18 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
 
     private class UpdateRunnable(
         mediaPlayers: ConcurrentMap<String, WrappedPlayer>,
-        channel: MethodChannel,
+        methodChannel: MethodChannel,
         handler: Handler,
         updateCallback: IUpdateCallback,
     ) : Runnable {
         private val mediaPlayers = WeakReference(mediaPlayers)
-        private val channel = WeakReference(channel)
+        private val methodChannel = WeakReference(methodChannel)
         private val handler = WeakReference(handler)
         private val updateCallback = WeakReference(updateCallback)
 
         override fun run() {
             val mediaPlayers = mediaPlayers.get()
-            val channel = channel.get()
+            val channel = methodChannel.get()
             val handler = handler.get()
             val updateCallback = updateCallback.get()
             if (mediaPlayers == null || channel == null || handler == null || updateCallback == null) {
@@ -300,11 +300,11 @@ private fun MethodCall.audioContext(): AudioContextAndroid {
     )
 }
 
-class EventHandler(channel: EventChannel) : EventChannel.StreamHandler {
+class EventHandler(eventChannel: EventChannel) : EventChannel.StreamHandler {
     private var eventSink: EventChannel.EventSink? = null
 
     init {
-        channel.setStreamHandler(this)
+        eventChannel.setStreamHandler(this)
     }
 
     override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
