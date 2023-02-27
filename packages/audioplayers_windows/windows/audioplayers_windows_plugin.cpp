@@ -241,12 +241,11 @@ namespace {
     }
 
     void AudioplayersWindowsPlugin::CreatePlayer(std::string playerId) {
-        auto events = std::make_unique < EventChannel < EncodableValue >> (
+        auto eventChannel = std::make_unique < EventChannel < EncodableValue >> (
                 binaryMessenger, "xyz.luan/audioplayers/events/" + playerId,
                         &StandardMethodCodec::GetInstance());
 
-        // TODO(Gustl22): add event channel to player
-        auto player = std::make_unique<AudioPlayer>(playerId, channel.get());
+        auto player = std::make_unique<AudioPlayer>(playerId, channel.get(), eventChannel.get());
         audioPlayers.insert(std::make_pair(playerId, std::move(player)));
     }
 
