@@ -82,9 +82,9 @@ class AudioplayersWindowsPlugin : public Plugin {
     std::map<std::string, std::unique_ptr<AudioPlayer>> audioPlayers;
 
     static inline BinaryMessenger *binaryMessenger;
-    static inline std::unique_ptr<MethodChannel<EncodableValue>> channel{};
+    static inline std::unique_ptr<MethodChannel<EncodableValue>> methods{};
     static inline std::unique_ptr<MethodChannel<EncodableValue>>
-        globalChannel{};
+        globalMethods{};
     static inline std::unique_ptr<EventChannel<EncodableValue>> globalEvents;
 
     // Called when a method is called on this plugin's channel from Dart.
@@ -104,10 +104,10 @@ class AudioplayersWindowsPlugin : public Plugin {
 void AudioplayersWindowsPlugin::RegisterWithRegistrar(
     PluginRegistrarWindows *registrar) {
     binaryMessenger = registrar->messenger();
-    channel = std::make_unique<MethodChannel<EncodableValue>>(
+    methods = std::make_unique<MethodChannel<EncodableValue>>(
         binaryMessenger, "xyz.luan/audioplayers",
         &StandardMethodCodec::GetInstance());
-    globalChannel = std::make_unique<MethodChannel<EncodableValue>>(
+    globalMethods = std::make_unique<MethodChannel<EncodableValue>>(
         binaryMessenger, "xyz.luan/audioplayers.global",
         &StandardMethodCodec::GetInstance());
     globalEvents = std::make_unique<EventChannel<EncodableValue>>(
@@ -116,12 +116,12 @@ void AudioplayersWindowsPlugin::RegisterWithRegistrar(
 
     auto plugin = std::make_unique<AudioplayersWindowsPlugin>();
 
-    channel->SetMethodCallHandler(
+    methods->SetMethodCallHandler(
         [plugin_pointer = plugin.get()](const auto &call, auto result) {
             plugin_pointer->HandleMethodCall(call, std::move(result));
         });
 
-    globalChannel->SetMethodCallHandler(
+    globalMethods->SetMethodCallHandler(
         [plugin_pointer = plugin.get()](const auto &call, auto result) {
             plugin_pointer->HandleGlobalMethodCall(call, std::move(result));
         });
@@ -243,12 +243,12 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
 }
 
 void AudioplayersWindowsPlugin::CreatePlayer(std::string playerId) {
-    auto eventChannel = std::make_unique<EventChannel<EncodableValue>>(
+    auto events = std::make_unique<EventChannel<EncodableValue>>(
         binaryMessenger, "xyz.luan/audioplayers/events/" + playerId,
         &StandardMethodCodec::GetInstance());
 
-    auto player = std::make_unique<AudioPlayer>(playerId, channel.get(),
-                                                eventChannel.get());
+    auto player =
+        std::make_unique<AudioPlayer>(playerId, methods.get(), events.get());
     audioPlayers.insert(std::make_pair(playerId, std::move(player)));
 }
 

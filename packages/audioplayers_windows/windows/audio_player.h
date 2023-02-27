@@ -1,9 +1,9 @@
 #pragma once
 
 #include <flutter/event_channel.h>
-#include <flutter/method_channel.h>
 #include <flutter/event_stream_handler.h>
 #include <flutter/event_stream_handler_functions.h>
+#include <flutter/method_channel.h>
 #include <flutter/plugin_registrar_windows.h>
 #include <flutter/standard_method_codec.h>
 #include <windows.h>
@@ -15,13 +15,6 @@
 #include <unknwn.h>
 #include <winrt/Windows.Foundation.Collections.h>
 #include "winrt/Windows.System.h"
-
-#include <map>
-#include <memory>
-#include <sstream>
-#include <string>
-#include <wincodec.h>
-#include <future>
 
 #include <unknwn.h>
 
@@ -37,32 +30,27 @@
 #include <mferror.h>
 #include <mfmediaengine.h>
 
-// STL headers
-#include <functional>
-#include <memory>
-
 #include <Audioclient.h>
 
-#include "MediaEngineWrapper.h"
-#include "MediaFoundationHelpers.h"
-
+// STL headers
+#include <functional>
+#include <future>
 #include <map>
 #include <memory>
 #include <sstream>
 #include <string>
 #include <wincodec.h>
 
+#include "MediaEngineWrapper.h"
+#include "MediaFoundationHelpers.h"
+
 using namespace winrt;
 
 class AudioPlayer {
-
-public:
-
-    AudioPlayer(
-            std::string playerId,
-            flutter::MethodChannel <flutter::EncodableValue> *methodChannel,
-            flutter::EventChannel <flutter::EncodableValue> *eventChannel
-    );
+   public:
+    AudioPlayer(std::string playerId,
+                flutter::MethodChannel<flutter::EncodableValue> *methodChannel,
+                flutter::EventChannel<flutter::EncodableValue> *eventChannel);
 
     void Dispose();
 
@@ -92,11 +80,10 @@ public:
 
     virtual ~AudioPlayer();
 
-private:
-
+   private:
     // Media members
     media::MFPlatformRef m_mfPlatform;
-    winrt::com_ptr <media::MediaEngineWrapper> m_mediaEngineWrapper;
+    winrt::com_ptr<media::MediaEngineWrapper> m_mediaEngineWrapper;
 
     bool _isInitialized = false;
     std::string _url{};
@@ -105,7 +92,8 @@ private:
 
     void OnMediaError(MF_MEDIA_ENGINE_ERR error, HRESULT hr);
 
-    void OnMediaStateChange(media::MediaEngineWrapper::BufferingState bufferingState);
+    void OnMediaStateChange(
+        media::MediaEngineWrapper::BufferingState bufferingState);
 
     void OnPlaybackEnded();
 
@@ -117,6 +105,5 @@ private:
 
     std::string _playerId;
 
-    flutter::MethodChannel <flutter::EncodableValue> *_methodChannel;
-
+    flutter::MethodChannel<flutter::EncodableValue> *_methodChannel;
 };
