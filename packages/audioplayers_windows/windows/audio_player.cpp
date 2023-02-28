@@ -77,7 +77,7 @@ void AudioPlayer::OnMediaError(MF_MEDIA_ENGINE_ERR error, HRESULT hr) {
                             (int)wstr.size(), &ret[0], size, NULL, NULL);
 
         this->_eventHandler->Error(std::to_string(error), "MediaEngine error",
-                                   ret);
+                                   flutter::EncodableValue(ret));
     }
 }
 
@@ -100,7 +100,7 @@ void AudioPlayer::OnPlaybackEnded() {
     if (this->_eventHandler) {
         this->_eventHandler->Success(
             std::make_unique<flutter::EncodableValue>(flutter::EncodableMap(
-                {{flutter::EncodableValue("method"),
+                {{flutter::EncodableValue("event"),
                   flutter::EncodableValue("audio.onComplete")},
                  {flutter::EncodableValue("value"),
                   flutter::EncodableValue(true)}})));
@@ -111,7 +111,7 @@ void AudioPlayer::OnTimeUpdate() {
     if (this->_eventHandler) {
         this->_eventHandler->Success(
             std::make_unique<flutter::EncodableValue>(flutter::EncodableMap(
-                {{flutter::EncodableValue("method"),
+                {{flutter::EncodableValue("event"),
                   flutter::EncodableValue("audio.onCurrentPosition")},
                  {flutter::EncodableValue("value"),
                   flutter::EncodableValue(
@@ -124,7 +124,7 @@ void AudioPlayer::OnDurationUpdate() {
     if (this->_eventHandler) {
         this->_eventHandler->Success(
             std::make_unique<flutter::EncodableValue>(flutter::EncodableMap(
-                {{flutter::EncodableValue("method"),
+                {{flutter::EncodableValue("event"),
                   flutter::EncodableValue("audio.onDuration")},
                  {flutter::EncodableValue("value"),
                   flutter::EncodableValue(
@@ -137,7 +137,7 @@ void AudioPlayer::OnSeekCompleted() {
     if (this->_eventHandler) {
         this->_eventHandler->Success(
             std::make_unique<flutter::EncodableValue>(flutter::EncodableMap(
-                {{flutter::EncodableValue("method"),
+                {{flutter::EncodableValue("event"),
                   flutter::EncodableValue("audio.onSeekComplete")},
                  {flutter::EncodableValue("value"),
                   flutter::EncodableValue(true)}})));

@@ -217,8 +217,7 @@ void AudioplayersWindowsPlugin::CreatePlayer(std::string playerId) {
     std::unique_ptr<StreamHandler<EncodableValue>> _ptr{_obj_stm_handle};
     eventChannel->SetStreamHandler(std::move(_ptr));
 
-    auto player =
-        std::make_unique<AudioPlayer>(playerId, eventHandler);
+    auto player = std::make_unique<AudioPlayer>(playerId, eventHandler);
     audioPlayers.insert(std::make_pair(playerId, std::move(player)));
 }
 
