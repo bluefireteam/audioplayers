@@ -14,8 +14,8 @@
 using namespace winrt;
 
 AudioPlayer::AudioPlayer(std::string playerId,
-                         EventStreamHandler<>* eventChannel)
-    : _playerId(playerId), _eventChannel(eventChannel) {
+                         EventStreamHandler<>* eventHandler)
+    : _playerId(playerId), _eventHandler(eventHandler) {
     m_mfPlatform.Startup();
 
     // Callbacks invoked by the media engine wrapper
@@ -65,7 +65,7 @@ AudioPlayer::~AudioPlayer() {}
 void AudioPlayer::OnMediaError(MF_MEDIA_ENGINE_ERR error, HRESULT hr) {
     LOG_HR_MSG(hr, "MediaEngine error (%d)", error);
     // TODO(Gustl22): adapt log message to dart error event
-    if (this->_eventChannel) {
+    if (this->_eventHandler) {
         _com_error err(hr);
 
         std::wstring wstr(err.ErrorMessage());
@@ -76,7 +76,7 @@ void AudioPlayer::OnMediaError(MF_MEDIA_ENGINE_ERR error, HRESULT hr) {
         WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, &wstr[0],
                             (int)wstr.size(), &ret[0], size, NULL, NULL);
 
-        this->_eventChannel->Error(std::to_string(error), "MediaEngine error",
+        this->_eventHandler->Error(std::to_string(error), "MediaEngine error",
                                    ret);
     }
 }
@@ -97,8 +97,8 @@ void AudioPlayer::OnPlaybackEnded() {
     if (GetLooping()) {
         Play();
     }
-    if (this->_eventChannel) {
-        this->_eventChannel->Success(
+    if (this->_eventHandler) {
+        this->_eventHandler->Success(
             std::make_unique<flutter::EncodableValue>(flutter::EncodableMap(
                 {{flutter::EncodableValue("method"),
                   flutter::EncodableValue("audio.onComplete")},
@@ -108,8 +108,8 @@ void AudioPlayer::OnPlaybackEnded() {
 }
 
 void AudioPlayer::OnTimeUpdate() {
-    if (this->_eventChannel) {
-        this->_eventChannel->Success(
+    if (this->_eventHandler) {
+        this->_eventHandler->Success(
             std::make_unique<flutter::EncodableValue>(flutter::EncodableMap(
                 {{flutter::EncodableValue("method"),
                   flutter::EncodableValue("audio.onCurrentPosition")},
@@ -121,8 +121,8 @@ void AudioPlayer::OnTimeUpdate() {
 }
 
 void AudioPlayer::OnDurationUpdate() {
-    if (this->_eventChannel) {
-        this->_eventChannel->Success(
+    if (this->_eventHandler) {
+        this->_eventHandler->Success(
             std::make_unique<flutter::EncodableValue>(flutter::EncodableMap(
                 {{flutter::EncodableValue("method"),
                   flutter::EncodableValue("audio.onDuration")},
@@ -134,8 +134,8 @@ void AudioPlayer::OnDurationUpdate() {
 }
 
 void AudioPlayer::OnSeekCompleted() {
-    if (this->_eventChannel) {
-        this->_eventChannel->Success(
+    if (this->_eventHandler) {
+        this->_eventHandler->Success(
             std::make_unique<flutter::EncodableValue>(flutter::EncodableMap(
                 {{flutter::EncodableValue("method"),
                   flutter::EncodableValue("audio.onSeekComplete")},
@@ -153,7 +153,7 @@ void AudioPlayer::Dispose() {
     if (_isInitialized) {
         m_mediaEngineWrapper->Pause();
     }
-    _eventChannel = nullptr;
+    _eventHandler = nullptr;
     _isInitialized = false;
 }
 

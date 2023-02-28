@@ -11,7 +11,7 @@ class EventStreamHandler : public StreamHandler<T> {
 
     virtual ~EventStreamHandler() = default;
 
-    void Success(std::unique_ptr<EncodableValue> _data) {
+    void Success(std::unique_ptr<T> _data) {
         std::unique_lock<std::mutex> _ul(m_mtx);
         if (m_sink.get()) m_sink.get()->Success(std::move(_data));
     }
@@ -39,7 +39,6 @@ class EventStreamHandler : public StreamHandler<T> {
     }
 
    private:
-    EncodableValue m_value;
     std::mutex m_mtx;
     std::unique_ptr<EventSink<T>> m_sink;
 };

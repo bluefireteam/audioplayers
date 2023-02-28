@@ -101,5 +101,5 @@ class AudioPlayer {
 
     std::string _playerId;
 
-    EventStreamHandler<>* _eventChannel;
+    EventStreamHandler<>* _eventHandler;
 };
