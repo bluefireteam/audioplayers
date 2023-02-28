@@ -76,6 +76,8 @@ class AudioPlayer {
 
     virtual ~AudioPlayer();
 
+    EventStreamHandler<>* _eventHandler;
+    
    private:
     // Media members
     media::MFPlatformRef m_mfPlatform;
@@ -100,6 +102,4 @@ class AudioPlayer {
     void OnSeekCompleted();
 
     std::string _playerId;
-
-    EventStreamHandler<>* _eventHandler;
 };

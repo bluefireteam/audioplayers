@@ -191,6 +191,12 @@ void AudioPlayer::Pause() { m_mediaEngineWrapper->Pause(); }
 void AudioPlayer::Resume() {
     m_mediaEngineWrapper->Resume();
     OnDurationUpdate();
+    this->_eventHandler->Success(
+            std::make_unique<flutter::EncodableValue>(flutter::EncodableMap(
+                {{flutter::EncodableValue("event"),
+                  flutter::EncodableValue("audio.onLog")},
+                 {flutter::EncodableValue("value"),
+                  flutter::EncodableValue("RESUME")}})));
 }
 
 int64_t AudioPlayer::GetPosition() {

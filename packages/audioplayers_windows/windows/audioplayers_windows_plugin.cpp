@@ -15,7 +15,6 @@
 #include <memory>
 #include <sstream>
 
-#include "Logger.h"
 #include "audio_player.h"
 
 namespace {
@@ -110,7 +109,13 @@ void AudioplayersWindowsPlugin::HandleGlobalMethodCall(
     // auto args = method_call.arguments();
 
     if (method_call.method_name().compare("setGlobalAudioContext") == 0) {
-        Logger::Error("Setting AudioContext is not supported for Windows");
+        globalEvents->Success(
+            std::make_unique<flutter::EncodableValue>(flutter::EncodableMap(
+                {{flutter::EncodableValue("event"),
+                  flutter::EncodableValue("audio.onGlobalLog")},
+                 {flutter::EncodableValue("value"),
+                  flutter::EncodableValue(
+                      "Setting AudioContext is not supported for Windows")}})));
     }
 
     result->Success(EncodableValue(1));
@@ -123,7 +128,8 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
 
     auto playerId = GetArgument<std::string>("playerId", args, std::string());
     if (playerId.empty()) {
-        Logger::Error("Call missing mandatory parameter playerId.");
+        globalEvents->Error("", "Call missing mandatory parameter playerId.",
+                            flutter::EncodableValue(""));
         result->Success(EncodableValue(0));
     }
 
@@ -158,7 +164,9 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
         auto url = GetArgument<std::string>("url", args, std::string());
 
         if (url.empty()) {
-            Logger::Error("Null URL received on setSourceUrl");
+            player->_eventHandler->Error("",
+                                         "Null URL received on setSourceUrl",
+                                         flutter::EncodableValue(""));
             result->Success(EncodableValue(0));
             return;
         }
@@ -167,7 +175,9 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
             player->SetSourceUrl(url);
             result->Success(EncodableValue(1));
         } catch (...) {
-            Logger::Error("Error setting url to '" + url + "'.");
+            player->_eventHandler->Error("",
+                                         "Error setting url to '" + url + "'.",
+                                         flutter::EncodableValue(""));
             result->Success(EncodableValue(0));
         }
     } else if (method_call.method_name().compare("getDuration") == 0) {
@@ -186,8 +196,9 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
         auto releaseMode =
             GetArgument<std::string>("releaseMode", args, std::string());
         if (releaseMode.empty()) {
-            Logger::Error(
-                "Error calling setReleaseMode, releaseMode cannot be null");
+            player->_eventHandler->Error(
+                "", "Error calling setReleaseMode, releaseMode cannot be null",
+                flutter::EncodableValue(""));
             result->Success(EncodableValue(0));
             return;
         }
