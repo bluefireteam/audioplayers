@@ -11,12 +11,10 @@
 #undef GetCurrentTime
 
 #include <shobjidl.h>
-
 #include <unknwn.h>
 #include <winrt/Windows.Foundation.Collections.h>
-#include "winrt/Windows.System.h"
 
-#include <unknwn.h>
+#include "winrt/Windows.System.h"
 
 // Include prior to C++/WinRT Headers
 #include <wil/cppwinrt.h>
@@ -26,11 +24,10 @@
 #include <wil/result_macros.h>
 
 // MediaFoundation headers
+#include <Audioclient.h>
 #include <mfapi.h>
 #include <mferror.h>
 #include <mfmediaengine.h>
-
-#include <Audioclient.h>
 
 // STL headers
 #include <functional>
@@ -41,6 +38,7 @@
 #include <string>
 #include <wincodec.h>
 
+#include "event_stream_handler.h"
 #include "MediaEngineWrapper.h"
 #include "MediaFoundationHelpers.h"
 
@@ -48,9 +46,7 @@ using namespace winrt;
 
 class AudioPlayer {
    public:
-    AudioPlayer(std::string playerId,
-                flutter::MethodChannel<flutter::EncodableValue> *methodChannel,
-                flutter::EventChannel<flutter::EncodableValue> *eventChannel);
+    AudioPlayer(std::string playerId, EventStreamHandler<>* eventHandler);
 
     void Dispose();
 
@@ -105,5 +101,5 @@ class AudioPlayer {
 
     std::string _playerId;
 
-    flutter::MethodChannel<flutter::EncodableValue> *_methodChannel;
+    EventStreamHandler<>* _eventChannel;
 };

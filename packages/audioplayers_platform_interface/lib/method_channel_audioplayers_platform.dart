@@ -187,6 +187,7 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform {
               eventType: PlayerEventType.duration,
               duration: duration,
             );
+          // TODO(Gustl22): maybe rename to audio.onPosition
           case 'audio.onCurrentPosition':
             final millis = map.getInt('value');
             final position = Duration(milliseconds: millis);

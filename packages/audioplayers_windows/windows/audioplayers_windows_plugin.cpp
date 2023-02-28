@@ -13,7 +13,6 @@
 
 #include <map>
 #include <memory>
-#include <mutex>
 #include <sstream>
 
 #include "Logger.h"
@@ -37,39 +36,6 @@ T GetArgument(const std::string arg, const EncodableValue *args, T fallback) {
     return result;
 }
 
-template <typename T = EncodableValue>
-class EventStreamHandler : public StreamHandler<T> {
-   public:
-    EventStreamHandler() = default;
-
-    virtual ~EventStreamHandler() = default;
-
-    void on_callback(EncodableValue _data) {
-        std::unique_lock<std::mutex> _ul(m_mtx);
-        if (m_sink.get()) m_sink.get()->Success(_data);
-    }
-
-   protected:
-    std::unique_ptr<StreamHandlerError<T>> OnListenInternal(
-        const T *arguments, std::unique_ptr<EventSink<T>> &&events) override {
-        std::unique_lock<std::mutex> _ul(m_mtx);
-        m_sink = std::move(events);
-        return nullptr;
-    }
-
-    std::unique_ptr<StreamHandlerError<T>> OnCancelInternal(
-        const T *arguments) override {
-        std::unique_lock<std::mutex> _ul(m_mtx);
-        m_sink.release();
-        return nullptr;
-    }
-
-   private:
-    EncodableValue m_value;
-    std::mutex m_mtx;
-    std::unique_ptr<EventSink<T>> m_sink;
-};
-
 class AudioplayersWindowsPlugin : public Plugin {
    public:
     static void RegisterWithRegistrar(PluginRegistrarWindows *registrar);
@@ -85,7 +51,7 @@ class AudioplayersWindowsPlugin : public Plugin {
     static inline std::unique_ptr<MethodChannel<EncodableValue>> methods{};
     static inline std::unique_ptr<MethodChannel<EncodableValue>>
         globalMethods{};
-    static inline std::unique_ptr<EventChannel<EncodableValue>> globalEvents;
+    static inline std::unique_ptr<EventStreamHandler<>> globalEvents{};
 
     // Called when a method is called on this plugin's channel from Dart.
     void HandleMethodCall(const MethodCall<EncodableValue> &method_call,
@@ -110,7 +76,7 @@ void AudioplayersWindowsPlugin::RegisterWithRegistrar(
     globalMethods = std::make_unique<MethodChannel<EncodableValue>>(
         binaryMessenger, "xyz.luan/audioplayers.global",
         &StandardMethodCodec::GetInstance());
-    globalEvents = std::make_unique<EventChannel<EncodableValue>>(
+    auto _globalEventChannel = std::make_unique<EventChannel<EncodableValue>>(
         binaryMessenger, "xyz.luan/audioplayers.global/events",
         &StandardMethodCodec::GetInstance());
 
@@ -125,13 +91,11 @@ void AudioplayersWindowsPlugin::RegisterWithRegistrar(
         [plugin_pointer = plugin.get()](const auto &call, auto result) {
             plugin_pointer->HandleGlobalMethodCall(call, std::move(result));
         });
-
-    EventStreamHandler<> *_globalEventStreamHandler =
-        new EventStreamHandler<>();
+    globalEvents = std::make_unique<EventStreamHandler<>>();
     auto _obj_stm_handle =
-        static_cast<StreamHandler<EncodableValue> *>(_globalEventStreamHandler);
+        static_cast<StreamHandler<EncodableValue> *>(globalEvents.get());
     std::unique_ptr<StreamHandler<EncodableValue>> _ptr{_obj_stm_handle};
-    globalEvents->SetStreamHandler(std::move(_ptr));
+    _globalEventChannel->SetStreamHandler(std::move(_ptr));
 
     registrar->AddPlugin(std::move(plugin));
 }
@@ -243,12 +207,18 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
 }
 
 void AudioplayersWindowsPlugin::CreatePlayer(std::string playerId) {
-    auto events = std::make_unique<EventChannel<EncodableValue>>(
+    auto eventChannel = std::make_unique<EventChannel<EncodableValue>>(
         binaryMessenger, "xyz.luan/audioplayers/events/" + playerId,
         &StandardMethodCodec::GetInstance());
 
+    auto eventHandler = new EventStreamHandler<>();
+    auto _obj_stm_handle =
+        static_cast<StreamHandler<EncodableValue> *>(eventHandler);
+    std::unique_ptr<StreamHandler<EncodableValue>> _ptr{_obj_stm_handle};
+    eventChannel->SetStreamHandler(std::move(_ptr));
+
     auto player =
-        std::make_unique<AudioPlayer>(playerId, methods.get(), events.get());
+        std::make_unique<AudioPlayer>(playerId, eventHandler);
     audioPlayers.insert(std::make_pair(playerId, std::move(player)));
 }
 
