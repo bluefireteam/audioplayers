@@ -13,7 +13,7 @@ class EventStreamHandler : public StreamHandler<T> {
 
     void Success(std::unique_ptr<T> _data) {
         std::unique_lock<std::mutex> _ul(m_mtx);
-        if (m_sink.get()) m_sink.get()->Success(std::move(_data));
+        if (m_sink.get()) m_sink.get()->Success(_data.get());
     }
 
     void Error(const std::string& error_code, const std::string& error_message,
