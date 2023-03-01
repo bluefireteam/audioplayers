@@ -102,82 +102,87 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
             return
         }
         val player = getPlayer(playerId)
-        when (call.method) {
-            "dispose" -> {
-                player.dispose()
-                players.remove(playerId)
-            }
-
-            "setSourceUrl" -> {
-                val url = call.argument<String>("url") ?: error("url is required")
-                val isLocal = call.argument<Boolean>("isLocal") ?: false
-                player.source = UrlSource(url, isLocal)
-            }
-
-            "setSourceBytes" -> {
-                val bytes = call.argument<ByteArray>("bytes") ?: error("bytes are required")
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-                    error("Operation not supported on Android <= M")
+        try {
+            when (call.method) {
+                "dispose" -> {
+                    player.dispose()
+                    players.remove(playerId)
                 }
-                player.source = BytesSource(bytes)
-            }
 
-            "resume" -> player.play()
-            "pause" -> player.pause()
-            "stop" -> player.stop()
-            "release" -> player.release()
-            "seek" -> {
-                val position = call.argument<Int>("position") ?: error("position is required")
-                player.seek(position)
-            }
+                "setSourceUrl" -> {
+                    val url = call.argument<String>("url") ?: error("url is required")
+                    val isLocal = call.argument<Boolean>("isLocal") ?: false
+                    player.source = UrlSource(url, isLocal)
+                }
 
-            "setVolume" -> {
-                val volume = call.argument<Double>("volume") ?: error("volume is required")
-                player.volume = volume.toFloat()
-            }
+                "setSourceBytes" -> {
+                    val bytes = call.argument<ByteArray>("bytes") ?: error("bytes are required")
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+                        error("Operation not supported on Android <= M")
+                    }
+                    player.source = BytesSource(bytes)
+                }
 
-            "setBalance" -> {
-                handleError(player, NotImplementedError("setBalance is not currently implemented on Android"))
-                response.notImplemented()
-                return
-            }
+                "resume" -> player.play()
+                "pause" -> player.pause()
+                "stop" -> player.stop()
+                "release" -> player.release()
+                "seek" -> {
+                    val position = call.argument<Int>("position") ?: error("position is required")
+                    player.seek(position)
+                }
 
-            "setPlaybackRate" -> {
-                val rate = call.argument<Double>("playbackRate") ?: error("playbackRate is required")
-                player.rate = rate.toFloat()
-            }
+                "setVolume" -> {
+                    val volume = call.argument<Double>("volume") ?: error("volume is required")
+                    player.volume = volume.toFloat()
+                }
 
-            "getDuration" -> {
-                response.success(player.getDuration() ?: 0)
-                return
-            }
+                "setBalance" -> {
+                    handleError(player, NotImplementedError("setBalance is not currently implemented on Android"))
+                    response.notImplemented()
+                    return
+                }
 
-            "getCurrentPosition" -> {
-                response.success(player.getCurrentPosition() ?: 0)
-                return
-            }
+                "setPlaybackRate" -> {
+                    val rate = call.argument<Double>("playbackRate") ?: error("playbackRate is required")
+                    player.rate = rate.toFloat()
+                }
 
-            "setReleaseMode" -> {
-                val releaseMode = call.enumArgument<ReleaseMode>("releaseMode") ?: error("releaseMode is required")
-                player.releaseMode = releaseMode
-            }
+                "getDuration" -> {
+                    response.success(player.getDuration() ?: 0)
+                    return
+                }
 
-            "setPlayerMode" -> {
-                val playerMode = call.enumArgument<PlayerMode>("playerMode") ?: error("playerMode is required")
-                player.playerMode = playerMode
-            }
+                "getCurrentPosition" -> {
+                    response.success(player.getCurrentPosition() ?: 0)
+                    return
+                }
 
-            "setAudioContext" -> {
-                val audioContext = call.audioContext()
-                player.updateAudioContext(audioContext)
-            }
+                "setReleaseMode" -> {
+                    val releaseMode = call.enumArgument<ReleaseMode>("releaseMode") ?: error("releaseMode is required")
+                    player.releaseMode = releaseMode
+                }
 
-            else -> {
-                response.notImplemented()
-                return
+                "setPlayerMode" -> {
+                    val playerMode = call.enumArgument<PlayerMode>("playerMode") ?: error("playerMode is required")
+                    player.playerMode = playerMode
+                }
+
+                "setAudioContext" -> {
+                    val audioContext = call.audioContext()
+                    player.updateAudioContext(audioContext)
+                }
+
+                else -> {
+                    response.notImplemented()
+                    return
+                }
             }
+            response.success(1)
+        } catch (e: Exception) {
+            handleError(player, e)
+            response.error("Unexpected error for player $playerId!", e.message, e)
         }
-        response.success(1)
     }
 
     private fun getPlayer(playerId: String): WrappedPlayer {

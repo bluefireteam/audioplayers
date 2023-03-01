@@ -135,7 +135,10 @@ class AudioPlayer {
   Future<void> create() async {
     await _platform.create(playerId);
     _eventStreamSubscription =
-        _platform.getEventStream(playerId).listen(_eventStreamController.add);
+        _platform.getEventStream(playerId).listen(
+          _eventStreamController.add,
+          onError: _eventStreamController.addError,
+        );
     _onPlayerCompleteStreamSubscription = onPlayerComplete.listen((_) {
       state = PlayerState.completed;
       if (releaseMode == ReleaseMode.release) {
@@ -144,7 +147,10 @@ class AudioPlayer {
     });
     _onLogStreamSubscription = _onLog.listen(
       (log) => logger.log('$log\nSource: $_source'),
-      onError: (Object e) => logger.error(AudioPlayerException(this, cause: e)),
+      onError: (Object e, stackTrace) => logger.error(
+        AudioPlayerException(this, cause: e), 
+        stackTrace,
+      ),
     );
     _creatingCompleter.complete();
   }
@@ -178,7 +184,7 @@ class AudioPlayer {
 
   void setLogHandler(
     void Function(String log)? onLog, {
-    void Function(Object o)? onError,
+    void Function(Object o, [StackTrace? stackTrace])? onError,
   }) {
     _onLogStreamSubscription.cancel();
     _onLogStreamSubscription =
@@ -187,7 +193,7 @@ class AudioPlayer {
 
   static void setGlobalLogHandler(
     void Function(String log)? onLog, {
-    void Function(Object o)? onError,
+    void Function(Object o, [StackTrace? stackTrace])? onError,
   }) {
     _onGlobalLogStreamSubscription.cancel();
     _onGlobalLogStreamSubscription =

@@ -8,18 +8,24 @@ class Logger {
     print('AudioPlayers Log: $message');
   }
 
-  void error(Object o) {
+  void error(Object o, [StackTrace? stacktrace]) {
     // ignore: avoid_print
-    print(errorToString(o));
+    print(errorToString(o, stacktrace));
   }
 
-  static String errorToString(Object o) {
+  static String errorToString(Object o, [StackTrace? stackTrace]) {
+    String errStr;
     if (o is Error) {
-      return 'AudioPlayers Error: $o\n${o.stackTrace}';
+      errStr = 'AudioPlayers Error: $o\n${o.stackTrace}';
     } else if (o is Exception) {
-      return 'AudioPlayers Exception: $o';
+      errStr = 'AudioPlayers Exception: $o';
+    } else {
+      errStr = 'AudioPlayers throw: $o';
     }
-    return 'AudioPlayers throw: $o';
+    if (stackTrace != null && stackTrace.toString().isNotEmpty) {
+      errStr += '\n$stackTrace';
+    }
+    return errStr;
   }
 }
 

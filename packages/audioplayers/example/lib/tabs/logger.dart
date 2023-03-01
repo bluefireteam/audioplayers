@@ -32,11 +32,13 @@ class _LoggerTabState extends State<LoggerTab>
           });
         }
       },
-      onError: (Object o) {
-        _logger.error(o);
+      onError: (Object o, [StackTrace? stackTrace]) {
+        _logger.error(o, stackTrace);
         if (LogLevel.error.toInt() <= currentLogLevel.toInt()) {
           setState(() {
-            globalLogs.add(Log(Logger.errorToString(o), level: LogLevel.error));
+            globalLogs.add(
+              Log(Logger.errorToString(o, stackTrace), level: LogLevel.error),
+            );
           });
         }
       },
@@ -51,16 +53,18 @@ class _LoggerTabState extends State<LoggerTab>
           });
         }
       },
-      onError: (Object o) {
-        _logger.error(o);
+      onError: (Object o, [StackTrace? stackTrace]) {
+        _logger.error(o, stackTrace);
         if (LogLevel.error.toInt() <= currentLogLevel.toInt()) {
           setState(() {
-            globalLogs.add(
+            logs.add(
               Log(
-                  Logger.errorToString(
-                    AudioPlayerException(widget.player, cause: o),
-                  ),
-                  level: LogLevel.error),
+                Logger.errorToString(
+                  AudioPlayerException(widget.player, cause: o),
+                  stackTrace,
+                ),
+                level: LogLevel.error,
+              ),
             );
           });
         }
@@ -149,9 +153,10 @@ class LogView extends StatelessWidget {
             children: logs
                 .map(
                   (log) => Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SelectableText(
-                        '${log.level.toString()}: ${log.message}',
+                        '${log.level}: ${log.message}',
                         style: log.level == LogLevel.error
                             ? const TextStyle(color: Colors.red)
                             : null,
