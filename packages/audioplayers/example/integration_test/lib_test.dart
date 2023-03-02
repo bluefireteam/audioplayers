@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_example/tabs/sources.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -211,6 +212,35 @@ void main() {
       await player.play(audioTestDataList[0].source);
       final log = await completer.future;
       expect(log, 'RESUME');
+    });
+  });
+
+  group('Error', () {
+    testWidgets('Platforms throw PlatformException, when playing invalid file',
+        (tester) async {
+      final completer = Completer<Object>();
+      final player = AudioPlayer();
+      player.setLogHandler(
+        (log) => print('got player log'),
+        onError: (e, [_]) => print("got player error"),
+      );
+      AudioPlayer.setGlobalLogHandler(
+            (log) => print('got global log'),
+        onError: (e, [_]) => print("got global error"),
+      );
+      try {
+        await player.setSource(AssetSource(assetInvalid));
+        fail('PlatformException not thrown');
+      } on PlatformException catch (e) {
+        expect(e, isInstanceOf<PlatformException>());
+      }
+      try {
+        final exception = await completer.future;
+        fail('PlatformException not thrown');
+      } on PlatformException catch (e) {
+        expect(e, isInstanceOf<PlatformException>());
+      }
+      expect(tester.takeException(), isInstanceOf<PlatformException>());
     });
   });
 }

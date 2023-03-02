@@ -64,7 +64,7 @@ AudioPlayer::~AudioPlayer() {}
 
 void AudioPlayer::OnMediaError(MF_MEDIA_ENGINE_ERR error, HRESULT hr) {
     LOG_HR_MSG(hr, "MediaEngine error (%d)", error);
-    // TODO(Gustl22): adapt log message to dart error event
+    // TODO(Gustl22): adapt log message to dart error event, check stacktrace.
     if (this->_eventHandler) {
         _com_error err(hr);
 

@@ -128,9 +128,9 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
 
     auto playerId = GetArgument<std::string>("playerId", args, std::string());
     if (playerId.empty()) {
-        globalEvents->Error("", "Call missing mandatory parameter playerId.",
-                            flutter::EncodableValue(""));
-        result->Success(EncodableValue(0));
+        result->Error("", "Call missing mandatory parameter playerId.",
+                      nullptr);
+        return;
     }
 
     if (method_call.method_name().compare("create") == 0) {
@@ -174,9 +174,7 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
             player->SetSourceUrl(url);
             result->Success(EncodableValue(1));
         } catch (...) {
-            player->_eventHandler->Error(
-                "", "Error setting url to '" + url + "'.", nullptr);
-            result->Success(EncodableValue(0));
+            result->Error("", "Error setting url to '" + url + "'.", nullptr);
         }
     } else if (method_call.method_name().compare("getDuration") == 0) {
         result->Success(EncodableValue(player->GetDuration() / 10000));
@@ -194,10 +192,9 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
         auto releaseMode =
             GetArgument<std::string>("releaseMode", args, std::string());
         if (releaseMode.empty()) {
-            player->_eventHandler->Error(
+            result->Error(
                 "", "Error calling setReleaseMode, releaseMode cannot be null",
                 nullptr);
-            result->Success(EncodableValue(0));
             return;
         }
         auto looping = releaseMode.find("loop") != std::string::npos;

@@ -55,7 +55,7 @@ class AudioPlayer {
   /// native event stream is ready via [create] method.
   final _eventStreamController = StreamController<PlayerEvent>.broadcast();
   late final StreamSubscription _eventStreamSubscription;
-  late final Stream<PlayerEvent> _eventStream = _eventStreamController.stream;
+  Stream<PlayerEvent> get _eventStream => _eventStreamController.stream;
 
   static final Stream<GlobalEvent> _globalEventStream =
       _platform.getGlobalEventStream();
@@ -129,6 +129,19 @@ class AudioPlayer {
 
   /// Creates a new instance and assigns an unique id to it.
   AudioPlayer({String? playerId}) : playerId = playerId ?? _uuid.v4() {
+    _onPlayerCompleteStreamSubscription = onPlayerComplete.listen((_) {
+      state = PlayerState.completed;
+      if (releaseMode == ReleaseMode.release) {
+        _source = null;
+      }
+    });
+    _onLogStreamSubscription = _onLog.listen(
+     (log) => logger.log('$log\nSource: $_source'),
+      onError: (Object e, stackTrace) => logger.error(
+        AudioPlayerException(this, cause: e),
+        stackTrace,
+      ),
+    );
     create();
   }
 
@@ -139,19 +152,6 @@ class AudioPlayer {
           _eventStreamController.add,
           onError: _eventStreamController.addError,
         );
-    _onPlayerCompleteStreamSubscription = onPlayerComplete.listen((_) {
-      state = PlayerState.completed;
-      if (releaseMode == ReleaseMode.release) {
-        _source = null;
-      }
-    });
-    _onLogStreamSubscription = _onLog.listen(
-      (log) => logger.log('$log\nSource: $_source'),
-      onError: (Object e, stackTrace) => logger.error(
-        AudioPlayerException(this, cause: e), 
-        stackTrace,
-      ),
-    );
     _creatingCompleter.complete();
   }
 
