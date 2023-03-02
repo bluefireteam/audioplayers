@@ -9,16 +9,21 @@ include(FetchContent)
 set(PLUGIN_NAME "${PROJECT_NAME}_plugin")
 
 FetchContent_Declare(nuget
-  URL "https://dist.nuget.org/win-x86-commandline/v6.0.0/nuget.exe"
-  URL_HASH SHA256=04eb6c4fe4213907e2773e1be1bbbd730e9a655a3c9c58387ce8d4a714a5b9e1
+  URL "https://dist.nuget.org/win-x86-commandline/v6.5.0/nuget.exe"
+  URL_HASH SHA256=d5fce5185de92b7356ea9264b997a620e35c6f6c3c061e471e0dc3a84b3d74fd
   DOWNLOAD_NO_EXTRACT true
 )
 
 find_program(NUGET nuget)
 if (NOT NUGET)
-    message("Nuget.exe not found, trying to download or use cached version.")
-    FetchContent_MakeAvailable(nuget)
-    set(NUGET ${nuget_SOURCE_DIR}/nuget.exe)
+    FetchContent_GetProperties(nuget)
+    set(NUGET ${CMAKE_BINARY_DIR}/_deps/nuget-src/nuget.exe)
+    if(NOT NUGET)
+        message(WARNING "Nuget.exe not found, trying to download.")
+        FetchContent_MakeAvailable(nuget)
+    else()
+        message(STATUS "Use cached version of Nuget.exe.")
+    endif()
 endif()
 
 execute_process(COMMAND
