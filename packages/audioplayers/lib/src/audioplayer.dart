@@ -55,7 +55,7 @@ class AudioPlayer {
   /// native event stream is ready via [create] method.
   final _eventStreamController = StreamController<PlayerEvent>.broadcast();
   late final StreamSubscription _eventStreamSubscription;
-  Stream<PlayerEvent> get _eventStream => _eventStreamController.stream;
+  Stream<PlayerEvent> get eventStream => _eventStreamController.stream;
 
   static final Stream<GlobalEvent> _globalEventStream =
       _platform.getGlobalEventStream();
@@ -75,7 +75,7 @@ class AudioPlayer {
   /// position of the playback if the status is [PlayerState.playing].
   ///
   /// You can use it on a progress bar, for instance.
-  Stream<Duration> get onPositionChanged => _eventStream
+  Stream<Duration> get onPositionChanged => eventStream
       .where((event) => event.eventType == PlayerEventType.position)
       .map((event) => event.position!);
 
@@ -83,7 +83,7 @@ class AudioPlayer {
   ///
   /// An event is going to be sent as soon as the audio duration is available
   /// (it might take a while to download or buffer it).
-  Stream<Duration> get onDurationChanged => _eventStream
+  Stream<Duration> get onDurationChanged => eventStream
       .where((event) => event.eventType == PlayerEventType.duration)
       .map((event) => event.duration!);
 
@@ -93,17 +93,17 @@ class AudioPlayer {
   /// sent when an audio is paused or stopped.
   ///
   /// [ReleaseMode.loop] also sends events to this stream.
-  Stream<void> get onPlayerComplete => _eventStream
+  Stream<void> get onPlayerComplete => eventStream
       .where((event) => event.eventType == PlayerEventType.complete);
 
   /// Stream of seek completions.
   ///
   /// An event is going to be sent as soon as the audio seek is finished.
-  Stream<void> get onSeekComplete => _eventStream
+  Stream<void> get onSeekComplete => eventStream
       .where((event) => event.eventType == PlayerEventType.seekComplete);
 
   /// Stream of log events.
-  Stream<String> get _onLog => _eventStream
+  Stream<String> get _onLog => eventStream
       .where((event) => event.eventType == PlayerEventType.log)
       .map((event) => event.logMessage!);
 
@@ -129,19 +129,19 @@ class AudioPlayer {
 
   /// Creates a new instance and assigns an unique id to it.
   AudioPlayer({String? playerId}) : playerId = playerId ?? _uuid.v4() {
-    _onPlayerCompleteStreamSubscription = onPlayerComplete.listen((_) {
-      state = PlayerState.completed;
-      if (releaseMode == ReleaseMode.release) {
-        _source = null;
-      }
-    });
     _onLogStreamSubscription = _onLog.listen(
-     (log) => logger.log('$log\nSource: $_source'),
+          (log) => logger.log('$log\nSource: $_source'),
       onError: (Object e, stackTrace) => logger.error(
         AudioPlayerException(this, cause: e),
         stackTrace,
       ),
     );
+    _onPlayerCompleteStreamSubscription = onPlayerComplete.listen((_) {
+      state = PlayerState.completed;
+      if (releaseMode == ReleaseMode.release) {
+        _source = null;
+      }
+    }, onError: (_) { /* Errors are already handled via log stream */});
     create();
   }
 

@@ -220,12 +220,10 @@ void main() {
         (tester) async {
       final completer = Completer<Object>();
       final player = AudioPlayer();
+      // TODO(Gustl22): use common event stream to test
       player.setLogHandler(
-        (log) => print('got player log'),
-        onError: (e, [_]) {
-          print("got player error");
-          completer.complete(e);
-        },
+        (log) {},
+        onError: (e, [_]) => completer.complete(e),
       );
       try {
         await player.setSource(AssetSource(assetInvalid));
@@ -235,8 +233,6 @@ void main() {
       }
       final exception = await completer.future;
       expect(exception, isInstanceOf<PlatformException>());
-
-      // expect(tester.takeException(), isInstanceOf<PlatformException>());
     });
   });
 }
