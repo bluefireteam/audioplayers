@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:html';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_example/tabs/sources.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -225,12 +227,24 @@ void main() {
       try {
         // Throws PlatformException via MethodChannel:
         await player.setSource(AssetSource(assetInvalid));
+        await player.resume();
         fail('PlatformException not thrown');
-      } on PlatformException catch (e) {
-        expect(e, isInstanceOf<PlatformException>());
+        // ignore: avoid_catches_without_on_clauses
+      } catch (e) {
+        if (kIsWeb) {
+          expect(e, isInstanceOf<DomException>());
+          expect((e as DomException).name, 'NotSupportedError');
+        } else {
+          expect(e, isInstanceOf<PlatformException>());
+        }
       }
-      final exception = await completer.future;
-      expect(exception, isInstanceOf<PlatformException>());
+      // TODO(Gustl22): This should probably not be tested on method call, 
+      //  as it is a stream event. The error events may should also not be 
+      //  thrown on the native side for errors occurring during method calls.
+      if (!kIsWeb) {
+        final exception = await completer.future;
+        expect(exception, isInstanceOf<PlatformException>());
+      }
     });
   });
 }
