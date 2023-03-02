@@ -16,14 +16,9 @@ FetchContent_Declare(nuget
 
 find_program(NUGET nuget)
 if (NOT NUGET)
-    FetchContent_GetProperties(nuget)
-    set(NUGET ${CMAKE_BINARY_DIR}/_deps/nuget-src/nuget.exe)
-    if(NOT NUGET)
-        message(WARNING "Nuget.exe not found, trying to download.")
-        FetchContent_MakeAvailable(nuget)
-    else()
-        message(STATUS "Use cached version of Nuget.exe.")
-    endif()
+    message(STATUS "Nuget.exe not found, trying to download or use cached version.")
+    FetchContent_MakeAvailable(nuget)
+    set(NUGET ${nuget_SOURCE_DIR}/nuget.exe)
 endif()
 
 execute_process(COMMAND
