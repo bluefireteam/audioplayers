@@ -27,7 +27,7 @@ class WrappedPlayer {
 
   WrappedPlayer(this.playerId);
 
-  void setUrl(String url) {
+  Future<void> setUrl(String url) async {
     if (_currentUrl == url) {
       return; // nothing to do
     }
@@ -36,7 +36,7 @@ class WrappedPlayer {
     stop();
     recreateNode();
     if (_isPlaying) {
-      resume();
+      await resume();
     }
   }
 
@@ -152,7 +152,7 @@ class WrappedPlayer {
     _playerPlaySubscription = null;
   }
 
-  void start(double position) {
+  Future<void> start(double position) async {
     _isPlaying = true;
     if (_currentUrl == null) {
       return; // nothing to play yet
@@ -160,12 +160,12 @@ class WrappedPlayer {
     if (player == null) {
       recreateNode();
     }
-    player?.play();
+    await player?.play();
     player?.currentTime = position;
   }
 
-  void resume() {
-    start(_pausedAt ?? 0);
+  Future<void> resume() async {
+    await start(_pausedAt ?? 0);
     eventStreamController.add(
       const PlayerEvent(eventType: PlayerEventType.log, logMessage: 'RESUME'),
     );

@@ -62,7 +62,7 @@ class AudioplayersPlugin extends AudioplayersPlatform {
 
   @override
   Future<void> resume(String playerId) async {
-    getPlayer(playerId).resume();
+    await getPlayer(playerId).resume();
   }
 
   @override
@@ -102,7 +102,7 @@ class AudioplayersPlugin extends AudioplayersPlatform {
     String url, {
     bool? isLocal,
   }) async {
-    getPlayer(playerId).setUrl(url);
+    await getPlayer(playerId).setUrl(url);
   }
 
   @override
