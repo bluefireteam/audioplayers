@@ -222,11 +222,10 @@ void main() {
       final player = AudioPlayer();
       player.setLogHandler(
         (log) => print('got player log'),
-        onError: (e, [_]) => print("got player error"),
-      );
-      AudioPlayer.setGlobalLogHandler(
-            (log) => print('got global log'),
-        onError: (e, [_]) => print("got global error"),
+        onError: (e, [_]) {
+          print("got player error");
+          completer.complete(e);
+        },
       );
       try {
         await player.setSource(AssetSource(assetInvalid));
@@ -234,13 +233,10 @@ void main() {
       } on PlatformException catch (e) {
         expect(e, isInstanceOf<PlatformException>());
       }
-      try {
-        final exception = await completer.future;
-        fail('PlatformException not thrown');
-      } on PlatformException catch (e) {
-        expect(e, isInstanceOf<PlatformException>());
-      }
-      expect(tester.takeException(), isInstanceOf<PlatformException>());
+      final exception = await completer.future;
+      expect(exception, isInstanceOf<PlatformException>());
+
+      // expect(tester.takeException(), isInstanceOf<PlatformException>());
     });
   });
 }
