@@ -202,7 +202,7 @@ void main() {
   });
 
   group('Logging', () {
-    testWidgets('Platforms show INFO log, when start playing', (tester) async {
+    testWidgets('Platforms shows log, when start playing', (tester) async {
       final completer = Completer<String>();
       final player = AudioPlayer();
       player.setLogHandler(
@@ -215,17 +215,15 @@ void main() {
     });
   });
 
-  group('Error', () {
+  group('Platform errors', () {
     testWidgets('Platforms throw PlatformException, when playing invalid file',
         (tester) async {
       final completer = Completer<Object>();
       final player = AudioPlayer();
-      // TODO(Gustl22): use common event stream to test
-      player.setLogHandler(
-        (log) {},
-        onError: (e, [_]) => completer.complete(e),
-      );
+      // Throws PlatformException via EventChannel:
+      player.eventStream.listen((_) {}, onError: completer.complete);
       try {
+        // Throws PlatformException via MethodChannel:
         await player.setSource(AssetSource(assetInvalid));
         fail('PlatformException not thrown');
       } on PlatformException catch (e) {
