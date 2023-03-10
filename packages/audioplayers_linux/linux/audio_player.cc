@@ -4,8 +4,8 @@
 
 #include "Logger.h"
 
-AudioPlayer::AudioPlayer(std::string playerId, FlMethodChannel *channel)
-        : _playerId(playerId), _channel(channel) {
+AudioPlayer::AudioPlayer(std::string playerId, FlMethodChannel *methodChannel, FlEventChannel *eventChannel)
+        : _playerId(playerId), _methodChannel(methodChannel), _eventChannel(eventChannel) {
     gst_init(NULL, NULL);
     playbin = gst_element_factory_make("playbin", "playbin");
     if (!playbin) {
@@ -128,14 +128,14 @@ void AudioPlayer::OnMediaError(GError *error, gchar *debug) {
     std::ostringstream oss;
     oss << "Error: " << error->code << "; message=" << error->message;
     g_print("%s\n", oss.str().c_str());
-    if (this->_channel) {
+    if (this->_methodChannel) {
         g_autoptr(FlValue) map = fl_value_new_map();
         fl_value_set_string(map, "playerId",
                             fl_value_new_string(_playerId.c_str()));
         fl_value_set_string(map, "value",
                             fl_value_new_string(oss.str().c_str()));
 
-        fl_method_channel_invoke_method(this->_channel, "audio.onError", map,
+        fl_method_channel_invoke_method(this->_methodChannel, "audio.onError", map,
                                         nullptr, nullptr, nullptr);
     }
 }
@@ -159,36 +159,36 @@ void AudioPlayer::OnMediaStateChange(GstObject *src, GstState *old_state,
 }
 
 void AudioPlayer::OnPositionUpdate() {
-    if (this->_channel) {
+    if (this->_methodChannel) {
         g_autoptr(FlValue) map = fl_value_new_map();
         fl_value_set_string(map, "playerId",
                             fl_value_new_string(_playerId.c_str()));
         fl_value_set_string(map, "value", fl_value_new_int(GetPosition()));
-        fl_method_channel_invoke_method(this->_channel,
+        fl_method_channel_invoke_method(this->_methodChannel,
                                         "audio.onCurrentPosition", map, nullptr,
                                         nullptr, nullptr);
     }
 }
 
 void AudioPlayer::OnDurationUpdate() {
-    if (this->_channel) {
+    if (this->_methodChannel) {
         g_autoptr(FlValue) map = fl_value_new_map();
         fl_value_set_string(map, "playerId",
                             fl_value_new_string(_playerId.c_str()));
         fl_value_set_string(map, "value", fl_value_new_int(GetDuration()));
-        fl_method_channel_invoke_method(this->_channel, "audio.onDuration", map,
+        fl_method_channel_invoke_method(this->_methodChannel, "audio.onDuration", map,
                                         nullptr, nullptr, nullptr);
     }
 }
 
 void AudioPlayer::OnSeekCompleted() {
-    if (this->_channel) {
+    if (this->_methodChannel) {
         OnPositionUpdate();
         g_autoptr(FlValue) map = fl_value_new_map();
         fl_value_set_string(map, "playerId",
                             fl_value_new_string(_playerId.c_str()));
         fl_value_set_string(map, "value", fl_value_new_bool(true));
-        fl_method_channel_invoke_method(this->_channel, "audio.onSeekComplete",
+        fl_method_channel_invoke_method(this->_methodChannel, "audio.onSeekComplete",
                                         map, nullptr, nullptr, nullptr);
     }
 }
@@ -198,13 +198,13 @@ void AudioPlayer::OnPlaybackEnded() {
     if (GetLooping()) {
         Play();
     }
-    if (this->_channel) {
+    if (this->_methodChannel) {
         g_autoptr(FlValue) map = fl_value_new_map();
         fl_value_set_string(map, "playerId",
                             fl_value_new_string(_playerId.c_str()));
         fl_value_set_string(map, "value", fl_value_new_bool(true));
 
-        fl_method_channel_invoke_method(this->_channel, "audio.onComplete", map,
+        fl_method_channel_invoke_method(this->_methodChannel, "audio.onComplete", map,
                                         nullptr, nullptr, nullptr);
     }
 }
@@ -370,6 +370,7 @@ void AudioPlayer::Dispose() {
     gst_element_set_state(playbin, GST_STATE_NULL);
     gst_object_unref(playbin);
 
-    _channel = nullptr;
+    _methodChannel = nullptr;
+    _eventChannel = nullptr;
     _isInitialized = false;
 }

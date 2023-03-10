@@ -33,17 +33,18 @@ static FlMethodChannel *globalMethods;
 static FlEventChannel *globalEvents;
 static std::map<std::string, std::unique_ptr<AudioPlayer>> audioPlayers;
 
-static AudioPlayer *audioplayers_linux_plugin_get_player(
-    AudioplayersLinuxPlugin *self, std::string playerId, std::string mode) {
+static void audioplayers_linux_plugin_create_player(std::string playerId) {
+    g_autoptr(FlStandardMethodCodec) eventCodec = fl_standard_method_codec_new();
+    auto eventChannel = fl_event_channel_new(binaryMessenger,
+        ("xyz.luan/audioplayers/events/" + playerId).c_str(), FL_METHOD_CODEC(eventCodec));
+
+    auto player = std::make_unique<AudioPlayer>(playerId, methods, eventChannel);
+    audioPlayers.insert(std::make_pair(playerId, std::move(player)));
+}
+
+static AudioPlayer *audioplayers_linux_plugin_get_player(std::string playerId) {
     auto searchPlayer = audioPlayers.find(playerId);
-    if (searchPlayer != audioPlayers.end()) {
-        return searchPlayer->second.get();
-    } else {
-        auto player = std::make_unique<AudioPlayer>(playerId, methods);
-        auto playerPtr = player.get();
-        audioPlayers.insert(std::make_pair(playerId, std::move(player)));
-        return playerPtr;
-    }
+    return searchPlayer->second.get();
 }
 
 static void audioplayers_linux_plugin_handle_global_method_call(
@@ -83,13 +84,14 @@ static void audioplayers_linux_plugin_handle_method_call(
     }
     auto playerId = std::string(fl_value_get_string(flPlayerId));
 
-    auto flMode = fl_value_lookup_string(args, "mode");
+    if (strcmp(method, "create") == 0) {
+        audioplayers_linux_plugin_create_player(playerId);
+        response = FL_METHOD_RESPONSE(fl_method_success_response_new(fl_value_new_int(1)));
+        fl_method_call_respond(method_call, response, nullptr);
+        return;
+    }
 
-    std::string mode = flMode == nullptr
-                           ? std::string()
-                           : std::string(fl_value_get_string(flMode));
-
-    auto player = audioplayers_linux_plugin_get_player(self, playerId, mode);
+    auto player = audioplayers_linux_plugin_get_player(playerId);
 
     if (strcmp(method, "pause") == 0) {
         player->Pause();
