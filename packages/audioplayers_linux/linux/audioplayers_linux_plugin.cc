@@ -221,13 +221,18 @@ void audioplayers_linux_plugin_register_with_registrar(
 
     binaryMessenger = fl_plugin_registrar_get_messenger(registrar);
 
-    g_autoptr(FlStandardMethodCodec) codec = fl_standard_method_codec_new();
+    g_autoptr(FlStandardMethodCodec) methodCodec = fl_standard_method_codec_new();
     methods =
         fl_method_channel_new(binaryMessenger,
-                              "xyz.luan/audioplayers", FL_METHOD_CODEC(codec));
-    g_autoptr(FlStandardMethodCodec) globalCodec = fl_standard_method_codec_new();
+                              "xyz.luan/audioplayers", FL_METHOD_CODEC(methodCodec));
+
+    g_autoptr(FlStandardMethodCodec) globalMethodCodec = fl_standard_method_codec_new();
     globalMethods = fl_method_channel_new(binaryMessenger,
-        "xyz.luan/audioplayers.global", FL_METHOD_CODEC(globalCodec));
+        "xyz.luan/audioplayers.global", FL_METHOD_CODEC(globalMethodCodec));
+
+    g_autoptr(FlStandardMethodCodec) globalEventCodec = fl_standard_method_codec_new();
+    globalEvents = fl_event_channel_new(binaryMessenger,
+        "xyz.luan/audioplayers.global/events", FL_METHOD_CODEC(globalEventCodec));
 
     fl_method_channel_set_method_call_handler(
         methods, method_call_cb, g_object_ref(plugin), g_object_unref);
@@ -235,6 +240,8 @@ void audioplayers_linux_plugin_register_with_registrar(
     fl_method_channel_set_method_call_handler(
         globalMethods, method_call_global_cb, g_object_ref(plugin),
         g_object_unref);
+
+    // No need to set handler for `globalEvents` as no events are received.
 
     g_object_unref(plugin);
 }

@@ -129,8 +129,7 @@ void AudioPlayer::OnMediaError(GError *error, gchar *debug) {
     oss << "Error: " << error->code << "; message=" << error->message;
     g_print("%s\n", oss.str().c_str());
     if (this->_channel) {
-        g_autoptr(FlValue)
-        map = fl_value_new_map();
+        g_autoptr(FlValue) map = fl_value_new_map();
         fl_value_set_string(map, "playerId",
                             fl_value_new_string(_playerId.c_str()));
         fl_value_set_string(map, "value",
@@ -161,8 +160,7 @@ void AudioPlayer::OnMediaStateChange(GstObject *src, GstState *old_state,
 
 void AudioPlayer::OnPositionUpdate() {
     if (this->_channel) {
-        g_autoptr(FlValue)
-        map = fl_value_new_map();
+        g_autoptr(FlValue) map = fl_value_new_map();
         fl_value_set_string(map, "playerId",
                             fl_value_new_string(_playerId.c_str()));
         fl_value_set_string(map, "value", fl_value_new_int(GetPosition()));
@@ -174,8 +172,7 @@ void AudioPlayer::OnPositionUpdate() {
 
 void AudioPlayer::OnDurationUpdate() {
     if (this->_channel) {
-        g_autoptr(FlValue)
-        map = fl_value_new_map();
+        g_autoptr(FlValue) map = fl_value_new_map();
         fl_value_set_string(map, "playerId",
                             fl_value_new_string(_playerId.c_str()));
         fl_value_set_string(map, "value", fl_value_new_int(GetDuration()));
@@ -187,8 +184,7 @@ void AudioPlayer::OnDurationUpdate() {
 void AudioPlayer::OnSeekCompleted() {
     if (this->_channel) {
         OnPositionUpdate();
-        g_autoptr(FlValue)
-        map = fl_value_new_map();
+        g_autoptr(FlValue) map = fl_value_new_map();
         fl_value_set_string(map, "playerId",
                             fl_value_new_string(_playerId.c_str()));
         fl_value_set_string(map, "value", fl_value_new_bool(true));
@@ -203,8 +199,7 @@ void AudioPlayer::OnPlaybackEnded() {
         Play();
     }
     if (this->_channel) {
-        g_autoptr(FlValue)
-        map = fl_value_new_map();
+        g_autoptr(FlValue) map = fl_value_new_map();
         fl_value_set_string(map, "playerId",
                             fl_value_new_string(_playerId.c_str()));
         fl_value_set_string(map, "value", fl_value_new_bool(true));
