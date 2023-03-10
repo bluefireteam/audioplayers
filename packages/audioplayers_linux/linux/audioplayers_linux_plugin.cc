@@ -27,6 +27,7 @@ struct _AudioplayersLinuxPlugin {
 G_DEFINE_TYPE(AudioplayersLinuxPlugin, audioplayers_linux_plugin,
               g_object_get_type())
 
+static FlBinaryMessenger *binaryMessenger;
 static FlMethodChannel *methods;
 static FlMethodChannel *globalMethods;
 static std::map<std::string, std::unique_ptr<AudioPlayer>> audioPlayers;
@@ -233,15 +234,14 @@ void audioplayers_linux_plugin_register_with_registrar(
     AudioplayersLinuxPlugin *plugin = AUDIOPLAYERS_LINUX_PLUGIN(
         g_object_new(audioplayers_linux_plugin_get_type(), nullptr));
 
+    binaryMessenger = fl_plugin_registrar_get_messenger(registrar);
+
     g_autoptr(FlStandardMethodCodec) codec = fl_standard_method_codec_new();
     methods =
-        fl_method_channel_new(fl_plugin_registrar_get_messenger(registrar),
+        fl_method_channel_new(binaryMessenger,
                               "xyz.luan/audioplayers", FL_METHOD_CODEC(codec));
-
-    g_autoptr(FlStandardMethodCodec) globalCodec =
-        fl_standard_method_codec_new();
-    globalMethods = fl_method_channel_new(
-        fl_plugin_registrar_get_messenger(registrar),
+    g_autoptr(FlStandardMethodCodec) globalCodec = fl_standard_method_codec_new();
+    globalMethods = fl_method_channel_new(binaryMessenger,
         "xyz.luan/audioplayers.global", FL_METHOD_CODEC(globalCodec));
 
     fl_method_channel_set_method_call_handler(
