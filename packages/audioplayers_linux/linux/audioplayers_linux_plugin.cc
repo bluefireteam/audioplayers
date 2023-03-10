@@ -90,8 +90,10 @@ static void audioplayers_linux_plugin_handle_method_call(
 
     auto flPlayerId = fl_value_lookup_string(args, "playerId");
     if (flPlayerId == nullptr) {
-        Logger::Error("Call missing mandatory parameter playerId.");
-        result = 0;
+        response = FL_METHOD_RESPONSE(
+        fl_method_error_response_new("", "Call missing mandatory parameter playerId.", nullptr));
+        fl_method_call_respond(method_call, response, nullptr);
+        return;
     }
     auto playerId = std::string(fl_value_get_string(flPlayerId));
 
@@ -126,8 +128,9 @@ static void audioplayers_linux_plugin_handle_method_call(
     } else if (strcmp(method, "setSourceUrl") == 0) {
         auto flUrl = fl_value_lookup_string(args, "url");
         if (flUrl == nullptr) {
-            Logger::Error("Null URL received on setSourceUrl");
-            result = 0;
+            response = FL_METHOD_RESPONSE(
+            fl_method_error_response_new("", "Null URL received on setSourceUrl.", nullptr));
+            fl_method_call_respond(method_call, response, nullptr);
             return;
         }
         auto url = std::string(fl_value_get_string(flUrl));
@@ -143,7 +146,9 @@ static void audioplayers_linux_plugin_handle_method_call(
             player->SetSourceUrl(url);
             result = 1;
         } catch (...) {
-            Logger::Error("Error setting url to '" + url + "'.");
+            response = FL_METHOD_RESPONSE(
+            fl_method_error_response_new("", ("Error setting url to '" + url + "'.").c_str(), nullptr));
+            fl_method_call_respond(method_call, response, nullptr);
             result = 0;
         }
     } else if (strcmp(method, "getDuration") == 0) {
@@ -170,9 +175,9 @@ static void audioplayers_linux_plugin_handle_method_call(
                 ? std::string()
                 : std::string(fl_value_get_string(flReleaseMode));
         if (releaseMode.empty()) {
-            Logger::Error(
-                "Error calling setReleaseMode, releaseMode cannot be null");
-            result = 0;
+            response = FL_METHOD_RESPONSE(
+            fl_method_error_response_new("", "Error calling setReleaseMode, releaseMode cannot be null", nullptr));
+            fl_method_call_respond(method_call, response, nullptr);
             return;
         }
         auto looping = releaseMode.find("loop") != std::string::npos;
