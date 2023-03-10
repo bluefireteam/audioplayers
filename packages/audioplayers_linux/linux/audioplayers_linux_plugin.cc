@@ -30,6 +30,7 @@ G_DEFINE_TYPE(AudioplayersLinuxPlugin, audioplayers_linux_plugin,
 static FlBinaryMessenger *binaryMessenger;
 static FlMethodChannel *methods;
 static FlMethodChannel *globalMethods;
+static FlEventChannel *globalEvents;
 static std::map<std::string, std::unique_ptr<AudioPlayer>> audioPlayers;
 
 static AudioPlayer *audioplayers_linux_plugin_get_player(
@@ -50,31 +51,15 @@ static void audioplayers_linux_plugin_handle_global_method_call(
     g_autoptr(FlMethodResponse) response = nullptr;
     int result = 1;
     const gchar *method = fl_method_call_get_name(method_call);
-    FlValue *args = fl_method_call_get_args(method_call);
+    //FlValue *args = fl_method_call_get_args(method_call);
 
-    if (strcmp(method, "changeLogLevel") == 0) {
-    // TODO
-        auto flValueName = fl_value_lookup_string(args, "value");
-        if (flValueName == nullptr) {
-            Logger::Error("Null value received on changeLogLevel");
-            result = 0;
-            return;
-        }
-        auto valueName = fl_value_get_string(flValueName);
-        LogLevel value;
-        if (strcmp(valueName, "LogLevel.info") == 0) {
-            value = LogLevel::Info;
-        } else if (strcmp(valueName, "LogLevel.error") == 0) {
-            value = LogLevel::Error;
-        } else if (strcmp(valueName, "LogLevel.none") == 0) {
-            value = LogLevel::None;
-        } else {
-            Logger::Error("Invalid value received on changeLogLevel");
-            result = 0;
-            return;
-        }
+    if (strcmp(method, "setGlobalAudioContext") == 0) {
+        g_autoptr(FlValue) map = fl_value_new_map();
+        fl_value_set_string(map, "event", fl_value_new_string("audio.onGlobalLog"));
+        fl_value_set_string(map, "value",
+                            fl_value_new_string("Setting AudioContext is not supported on Linux"));
 
-        Logger::logLevel = value;
+        fl_event_channel_send(globalEvents, map, nullptr, nullptr);
     }
 
     response = FL_METHOD_RESPONSE(
