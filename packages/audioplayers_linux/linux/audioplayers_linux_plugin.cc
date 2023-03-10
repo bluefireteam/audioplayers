@@ -27,8 +27,8 @@ struct _AudioplayersLinuxPlugin {
 G_DEFINE_TYPE(AudioplayersLinuxPlugin, audioplayers_linux_plugin,
               g_object_get_type())
 
-static FlMethodChannel *channel;
-static FlMethodChannel *globalChannel;
+static FlMethodChannel *methods;
+static FlMethodChannel *globalMethods;
 static std::map<std::string, std::unique_ptr<AudioPlayer>> audioPlayers;
 
 static AudioPlayer *audioplayers_linux_plugin_get_player(
@@ -37,7 +37,7 @@ static AudioPlayer *audioplayers_linux_plugin_get_player(
     if (searchPlayer != audioPlayers.end()) {
         return searchPlayer->second.get();
     } else {
-        auto player = std::make_unique<AudioPlayer>(playerId, channel);
+        auto player = std::make_unique<AudioPlayer>(playerId, methods);
         auto playerPtr = player.get();
         audioPlayers.insert(std::make_pair(playerId, std::move(player)));
         return playerPtr;
@@ -215,13 +215,13 @@ static void audioplayers_linux_plugin_class_init(
 
 static void audioplayers_linux_plugin_init(AudioplayersLinuxPlugin *self) {}
 
-static void method_call_cb(FlMethodChannel *channel, FlMethodCall *method_call,
+static void method_call_cb(FlMethodChannel *methods, FlMethodCall *method_call,
                            gpointer user_data) {
     AudioplayersLinuxPlugin *plugin = AUDIOPLAYERS_LINUX_PLUGIN(user_data);
     audioplayers_linux_plugin_handle_method_call(plugin, method_call);
 }
 
-static void method_call_global_cb(FlMethodChannel *channel,
+static void method_call_global_cb(FlMethodChannel *methods,
                                   FlMethodCall *method_call,
                                   gpointer user_data) {
     AudioplayersLinuxPlugin *plugin = AUDIOPLAYERS_LINUX_PLUGIN(user_data);
@@ -234,21 +234,21 @@ void audioplayers_linux_plugin_register_with_registrar(
         g_object_new(audioplayers_linux_plugin_get_type(), nullptr));
 
     g_autoptr(FlStandardMethodCodec) codec = fl_standard_method_codec_new();
-    channel =
+    methods =
         fl_method_channel_new(fl_plugin_registrar_get_messenger(registrar),
                               "xyz.luan/audioplayers", FL_METHOD_CODEC(codec));
 
     g_autoptr(FlStandardMethodCodec) globalCodec =
         fl_standard_method_codec_new();
-    globalChannel = fl_method_channel_new(
+    globalMethods = fl_method_channel_new(
         fl_plugin_registrar_get_messenger(registrar),
         "xyz.luan/audioplayers.global", FL_METHOD_CODEC(globalCodec));
 
     fl_method_channel_set_method_call_handler(
-        channel, method_call_cb, g_object_ref(plugin), g_object_unref);
+        methods, method_call_cb, g_object_ref(plugin), g_object_unref);
 
     fl_method_channel_set_method_call_handler(
-        globalChannel, method_call_global_cb, g_object_ref(plugin),
+        globalMethods, method_call_global_cb, g_object_ref(plugin),
         g_object_unref);
 
     g_object_unref(plugin);
