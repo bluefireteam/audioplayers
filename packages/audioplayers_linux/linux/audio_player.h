@@ -21,7 +21,7 @@ extern "C" {
 
 class AudioPlayer {
 public:
-    AudioPlayer(std::string playerId, FlMethodChannel *channel);
+    AudioPlayer(std::string playerId, FlMethodChannel *methodChannel, FlEventChannel *eventChannel);
 
     int64_t GetPosition();
 
@@ -66,7 +66,8 @@ private:
 
     std::string _url{};
     std::string _playerId;
-    FlMethodChannel *_channel;
+    FlMethodChannel *_methodChannel;
+    FlEventChannel *_eventChannel;
 
     static void SourceSetup(GstElement *playbin, GstElement *source,
                             GstElement **p_src);
