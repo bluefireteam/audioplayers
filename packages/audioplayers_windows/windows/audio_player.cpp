@@ -13,9 +13,13 @@
 
 using namespace winrt;
 
-AudioPlayer::AudioPlayer(std::string playerId,
-                         EventStreamHandler<>* eventHandler)
-    : _playerId(playerId), _eventHandler(eventHandler) {
+AudioPlayer::AudioPlayer(
+    std::string playerId,
+    flutter::MethodChannel<flutter::EncodableValue>* methodChannel,
+    EventStreamHandler<>* eventHandler)
+    : _playerId(playerId),
+      _methodChannel(methodChannel),
+      _eventHandler(eventHandler) {
     m_mfPlatform.Startup();
 
     // Callbacks invoked by the media engine wrapper
@@ -153,6 +157,7 @@ void AudioPlayer::Dispose() {
     if (_isInitialized) {
         m_mediaEngineWrapper->Pause();
     }
+    _methodChannel = nullptr;
     _eventHandler = nullptr;
     _isInitialized = false;
 }
@@ -191,12 +196,11 @@ void AudioPlayer::Pause() { m_mediaEngineWrapper->Pause(); }
 void AudioPlayer::Resume() {
     m_mediaEngineWrapper->Resume();
     OnDurationUpdate();
-    this->_eventHandler->Success(
-            std::make_unique<flutter::EncodableValue>(flutter::EncodableMap(
-                {{flutter::EncodableValue("event"),
-                  flutter::EncodableValue("audio.onLog")},
-                 {flutter::EncodableValue("value"),
-                  flutter::EncodableValue("RESUME")}})));
+    this->_eventHandler->Success(std::make_unique<flutter::EncodableValue>(
+        flutter::EncodableMap({{flutter::EncodableValue("event"),
+                                flutter::EncodableValue("audio.onLog")},
+                               {flutter::EncodableValue("value"),
+                                flutter::EncodableValue("RESUME")}})));
 }
 
 int64_t AudioPlayer::GetPosition() {

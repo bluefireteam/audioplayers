@@ -30,23 +30,26 @@
 #include <mfmediaengine.h>
 
 // STL headers
+#include <wincodec.h>
+
 #include <functional>
 #include <future>
 #include <map>
 #include <memory>
 #include <sstream>
 #include <string>
-#include <wincodec.h>
 
-#include "event_stream_handler.h"
 #include "MediaEngineWrapper.h"
 #include "MediaFoundationHelpers.h"
+#include "event_stream_handler.h"
 
 using namespace winrt;
 
 class AudioPlayer {
    public:
-    AudioPlayer(std::string playerId, EventStreamHandler<>* eventHandler);
+    AudioPlayer(std::string playerId,
+                flutter::MethodChannel<flutter::EncodableValue>* methodChannel,
+                EventStreamHandler<>* eventHandler);
 
     void Dispose();
 
@@ -75,7 +78,7 @@ class AudioPlayer {
     void SetSourceUrl(std::string url);
 
     virtual ~AudioPlayer();
-    
+
    private:
     // Media members
     media::MFPlatformRef m_mfPlatform;
@@ -100,6 +103,8 @@ class AudioPlayer {
     void OnSeekCompleted();
 
     std::string _playerId;
-    
+
+    flutter::MethodChannel<flutter::EncodableValue>* _methodChannel;
+
     EventStreamHandler<>* _eventHandler;
 };

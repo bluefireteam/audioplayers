@@ -128,7 +128,8 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
 
     auto playerId = GetArgument<std::string>("playerId", args, std::string());
     if (playerId.empty()) {
-        result->Error("", "Call missing mandatory parameter playerId.", nullptr);
+        result->Error("", "Call missing mandatory parameter playerId.",
+                      nullptr);
         return;
     }
 
@@ -189,7 +190,9 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
         auto releaseMode =
             GetArgument<std::string>("releaseMode", args, std::string());
         if (releaseMode.empty()) {
-            result->Error("", "Error calling setReleaseMode, releaseMode cannot be null", nullptr);
+            result->Error(
+                "", "Error calling setReleaseMode, releaseMode cannot be null",
+                nullptr);
             return;
         }
         auto looping = releaseMode.find("loop") != std::string::npos;
@@ -218,7 +221,8 @@ void AudioplayersWindowsPlugin::CreatePlayer(std::string playerId) {
     std::unique_ptr<StreamHandler<EncodableValue>> _ptr{_obj_stm_handle};
     eventChannel->SetStreamHandler(std::move(_ptr));
 
-    auto player = std::make_unique<AudioPlayer>(playerId, eventHandler);
+    auto player =
+        std::make_unique<AudioPlayer>(playerId, methods.get(), eventHandler);
     audioPlayers.insert(std::make_pair(playerId, std::move(player)));
 }
 
