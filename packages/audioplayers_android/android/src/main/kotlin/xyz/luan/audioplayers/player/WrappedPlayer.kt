@@ -180,7 +180,6 @@ class WrappedPlayer internal constructor(
                 currentPlayer.start()
                 ref.handleIsPlaying()
             }
-            handleLog("RESUME")
         }
     }
 
@@ -276,8 +275,8 @@ class WrappedPlayer internal constructor(
         ref.handleLog(this, message)
     }
 
-    fun handleError(error: Throwable) {
-        ref.handleError(this, error)
+    fun handleError(errorCode: String?, errorMessage: String?, errorDetails: Any?) {
+        ref.handleError(this, errorCode, errorMessage, errorDetails)
     }
 
     fun onError(what: Int, extra: Int): Boolean {
@@ -297,7 +296,7 @@ class WrappedPlayer internal constructor(
             MediaPlayer.MEDIA_ERROR_TIMED_OUT -> "MEDIA_ERROR_TIMED_OUT"
             else -> "MEDIA_ERROR_UNKNOWN {extra:$extra}"
         }
-        handleError(Exception("MediaPlayer error with what:$whatMsg extra:$extraMsg"))
+        handleError(whatMsg, extraMsg, null)
         return false
     }
 

@@ -73,7 +73,6 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
             try {
                 handler(call, response)
             } catch (e: Exception) {
-                handleGlobalError(e)
                 response.error("Unexpected error!", e.message, e)
             }
         }
@@ -87,6 +86,17 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
                 audioManager.isSpeakerphoneOn = defaultAudioContext.isSpeakerphoneOn
 
                 defaultAudioContext = call.audioContext()
+            }
+
+            "globalLog" -> {
+                val message = call.argument<String>("message") ?: error("message is required")
+                handleGlobalLog(message)
+            }
+
+            "debugGlobalError" -> {
+                val code = call.argument<String>("code") ?: error("message is required")
+                val message = call.argument<String>("message") ?: error("message is required")
+                handleGlobalError(code, message, null)
             }
         }
 
@@ -138,7 +148,12 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
                 }
 
                 "setBalance" -> {
-                    handleError(player, NotImplementedError("setBalance is not currently implemented on Android"))
+                    handleError(
+                        player,
+                        "NotImplementedError",
+                        "setBalance is not currently implemented on Android",
+                        null,
+                    )
                     response.notImplemented()
                     return
                 }
@@ -173,6 +188,16 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
                     player.updateAudioContext(audioContext)
                 }
 
+                "log" -> {
+                    val message = call.argument<String>("message") ?: error("message is required")
+                    player.handleLog(message)
+                }
+
+                "debugError" -> {
+                    val message = call.argument<String>("message") ?: error("message is required")
+                    player.handleLog(message)
+                }
+
                 else -> {
                     response.notImplemented()
                     return
@@ -180,7 +205,6 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
             }
             response.success(1)
         } catch (e: Exception) {
-            handleError(player, e)
             response.error("Unexpected error for player $playerId!", e.message, e)
         }
     }
@@ -217,12 +241,12 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
         handler.post { globalEvents.success("audio.onGlobalLog", hashMapOf("value" to message)) }
     }
 
-    fun handleError(player: WrappedPlayer, error: Throwable) {
-        handler.post { player.eventHandler.error(error.javaClass.name, error.message, error.stackTraceToString()) }
+    fun handleError(player: WrappedPlayer, errorCode: String?, errorMessage: String?, errorDetails: Any?) {
+        handler.post { player.eventHandler.error(errorCode, errorMessage, errorDetails) }
     }
 
-    fun handleGlobalError(error: Throwable) {
-        handler.post { globalEvents.error(error.javaClass.name, error.message, error.stackTraceToString()) }
+    fun handleGlobalError(errorCode: String?, errorMessage: String?, errorDetails: Any?) {
+        handler.post { globalEvents.error(errorCode, errorMessage, errorDetails) }
     }
 
     fun handleSeekComplete(player: WrappedPlayer) {
