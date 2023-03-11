@@ -15,17 +15,23 @@ let GLOBAL_CHANNEL_NAME = "xyz.luan/audioplayers.global"
 
 public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
     var registrar: FlutterPluginRegistrar
-    var channel: FlutterMethodChannel
-    var globalChannel: FlutterMethodChannel
-    
+    var binaryMessenger: FlutterBinaryMessenger
+    var methods: FlutterMethodChannel
+    var globalMethods: FlutterMethodChannel
+    var globalEvents: FlutterEventChannel
+
     var globalContext = AudioContext()
     var players = [String : WrappedMediaPlayer]()
     
-    init(registrar: FlutterPluginRegistrar, channel: FlutterMethodChannel, globalChannel: FlutterMethodChannel) {
+    init(registrar: FlutterPluginRegistrar,
+         methodChannel: FlutterMethodChannel,
+         globalMethodChannel: FlutterMethodChannel,
+         globalEventChannel: FlutterEventChannel) {
         self.registrar = registrar
-        self.channel = channel
-        self.globalChannel = globalChannel
-        
+        self.methods = methodChannel
+        self.globalMethods = globalMethodChannel
+        self.globalEvents = globalEventChannel
+
         globalContext.apply()
         
         super.init()
@@ -34,17 +40,22 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
     public static func register(with registrar: FlutterPluginRegistrar) {
         // apparently there is a bug in Flutter causing some inconsistency between Flutter and FlutterMacOS
         #if os(iOS)
-        let binaryMessenger = registrar.messenger()
+        binaryMessenger = registrar.messenger()
         #else
-        let binaryMessenger = registrar.messenger
+        binaryMessenger = registrar.messenger
         #endif
         
-        let channel = FlutterMethodChannel(name: CHANNEL_NAME, binaryMessenger: binaryMessenger)
-        let globalChannel = FlutterMethodChannel(name: GLOBAL_CHANNEL_NAME, binaryMessenger: binaryMessenger)
+        let methods = FlutterMethodChannel(name: CHANNEL_NAME, binaryMessenger: binaryMessenger)
+        let globalMethods = FlutterMethodChannel(name: GLOBAL_CHANNEL_NAME, binaryMessenger: binaryMessenger)
+        let globalEvents = FlutterEventChannel(name: GLOBAL_CHANNEL_NAME + "/events", binaryMessenger: binaryMessenger)
 
-        let instance = SwiftAudioplayersDarwinPlugin(registrar: registrar, channel: channel, globalChannel: globalChannel)
-        registrar.addMethodCallDelegate(instance, channel: channel)
-        registrar.addMethodCallDelegate(instance, channel: globalChannel)
+        let instance = SwiftAudioplayersDarwinPlugin(
+                registrar: registrar,
+                methods: methods,
+                globalMethods: globalMethods,
+                globalEvents: globalEvents)
+        registrar.addMethodCallDelegate(instance, channel: methods)
+        registrar.addMethodCallDelegate(instance, channel: globalMethods)
     }
 
     public func detachFromEngine(for registrar: FlutterPluginRegistrar) {
@@ -70,23 +81,7 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
         Logger.info("method: %@", method)
 
         // global handlers (no playerId)
-        if method == "changeLogLevel" {
-            // TODO
-            guard let valueName = args["value"] as! String? else {
-                Logger.error("Null value received on changeLogLevel")
-                result(0)
-                return
-            }
-            guard let value = LogLevel.parse(valueName) else {
-                Logger.error("Invalid value received on changeLogLevel")
-                result(0)
-                return
-            }
-
-            Logger.logLevel = value
-            result(1)
-            return
-        } else if method == "setGlobalAudioContext" {
+        if method == "setGlobalAudioContext" {
             guard let context = AudioContext.parse(args: args) else {
                 result(0)
                 return
@@ -104,7 +99,15 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
             return
         }
         Logger.info("playerId: %@", playerId)
-        let player = self.getOrCreatePlayer(playerId: playerId)
+        
+        if method == "create" {
+            self.createPlayer(playerId: playerId) {
+                result(1)
+            }
+            return
+        }
+        
+        let player = self.getPlayer(playerId: playerId)
         
         if method == "pause" {
             player.pause()
@@ -200,17 +203,17 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
         // default result (bypass by adding `return` to your branch)
         result(1)
     }
-    
-    func getOrCreatePlayer(playerId: String) -> WrappedMediaPlayer {
-        if let player = players[playerId] {
-            return player
-        }
+
+    func createPlayer(playerId: String) {
         let newPlayer = WrappedMediaPlayer(
             reference: self,
             playerId: playerId
         )
         players[playerId] = newPlayer
-        return newPlayer
+    }
+    
+    func getPlayer(playerId: String) -> WrappedMediaPlayer {
+        return players[playerId]
     }
     
     func onSeekComplete(playerId: String, finished: Bool) {
