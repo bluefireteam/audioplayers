@@ -1,10 +1,10 @@
 #include "include/audioplayers_linux/audioplayers_linux_plugin.h"
 
 // This must be included before many other Windows headers.
-//#include <windows.h>
+// #include <windows.h>
 
 // For getPlatformVersion; remove unless needed for your plugin implementation.
-//#include <VersionHelpers.h>
+// #include <VersionHelpers.h>
 
 #include <flutter_linux/flutter_linux.h>
 #include <string.h>
@@ -34,11 +34,14 @@ static FlEventChannel *globalEvents;
 static std::map<std::string, std::unique_ptr<AudioPlayer>> audioPlayers;
 
 static void audioplayers_linux_plugin_create_player(std::string playerId) {
-    g_autoptr(FlStandardMethodCodec) eventCodec = fl_standard_method_codec_new();
-    auto eventChannel = fl_event_channel_new(binaryMessenger,
-        ("xyz.luan/audioplayers/events/" + playerId).c_str(), FL_METHOD_CODEC(eventCodec));
+    g_autoptr(FlStandardMethodCodec) eventCodec =
+        fl_standard_method_codec_new();
+    auto eventChannel = fl_event_channel_new(
+        binaryMessenger, ("xyz.luan/audioplayers/events/" + playerId).c_str(),
+        FL_METHOD_CODEC(eventCodec));
 
-    auto player = std::make_unique<AudioPlayer>(playerId, methods, eventChannel);
+    auto player =
+        std::make_unique<AudioPlayer>(playerId, methods, eventChannel);
     audioPlayers.insert(std::make_pair(playerId, std::move(player)));
 }
 
@@ -52,13 +55,16 @@ static void audioplayers_linux_plugin_handle_global_method_call(
     g_autoptr(FlMethodResponse) response = nullptr;
     int result = 1;
     const gchar *method = fl_method_call_get_name(method_call);
-    //FlValue *args = fl_method_call_get_args(method_call);
+    // FlValue *args = fl_method_call_get_args(method_call);
 
     if (strcmp(method, "setGlobalAudioContext") == 0) {
         g_autoptr(FlValue) map = fl_value_new_map();
-        fl_value_set_string(map, "event", fl_value_new_string("audio.onGlobalLog"));
-        fl_value_set_string(map, "value",
-                            fl_value_new_string("Setting AudioContext is not supported on Linux"));
+        fl_value_set_string(map, "event",
+                            fl_value_new_string("audio.onGlobalLog"));
+        fl_value_set_string(
+            map, "value",
+            fl_value_new_string(
+                "Setting AudioContext is not supported on Linux"));
 
         fl_event_channel_send(globalEvents, map, nullptr, nullptr);
     }
@@ -77,8 +83,8 @@ static void audioplayers_linux_plugin_handle_method_call(
 
     auto flPlayerId = fl_value_lookup_string(args, "playerId");
     if (flPlayerId == nullptr) {
-        response = FL_METHOD_RESPONSE(
-        fl_method_error_response_new("", "Call missing mandatory parameter playerId.", nullptr));
+        response = FL_METHOD_RESPONSE(fl_method_error_response_new(
+            "", "Call missing mandatory parameter playerId.", nullptr));
         fl_method_call_respond(method_call, response, nullptr);
         return;
     }
@@ -86,7 +92,8 @@ static void audioplayers_linux_plugin_handle_method_call(
 
     if (strcmp(method, "create") == 0) {
         audioplayers_linux_plugin_create_player(playerId);
-        response = FL_METHOD_RESPONSE(fl_method_success_response_new(fl_value_new_int(1)));
+        response = FL_METHOD_RESPONSE(
+            fl_method_success_response_new(fl_value_new_int(1)));
         fl_method_call_respond(method_call, response, nullptr);
         return;
     }
@@ -116,8 +123,8 @@ static void audioplayers_linux_plugin_handle_method_call(
     } else if (strcmp(method, "setSourceUrl") == 0) {
         auto flUrl = fl_value_lookup_string(args, "url");
         if (flUrl == nullptr) {
-            response = FL_METHOD_RESPONSE(
-            fl_method_error_response_new("", "Null URL received on setSourceUrl.", nullptr));
+            response = FL_METHOD_RESPONSE(fl_method_error_response_new(
+                "", "Null URL received on setSourceUrl.", nullptr));
             fl_method_call_respond(method_call, response, nullptr);
             return;
         }
@@ -134,8 +141,8 @@ static void audioplayers_linux_plugin_handle_method_call(
             player->SetSourceUrl(url);
             result = 1;
         } catch (...) {
-            response = FL_METHOD_RESPONSE(
-            fl_method_error_response_new("", ("Error setting url to '" + url + "'.").c_str(), nullptr));
+            response = FL_METHOD_RESPONSE(fl_method_error_response_new(
+                "", ("Error setting url to '" + url + "'.").c_str(), nullptr));
             fl_method_call_respond(method_call, response, nullptr);
             result = 0;
         }
@@ -163,8 +170,9 @@ static void audioplayers_linux_plugin_handle_method_call(
                 ? std::string()
                 : std::string(fl_value_get_string(flReleaseMode));
         if (releaseMode.empty()) {
-            response = FL_METHOD_RESPONSE(
-            fl_method_error_response_new("", "Error calling setReleaseMode, releaseMode cannot be null", nullptr));
+            response = FL_METHOD_RESPONSE(fl_method_error_response_new(
+                "", "Error calling setReleaseMode, releaseMode cannot be null",
+                nullptr));
             fl_method_call_respond(method_call, response, nullptr);
             return;
         }
@@ -223,18 +231,22 @@ void audioplayers_linux_plugin_register_with_registrar(
 
     binaryMessenger = fl_plugin_registrar_get_messenger(registrar);
 
-    g_autoptr(FlStandardMethodCodec) methodCodec = fl_standard_method_codec_new();
-    methods =
-        fl_method_channel_new(binaryMessenger,
-                              "xyz.luan/audioplayers", FL_METHOD_CODEC(methodCodec));
+    g_autoptr(FlStandardMethodCodec) methodCodec =
+        fl_standard_method_codec_new();
+    methods = fl_method_channel_new(binaryMessenger, "xyz.luan/audioplayers",
+                                    FL_METHOD_CODEC(methodCodec));
 
-    g_autoptr(FlStandardMethodCodec) globalMethodCodec = fl_standard_method_codec_new();
-    globalMethods = fl_method_channel_new(binaryMessenger,
-        "xyz.luan/audioplayers.global", FL_METHOD_CODEC(globalMethodCodec));
+    g_autoptr(FlStandardMethodCodec) globalMethodCodec =
+        fl_standard_method_codec_new();
+    globalMethods =
+        fl_method_channel_new(binaryMessenger, "xyz.luan/audioplayers.global",
+                              FL_METHOD_CODEC(globalMethodCodec));
 
-    g_autoptr(FlStandardMethodCodec) globalEventCodec = fl_standard_method_codec_new();
+    g_autoptr(FlStandardMethodCodec) globalEventCodec =
+        fl_standard_method_codec_new();
     globalEvents = fl_event_channel_new(binaryMessenger,
-        "xyz.luan/audioplayers.global/events", FL_METHOD_CODEC(globalEventCodec));
+                                        "xyz.luan/audioplayers.global/events",
+                                        FL_METHOD_CODEC(globalEventCodec));
 
     fl_method_channel_set_method_call_handler(
         methods, method_call_cb, g_object_ref(plugin), g_object_unref);

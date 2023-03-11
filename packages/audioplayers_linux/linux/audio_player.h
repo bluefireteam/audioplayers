@@ -20,8 +20,9 @@ extern "C" {
 }
 
 class AudioPlayer {
-public:
-    AudioPlayer(std::string playerId, FlMethodChannel *methodChannel, FlEventChannel *eventChannel);
+   public:
+    AudioPlayer(std::string playerId, FlMethodChannel *methodChannel,
+                FlEventChannel *eventChannel);
 
     int64_t GetPosition();
 
@@ -51,7 +52,7 @@ public:
 
     virtual ~AudioPlayer();
 
-private:
+   private:
     // Gst members
     GstElement *playbin;
     GstElement *source;
