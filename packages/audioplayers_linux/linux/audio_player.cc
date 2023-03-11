@@ -125,18 +125,13 @@ gboolean AudioPlayer::OnRefresh(AudioPlayer *data) {
 }
 
 void AudioPlayer::OnMediaError(GError *error, gchar *debug) {
-    std::ostringstream oss;
-    oss << "Error: " << error->code << "; message=" << error->message;
-    g_print("%s\n", oss.str().c_str());
-    if (this->_methodChannel) {
-        g_autoptr(FlValue) map = fl_value_new_map();
-        fl_value_set_string(map, "playerId",
-                            fl_value_new_string(_playerId.c_str()));
-        fl_value_set_string(map, "value",
-                            fl_value_new_string(oss.str().c_str()));
-
-        fl_method_channel_invoke_method(this->_methodChannel, "audio.onError", map,
-                                        nullptr, nullptr, nullptr);
+    if (this->_eventChannel) {
+        fl_event_channel_send_error(this->_eventChannel, 
+            std::to_string(error->code).c_str(), error->message, nullptr, nullptr, &error);
+    } else {
+        std::ostringstream oss;
+        oss << "Error: " << error->code << "; message=" << error->message;
+        g_print("%s\n", oss.str().c_str());
     }
 }
 
@@ -159,37 +154,31 @@ void AudioPlayer::OnMediaStateChange(GstObject *src, GstState *old_state,
 }
 
 void AudioPlayer::OnPositionUpdate() {
-    if (this->_methodChannel) {
+    if (this->_eventChannel) {
         g_autoptr(FlValue) map = fl_value_new_map();
-        fl_value_set_string(map, "playerId",
-                            fl_value_new_string(_playerId.c_str()));
+        fl_value_set_string(map, "event",
+                            fl_value_new_string("audio.onCurrentPosition"));
         fl_value_set_string(map, "value", fl_value_new_int(GetPosition()));
-        fl_method_channel_invoke_method(this->_methodChannel,
-                                        "audio.onCurrentPosition", map, nullptr,
-                                        nullptr, nullptr);
+        fl_event_channel_send(this->_eventChannel, map, nullptr, nullptr);
     }
 }
 
 void AudioPlayer::OnDurationUpdate() {
-    if (this->_methodChannel) {
+    if (this->_eventChannel) {
         g_autoptr(FlValue) map = fl_value_new_map();
-        fl_value_set_string(map, "playerId",
-                            fl_value_new_string(_playerId.c_str()));
+        fl_value_set_string(map, "event", fl_value_new_string("audio.onDuration"));
         fl_value_set_string(map, "value", fl_value_new_int(GetDuration()));
-        fl_method_channel_invoke_method(this->_methodChannel, "audio.onDuration", map,
-                                        nullptr, nullptr, nullptr);
+        fl_event_channel_send(this->_eventChannel, map, nullptr, nullptr);
     }
 }
 
 void AudioPlayer::OnSeekCompleted() {
-    if (this->_methodChannel) {
+    if (this->_eventChannel) {
         OnPositionUpdate();
         g_autoptr(FlValue) map = fl_value_new_map();
-        fl_value_set_string(map, "playerId",
-                            fl_value_new_string(_playerId.c_str()));
+        fl_value_set_string(map, "event", fl_value_new_string("audio.onSeekComplete"));
         fl_value_set_string(map, "value", fl_value_new_bool(true));
-        fl_method_channel_invoke_method(this->_methodChannel, "audio.onSeekComplete",
-                                        map, nullptr, nullptr, nullptr);
+        fl_event_channel_send(this->_eventChannel, map, nullptr, nullptr);
     }
 }
 
@@ -198,14 +187,11 @@ void AudioPlayer::OnPlaybackEnded() {
     if (GetLooping()) {
         Play();
     }
-    if (this->_methodChannel) {
+    if (this->_eventChannel) {
         g_autoptr(FlValue) map = fl_value_new_map();
-        fl_value_set_string(map, "playerId",
-                            fl_value_new_string(_playerId.c_str()));
+        fl_value_set_string(map, "event", fl_value_new_string("audio.onComplete"));
         fl_value_set_string(map, "value", fl_value_new_bool(true));
-
-        fl_method_channel_invoke_method(this->_methodChannel, "audio.onComplete", map,
-                                        nullptr, nullptr, nullptr);
+        fl_event_channel_send(this->_eventChannel, map, nullptr, nullptr);
     }
 }
 
