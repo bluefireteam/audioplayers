@@ -75,8 +75,6 @@ class AudioPlayer {
     void SetSourceUrl(std::string url);
 
     virtual ~AudioPlayer();
-
-    EventStreamHandler<>* _eventHandler;
     
    private:
     // Media members
@@ -102,4 +100,6 @@ class AudioPlayer {
     void OnSeekCompleted();
 
     std::string _playerId;
+    
+    EventStreamHandler<>* _eventHandler;
 };
