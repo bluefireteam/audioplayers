@@ -9,6 +9,7 @@ import 'package:audioplayers_platform_interface/api/global_event.dart';
 import 'package:audioplayers_platform_interface/api/player_event.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
 import 'package:flutter/services.dart';
+import 'package:meta/meta.dart';
 import 'package:uuid/uuid.dart';
 
 const _uuid = Uuid();
@@ -57,7 +58,8 @@ class AudioPlayer {
   late final StreamSubscription _eventStreamSubscription;
   Stream<PlayerEvent> get eventStream => _eventStreamController.stream;
 
-  static final Stream<GlobalEvent> _globalEventStream =
+  // TODO(Gustl22): move to global variable and remove "global" keywords in methods.
+  static final Stream<GlobalEvent> globalEventStream =
       _platform.getGlobalEventStream();
 
   static StreamSubscription _onGlobalLogStreamSubscription =
@@ -108,7 +110,7 @@ class AudioPlayer {
       .map((event) => event.logMessage!);
 
   /// Stream of global log events.
-  static Stream<String> get _onGlobalLog => _globalEventStream
+  static Stream<String> get _onGlobalLog => globalEventStream
       .where((event) => event.eventType == GlobalEventType.log)
       .map((event) => event.logMessage!);
 
@@ -131,7 +133,7 @@ class AudioPlayer {
   AudioPlayer({String? playerId}) : playerId = playerId ?? _uuid.v4() {
     _onLogStreamSubscription = _onLog.listen(
           (log) => logger.log('$log\nSource: $_source'),
-      onError: (Object e, stackTrace) => logger.error(
+      onError: (Object e, [StackTrace? stackTrace]) => logger.error(
         AudioPlayerException(this, cause: e),
         stackTrace,
       ),
@@ -141,7 +143,11 @@ class AudioPlayer {
       if (releaseMode == ReleaseMode.release) {
         _source = null;
       }
-    }, onError: (_) { /* Errors are already handled via log stream */});
+      },
+      onError: (Object _, [StackTrace? __]) {
+        /* Errors are already handled via log stream */
+      },
+    );
     create();
   }
 
@@ -361,6 +367,17 @@ class AudioPlayer {
       return null;
     }
     return Duration(milliseconds: milliseconds);
+  }
+  
+  Future<void> log(String message) async {
+    await _creatingCompleter.future;
+    await _platform.log(playerId, message);
+  }
+
+  @visibleForTesting
+  Future<void> debugError(String code, String message) async {
+    await _creatingCompleter.future;
+    await _platform.debugError(playerId, code, message);
   }
 
   /// Closes all [StreamController]s.

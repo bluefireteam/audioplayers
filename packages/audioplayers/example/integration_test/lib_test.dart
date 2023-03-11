@@ -204,21 +204,58 @@ void main() {
   });
 
   group('Logging', () {
-    testWidgets('Platforms shows log, when start playing', (tester) async {
+    testWidgets('Emit platform log', (tester) async {
       final completer = Completer<String>();
       final player = AudioPlayer();
       player.setLogHandler(
         completer.complete,
         onError: completer.completeError,
       );
-      await player.play(audioTestDataList[0].source);
+      await player.log('SomeLog');
       final log = await completer.future;
-      expect(log, 'RESUME');
+      expect(log, 'SomeLog');
+    });
+
+    testWidgets('Emit global platform log', (tester) async {
+      final completer = Completer<String>();
+      AudioPlayer.setGlobalLogHandler(
+        completer.complete,
+        onError: completer.completeError,
+      );
+      AudioPlayer.global.globalLog('SomeGlobalLog');
+      final log = await completer.future;
+      expect(log, 'SomeGlobalLog');
     });
   });
 
-  group('Platform errors', () {
-    testWidgets('Platforms throw PlatformException, when playing invalid file',
+  group('Errors', () {
+    testWidgets('Emit platform error', (tester) async {
+      final completer = Completer<Object>();
+      final player = AudioPlayer();
+      player.eventStream.listen((_) {}, onError: completer.complete);
+
+      await player.debugError('SomeErrorCode', 'SomeErrorMessage');
+      final exception = await completer.future;
+      expect(exception, isInstanceOf<PlatformException>());
+      final platformException = exception as PlatformException;
+      expect(platformException.code, 'SomeErrorCode');
+      expect(platformException.message, 'SomeErrorMessage');
+    });
+
+    testWidgets('Emit global platform error', (tester) async {
+      final completer = Completer<Object>();
+      AudioPlayer.globalEventStream.listen((_) {}, onError: completer.complete);
+
+      AudioPlayer.global
+          .debugGlobalError('SomeGlobalErrorCode', 'SomeGlobalErrorMessage');
+      final exception = await completer.future;
+      expect(exception, isInstanceOf<PlatformException>());
+      final platformException = exception as PlatformException;
+      expect(platformException.code, 'SomeGlobalErrorCode');
+      expect(platformException.message, 'SomeGlobalErrorMessage');
+    });
+
+    testWidgets('Throw PlatformException, when playing invalid file',
         (tester) async {
       final completer = Completer<Object>();
       final player = AudioPlayer();
@@ -237,13 +274,6 @@ void main() {
         } else {
           expect(e, isInstanceOf<PlatformException>());
         }
-      }
-      // TODO(Gustl22): This should probably not be tested on method call, 
-      //  as it is a stream event. The error events may should also not be 
-      //  thrown on the native side for errors occurring during method calls.
-      if (!kIsWeb) {
-        final exception = await completer.future;
-        expect(exception, isInstanceOf<PlatformException>());
       }
     });
   });

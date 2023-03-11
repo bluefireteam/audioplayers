@@ -162,6 +162,29 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform {
   }
 
   @override
+  Future<void> log(String playerId, String message) {
+    return _call(
+      'log',
+      playerId,
+      <String, dynamic>{
+        'message': message,
+      },
+    );
+  }
+
+  @override
+  Future<void> debugError(String playerId, String code, String message) {
+    return _call(
+      'debugError',
+      playerId,
+      <String, dynamic>{
+        'code': code,
+        'message': message,
+      },
+    );
+  }
+
+  @override
   Stream<PlayerEvent> getEventStream(String playerId) {
     return _eventChannelFor(playerId);
   }

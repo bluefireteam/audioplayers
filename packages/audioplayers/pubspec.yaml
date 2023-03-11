@@ -30,6 +30,7 @@ dependencies:
   flutter:
     sdk: flutter
   http: ^0.13.5
+  meta: ^1.8.0
   path_provider: ^2.0.12
   synchronized: ^3.0.1
   uuid: ^3.0.7
