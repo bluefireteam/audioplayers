@@ -166,9 +166,6 @@ class WrappedPlayer {
 
   Future<void> resume() async {
     await start(_pausedAt ?? 0);
-    eventStreamController.add(
-      const PlayerEvent(eventType: PlayerEventType.log, logMessage: 'RESUME'),
-    );
   }
 
   void pause() {
@@ -198,6 +195,12 @@ class WrappedPlayer {
     if (_currentReleaseMode == ReleaseMode.release) {
       player = null;
     }
+  }
+
+  void log(String message) {
+    eventStreamController.add(
+      PlayerEvent(eventType: PlayerEventType.log, logMessage: message),
+    );
   }
 
   Future<void> dispose() async {

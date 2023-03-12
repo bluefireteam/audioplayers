@@ -5,7 +5,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:audioplayers/audioplayers.dart';
-import 'package:audioplayers_platform_interface/api/global_event.dart';
+import 'package:audioplayers/src/global_audioplayer.dart';
 import 'package:audioplayers_platform_interface/api/player_event.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
 import 'package:flutter/services.dart';
@@ -21,8 +21,8 @@ const _uuid = Uuid();
 /// It holds methods to play, loop, pause, stop, seek the audio, and some useful
 /// hooks for handlers and callbacks.
 class AudioPlayer {
-  static final global = GlobalPlatformInterface.instance;
-  static final _platform = AudioplayersPlatform.instance;
+  static final global = GlobalAudioPlayer();
+  static final _platform = AudioplayersPlatformInterface.instance;
   static final logger = Logger.instance;
 
   /// This is the [AudioCache] instance used by this player.
@@ -57,13 +57,6 @@ class AudioPlayer {
   final _eventStreamController = StreamController<PlayerEvent>.broadcast();
   late final StreamSubscription _eventStreamSubscription;
   Stream<PlayerEvent> get eventStream => _eventStreamController.stream;
-
-  // TODO(Gustl22): move to global variable and remove "global" keywords in methods.
-  static final Stream<GlobalEvent> globalEventStream =
-      _platform.getGlobalEventStream();
-
-  static StreamSubscription _onGlobalLogStreamSubscription =
-      _onGlobalLog.listen(logger.log, onError: logger.error);
 
   final StreamController<PlayerState> _playerStateController =
       StreamController<PlayerState>.broadcast();
@@ -107,11 +100,6 @@ class AudioPlayer {
   /// Stream of log events.
   Stream<String> get _onLog => eventStream
       .where((event) => event.eventType == PlayerEventType.log)
-      .map((event) => event.logMessage!);
-
-  /// Stream of global log events.
-  static Stream<String> get _onGlobalLog => globalEventStream
-      .where((event) => event.eventType == GlobalEventType.log)
       .map((event) => event.logMessage!);
 
   /// An unique ID generated for this instance of [AudioPlayer].
@@ -195,15 +183,6 @@ class AudioPlayer {
     _onLogStreamSubscription.cancel();
     _onLogStreamSubscription =
         _onLog.listen(onLog, onError: onError ?? logger.error);
-  }
-
-  static void setGlobalLogHandler(
-    void Function(String log)? onLog, {
-    void Function(Object o, [StackTrace? stackTrace])? onError,
-  }) {
-    _onGlobalLogStreamSubscription.cancel();
-    _onGlobalLogStreamSubscription =
-        _onGlobalLog.listen(onLog, onError: onError ?? logger.error);
   }
 
   Future<void> setAudioContext(AudioContext ctx) async {

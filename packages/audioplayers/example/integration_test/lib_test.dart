@@ -133,7 +133,7 @@ void main() {
           //ignore: avoid_redundant_argument_values
           respectSilence: false,
         ).build();
-        await AudioPlayer.global.setGlobalAudioContext(audioContext);
+        await AudioPlayer.global.setAudioContext(audioContext);
         await player.setAudioContext(audioContext);
 
         await player.play(td.source);
@@ -145,7 +145,7 @@ void main() {
           forceSpeaker: false,
           respectSilence: true,
         ).build();
-        await AudioPlayer.global.setGlobalAudioContext(audioContext);
+        await AudioPlayer.global.setAudioContext(audioContext);
         await player.setAudioContext(audioContext);
 
         await player.resume();
@@ -174,7 +174,7 @@ void main() {
           //ignore: avoid_redundant_argument_values
           respectSilence: false,
         ).build();
-        await AudioPlayer.global.setGlobalAudioContext(audioContext);
+        await AudioPlayer.global.setAudioContext(audioContext);
         await player.setAudioContext(audioContext);
 
         await player.setSource(td.source);
@@ -189,7 +189,7 @@ void main() {
           forceSpeaker: false,
           respectSilence: true,
         ).build();
-        await AudioPlayer.global.setGlobalAudioContext(audioContext);
+        await AudioPlayer.global.setAudioContext(audioContext);
         await player.setAudioContext(audioContext);
 
         await player.resume();
@@ -218,11 +218,11 @@ void main() {
 
     testWidgets('Emit global platform log', (tester) async {
       final completer = Completer<String>();
-      AudioPlayer.setGlobalLogHandler(
+      AudioPlayer.global.setLogHandler(
         completer.complete,
         onError: completer.completeError,
       );
-      AudioPlayer.global.globalLog('SomeGlobalLog');
+      AudioPlayer.global.log('SomeGlobalLog');
       final log = await completer.future;
       expect(log, 'SomeGlobalLog');
     });
@@ -244,10 +244,11 @@ void main() {
 
     testWidgets('Emit global platform error', (tester) async {
       final completer = Completer<Object>();
-      AudioPlayer.globalEventStream.listen((_) {}, onError: completer.complete);
+      AudioPlayer.global.eventStream
+          .listen((_) {}, onError: completer.complete);
 
       AudioPlayer.global
-          .debugGlobalError('SomeGlobalErrorCode', 'SomeGlobalErrorMessage');
+          .debugError('SomeGlobalErrorCode', 'SomeGlobalErrorMessage');
       final exception = await completer.future;
       expect(exception, isInstanceOf<PlatformException>());
       final platformException = exception as PlatformException;

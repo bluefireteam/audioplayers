@@ -1,25 +1,28 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:audioplayers_platform_interface/api/audio_context_config.dart';
-import 'package:audioplayers_platform_interface/api/global_event.dart';
 import 'package:audioplayers_platform_interface/api/player_event.dart';
 import 'package:audioplayers_platform_interface/api/player_mode.dart';
 import 'package:audioplayers_platform_interface/api/release_mode.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
+import 'package:audioplayers_platform_interface/global_platform_interface.dart';
+import 'package:audioplayers_web/global_audioplayers_web.dart';
 import 'package:audioplayers_web/num_extension.dart';
 import 'package:audioplayers_web/wrapped_player.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 
-class AudioplayersPlugin extends AudioplayersPlatform {
+class AudioplayersPlugin {
   /// The entrypoint called by the generated plugin registrant.
   static void registerWith(Registrar registrar) {
-    AudioplayersPlatform.instance = AudioplayersPlugin();
+    AudioplayersPlatformInterface.instance = WebAudioplayersPlatform();
+    GlobalPlatformInterface.instance = GlobalWebAudioplayersPlatform();
   }
+}
 
+class WebAudioplayersPlatform extends AudioplayersPlatformInterface {
   // players by playerId
   Map<String, WrappedPlayer> players = {};
-  final globalEventStreamController = StreamController<GlobalEvent>.broadcast();
 
   @override
   Future<void> create(String playerId) async {
@@ -75,7 +78,12 @@ class AudioplayersPlugin extends AudioplayersPlatform {
     String playerId,
     AudioContext audioContext,
   ) async {
-    // no-op: web doesn't have any audio context
+    getPlayer(playerId).eventStreamController.add(
+          const PlayerEvent(
+            eventType: PlayerEventType.log,
+            logMessage: 'Setting AudioContext is not supported on Web',
+          ),
+        );
   }
 
   @override
@@ -127,18 +135,24 @@ class AudioplayersPlugin extends AudioplayersPlatform {
   }
 
   @override
+  Future<void> log(String playerId, String message) async {
+    getPlayer(playerId).log(message);
+  }
+
+  @override
+  Future<void> debugError(String playerId, String code, String message) async {
+    getPlayer(playerId)
+        .eventStreamController
+        .addError(PlatformException(code: code, message: message));
+  }
+
+  @override
   Stream<PlayerEvent> getEventStream(String playerId) {
     return getPlayer(playerId).eventStreamController.stream;
   }
 
   @override
-  Stream<GlobalEvent> getGlobalEventStream() {
-    return globalEventStreamController.stream;
-  }
-
-  @override
   Future<void> dispose(String playerId) async {
-    globalEventStreamController.close();
     await Future.forEach<WrappedPlayer>(
       players.values,
       (player) => player.dispose(),

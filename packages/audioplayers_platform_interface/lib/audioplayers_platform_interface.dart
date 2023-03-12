@@ -6,7 +6,7 @@ import 'package:audioplayers_platform_interface/api/global_event.dart';
 import 'package:audioplayers_platform_interface/api/player_event.dart';
 import 'package:audioplayers_platform_interface/api/player_mode.dart';
 import 'package:audioplayers_platform_interface/api/release_mode.dart';
-import 'package:audioplayers_platform_interface/method_channel_audioplayers_platform.dart';
+import 'package:audioplayers_platform_interface/audioplayers_platform.dart';
 import 'package:meta/meta.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
@@ -17,25 +17,31 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 /// changes. Extending this class (using `extends`) ensures that the subclass
 /// will get the default implementation, while platform implementations that
 /// `implements` this interface will be broken by newly added
-/// [AudioplayersPlatform] methods.
-abstract class AudioplayersPlatform extends PlatformInterface {
-  AudioplayersPlatform() : super(token: _token);
+/// [AudioplayersPlatformInterface] methods.
+abstract class AudioplayersPlatformInterface extends PlatformInterface
+    implements
+        MethodChannelAudioplayersPlatformInterface,
+        EventChannelAudioplayersPlatformInterface {
+  AudioplayersPlatformInterface() : super(token: _token);
 
   static final Object _token = Object();
 
-  /// The default instance of [AudioplayersPlatform] to use.
+  /// The default instance of [AudioplayersPlatformInterface] to use.
   ///
-  /// Defaults to [MethodChannelAudioplayersPlatform].
+  /// Defaults to [AudioplayersPlatform].
   /// Platform-specific plugins should set this with their own platform-specific
-  /// class that extends [AudioplayersPlatform] when they register themselves.
-  static AudioplayersPlatform instance = MethodChannelAudioplayersPlatform();
+  /// class that extends [AudioplayersPlatformInterface] when they register
+  /// themselves.
+  static AudioplayersPlatformInterface instance = AudioplayersPlatform();
+}
 
+abstract class MethodChannelAudioplayersPlatformInterface {
   /// Create a player instance for the given playerId.
   Future<void> create(String playerId);
 
   /// Dispose the player instance with the given playerId.
   Future<void> dispose(String playerId);
-  
+
   /// Pauses the audio that is currently playing.
   ///
   /// If you call [resume] later, the audio will resume from the point that it
@@ -126,13 +132,13 @@ abstract class AudioplayersPlatform extends PlatformInterface {
   ///  * source does not support operation (e.g. streams)
   ///  * otherwise not supported (e.g. LOW_LATENCY mode on Android)
   Future<int?> getCurrentPosition(String playerId);
-  
+
   Future<void> log(String playerId, String message);
 
   @visibleForTesting
   Future<void> debugError(String playerId, String code, String message);
+}
 
+abstract class EventChannelAudioplayersPlatformInterface {
   Stream<PlayerEvent> getEventStream(String playerId);
-
-  Stream<GlobalEvent> getGlobalEventStream();
 }

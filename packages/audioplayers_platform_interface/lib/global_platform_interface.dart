@@ -1,11 +1,16 @@
 import 'package:audioplayers_platform_interface/api/audio_context_config.dart';
-import 'package:audioplayers_platform_interface/method_channel_interface.dart';
-import 'package:flutter/services.dart';
+import 'package:audioplayers_platform_interface/api/global_event.dart';
+import 'package:audioplayers_platform_interface/global_platform.dart';
 import 'package:meta/meta.dart';
 
-abstract class GlobalPlatformInterface {
-  static GlobalPlatformInterface instance = MethodChannelGlobalPlatform();
+abstract class GlobalPlatformInterface
+    implements
+        MethodChannelGlobalPlatformInterface,
+        EventChannelGlobalPlatformInterface {
+  static GlobalPlatformInterface instance = GlobalPlatform();
+}
 
+abstract class MethodChannelGlobalPlatformInterface {
   Future<void> setGlobalAudioContext(AudioContext ctx);
 
   Future<void> globalLog(String message);
@@ -14,36 +19,6 @@ abstract class GlobalPlatformInterface {
   Future<void> debugGlobalError(String code, String message);
 }
 
-class MethodChannelGlobalPlatform extends GlobalPlatformInterface {
-  static const MethodChannel _channel =
-      MethodChannel('xyz.luan/audioplayers.global');
-
-  @override
-  Future<void> setGlobalAudioContext(AudioContext ctx) {
-    return _channel.call(
-      'setGlobalAudioContext',
-      ctx.toJson(),
-    );
-  }
-
-  @override
-  Future<void> globalLog(String message) {
-    return _channel.call(
-      'log',
-      <String, dynamic>{
-        'message': message,
-      },
-    );
-  }
-
-  @override
-  Future<void> debugGlobalError(String code, String message) {
-    return _channel.call(
-      'debugError',
-      <String, dynamic>{
-        'code': code,
-        'message': message,
-      },
-    );
-  }
+abstract class EventChannelGlobalPlatformInterface {
+  Stream<GlobalEvent> getGlobalEventStream();
 }

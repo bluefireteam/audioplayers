@@ -5,7 +5,6 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:audioplayers_platform_interface/api/audio_context_config.dart';
-import 'package:audioplayers_platform_interface/api/global_event.dart';
 import 'package:audioplayers_platform_interface/api/player_event.dart';
 import 'package:audioplayers_platform_interface/api/player_mode.dart';
 import 'package:audioplayers_platform_interface/api/release_mode.dart';
@@ -13,10 +12,14 @@ import 'package:audioplayers_platform_interface/audioplayers_platform_interface.
 import 'package:audioplayers_platform_interface/method_channel_interface.dart';
 import 'package:flutter/services.dart';
 
-class MethodChannelAudioplayersPlatform extends AudioplayersPlatform {
-  final MethodChannel _channel = const MethodChannel('xyz.luan/audioplayers');
+class AudioplayersPlatform extends AudioplayersPlatformInterface
+    with MethodChannelAudioplayersPlatform, EventChannelAudioplayersPlatform {
+  AudioplayersPlatform();
+}
 
-  MethodChannelAudioplayersPlatform();
+mixin MethodChannelAudioplayersPlatform
+    implements MethodChannelAudioplayersPlatformInterface {
+  final MethodChannel _channel = const MethodChannel('xyz.luan/audioplayers');
 
   @override
   Future<void> create(String playerId) {
@@ -184,18 +187,36 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform {
     );
   }
 
+  Future<void> _call(
+    String method,
+    String playerId, [
+    Map<String, dynamic> arguments = const <String, dynamic>{},
+  ]) async {
+    final enhancedArgs = <String, dynamic>{
+      'playerId': playerId,
+      ...arguments,
+    };
+    return _channel.call(method, enhancedArgs);
+  }
+
+  Future<T?> _compute<T>(
+    String method,
+    String playerId, [
+    Map<String, dynamic> arguments = const <String, dynamic>{},
+  ]) async {
+    final enhancedArgs = <String, dynamic>{
+      'playerId': playerId,
+      ...arguments,
+    };
+    return _channel.compute<T>(method, enhancedArgs);
+  }
+}
+
+mixin EventChannelAudioplayersPlatform
+    implements EventChannelAudioplayersPlatformInterface {
   @override
   Stream<PlayerEvent> getEventStream(String playerId) {
-    return _eventChannelFor(playerId);
-  }
-
-  @override
-  Stream<GlobalEvent> getGlobalEventStream() {
-    return _globalEventChannel();
-  }
-
-  // Only can be used after have created the event channel on the native side.
-  Stream<PlayerEvent> _eventChannelFor(String playerId) {
+    // Only can be used after have created the event channel on the native side.
     final eventChannel = EventChannel('xyz.luan/audioplayers/events/$playerId');
 
     return eventChannel.receiveBroadcastStream().map(
@@ -233,47 +254,5 @@ class MethodChannelAudioplayersPlatform extends AudioplayersPlatform {
         }
       },
     );
-  }
-
-  Stream<GlobalEvent> _globalEventChannel() {
-    const globalEventChannel =
-        EventChannel('xyz.luan/audioplayers.global/events');
-    return globalEventChannel.receiveBroadcastStream().map((dynamic event) {
-      final map = event as Map<dynamic, dynamic>;
-      final eventType = map.getString('event');
-      switch (eventType) {
-        case 'audio.onGlobalLog':
-          final value = map.getString('value');
-          return GlobalEvent(eventType: GlobalEventType.log, logMessage: value);
-        default:
-          throw UnimplementedError(
-            'Global Event Method does not exist $eventType',
-          );
-      }
-    });
-  }
-
-  Future<void> _call(
-    String method,
-    String playerId, [
-    Map<String, dynamic> arguments = const <String, dynamic>{},
-  ]) async {
-    final enhancedArgs = <String, dynamic>{
-      'playerId': playerId,
-      ...arguments,
-    };
-    return _channel.call(method, enhancedArgs);
-  }
-
-  Future<T?> _compute<T>(
-    String method,
-    String playerId, [
-    Map<String, dynamic> arguments = const <String, dynamic>{},
-  ]) async {
-    final enhancedArgs = <String, dynamic>{
-      'playerId': playerId,
-      ...arguments,
-    };
-    return _channel.compute<T>(method, enhancedArgs);
   }
 }
