@@ -1,4 +1,0 @@
-# melos_managed_dependency_overrides: audioplayers_platform_interface
-dependency_overrides:
-  audioplayers_platform_interface:
-    path: ../audioplayers_platform_interface
