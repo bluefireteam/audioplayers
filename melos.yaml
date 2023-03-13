@@ -41,9 +41,8 @@ scripts:
 
   test:select:
     run: melos exec flutter test
-    select-package:
-      dir-exists:
-        - test
+    packageFilters:
+      dirExists: test
     description: Run `flutter test` for selected packages.
 
   test:
