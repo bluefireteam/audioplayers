@@ -347,16 +347,17 @@ class AudioPlayer {
     }
     return Duration(milliseconds: milliseconds);
   }
-  
-  Future<void> log(String message) async {
+
+  @visibleForTesting
+  Future<void> emitLog(String message) async {
     await _creatingCompleter.future;
-    await _platform.log(playerId, message);
+    await _platform.emitLog(playerId, message);
   }
 
   @visibleForTesting
-  Future<void> debugError(String code, String message) async {
+  Future<void> emitError(String code, String message) async {
     await _creatingCompleter.future;
-    await _platform.debugError(playerId, code, message);
+    await _platform.emitError(playerId, code, message);
   }
 
   /// Closes all [StreamController]s.

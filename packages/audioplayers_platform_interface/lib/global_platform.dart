@@ -17,15 +17,15 @@ mixin MethodChannelGlobalPlatform
   @override
   Future<void> setGlobalAudioContext(AudioContext ctx) {
     return _channel.call(
-      'setGlobalAudioContext',
+      'setAudioContext',
       ctx.toJson(),
     );
   }
 
   @override
-  Future<void> globalLog(String message) {
+  Future<void> emitGlobalLog(String message) {
     return _channel.call(
-      'log',
+      'emitLog',
       <String, dynamic>{
         'message': message,
       },
@@ -33,9 +33,9 @@ mixin MethodChannelGlobalPlatform
   }
 
   @override
-  Future<void> debugGlobalError(String code, String message) {
+  Future<void> emitGlobalError(String code, String message) {
     return _channel.call(
-      'debugError',
+      'emitError',
       <String, dynamic>{
         'code': code,
         'message': message,

@@ -13,10 +13,11 @@ abstract class GlobalPlatformInterface
 abstract class MethodChannelGlobalPlatformInterface {
   Future<void> setGlobalAudioContext(AudioContext ctx);
 
-  Future<void> globalLog(String message);
+  @visibleForTesting
+  Future<void> emitGlobalLog(String message);
 
   @visibleForTesting
-  Future<void> debugGlobalError(String code, String message);
+  Future<void> emitGlobalError(String code, String message);
 }
 
 abstract class EventChannelGlobalPlatformInterface {

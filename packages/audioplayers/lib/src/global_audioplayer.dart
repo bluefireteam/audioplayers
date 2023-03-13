@@ -16,11 +16,12 @@ class GlobalAudioPlayer {
   Future<void> setAudioContext(AudioContext ctx) =>
       _platform.setGlobalAudioContext(ctx);
 
-  Future<void> log(String message) => _platform.globalLog(message);
+  @visibleForTesting
+  Future<void> emitLog(String message) => _platform.emitGlobalLog(message);
 
   @visibleForTesting
-  Future<void> debugError(String code, String message) =>
-      _platform.debugGlobalError(code, message);
+  Future<void> emitError(String code, String message) =>
+      _platform.emitGlobalError(code, message);
 
   /// Stream of global events.
   final Stream<GlobalEvent> eventStream = _platform.getGlobalEventStream();

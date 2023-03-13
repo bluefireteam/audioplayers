@@ -63,6 +63,8 @@ class AudioplayersWindowsPlugin : public Plugin {
     void CreatePlayer(std::string playerId);
 
     AudioPlayer *GetPlayer(std::string playerId);
+
+    void OnGlobalLog(const std::string& message);
 };
 
 // static
@@ -106,16 +108,21 @@ AudioplayersWindowsPlugin::~AudioplayersWindowsPlugin() {}
 void AudioplayersWindowsPlugin::HandleGlobalMethodCall(
     const MethodCall<EncodableValue> &method_call,
     std::unique_ptr<MethodResult<EncodableValue>> result) {
-    // auto args = method_call.arguments();
+    auto args = method_call.arguments();
 
-    if (method_call.method_name().compare("setGlobalAudioContext") == 0) {
-        globalEvents->Success(
-            std::make_unique<flutter::EncodableValue>(flutter::EncodableMap(
-                {{flutter::EncodableValue("event"),
-                  flutter::EncodableValue("audio.onGlobalLog")},
-                 {flutter::EncodableValue("value"),
-                  flutter::EncodableValue(
-                      "Setting AudioContext is not supported for Windows")}})));
+    if (method_call.method_name().compare("setAudioContext") == 0) {
+        this->OnGlobalLog("Setting AudioContext is not supported on Windows");
+    } else if (method_call.method_name().compare("emitLog") == 0) {
+        auto message = GetArgument<std::string>("message", args, std::string());
+        this->OnGlobalLog(message);
+    } else if (method_call.method_name().compare("emitError") == 0) {
+        auto code = GetArgument<std::string>("code", args, std::string());
+        auto message = GetArgument<std::string>("message", args, std::string());
+        globalEvents->Error(code, message, nullptr);
+        result->Success(EncodableValue(1));
+    } else {
+        result->NotImplemented();
+        return;
     }
 
     result->Success(EncodableValue(1));
@@ -205,6 +212,15 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
         auto balance = GetArgument<double>("balance", args, 0.0);
         player->SetBalance(balance);
         result->Success(EncodableValue(1));
+    } else if (method_call.method_name().compare("emitLog") == 0) {
+        auto message = GetArgument<std::string>("message", args, std::string());
+        player->OnLog(message);
+        result->Success(EncodableValue(1));
+    } else if (method_call.method_name().compare("emitError") == 0) {
+        auto code = GetArgument<std::string>("code", args, std::string());
+        auto message = GetArgument<std::string>("message", args, std::string());
+        player->OnError(code, message, nullptr);
+        result->Success(EncodableValue(1));
     } else {
         result->NotImplemented();
     }
@@ -229,6 +245,14 @@ void AudioplayersWindowsPlugin::CreatePlayer(std::string playerId) {
 AudioPlayer *AudioplayersWindowsPlugin::GetPlayer(std::string playerId) {
     auto searchPlayer = audioPlayers.find(playerId);
     return searchPlayer->second.get();
+}
+
+void AudioplayersWindowsPlugin::OnGlobalLog(const std::string& message) {
+    globalEvents->Success(std::make_unique<flutter::EncodableValue>(
+        flutter::EncodableMap({{flutter::EncodableValue("event"),
+                                flutter::EncodableValue("audio.onGlobalLog")},
+                               {flutter::EncodableValue("value"),
+                                flutter::EncodableValue(message)}})));
 }
 
 }  // namespace

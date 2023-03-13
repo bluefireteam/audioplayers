@@ -133,10 +133,11 @@ abstract class MethodChannelAudioplayersPlatformInterface {
   ///  * otherwise not supported (e.g. LOW_LATENCY mode on Android)
   Future<int?> getCurrentPosition(String playerId);
 
-  Future<void> log(String playerId, String message);
+  @visibleForTesting
+  Future<void> emitLog(String playerId, String message);
 
   @visibleForTesting
-  Future<void> debugError(String playerId, String code, String message);
+  Future<void> emitError(String playerId, String code, String message);
 }
 
 abstract class EventChannelAudioplayersPlatformInterface {

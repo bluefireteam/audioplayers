@@ -165,9 +165,9 @@ mixin MethodChannelAudioplayersPlatform
   }
 
   @override
-  Future<void> log(String playerId, String message) {
+  Future<void> emitLog(String playerId, String message) {
     return _call(
-      'log',
+      'emitLog',
       playerId,
       <String, dynamic>{
         'message': message,
@@ -176,9 +176,9 @@ mixin MethodChannelAudioplayersPlatform
   }
 
   @override
-  Future<void> debugError(String playerId, String code, String message) {
+  Future<void> emitError(String playerId, String code, String message) {
     return _call(
-      'debugError',
+      'emitError',
       playerId,
       <String, dynamic>{
         'code': code,

@@ -211,7 +211,7 @@ void main() {
         completer.complete,
         onError: completer.completeError,
       );
-      await player.log('SomeLog');
+      await player.emitLog('SomeLog');
       final log = await completer.future;
       expect(log, 'SomeLog');
     });
@@ -222,7 +222,7 @@ void main() {
         completer.complete,
         onError: completer.completeError,
       );
-      AudioPlayer.global.log('SomeGlobalLog');
+      AudioPlayer.global.emitLog('SomeGlobalLog');
       final log = await completer.future;
       expect(log, 'SomeGlobalLog');
     });
@@ -234,7 +234,7 @@ void main() {
       final player = AudioPlayer();
       player.eventStream.listen((_) {}, onError: completer.complete);
 
-      await player.debugError('SomeErrorCode', 'SomeErrorMessage');
+      await player.emitError('SomeErrorCode', 'SomeErrorMessage');
       final exception = await completer.future;
       expect(exception, isInstanceOf<PlatformException>());
       final platformException = exception as PlatformException;
@@ -248,7 +248,7 @@ void main() {
           .listen((_) {}, onError: completer.complete);
 
       AudioPlayer.global
-          .debugError('SomeGlobalErrorCode', 'SomeGlobalErrorMessage');
+          .emitError('SomeGlobalErrorCode', 'SomeGlobalErrorMessage');
       final exception = await completer.future;
       expect(exception, isInstanceOf<PlatformException>());
       final platformException = exception as PlatformException;
