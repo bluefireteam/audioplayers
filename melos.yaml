@@ -8,12 +8,9 @@ packages:
 
 command:
   version:
-    # Generate commit links in package changelogs.
-    linkToCommits: true
     # Only allow versioning to happen on main branch.
     branch: main
-    # Additionally build a changelog at the root of the workspace.
-    workspaceChangelog: true
+
   bootstrap:
     # Avoid concurrent pub requests, remove when https://github.com/dart-lang/pub/issues/3404 is fixed
     runPubGetInParallel: false
@@ -36,14 +33,15 @@ scripts:
     description: Run `flutter format` checks for all packages.
 
   dartdoc:
-    run: melos exec --ignore="*_example" flutter pub run dartdoc
+    run: melos exec flutter pub run dartdoc
     description: Run dartdoc checks for all non-example packages.
+    packageFilters:
+      ignore: "*_example"
 
   test:select:
     run: melos exec flutter test
-    select-package:
-      dir-exists:
-        - test
+    packageFilters:
+      dirExists: test
     description: Run `flutter test` for selected packages.
 
   test:
