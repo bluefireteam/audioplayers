@@ -1,0 +1,14 @@
+# melos_managed_dependency_overrides: audioplayers_android,audioplayers_darwin,audioplayers_linux,audioplayers_platform_interface,audioplayers_web,audioplayers_windows
+dependency_overrides:
+  audioplayers_android:
+    path: ../audioplayers_android
+  audioplayers_darwin:
+    path: ../audioplayers_darwin
+  audioplayers_linux:
+    path: ../audioplayers_linux
+  audioplayers_platform_interface:
+    path: ../audioplayers_platform_interface
+  audioplayers_web:
+    path: ../audioplayers_web
+  audioplayers_windows:
+    path: ../audioplayers_windows
