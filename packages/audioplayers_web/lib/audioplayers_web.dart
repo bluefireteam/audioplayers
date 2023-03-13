@@ -135,12 +135,12 @@ class WebAudioplayersPlatform extends AudioplayersPlatformInterface {
   }
 
   @override
-  Future<void> log(String playerId, String message) async {
+  Future<void> emitLog(String playerId, String message) async {
     getPlayer(playerId).log(message);
   }
 
   @override
-  Future<void> debugError(String playerId, String code, String message) async {
+  Future<void> emitError(String playerId, String code, String message) async {
     getPlayer(playerId)
         .eventStreamController
         .addError(PlatformException(code: code, message: message));

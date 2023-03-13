@@ -24,14 +24,14 @@ class GlobalWebAudioplayersPlatform extends GlobalPlatformInterface {
   }
 
   @override
-  Future<void> globalLog(String message) async {
+  Future<void> emitGlobalLog(String message) async {
     _eventStreamController.add(
       GlobalEvent(eventType: GlobalEventType.log, logMessage: message),
     );
   }
 
   @override
-  Future<void> debugGlobalError(String code, String message) async {
+  Future<void> emitGlobalError(String code, String message) async {
     _eventStreamController
         .addError(PlatformException(code: code, message: message));
   }
