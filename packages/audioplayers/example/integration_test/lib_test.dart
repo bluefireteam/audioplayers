@@ -124,7 +124,8 @@ void main() {
     testWidgets(
       'test changing AudioContextConfigs',
       (WidgetTester tester) async {
-        final player = AudioPlayer()..setReleaseMode(ReleaseMode.stop);
+        final player = AudioPlayer();
+        await player.setReleaseMode(ReleaseMode.stop);
 
         final td = audioTestDataList[0];
 

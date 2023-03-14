@@ -80,7 +80,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
 
     private fun globalHandler(call: MethodCall, response: MethodChannel.Result) {
         when (call.method) {
-            "setGlobalAudioContext" -> {
+            "setAudioContext" -> {
                 val audioManager = getAudioManager()
                 audioManager.mode = defaultAudioContext.audioMode
                 audioManager.isSpeakerphoneOn = defaultAudioContext.isSpeakerphoneOn
@@ -88,15 +88,20 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
                 defaultAudioContext = call.audioContext()
             }
 
-            "globalLog" -> {
+            "emitLog" -> {
                 val message = call.argument<String>("message") ?: error("message is required")
                 handleGlobalLog(message)
             }
 
-            "debugGlobalError" -> {
-                val code = call.argument<String>("code") ?: error("message is required")
+            "emitError" -> {
+                val code = call.argument<String>("code") ?: error("code is required")
                 val message = call.argument<String>("message") ?: error("message is required")
                 handleGlobalError(code, message, null)
+            }
+            
+            else -> {
+                response.notImplemented()
+                return
             }
         }
 
@@ -148,12 +153,6 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
                 }
 
                 "setBalance" -> {
-                    handleError(
-                        player,
-                        "NotImplementedError",
-                        "setBalance is not currently implemented on Android",
-                        null,
-                    )
                     response.notImplemented()
                     return
                 }
@@ -188,14 +187,15 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
                     player.updateAudioContext(audioContext)
                 }
 
-                "log" -> {
+                "emitLog" -> {
                     val message = call.argument<String>("message") ?: error("message is required")
                     player.handleLog(message)
                 }
 
-                "debugError" -> {
+                "emitError" -> {
+                    val code = call.argument<String>("code") ?: error("code is required")
                     val message = call.argument<String>("message") ?: error("message is required")
-                    player.handleLog(message)
+                    player.handleError(code, message, null)
                 }
 
                 else -> {
