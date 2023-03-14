@@ -153,7 +153,10 @@ void AudioPlayer::OnMediaStateChange(GstObject *src, GstState *old_state,
     if (strcmp(GST_OBJECT_NAME(src), "playbin") == 0) {
         if (*new_state == GST_STATE_READY) {
             // Need to set to pause state, in order to make player functional
-            Pause();
+            GstStateChangeReturn ret = gst_element_set_state(playbin, GST_STATE_PAUSED);
+            if (ret == GST_STATE_CHANGE_FAILURE) {
+                this->OnError("", "Unable to set the pipeline from GST_STATE_PAUSED to GST_STATE_PAUSED.", nullptr, nullptr);
+            }
         } else if (*new_state >= GST_STATE_PAUSED) {
             if (!this->_isInitialized) {
                 this->_isInitialized = true;
@@ -344,16 +347,14 @@ void AudioPlayer::Play() {
 
 void AudioPlayer::Pause() {
     _isPlaying = false;
-    if (playbin->current_state < GST_STATE_READY) {
+    if (!_isInitialized) {
         return;
     }
     GstStateChangeReturn ret = gst_element_set_state(playbin, GST_STATE_PAUSED);
     if (ret == GST_STATE_CHANGE_FAILURE) {
         throw "Unable to set the pipeline to GST_STATE_PAUSED.";
     }
-    if (_isInitialized) {
-        OnPositionUpdate();  // Update to exact position when pausing
-    }
+    OnPositionUpdate();  // Update to exact position when pausing
 }
 
 void AudioPlayer::Resume() {
