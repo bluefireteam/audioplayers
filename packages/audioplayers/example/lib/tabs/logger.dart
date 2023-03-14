@@ -23,7 +23,7 @@ class _LoggerTabState extends State<LoggerTab>
   @override
   void initState() {
     super.initState();
-    AudioPlayer.setGlobalLogHandler(
+    AudioPlayer.global.setLogHandler(
       (log) {
         _logger.log(log);
         if (LogLevel.info.toInt() <= currentLogLevel.toInt()) {
