@@ -96,7 +96,6 @@ gboolean AudioPlayer::OnBusMessage(GstBus *bus, GstMessage *message,
             data->OnMediaStateChange(message->src, &old_state, &new_state);
             break;
         case GST_MESSAGE_EOS:
-            gst_element_set_state(data->playbin, GST_STATE_READY);
             data->OnPlaybackEnded();
             break;
         case GST_MESSAGE_DURATION_CHANGED:
@@ -155,7 +154,7 @@ void AudioPlayer::OnMediaStateChange(GstObject *src, GstState *old_state,
             // Need to set to pause state, in order to make player functional
             GstStateChangeReturn ret = gst_element_set_state(playbin, GST_STATE_PAUSED);
             if (ret == GST_STATE_CHANGE_FAILURE) {
-                this->OnError("", "Unable to set the pipeline from GST_STATE_PAUSED to GST_STATE_PAUSED.", nullptr, nullptr);
+                this->OnError("", "Unable to set the pipeline from GST_STATE_READY to GST_STATE_PAUSED.", nullptr, nullptr);
             }
         } else if (*new_state >= GST_STATE_PAUSED) {
             if (!this->_isInitialized) {
@@ -202,16 +201,17 @@ void AudioPlayer::OnSeekCompleted() {
 }
 
 void AudioPlayer::OnPlaybackEnded() {
-    SetPosition(0);
-    if (GetLooping()) {
-        Play();
-    }
     if (this->_eventChannel) {
         g_autoptr(FlValue) map = fl_value_new_map();
         fl_value_set_string(map, "event",
                             fl_value_new_string("audio.onComplete"));
         fl_value_set_string(map, "value", fl_value_new_bool(true));
         fl_event_channel_send(this->_eventChannel, map, nullptr, nullptr);
+    }
+    if (GetLooping()) {
+        Play();
+    } else {
+        SetPosition(0);
     }
 }
 
