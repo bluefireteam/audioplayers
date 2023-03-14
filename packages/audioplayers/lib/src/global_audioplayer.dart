@@ -7,7 +7,7 @@ import 'package:meta/meta.dart';
 /// Handle Global calls and events concerning all [AudioPlayer]s.
 class GlobalAudioPlayer {
   static final _platform = GlobalPlatformInterface.instance;
-  static final logger = Logger.instance;
+  Logger get _logger => Logger.instance;
 
   @Deprecated('Use `setAudioContext()` instead.')
   Future<void> setGlobalAudioContext(AudioContext ctx) =>
@@ -39,10 +39,10 @@ class GlobalAudioPlayer {
   }) {
     _onLogStreamSubscription.cancel();
     _onLogStreamSubscription =
-        _onLog.listen(onLog, onError: onError ?? logger.error);
+        _onLog.listen(onLog, onError: onError ?? _logger.error);
   }
 
   GlobalAudioPlayer() {
-    _onLogStreamSubscription = _onLog.listen(logger.log, onError: logger.error);
+    _onLogStreamSubscription = _onLog.listen(_logger.log, onError: _logger.error);
   }
 }
