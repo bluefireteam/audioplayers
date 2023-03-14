@@ -140,13 +140,17 @@ class AudioPlayer {
   }
 
   Future<void> create() async {
-    await _platform.create(playerId);
-    _eventStreamSubscription =
-        _platform.getEventStream(playerId).listen(
-          _eventStreamController.add,
-          onError: _eventStreamController.addError,
-        );
-    _creatingCompleter.complete();
+    try {
+      await _platform.create(playerId);
+      _eventStreamSubscription =
+          _platform.getEventStream(playerId).listen(
+            _eventStreamController.add,
+            onError: _eventStreamController.addError,
+          );
+      _creatingCompleter.complete();
+    } on Exception catch(e, st) {
+      _creatingCompleter.completeError(e, st);
+    }
   }
 
   Future<void> play(
