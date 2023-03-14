@@ -211,6 +211,7 @@ void AudioPlayer::OnPlaybackEnded() {
     if (GetLooping()) {
         Play();
     } else {
+        Pause();
         SetPosition(0);
     }
 }
