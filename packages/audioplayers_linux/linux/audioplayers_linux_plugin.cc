@@ -13,7 +13,6 @@
 #include <memory>
 #include <sstream>
 
-#include "Logger.h"
 #include "audio_player.h"
 
 #define AUDIOPLAYERS_LINUX_PLUGIN(obj)                                       \
@@ -33,7 +32,8 @@ static FlMethodChannel *globalMethods;
 static FlEventChannel *globalEvents;
 static std::map<std::string, std::unique_ptr<AudioPlayer>> audioPlayers;
 
-static void audioplayers_linux_plugin_create_player(std::string playerId) {
+static void audioplayers_linux_plugin_create_player(
+    const std::string &playerId) {
     g_autoptr(FlStandardMethodCodec) eventCodec =
         fl_standard_method_codec_new();
     auto eventChannel = fl_event_channel_new(
@@ -45,9 +45,18 @@ static void audioplayers_linux_plugin_create_player(std::string playerId) {
     audioPlayers.insert(std::make_pair(playerId, std::move(player)));
 }
 
-static AudioPlayer *audioplayers_linux_plugin_get_player(std::string playerId) {
+static AudioPlayer *audioplayers_linux_plugin_get_player(
+    const std::string &playerId) {
     auto searchPlayer = audioPlayers.find(playerId);
     return searchPlayer->second.get();
+}
+
+static void audioplayers_linux_plugin_on_global_log(const gchar *message) {
+    g_autoptr(FlValue) map = fl_value_new_map();
+    fl_value_set_string(map, "event", fl_value_new_string("audio.onGlobalLog"));
+    fl_value_set_string(map, "value", fl_value_new_string(message));
+
+    fl_event_channel_send(globalEvents, map, nullptr, nullptr);
 }
 
 static void audioplayers_linux_plugin_handle_global_method_call(
@@ -55,18 +64,28 @@ static void audioplayers_linux_plugin_handle_global_method_call(
     g_autoptr(FlMethodResponse) response = nullptr;
     int result = 1;
     const gchar *method = fl_method_call_get_name(method_call);
-    // FlValue *args = fl_method_call_get_args(method_call);
+    FlValue *args = fl_method_call_get_args(method_call);
 
-    if (strcmp(method, "setGlobalAudioContext") == 0) {
-        g_autoptr(FlValue) map = fl_value_new_map();
-        fl_value_set_string(map, "event",
-                            fl_value_new_string("audio.onGlobalLog"));
-        fl_value_set_string(
-            map, "value",
-            fl_value_new_string(
-                "Setting AudioContext is not supported on Linux"));
-
-        fl_event_channel_send(globalEvents, map, nullptr, nullptr);
+    if (strcmp(method, "setAudioContext") == 0) {
+        audioplayers_linux_plugin_on_global_log(
+            "Setting AudioContext is not supported on Linux");
+    } else if (strcmp(method, "emitLog") == 0) {
+        auto flMessage = fl_value_lookup_string(args, "message");
+        auto message =
+            flMessage == nullptr ? "" : fl_value_get_string(flMessage);
+        audioplayers_linux_plugin_on_global_log(message);
+    } else if (strcmp(method, "emitError") == 0) {
+        auto flCode = fl_value_lookup_string(args, "code");
+        auto code = flCode == nullptr ? "" : fl_value_get_string(flCode);
+        auto flMessage = fl_value_lookup_string(args, "message");
+        auto message =
+            flMessage == nullptr ? "" : fl_value_get_string(flMessage);
+        fl_event_channel_send_error(globalEvents, code, message, nullptr,
+                                    nullptr, nullptr);
+    } else {
+        response = FL_METHOD_RESPONSE(fl_method_not_implemented_response_new());
+        fl_method_call_respond(method_call, response, nullptr);
+        return;
     }
 
     response = FL_METHOD_RESPONSE(
@@ -188,6 +207,20 @@ static void audioplayers_linux_plugin_handle_method_call(
         double balance =
             flBalance == nullptr ? 0.0f : fl_value_get_float(flBalance);
         player->SetBalance(balance);
+        result = 1;
+    } else if (strcmp(method, "emitLog") == 0) {
+        auto flMessage = fl_value_lookup_string(args, "message");
+        auto message =
+            flMessage == nullptr ? "" : fl_value_get_string(flMessage);
+        player->OnLog(message);
+        result = 1;
+    } else if (strcmp(method, "emitError") == 0) {
+        auto flCode = fl_value_lookup_string(args, "code");
+        auto code = flCode == nullptr ? "" : fl_value_get_string(flCode);
+        auto flMessage = fl_value_lookup_string(args, "message");
+        auto message =
+            flMessage == nullptr ? "" : fl_value_get_string(flMessage);
+        player->OnError(code, message, nullptr, nullptr);
         result = 1;
     } else {
         response = FL_METHOD_RESPONSE(fl_method_not_implemented_response_new());

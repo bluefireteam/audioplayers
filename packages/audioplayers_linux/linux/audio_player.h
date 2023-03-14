@@ -50,6 +50,11 @@ class AudioPlayer {
 
     void SetSourceUrl(std::string url);
 
+    void OnError(const gchar *code, const gchar *message, FlValue *details,
+                 GError **error);
+
+    void OnLog(const gchar *message);
+
     virtual ~AudioPlayer();
 
    private:

@@ -2,8 +2,6 @@
 
 #include <flutter_linux/flutter_linux.h>
 
-#include "Logger.h"
-
 AudioPlayer::AudioPlayer(std::string playerId, FlMethodChannel *methodChannel,
                          FlEventChannel *eventChannel)
     : _playerId(playerId),
@@ -12,8 +10,7 @@ AudioPlayer::AudioPlayer(std::string playerId, FlMethodChannel *methodChannel,
     gst_init(NULL, NULL);
     playbin = gst_element_factory_make("playbin", "playbin");
     if (!playbin) {
-        Logger::Error(std::string("Not all elements could be created."));
-        return;
+        throw "Not all elements could be created.";
     }
 
     // Setup stereo balance controller
@@ -121,7 +118,8 @@ gboolean AudioPlayer::OnBusMessage(GstBus *bus, GstMessage *message,
 // Compare with refresh_ui in
 // https://gstreamer.freedesktop.org/documentation/tutorials/basic/toolkit-integration.html?gi-language=c#walkthrough
 gboolean AudioPlayer::OnRefresh(AudioPlayer *data) {
-    // We do not want to update anything unless we are in the PAUSED or PLAYING states
+    // We do not want to update anything unless we are in the PAUSED or PLAYING
+    // states
     if (data->playbin->current_state == GST_STATE_PLAYING) {
         data->OnPositionUpdate();
     }
@@ -130,12 +128,19 @@ gboolean AudioPlayer::OnRefresh(AudioPlayer *data) {
 
 void AudioPlayer::OnMediaError(GError *error, gchar *debug) {
     if (this->_eventChannel) {
-        fl_event_channel_send_error(this->_eventChannel,
-                                    std::to_string(error->code).c_str(),
-                                    error->message, nullptr, nullptr, &error);
+        this->OnError(std::to_string(error->code).c_str(), error->message,
+                      nullptr, &error);
+    }
+}
+
+void AudioPlayer::OnError(const gchar *code, const gchar *message,
+                          FlValue *details, GError **error) {
+    if (this->_eventChannel) {
+        fl_event_channel_send_error(this->_eventChannel, code, message, details,
+                                    nullptr, error);
     } else {
         std::ostringstream oss;
-        oss << "Error: " << error->code << "; message=" << error->message;
+        oss << "Error: " << code << "; message=" << message;
         g_print("%s\n", oss.str().c_str());
     }
 }
@@ -149,7 +154,8 @@ void AudioPlayer::OnMediaStateChange(GstObject *src, GstState *old_state,
                 if (this->_isPlaying) {
                     Resume();
                 } else {
-                    Pause(); // Need to set to pause state, in order to get duration
+                    Pause();  // Need to set to pause state, in order to get
+                              // duration
                 }
             }
         } else if (this->_isInitialized) {
@@ -203,9 +209,19 @@ void AudioPlayer::OnPlaybackEnded() {
     }
 }
 
+void AudioPlayer::OnLog(const gchar *message) {
+    if (this->_eventChannel) {
+        g_autoptr(FlValue) map = fl_value_new_map();
+        fl_value_set_string(map, "event", fl_value_new_string("audio.onLog"));
+        fl_value_set_string(map, "value", fl_value_new_string(message));
+
+        fl_event_channel_send(this->_eventChannel, map, nullptr, nullptr);
+    }
+}
+
 void AudioPlayer::SetBalance(float balance) {
     if (!panorama) {
-        Logger::Error(std::string("Audiopanorama was not initialized"));
+        this->OnLog("Audiopanorama was not initialized");
         return;
     }
 
@@ -271,9 +287,10 @@ void AudioPlayer::SetPlayback(int64_t position, double rate) {
             GST_SEEK_TYPE_SET, 0, GST_SEEK_TYPE_SET, position * GST_MSECOND);
     }
     if (!gst_element_send_event(playbin, seek_event)) {
-        Logger::Error(std::string("Could not set playback to position ") +
-                      std::to_string(position) + std::string(" and rate ") +
-                      std::to_string(rate) + std::string("."));
+        this->OnLog((std::string("Could not set playback to position ") +
+                     std::to_string(position) + std::string(" and rate ") +
+                     std::to_string(rate) + std::string("."))
+                        .c_str());
         _isSeekCompleted = true;
     }
 }
@@ -298,7 +315,7 @@ void AudioPlayer::SetPosition(int64_t position) {
 int64_t AudioPlayer::GetPosition() {
     gint64 current = 0;
     if (!gst_element_query_position(playbin, GST_FORMAT_TIME, &current)) {
-        Logger::Error(std::string("Could not query current position."));
+        this->OnLog("Could not query current position.");
         return 0;
     }
     return current / 1000000;
@@ -310,7 +327,7 @@ int64_t AudioPlayer::GetPosition() {
 int64_t AudioPlayer::GetDuration() {
     gint64 duration = 0;
     if (!gst_element_query_duration(playbin, GST_FORMAT_TIME, &duration)) {
-        Logger::Error(std::string("Could not query current duration."));
+        this->OnLog("Could not query current duration.");
         return 0;
     }
     return duration / 1000000;
@@ -325,11 +342,11 @@ void AudioPlayer::Pause() {
     _isPlaying = false;
     GstStateChangeReturn ret = gst_element_set_state(playbin, GST_STATE_PAUSED);
     if (ret == GST_STATE_CHANGE_FAILURE) {
-        Logger::Error(
-            std::string("Unable to set the pipeline to the paused state."));
+        this->OnError("", "Unable to set the pipeline to the paused state.",
+                      nullptr, nullptr);
         return;
     }
-    OnPositionUpdate(); // Update to exact position when pausing
+    OnPositionUpdate();  // Update to exact position when pausing
 }
 
 void AudioPlayer::Resume() {
@@ -340,11 +357,12 @@ void AudioPlayer::Resume() {
     GstStateChangeReturn ret =
         gst_element_set_state(playbin, GST_STATE_PLAYING);
     if (ret == GST_STATE_CHANGE_FAILURE) {
-        Logger::Error(
-            std::string("Unable to set the pipeline to the playing state."));
+        this->OnError("", "Unable to set the pipeline to the playing state.",
+                      nullptr, nullptr);
         return;
     }
-    // Update position and duration when start playing, as no event is emitted elsewhere
+    // Update position and duration when start playing, as no event is emitted
+    // elsewhere
     OnPositionUpdate();
     OnDurationUpdate();
 }
