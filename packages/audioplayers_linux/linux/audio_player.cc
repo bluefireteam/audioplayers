@@ -66,7 +66,10 @@ void AudioPlayer::SetSourceUrl(std::string url) {
         if (!_url.empty()) {
             g_object_set(playbin, "uri", _url.c_str(), NULL);
             if (playbin->current_state != GST_STATE_READY) {
-                gst_element_set_state(playbin, GST_STATE_READY);
+                GstStateChangeReturn ret = gst_element_set_state(playbin, GST_STATE_READY);
+                if (ret == GST_STATE_CHANGE_FAILURE) {
+                    throw "Unable to set the pipeline to GST_STATE_READY.";
+                }
             }
         }
     }
@@ -286,6 +289,7 @@ void AudioPlayer::SetPlayback(int64_t position, double rate) {
             GstSeekFlags(GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE),
             GST_SEEK_TYPE_SET, 0, GST_SEEK_TYPE_SET, position * GST_MSECOND);
     }
+
     if (!gst_element_send_event(playbin, seek_event)) {
         this->OnLog((std::string("Could not set playback to position ") +
                      std::to_string(position) + std::string(" and rate ") +
@@ -342,9 +346,7 @@ void AudioPlayer::Pause() {
     _isPlaying = false;
     GstStateChangeReturn ret = gst_element_set_state(playbin, GST_STATE_PAUSED);
     if (ret == GST_STATE_CHANGE_FAILURE) {
-        this->OnError("", "Unable to set the pipeline to the paused state.",
-                      nullptr, nullptr);
-        return;
+        throw "Unable to set the pipeline to GST_STATE_PAUSED.";
     }
     OnPositionUpdate();  // Update to exact position when pausing
 }
@@ -357,9 +359,7 @@ void AudioPlayer::Resume() {
     GstStateChangeReturn ret =
         gst_element_set_state(playbin, GST_STATE_PLAYING);
     if (ret == GST_STATE_CHANGE_FAILURE) {
-        this->OnError("", "Unable to set the pipeline to the playing state.",
-                      nullptr, nullptr);
-        return;
+        throw "Unable to set the pipeline to GST_STATE_PLAYING.";
     }
     // Update position and duration when start playing, as no event is emitted
     // elsewhere

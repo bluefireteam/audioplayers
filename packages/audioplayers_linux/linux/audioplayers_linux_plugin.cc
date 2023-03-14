@@ -119,118 +119,120 @@ static void audioplayers_linux_plugin_handle_method_call(
 
     auto player = audioplayers_linux_plugin_get_player(playerId);
 
-    if (strcmp(method, "pause") == 0) {
-        player->Pause();
-        result = 1;
-    } else if (strcmp(method, "resume") == 0) {
-        player->Resume();
-        result = 1;
-    } else if (strcmp(method, "stop") == 0) {
-        player->Pause();
-        player->SetPosition(0);
-        result = 1;
-    } else if (strcmp(method, "release") == 0) {
-        player->Pause();
-        player->SetPosition(0);
-        result = 1;
-    } else if (strcmp(method, "seek") == 0) {
-        auto flPosition = fl_value_lookup_string(args, "position");
-        int position = flPosition == nullptr ? (int)(player->GetPosition())
-                                             : fl_value_get_int(flPosition);
-        player->SetPosition(position);
-        result = 1;
-    } else if (strcmp(method, "setSourceUrl") == 0) {
-        auto flUrl = fl_value_lookup_string(args, "url");
-        if (flUrl == nullptr) {
-            response = FL_METHOD_RESPONSE(fl_method_error_response_new(
-                "", "Null URL received on setSourceUrl.", nullptr));
-            fl_method_call_respond(method_call, response, nullptr);
-            return;
-        }
-        auto url = std::string(fl_value_get_string(flUrl));
+    try {
+        if (strcmp(method, "pause") == 0) {
+            player->Pause();
+            result = 1;
+        } else if (strcmp(method, "resume") == 0) {
+            player->Resume();
+            result = 1;
+        } else if (strcmp(method, "stop") == 0) {
+            player->Pause();
+            player->SetPosition(0);
+            result = 1;
+        } else if (strcmp(method, "release") == 0) {
+            player->Pause();
+            player->SetPosition(0);
+            result = 1;
+        } else if (strcmp(method, "seek") == 0) {
+            auto flPosition = fl_value_lookup_string(args, "position");
+            int position = flPosition == nullptr ? (int)(player->GetPosition())
+                                                : fl_value_get_int(flPosition);
+            player->SetPosition(position);
+            result = 1;
+        } else if (strcmp(method, "setSourceUrl") == 0) {
+            auto flUrl = fl_value_lookup_string(args, "url");
+            if (flUrl == nullptr) {
+                response = FL_METHOD_RESPONSE(fl_method_error_response_new(
+                    "", "Null URL received on setSourceUrl.", nullptr));
+                fl_method_call_respond(method_call, response, nullptr);
+                return;
+            }
+            auto url = std::string(fl_value_get_string(flUrl));
 
-        auto flIsLocal = fl_value_lookup_string(args, "isLocal");
-        bool isLocal =
-            flIsLocal == nullptr ? false : fl_value_get_bool(flIsLocal);
-        if (isLocal) {
-            url = std::string("file://") + url;
-        }
-
-        try {
+            auto flIsLocal = fl_value_lookup_string(args, "isLocal");
+            bool isLocal =
+                flIsLocal == nullptr ? false : fl_value_get_bool(flIsLocal);
+            if (isLocal) {
+                url = std::string("file://") + url;
+            }
             player->SetSourceUrl(url);
             result = 1;
-        } catch (...) {
-            response = FL_METHOD_RESPONSE(fl_method_error_response_new(
-                "", ("Error setting url to '" + url + "'.").c_str(), nullptr));
-            fl_method_call_respond(method_call, response, nullptr);
-            result = 0;
-        }
-    } else if (strcmp(method, "getDuration") == 0) {
-        result = player->GetDuration();
-    } else if (strcmp(method, "setVolume") == 0) {
-        auto flVolume = fl_value_lookup_string(args, "volume");
-        double volume =
-            flVolume == nullptr ? 1.0 : fl_value_get_float(flVolume);
-        player->SetVolume(volume);
-        result = 1;
-    } else if (strcmp(method, "getCurrentPosition") == 0) {
-        result = player->GetPosition();
-    } else if (strcmp(method, "setPlaybackRate") == 0) {
-        auto flPlaybackRate = fl_value_lookup_string(args, "playbackRate");
-        double playbackRate = flPlaybackRate == nullptr
-                                  ? 1.0
-                                  : fl_value_get_float(flPlaybackRate);
-        player->SetPlaybackRate(playbackRate);
-        result = 1;
-    } else if (strcmp(method, "setReleaseMode") == 0) {
-        auto flReleaseMode = fl_value_lookup_string(args, "releaseMode");
-        std::string releaseMode =
-            flReleaseMode == nullptr
-                ? std::string()
-                : std::string(fl_value_get_string(flReleaseMode));
-        if (releaseMode.empty()) {
-            response = FL_METHOD_RESPONSE(fl_method_error_response_new(
-                "", "Error calling setReleaseMode, releaseMode cannot be null",
-                nullptr));
+        } else if (strcmp(method, "getDuration") == 0) {
+            result = player->GetDuration();
+        } else if (strcmp(method, "setVolume") == 0) {
+            auto flVolume = fl_value_lookup_string(args, "volume");
+            double volume =
+                flVolume == nullptr ? 1.0 : fl_value_get_float(flVolume);
+            player->SetVolume(volume);
+            result = 1;
+        } else if (strcmp(method, "getCurrentPosition") == 0) {
+            result = player->GetPosition();
+        } else if (strcmp(method, "setPlaybackRate") == 0) {
+            auto flPlaybackRate = fl_value_lookup_string(args, "playbackRate");
+            double playbackRate = flPlaybackRate == nullptr
+                                    ? 1.0
+                                    : fl_value_get_float(flPlaybackRate);
+            player->SetPlaybackRate(playbackRate);
+            result = 1;
+        } else if (strcmp(method, "setReleaseMode") == 0) {
+            auto flReleaseMode = fl_value_lookup_string(args, "releaseMode");
+            std::string releaseMode =
+                flReleaseMode == nullptr
+                    ? std::string()
+                    : std::string(fl_value_get_string(flReleaseMode));
+            if (releaseMode.empty()) {
+                response = FL_METHOD_RESPONSE(fl_method_error_response_new(
+                    "", "Error calling setReleaseMode, releaseMode cannot be null",
+                    nullptr));
+                fl_method_call_respond(method_call, response, nullptr);
+                return;
+            }
+            auto looping = releaseMode.find("loop") != std::string::npos;
+            player->SetLooping(looping);
+            result = 1;
+        } else if (strcmp(method, "setPlayerMode") == 0) {
+            // TODO check support for low latency mode:
+            // https://gstreamer.freedesktop.org/documentation/additional/design/latency.html?gi-language=c
+            result = 1;
+        } else if (strcmp(method, "setBalance") == 0) {
+            auto flBalance = fl_value_lookup_string(args, "balance");
+            double balance =
+                flBalance == nullptr ? 0.0f : fl_value_get_float(flBalance);
+            player->SetBalance(balance);
+            result = 1;
+        } else if (strcmp(method, "emitLog") == 0) {
+            auto flMessage = fl_value_lookup_string(args, "message");
+            auto message =
+                flMessage == nullptr ? "" : fl_value_get_string(flMessage);
+            player->OnLog(message);
+            result = 1;
+        } else if (strcmp(method, "emitError") == 0) {
+            auto flCode = fl_value_lookup_string(args, "code");
+            auto code = flCode == nullptr ? "" : fl_value_get_string(flCode);
+            auto flMessage = fl_value_lookup_string(args, "message");
+            auto message =
+                flMessage == nullptr ? "" : fl_value_get_string(flMessage);
+            player->OnError(code, message, nullptr, nullptr);
+            result = 1;
+        } else {
+            response = FL_METHOD_RESPONSE(fl_method_not_implemented_response_new());
             fl_method_call_respond(method_call, response, nullptr);
             return;
         }
-        auto looping = releaseMode.find("loop") != std::string::npos;
-        player->SetLooping(looping);
-        result = 1;
-    } else if (strcmp(method, "setPlayerMode") == 0) {
-        // TODO check support for low latency mode:
-        // https://gstreamer.freedesktop.org/documentation/additional/design/latency.html?gi-language=c
-        result = 1;
-    } else if (strcmp(method, "setBalance") == 0) {
-        auto flBalance = fl_value_lookup_string(args, "balance");
-        double balance =
-            flBalance == nullptr ? 0.0f : fl_value_get_float(flBalance);
-        player->SetBalance(balance);
-        result = 1;
-    } else if (strcmp(method, "emitLog") == 0) {
-        auto flMessage = fl_value_lookup_string(args, "message");
-        auto message =
-            flMessage == nullptr ? "" : fl_value_get_string(flMessage);
-        player->OnLog(message);
-        result = 1;
-    } else if (strcmp(method, "emitError") == 0) {
-        auto flCode = fl_value_lookup_string(args, "code");
-        auto code = flCode == nullptr ? "" : fl_value_get_string(flCode);
-        auto flMessage = fl_value_lookup_string(args, "message");
-        auto message =
-            flMessage == nullptr ? "" : fl_value_get_string(flMessage);
-        player->OnError(code, message, nullptr, nullptr);
-        result = 1;
-    } else {
-        response = FL_METHOD_RESPONSE(fl_method_not_implemented_response_new());
-        fl_method_call_respond(method_call, response, nullptr);
-        return;
-    }
 
-    response = FL_METHOD_RESPONSE(
-        fl_method_success_response_new(fl_value_new_int(result)));
-    fl_method_call_respond(method_call, response, nullptr);
+        response = FL_METHOD_RESPONSE(
+            fl_method_success_response_new(fl_value_new_int(result)));
+        fl_method_call_respond(method_call, response, nullptr);
+    } catch (const gchar* error) {
+        response = FL_METHOD_RESPONSE(fl_method_error_response_new(
+            "", error, nullptr));
+        fl_method_call_respond(method_call, response, nullptr);
+    } catch (...) {
+        response = FL_METHOD_RESPONSE(fl_method_error_response_new(
+            "", "Unkown AudioPlayersLinux error", nullptr));
+        fl_method_call_respond(method_call, response, nullptr);
+    }
 }
 
 static void audioplayers_linux_plugin_dispose(GObject *object) {
