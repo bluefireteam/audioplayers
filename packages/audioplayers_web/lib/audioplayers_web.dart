@@ -36,7 +36,7 @@ class WebAudioplayersPlatform extends AudioplayersPlatformInterface {
   }
 
   @override
-  Future<int?> getCurrentPosition(String playerId) async {
+  Future<int?> getPosition(String playerId) async {
     final position = getPlayer(playerId).player?.currentTime;
     if (position == null) {
       return null;

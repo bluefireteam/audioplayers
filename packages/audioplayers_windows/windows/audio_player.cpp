@@ -124,7 +124,7 @@ void AudioPlayer::OnTimeUpdate() {
         this->_eventHandler->Success(
             std::make_unique<flutter::EncodableValue>(flutter::EncodableMap(
                 {{flutter::EncodableValue("event"),
-                  flutter::EncodableValue("audio.onCurrentPosition")},
+                  flutter::EncodableValue("audio.onPosition")},
                  {flutter::EncodableValue("value"),
                   flutter::EncodableValue(
                       (int64_t)m_mediaEngineWrapper->GetMediaTime() /

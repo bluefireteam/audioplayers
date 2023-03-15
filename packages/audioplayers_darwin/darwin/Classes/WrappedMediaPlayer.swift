@@ -67,7 +67,7 @@ class WrappedMediaPlayer {
         return player?.currentTime()
     }
     
-    func getCurrentPosition() -> Int? {
+    func getPosition() -> Int? {
         guard let time = getCurrentCMTime() else {
             return nil
         }
@@ -150,7 +150,7 @@ class WrappedMediaPlayer {
     
     func onTimeInterval(time: CMTime) {
         let millis = fromCMTime(time: time)
-        reference.onCurrentPosition(playerId: playerId, millis: millis)
+        reference.onPosition(playerId: playerId, millis: millis)
     }
     
     func updateDuration() {

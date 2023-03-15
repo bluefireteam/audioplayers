@@ -28,7 +28,7 @@ class MediaPlayerPlayer(
         return mediaPlayer.duration.takeUnless { it == -1 }
     }
 
-    override fun getCurrentPosition(): Int {
+    override fun getPosition(): Int {
         return mediaPlayer.currentPosition
     }
 

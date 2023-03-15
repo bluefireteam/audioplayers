@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:audioplayers_platform_interface/api/audio_context_config.dart';
-import 'package:audioplayers_platform_interface/api/global_event.dart';
 import 'package:audioplayers_platform_interface/api/player_event.dart';
 import 'package:audioplayers_platform_interface/api/player_mode.dart';
 import 'package:audioplayers_platform_interface/api/release_mode.dart';
@@ -131,7 +130,7 @@ abstract class MethodChannelAudioplayersPlatformInterface {
   ///    downloaded and buffered first)
   ///  * source does not support operation (e.g. streams)
   ///  * otherwise not supported (e.g. LOW_LATENCY mode on Android)
-  Future<int?> getCurrentPosition(String playerId);
+  Future<int?> getPosition(String playerId);
 
   @visibleForTesting
   Future<void> emitLog(String playerId, String message);

@@ -164,9 +164,9 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
             Logger.error("setBalance is not currently implemented on iOS")
             result(0)
             return
-       } else if method == "getCurrentPosition" {
-            let currentPosition = player.getCurrentPosition()
-            result(currentPosition)
+       } else if method == "getPosition" {
+            let position = player.getPosition()
+            result(position)
             return
         } else if method == "setPlaybackRate" {
             guard let playbackRate = args["playbackRate"] as? Double else {
@@ -224,8 +224,8 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
         channel.invokeMethod("audio.onComplete", arguments: ["playerId": playerId])
     }
     
-    func onCurrentPosition(playerId: String, millis: Int) {
-        channel.invokeMethod("audio.onCurrentPosition", arguments: ["playerId": playerId, "value": millis])
+    func onPosition(playerId: String, millis: Int) {
+        channel.invokeMethod("audio.onPosition", arguments: ["playerId": playerId, "value": millis])
     }
     
     func onError(playerId: String) {

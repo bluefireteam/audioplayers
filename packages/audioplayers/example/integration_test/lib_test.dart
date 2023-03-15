@@ -82,7 +82,7 @@ void main() {
           final td = audioTestDataList[i];
           if (td.isLiveStream || td.duration > const Duration(seconds: 10)) {
             await tester.pump();
-            final position = await players[i].getCurrentPosition();
+            final position = await players[i].getPosition();
             printWithTimeOnFailure('Test position: $td');
             expect(position, greaterThan(Duration.zero));
           }
@@ -107,7 +107,7 @@ void main() {
         await tester.pump(const Duration(seconds: 8));
         if (td.isLiveStream || td.duration > const Duration(seconds: 10)) {
           await tester.pump();
-          final position = await player.getCurrentPosition();
+          final position = await player.getPosition();
           printWithTimeOnFailure('Test position: $td');
           expect(position, greaterThan(Duration.zero));
         }

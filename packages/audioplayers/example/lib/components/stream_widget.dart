@@ -26,7 +26,7 @@ class _StreamWidgetState extends State<StreamWidget> {
     // Use initial values from player
     streamState = player.state;
     player.getDuration().then((it) => setState(() => streamDuration = it));
-    player.getCurrentPosition().then(
+    player.getPosition().then(
           (it) => setState(() => streamPosition = it),
         );
 
