@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_example/tabs/sources.dart';
+import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -208,23 +209,38 @@ void main() {
   group('Logging', () {
     testWidgets('Emit platform log', (tester) async {
       final completer = Completer<String>();
-      final player = AudioPlayer();
-      player.setLogHandler(
-        completer.complete,
+
+      final platform = AudioplayersPlatformInterface.instance;
+      const playerId = 'somePlayerId';
+      await platform.create(playerId);
+      final eventStream = platform.getEventStream(playerId);
+      eventStream.listen(
+            (event) {
+          if (event.eventType == PlayerEventType.log) {
+            completer.complete(event.logMessage);
+          }
+        },
         onError: completer.completeError,
       );
-      await player.emitLog('SomeLog');
+      await platform.emitLog(playerId, 'SomeLog');
       final log = await completer.future;
       expect(log, 'SomeLog');
     });
 
     testWidgets('Emit global platform log', (tester) async {
       final completer = Completer<String>();
-      AudioPlayer.global.setLogHandler(
-        completer.complete,
+
+      final global = GlobalPlatformInterface.instance;
+      final eventStream = global.getGlobalEventStream();
+      eventStream.listen(
+            (event) {
+          if (event.eventType == GlobalEventType.log) {
+            completer.complete(event.logMessage);
+          }
+        },
         onError: completer.completeError,
       );
-      AudioPlayer.global.emitLog('SomeGlobalLog');
+      await global.emitGlobalLog('SomeGlobalLog');
       final log = await completer.future;
       expect(log, 'SomeGlobalLog');
     });
@@ -233,10 +249,21 @@ void main() {
   group('Errors', () {
     testWidgets('Emit platform error', (tester) async {
       final completer = Completer<Object>();
-      final player = AudioPlayer();
-      player.eventStream.listen((_) {}, onError: completer.complete);
 
-      await player.emitError('SomeErrorCode', 'SomeErrorMessage');
+      final platform = AudioplayersPlatformInterface.instance;
+      const playerId = 'somePlayerId';
+      await platform.create(playerId);
+      final eventStream = platform.getEventStream(playerId);
+      eventStream.listen(
+            (_) {},
+        onError: completer.complete,
+      );
+      await platform.emitError(
+        playerId,
+        'SomeErrorCode',
+        'SomeErrorMessage',
+      );
+
       final exception = await completer.future;
       expect(exception, isInstanceOf<PlatformException>());
       final platformException = exception as PlatformException;
@@ -246,18 +273,24 @@ void main() {
 
     testWidgets('Emit global platform error', (tester) async {
       final completer = Completer<Object>();
-      AudioPlayer.global.eventStream
-          .listen((_) {}, onError: completer.complete);
 
-      AudioPlayer.global
-          .emitError('SomeGlobalErrorCode', 'SomeGlobalErrorMessage');
+      final global = GlobalPlatformInterface.instance;
+      final eventStream = global.getGlobalEventStream();
+      eventStream.listen(
+            (_) {},
+        onError: completer.complete,
+      );
+      await global.emitGlobalError(
+        'SomeGlobalErrorCode',
+        'SomeGlobalErrorMessage',
+      );
       final exception = await completer.future;
       expect(exception, isInstanceOf<PlatformException>());
       final platformException = exception as PlatformException;
       expect(platformException.code, 'SomeGlobalErrorCode');
       expect(platformException.message, 'SomeGlobalErrorMessage');
     });
-
+    
     testWidgets('Throw PlatformException, when playing invalid file',
       (tester) async {
         final completer = Completer<Object>();

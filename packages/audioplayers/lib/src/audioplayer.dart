@@ -7,7 +7,6 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_platform_interface/api/player_event.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
 import 'package:flutter/services.dart';
-import 'package:meta/meta.dart';
 import 'package:uuid/uuid.dart';
 
 const _uuid = Uuid();
@@ -351,18 +350,6 @@ class AudioPlayer {
       return null;
     }
     return Duration(milliseconds: milliseconds);
-  }
-
-  @visibleForTesting
-  Future<void> emitLog(String message) async {
-    await _creatingCompleter.future;
-    await _platform.emitLog(playerId, message);
-  }
-
-  @visibleForTesting
-  Future<void> emitError(String code, String message) async {
-    await _creatingCompleter.future;
-    await _platform.emitError(playerId, code, message);
   }
 
   /// Closes all [StreamController]s.
