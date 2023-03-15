@@ -209,38 +209,30 @@ void main() {
   group('Logging', () {
     testWidgets('Emit platform log', (tester) async {
       final completer = Completer<String>();
-
-      final platform = AudioplayersPlatformInterface.instance;
       const playerId = 'somePlayerId';
-      await platform.create(playerId);
-      final eventStream = platform.getEventStream(playerId);
-      eventStream.listen(
-            (event) {
-          if (event.eventType == PlayerEventType.log) {
-            completer.complete(event.logMessage);
-          }
-        },
+      final player = AudioPlayer(playerId: playerId);
+      player.setLogHandler(
+        completer.complete,
         onError: completer.completeError,
       );
+
+      final platform = AudioplayersPlatformInterface.instance;
       await platform.emitLog(playerId, 'SomeLog');
+
       final log = await completer.future;
       expect(log, 'SomeLog');
     });
 
     testWidgets('Emit global platform log', (tester) async {
       final completer = Completer<String>();
-
-      final global = GlobalPlatformInterface.instance;
-      final eventStream = global.getGlobalEventStream();
-      eventStream.listen(
-            (event) {
-          if (event.eventType == GlobalEventType.log) {
-            completer.complete(event.logMessage);
-          }
-        },
+      AudioPlayer.global.setLogHandler(
+        completer.complete,
         onError: completer.completeError,
       );
+
+      final global = GlobalPlatformInterface.instance;
       await global.emitGlobalLog('SomeGlobalLog');
+
       final log = await completer.future;
       expect(log, 'SomeGlobalLog');
     });
@@ -249,15 +241,11 @@ void main() {
   group('Errors', () {
     testWidgets('Emit platform error', (tester) async {
       final completer = Completer<Object>();
+      const playerId = 'somePlayerId';
+      final player = AudioPlayer(playerId: playerId);
+      player.eventStream.listen((_) {}, onError: completer.complete);
 
       final platform = AudioplayersPlatformInterface.instance;
-      const playerId = 'somePlayerId';
-      await platform.create(playerId);
-      final eventStream = platform.getEventStream(playerId);
-      eventStream.listen(
-            (_) {},
-        onError: completer.complete,
-      );
       await platform.emitError(
         playerId,
         'SomeErrorCode',
@@ -273,13 +261,10 @@ void main() {
 
     testWidgets('Emit global platform error', (tester) async {
       final completer = Completer<Object>();
+      AudioPlayer.global.eventStream
+          .listen((_) {}, onError: completer.complete);
 
       final global = GlobalPlatformInterface.instance;
-      final eventStream = global.getGlobalEventStream();
-      eventStream.listen(
-            (_) {},
-        onError: completer.complete,
-      );
       await global.emitGlobalError(
         'SomeGlobalErrorCode',
         'SomeGlobalErrorMessage',
@@ -290,8 +275,9 @@ void main() {
       expect(platformException.code, 'SomeGlobalErrorCode');
       expect(platformException.message, 'SomeGlobalErrorMessage');
     });
-    
-    testWidgets('Throw PlatformException, when playing invalid file',
+
+    testWidgets(
+      'Throw PlatformException, when playing invalid file',
       (tester) async {
         final completer = Completer<Object>();
         final player = AudioPlayer();
