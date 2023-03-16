@@ -6,11 +6,16 @@ import 'package:audioplayers/audioplayers.dart';
 class GlobalAudioPlayer {
   static final _platform = GlobalPlatformInterface.instance;
 
+  @Deprecated('Use `Logger.logLevel` instead.')
+  Future<void> changeLogLevel(LogLevel level) async {
+    Logger.logLevel = level;
+  }
+  
+  Future<void> setAudioContext(AudioContext ctx) =>
+      _platform.setGlobalAudioContext(ctx);
+  
   @Deprecated('Use `setAudioContext()` instead.')
   Future<void> setGlobalAudioContext(AudioContext ctx) =>
-      _platform.setGlobalAudioContext(ctx);
-
-  Future<void> setAudioContext(AudioContext ctx) =>
       _platform.setGlobalAudioContext(ctx);
 
   /// Stream of global events.
