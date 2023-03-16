@@ -211,11 +211,12 @@ void main() {
       final completer = Completer<String>();
       const playerId = 'somePlayerId';
       final player = AudioPlayer(playerId: playerId);
-      player.setLogHandler(
+      player.onLog.listen(
         completer.complete,
         onError: completer.completeError,
       );
 
+      await player.creatingCompleter.future;
       final platform = AudioplayersPlatformInterface.instance;
       await platform.emitLog(playerId, 'SomeLog');
 
@@ -225,7 +226,7 @@ void main() {
 
     testWidgets('Emit global platform log', (tester) async {
       final completer = Completer<String>();
-      AudioPlayer.global.setLogHandler(
+      AudioPlayer.global.onLog.listen(
         completer.complete,
         onError: completer.completeError,
       );
@@ -245,6 +246,7 @@ void main() {
       final player = AudioPlayer(playerId: playerId);
       player.eventStream.listen((_) {}, onError: completer.complete);
 
+      await player.creatingCompleter.future;
       final platform = AudioplayersPlatformInterface.instance;
       await platform.emitError(
         playerId,
