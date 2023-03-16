@@ -7,7 +7,6 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   final _print = OverridePrint();
-  final _logger = AudioPlayer.global;
 
   group('Logger', () {
     setUp(_print.clear);
@@ -15,10 +14,10 @@ void main() {
     test(
       'when set to INFO everything is logged',
       _print.overridePrint(() {
-        _logger.changeLogLevel(LogLevel.info);
+        Logger.logLevel = LogLevel.info;
 
-        _logger.log(LogLevel.info, 'info');
-        _logger.log(LogLevel.error, 'error');
+        Logger.log('info');
+        Logger.error('error');
 
         expect(_print.logs, [
           'AudioPlayers Log: info',
@@ -30,10 +29,10 @@ void main() {
     test(
       'when set to ERROR only errors are logged',
       _print.overridePrint(() {
-        _logger.changeLogLevel(LogLevel.error);
+        Logger.logLevel = LogLevel.error;
 
-        _logger.log(LogLevel.info, 'info');
-        _logger.log(LogLevel.error, 'error');
+        Logger.log('info');
+        Logger.error('error');
 
         expect(_print.logs, [
           '\x1B[31mAudioPlayers throw: error\x1B[0m',
@@ -44,10 +43,10 @@ void main() {
     test(
       'when set to NONE nothing is logged',
       _print.overridePrint(() {
-        _logger.changeLogLevel(LogLevel.none);
+        Logger.logLevel = LogLevel.none;
 
-        _logger.log(LogLevel.info, 'info');
-        _logger.log(LogLevel.error, 'error');
+        Logger.log('info');
+        Logger.error('error');
 
         expect(_print.logs, <String>[]);
       }),
