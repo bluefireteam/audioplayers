@@ -1,4 +1,5 @@
 import 'dart:async';
+
 // TODO(gustl22): remove when upgrading min Flutter version to >=3.3.0
 // ignore: unnecessary_import
 import 'dart:typed_data';
@@ -31,8 +32,8 @@ mixin MethodChannelAudioplayersPlatform
   }
 
   @override
-  Future<int?> getPosition(String playerId) {
-    return _compute('getPosition', playerId);
+  Future<int?> getCurrentPosition(String playerId) {
+    return _compute('getCurrentPosition', playerId);
   }
 
   @override
@@ -230,7 +231,8 @@ mixin EventChannelAudioplayersPlatform
               eventType: PlayerEventType.duration,
               duration: duration,
             );
-          case 'audio.onPosition':
+          // TODO(Gustl22): maybe rename to audio.onPosition
+          case 'audio.onCurrentPosition':
             final millis = map.getInt('value');
             final position = Duration(milliseconds: millis);
             return PlayerEvent(

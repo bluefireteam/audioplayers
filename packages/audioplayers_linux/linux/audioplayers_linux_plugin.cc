@@ -166,7 +166,7 @@ static void audioplayers_linux_plugin_handle_method_call(
                 flVolume == nullptr ? 1.0 : fl_value_get_float(flVolume);
             player->SetVolume(volume);
             result = 1;
-        } else if (strcmp(method, "getPosition") == 0) {
+        } else if (strcmp(method, "getCurrentPosition") == 0) {
             result = player->GetPosition();
         } else if (strcmp(method, "setPlaybackRate") == 0) {
             auto flPlaybackRate = fl_value_lookup_string(args, "playbackRate");

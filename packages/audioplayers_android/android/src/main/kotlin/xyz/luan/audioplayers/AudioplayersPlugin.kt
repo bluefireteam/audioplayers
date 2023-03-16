@@ -167,8 +167,8 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
                     return
                 }
 
-                "getPosition" -> {
-                    response.success(player.getPosition() ?: 0)
+                "getCurrentPosition" -> {
+                    response.success(player.getCurrentPosition() ?: 0)
                     return
                 }
 
@@ -252,7 +252,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
     fun handleSeekComplete(player: WrappedPlayer) {
         player.eventHandler.success("audio.onSeekComplete")
         player.eventHandler.success(
-            "audio.onPosition", hashMapOf("value" to (player.getPosition() ?: 0))
+            "audio.onCurrentPosition", hashMapOf("value" to (player.getCurrentPosition() ?: 0))
         )
     }
 
@@ -291,9 +291,9 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
                 }
                 isAnyPlaying = true
                 val duration = player.getDuration()
-                val time = player.getPosition()
+                val time = player.getCurrentPosition()
                 player.eventHandler.success("audio.onDuration", hashMapOf("value" to (duration ?: 0)))
-                player.eventHandler.success("audio.onPosition", hashMapOf("value" to (time ?: 0)))
+                player.eventHandler.success("audio.onCurrentPosition", hashMapOf("value" to (time ?: 0)))
             }
             if (isAnyPlaying) {
                 handler.postDelayed(this, 200)

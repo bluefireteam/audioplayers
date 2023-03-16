@@ -44,7 +44,7 @@ class _PropertiesWidgetState extends State<PropertiesWidget> {
         ),
         ListTile(
           title: FutureBuilder<Duration?>(
-            future: widget.player.getPosition(),
+            future: widget.player.getCurrentPosition(),
             builder: (context, snap) {
               return Text(
                 snap.data?.toString() ?? '-',

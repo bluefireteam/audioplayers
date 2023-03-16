@@ -142,7 +142,7 @@ class SoundPoolPlayer(
     override fun getDuration() = null
 
     // Cannot get current position for Sound Pool
-    override fun getPosition() = null
+    override fun getCurrentPosition() = null
 
     override fun isActuallyPlaying() = false
 

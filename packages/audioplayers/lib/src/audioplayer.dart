@@ -1,9 +1,11 @@
 import 'dart:async';
+
 // TODO(gustl22): remove when upgrading min Flutter version to >=3.3.0
 // ignore: unnecessary_import
 import 'dart:typed_data';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:audioplayers/src/global_audioplayer.dart';
 import 'package:audioplayers_platform_interface/api/player_event.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
 import 'package:flutter/services.dart';
@@ -339,13 +341,10 @@ class AudioPlayer {
     return Duration(milliseconds: milliseconds);
   }
 
-  @Deprecated('Use `getPosition()` instead.')
-  Future<Duration?> getCurrentPosition() => getPosition();
-  
-  /// Gets audio current playing position.
-  Future<Duration?> getPosition() async {
+  // Gets audio current playing position
+  Future<Duration?> getCurrentPosition() async {
     await _creatingCompleter.future;
-    final milliseconds = await _platform.getPosition(playerId);
+    final milliseconds = await _platform.getCurrentPosition(playerId);
     if (milliseconds == null) {
       return null;
     }

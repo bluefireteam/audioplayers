@@ -44,7 +44,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
             _duration = value;
           }),
         );
-    player.getPosition().then(
+    player.getCurrentPosition().then(
           (value) => setState(() {
             _position = value;
           }),

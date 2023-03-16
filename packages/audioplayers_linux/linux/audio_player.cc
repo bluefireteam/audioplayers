@@ -173,7 +173,7 @@ void AudioPlayer::OnPositionUpdate() {
     if (this->_eventChannel) {
         g_autoptr(FlValue) map = fl_value_new_map();
         fl_value_set_string(map, "event",
-                            fl_value_new_string("audio.onPosition"));
+                            fl_value_new_string("audio.onCurrentPosition"));
         fl_value_set_string(map, "value", fl_value_new_int(GetPosition()));
         fl_event_channel_send(this->_eventChannel, map, nullptr, nullptr);
     }

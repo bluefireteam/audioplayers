@@ -187,7 +187,7 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
         auto volume = GetArgument<double>("volume", args, 1.0);
         player->SetVolume(volume);
         result->Success(EncodableValue(1));
-    } else if (method_call.method_name().compare("getPosition") == 0) {
+    } else if (method_call.method_name().compare("getCurrentPosition") == 0) {
         result->Success(EncodableValue(player->GetPosition() / 10000));
     } else if (method_call.method_name().compare("setPlaybackRate") == 0) {
         auto playbackRate = GetArgument<double>("playbackRate", args, 1.0);
