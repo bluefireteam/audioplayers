@@ -1,5 +1,4 @@
 import 'dart:async';
-
 // TODO(gustl22): remove when upgrading min Flutter version to >=3.3.0
 // ignore: unnecessary_import
 import 'dart:typed_data';
@@ -46,7 +45,7 @@ class AudioPlayer {
 
   late final StreamSubscription _onPlayerCompleteStreamSubscription;
 
-  late StreamSubscription _onLogStreamSubscription;
+  late final StreamSubscription _onLogStreamSubscription;
 
   /// Stream controller to be able to get a stream on initialization, before the
   /// native event stream is ready via [create] method.
@@ -95,7 +94,7 @@ class AudioPlayer {
       .where((event) => event.eventType == PlayerEventType.seekComplete);
 
   /// Stream of log events.
-  Stream<String> get _onLog => eventStream
+  Stream<String> get onLog => eventStream
       .where((event) => event.eventType == PlayerEventType.log)
       .map((event) => event.logMessage!);
 
@@ -116,7 +115,7 @@ class AudioPlayer {
 
   /// Creates a new instance and assigns an unique id to it.
   AudioPlayer({String? playerId}) : playerId = playerId ?? _uuid.v4() {
-    _onLogStreamSubscription = _onLog.listen(
+    _onLogStreamSubscription = onLog.listen(
       (log) => Logger.log('$log\nSource: $_source'),
       onError: (Object e, [StackTrace? stackTrace]) => Logger.error(
         AudioPlayerException(this, cause: e),
@@ -175,15 +174,6 @@ class AudioPlayer {
     }
     await setSource(source);
     return resume();
-  }
-
-  /// Handle logs of the player. Replaces the default of using [Logger].
-  void setLogHandler(
-    void Function(String log) onLog, {
-    void Function(Object o, [StackTrace? stackTrace]) onError = Logger.error,
-  }) {
-    _onLogStreamSubscription.cancel();
-    _onLogStreamSubscription = _onLog.listen(onLog, onError: onError);
   }
 
   Future<void> setAudioContext(AudioContext ctx) async {

@@ -17,24 +17,12 @@ class GlobalAudioPlayer {
   final Stream<GlobalEvent> eventStream = _platform.getGlobalEventStream();
 
   /// Stream of global log events.
-  Stream<String> get _onLog => eventStream
+  Stream<String> get onLog => eventStream
       .where((event) => event.eventType == GlobalEventType.log)
       .map((event) => event.logMessage!);
 
-  late StreamSubscription _onLogStreamSubscription;
-
-  /// Handle globally emitted logs, which concern all players.
-  /// Replaces the default of using [Logger].
-  void setLogHandler(
-    void Function(String log) onLog, {
-    void Function(Object o, [StackTrace? stackTrace]) onError = Logger.error,
-  }) {
-    _onLogStreamSubscription.cancel();
-    _onLogStreamSubscription = _onLog.listen(onLog, onError: onError);
-  }
-
   GlobalAudioPlayer() {
-    _onLogStreamSubscription = _onLog.listen(
+    onLog.listen(
       Logger.log,
       onError: Logger.error,
     );

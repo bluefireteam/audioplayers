@@ -1,14 +1,20 @@
 import 'package:audioplayers/audioplayers.dart';
 
 class Logger {
+  static LogLevel logLevel = LogLevel.error;
+
   static void log(String message) {
-    // ignore: avoid_print
-    print('AudioPlayers Log: $message');
+    if (LogLevel.info.toInt() <= logLevel.toInt()) {
+      // ignore: avoid_print
+      print('AudioPlayers Log: $message');
+    }
   }
 
   static void error(Object o, [StackTrace? stacktrace]) {
-    // ignore: avoid_print
-    print(errorToString(o, stacktrace));
+    if (LogLevel.error.toInt() <= logLevel.toInt()) {
+      // ignore: avoid_print
+      print(errorToString(o, stacktrace));
+    }
   }
 
   static String errorToString(Object o, [StackTrace? stackTrace]) {
@@ -34,6 +40,5 @@ class AudioPlayerException implements Exception {
   AudioPlayerException(this.player, {this.cause});
 
   @override
-  String toString() =>
-      'AudioPlayerException(\n\t${player.source}, \n\t$cause';
+  String toString() => 'AudioPlayerException(\n\t${player.source}, \n\t$cause';
 }

@@ -161,7 +161,7 @@ Normally you want to use `.mediaPlayer` unless you care about performance and yo
 You can globally control the amount of log messages that are emitted by this package:
 
 ```dart
-  AudioPlayer.logger.logLevel = LogLevel.info;
+  Logger.logLevel = LogLevel.info;
 ```
 
 You can pick one of 3 options:
@@ -174,24 +174,7 @@ You can pick one of 3 options:
 
 **Note**: despite our best efforts, some native SDK implementations that we use spam a lot of log messages that we currently haven't figured out how to conform to this configuration (specially noticeable on Android). If you would like to contribute with a PR, they are more than welcome!
 
-### Log handler
-
-The log events are handled by default via `AudioPlayer.logger.log()`.
-You can customize the behavior of player log events.
-
-```dart
-  player.setLogHandler((log) {
-    AudioPlayer.logger.log(log.level, log.message);
-  });
-```
-
-Or change the behavior of global log events.
-
-```dart
-  AudioPlayer.setGlobalLogHandler((log) {
-    AudioPlayer.logger.log(log.level, log.message);
-  });
-```
+You can also listen for [Log events](#Log event).
 
 ## Audio Context
 
@@ -228,6 +211,7 @@ Note that if this process is not perfect, you can create your configuration from
 ## Streams
 
 Each player has a variety of streams that can be used to listen to events, state changes, and other useful information coming from the player.
+All streams also emit the same native platform errors via the `onError` callback.
 
 #### Duration Event
 
@@ -274,6 +258,45 @@ It does not fire when you interrupt the audio with pause or stop.
     setState(() {
       position = duration;
     });
+  });
+```
+
+### Log event
+
+This event returns the log messages from the native platform. 
+The logs are handled by default via `Logger.log()`, and errors via `Logger.error()`, see [Logs](#Logs).
+
+```dart
+  player.onLog.listen(
+    (String message) => Logger.log(message),
+    onError: (Object e, [StackTrace? stackTrace]) => Logger.error(e, stackTrace),
+  );
+```
+
+Or to handle global logs:
+
+```dart
+  AudioPlayer.global.onLog.listen(
+    (String message) => Logger.log(message),
+    onError: (Object e, [StackTrace? stackTrace]) => Logger.error(e, stackTrace),
+  );
+```
+
+### Event Stream
+
+All mentioned events can also be obtained by a combined event stream.
+
+```dart
+  player.eventStream.listen((PlayerEvent event) {
+    print(event.eventType);
+  });
+```
+
+Or to handle global events:
+
+```dart
+  AudioPlayer.global.eventStream.listen((GlobalEvent event) {
+    print(event.eventType);
   });
 ```
 

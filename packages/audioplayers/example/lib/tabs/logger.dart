@@ -13,9 +13,11 @@ class LoggerTab extends StatefulWidget {
 
 class _LoggerTabState extends State<LoggerTab>
     with AutomaticKeepAliveClientMixin<LoggerTab> {
-  static Logger get _logger => AudioPlayer.logger;
+  LogLevel get currentLogLevel => Logger.logLevel;
 
-  LogLevel currentLogLevel = LogLevel.info;
+  set currentLogLevel(LogLevel level) {
+    Logger.logLevel = level;
+  }
 
   List<Log> logs = [];
   List<Log> globalLogs = [];
@@ -23,17 +25,15 @@ class _LoggerTabState extends State<LoggerTab>
   @override
   void initState() {
     super.initState();
-    AudioPlayer.global.setLogHandler(
-      (log) {
-        _logger.log(log);
+    AudioPlayer.global.onLog.listen(
+      (message) {
         if (LogLevel.info.toInt() <= currentLogLevel.toInt()) {
           setState(() {
-            globalLogs.add(Log(log, level: LogLevel.info));
+            globalLogs.add(Log(message, level: LogLevel.info));
           });
         }
       },
       onError: (Object o, [StackTrace? stackTrace]) {
-        _logger.error(o, stackTrace);
         if (LogLevel.error.toInt() <= currentLogLevel.toInt()) {
           setState(() {
             globalLogs.add(
@@ -43,18 +43,16 @@ class _LoggerTabState extends State<LoggerTab>
         }
       },
     );
-    widget.player.setLogHandler(
-      (log) {
-        _logger.log(log);
+    widget.player.onLog.listen(
+      (message) {
         if (LogLevel.info.toInt() <= currentLogLevel.toInt()) {
-          final msg = '$log\nSource: ${widget.player.source}';
+          final msg = '$message\nSource: ${widget.player.source}';
           setState(() {
             logs.add(Log(msg, level: LogLevel.info));
           });
         }
       },
       onError: (Object o, [StackTrace? stackTrace]) {
-        _logger.error(o, stackTrace);
         if (LogLevel.error.toInt() <= currentLogLevel.toInt()) {
           setState(() {
             logs.add(
@@ -173,35 +171,9 @@ class LogView extends StatelessWidget {
   }
 }
 
-enum LogLevel { info, error, none }
-
 class Log {
   Log(this.message, {required this.level});
 
   final LogLevel level;
   final String message;
-}
-
-extension LogLevelExtension on LogLevel {
-  int toInt() {
-    switch (this) {
-      case LogLevel.info:
-        return 2;
-      case LogLevel.error:
-        return 1;
-      case LogLevel.none:
-        return 0;
-    }
-  }
-
-  static LogLevel fromInt(int level) {
-    switch (level) {
-      case 2:
-        return LogLevel.info;
-      case 1:
-        return LogLevel.error;
-      default:
-        return LogLevel.none;
-    }
-  }
 }
