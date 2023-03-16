@@ -1,35 +1,29 @@
 import 'dart:async';
 
-import 'package:audioplayers_platform_interface/api/log.dart';
-import 'package:flutter/services.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  final _channelLogs = <String>[];
-  const MethodChannel('xyz.luan/audioplayers.global')
-      .setMockMethodCallHandler((MethodCall methodCall) async {
-    _channelLogs.add('${methodCall.method} ${methodCall.arguments}');
-    return 1;
-  });
-
   final _print = OverridePrint();
+  final _logger = AudioPlayer.global;
 
   group('Logger', () {
     setUp(_print.clear);
-    setUp(_channelLogs.clear);
 
     test(
       'when set to INFO everything is logged',
       _print.overridePrint(() {
         _logger.changeLogLevel(LogLevel.info);
-        expect(_channelLogs, ['changeLogLevel {value: LogLevel.info}']);
 
         _logger.log(LogLevel.info, 'info');
         _logger.log(LogLevel.error, 'error');
 
-        expect(_print.log, ['info', 'error']);
+        expect(_print.logs, [
+          'AudioPlayers Log: info',
+          '\x1B[31mAudioPlayers throw: error\x1B[0m',
+        ]);
       }),
     );
 
@@ -37,12 +31,13 @@ void main() {
       'when set to ERROR only errors are logged',
       _print.overridePrint(() {
         _logger.changeLogLevel(LogLevel.error);
-        expect(_channelLogs, ['changeLogLevel {value: LogLevel.error}']);
 
         _logger.log(LogLevel.info, 'info');
         _logger.log(LogLevel.error, 'error');
 
-        expect(_print.log, ['error']);
+        expect(_print.logs, [
+          '\x1B[31mAudioPlayers throw: error\x1B[0m',
+        ]);
       }),
     );
 
@@ -50,28 +45,27 @@ void main() {
       'when set to NONE nothing is logged',
       _print.overridePrint(() {
         _logger.changeLogLevel(LogLevel.none);
-        expect(_channelLogs, ['changeLogLevel {value: LogLevel.none}']);
 
         _logger.log(LogLevel.info, 'info');
         _logger.log(LogLevel.error, 'error');
 
-        expect(_print.log, <String>[]);
+        expect(_print.logs, <String>[]);
       }),
     );
   });
 }
 
 class OverridePrint {
-  final log = <String>[];
+  final logs = <String>[];
 
-  void clear() => log.clear();
+  void clear() => logs.clear();
 
   void Function() overridePrint(void Function() testFn) {
     return () {
       final spec = ZoneSpecification(
         print: (_, __, ___, String msg) {
           // Add to log instead of printing to stdout
-          log.add(msg);
+          logs.add(msg);
         },
       );
       return Zone.current.fork(specification: spec).run<void>(testFn);

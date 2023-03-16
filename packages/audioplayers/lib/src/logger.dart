@@ -13,7 +13,7 @@ class Logger {
   static void error(Object o, [StackTrace? stacktrace]) {
     if (LogLevel.error.toInt() <= logLevel.toInt()) {
       // ignore: avoid_print
-      print(errorToString(o, stacktrace));
+      print(_errorColor(errorToString(o, stacktrace)));
     }
   }
 
@@ -31,6 +31,8 @@ class Logger {
     }
     return errStr;
   }
+
+  static String _errorColor(String text) => '\x1B[31m$text\x1B[0m';
 }
 
 class AudioPlayerException implements Exception {

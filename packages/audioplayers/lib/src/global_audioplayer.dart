@@ -10,7 +10,23 @@ class GlobalAudioPlayer {
   Future<void> changeLogLevel(LogLevel level) async {
     Logger.logLevel = level;
   }
+
+  @Deprecated('Use `Logger.log()` or `Logger.error()` instead.')
+  void log(LogLevel level, String message) {
+    if (level == LogLevel.info) {
+      Logger.log(message);
+    } else if (level == LogLevel.error) {
+      Logger.error(message);
+    }
+  }
   
+  @Deprecated('Use `Logger.log()` instead.')
+  void info(String message) => Logger.log(message);
+  
+  @Deprecated('Use `Logger.error()` instead.')
+  void error(String message) => Logger.error(message);
+
+
   Future<void> setAudioContext(AudioContext ctx) =>
       _platform.setGlobalAudioContext(ctx);
   
