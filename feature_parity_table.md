@@ -65,7 +65,7 @@ Note: LLM means Low Latency Mode.
         <tr><td>position event</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr>
         <tr><td>state event</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr>
         <tr><td>completion event</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr>
-        <tr><td>error event</td><td>yes</td><td>yes</td><td>yes</td><td>not yet</td><td>yes</td><td>yes</td></tr>
+        <tr><td>log event</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr>
     </tbody>
 </table>
 

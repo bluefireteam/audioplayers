@@ -1,4 +1,5 @@
 import 'dart:async';
+
 // TODO(gustl22): remove when upgrading min Flutter version to >=3.3.0
 // ignore: unnecessary_import
 import 'dart:typed_data';
@@ -19,7 +20,6 @@ const _uuid = Uuid();
 class AudioPlayer {
   static final global = GlobalAudioPlayer();
   static final _platform = AudioplayersPlatformInterface.instance;
-  static final logger = Logger.instance;
 
   /// This is the [AudioCache] instance used by this player.
   /// Unless you want to control multiple caches separately, you don't need to
@@ -52,6 +52,7 @@ class AudioPlayer {
   /// native event stream is ready via [create] method.
   final _eventStreamController = StreamController<PlayerEvent>.broadcast();
   late final StreamSubscription _eventStreamSubscription;
+
   Stream<PlayerEvent> get eventStream => _eventStreamController.stream;
 
   final StreamController<PlayerState> _playerStateController =
@@ -84,8 +85,8 @@ class AudioPlayer {
   /// sent when an audio is paused or stopped.
   ///
   /// [ReleaseMode.loop] also sends events to this stream.
-  Stream<void> get onPlayerComplete => eventStream
-      .where((event) => event.eventType == PlayerEventType.complete);
+  Stream<void> get onPlayerComplete =>
+      eventStream.where((event) => event.eventType == PlayerEventType.complete);
 
   /// Stream of seek completions.
   ///
@@ -116,17 +117,18 @@ class AudioPlayer {
   /// Creates a new instance and assigns an unique id to it.
   AudioPlayer({String? playerId}) : playerId = playerId ?? _uuid.v4() {
     _onLogStreamSubscription = _onLog.listen(
-          (log) => logger.log('$log\nSource: $_source'),
-      onError: (Object e, [StackTrace? stackTrace]) => logger.error(
+      (log) => Logger.log('$log\nSource: $_source'),
+      onError: (Object e, [StackTrace? stackTrace]) => Logger.error(
         AudioPlayerException(this, cause: e),
         stackTrace,
       ),
     );
-    _onPlayerCompleteStreamSubscription = onPlayerComplete.listen((_) {
-      state = PlayerState.completed;
-      if (releaseMode == ReleaseMode.release) {
-        _source = null;
-      }
+    _onPlayerCompleteStreamSubscription = onPlayerComplete.listen(
+      (_) {
+        state = PlayerState.completed;
+        if (releaseMode == ReleaseMode.release) {
+          _source = null;
+        }
       },
       onError: (Object _, [StackTrace? __]) {
         /* Errors are already handled via log stream */
@@ -138,13 +140,12 @@ class AudioPlayer {
   Future<void> create() async {
     try {
       await _platform.create(playerId);
-      _eventStreamSubscription =
-          _platform.getEventStream(playerId).listen(
+      _eventStreamSubscription = _platform.getEventStream(playerId).listen(
             _eventStreamController.add,
             onError: _eventStreamController.addError,
           );
       _creatingCompleter.complete();
-    } on Exception catch(e, st) {
+    } on Exception catch (e, st) {
       _creatingCompleter.completeError(e, st);
     }
   }
@@ -176,13 +177,13 @@ class AudioPlayer {
     return resume();
   }
 
+  /// Handle logs of the player. Replaces the default of using [Logger].
   void setLogHandler(
-    void Function(String log)? onLog, {
-    void Function(Object o, [StackTrace? stackTrace])? onError,
+    void Function(String log) onLog, {
+    void Function(Object o, [StackTrace? stackTrace]) onError = Logger.error,
   }) {
     _onLogStreamSubscription.cancel();
-    _onLogStreamSubscription =
-        _onLog.listen(onLog, onError: onError ?? logger.error);
+    _onLogStreamSubscription = _onLog.listen(onLog, onError: onError);
   }
 
   Future<void> setAudioContext(AudioContext ctx) async {

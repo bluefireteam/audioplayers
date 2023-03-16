@@ -1,14 +1,12 @@
 import 'package:audioplayers/audioplayers.dart';
 
 class Logger {
-  static Logger instance = Logger();
-
-  void log(String message) {
+  static void log(String message) {
     // ignore: avoid_print
     print('AudioPlayers Log: $message');
   }
 
-  void error(Object o, [StackTrace? stacktrace]) {
+  static void error(Object o, [StackTrace? stacktrace]) {
     // ignore: avoid_print
     print(errorToString(o, stacktrace));
   }
