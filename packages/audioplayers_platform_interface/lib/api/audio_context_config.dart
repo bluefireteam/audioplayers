@@ -1,5 +1,3 @@
-import 'dart:io' show Platform;
-
 import 'package:flutter/foundation.dart';
 
 /// This class contains flags to control several secondary, platform-specific
@@ -113,7 +111,7 @@ class AudioContextConfig {
   }
 
   AudioContextIOS buildIOS() {
-    if (Platform.isIOS) {
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
       validateIOS();
     }
     return AudioContextIOS(
@@ -160,12 +158,12 @@ class AudioContext {
   }
 
   Map<String, dynamic> toJson() {
-    // we need to check web first because `Platform.isX` fails on web
+    // we need to check web first because `TargetPlatform` is not valid on web
     if (kIsWeb) {
       return <String, dynamic>{};
-    } else if (Platform.isAndroid) {
+    } else if (defaultTargetPlatform == TargetPlatform.android) {
       return android.toJson();
-    } else if (Platform.isIOS) {
+    } else if (defaultTargetPlatform == TargetPlatform.iOS) {
       return iOS.toJson();
     } else {
       return <String, dynamic>{};
