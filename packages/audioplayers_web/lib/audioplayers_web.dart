@@ -93,7 +93,7 @@ class AudioplayersPlugin extends AudioplayersPlatform with StreamsInterface {
     String url, {
     bool? isLocal,
   }) async {
-    getOrCreatePlayer(playerId).setUrl(url);
+    await getOrCreatePlayer(playerId).setUrl(url);
   }
 
   @override
