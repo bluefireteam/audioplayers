@@ -55,9 +55,9 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
         let instance = SwiftAudioplayersDarwinPlugin(
                 registrar: registrar,
                 binaryMessenger: binaryMessenger,
-                methods: methods,
-                globalMethods: globalMethods,
-                globalEvents: globalEvents)
+                methodChannel: methods,
+                globalMethodChannel: globalMethods,
+                globalEventChannel: globalEvents)
         registrar.addMethodCallDelegate(instance, channel: methods)
         registrar.addMethodCallDelegate(instance, channel: globalMethods)
     }
@@ -105,9 +105,8 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
         Logger.info("playerId: %@", playerId)
         
         if method == "create" {
-            self.createPlayer(playerId: playerId) {
-                result(1)
-            }
+            self.createPlayer(playerId: playerId)
+            result(1)
             return
         }
         
@@ -217,7 +216,7 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
     }
     
     func getPlayer(playerId: String) -> WrappedMediaPlayer {
-        return players[playerId]
+        return players[playerId]!
     }
     
     func onSeekComplete(playerId: String, finished: Bool) {
