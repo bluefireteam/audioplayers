@@ -1,24 +1,23 @@
 import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter/services.dart';
+import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'audio_cache_test.dart';
+import 'fake_audioplayers_platform.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  const _channel = MethodChannel('plugins.flutter.io/path_provider');
-  _channel.setMockMethodCallHandler((c) async => '/tmp');
-
-  const channel = MethodChannel('xyz.luan/audioplayers');
-  channel.setMockMethodCallHandler((MethodCall call) async => 1);
-
   group('AudioPool', () {
+    setUp(() {
+      AudioplayersPlatformInterface.instance = FakeAudioplayersPlatform();
+    });
+
     test('creates instance', () async {
       final pool = await AudioPool.createFromAsset(
         path: 'audio.mp3',
         maxPlayers: 3,
-        audioCache: MyAudioCache(),
+        audioCache: FakeAudioCache(),
       );
       final stop = await pool.start();
 
@@ -32,7 +31,7 @@ void main() {
       final pool = await AudioPool.createFromAsset(
         path: 'audio.mp3',
         maxPlayers: 3,
-        audioCache: MyAudioCache(),
+        audioCache: FakeAudioCache(),
       );
       final stop1 = await pool.start();
       final stop2 = await pool.start();
@@ -54,7 +53,7 @@ void main() {
       final pool = await AudioPool.createFromAsset(
         path: 'audio.mp3',
         maxPlayers: 3,
-        audioCache: MyAudioCache(),
+        audioCache: FakeAudioCache(),
       );
       final stopFunctions =
           await Future.wait(List.generate(5, (_) => pool.start()));
