@@ -11,12 +11,12 @@ class GlobalPlatform extends GlobalPlatformInterface
 
 mixin MethodChannelGlobalPlatform
     implements MethodChannelGlobalPlatformInterface {
-  static const MethodChannel _channel =
+  static const MethodChannel _globalMethodChannel =
       MethodChannel('xyz.luan/audioplayers.global');
 
   @override
   Future<void> setGlobalAudioContext(AudioContext ctx) {
-    return _channel.call(
+    return _globalMethodChannel.call(
       'setAudioContext',
       ctx.toJson(),
     );
@@ -24,7 +24,7 @@ mixin MethodChannelGlobalPlatform
 
   @override
   Future<void> emitGlobalLog(String message) {
-    return _channel.call(
+    return _globalMethodChannel.call(
       'emitLog',
       <String, dynamic>{
         'message': message,
@@ -34,7 +34,7 @@ mixin MethodChannelGlobalPlatform
 
   @override
   Future<void> emitGlobalError(String code, String message) {
-    return _channel.call(
+    return _globalMethodChannel.call(
       'emitError',
       <String, dynamic>{
         'code': code,
@@ -46,12 +46,12 @@ mixin MethodChannelGlobalPlatform
 
 mixin EventChannelGlobalPlatform
     implements EventChannelGlobalPlatformInterface {
-  final globalEventChannel =
-      const EventChannel('xyz.luan/audioplayers.global/events');
+  static const _globalEventChannel =
+      EventChannel('xyz.luan/audioplayers.global/events');
 
   @override
   Stream<GlobalEvent> getGlobalEventStream() {
-    return globalEventChannel.receiveBroadcastStream().map((dynamic event) {
+    return _globalEventChannel.receiveBroadcastStream().map((dynamic event) {
       final map = event as Map<dynamic, dynamic>;
       final eventType = map.getString('event');
       switch (eventType) {

@@ -11,11 +11,14 @@ void main() {
   final _channelLogs = <String>[];
 
   group('Global Method Channel', () {
-    const MethodChannel('xyz.luan/audioplayers.global')
-        .setMockMethodCallHandler((MethodCall methodCall) async {
-      _channelLogs.add('${methodCall.method} ${methodCall.arguments}');
-      return 1;
-    });
+    TestDefaultBinaryMessengerBinding.instance!.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      const MethodChannel('xyz.luan/audioplayers.global'),
+      (MethodCall methodCall) async {
+        _channelLogs.add('${methodCall.method} ${methodCall.arguments}');
+        return 1;
+      },
+    );
 
     setUp(_channelLogs.clear);
 

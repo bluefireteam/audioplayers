@@ -1,37 +1,95 @@
+import 'dart:async';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_platform_interface/method_channel_interface.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+extension MethodArguments on MethodCall {
+  Map<dynamic, dynamic> get mapArguments => arguments as Map<dynamic, dynamic>;
+
+  String getString(String key) => mapArguments.getString(key);
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  final calls = <MethodCall>[];
-  const channel = MethodChannel('xyz.luan/audioplayers');
-  channel.setMockMethodCallHandler((MethodCall call) async {
-    calls.add(call);
-    return 0;
-  });
+  final methodCalls = <MethodCall>[];
+  TestDefaultBinaryMessengerBinding.instance!.defaultBinaryMessenger
+      .setMockMethodCallHandler(
+    const MethodChannel('xyz.luan/audioplayers'),
+    (MethodCall methodCall) async {
+      methodCalls.add(methodCall);
+      return 0;
+    },
+  );
 
   void clear() {
-    calls.clear();
+    methodCalls.clear();
   }
 
   MethodCall popCall() {
-    return calls.removeAt(0);
+    return methodCalls.removeAt(0);
   }
 
   MethodCall popLastCall() {
-    expect(calls, hasLength(1));
+    expect(methodCalls, hasLength(1));
     return popCall();
   }
 
-  group('AudioPlayers', () {
-    test('#setSource', () async {
-      calls.clear();
-      final player = AudioPlayer();
-      expect(player.source, null);
+  // See: https://github.com/flutter/packages/blob/12609a2abbb0a30b9d32af7b73599bfc834e609e/packages/video_player/video_player_android/test/android_video_player_test.dart#L270
+  void createNativePlayerEventStream({
+    required String playerId,
+    Stream<ByteData>? byteDataStream,
+  }) {
+    TestDefaultBinaryMessengerBinding.instance!.defaultBinaryMessenger
+        .setMockMessageHandler('xyz.luan/audioplayers/events/$playerId',
+            (ByteData? message) async {
+      final methodCall = const StandardMethodCodec().decodeMethodCall(message);
+      if (methodCall.method == 'listen') {
+        byteDataStream?.listen((byteData) async {
+          await TestDefaultBinaryMessengerBinding
+              .instance!.defaultBinaryMessenger
+              .handlePlatformMessage(
+            'xyz.luan/audioplayers/events/$playerId',
+            byteData,
+            (ByteData? data) {},
+          );
+        });
+        return const StandardMethodCodec().encodeSuccessEnvelope(null);
+      } else if (methodCall.method == 'cancel') {
+        return const StandardMethodCodec().encodeSuccessEnvelope(null);
+      } else {
+        fail('Expected listen or cancel');
+      }
+    });
+  }
 
+  Future<AudioPlayer> createPlayer({
+    required String playerId,
+    Stream<ByteData>? byteDataStream,
+  }) async {
+    final player = AudioPlayer(playerId: playerId);
+    expect(player.source, null);
+    createNativePlayerEventStream(
+      playerId: playerId,
+      byteDataStream: byteDataStream,
+    );
+    await player.creatingCompleter.future;
+    expect(popLastCall().method, 'create');
+    return player;
+  }
+
+  group('AudioPlayers Method Channel', () {
+    late AudioPlayer player;
+
+    setUp(() async {
+      methodCalls.clear();
+      const playerId = 'playerId_1';
+      player = await createPlayer(playerId: playerId);
+    });
+
+    test('#setSource', () async {
       await player.setSource(UrlSource('internet.com/file.mp3'));
       expect(popLastCall().method, 'setSourceUrl');
       expect(player.source, isInstanceOf<UrlSource>());
@@ -43,8 +101,6 @@ void main() {
     });
 
     test('#play', () async {
-      calls.clear();
-      final player = AudioPlayer();
       await player.play(UrlSource('internet.com/file.mp3'));
       final call1 = popCall();
       expect(call1.method, 'setSourceUrl');
@@ -54,11 +110,9 @@ void main() {
     });
 
     test('multiple players', () async {
-      calls.clear();
-      final player1 = AudioPlayer();
-      final player2 = AudioPlayer();
+      final player2 = await createPlayer(playerId: 'playerId_2');
 
-      await player1.play(UrlSource('internet.com/file.mp3'));
+      await player.play(UrlSource('internet.com/file.mp3'));
       final call1 = popCall();
       final player1Id = call1.getString('playerId');
       expect(call1.method, 'setSourceUrl');
@@ -67,7 +121,7 @@ void main() {
       expect(call2.method, 'resume');
 
       clear();
-      await player1.play(UrlSource('internet.com/file.mp3'));
+      await player.play(UrlSource('internet.com/file.mp3'));
       expect(popCall().getString('playerId'), player1Id);
 
       clear();
@@ -75,13 +129,11 @@ void main() {
       expect(popCall().getString('playerId'), isNot(player1Id));
 
       clear();
-      await player1.play(UrlSource('internet.com/file.mp3'));
+      await player.play(UrlSource('internet.com/file.mp3'));
       expect(popCall().getString('playerId'), player1Id);
     });
 
     test('#resume, #pause and #duration', () async {
-      calls.clear();
-      final player = AudioPlayer();
       await player.setSourceUrl('assets/audio.mp3');
       expect(popLastCall().method, 'setSourceUrl');
 
@@ -93,6 +145,77 @@ void main() {
 
       await player.pause();
       expect(popLastCall().method, 'pause');
+    });
+  });
+
+  group('AudioPlayers Event Channel', () {
+    late AudioPlayer player;
+
+    setUp(() async {
+      methodCalls.clear();
+    });
+
+    test('event stream', () async {
+      const playerId = 'playerId_1';
+
+      final eventController = StreamController<ByteData>.broadcast();
+
+      player = await createPlayer(
+        playerId: playerId,
+        byteDataStream: eventController.stream,
+      );
+
+      expect(
+        player.eventStream,
+        emitsInOrder(<PlayerEvent>[
+          const PlayerEvent(
+            eventType: PlayerEventType.duration,
+            duration: Duration(milliseconds: 98765),
+          ),
+          const PlayerEvent(
+            eventType: PlayerEventType.position,
+            position: Duration(milliseconds: 8765),
+          ),
+          const PlayerEvent(
+            eventType: PlayerEventType.log,
+            logMessage: 'someLogMessage',
+          ),
+          const PlayerEvent(
+            eventType: PlayerEventType.complete,
+          ),
+          const PlayerEvent(
+            eventType: PlayerEventType.seekComplete,
+          ),
+        ]),
+      );
+
+      final byteDataList = <Map<String, dynamic>>[
+        <String, dynamic>{
+          'event': 'audio.onDuration',
+          'value': 98765,
+        },
+        <String, dynamic>{
+          'event': 'audio.onCurrentPosition',
+          'value': 8765,
+        },
+        <String, dynamic>{
+          'event': 'audio.onLog',
+          'value': 'someLogMessage',
+        },
+        <String, dynamic>{
+          'event': 'audio.onComplete',
+        },
+        <String, dynamic>{
+          'event': 'audio.onSeekComplete',
+        },
+      ];
+      for (final byteData in byteDataList) {
+        eventController.add(
+          const StandardMethodCodec().encodeSuccessEnvelope(byteData),
+        );
+      }
+
+      eventController.close();
     });
   });
 }

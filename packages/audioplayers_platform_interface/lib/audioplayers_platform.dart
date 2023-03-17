@@ -1,4 +1,5 @@
 import 'dart:async';
+
 // TODO(gustl22): remove when upgrading min Flutter version to >=3.3.0
 // ignore: unnecessary_import
 import 'dart:typed_data';
@@ -18,7 +19,8 @@ class AudioplayersPlatform extends AudioplayersPlatformInterface
 
 mixin MethodChannelAudioplayersPlatform
     implements MethodChannelAudioplayersPlatformInterface {
-  final MethodChannel _channel = const MethodChannel('xyz.luan/audioplayers');
+  static const MethodChannel _methodChannel =
+      MethodChannel('xyz.luan/audioplayers');
 
   @override
   Future<void> create(String playerId) {
@@ -195,7 +197,7 @@ mixin MethodChannelAudioplayersPlatform
       'playerId': playerId,
       ...arguments,
     };
-    return _channel.call(method, enhancedArgs);
+    return _methodChannel.call(method, enhancedArgs);
   }
 
   Future<T?> _compute<T>(
@@ -207,7 +209,7 @@ mixin MethodChannelAudioplayersPlatform
       'playerId': playerId,
       ...arguments,
     };
-    return _channel.compute<T>(method, enhancedArgs);
+    return _methodChannel.compute<T>(method, enhancedArgs);
   }
 }
 

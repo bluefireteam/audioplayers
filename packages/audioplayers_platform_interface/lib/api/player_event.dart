@@ -45,10 +45,21 @@ class PlayerEvent {
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode =>
+      Object.hash(
         eventType,
         duration,
         position,
         logMessage,
       );
+
+  @override
+  String toString() {
+    return 'PlayerEvent('
+        'eventType: $eventType, '
+        'duration: $duration, '
+        'position: $position, '
+        'logMessage: $logMessage'
+        ')';
+  }
 }

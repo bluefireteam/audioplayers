@@ -35,4 +35,12 @@ class GlobalEvent {
         eventType,
         logMessage,
       );
+
+  @override
+  String toString() {
+    return 'GlobalEvent('
+        'eventType: $eventType, '
+        'logMessage: $logMessage'
+        ')';
+  }
 }
