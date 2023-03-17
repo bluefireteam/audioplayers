@@ -5,11 +5,12 @@ private let defaultVolume: Double = 1.0
 private let defaultLooping: Bool = false
 
 typealias Completer = () -> Void
+typealias CompleterError = () -> Void
 
 class WrappedMediaPlayer {
     var reference: SwiftAudioplayersDarwinPlugin
+    var eventHandler: AudioPlayersStreamHandler
     
-    var playerId: String
     var player: AVPlayer?
     
     var observers: [TimeObserver]
@@ -24,7 +25,7 @@ class WrappedMediaPlayer {
     
     init(
         reference: SwiftAudioplayersDarwinPlugin,
-        playerId: String,
+        eventHandler: AudioPlayersStreamHandler,
         player: AVPlayer? = nil,
         playbackRate: Double = defaultPlaybackRate,
         volume: Double = defaultVolume,
@@ -32,7 +33,7 @@ class WrappedMediaPlayer {
         url: String? = nil
     ) {
         self.reference = reference
-        self.playerId = playerId
+        self.eventHandler = eventHandler
         self.player = player
         self.observers = []
         self.keyValueObservation = nil
@@ -112,7 +113,7 @@ class WrappedMediaPlayer {
             if !self.isPlaying {
                 self.player?.pause()
             }
-            self.reference.onSeekComplete(playerId: self.playerId, finished: finished)
+            self.eventHandler.onSeekComplete()
             if (finished) {
                 completer?()
             }
@@ -145,12 +146,12 @@ class WrappedMediaPlayer {
         }
         
         reference.controlAudioSession()
-        reference.onComplete(playerId: playerId)
+        eventHandler.onComplete()
     }
     
     func onTimeInterval(time: CMTime) {
         let millis = fromCMTime(time: time)
-        reference.onCurrentPosition(playerId: playerId, millis: millis)
+        eventHandler.onCurrentPosition(millis: millis)
     }
     
     func updateDuration() {
@@ -159,14 +160,15 @@ class WrappedMediaPlayer {
         }
         if CMTimeGetSeconds(duration) > 0 {
             let millis = fromCMTime(time: duration)
-            reference.onDuration(playerId: playerId, millis: millis)
+            eventHandler.onDuration(millis: millis)
         }
     }
     
-    func setSourceUrl(
+    func setSourceUrl (
         url: String,
         isLocal: Bool,
-        completer: Completer? = nil
+        completer: Completer? = nil,
+        completerError: CompleterError? = nil
     ) {
         let playbackStatus = player?.currentItem?.status
         
@@ -211,13 +213,13 @@ class WrappedMediaPlayer {
             // is sound ready
             let newKeyValueObservation = playerItem.observe(\AVPlayerItem.status) { (playerItem, change) in
                 let status = playerItem.status
-                Logger.info("player status: %@ change: %@", status, change)
+                self.eventHandler.onLog(message: "player status: \(status) change: \(change)")
                 
                 if status == .readyToPlay {
                     self.updateDuration()
                     completer?()
                 } else if status == .failed {
-                    self.reference.onError(playerId: self.playerId)
+                    completerError?()
                 }
             }
             
