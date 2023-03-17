@@ -53,7 +53,7 @@ class AudioplayersPlugin extends AudioplayersPlatform with StreamsInterface {
 
   @override
   Future<void> resume(String playerId) async {
-    getOrCreatePlayer(playerId).resume();
+    await getOrCreatePlayer(playerId).resume();
   }
 
   @override
