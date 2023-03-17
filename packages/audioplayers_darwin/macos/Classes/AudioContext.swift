@@ -4,8 +4,8 @@ import MediaPlayer
 struct AudioContext {
     func activateAudioSession(active: Bool) {}
 
-    func apply() {
-        // no-op on macOS
+    func apply() throws {
+        throw AudioPlayerError.warning("AudioContext configuration is not available on macOS")
     }
 
     static func parse(args: [String: Any]) -> AudioContext? {
