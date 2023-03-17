@@ -37,6 +37,8 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
         globalContext.apply()
         
         super.init()
+        
+        self.globalMethods.setMethodCallHandler(self.handleGlobalMethodCall)
     }
     
     public static func register(with registrar: FlutterPluginRegistrar) {
@@ -59,7 +61,6 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
                 globalMethodChannel: globalMethods,
                 globalEventChannel: globalEvents)
         registrar.addMethodCallDelegate(instance, channel: methods)
-        registrar.addMethodCallDelegate(instance, channel: globalMethods)
     }
 
     public func detachFromEngine(for registrar: FlutterPluginRegistrar) {
@@ -73,7 +74,7 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
         self.players = [:]
     }
     
-    public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+    private func handleGlobalMethodCall(call: FlutterMethodCall, result: @escaping FlutterResult) {
         let method = call.method
         
         guard let args = call.arguments as? [String: Any] else {
@@ -85,16 +86,37 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
         Logger.info("method: %@", method)
 
         // global handlers (no playerId)
-        if method == "setGlobalAudioContext" {
+        if method == "setAudioContext" {
             guard let context = AudioContext.parse(args: args) else {
                 result(0)
                 return
             }
             globalContext = context
             globalContext.apply()
-            result(1)
+        } else if method == "emitLog" {
+            // TODO
+        } else if method == "emitError" {
+            // TODO
+        } else {
+            Logger.error("Called not implemented method: %@", method)
+            result(FlutterMethodNotImplemented)
             return
         }
+        
+        // default result (bypass by adding `return` to your branch)
+        result(1)
+    }
+    
+    public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        let method = call.method
+        
+        guard let args = call.arguments as? [String: Any] else {
+            Logger.error("Failed to parse call.arguments from Flutter.")
+            result(0)
+            return
+        }
+
+        Logger.info("method: %@", method)
 
         // player specific handlers
         guard let playerId = args["playerId"] as? String else {
@@ -197,6 +219,10 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
             }
             globalContext = context
             globalContext.apply()
+        } else if method == "emitLog" {
+            // TODO
+        } else if method == "emitError" {
+            // TODO
         } else {
             Logger.error("Called not implemented method: %@", method)
             result(FlutterMethodNotImplemented)
