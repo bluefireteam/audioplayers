@@ -28,6 +28,7 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
          globalMethodChannel: FlutterMethodChannel,
          globalEventChannel: FlutterEventChannel) {
         self.registrar = registrar
+        self.binaryMessenger = binaryMessenger
         self.methods = methodChannel
         self.globalMethods = globalMethodChannel
         self.globalEvents = globalEventChannel
@@ -39,18 +40,20 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
     
     public static func register(with registrar: FlutterPluginRegistrar) {
         // apparently there is a bug in Flutter causing some inconsistency between Flutter and FlutterMacOS
+        // See: https://github.com/flutter/flutter/issues/118103
         #if os(iOS)
-        self.binaryMessenger = registrar.messenger()
+        let binaryMessenger = registrar.messenger()
         #else
-        self.binaryMessenger = registrar.messenger
+        let binaryMessenger = registrar.messenger
         #endif
         
-        let methods = FlutterMethodChannel(name: CHANNEL_NAME, binaryMessenger: self.binaryMessenger)
-        let globalMethods = FlutterMethodChannel(name: GLOBAL_CHANNEL_NAME, binaryMessenger: self.binaryMessenger)
-        let globalEvents = FlutterEventChannel(name: GLOBAL_CHANNEL_NAME + "/events", binaryMessenger: self.binaryMessenger)
+        let methods = FlutterMethodChannel(name: CHANNEL_NAME, binaryMessenger: binaryMessenger)
+        let globalMethods = FlutterMethodChannel(name: GLOBAL_CHANNEL_NAME, binaryMessenger: binaryMessenger)
+        let globalEvents = FlutterEventChannel(name: GLOBAL_CHANNEL_NAME + "/events", binaryMessenger: binaryMessenger)
 
         let instance = SwiftAudioplayersDarwinPlugin(
                 registrar: registrar,
+                binaryMessenger: binaryMessenger,
                 methods: methods,
                 globalMethods: globalMethods,
                 globalEvents: globalEvents)
