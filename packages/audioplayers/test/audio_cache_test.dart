@@ -2,10 +2,10 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-class MyAudioCache extends AudioCache {
+class FakeAudioCache extends AudioCache {
   List<String> called = [];
 
-  MyAudioCache({String prefix = 'assets/'}) : super(prefix: prefix);
+  FakeAudioCache({String prefix = 'assets/'}) : super(prefix: prefix);
 
   @override
   Future<Uri> fetchToMemory(String fileName) async {
@@ -17,34 +17,31 @@ class MyAudioCache extends AudioCache {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  const _channel = MethodChannel('plugins.flutter.io/path_provider');
-  _channel.setMockMethodCallHandler((c) async => '/tmp');
-
   const channel = MethodChannel('xyz.luan/audioplayers');
   channel.setMockMethodCallHandler((MethodCall call) async => 1);
 
   group('AudioCache', () {
     test('sets cache', () async {
-      final player = MyAudioCache();
-      await player.load('audio.mp3');
-      expect(player.loadedFiles['audio.mp3'], isNotNull);
-      expect(player.called, hasLength(1));
-      player.called.clear();
+      final cache = FakeAudioCache();
+      await cache.load('audio.mp3');
+      expect(cache.loadedFiles['audio.mp3'], isNotNull);
+      expect(cache.called, hasLength(1));
+      cache.called.clear();
 
-      await player.load('audio.mp3');
-      expect(player.called, hasLength(0));
+      await cache.load('audio.mp3');
+      expect(cache.called, hasLength(0));
     });
 
     test('clear cache', () async {
-      final player = MyAudioCache();
-      await player.load('audio.mp3');
-      expect(player.loadedFiles['audio.mp3'], isNotNull);
-      player.clearAll();
-      expect(player.loadedFiles, <String, Uri>{});
-      await player.load('audio.mp3');
-      expect(player.loadedFiles.isNotEmpty, isTrue);
-      player.clear('audio.mp3');
-      expect(player.loadedFiles, <String, Uri>{});
+      final cache = FakeAudioCache();
+      await cache.load('audio.mp3');
+      expect(cache.loadedFiles['audio.mp3'], isNotNull);
+      cache.clearAll();
+      expect(cache.loadedFiles, <String, Uri>{});
+      await cache.load('audio.mp3');
+      expect(cache.loadedFiles.isNotEmpty, isTrue);
+      cache.clear('audio.mp3');
+      expect(cache.loadedFiles, <String, Uri>{});
     });
   });
 }
