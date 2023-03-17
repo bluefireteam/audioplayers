@@ -127,7 +127,7 @@ class WrappedPlayer {
     playerPlaySubscription = null;
   }
 
-  void start(double position) {
+  Future<void> start(double position) async {
     isPlaying = true;
     if (currentUrl == null) {
       return; // nothing to play yet
@@ -135,12 +135,12 @@ class WrappedPlayer {
     if (player == null) {
       recreateNode();
     }
-    player?.play();
+    await player?.play();
     player?.currentTime = position;
   }
 
-  void resume() {
-    start(pausedAt ?? 0);
+  Future<void> resume() async {
+    await start(pausedAt ?? 0);
   }
 
   void pause() {
