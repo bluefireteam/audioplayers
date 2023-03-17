@@ -1,5 +1,4 @@
 import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class FakeAudioCache extends AudioCache {
@@ -16,9 +15,6 @@ class FakeAudioCache extends AudioCache {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-
-  const channel = MethodChannel('xyz.luan/audioplayers');
-  channel.setMockMethodCallHandler((MethodCall call) async => 1);
 
   group('AudioCache', () {
     test('sets cache', () async {
