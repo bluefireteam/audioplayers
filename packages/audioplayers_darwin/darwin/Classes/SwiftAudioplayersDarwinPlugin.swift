@@ -24,6 +24,7 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
     var players = [String : WrappedMediaPlayer]()
     
     init(registrar: FlutterPluginRegistrar,
+         binaryMessenger: FlutterBinaryMessenger,
          methodChannel: FlutterMethodChannel,
          globalMethodChannel: FlutterMethodChannel,
          globalEventChannel: FlutterEventChannel) {
