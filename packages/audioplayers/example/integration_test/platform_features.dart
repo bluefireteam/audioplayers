@@ -21,7 +21,6 @@ class PlatformFeatures {
   static const androidPlatformFeatures = PlatformFeatures(
     hasRecordingActive: false,
     hasBalance: false,
-    hasMp2SourceType: false,
   );
 
   static const iosPlatformFeatures = PlatformFeatures(
@@ -79,7 +78,6 @@ class PlatformFeatures {
   final bool hasBytesSource;
 
   final bool hasPlaylistSourceType;
-  final bool hasMp2SourceType;
 
   final bool hasLowLatency;
   final bool hasReleaseModeRelease;
@@ -107,7 +105,6 @@ class PlatformFeatures {
     this.hasAssetSource = true,
     this.hasBytesSource = true,
     this.hasPlaylistSourceType = true,
-    this.hasMp2SourceType = true,
     this.hasLowLatency = true,
     this.hasReleaseModeRelease = true,
     this.hasReleaseModeLoop = true,
