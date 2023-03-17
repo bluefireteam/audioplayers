@@ -220,23 +220,23 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
     }
     
     func onSeekComplete(playerId: String, finished: Bool) {
-        channel.invokeMethod("audio.onSeekComplete", arguments: ["playerId": playerId, "value": finished])
+        methods.invokeMethod("audio.onSeekComplete", arguments: ["playerId": playerId, "value": finished])
     }
     
     func onComplete(playerId: String) {
-        channel.invokeMethod("audio.onComplete", arguments: ["playerId": playerId])
+        methods.invokeMethod("audio.onComplete", arguments: ["playerId": playerId])
     }
     
     func onCurrentPosition(playerId: String, millis: Int) {
-        channel.invokeMethod("audio.onCurrentPosition", arguments: ["playerId": playerId, "value": millis])
+        methods.invokeMethod("audio.onCurrentPosition", arguments: ["playerId": playerId, "value": millis])
     }
     
     func onError(playerId: String) {
-        channel.invokeMethod("audio.onError", arguments: ["playerId": playerId, "value": "AVPlayerItem.Status.failed"])
+        methods.invokeMethod("audio.onError", arguments: ["playerId": playerId, "value": "AVPlayerItem.Status.failed"])
     }
     
     func onDuration(playerId: String, millis: Int) {
-        channel.invokeMethod("audio.onDuration", arguments: ["playerId": playerId, "value": millis])
+        methods.invokeMethod("audio.onDuration", arguments: ["playerId": playerId, "value": millis])
     }
     
     func controlAudioSession() {
