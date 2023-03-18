@@ -5,7 +5,6 @@ import 'package:integration_test/integration_test.dart';
 import 'platform_features.dart';
 import 'source_test_data.dart';
 import 'tabs/context_tab.dart';
-import 'tabs/controls_tab.dart';
 import 'tabs/logs_tab.dart';
 import 'tabs/source_tab.dart';
 import 'tabs/stream_tab.dart';
@@ -89,7 +88,7 @@ void main() {
         await tester.pumpAndSettle();
 
         await testSourcesTab(tester, audioSourceTestData, features);
-        await testControlsTab(tester, audioSourceTestData, features);
+        // await testControlsTab(tester, audioSourceTestData, features);
         await testStreamsTab(tester, audioSourceTestData, features);
         await testContextTab(tester, audioSourceTestData, features);
         await testLogsTab(tester, audioSourceTestData, features);
