@@ -77,8 +77,15 @@ Future<void> testStreamsTab(
   if (features.hasPlayerStateEvent) {
     if (!audioSourceTestData.isLiveStream) {
       if (audioSourceTestData.duration < const Duration(seconds: 2)) {
-        await tester.testPlayerState(PlayerState.completed, timeout: timeout);
-        await tester.testOnPlayerState(PlayerState.completed, timeout: timeout);
+        // Windows somehow needs extensively long to play and complete a source.
+        await tester.testPlayerState(
+          PlayerState.completed,
+          timeout: const Duration(seconds: 15),
+        );
+        await tester.testOnPlayerState(
+          PlayerState.completed,
+          timeout: const Duration(seconds: 15),
+        );
       } else if (audioSourceTestData.duration > const Duration(seconds: 5)) {
         await tester.scrollToAndTap(const Key('pause_button'));
         await tester.pumpAndSettle();
