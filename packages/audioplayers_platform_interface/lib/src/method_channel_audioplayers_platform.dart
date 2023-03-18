@@ -3,13 +3,13 @@ import 'dart:async';
 // ignore: unnecessary_import
 import 'dart:typed_data';
 
-import 'package:audioplayers_platform_interface/api/audio_context.dart';
-import 'package:audioplayers_platform_interface/api/player_mode.dart';
-import 'package:audioplayers_platform_interface/api/release_mode.dart';
-import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
-import 'package:audioplayers_platform_interface/global_platform_interface.dart';
-import 'package:audioplayers_platform_interface/method_channel_interface.dart';
-import 'package:audioplayers_platform_interface/streams_interface.dart';
+import 'package:audioplayers_platform_interface/src/api/audio_context.dart';
+import 'package:audioplayers_platform_interface/src/api/player_mode.dart';
+import 'package:audioplayers_platform_interface/src/api/release_mode.dart';
+import 'package:audioplayers_platform_interface/src/audioplayers_platform_interface.dart';
+import 'package:audioplayers_platform_interface/src/global_platform_interface.dart';
+import 'package:audioplayers_platform_interface/src/method_channel_interface.dart';
+import 'package:audioplayers_platform_interface/src/streams_interface.dart';
 import 'package:flutter/services.dart';
 
 class MethodChannelAudioplayersPlatform extends AudioplayersPlatform
