@@ -1,8 +1,7 @@
 import 'dart:async';
 import 'dart:html';
 
-import 'package:audioplayers_platform_interface/api/release_mode.dart';
-import 'package:audioplayers_platform_interface/streams_interface.dart';
+import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
 import 'package:audioplayers_web/num_extension.dart';
 import 'package:audioplayers_web/web_audio_js.dart';
 
