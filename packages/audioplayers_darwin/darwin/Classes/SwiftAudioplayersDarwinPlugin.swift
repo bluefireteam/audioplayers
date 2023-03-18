@@ -34,7 +34,11 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
         self.globalMethods = globalMethodChannel
         self.globalEvents = GlobalAudioPlayersStreamHandler()
 
-        globalContext.apply()
+        do {
+            try globalContext.apply()
+        } catch {
+            // ignore error on initialization
+        }
 
         super.init()
 
@@ -93,10 +97,10 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
                 globalContext = context
 
                 try globalContext.apply()
-            } catch AudioPlayerError.error(let errMsg) {
-                result(FlutterError(code: "DarwinAudioPlayers", message: "Error configuring global audio session: \(errMsg)", details: nil))
             } catch AudioPlayerError.warning(let warnMsg) {
                 globalEvents.onLog(message: warnMsg)
+            }  catch {
+                result(FlutterError(code: "DarwinAudioPlayers", message: "Error configuring global audio session: \(error)", details: nil))
             }
         } else if method == "emitLog" {
             guard let message = args["message"] as? String else {
@@ -221,17 +225,17 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
         } else if method == "setAudioContext" {
             player.eventHandler.onLog(message: "iOS does not allow for player-specific audio contexts; `setAudioContext` will set the global audio context instead (like `global.setAudioContext`).")
             do {
-                guard let context = AudioContext.parse(args: args) else {
+                guard let context = try AudioContext.parse(args: args) else {
                     result(FlutterError(code: "DarwinAudioPlayers", message: "Error calling setAudioContext, context could not be parsed", details: nil))
                     return
                 }
                 globalContext = context
 
                 try globalContext.apply()
-            } catch AudioPlayerError.error(let errMsg) {
-                result(FlutterError(code: "DarwinAudioPlayers", message: "Error configuring audio session: \(errMsg)", details: nil))
             } catch AudioPlayerError.warning(let warnMsg) {
                 globalEvents.onLog(message: warnMsg)
+            } catch {
+                result(FlutterError(code: "DarwinAudioPlayers", message: "Error configuring audio session: \(error)", details: nil))
             }
         } else if method == "emitLog" {
             guard let message = args["message"] as? String else {
