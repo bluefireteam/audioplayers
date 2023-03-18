@@ -4,7 +4,6 @@ export 'package:audioplayers_platform_interface/api/player_event.dart';
 export 'package:audioplayers_platform_interface/api/player_mode.dart';
 export 'package:audioplayers_platform_interface/api/player_state.dart';
 export 'package:audioplayers_platform_interface/api/release_mode.dart';
-export 'package:audioplayers_platform_interface/global_platform_interface.dart';
 
 export 'src/audio_cache.dart';
 export 'src/audio_pool.dart';

@@ -1,16 +1,19 @@
 import 'package:audioplayers_platform_interface/api/audio_context_config.dart';
 import 'package:audioplayers_platform_interface/api/global_event.dart';
-import 'package:audioplayers_platform_interface/global_platform_interface.dart';
-import 'package:audioplayers_platform_interface/method_channel_interface.dart';
+import 'package:audioplayers_platform_interface/global_audioplayers_platform_interface.dart';
+import 'package:audioplayers_platform_interface/map_extension.dart';
+import 'package:audioplayers_platform_interface/method_channel_extension.dart';
 import 'package:flutter/services.dart';
 
-class GlobalPlatform extends GlobalPlatformInterface
-    with MethodChannelGlobalPlatform, EventChannelGlobalPlatform {
-  GlobalPlatform();
+class GlobalAudioplayersPlatform extends GlobalAudioplayersPlatformInterface
+    with
+        MethodChannelGlobalAudioplayersPlatform,
+        EventChannelGlobalAudioplayersPlatform {
+  GlobalAudioplayersPlatform();
 }
 
-mixin MethodChannelGlobalPlatform
-    implements MethodChannelGlobalPlatformInterface {
+mixin MethodChannelGlobalAudioplayersPlatform
+    implements MethodChannelGlobalAudioplayersPlatformInterface {
   static const MethodChannel _globalMethodChannel =
       MethodChannel('xyz.luan/audioplayers.global');
 
@@ -44,8 +47,8 @@ mixin MethodChannelGlobalPlatform
   }
 }
 
-mixin EventChannelGlobalPlatform
-    implements EventChannelGlobalPlatformInterface {
+mixin EventChannelGlobalAudioplayersPlatform
+    implements EventChannelGlobalAudioplayersPlatformInterface {
   static const _globalEventChannel =
       EventChannel('xyz.luan/audioplayers.global/events');
 

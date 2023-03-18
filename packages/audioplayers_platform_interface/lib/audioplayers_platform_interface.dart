@@ -9,7 +9,7 @@ import 'package:audioplayers_platform_interface/audioplayers_platform.dart';
 import 'package:meta/meta.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-export 'global_platform_interface.dart';
+export 'global_audioplayers_platform_interface.dart';
 
 /// The interface that implementations of audioplayers must implement.
 ///

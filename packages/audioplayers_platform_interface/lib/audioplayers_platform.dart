@@ -9,7 +9,8 @@ import 'package:audioplayers_platform_interface/api/player_event.dart';
 import 'package:audioplayers_platform_interface/api/player_mode.dart';
 import 'package:audioplayers_platform_interface/api/release_mode.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
-import 'package:audioplayers_platform_interface/method_channel_interface.dart';
+import 'package:audioplayers_platform_interface/map_extension.dart';
+import 'package:audioplayers_platform_interface/method_channel_extension.dart';
 import 'package:flutter/services.dart';
 
 class AudioplayersPlatform extends AudioplayersPlatformInterface
