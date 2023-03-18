@@ -196,8 +196,8 @@ While each platform has its own set of configurations, they are somewhat related
 It provides generic abstractions that convey intent, that are then converted to platform specific configurations.
 
 Note that if this process is not perfect, you can create your configuration from scratch by providing exact details for each platform via
-[AudioContextAndroid](https://pub.dev/documentation/audioplayers_platform_interface/latest/api_audio_context_config/AudioContextAndroid-class.html) and 
-[AudioContextIOS](https://pub.dev/documentation/audioplayers_platform_interface/latest/api_audio_context_config/AudioContextIOS-class.html).
+[AudioContextAndroid](https://pub.dev/documentation/audioplayers_platform_interface/latest/api_audio_context/AudioContextAndroid-class.html) and 
+[AudioContextIOS](https://pub.dev/documentation/audioplayers_platform_interface/latest/api_audio_context/AudioContextIOS-class.html).
 
 ```dart
   player.setAudioContext(AudioContext(

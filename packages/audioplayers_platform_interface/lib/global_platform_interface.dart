@@ -1,4 +1,4 @@
-import 'package:audioplayers_platform_interface/api/audio_context_config.dart';
+import 'package:audioplayers_platform_interface/api/audio_context.dart';
 import 'package:audioplayers_platform_interface/api/log_level.dart';
 import 'package:audioplayers_platform_interface/method_channel_interface.dart';
 import 'package:flutter/services.dart';
