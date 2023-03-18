@@ -1,4 +1,4 @@
-import 'package:audioplayers_platform_interface/src/api/audio_context.dart';
+import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
 import 'package:flutter/foundation.dart';
 
 /// This class contains flags to control several secondary, platform-specific
