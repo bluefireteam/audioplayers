@@ -36,15 +36,15 @@ struct AudioContext {
         guard let categoryString = args["category"] as! String? else {
             throw AudioPlayerError.error("Null value received for category")
         }
-        guard let category = parseCategory(category: categoryString) else {
+        guard let category = try parseCategory(category: categoryString) else {
             return nil
         }
 
         guard let optionStrings = args["options"] as! [String]? else {
             throw AudioPlayerError.error("Null value received for options")
         }
-        let options = optionStrings.compactMap {
-            parseCategoryOption(option: $0)
+        let options = try optionStrings.compactMap {
+            try parseCategoryOption(option: $0)
         }
         if (optionStrings.count != options.count) {
             return nil
@@ -56,7 +56,7 @@ struct AudioContext {
         )
     }
 
-    private static func parseCategory(category: String) -> AVAudioSession.Category? {
+    private static func parseCategory(category: String) throws -> AVAudioSession.Category? {
         switch category {
         case "ambient":
             return .ambient
