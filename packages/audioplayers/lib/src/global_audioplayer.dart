@@ -19,17 +19,16 @@ class GlobalAudioPlayer {
       Logger.error(message);
     }
   }
-  
+
   @Deprecated('Use `Logger.log()` instead.')
   void info(String message) => Logger.log(message);
-  
+
   @Deprecated('Use `Logger.error()` instead.')
   void error(String message) => Logger.error(message);
 
-
   Future<void> setAudioContext(AudioContext ctx) =>
       _platform.setGlobalAudioContext(ctx);
-  
+
   @Deprecated('Use `setAudioContext()` instead.')
   Future<void> setGlobalAudioContext(AudioContext ctx) =>
       _platform.setGlobalAudioContext(ctx);
