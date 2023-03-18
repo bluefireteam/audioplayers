@@ -16,7 +16,7 @@ class AudioContextTab extends StatefulWidget {
 
 class _AudioContextTabState extends State<AudioContextTab>
     with AutomaticKeepAliveClientMixin<AudioContextTab> {
-  static GlobalPlatformInterface get _global => AudioPlayer.global;
+  static GlobalAudioPlayer get _global => AudioPlayer.global;
 
   AudioPlayer get player => widget.player;
 
@@ -43,7 +43,7 @@ class _AudioContextTabState extends State<AudioContextTab>
             ElevatedButton.icon(
               icon: const Icon(Icons.public),
               label: const Text('Global'),
-              onPressed: () => _global.setGlobalAudioContext(audioContext),
+              onPressed: () => _global.setAudioContext(audioContext),
             ),
             ElevatedButton.icon(
               icon: const Icon(Icons.looks_one),

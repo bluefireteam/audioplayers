@@ -15,7 +15,7 @@ void main() {
   });
 
   final _print = OverridePrint();
-  final _logger = GlobalPlatformInterface.instance;
+  final _logger = GlobalAudioplayersPlatformInterface.instance;
 
   group('Logger', () {
     setUp(_print.clear);
