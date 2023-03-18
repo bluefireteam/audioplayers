@@ -1,4 +1,4 @@
-import 'package:audioplayers_platform_interface/src/api/audio_context_config.dart';
+import 'package:audioplayers_platform_interface/src/api/audio_context.dart';
 import 'package:audioplayers_platform_interface/src/api/global_event.dart';
 import 'package:audioplayers_platform_interface/src/global_audioplayers_platform.dart';
 import 'package:meta/meta.dart';
