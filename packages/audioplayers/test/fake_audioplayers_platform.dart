@@ -1,11 +1,44 @@
 import 'dart:async';
 
 import 'package:audioplayers_platform_interface/api/audio_context_config.dart';
+import 'package:audioplayers_platform_interface/api/global_event.dart';
 import 'package:audioplayers_platform_interface/api/player_event.dart';
 import 'package:audioplayers_platform_interface/api/player_mode.dart';
 import 'package:audioplayers_platform_interface/api/release_mode.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
 import 'package:flutter/services.dart';
+
+class FakeGlobalAudioplayersPlatform extends GlobalPlatformInterface {
+  List<String> calls = <String>[];
+  StreamController<GlobalEvent> eventStreamController =
+      StreamController<GlobalEvent>.broadcast();
+
+  @override
+  Future<void> setGlobalAudioContext(AudioContext ctx) async {
+    calls.add('setGlobalAudioContext');
+  }
+
+  @override
+  Future<void> emitGlobalError(String code, String message) async {
+    calls.add('emitGlobalError');
+  }
+
+  @override
+  Future<void> emitGlobalLog(String message) async {
+    calls.add('emitGlobalLog');
+  }
+
+  @override
+  Stream<GlobalEvent> getGlobalEventStream() {
+    calls.add('getGlobalEventStream');
+    return eventStreamController.stream;
+  }
+
+  Future<void> dispose() async {
+    calls.add('globalDispose');
+    eventStreamController.close();
+  }
+}
 
 class FakeAudioplayersPlatform extends AudioplayersPlatformInterface {
   List<String> calls = <String>[];

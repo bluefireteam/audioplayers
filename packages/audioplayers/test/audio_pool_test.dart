@@ -11,6 +11,7 @@ void main() {
   group('AudioPool', () {
     setUp(() {
       AudioplayersPlatformInterface.instance = FakeAudioplayersPlatform();
+      GlobalPlatformInterface.instance = FakeGlobalAudioplayersPlatform();
     });
 
     test('creates instance', () async {
