@@ -1,4 +1,5 @@
 export 'src/api/audio_context.dart';
+export 'src/api/for_player.dart';
 export 'src/api/log_level.dart';
 export 'src/api/player_mode.dart';
 export 'src/api/player_state.dart';
