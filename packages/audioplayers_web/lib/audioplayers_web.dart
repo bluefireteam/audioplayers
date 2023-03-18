@@ -1,11 +1,6 @@
 import 'dart:async';
 
-import 'package:audioplayers_platform_interface/api/audio_context_config.dart';
-import 'package:audioplayers_platform_interface/api/player_event.dart';
-import 'package:audioplayers_platform_interface/api/player_mode.dart';
-import 'package:audioplayers_platform_interface/api/release_mode.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
-import 'package:audioplayers_platform_interface/global_platform_interface.dart';
 import 'package:audioplayers_web/global_audioplayers_web.dart';
 import 'package:audioplayers_web/num_extension.dart';
 import 'package:audioplayers_web/wrapped_player.dart';
@@ -16,7 +11,8 @@ class AudioplayersPlugin {
   /// The entrypoint called by the generated plugin registrant.
   static void registerWith(Registrar registrar) {
     AudioplayersPlatformInterface.instance = WebAudioplayersPlatform();
-    GlobalPlatformInterface.instance = GlobalWebAudioplayersPlatform();
+    GlobalAudioplayersPlatformInterface.instance =
+        GlobalWebAudioplayersPlatform();
   }
 }
 

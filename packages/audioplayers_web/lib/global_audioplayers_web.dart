@@ -1,11 +1,10 @@
 import 'dart:async';
 
-import 'package:audioplayers_platform_interface/api/audio_context_config.dart';
-import 'package:audioplayers_platform_interface/api/global_event.dart';
-import 'package:audioplayers_platform_interface/global_platform_interface.dart';
+import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
 import 'package:flutter/services.dart';
 
-class GlobalWebAudioplayersPlatform extends GlobalPlatformInterface {
+class GlobalWebAudioplayersPlatform
+    extends GlobalAudioplayersPlatformInterface {
   final _eventStreamController = StreamController<GlobalEvent>.broadcast();
 
   @override
