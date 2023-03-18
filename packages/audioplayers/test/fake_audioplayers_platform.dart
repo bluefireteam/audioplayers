@@ -36,11 +36,13 @@ class FakeAudioplayersPlatform extends AudioplayersPlatformInterface {
   @override
   Future<int?> getCurrentPosition(String playerId) async {
     calls.add('getCurrentPosition');
+    return 0;
   }
 
   @override
   Future<int?> getDuration(String playerId) async {
     calls.add('getDuration');
+    return 0;
   }
 
   @override
@@ -65,7 +67,9 @@ class FakeAudioplayersPlatform extends AudioplayersPlatformInterface {
 
   @override
   Future<void> setAudioContext(
-      String playerId, AudioContext audioContext) async {
+    String playerId,
+    AudioContext audioContext,
+  ) async {
     calls.add('setAudioContext');
   }
 
@@ -95,8 +99,11 @@ class FakeAudioplayersPlatform extends AudioplayersPlatformInterface {
   }
 
   @override
-  Future<void> setSourceUrl(String playerId, String url,
-      {bool? isLocal}) async {
+  Future<void> setSourceUrl(
+    String playerId,
+    String url, {
+    bool? isLocal,
+  }) async {
     calls.add('setSourceUrl');
   }
 
