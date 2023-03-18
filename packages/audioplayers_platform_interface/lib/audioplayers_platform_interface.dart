@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:audioplayers_platform_interface/api/audio_context_config.dart';
+import 'package:audioplayers_platform_interface/api/audio_context.dart';
 import 'package:audioplayers_platform_interface/api/for_player.dart';
 import 'package:audioplayers_platform_interface/api/player_mode.dart';
 import 'package:audioplayers_platform_interface/api/release_mode.dart';
