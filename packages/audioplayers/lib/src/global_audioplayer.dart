@@ -1,10 +1,11 @@
 import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
 
 /// Handle Global calls and events concerning all [AudioPlayer]s.
 class GlobalAudioPlayer {
-  static final _platform = GlobalPlatformInterface.instance;
+  static final _platform = GlobalAudioplayersPlatformInterface.instance;
 
   @Deprecated('Use `Logger.logLevel` instead.')
   Future<void> changeLogLevel(LogLevel level) async {

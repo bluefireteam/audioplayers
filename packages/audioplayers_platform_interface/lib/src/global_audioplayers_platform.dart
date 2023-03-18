@@ -1,8 +1,8 @@
-import 'package:audioplayers_platform_interface/api/audio_context_config.dart';
-import 'package:audioplayers_platform_interface/api/global_event.dart';
-import 'package:audioplayers_platform_interface/global_audioplayers_platform_interface.dart';
-import 'package:audioplayers_platform_interface/map_extension.dart';
-import 'package:audioplayers_platform_interface/method_channel_extension.dart';
+import 'package:audioplayers_platform_interface/src/api/audio_context_config.dart';
+import 'package:audioplayers_platform_interface/src/api/global_event.dart';
+import 'package:audioplayers_platform_interface/src/global_audioplayers_platform_interface.dart';
+import 'package:audioplayers_platform_interface/src/map_extension.dart';
+import 'package:audioplayers_platform_interface/src/method_channel_extension.dart';
 import 'package:flutter/services.dart';
 
 class GlobalAudioplayersPlatform extends GlobalAudioplayersPlatformInterface

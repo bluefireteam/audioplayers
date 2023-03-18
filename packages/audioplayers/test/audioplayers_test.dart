@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
-import 'package:audioplayers_platform_interface/method_channel_interface.dart';
+import 'package:audioplayers_platform_interface/src/map_extension.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 

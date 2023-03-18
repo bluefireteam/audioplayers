@@ -231,7 +231,7 @@ void main() {
         onError: completer.completeError,
       );
 
-      final global = GlobalPlatformInterface.instance;
+      final global = GlobalAudioplayersPlatformInterface.instance;
       await global.emitGlobalLog('SomeGlobalLog');
 
       final log = await completer.future;
@@ -266,7 +266,7 @@ void main() {
       AudioPlayer.global.eventStream
           .listen((_) {}, onError: completer.complete);
 
-      final global = GlobalPlatformInterface.instance;
+      final global = GlobalAudioplayersPlatformInterface.instance;
       await global.emitGlobalError(
         'SomeGlobalErrorCode',
         'SomeGlobalErrorMessage',
