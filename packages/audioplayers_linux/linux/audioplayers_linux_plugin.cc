@@ -53,7 +53,7 @@ static AudioPlayer *audioplayers_linux_plugin_get_player(
 
 static void audioplayers_linux_plugin_on_global_log(const gchar *message) {
     g_autoptr(FlValue) map = fl_value_new_map();
-    fl_value_set_string(map, "event", fl_value_new_string("audio.onGlobalLog"));
+    fl_value_set_string(map, "event", fl_value_new_string("audio.onLog"));
     fl_value_set_string(map, "value", fl_value_new_string(message));
 
     fl_event_channel_send(globalEvents, map, nullptr, nullptr);

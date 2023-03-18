@@ -250,7 +250,7 @@ AudioPlayer *AudioplayersWindowsPlugin::GetPlayer(std::string playerId) {
 void AudioplayersWindowsPlugin::OnGlobalLog(const std::string& message) {
     globalEvents->Success(std::make_unique<flutter::EncodableValue>(
         flutter::EncodableMap({{flutter::EncodableValue("event"),
-                                flutter::EncodableValue("audio.onGlobalLog")},
+                                flutter::EncodableValue("audio.onLog")},
                                {flutter::EncodableValue("value"),
                                 flutter::EncodableValue(message)}})));
 }

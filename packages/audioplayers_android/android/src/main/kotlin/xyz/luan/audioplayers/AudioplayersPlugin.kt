@@ -238,7 +238,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
     }
 
     fun handleGlobalLog(message: String) {
-        handler.post { globalEvents.success("audio.onGlobalLog", hashMapOf("value" to message)) }
+        handler.post { globalEvents.success("audio.onLog", hashMapOf("value" to message)) }
     }
 
     fun handleError(player: WrappedPlayer, errorCode: String?, errorMessage: String?, errorDetails: Any?) {

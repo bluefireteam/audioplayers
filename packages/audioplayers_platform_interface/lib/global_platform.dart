@@ -55,7 +55,7 @@ mixin EventChannelGlobalPlatform
       final map = event as Map<dynamic, dynamic>;
       final eventType = map.getString('event');
       switch (eventType) {
-        case 'audio.onGlobalLog':
+        case 'audio.onLog':
           final value = map.getString('value');
           return GlobalEvent(eventType: GlobalEventType.log, logMessage: value);
         default:
