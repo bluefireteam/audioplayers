@@ -24,7 +24,8 @@ class AudioContext {
   }
 
   Map<String, dynamic> toJson() {
-    // we need to check web first because `TargetPlatform` is not valid on web
+    // we need to check web first because `defaultTargetPlatform` is not
+    // available for web.
     if (kIsWeb) {
       return <String, dynamic>{};
     } else if (defaultTargetPlatform == TargetPlatform.android) {
