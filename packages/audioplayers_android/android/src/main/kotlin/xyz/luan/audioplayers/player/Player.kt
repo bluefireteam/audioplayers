@@ -15,7 +15,7 @@ interface Player {
     fun seekTo(position: Int)
     fun release()
 
-    fun setVolume(volume: Float)
+    fun setVolume(leftVolume: Float, rightVolume: Float)
     fun setRate(rate: Float)
     fun setLooping(looping: Boolean)
     fun updateContext(context: AudioContextAndroid)

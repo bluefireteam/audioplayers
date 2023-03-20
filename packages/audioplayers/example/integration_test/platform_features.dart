@@ -20,7 +20,6 @@ class PlatformFeatures {
 
   static const androidPlatformFeatures = PlatformFeatures(
     hasRecordingActive: false,
-    hasBalance: false,
   );
 
   static const iosPlatformFeatures = PlatformFeatures(

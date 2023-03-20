@@ -98,7 +98,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
                 val message = call.argument<String>("message") ?: error("message is required")
                 handleGlobalError(code, message, null)
             }
-            
+
             else -> {
                 response.notImplemented()
                 return
@@ -152,10 +152,10 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
                     player.volume = volume.toFloat()
                 }
 
-                "setBalance" -> {
-                    response.notImplemented()
-                    return
-                }
+            "setBalance" -> {
+                val balance = call.argument<Double>("balance") ?: error("balance is required")
+                player.balance = balance.toFloat()
+            }
 
                 "setPlaybackRate" -> {
                     val rate = call.argument<Double>("playbackRate") ?: error("playbackRate is required")

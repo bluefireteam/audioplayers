@@ -126,8 +126,8 @@ class SoundPoolPlayer(
         }
     }
 
-    override fun setVolume(volume: Float) {
-        streamId?.let { soundPool.setVolume(it, volume, volume) }
+    override fun setVolume(leftVolume: Float, rightVolume: Float) {
+        streamId?.let { soundPool.setVolume(it, leftVolume, rightVolume) }
     }
 
     override fun setRate(rate: Float) {
