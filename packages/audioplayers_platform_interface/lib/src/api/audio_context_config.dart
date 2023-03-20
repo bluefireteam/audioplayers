@@ -1,6 +1,5 @@
-import 'dart:io' show Platform;
-
 import 'package:audioplayers_platform_interface/src/api/audio_context.dart';
+import 'package:flutter/foundation.dart';
 
 /// This class contains flags to control several secondary, platform-specific
 /// aspects of audio playback, like how this audio interact with other audios,
@@ -113,7 +112,7 @@ class AudioContextConfig {
   }
 
   AudioContextIOS buildIOS() {
-    if (Platform.isIOS) {
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
       validateIOS();
     }
     return AudioContextIOS(
