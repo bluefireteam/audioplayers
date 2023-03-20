@@ -4,7 +4,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
 
 /// Handle Global calls and events concerning all [AudioPlayer]s.
-class GlobalAudioPlayer {
+class GlobalAudioScope {
   static final _platform = GlobalAudioplayersPlatformInterface.instance;
 
   @Deprecated('Use `Logger.logLevel` instead.')
@@ -42,7 +42,7 @@ class GlobalAudioPlayer {
       .where((event) => event.eventType == GlobalEventType.log)
       .map((event) => event.logMessage!);
 
-  GlobalAudioPlayer() {
+  GlobalAudioScope() {
     onLog.listen(
       Logger.log,
       onError: Logger.error,
