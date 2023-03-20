@@ -1,5 +1,3 @@
-import 'dart:io' show Platform;
-
 import 'package:flutter/foundation.dart';
 
 /// An Audio Context is a set of secondary, platform-specific aspects of audio
@@ -26,12 +24,13 @@ class AudioContext {
   }
 
   Map<String, dynamic> toJson() {
-    // we need to check web first because `Platform.isX` fails on web
+    // we need to check web first because `defaultTargetPlatform` is not
+    // available for web.
     if (kIsWeb) {
       return <String, dynamic>{};
-    } else if (Platform.isAndroid) {
+    } else if (defaultTargetPlatform == TargetPlatform.android) {
       return android.toJson();
-    } else if (Platform.isIOS) {
+    } else if (defaultTargetPlatform == TargetPlatform.iOS) {
       return iOS.toJson();
     } else {
       return <String, dynamic>{};

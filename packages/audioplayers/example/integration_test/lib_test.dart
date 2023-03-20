@@ -50,12 +50,12 @@ void main() {
       ),
     if (features.hasAssetSource)
       LibSourceTestData(
-        source: AssetSource(asset1),
+        source: AssetSource(wavAsset),
         duration: const Duration(seconds: 1, milliseconds: 068),
       ),
     if (features.hasAssetSource)
       LibSourceTestData(
-        source: AssetSource(asset2),
+        source: AssetSource(mp3Asset),
         duration: const Duration(minutes: 1, seconds: 34, milliseconds: 119),
       ),
   ];
@@ -131,7 +131,7 @@ void main() {
           //ignore: avoid_redundant_argument_values
           respectSilence: false,
         ).build();
-        await AudioPlayer.global.setGlobalAudioContext(audioContext);
+        await AudioPlayer.global.setAudioContext(audioContext);
         await player.setAudioContext(audioContext);
 
         await player.play(td.source);
@@ -143,7 +143,7 @@ void main() {
           forceSpeaker: false,
           respectSilence: true,
         ).build();
-        await AudioPlayer.global.setGlobalAudioContext(audioContext);
+        await AudioPlayer.global.setAudioContext(audioContext);
         await player.setAudioContext(audioContext);
 
         await player.resume();
@@ -172,7 +172,7 @@ void main() {
           //ignore: avoid_redundant_argument_values
           respectSilence: false,
         ).build();
-        await AudioPlayer.global.setGlobalAudioContext(audioContext);
+        await AudioPlayer.global.setAudioContext(audioContext);
         await player.setAudioContext(audioContext);
 
         await player.setSource(td.source);
@@ -187,7 +187,7 @@ void main() {
           forceSpeaker: false,
           respectSilence: true,
         ).build();
-        await AudioPlayer.global.setGlobalAudioContext(audioContext);
+        await AudioPlayer.global.setAudioContext(audioContext);
         await player.setAudioContext(audioContext);
 
         await player.resume();

@@ -2,16 +2,22 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
+import 'package:audioplayers_web/global_audioplayers_web.dart';
 import 'package:audioplayers_web/num_extension.dart';
 import 'package:audioplayers_web/wrapped_player.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 
-class AudioplayersPlugin extends AudioplayersPlatform with StreamsInterface {
+class AudioplayersPlugin with StreamsInterface {
   /// The entrypoint called by the generated plugin registrant.
   static void registerWith(Registrar registrar) {
-    AudioplayersPlatform.instance = AudioplayersPlugin();
+    AudioplayersPlatformInterface.instance = WebAudioplayersPlatform();
+    GlobalAudioplayersPlatformInterface.instance =
+        WebGlobalAudioplayersPlatform();
   }
+}
 
+class WebAudioplayersPlatform extends AudioplayersPlatformInterface
+    with StreamsInterface {
   // players by playerId
   Map<String, WrappedPlayer> players = {};
 

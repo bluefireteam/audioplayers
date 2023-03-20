@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 
 /// Specify supported features for a platform.
@@ -127,15 +125,15 @@ class PlatformFeatures {
   factory PlatformFeatures.instance() {
     return kIsWeb
         ? webPlatformFeatures
-        : Platform.isAndroid
+        : defaultTargetPlatform == TargetPlatform.android
             ? androidPlatformFeatures
-            : Platform.isIOS
+            : defaultTargetPlatform == TargetPlatform.iOS
                 ? iosPlatformFeatures
-                : Platform.isMacOS
+                : defaultTargetPlatform == TargetPlatform.macOS
                     ? macPlatformFeatures
-                    : Platform.isLinux
+                    : defaultTargetPlatform == TargetPlatform.linux
                         ? linuxPlatformFeatures
-                        : Platform.isWindows
+                        : defaultTargetPlatform == TargetPlatform.windows
                             ? windowsPlatformFeatures
                             : const PlatformFeatures();
   }
