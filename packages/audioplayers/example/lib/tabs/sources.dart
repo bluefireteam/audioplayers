@@ -178,7 +178,7 @@ class _SourcesTabState extends State<SourcesTab>
           title: 'Invalid Asset',
           subtitle: 'invalid.txt',
           source: AssetSource(invalidAsset),
-          buttonColor: Colors.red
+          buttonColor: Colors.red,
         ),
       ],
     );
