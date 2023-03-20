@@ -25,25 +25,25 @@ void main() {
     test('set AudioContext for Windows', () async {
       debugDefaultTargetPlatformOverride = TargetPlatform.windows;
       await AudioPlayer.global.setAudioContext(const AudioContext());
-      expect(_channelLogs, ['setAudioContext {}']);
+      expect(_channelLogs, ['setGlobalAudioContext {}']);
     });
 
     test('set AudioContext for macOS', () async {
       debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
       await AudioPlayer.global.setAudioContext(const AudioContext());
-      expect(_channelLogs, ['setAudioContext {}']);
+      expect(_channelLogs, ['setGlobalAudioContext {}']);
     });
 
     test('set AudioContext for Linux', () async {
       debugDefaultTargetPlatformOverride = TargetPlatform.linux;
       await AudioPlayer.global.setAudioContext(const AudioContext());
-      expect(_channelLogs, ['setAudioContext {}']);
+      expect(_channelLogs, ['setGlobalAudioContext {}']);
     });
 
     test('set AudioContext for Android', () async {
       debugDefaultTargetPlatformOverride = TargetPlatform.android;
       await AudioPlayer.global.setAudioContext(const AudioContext());
-      const audioContextJson = 'setAudioContext {'
+      const audioContextJson = 'setGlobalAudioContext {'
           'isSpeakerphoneOn: true, '
           'audioMode: 0, '
           'stayAwake: true, '
@@ -57,7 +57,7 @@ void main() {
     test('set AudioContext for iOS', () async {
       debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
       await AudioPlayer.global.setAudioContext(const AudioContext());
-      const audioContextJson = 'setAudioContext {'
+      const audioContextJson = 'setGlobalAudioContext {'
           'category: playback, '
           'options: ['
           'mixWithOthers, '
