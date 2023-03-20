@@ -287,7 +287,7 @@ void main() {
         player.eventStream.listen((_) {}, onError: completer.complete);
         try {
           // Throws PlatformException via MethodChannel:
-          await player.setSource(AssetSource(assetInvalid));
+          await player.setSource(AssetSource(invalidAsset));
           await player.resume();
           fail('PlatformException not thrown');
           // ignore: avoid_catches_without_on_clauses
