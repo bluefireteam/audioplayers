@@ -50,12 +50,12 @@ void main() {
       ),
     if (features.hasAssetSource)
       LibSourceTestData(
-        source: AssetSource(asset1),
+        source: AssetSource(wavAsset),
         duration: const Duration(seconds: 1, milliseconds: 068),
       ),
     if (features.hasAssetSource)
       LibSourceTestData(
-        source: AssetSource(asset2),
+        source: AssetSource(mp3Asset),
         duration: const Duration(minutes: 1, seconds: 34, milliseconds: 119),
       ),
   ];
