@@ -1,4 +1,5 @@
 import 'dart:async';
+
 // TODO(gustl22): remove when upgrading min Flutter version to >=3.3.0
 // ignore: unnecessary_import
 import 'dart:typed_data';
@@ -7,21 +8,21 @@ import 'package:audioplayers_platform_interface/src/api/audio_context.dart';
 import 'package:audioplayers_platform_interface/src/api/player_mode.dart';
 import 'package:audioplayers_platform_interface/src/api/release_mode.dart';
 import 'package:audioplayers_platform_interface/src/audioplayers_platform_interface.dart';
-import 'package:audioplayers_platform_interface/src/global_platform_interface.dart';
+import 'package:audioplayers_platform_interface/src/global_audioplayers_platform_interface.dart';
 import 'package:audioplayers_platform_interface/src/method_channel_interface.dart';
 import 'package:audioplayers_platform_interface/src/streams_interface.dart';
 import 'package:flutter/services.dart';
 
-class MethodChannelAudioplayersPlatform extends AudioplayersPlatform
+class AudioplayersPlatform extends AudioplayersPlatformInterface
     with StreamsInterface {
   final MethodChannel _channel = const MethodChannel('xyz.luan/audioplayers');
 
-  MethodChannelAudioplayersPlatform() {
+  AudioplayersPlatform() {
     _channel.setMethodCallHandler(platformCallHandler);
   }
 
-  static GlobalPlatformInterface get _logger =>
-      GlobalPlatformInterface.instance;
+  static GlobalAudioplayersPlatformInterface get _logger =>
+      GlobalAudioplayersPlatformInterface.instance;
 
   @override
   Future<int?> getCurrentPosition(String playerId) {

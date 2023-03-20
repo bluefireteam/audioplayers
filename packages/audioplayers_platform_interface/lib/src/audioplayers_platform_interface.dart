@@ -5,7 +5,7 @@ import 'package:audioplayers_platform_interface/src/api/audio_context.dart';
 import 'package:audioplayers_platform_interface/src/api/for_player.dart';
 import 'package:audioplayers_platform_interface/src/api/player_mode.dart';
 import 'package:audioplayers_platform_interface/src/api/release_mode.dart';
-import 'package:audioplayers_platform_interface/src/method_channel_audioplayers_platform.dart';
+import 'package:audioplayers_platform_interface/src/audioplayers_platform.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 /// The interface that implementations of audioplayers must implement.
@@ -15,18 +15,19 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 /// changes. Extending this class (using `extends`) ensures that the subclass
 /// will get the default implementation, while platform implementations that
 /// `implements` this interface will be broken by newly added
-/// [AudioplayersPlatform] methods.
-abstract class AudioplayersPlatform extends PlatformInterface {
-  AudioplayersPlatform() : super(token: _token);
+/// [AudioplayersPlatformInterface] methods.
+abstract class AudioplayersPlatformInterface extends PlatformInterface {
+  AudioplayersPlatformInterface() : super(token: _token);
 
   static final Object _token = Object();
 
-  /// The default instance of [AudioplayersPlatform] to use.
+  /// The default instance of [AudioplayersPlatformInterface] to use.
   ///
-  /// Defaults to [MethodChannelAudioplayersPlatform].
+  /// Defaults to [AudioplayersPlatform].
   /// Platform-specific plugins should set this with their own platform-specific
-  /// class that extends [AudioplayersPlatform] when they register themselves.
-  static AudioplayersPlatform instance = MethodChannelAudioplayersPlatform();
+  /// class that extends [AudioplayersPlatformInterface] when they register
+  /// themselves.
+  static AudioplayersPlatformInterface instance = AudioplayersPlatform();
 
   /// Pauses the audio that is currently playing.
   ///
