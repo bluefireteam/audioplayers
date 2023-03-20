@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:audioplayers_example/components/tgl.dart';
+import 'package:audioplayers_example/main.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -112,6 +113,13 @@ extension WidgetTesterUtils on WidgetTester {
         timeout!,
       );
     } on TimeoutException catch (e) {
+      /*final base64Shot = kIsWeb ||
+          defaultTargetPlatform == TargetPlatform.iOS ||
+          defaultTargetPlatform == TargetPlatform.android
+          ? await takeBase64Screenshot()
+          : 'Screenshot on Desktop not supported';*/
+      final uInt8 = (await screenshotController.capture()) ?? [0];
+      final base64Shot = base64Encode(uInt8);
       throw Exception(
         '''$e
 
@@ -124,7 +132,7 @@ $lastFailureMsg
 
 ### Took Screenshot:
 
-${await takeBase64Screenshot()}
+$base64Shot
 ''',
       );
     }
