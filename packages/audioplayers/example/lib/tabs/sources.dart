@@ -24,7 +24,7 @@ const mpgaStreamUrl = 'https://timesradio.wireless.radio/stream';
 
 const wavAsset = 'laser.wav';
 const mp3Asset = 'nasa_on_a_mission.mp3';
-const assetInvalid = 'invalid.txt';
+const invalidAsset = 'invalid.txt';
 
 class SourcesTab extends StatefulWidget {
   final AudioPlayer player;
@@ -61,6 +61,7 @@ class _SourcesTabState extends State<SourcesTab>
     required String subtitle,
     required Source source,
     Key? setSourceKey,
+    Color? buttonColor,
     Key? playKey,
   }) =>
       _SourceTile(
@@ -70,6 +71,7 @@ class _SourcesTabState extends State<SourcesTab>
         subtitle: subtitle,
         setSourceKey: setSourceKey,
         playKey: playKey,
+        buttonColor: buttonColor,
       );
 
   Future<void> _setSourceBytesAsset(
@@ -169,12 +171,14 @@ class _SourcesTabState extends State<SourcesTab>
           play: () => _setSourceFilePicker(_play),
           title: 'Device File',
           subtitle: 'Pick local file from device',
+          buttonColor: Colors.green,
         ),
         _createSourceTile(
           setSourceKey: const Key('setSource-asset-invalid'),
           title: 'Invalid Asset',
           subtitle: 'invalid.txt',
-          source: AssetSource(assetInvalid),
+          source: AssetSource(invalidAsset),
+          buttonColor: Colors.red,
         ),
       ],
     );
@@ -191,6 +195,7 @@ class _SourceTile extends StatelessWidget {
   final String? subtitle;
   final Key? setSourceKey;
   final Key? playKey;
+  final Color? buttonColor;
 
   const _SourceTile({
     required this.setSource,
@@ -199,6 +204,7 @@ class _SourceTile extends StatelessWidget {
     this.subtitle,
     this.setSourceKey,
     this.playKey,
+    this.buttonColor,
   });
 
   @override
@@ -214,14 +220,14 @@ class _SourceTile extends StatelessWidget {
             key: setSourceKey,
             onPressed: setSource,
             icon: const Icon(Icons.upload_file),
-            color: Theme.of(context).primaryColor,
+            color: buttonColor ?? Theme.of(context).primaryColor,
           ),
           IconButton(
             key: playKey,
             tooltip: 'Play',
             onPressed: play,
             icon: const Icon(Icons.play_arrow),
-            color: Theme.of(context).primaryColor,
+            color: buttonColor ?? Theme.of(context).primaryColor,
           ),
         ],
       ),
