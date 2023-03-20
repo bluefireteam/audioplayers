@@ -36,8 +36,8 @@ class MediaPlayerPlayer(
         return mediaPlayer.isPlaying
     }
 
-    override fun setVolume(volume: Float) {
-        mediaPlayer.setVolume(volume, volume)
+    override fun setVolume(leftVolume: Float, rightVolume: Float) {
+        mediaPlayer.setVolume(leftVolume, rightVolume)
     }
 
     override fun setRate(rate: Float) {

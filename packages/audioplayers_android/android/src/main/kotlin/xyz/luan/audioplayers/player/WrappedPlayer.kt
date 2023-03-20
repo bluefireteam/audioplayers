@@ -3,6 +3,7 @@ package xyz.luan.audioplayers.player
 import android.content.Context
 import android.media.AudioManager
 import android.media.MediaPlayer
+import kotlin.math.min
 import xyz.luan.audioplayers.AudioContextAndroid
 import xyz.luan.audioplayers.AudioplayersPlugin
 import xyz.luan.audioplayers.PlayerMode
@@ -44,7 +45,17 @@ class WrappedPlayer internal constructor(
             if (field != value) {
                 field = value
                 if (!released) {
-                    player?.setVolume(value)
+                    player?.setVolumeAndBalance(value, balance)
+                }
+            }
+        }
+
+    var balance = 0.0f
+        set(value) {
+            if (field != value) {
+                field = value
+                if (!released) {
+                    player?.setVolumeAndBalance(volume, value)
                 }
             }
         }
@@ -324,8 +335,14 @@ class WrappedPlayer internal constructor(
 
     private fun Player.configAndPrepare() {
         setRate(rate)
-        setVolume(volume)
+        setVolumeAndBalance(volume, balance)
         setLooping(isLooping)
         prepare()
+    }
+
+    private fun Player.setVolumeAndBalance(volume: Float, balance: Float) {
+        val leftVolume = min(1f, 1f - balance) * volume
+        val rightVolume = min(1f, 1f + balance) * volume
+        setVolume(leftVolume, rightVolume)
     }
 }
