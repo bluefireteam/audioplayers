@@ -12,7 +12,7 @@ class AudioplayersPlugin {
   static void registerWith(Registrar registrar) {
     AudioplayersPlatformInterface.instance = WebAudioplayersPlatform();
     GlobalAudioplayersPlatformInterface.instance =
-        GlobalWebAudioplayersPlatform();
+        WebGlobalAudioplayersPlatform();
   }
 }
 

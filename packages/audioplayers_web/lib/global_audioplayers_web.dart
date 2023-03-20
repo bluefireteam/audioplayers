@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
 import 'package:flutter/services.dart';
 
-class GlobalWebAudioplayersPlatform
+class WebGlobalAudioplayersPlatform
     extends GlobalAudioplayersPlatformInterface {
   final _eventStreamController = StreamController<GlobalEvent>.broadcast();
 

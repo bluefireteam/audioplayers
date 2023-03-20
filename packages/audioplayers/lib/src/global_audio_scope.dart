@@ -1,9 +1,11 @@
 import 'dart:async';
 
-import 'package:audioplayers/audioplayers.dart';
+import 'package:audioplayers/src/log_level.dart';
+import 'package:audioplayers/src/logger.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
 
-/// Handle Global calls and events concerning all [AudioPlayer]s.
+/// Handle global audio scope like calls and events concerning all
+/// [AudioPlayer]s.
 class GlobalAudioScope {
   static final _platform = GlobalAudioplayersPlatformInterface.instance;
 
