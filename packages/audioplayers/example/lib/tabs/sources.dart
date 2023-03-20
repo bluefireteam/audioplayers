@@ -22,8 +22,9 @@ final m3u8StreamUrl = useLocalServer
     : 'https://a.files.bbci.co.uk/media/live/manifesto/audio/simulcast/hls/nonuk/sbr_low/ak/bbc_radio_one.m3u8';
 const mpgaStreamUrl = 'https://timesradio.wireless.radio/stream';
 
-const asset1 = 'laser.wav';
-const asset2 = 'nasa_on_a_mission.mp3';
+const wavAsset = 'laser.wav';
+const mp3Asset = 'nasa_on_a_mission.mp3';
+const invalidAsset = 'invalid.txt';
 
 class SourcesTab extends StatefulWidget {
   final AudioPlayer player;
@@ -60,6 +61,7 @@ class _SourcesTabState extends State<SourcesTab>
     required String subtitle,
     required Source source,
     Key? setSourceKey,
+    Color? buttonColor,
     Key? playKey,
   }) =>
       _SourceTile(
@@ -69,6 +71,7 @@ class _SourcesTabState extends State<SourcesTab>
         subtitle: subtitle,
         setSourceKey: setSourceKey,
         playKey: playKey,
+        buttonColor: buttonColor,
       );
 
   Future<void> _setSourceBytesAsset(
@@ -140,18 +143,18 @@ class _SourcesTabState extends State<SourcesTab>
           setSourceKey: const Key('setSource-asset-wav'),
           title: 'Asset 1',
           subtitle: 'laser.wav',
-          source: AssetSource(asset1),
+          source: AssetSource(wavAsset),
         ),
         _createSourceTile(
           setSourceKey: const Key('setSource-asset-mp3'),
           title: 'Asset 2',
           subtitle: 'nasa.mp3',
-          source: AssetSource(asset2),
+          source: AssetSource(mp3Asset),
         ),
         _SourceTile(
-          setSource: () => _setSourceBytesAsset(_setSource, asset: asset1),
+          setSource: () => _setSourceBytesAsset(_setSource, asset: wavAsset),
           setSourceKey: const Key('setSource-bytes-local'),
-          play: () => _setSourceBytesAsset(_play, asset: asset1),
+          play: () => _setSourceBytesAsset(_play, asset: wavAsset),
           title: 'Bytes - Local',
           subtitle: 'laser.wav',
         ),
@@ -168,6 +171,14 @@ class _SourcesTabState extends State<SourcesTab>
           play: () => _setSourceFilePicker(_play),
           title: 'Device File',
           subtitle: 'Pick local file from device',
+          buttonColor: Colors.green,
+        ),
+        _createSourceTile(
+          setSourceKey: const Key('setSource-asset-invalid'),
+          title: 'Invalid Asset',
+          subtitle: 'invalid.txt',
+          source: AssetSource(invalidAsset),
+          buttonColor: Colors.red
         ),
       ],
     );
@@ -184,6 +195,7 @@ class _SourceTile extends StatelessWidget {
   final String? subtitle;
   final Key? setSourceKey;
   final Key? playKey;
+  final Color? buttonColor;
 
   const _SourceTile({
     required this.setSource,
@@ -192,6 +204,7 @@ class _SourceTile extends StatelessWidget {
     this.subtitle,
     this.setSourceKey,
     this.playKey,
+    this.buttonColor,
   });
 
   @override
@@ -207,14 +220,14 @@ class _SourceTile extends StatelessWidget {
             key: setSourceKey,
             onPressed: setSource,
             icon: const Icon(Icons.upload_file),
-            color: Theme.of(context).primaryColor,
+            color: buttonColor ?? Theme.of(context).primaryColor,
           ),
           IconButton(
             key: playKey,
             tooltip: 'Play',
             onPressed: play,
             icon: const Icon(Icons.play_arrow),
-            color: Theme.of(context).primaryColor,
+            color: buttonColor ?? Theme.of(context).primaryColor,
           ),
         ],
       ),
