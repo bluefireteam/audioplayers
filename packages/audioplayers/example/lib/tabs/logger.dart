@@ -11,7 +11,7 @@ class LoggerTab extends StatefulWidget {
 }
 
 class _LoggerTabState extends State<LoggerTab> {
-  static GlobalAudioPlayer get _logger => AudioPlayer.global;
+  static GlobalAudioScope get _logger => AudioPlayer.global;
 
   LogLevel currentLogLevel = _logger.logLevel;
 

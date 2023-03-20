@@ -16,7 +16,7 @@ class AudioContextTab extends StatefulWidget {
 
 class _AudioContextTabState extends State<AudioContextTab>
     with AutomaticKeepAliveClientMixin<AudioContextTab> {
-  static GlobalAudioPlayer get _global => AudioPlayer.global;
+  static GlobalAudioScope get _global => AudioPlayer.global;
 
   AudioPlayer get player => widget.player;
 

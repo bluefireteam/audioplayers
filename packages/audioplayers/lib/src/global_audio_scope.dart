@@ -1,7 +1,7 @@
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
 
-/// Handle Global calls and events concerning all AudioPlayers.
-class GlobalAudioPlayer {
+/// Handle global audio scope like calls and events concerning all AudioPlayers.
+class GlobalAudioScope {
   static final _platform = GlobalAudioplayersPlatformInterface.instance;
 
   LogLevel get logLevel => _platform.logLevel;
