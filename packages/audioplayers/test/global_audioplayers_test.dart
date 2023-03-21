@@ -1,7 +1,6 @@
 //ignore_for_file: avoid_redundant_argument_values
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'fake_global_audioplayers_platform.dart';
@@ -9,17 +8,27 @@ import 'fake_global_audioplayers_platform.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  late FakeGlobalAudioplayersPlatform globalPlatform;
-  setUp(() {
-    globalPlatform = FakeGlobalAudioplayersPlatform();
-    GlobalAudioplayersPlatformInterface.instance = globalPlatform;
+  final globalPlatform = FakeGlobalAudioplayersPlatform();
+  GlobalAudioplayersPlatformInterface.instance = globalPlatform;
+
+  late GlobalAudioScope globalScope;
+
+  test('test getGlobalEventStream', () async {
+    // Global scope can only be initialized once statically, as changing it
+    // while connected to native platform can lead to inconsistencies.
+    globalScope = AudioPlayer.global;
+    expect(globalPlatform.popLastCall().method, 'getGlobalEventStream');
   });
 
   group('Global Methods', () {
+    setUp(() {
+      // Ensure that globalScope was initialized and calls are reset.
+      globalScope = AudioPlayer.global;
+      globalPlatform.clear();
+    });
+
     test('set AudioContext', () async {
-      debugDefaultTargetPlatformOverride = TargetPlatform.windows;
-      await AudioPlayer.global.setAudioContext(const AudioContext());
-      expect(globalPlatform.popCall().method, 'getGlobalEventStream');
+      await globalScope.setAudioContext(const AudioContext());
       final call = globalPlatform.popLastCall();
       expect(call.method, 'setGlobalAudioContext');
       expect(
@@ -55,7 +64,7 @@ void main() {
       ];
 
       expect(
-        AudioPlayer.global.eventStream,
+        globalScope.eventStream,
         emitsInOrder(globalEvents),
       );
 
