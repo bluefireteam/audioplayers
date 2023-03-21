@@ -1,16 +1,21 @@
 import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter/services.dart';
+import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'audio_cache_test.dart';
+import 'fake_audioplayers_platform.dart';
+import 'fake_global_audioplayers_platform.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  const channel = MethodChannel('xyz.luan/audioplayers');
-  channel.setMockMethodCallHandler((MethodCall call) async => 1);
-
   group('AudioPool', () {
+    setUp(() {
+      AudioplayersPlatformInterface.instance = FakeAudioplayersPlatform();
+      GlobalAudioplayersPlatformInterface.instance =
+          FakeGlobalAudioplayersPlatform();
+    });
+
     test('creates instance', () async {
       final pool = await AudioPool.createFromAsset(
         path: 'audio.mp3',
