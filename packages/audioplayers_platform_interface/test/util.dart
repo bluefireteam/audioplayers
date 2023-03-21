@@ -3,6 +3,10 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+extension MethodCallParser on MethodCall {
+  Map<String, dynamic> get args => arguments as Map<String, dynamic>;
+}
+
 // See: https://github.com/flutter/packages/blob/12609a2abbb0a30b9d32af7b73599bfc834e609e/packages/video_player/video_player_android/test/android_video_player_test.dart#L270
 void createNativePlayerEventStream({
   required String playerId,

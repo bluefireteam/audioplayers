@@ -1,7 +1,8 @@
 import 'package:audioplayers_platform_interface/src/audioplayers_platform_interface.dart';
-import 'package:audioplayers_platform_interface/src/method_channel_interface.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'util.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

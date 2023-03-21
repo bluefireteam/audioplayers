@@ -1,9 +1,10 @@
 import 'package:audioplayers_platform_interface/src/api/audio_context.dart';
 import 'package:audioplayers_platform_interface/src/global_audioplayers_platform_interface.dart';
-import 'package:audioplayers_platform_interface/src/method_channel_interface.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'util.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
