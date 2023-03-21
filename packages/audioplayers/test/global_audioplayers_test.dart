@@ -3,22 +3,24 @@ import 'package:audioplayers_platform_interface/audioplayers_platform_interface.
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'fake_audioplayers_platform.dart';
+import 'fake_global_audioplayers_platform.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  late FakeGlobalAudioplayersPlatform platform;
+  late FakeGlobalAudioplayersPlatform globalPlatform;
   setUp(() {
-    platform = FakeGlobalAudioplayersPlatform();
-    GlobalAudioplayersPlatformInterface.instance = platform;
+    globalPlatform = FakeGlobalAudioplayersPlatform();
+    GlobalAudioplayersPlatformInterface.instance = globalPlatform;
   });
 
   group('Global Method Channel', () {
     test('set AudioContext', () async {
       debugDefaultTargetPlatformOverride = TargetPlatform.windows;
       await AudioPlayer.global.setAudioContext(const AudioContext());
-      expect(platform.calls, ['setGlobalAudioContext']);
+      final call = globalPlatform.popLastCall();
+      expect(call.method, 'setGlobalAudioContext');
+      expect(call.value, const AudioContext());
     });
   });
 }

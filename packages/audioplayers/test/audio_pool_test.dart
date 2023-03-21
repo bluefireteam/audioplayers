@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'audio_cache_test.dart';
 import 'fake_audioplayers_platform.dart';
+import 'fake_global_audioplayers_platform.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
