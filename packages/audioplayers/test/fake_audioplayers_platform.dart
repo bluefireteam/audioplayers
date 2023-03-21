@@ -66,7 +66,8 @@ class FakeAudioplayersPlatform extends AudioplayersPlatformInterface {
     AudioContext audioContext,
   ) async {
     calls.add(
-        FakeCall(id: playerId, method: 'setAudioContext', value: audioContext));
+      FakeCall(id: playerId, method: 'setAudioContext', value: audioContext),
+    );
   }
 
   @override
@@ -77,19 +78,22 @@ class FakeAudioplayersPlatform extends AudioplayersPlatformInterface {
   @override
   Future<void> setPlaybackRate(String playerId, double playbackRate) async {
     calls.add(
-        FakeCall(id: playerId, method: 'setPlaybackRate', value: playbackRate));
+      FakeCall(id: playerId, method: 'setPlaybackRate', value: playbackRate),
+    );
   }
 
   @override
   Future<void> setPlayerMode(String playerId, PlayerMode playerMode) async {
     calls.add(
-        FakeCall(id: playerId, method: 'setPlayerMode', value: playerMode));
+      FakeCall(id: playerId, method: 'setPlayerMode', value: playerMode),
+    );
   }
 
   @override
   Future<void> setReleaseMode(String playerId, ReleaseMode releaseMode) async {
     calls.add(
-        FakeCall(id: playerId, method: 'setReleaseMode', value: releaseMode));
+      FakeCall(id: playerId, method: 'setReleaseMode', value: releaseMode),
+    );
   }
 
   @override
