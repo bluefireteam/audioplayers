@@ -1,3 +1,4 @@
+//ignore_for_file: avoid_redundant_argument_values
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
 import 'package:flutter/foundation.dart';
@@ -20,7 +21,26 @@ void main() {
       await AudioPlayer.global.setAudioContext(const AudioContext());
       final call = globalPlatform.popLastCall();
       expect(call.method, 'setGlobalAudioContext');
-      expect(call.value, const AudioContext());
+      expect(
+        call.value,
+        const AudioContext(
+          android: AudioContextAndroid(
+            isSpeakerphoneOn: true,
+            audioMode: AndroidAudioMode.normal,
+            stayAwake: true,
+            contentType: AndroidContentType.music,
+            usageType: AndroidUsageType.media,
+            audioFocus: AndroidAudioFocus.gain,
+          ),
+          iOS: AudioContextIOS(
+            category: AVAudioSessionCategory.playback,
+            options: [
+              AVAudioSessionOptions.mixWithOthers,
+              AVAudioSessionOptions.defaultToSpeaker
+            ],
+          ),
+        ),
+      );
     });
   });
 }
