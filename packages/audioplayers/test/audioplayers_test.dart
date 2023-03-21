@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'fake_audioplayers_platform.dart';
 
+// TODO(Gustl22): may not needed anymore?
 extension MethodArguments on MethodCall {
   Map<dynamic, dynamic> get mapArguments => arguments as Map<dynamic, dynamic>;
 
