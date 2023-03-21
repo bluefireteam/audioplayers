@@ -15,10 +15,11 @@ void main() {
     GlobalAudioplayersPlatformInterface.instance = globalPlatform;
   });
 
-  group('Global Method Channel', () {
+  group('Global Methods', () {
     test('set AudioContext', () async {
       debugDefaultTargetPlatformOverride = TargetPlatform.windows;
       await AudioPlayer.global.setAudioContext(const AudioContext());
+      expect(globalPlatform.popCall().method, 'getGlobalEventStream');
       final call = globalPlatform.popLastCall();
       expect(call.method, 'setGlobalAudioContext');
       expect(
@@ -41,6 +42,26 @@ void main() {
           ),
         ),
       );
+    });
+  });
+
+  group('Global Events', () {
+    test('global event stream', () async {
+      final globalEvents = <GlobalEvent>[
+        const GlobalEvent(
+          eventType: GlobalEventType.log,
+          logMessage: 'someLogMessage',
+        ),
+      ];
+
+      expect(
+        AudioPlayer.global.eventStream,
+        emitsInOrder(globalEvents),
+      );
+
+      globalEvents.forEach((globalEvent) {
+        globalPlatform.eventStreamController.add(globalEvent);
+      });
     });
   });
 }

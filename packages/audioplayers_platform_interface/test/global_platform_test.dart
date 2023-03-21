@@ -96,7 +96,7 @@ void main() {
   });
 
   group('Global Event Channel', () {
-    test('global event stream', () async {
+    test('emit global events', () async {
       final eventController = StreamController<ByteData>.broadcast();
 
       createNativeEventStream(

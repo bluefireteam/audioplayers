@@ -8,6 +8,22 @@ import 'package:audioplayers_platform_interface/audioplayers_platform_interface.
 class GlobalAudioScope {
   final _platform = GlobalAudioplayersPlatformInterface.instance;
 
+  /// Stream of global events.
+  late final Stream<GlobalEvent> eventStream;
+
+  /// Stream of global log events.
+  Stream<String> get onLog => eventStream
+      .where((event) => event.eventType == GlobalEventType.log)
+      .map((event) => event.logMessage!);
+
+  GlobalAudioScope() {
+    eventStream = _platform.getGlobalEventStream();
+    onLog.listen(
+      Logger.log,
+      onError: Logger.error,
+    );
+  }
+
   @Deprecated('Use `Logger.logLevel` instead.')
   Future<void> changeLogLevel(LogLevel level) async {
     Logger.logLevel = level;
@@ -34,19 +50,4 @@ class GlobalAudioScope {
   @Deprecated('Use `setAudioContext()` instead.')
   Future<void> setGlobalAudioContext(AudioContext ctx) =>
       _platform.setGlobalAudioContext(ctx);
-
-  /// Stream of global events.
-  final Stream<GlobalEvent> eventStream = _platform.getGlobalEventStream();
-
-  /// Stream of global log events.
-  Stream<String> get onLog => eventStream
-      .where((event) => event.eventType == GlobalEventType.log)
-      .map((event) => event.logMessage!);
-
-  GlobalAudioScope() {
-    onLog.listen(
-      Logger.log,
-      onError: Logger.error,
-    );
-  }
 }

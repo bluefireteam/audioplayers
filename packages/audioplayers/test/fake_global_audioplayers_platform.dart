@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class FakeGlobalCall {
@@ -11,7 +14,8 @@ class FakeGlobalCall {
 class FakeGlobalAudioplayersPlatform
     extends GlobalAudioplayersPlatformInterface {
   List<FakeGlobalCall> calls = <FakeGlobalCall>[];
-  LogLevel _level = LogLevel.error;
+  StreamController<GlobalEvent> eventStreamController =
+      StreamController<GlobalEvent>.broadcast();
 
   void clear() {
     calls.clear();
@@ -31,16 +35,28 @@ class FakeGlobalAudioplayersPlatform
     calls.add(FakeGlobalCall(method: 'setGlobalAudioContext', value: ctx));
   }
 
+  @override
+  Future<void> emitGlobalLog(String message) async {
+    calls.add(FakeGlobalCall(method: 'emitGlobalLog'));
+    eventStreamController
+        .add(GlobalEvent(eventType: GlobalEventType.log, logMessage: message));
+  }
+
+  @override
+  Future<void> emitGlobalError(String code, String message) async {
+    calls.add(FakeGlobalCall(method: 'emitGlobalError'));
+    eventStreamController
+        .addError(PlatformException(code: code, message: message));
+  }
+
+  @override
+  Stream<GlobalEvent> getGlobalEventStream() {
+    calls.add(FakeGlobalCall(method: 'getGlobalEventStream'));
+    return eventStreamController.stream;
+  }
+
   Future<void> dispose() async {
     calls.add(FakeGlobalCall(method: 'globalDispose'));
+    eventStreamController.close();
   }
-
-  @override
-  Future<void> changeLogLevel(LogLevel level) async {
-    calls.add(FakeGlobalCall(method: 'changeLogLevel', value: level));
-    _level = level;
-  }
-
-  @override
-  LogLevel get logLevel => _level;
 }

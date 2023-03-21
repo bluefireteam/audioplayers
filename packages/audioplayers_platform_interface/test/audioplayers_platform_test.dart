@@ -81,7 +81,7 @@ void main() {
   });
 
   group('AudioPlayers Event Channel', () {
-    test('event stream', () async {
+    test('emit events', () async {
       final eventController = StreamController<ByteData>.broadcast();
 
       createNativeEventStream(
