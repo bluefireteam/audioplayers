@@ -1,7 +1,6 @@
-// ignore_for_file: missing_whitespace_between_adjacent_strings
-
 import 'package:audioplayers_platform_interface/src/api/audio_context.dart';
 import 'package:audioplayers_platform_interface/src/global_audioplayers_platform_interface.dart';
+import 'package:audioplayers_platform_interface/src/method_channel_interface.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -9,64 +8,86 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  final _channelLogs = <String>[];
+  final methodCalls = <MethodCall>[];
+
+  void clear() {
+    methodCalls.clear();
+  }
+
+  MethodCall popCall() {
+    return methodCalls.removeAt(0);
+  }
+
+  MethodCall popLastCall() {
+    expect(methodCalls, hasLength(1));
+    return popCall();
+  }
 
   group('Global Method Channel', () {
     TestDefaultBinaryMessengerBinding.instance!.defaultBinaryMessenger
         .setMockMethodCallHandler(
       const MethodChannel('xyz.luan/audioplayers.global'),
       (MethodCall methodCall) async {
-        _channelLogs.add('${methodCall.method} ${methodCall.arguments}');
+        methodCalls.add(methodCall);
         return 1;
       },
     );
 
-    setUp(_channelLogs.clear);
+    setUp(clear);
 
     final platform = GlobalAudioplayersPlatformInterface.instance;
 
     test('set AudioContext for Windows', () async {
       debugDefaultTargetPlatformOverride = TargetPlatform.windows;
       await platform.setGlobalAudioContext(const AudioContext());
-      expect(_channelLogs, ['setGlobalAudioContext {}']);
+      final call = popLastCall();
+      expect(call.method, 'setGlobalAudioContext');
+      expect(call.args, <String, dynamic>{});
     });
 
     test('set AudioContext for macOS', () async {
       debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
       await platform.setGlobalAudioContext(const AudioContext());
-      expect(_channelLogs, ['setGlobalAudioContext {}']);
+      final call = popLastCall();
+      expect(call.method, 'setGlobalAudioContext');
+      expect(call.args, <String, dynamic>{});
     });
 
     test('set AudioContext for Linux', () async {
       debugDefaultTargetPlatformOverride = TargetPlatform.linux;
       await platform.setGlobalAudioContext(const AudioContext());
-      expect(_channelLogs, ['setGlobalAudioContext {}']);
+      final call = popLastCall();
+      expect(call.method, 'setGlobalAudioContext');
+      expect(call.args, <String, dynamic>{});
     });
 
     test('set AudioContext for Android', () async {
       debugDefaultTargetPlatformOverride = TargetPlatform.android;
       await platform.setGlobalAudioContext(const AudioContext());
-      const audioContextJson = 'setGlobalAudioContext {'
-          'isSpeakerphoneOn: true, '
-          'audioMode: 0, '
-          'stayAwake: true, '
-          'contentType: 2, '
-          'usageType: 1, '
-          'audioFocus: 1'
-          '}';
-      expect(_channelLogs, [audioContextJson]);
+      final call = popLastCall();
+      expect(call.method, 'setGlobalAudioContext');
+      expect(call.args, {
+        'isSpeakerphoneOn': true,
+        'audioMode': 0,
+        'stayAwake': true,
+        'contentType': 2,
+        'usageType': 1,
+        'audioFocus': 1,
+      });
     });
 
     test('set AudioContext for iOS', () async {
       debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
       await platform.setGlobalAudioContext(const AudioContext());
-      const audioContextJson = 'setGlobalAudioContext {'
-          'category: playback, '
-          'options: ['
-          'mixWithOthers, '
-          'defaultToSpeaker'
-          ']}';
-      expect(_channelLogs, [audioContextJson]);
+      final call = popLastCall();
+      expect(call.method, 'setGlobalAudioContext');
+      expect(call.args, {
+        'category': 'playback',
+        'options': [
+          'mixWithOthers',
+          'defaultToSpeaker',
+        ]
+      });
     });
   });
 }
