@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:audioplayers_platform_interface/src/api/audio_context.dart';
+import 'package:audioplayers_platform_interface/src/api/global_event.dart';
 import 'package:audioplayers_platform_interface/src/global_audioplayers_platform_interface.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -8,6 +11,8 @@ import 'util.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  final platform = GlobalAudioplayersPlatformInterface.instance;
 
   final methodCalls = <MethodCall>[];
 
@@ -36,13 +41,11 @@ void main() {
 
     setUp(clear);
 
-    final platform = GlobalAudioplayersPlatformInterface.instance;
-
     test('set AudioContext for Windows', () async {
       debugDefaultTargetPlatformOverride = TargetPlatform.windows;
       await platform.setGlobalAudioContext(const AudioContext());
       final call = popLastCall();
-      expect(call.method, 'setGlobalAudioContext');
+      expect(call.method, 'setAudioContext');
       expect(call.args, <String, dynamic>{});
     });
 
@@ -50,7 +53,7 @@ void main() {
       debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
       await platform.setGlobalAudioContext(const AudioContext());
       final call = popLastCall();
-      expect(call.method, 'setGlobalAudioContext');
+      expect(call.method, 'setAudioContext');
       expect(call.args, <String, dynamic>{});
     });
 
@@ -58,7 +61,7 @@ void main() {
       debugDefaultTargetPlatformOverride = TargetPlatform.linux;
       await platform.setGlobalAudioContext(const AudioContext());
       final call = popLastCall();
-      expect(call.method, 'setGlobalAudioContext');
+      expect(call.method, 'setAudioContext');
       expect(call.args, <String, dynamic>{});
     });
 
@@ -66,7 +69,7 @@ void main() {
       debugDefaultTargetPlatformOverride = TargetPlatform.android;
       await platform.setGlobalAudioContext(const AudioContext());
       final call = popLastCall();
-      expect(call.method, 'setGlobalAudioContext');
+      expect(call.method, 'setAudioContext');
       expect(call.args, {
         'isSpeakerphoneOn': true,
         'audioMode': 0,
@@ -81,7 +84,7 @@ void main() {
       debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
       await platform.setGlobalAudioContext(const AudioContext());
       final call = popLastCall();
-      expect(call.method, 'setGlobalAudioContext');
+      expect(call.method, 'setAudioContext');
       expect(call.args, {
         'category': 'playback',
         'options': [
@@ -89,6 +92,41 @@ void main() {
           'defaultToSpeaker',
         ]
       });
+    });
+  });
+
+  group('Global Event Channel', () {
+    test('global event stream', () async {
+      final eventController = StreamController<ByteData>.broadcast();
+
+      createNativeEventStream(
+        channel: 'xyz.luan/audioplayers.global/events',
+        byteDataStream: eventController.stream,
+      );
+
+      expect(
+        platform.getGlobalEventStream(),
+        emitsInOrder(<GlobalEvent>[
+          const GlobalEvent(
+            eventType: GlobalEventType.log,
+            logMessage: 'someLogMessage',
+          ),
+        ]),
+      );
+
+      final byteDataList = <Map<String, dynamic>>[
+        <String, dynamic>{
+          'event': 'audio.onLog',
+          'value': 'someLogMessage',
+        },
+      ];
+      for (final byteData in byteDataList) {
+        eventController.add(
+          const StandardMethodCodec().encodeSuccessEnvelope(byteData),
+        );
+      }
+
+      eventController.close();
     });
   });
 }
