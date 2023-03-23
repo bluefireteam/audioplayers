@@ -16,17 +16,7 @@ FetchContent_Declare(nuget
 
 find_program(NUGET nuget)
 if (NOT NUGET)
-    execute_process(
-        COMMAND ping dist.nuget.org -n 2 -w 1000
-        RESULT_VARIABLE NO_CONNECTION
-    )
-    if(NO_CONNECTION GREATER 0)
-        message("Nuget.exe not found and dist.nuget.org is not reachable, trying to use cached version.")
-        set(FETCHCONTENT_FULLY_DISCONNECTED ON)
-    else()
-        message(STATUS "Nuget.exe not found, trying to download or use cached version.")
-        set(FETCHCONTENT_FULLY_DISCONNECTED OFF)
-    endif()
+    message(STATUS "Nuget.exe not found, trying to download or use cached version.")
     FetchContent_MakeAvailable(nuget)
     set(NUGET ${nuget_SOURCE_DIR}/nuget.exe)
 endif()
