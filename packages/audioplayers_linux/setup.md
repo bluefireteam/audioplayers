@@ -1,10 +1,10 @@
-# Requirements for Linux
+# Setup for Linux
 
 ## Debian
 
 ### Dev Dependencies
 
-[Flutter](https://docs.flutter.dev/get-started/install/linux#additional-linux-requirements) dependencies:
+[Flutter](https://docs.flutter.dev/get-started/install/linux#linux-setup) dependencies:
 
 ```bash
 sudo apt-get install clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
