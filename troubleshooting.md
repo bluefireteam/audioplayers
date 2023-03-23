@@ -74,8 +74,12 @@ flutter pub get
 1. If the problem still persists, and no existing (open or closed) issue on this repo, no stack overflow question or existing discord discussion solves you problem, then you can open an issue. But you must follow the issue template, and refer to the problem on the example app (or start with its code and make only the necessary modifications to trigger the issue), not on your own app that we don't have access (because since step 2 the error must be reproducible on the example app).
 1. Again, only open an issue if you reached step 3 and follow the issue template closely. Build issues that do not follow these steps will be closed without warning.
 
-### [Linux] Build Requirements
-In order to use the package `audioplayers_linux` you need to fulfill [these requirements](packages/audioplayers_linux/requirements.md).
+### Build Requirements
+
+Some platforms need additional requirements to be fulfilled:
+
+* [Linux](packages/audioplayers_linux/setup.md) (`audioplayers_linux`).
+* [Windows](packages/audioplayers_windows/setup.md) (`audioplayers_windows`).
 
 ## [iOS] Background Audio
 
