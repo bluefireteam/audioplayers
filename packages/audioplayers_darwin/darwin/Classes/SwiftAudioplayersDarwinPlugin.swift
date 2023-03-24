@@ -83,7 +83,7 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
         let method = call.method
 
         guard let args = call.arguments as? [String: Any] else {
-            result(FlutterError(code: "DarwinAudioPlayers", message: "Failed to parse call.arguments from Flutter.", details: nil))
+            result(FlutterError(code: "DarwinAudioError", message: "Failed to parse call.arguments from Flutter.", details: nil))
             return
         }
 
@@ -91,7 +91,7 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
         if method == "setAudioContext" {
             do {
                 guard let context = try AudioContext.parse(args: args) else {
-                    result(FlutterError(code: "DarwinAudioPlayers", message: "Error calling setAudioContext, context could not be parsed", details: nil))
+                    result(FlutterError(code: "DarwinAudioError", message: "Error calling setAudioContext, context could not be parsed", details: nil))
                     return
                 }
                 globalContext = context
@@ -100,21 +100,21 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
             } catch AudioPlayerError.warning(let warnMsg) {
                 globalEvents.onLog(message: warnMsg)
             }  catch {
-                result(FlutterError(code: "DarwinAudioPlayers", message: "Error configuring global audio session: \(error)", details: nil))
+                result(FlutterError(code: "DarwinAudioError", message: "Error configuring global audio session: \(error)", details: nil))
             }
         } else if method == "emitLog" {
             guard let message = args["message"] as? String else {
-                result(FlutterError(code: "DarwinAudioPlayers", message: "Error calling emitLog, message cannot be null", details: nil))
+                result(FlutterError(code: "DarwinAudioError", message: "Error calling emitLog, message cannot be null", details: nil))
                 return
             }
             globalEvents.onLog(message: message)
         } else if method == "emitError" {
             guard let code = args["code"] as? String else {
-                result(FlutterError(code: "DarwinAudioPlayers", message: "Error calling emitError, code cannot be null", details: nil))
+                result(FlutterError(code: "DarwinAudioError", message: "Error calling emitError, code cannot be null", details: nil))
                 return
             }
             guard let message = args["message"] as? String else {
-                result(FlutterError(code: "DarwinAudioPlayers", message: "Error calling emitError, message cannot be null", details: nil))
+                result(FlutterError(code: "DarwinAudioError", message: "Error calling emitError, message cannot be null", details: nil))
                 return
             }
             globalEvents.onError(code: code, message: message, details: nil)
@@ -131,13 +131,13 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
         let method = call.method
 
         guard let args = call.arguments as? [String: Any] else {
-            result(FlutterError(code: "DarwinAudioPlayers", message: "Failed to parse call.arguments from Flutter.", details: nil))
+            result(FlutterError(code: "DarwinAudioError", message: "Failed to parse call.arguments from Flutter.", details: nil))
             return
         }
 
         // player specific handlers
         guard let playerId = args["playerId"] as? String else {
-            result(FlutterError(code: "DarwinAudioPlayers", message: "Call missing mandatory parameter playerId.", details: nil))
+            result(FlutterError(code: "DarwinAudioError", message: "Call missing mandatory parameter playerId.", details: nil))
             return
         }
 
@@ -162,7 +162,7 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
             player.release()
         } else if method == "seek" {
             guard let position = args["position"] as? Int else {
-                result(FlutterError(code: "DarwinAudioPlayers", message: "Null position received on seek", details: nil))
+                result(FlutterError(code: "DarwinAudioError", message: "Null position received on seek", details: nil))
                 return
             }
             let time = toCMTime(millis: position)
@@ -175,25 +175,25 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
             let isLocal: Bool = (args["isLocal"] as? Bool) ?? false
 
             if url == nil {
-                result(FlutterError(code: "DarwinAudioPlayers", message: "Null URL received on setSourceUrl", details: nil))
+                result(FlutterError(code: "DarwinAudioError", message: "Null URL received on setSourceUrl", details: nil))
                 return
             }
 
             player.setSourceUrl(url: url!, isLocal: isLocal, completer: {
                 result(1)
             }, completerError: {
-                result(FlutterError(code: "DarwinAudioPlayers", message: "AVPlayerItem.Status.failed on setSourceUrl", details: nil))
+                result(FlutterError(code: "DarwinAudioError", message: "AVPlayerItem.Status.failed on setSourceUrl", details: nil))
             })
             return
         } else if method == "setSourceBytes" {
-            result(FlutterError(code: "DarwinAudioPlayers", message: "setSourceBytes is not currently implemented on iOS", details: nil))
+            result(FlutterError(code: "DarwinAudioError", message: "setSourceBytes is not currently implemented on iOS", details: nil))
             return
         } else if method == "getDuration" {
             let duration = player.getDuration()
             result(duration)
         } else if method == "setVolume" {
             guard let volume = args["volume"] as? Double else {
-                result(FlutterError(code: "DarwinAudioPlayers", message: "Error calling setVolume, volume cannot be null", details: nil))
+                result(FlutterError(code: "DarwinAudioError", message: "Error calling setVolume, volume cannot be null", details: nil))
                 return
             }
 
@@ -208,13 +208,13 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
             return
         } else if method == "setPlaybackRate" {
             guard let playbackRate = args["playbackRate"] as? Double else {
-                result(FlutterError(code: "DarwinAudioPlayers", message: "Error calling setPlaybackRate, playbackRate cannot be null", details: nil))
+                result(FlutterError(code: "DarwinAudioError", message: "Error calling setPlaybackRate, playbackRate cannot be null", details: nil))
                 return
             }
             player.setPlaybackRate(playbackRate: playbackRate)
         } else if method == "setReleaseMode" {
             guard let releaseMode = args["releaseMode"] as? String else {
-                result(FlutterError(code: "DarwinAudioPlayers", message: "Error calling setReleaseMode, releaseMode cannot be null", details: nil))
+                result(FlutterError(code: "DarwinAudioError", message: "Error calling setReleaseMode, releaseMode cannot be null", details: nil))
                 return
             }
             // Note: there is no "release" on iOS; hence we only care if it's looping or not
@@ -226,7 +226,7 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
             player.eventHandler.onLog(message: "iOS does not allow for player-specific audio contexts; `setAudioContext` will set the global audio context instead (like `global.setAudioContext`).")
             do {
                 guard let context = try AudioContext.parse(args: args) else {
-                    result(FlutterError(code: "DarwinAudioPlayers", message: "Error calling setAudioContext, context could not be parsed", details: nil))
+                    result(FlutterError(code: "DarwinAudioError", message: "Error calling setAudioContext, context could not be parsed", details: nil))
                     return
                 }
                 globalContext = context
@@ -235,21 +235,21 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
             } catch AudioPlayerError.warning(let warnMsg) {
                 globalEvents.onLog(message: warnMsg)
             } catch {
-                result(FlutterError(code: "DarwinAudioPlayers", message: "Error configuring audio session: \(error)", details: nil))
+                result(FlutterError(code: "DarwinAudioError", message: "Error configuring audio session: \(error)", details: nil))
             }
         } else if method == "emitLog" {
             guard let message = args["message"] as? String else {
-                result(FlutterError(code: "DarwinAudioPlayers", message: "Error calling emitLog, message cannot be null", details: nil))
+                result(FlutterError(code: "DarwinAudioError", message: "Error calling emitLog, message cannot be null", details: nil))
                 return
             }
             player.eventHandler.onLog(message: message)
         } else if method == "emitError" {
             guard let code = args["code"] as? String else {
-                result(FlutterError(code: "DarwinAudioPlayers", message: "Error calling emitError, code cannot be null", details: nil))
+                result(FlutterError(code: "DarwinAudioError", message: "Error calling emitError, code cannot be null", details: nil))
                 return
             }
             guard let message = args["message"] as? String else {
-                result(FlutterError(code: "DarwinAudioPlayers", message: "Error calling emitError, message cannot be null", details: nil))
+                result(FlutterError(code: "DarwinAudioError", message: "Error calling emitError, message cannot be null", details: nil))
                 return
             }
             player.eventHandler.onError(code: code, message: message, details: nil)
@@ -288,7 +288,7 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
         do {
             try globalContext.activateAudioSession(active: anyIsPlaying)
         } catch {
-            self.globalEvents.onError(code: "DarwinAudioPlayers", message: "Error configuring audio session: \(error)", details: nil)
+            self.globalEvents.onError(code: "DarwinAudioError", message: "Error configuring audio session: \(error)", details: nil)
         }
     }
 }

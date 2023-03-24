@@ -103,7 +103,7 @@ static void audioplayers_linux_plugin_handle_method_call(
     auto flPlayerId = fl_value_lookup_string(args, "playerId");
     if (flPlayerId == nullptr) {
         response = FL_METHOD_RESPONSE(fl_method_error_response_new(
-            "", "Call missing mandatory parameter playerId.", nullptr));
+            "LinuxAudioError", "Call missing mandatory parameter playerId.", nullptr));
         fl_method_call_respond(method_call, response, nullptr);
         return;
     }
@@ -144,7 +144,7 @@ static void audioplayers_linux_plugin_handle_method_call(
             auto flUrl = fl_value_lookup_string(args, "url");
             if (flUrl == nullptr) {
                 response = FL_METHOD_RESPONSE(fl_method_error_response_new(
-                    "", "Null URL received on setSourceUrl.", nullptr));
+                    "LinuxAudioError", "Null URL received on setSourceUrl.", nullptr));
                 fl_method_call_respond(method_call, response, nullptr);
                 return;
             }
@@ -183,7 +183,7 @@ static void audioplayers_linux_plugin_handle_method_call(
                     : std::string(fl_value_get_string(flReleaseMode));
             if (releaseMode.empty()) {
                 response = FL_METHOD_RESPONSE(fl_method_error_response_new(
-                    "", "Error calling setReleaseMode, releaseMode cannot be null",
+                    "LinuxAudioError", "Error calling setReleaseMode, releaseMode cannot be null",
                     nullptr));
                 fl_method_call_respond(method_call, response, nullptr);
                 return;
@@ -226,11 +226,11 @@ static void audioplayers_linux_plugin_handle_method_call(
         fl_method_call_respond(method_call, response, nullptr);
     } catch (const gchar* error) {
         response = FL_METHOD_RESPONSE(fl_method_error_response_new(
-            "", error, nullptr));
+            "LinuxAudioError", error, nullptr));
         fl_method_call_respond(method_call, response, nullptr);
     } catch (...) {
         response = FL_METHOD_RESPONSE(fl_method_error_response_new(
-            "", "Unkown AudioPlayersLinux error", nullptr));
+            "LinuxAudioError", "Unkown AudioPlayersLinux error", nullptr));
         fl_method_call_respond(method_call, response, nullptr);
     }
 }

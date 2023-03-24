@@ -154,7 +154,7 @@ void AudioPlayer::OnMediaStateChange(GstObject *src, GstState *old_state,
             // Need to set to pause state, in order to make player functional
             GstStateChangeReturn ret = gst_element_set_state(playbin, GST_STATE_PAUSED);
             if (ret == GST_STATE_CHANGE_FAILURE) {
-                this->OnError("", "Unable to set the pipeline from GST_STATE_READY to GST_STATE_PAUSED.", nullptr, nullptr);
+                this->OnError("LinuxAudioError", "Unable to set the pipeline from GST_STATE_READY to GST_STATE_PAUSED.", nullptr, nullptr);
             }
         } else if (*new_state >= GST_STATE_PAUSED) {
             if (!this->_isInitialized) {
