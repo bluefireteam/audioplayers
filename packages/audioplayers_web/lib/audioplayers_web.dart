@@ -28,7 +28,10 @@ class WebAudioplayersPlatform extends AudioplayersPlatformInterface {
   WrappedPlayer getPlayer(String playerId) {
     return players[playerId] != null
         ? players[playerId]!
-        : throw Exception('Player with id $playerId was not created!');
+        : throw PlatformException(
+            code: 'WebAudioError',
+            message: 'Player with id $playerId was not created!',
+          );
   }
 
   @override

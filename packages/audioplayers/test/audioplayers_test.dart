@@ -1,17 +1,8 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
-import 'package:audioplayers_platform_interface/src/map_extension.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'fake_audioplayers_platform.dart';
-
-// TODO(Gustl22): may not needed anymore?
-extension MethodArguments on MethodCall {
-  Map<dynamic, dynamic> get mapArguments => arguments as Map<dynamic, dynamic>;
-
-  String getString(String key) => mapArguments.getString(key);
-}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

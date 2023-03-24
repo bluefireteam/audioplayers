@@ -135,7 +135,7 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
 
     auto playerId = GetArgument<std::string>("playerId", args, std::string());
     if (playerId.empty()) {
-        result->Error("", "Call missing mandatory parameter playerId.",
+        result->Error("WindowsAudioError", "Call missing mandatory parameter playerId.",
                       nullptr);
         return;
     }
@@ -171,7 +171,7 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
         auto url = GetArgument<std::string>("url", args, std::string());
 
         if (url.empty()) {
-            result->Error("", "Null URL received on setSourceUrl", nullptr);
+            result->Error("WindowsAudioError", "Null URL received on setSourceUrl", nullptr);
             return;
         }
 
@@ -179,7 +179,7 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
             player->SetSourceUrl(url);
             result->Success(EncodableValue(1));
         } catch (...) {
-            result->Error("", "Error setting url to '" + url + "'.", nullptr);
+            result->Error("WindowsAudioError", "Error setting url to '" + url + "'.", nullptr);
         }
     } else if (method_call.method_name().compare("getDuration") == 0) {
         result->Success(EncodableValue(player->GetDuration() / 10000));
@@ -198,7 +198,7 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
             GetArgument<std::string>("releaseMode", args, std::string());
         if (releaseMode.empty()) {
             result->Error(
-                "", "Error calling setReleaseMode, releaseMode cannot be null",
+                "WindowsAudioError", "Error calling setReleaseMode, releaseMode cannot be null",
                 nullptr);
             return;
         }

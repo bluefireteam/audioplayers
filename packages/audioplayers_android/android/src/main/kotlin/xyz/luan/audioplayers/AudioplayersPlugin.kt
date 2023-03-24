@@ -73,7 +73,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
             try {
                 handler(call, response)
             } catch (e: Exception) {
-                response.error("Unexpected error!", e.message, e)
+                response.error("Unexpected AndroidAudioError", e.message, e)
             }
         }
     }
@@ -205,7 +205,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
             }
             response.success(1)
         } catch (e: Exception) {
-            response.error("Unexpected error for player $playerId!", e.message, e)
+            response.error("AndroidAudioError", e.message, e)
         }
     }
 
