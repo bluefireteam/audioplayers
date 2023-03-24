@@ -16,6 +16,9 @@ class GlobalAudioScope {
       .where((event) => event.eventType == GlobalEventType.log)
       .map((event) => event.logMessage!);
 
+  @Deprecated('Use `Logger.logLevel` instead.')
+  LogLevel get logLevel => Logger.logLevel;
+
   GlobalAudioScope() {
     eventStream = _platform.getGlobalEventStream();
     onLog.listen(
@@ -24,7 +27,7 @@ class GlobalAudioScope {
     );
   }
 
-  @Deprecated('Use `Logger.logLevel` instead.')
+  @Deprecated('Set `Logger.logLevel` instead.')
   Future<void> changeLogLevel(LogLevel level) async {
     Logger.logLevel = level;
   }
