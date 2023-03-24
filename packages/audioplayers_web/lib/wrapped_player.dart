@@ -101,7 +101,7 @@ class WrappedPlayer {
         eventStreamController.add(
           PlayerEvent(
             eventType: PlayerEventType.position,
-            duration: p.currentTime.fromSecondsToDuration(),
+            position: p.currentTime.fromSecondsToDuration(),
           ),
         );
       },
