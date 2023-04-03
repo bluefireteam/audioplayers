@@ -16,7 +16,7 @@ class GlobalAudioScope {
       .where((event) => event.eventType == GlobalEventType.log)
       .map((event) => event.logMessage!);
 
-  @Deprecated('Use `Logger.logLevel` instead.')
+  @Deprecated('Use `Logger.logLevel` instead. This will be removed in v5.0.0.')
   LogLevel get logLevel => Logger.logLevel;
 
   GlobalAudioScope() {
@@ -27,12 +27,12 @@ class GlobalAudioScope {
     );
   }
 
-  @Deprecated('Set `Logger.logLevel` instead.')
+  @Deprecated('Set `Logger.logLevel` instead. This will be removed in v5.0.0.')
   Future<void> changeLogLevel(LogLevel level) async {
     Logger.logLevel = level;
   }
 
-  @Deprecated('Use `Logger.log()` or `Logger.error()` instead.')
+  @Deprecated('Use `Logger.log()` or `Logger.error()` instead. This will be removed in v5.0.0.')
   void log(LogLevel level, String message) {
     if (level == LogLevel.info) {
       Logger.log(message);
@@ -41,16 +41,16 @@ class GlobalAudioScope {
     }
   }
 
-  @Deprecated('Use `Logger.log()` instead.')
+  @Deprecated('Use `Logger.log()` instead. This will be removed in v5.0.0.')
   void info(String message) => Logger.log(message);
 
-  @Deprecated('Use `Logger.error()` instead.')
+  @Deprecated('Use `Logger.error()` instead. This will be removed in v5.0.0.')
   void error(String message) => Logger.error(message);
 
   Future<void> setAudioContext(AudioContext ctx) =>
       _platform.setGlobalAudioContext(ctx);
 
-  @Deprecated('Use `setAudioContext()` instead.')
+  @Deprecated('Use `setAudioContext()` instead. This will be removed in v5.0.0.')
   Future<void> setGlobalAudioContext(AudioContext ctx) =>
       _platform.setGlobalAudioContext(ctx);
 }
