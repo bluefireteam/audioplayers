@@ -51,7 +51,7 @@ class AudioPlayer {
   late final StreamSubscription _onLogStreamSubscription;
 
   /// Stream controller to be able to get a stream on initialization, before the
-  /// native event stream is ready via [create] method.
+  /// native event stream is ready via [_create] method.
   final _eventStreamController = StreamController<PlayerEvent>.broadcast();
   late final StreamSubscription _eventStreamSubscription;
 
@@ -136,10 +136,10 @@ class AudioPlayer {
         /* Errors are already handled via log stream */
       },
     );
-    create();
+    _create();
   }
 
-  Future<void> create() async {
+  Future<void> _create() async {
     try {
       await _platform.create(playerId);
       _eventStreamSubscription = _platform.getEventStream(playerId).listen(
