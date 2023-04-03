@@ -18,8 +18,10 @@ extension LogLevelExtension on LogLevel {
         return LogLevel.info;
       case 1:
         return LogLevel.error;
-      default:
+      case 0:
         return LogLevel.none;
+      default:
+        throw Exception('Invalid LogLevel value: $level');
     }
   }
 }
