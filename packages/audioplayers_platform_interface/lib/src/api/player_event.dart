@@ -30,7 +30,7 @@ class PlayerEvent {
   /// Position of the audio.
   final Duration? position;
 
-  /// Log message of the audio.
+  /// Log message in the player scope.
   final String? logMessage;
 
   @override

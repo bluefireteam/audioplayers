@@ -18,7 +18,7 @@ class GlobalEvent {
   /// The type of the event.
   final GlobalEventType eventType;
 
-  /// Position of the audio.
+  /// Log message in the global scope.
   final String? logMessage;
 
   @override
