@@ -25,11 +25,11 @@ scripts:
     description: Run `flutter analyze` for all packages.
 
   format:
-    run: melos exec flutter format . --fix
+    run: melos exec dart format . --fix
     description: Run `flutter format` for all packages.
 
   format-check:
-    run: melos exec flutter format . --set-exit-if-changed
+    run: melos exec dart format . --set-exit-if-changed
     description: Run `flutter format` checks for all packages.
 
   dartdoc:
