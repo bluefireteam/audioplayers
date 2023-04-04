@@ -6,7 +6,7 @@
 
 ---
 
-# audioplayers\_darwin
+# audioplayers_darwin
 <p>
   <a title="Pub" href="https://pub.dev/packages/audioplayers_darwin"><img src="https://img.shields.io/pub/v/audioplayers_darwin.svg?style=popout&include_prereleases"/></a>
   <a title="Build Status" href="https://github.com/bluefireteam/audioplayers/actions?query=workflow%3Abuild+branch%3Amain"><img src="https://github.com/bluefireteam/audioplayers/workflows/build/badge.svg?branch=main"/></a>
