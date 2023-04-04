@@ -1,27 +1,16 @@
-enum LogLevel { info, error, none }
+enum LogLevel implements Comparable<LogLevel> {
+  none(0),
+  error(1),
+  info(2);
 
-extension LogLevelExtension on LogLevel {
-  int toInt() {
-    switch (this) {
-      case LogLevel.info:
-        return 2;
-      case LogLevel.error:
-        return 1;
-      case LogLevel.none:
-        return 0;
-    }
-  }
+  const LogLevel(this.level);
 
-  static LogLevel fromInt(int level) {
-    switch (level) {
-      case 2:
-        return LogLevel.info;
-      case 1:
-        return LogLevel.error;
-      case 0:
-        return LogLevel.none;
-      default:
-        throw Exception('Invalid LogLevel value: $level');
-    }
+  factory LogLevel.fromInt(int level) {
+    return values.firstWhere((e) => e.level == level);
   }
+  
+  final int level;
+
+  @override
+  int compareTo(LogLevel other) => level - other.level;
 }
