@@ -13,11 +13,22 @@ void main() {
     AudioplayersPlatformInterface.instance = platform;
   });
 
+  Future<AudioPlayer> createPlayer({
+    required String playerId,
+  }) async {
+    final player = AudioPlayer(playerId: playerId);
+    expect(player.source, null);
+    await player.creatingCompleter.future;
+    expect(platform.popCall().method, 'create');
+    expect(platform.popLastCall().method, 'getEventStream');
+    return player;
+  }
+
   group('AudioPlayer Methods', () {
     late AudioPlayer player;
 
     setUp(() async {
-      player = AudioPlayer(playerId: 'p1');
+      player = await createPlayer(playerId: 'p1');
       expect(player.source, null);
     });
 
@@ -43,7 +54,7 @@ void main() {
     });
 
     test('multiple players', () async {
-      final player2 = AudioPlayer(playerId: 'p2');
+      final player2 = await createPlayer(playerId: 'p2');
 
       await player.play(UrlSource('internet.com/file.mp3'));
       final call1 = platform.popCall();
@@ -78,6 +89,47 @@ void main() {
 
       await player.pause();
       expect(platform.popLastCall().method, 'pause');
+    });
+  });
+
+  group('AudioPlayers Events', () {
+    late AudioPlayer player;
+
+    setUp(() async {
+      player = await createPlayer(playerId: 'p1');
+      expect(player.source, null);
+    });
+
+    test('event stream', () async {
+      final playerEvents = <PlayerEvent>[
+        const PlayerEvent(
+          eventType: PlayerEventType.duration,
+          duration: Duration(milliseconds: 98765),
+        ),
+        const PlayerEvent(
+          eventType: PlayerEventType.position,
+          position: Duration(milliseconds: 8765),
+        ),
+        const PlayerEvent(
+          eventType: PlayerEventType.log,
+          logMessage: 'someLogMessage',
+        ),
+        const PlayerEvent(
+          eventType: PlayerEventType.complete,
+        ),
+        const PlayerEvent(
+          eventType: PlayerEventType.seekComplete,
+        ),
+      ];
+
+      expect(
+        player.eventStream,
+        emitsInOrder(playerEvents),
+      );
+
+      playerEvents.forEach((playerEvent) {
+        platform.eventStreamController.add(playerEvent);
+      });
     });
   });
 }

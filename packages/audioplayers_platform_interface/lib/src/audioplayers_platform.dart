@@ -5,24 +5,33 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:audioplayers_platform_interface/src/api/audio_context.dart';
+import 'package:audioplayers_platform_interface/src/api/player_event.dart';
 import 'package:audioplayers_platform_interface/src/api/player_mode.dart';
 import 'package:audioplayers_platform_interface/src/api/release_mode.dart';
 import 'package:audioplayers_platform_interface/src/audioplayers_platform_interface.dart';
-import 'package:audioplayers_platform_interface/src/global_audioplayers_platform_interface.dart';
-import 'package:audioplayers_platform_interface/src/method_channel_interface.dart';
-import 'package:audioplayers_platform_interface/src/streams_interface.dart';
+import 'package:audioplayers_platform_interface/src/map_extension.dart';
+import 'package:audioplayers_platform_interface/src/method_channel_extension.dart';
 import 'package:flutter/services.dart';
 
 class AudioplayersPlatform extends AudioplayersPlatformInterface
-    with StreamsInterface {
-  final MethodChannel _channel = const MethodChannel('xyz.luan/audioplayers');
+    with MethodChannelAudioplayersPlatform, EventChannelAudioplayersPlatform {
+  AudioplayersPlatform();
+}
 
-  AudioplayersPlatform() {
-    _channel.setMethodCallHandler(platformCallHandler);
+mixin MethodChannelAudioplayersPlatform
+    implements MethodChannelAudioplayersPlatformInterface {
+  static const MethodChannel _methodChannel =
+      MethodChannel('xyz.luan/audioplayers');
+
+  @override
+  Future<void> create(String playerId) {
+    return _call('create', playerId);
   }
 
-  static GlobalAudioplayersPlatformInterface get _logger =>
-      GlobalAudioplayersPlatformInterface.instance;
+  @override
+  Future<void> dispose(String playerId) {
+    return _call('dispose', playerId);
+  }
 
   @override
   Future<int?> getCurrentPosition(String playerId) {
@@ -157,40 +166,27 @@ class AudioplayersPlatform extends AudioplayersPlatformInterface
     return _call('stop', playerId);
   }
 
-  Future<void> platformCallHandler(MethodCall call) async {
-    try {
-      _doHandlePlatformCall(call);
-    } on Exception catch (ex) {
-      _logger.error('Unexpected error: $ex');
-    }
+  @override
+  Future<void> emitLog(String playerId, String message) {
+    return _call(
+      'emitLog',
+      playerId,
+      <String, dynamic>{
+        'message': message,
+      },
+    );
   }
 
-  void _doHandlePlatformCall(MethodCall call) {
-    final playerId = call.getString('playerId');
-
-    switch (call.method) {
-      case 'audio.onDuration':
-        final millis = call.getInt('value');
-        final duration = Duration(milliseconds: millis);
-        emitDuration(playerId, duration);
-        break;
-      case 'audio.onCurrentPosition':
-        final millis = call.getInt('value');
-        final position = Duration(milliseconds: millis);
-        emitPosition(playerId, position);
-        break;
-      case 'audio.onComplete':
-        emitComplete(playerId);
-        break;
-      case 'audio.onSeekComplete':
-        emitSeekComplete(playerId);
-        break;
-      case 'audio.onError':
-        _logger.error('Unexpected platform error: ${call.getString('value')}');
-        break;
-      default:
-        _logger.error('Unknown method ${call.method} ');
-    }
+  @override
+  Future<void> emitError(String playerId, String code, String message) {
+    return _call(
+      'emitError',
+      playerId,
+      <String, dynamic>{
+        'code': code,
+        'message': message,
+      },
+    );
   }
 
   Future<void> _call(
@@ -202,7 +198,7 @@ class AudioplayersPlatform extends AudioplayersPlatformInterface
       'playerId': playerId,
       ...arguments,
     };
-    return _channel.call(method, enhancedArgs);
+    return _methodChannel.call(method, enhancedArgs);
   }
 
   Future<T?> _compute<T>(
@@ -214,6 +210,50 @@ class AudioplayersPlatform extends AudioplayersPlatformInterface
       'playerId': playerId,
       ...arguments,
     };
-    return _channel.compute<T>(method, enhancedArgs);
+    return _methodChannel.compute<T>(method, enhancedArgs);
+  }
+}
+
+mixin EventChannelAudioplayersPlatform
+    implements EventChannelAudioplayersPlatformInterface {
+  @override
+  Stream<PlayerEvent> getEventStream(String playerId) {
+    // Only can be used after have created the event channel on the native side.
+    final eventChannel = EventChannel('xyz.luan/audioplayers/events/$playerId');
+
+    return eventChannel.receiveBroadcastStream().map(
+      (dynamic event) {
+        final map = event as Map<dynamic, dynamic>;
+        final eventType = map.getString('event');
+        switch (eventType) {
+          case 'audio.onDuration':
+            final millis = map.getInt('value');
+            final duration = Duration(milliseconds: millis);
+            return PlayerEvent(
+              eventType: PlayerEventType.duration,
+              duration: duration,
+            );
+          case 'audio.onCurrentPosition':
+            final millis = map.getInt('value');
+            final position = Duration(milliseconds: millis);
+            return PlayerEvent(
+              eventType: PlayerEventType.position,
+              position: position,
+            );
+          case 'audio.onComplete':
+            return const PlayerEvent(eventType: PlayerEventType.complete);
+          case 'audio.onSeekComplete':
+            return const PlayerEvent(eventType: PlayerEventType.seekComplete);
+          case 'audio.onLog':
+            final value = map.getString('value');
+            return PlayerEvent(
+              eventType: PlayerEventType.log,
+              logMessage: value,
+            );
+          default:
+            throw UnimplementedError('Event Method does not exist $eventType');
+        }
+      },
+    );
   }
 }

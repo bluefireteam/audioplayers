@@ -3,66 +3,60 @@ import MediaPlayer
 struct AudioContext {
     let category: AVAudioSession.Category
     let options: [AVAudioSession.CategoryOptions]
-    
+
     init() {
         self.category = .playAndRecord
         self.options = [.mixWithOthers, .defaultToSpeaker]
     }
 
     init(
-        category: AVAudioSession.Category,
-        options: [AVAudioSession.CategoryOptions]
+            category: AVAudioSession.Category,
+            options: [AVAudioSession.CategoryOptions]
     ) {
         self.category = category
         self.options = options
     }
-    
+
     func activateAudioSession(
-        active: Bool
-    ) {
-        do {
-            let session = AVAudioSession.sharedInstance()
-            try session.setActive(active)
-        } catch {
-            Logger.error("Error configuring audio session: %@", error)
-        }
+            active: Bool
+    ) throws {
+        let session = AVAudioSession.sharedInstance()
+        try session.setActive(active)
     }
 
-    func apply() {
-        do {
-            let session = AVAudioSession.sharedInstance()
-            let combinedOptions = options.reduce(AVAudioSession.CategoryOptions()) { [$0, $1] }
-            try session.setCategory(category, options: combinedOptions)
-        } catch {
-            Logger.error("Error configuring audio session: %@", error)
+    func apply() throws {
+        let session = AVAudioSession.sharedInstance()
+        let combinedOptions = options.reduce(AVAudioSession.CategoryOptions()) {
+            [$0, $1]
         }
+        try session.setCategory(category, options: combinedOptions)
     }
 
-    static func parse(args: [String: Any]) -> AudioContext? {
+    static func parse(args: [String: Any]) throws -> AudioContext? {
         guard let categoryString = args["category"] as! String? else {
-            Logger.error("Null value received for category")
+            throw AudioPlayerError.error("Null value received for category")
+        }
+        guard let category = try parseCategory(category: categoryString) else {
             return nil
         }
-        guard let category = parseCategory(category: categoryString) else {
-            return nil
-        }
-        
+
         guard let optionStrings = args["options"] as! [String]? else {
-            Logger.error("Null value received for options")
-            return nil
+            throw AudioPlayerError.error("Null value received for options")
         }
-        let options = optionStrings.compactMap { parseCategoryOption(option: $0) }
+        let options = try optionStrings.compactMap {
+            try parseCategoryOption(option: $0)
+        }
         if (optionStrings.count != options.count) {
             return nil
         }
-        
+
         return AudioContext(
-            category: category,
-            options: options
+                category: category,
+                options: options
         )
     }
 
-    private static func parseCategory(category: String) -> AVAudioSession.Category? {
+    private static func parseCategory(category: String) throws -> AVAudioSession.Category? {
         switch category {
         case "ambient":
             return .ambient
@@ -79,12 +73,11 @@ struct AudioContext {
         case "multiRoute":
             return .multiRoute
         default:
-            Logger.error("Invalid Category %@", category)
-            return nil
+            throw AudioPlayerError.error("Invalid Category \(category)")
         }
     }
-    
-    private static func parseCategoryOption(option: String) -> AVAudioSession.CategoryOptions? {
+
+    private static func parseCategoryOption(option: String) throws -> AVAudioSession.CategoryOptions? {
         switch option {
         case "mixWithOthers":
             return .mixWithOthers
@@ -100,26 +93,22 @@ struct AudioContext {
             if #available(iOS 10.0, *) {
                 return .allowBluetoothA2DP
             } else {
-                Logger.error("Category Option allowBluetoothA2DP is only available on iOS 10+")
-                return nil
+                throw AudioPlayerError.warning("Category Option allowBluetoothA2DP is only available on iOS 10+")
             }
         case "allowAirPlay":
             if #available(iOS 10.0, *) {
                 return .allowAirPlay
             } else {
-                Logger.error("Category Option allowAirPlay is only available on iOS 10+")
-                return nil
+                throw AudioPlayerError.warning("Category Option allowAirPlay is only available on iOS 10+")
             }
         case "overrideMutedMicrophoneInterruption":
             if #available(iOS 14.5, *) {
                 return .overrideMutedMicrophoneInterruption
             } else {
-                Logger.error("Category Option overrideMutedMicrophoneInterruption is only available on iOS 14.5+")
-                return nil
+                throw AudioPlayerError.warning("Category Option overrideMutedMicrophoneInterruption is only available on iOS 14.5+")
             }
         default:
-            Logger.error("Invalid Category Option %@", option)
-            return nil
+            throw AudioPlayerError.error("Invalid Category Option \(option)")
         }
     }
 }

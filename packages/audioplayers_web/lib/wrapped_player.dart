@@ -7,7 +7,7 @@ import 'package:audioplayers_web/web_audio_js.dart';
 
 class WrappedPlayer {
   final String playerId;
-  final StreamsInterface streamsInterface;
+  final eventStreamController = StreamController<PlayerEvent>.broadcast();
 
   double? _pausedAt;
   double _currentVolume = 1.0;
@@ -24,7 +24,7 @@ class WrappedPlayer {
   StreamSubscription? _playerPlaySubscription;
   StreamSubscription? _playerSeekedSubscription;
 
-  WrappedPlayer(this.playerId, this.streamsInterface);
+  WrappedPlayer(this.playerId);
 
   Future<void> setUrl(String url) async {
     if (_currentUrl == url) {
@@ -74,32 +74,57 @@ class WrappedPlayer {
     source.connect(_stereoPanner!);
     _stereoPanner?.connect(audioContext.destination);
 
-    _playerPlaySubscription = p.onPlay.listen((_) {
-      streamsInterface.emitDuration(
-        playerId,
-        p.duration.fromSecondsToDuration(),
-      );
-    });
-    _playerLoadedDataSubscription = p.onLoadedData.listen((_) {
-      streamsInterface.emitDuration(
-        playerId,
-        p.duration.fromSecondsToDuration(),
-      );
-    });
-    _playerTimeUpdateSubscription = p.onTimeUpdate.listen((_) {
-      streamsInterface.emitPosition(
-        playerId,
-        p.currentTime.fromSecondsToDuration(),
-      );
-    });
-    _playerSeekedSubscription = p.onSeeked.listen((_) {
-      streamsInterface.emitSeekComplete(playerId);
-    });
-    _playerEndedSubscription = p.onEnded.listen((_) {
-      _pausedAt = 0;
-      player?.currentTime = 0;
-      streamsInterface.emitComplete(playerId);
-    });
+    _playerPlaySubscription = p.onPlay.listen(
+      (_) {
+        eventStreamController.add(
+          PlayerEvent(
+            eventType: PlayerEventType.duration,
+            duration: p.duration.fromSecondsToDuration(),
+          ),
+        );
+      },
+      onError: eventStreamController.addError,
+    );
+    _playerLoadedDataSubscription = p.onLoadedData.listen(
+      (_) {
+        eventStreamController.add(
+          PlayerEvent(
+            eventType: PlayerEventType.duration,
+            duration: p.duration.fromSecondsToDuration(),
+          ),
+        );
+      },
+      onError: eventStreamController.addError,
+    );
+    _playerTimeUpdateSubscription = p.onTimeUpdate.listen(
+      (_) {
+        eventStreamController.add(
+          PlayerEvent(
+            eventType: PlayerEventType.position,
+            position: p.currentTime.fromSecondsToDuration(),
+          ),
+        );
+      },
+      onError: eventStreamController.addError,
+    );
+    _playerSeekedSubscription = p.onSeeked.listen(
+      (_) {
+        eventStreamController.add(
+          const PlayerEvent(eventType: PlayerEventType.seekComplete),
+        );
+      },
+      onError: eventStreamController.addError,
+    );
+    _playerEndedSubscription = p.onEnded.listen(
+      (_) {
+        _pausedAt = 0;
+        player?.currentTime = 0;
+        eventStreamController.add(
+          const PlayerEvent(eventType: PlayerEventType.complete),
+        );
+      },
+      onError: eventStreamController.addError,
+    );
   }
 
   bool shouldLoop() => _currentReleaseMode == ReleaseMode.loop;
@@ -169,5 +194,15 @@ class WrappedPlayer {
     if (_currentReleaseMode == ReleaseMode.release) {
       player = null;
     }
+  }
+
+  void log(String message) {
+    eventStreamController.add(
+      PlayerEvent(eventType: PlayerEventType.log, logMessage: message),
+    );
+  }
+
+  Future<void> dispose() async {
+    eventStreamController.close();
   }
 }

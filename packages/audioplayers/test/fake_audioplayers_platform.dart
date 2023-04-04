@@ -15,6 +15,9 @@ class FakeCall {
 class FakeAudioplayersPlatform extends AudioplayersPlatformInterface {
   List<FakeCall> calls = [];
 
+  StreamController<PlayerEvent> eventStreamController =
+      StreamController<PlayerEvent>.broadcast();
+
   void clear() {
     calls.clear();
   }
@@ -26,6 +29,27 @@ class FakeAudioplayersPlatform extends AudioplayersPlatformInterface {
   FakeCall popLastCall() {
     expect(calls, hasLength(1));
     return popCall();
+  }
+
+  @override
+  Future<void> create(String playerId) async {
+    calls.add(FakeCall(id: playerId, method: 'create'));
+  }
+
+  @override
+  Future<void> dispose(String playerId) async {
+    calls.add(FakeCall(id: playerId, method: 'dispose'));
+    eventStreamController.close();
+  }
+
+  @override
+  Future<void> emitError(String playerId, String code, String message) async {
+    calls.add(FakeCall(id: playerId, method: 'emitError'));
+  }
+
+  @override
+  Future<void> emitLog(String playerId, String message) async {
+    calls.add(FakeCall(id: playerId, method: 'emitLog'));
   }
 
   @override
@@ -120,28 +144,9 @@ class FakeAudioplayersPlatform extends AudioplayersPlatformInterface {
     calls.add(FakeCall(id: playerId, method: 'stop'));
   }
 
-  final durationController = StreamController<ForPlayer<Duration>>.broadcast();
-  final positionController = StreamController<ForPlayer<Duration>>.broadcast();
-  final completeController = StreamController<ForPlayer<void>>.broadcast();
-  final seekCompleteController = StreamController<ForPlayer<void>>.broadcast();
-
   @override
-  Stream<ForPlayer<void>> get completeStream => completeController.stream;
-
-  @override
-  Stream<ForPlayer<Duration>> get durationStream => durationController.stream;
-
-  @override
-  Stream<ForPlayer<Duration>> get positionStream => positionController.stream;
-
-  @override
-  Stream<ForPlayer<void>> get seekCompleteStream =>
-      seekCompleteController.stream;
-
-  Future<void> dispose() async {
-    durationController.close();
-    positionController.close();
-    completeController.close();
-    seekCompleteController.close();
+  Stream<PlayerEvent> getEventStream(String playerId) {
+    calls.add(FakeCall(id: playerId, method: 'getEventStream'));
+    return eventStreamController.stream;
   }
 }

@@ -4,12 +4,9 @@ import android.content.Context
 import android.media.AudioManager
 import android.media.MediaPlayer
 import kotlin.math.min
-import xyz.luan.audioplayers.AudioContextAndroid
-import xyz.luan.audioplayers.AudioplayersPlugin
-import xyz.luan.audioplayers.PlayerMode
+import xyz.luan.audioplayers.*
 import xyz.luan.audioplayers.PlayerMode.LOW_LATENCY
 import xyz.luan.audioplayers.PlayerMode.MEDIA_PLAYER
-import xyz.luan.audioplayers.ReleaseMode
 import xyz.luan.audioplayers.source.Source
 
 // For some reason this cannot be accessed from MediaPlayer.MEDIA_ERROR_SYSTEM
@@ -17,7 +14,7 @@ private const val MEDIA_ERROR_SYSTEM = -2147483648
 
 class WrappedPlayer internal constructor(
     private val ref: AudioplayersPlugin,
-    val playerId: String,
+    val eventHandler: EventHandler,
     var context: AudioContextAndroid,
     private val soundPoolManager: SoundPoolManager,
 ) {
@@ -276,6 +273,23 @@ class WrappedPlayer internal constructor(
         ref.handleComplete(this)
     }
 
+    @Suppress("UNUSED_PARAMETER")
+    fun onBuffering(percent: Int) {
+        // TODO(luan): expose this as a stream
+    }
+
+    fun onSeekComplete() {
+        ref.handleSeekComplete(this)
+    }
+
+    fun handleLog(message: String) {
+        ref.handleLog(this, message)
+    }
+
+    fun handleError(errorCode: String?, errorMessage: String?, errorDetails: Any?) {
+        ref.handleError(this, errorCode, errorMessage, errorDetails)
+    }
+
     fun onError(what: Int, extra: Int): Boolean {
         // When an error occurs, reset player to not [prepared].
         // Then no functions will be called, which end up in an illegal player state.
@@ -293,17 +307,8 @@ class WrappedPlayer internal constructor(
             MediaPlayer.MEDIA_ERROR_TIMED_OUT -> "MEDIA_ERROR_TIMED_OUT"
             else -> "MEDIA_ERROR_UNKNOWN {extra:$extra}"
         }
-        ref.handleError(this, "MediaPlayer error with what:$whatMsg extra:$extraMsg")
+        handleError(whatMsg, extraMsg, null)
         return false
-    }
-
-    @Suppress("UNUSED_PARAMETER")
-    fun onBuffering(percent: Int) {
-        // TODO(luan): expose this as a stream
-    }
-
-    fun onSeekComplete() {
-        ref.handleSeekComplete(this)
     }
 
     /**
@@ -344,5 +349,10 @@ class WrappedPlayer internal constructor(
         val leftVolume = min(1f, 1f - balance) * volume
         val rightVolume = min(1f, 1f + balance) * volume
         setVolume(leftVolume, rightVolume)
+    }
+
+    fun dispose() {
+        release()
+        eventHandler.endOfStream()
     }
 }

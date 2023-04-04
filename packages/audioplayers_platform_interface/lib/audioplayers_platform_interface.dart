@@ -1,9 +1,8 @@
 export 'src/api/audio_context.dart';
-export 'src/api/for_player.dart';
-export 'src/api/log_level.dart';
+export 'src/api/global_event.dart';
+export 'src/api/player_event.dart';
 export 'src/api/player_mode.dart';
 export 'src/api/player_state.dart';
 export 'src/api/release_mode.dart';
 export 'src/audioplayers_platform_interface.dart';
 export 'src/global_audioplayers_platform_interface.dart';
-export 'src/streams_interface.dart';
