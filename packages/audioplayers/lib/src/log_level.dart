@@ -8,7 +8,7 @@ enum LogLevel implements Comparable<LogLevel> {
   factory LogLevel.fromInt(int level) {
     return values.firstWhere((e) => e.level == level);
   }
-  
+
   final int level;
 
   @override
