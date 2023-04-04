@@ -27,14 +27,14 @@ class _LoggerTabState extends State<LoggerTab>
     super.initState();
     AudioPlayer.global.onLog.listen(
       (message) {
-        if (LogLevel.info.toInt() <= currentLogLevel.toInt()) {
+        if (LogLevel.info.level <= currentLogLevel.level) {
           setState(() {
             globalLogs.add(Log(message, level: LogLevel.info));
           });
         }
       },
       onError: (Object o, [StackTrace? stackTrace]) {
-        if (LogLevel.error.toInt() <= currentLogLevel.toInt()) {
+        if (LogLevel.error.level <= currentLogLevel.level) {
           setState(() {
             globalLogs.add(
               Log(Logger.errorToString(o, stackTrace), level: LogLevel.error),
@@ -45,7 +45,7 @@ class _LoggerTabState extends State<LoggerTab>
     );
     widget.player.onLog.listen(
       (message) {
-        if (LogLevel.info.toInt() <= currentLogLevel.toInt()) {
+        if (LogLevel.info.level <= currentLogLevel.level) {
           final msg = '$message\nSource: ${widget.player.source}';
           setState(() {
             logs.add(Log(msg, level: LogLevel.info));
@@ -53,7 +53,7 @@ class _LoggerTabState extends State<LoggerTab>
         }
       },
       onError: (Object o, [StackTrace? stackTrace]) {
-        if (LogLevel.error.toInt() <= currentLogLevel.toInt()) {
+        if (LogLevel.error.level <= currentLogLevel.level) {
           setState(() {
             logs.add(
               Log(
