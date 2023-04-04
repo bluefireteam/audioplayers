@@ -127,10 +127,6 @@ jobs:
       - uses: subosito/flutter-action@v2
       - uses: bluefireteam/melos-action@main
 
-      - name: Run Android unit tests
-        working-directory: ./packages/audioplayers/example/android
-        run: ./gradlew test
-
       - name: Download Android emulator image
         run: |
           export ANDROID_TOOLS="$ANDROID_HOME/cmdline-tools/latest/bin"
@@ -154,6 +150,10 @@ jobs:
           ( cd server; dart run bin/server.dart ) &
           flutter test integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
           flutter test integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
+
+      - name: Run Android unit tests
+        working-directory: ./packages/audioplayers/example/android
+        run: ./gradlew test
 
   ios:
     runs-on: macOS-latest
