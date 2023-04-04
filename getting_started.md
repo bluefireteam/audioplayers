@@ -8,8 +8,8 @@ In order to install this package, add the [latest version](pub.dev/packages/audi
 
 For building and running for certain platforms you need pay attention to additional steps:
 
-* [Linux Setup](packages/audioplayers_linux/setup.md) (`audioplayers_linux`).
-* [Windows Setup](packages/audioplayers_windows/setup.md) (`audioplayers_windows`).
+* [Linux Setup](packages/audioplayers_linux/README.md#setup-for-linux) (`audioplayers_linux`).
+* [Windows Setup](packages/audioplayers_windows/README.md#setup-for-windows) (`audioplayers_windows`).
 
 ## AudioPlayer
 

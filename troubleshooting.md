@@ -78,8 +78,8 @@ flutter pub get
 
 Some platforms need additional requirements to be fulfilled:
 
-* [Linux](packages/audioplayers_linux/setup.md) (`audioplayers_linux`).
-* [Windows](packages/audioplayers_windows/setup.md) (`audioplayers_windows`).
+* [Linux](packages/audioplayers_linux/README.md#setup-for-linux) (`audioplayers_linux`).
+* [Windows](packages/audioplayers_windows/README.md#setup-for-windows) (`audioplayers_windows`).
 
 ## [iOS] Background Audio
 
