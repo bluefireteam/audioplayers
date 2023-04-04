@@ -20,7 +20,7 @@
 
 **Note**: all the docs are kept up to date to reflect the content of the current newest release. If you are looking for older information and guidance, please checkout the [tag](https://github.com/bluefireteam/audioplayers/tags) related to the version that you are looking for.
 
-If you are interest in migrating to v1, please check [our migration guide](https://github.com/bluefireteam/audioplayers/blob/main/migration_guide.md).
+If you are interest in migrating major versions, please check the [changelog](https://github.com/bluefireteam/audioplayers/blob/main/CHANGELOG.md) and [our migration guide](https://github.com/bluefireteam/audioplayers/blob/main/migration_guide.md).
 
 ## Getting Started
 
