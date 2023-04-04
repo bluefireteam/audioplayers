@@ -4,14 +4,14 @@ class Logger {
   static LogLevel logLevel = LogLevel.error;
 
   static void log(String message) {
-    if (LogLevel.info.toInt() <= logLevel.toInt()) {
+    if (LogLevel.info.level <= logLevel.level) {
       // ignore: avoid_print
       print('AudioPlayers Log: $message');
     }
   }
 
   static void error(Object o, [StackTrace? stacktrace]) {
-    if (LogLevel.error.toInt() <= logLevel.toInt()) {
+    if (LogLevel.error.level <= logLevel.level) {
       // ignore: avoid_print
       print(_errorColor(errorToString(o, stacktrace)));
     }
