@@ -55,17 +55,32 @@ Feel free to use it for ideas for possible PRs and contributions you can help wi
 
 ## Support
 
-The simplest way to show us your support is by giving the project a star.
+The simplest way to show us your support is by giving the project a star! :star:
 
-You can also support us by becoming a patron on Patreon:
+You can also support us monetarily by donating through OpenCollective:
 
-[![Patreon](https://c5.patreon.com/external/logo/become_a_patron_button.png)](https://www.patreon.com/bluefireoss)
+<a href="https://opencollective.com/blue-fire/donate" target="_blank">
+  <img src="https://opencollective.com/blue-fire/donate/button@2x.png?color=blue" width=200 />
+</a>
 
-Or by making a single donation by buying us a coffee:
+Through GitHub Sponsors:
 
-[![Buy Me A Coffee](https://user-images.githubusercontent.com/835641/60540201-fcd7fa00-9ce4-11e9-87ec-1e98568e9f58.png)](https://www.buymeacoffee.com/bluefire)
+<a href="https://github.com/sponsors/bluefireteam" target="_blank">
+  <img
+    src="https://img.shields.io/badge/Github%20Sponsor-blue?style=for-the-badge&logo=github&logoColor=white"
+    width=200
+  />
+</a>
 
-**Note**: this software was made by the community, for the community, on our spare time, with no commercial affiliation. It is provided as is and any positive contribution is appreciated. Be kind and mindful of the free time that a battalion of people has gifted on behalf of the community to craft and maintain this.
+Or by becoming a patron on Patreon:
+
+<a href="https://www.patreon.com/bluefireoss" target="_blank">
+  <img src="https://c5.patreon.com/external/logo/become_a_patron_button.png" width=200 />
+</a>
+
+**Note**: this software was made by the community, for the community, on our spare time, with no commercial affiliation.
+It is provided as is and any positive contribution is appreciated.
+Be kind and mindful of the free time that a battalion of people has gifted on behalf of the community to craft and maintain this.
 
 ## Contributing
 
