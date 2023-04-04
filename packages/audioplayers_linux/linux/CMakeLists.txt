@@ -12,8 +12,6 @@ add_library(${PLUGIN_NAME} SHARED
   "audioplayers_linux_plugin.cc"
   "audio_player.h"
   "audio_player.cc"
-  "Logger.h"
-  "Logger.cc"
 )
 apply_standard_settings(${PLUGIN_NAME})
 set_target_properties(${PLUGIN_NAME} PROPERTIES CXX_VISIBILITY_PRESET hidden)

@@ -5,7 +5,7 @@ import android.media.AudioManager
 import android.media.SoundPool
 import android.os.Build
 import xyz.luan.audioplayers.AudioContextAndroid
-import xyz.luan.audioplayers.Logger
+import xyz.luan.audioplayers.AudioplayersPlugin
 import xyz.luan.audioplayers.source.Source
 import xyz.luan.audioplayers.source.UrlSource
 import java.util.Collections.synchronizedMap
@@ -71,7 +71,7 @@ class SoundPoolPlayer(
                 soundPoolWrapper.urlToPlayers.remove(urlSource)
                 soundPool.unload(soundId)
                 soundPoolWrapper.soundIdToPlayer.remove(soundId)
-                Logger.info("unloaded soundId $soundId")
+                wrappedPlayer.handleLog("unloaded soundId $soundId")
             } else {
                 // This is not the last player using the soundId, just remove it from the list.
                 playersForSoundId.remove(this)
@@ -105,20 +105,22 @@ class SoundPoolPlayer(
                 val prepared = originalPlayer.wrappedPlayer.prepared
                 wrappedPlayer.prepared = prepared
                 soundId = originalPlayer.soundId
-                Logger.info("Reusing soundId $soundId for $urlSource is prepared=$prepared $this")
+                wrappedPlayer.handleLog("Reusing soundId $soundId for $urlSource is prepared=$prepared $this")
             } else {
                 // First one for this URL - load it.
                 val start = System.currentTimeMillis()
 
                 wrappedPlayer.prepared = false
-                Logger.info("Fetching actual URL for $urlSource")
+                wrappedPlayer.handleLog("Fetching actual URL for $urlSource")
                 val actualUrl = urlSource.getAudioPathForSoundPool()
-                Logger.info("Now loading $actualUrl")
+                wrappedPlayer.handleLog("Now loading $actualUrl")
                 val intSoundId = soundPool.load(actualUrl, 1)
                 soundPoolWrapper.soundIdToPlayer[intSoundId] = this
                 soundId = intSoundId
 
-                Logger.info("time to call load() for $urlSource: ${System.currentTimeMillis() - start} player=$this")
+                wrappedPlayer.handleLog(
+                    "time to call load() for $urlSource: ${System.currentTimeMillis() - start} player=$this",
+                )
             }
             urlPlayers.add(this)
         }
@@ -193,7 +195,9 @@ class SoundPoolPlayer(
     }
 }
 
-class SoundPoolManager {
+class SoundPoolManager(
+    private val ref: AudioplayersPlugin,
+) {
 
     // Only needed for legacy apps with SDK < 21
     private var legacySoundPoolWrapper: SoundPoolWrapper? = null
@@ -205,9 +209,9 @@ class SoundPoolManager {
     private val soundPoolWrappers = HashMap<AudioAttributes, SoundPoolWrapper>()
 
     /**
-     * Create a SoundPoolWrapper with the given [maxStreams] and the according [audioContext] and save it to be 
+     * Create a SoundPoolWrapper with the given [maxStreams] and the according [audioContext] and save it to be
      * globally accessible for every player.
-     * 
+     *
      * @param maxStreams the maximum number of simultaneous streams for this
      *                   SoundPool object, see [SoundPool.Builder.setMaxStreams]
      */
@@ -219,10 +223,10 @@ class SoundPoolManager {
                     .setAudioAttributes(attrs)
                     .setMaxStreams(maxStreams)
                     .build()
-                Logger.info("Create SoundPool with $attrs")
+                ref.handleGlobalLog("Create SoundPool with $attrs")
                 val soundPoolWrapper = SoundPoolWrapper(soundPool)
                 soundPoolWrapper.soundPool.setOnLoadCompleteListener { _, sampleId, _ ->
-                    Logger.info("Loaded $sampleId")
+                    ref.handleGlobalLog("Loaded $sampleId")
                     val loadingPlayer = soundPoolWrapper.soundIdToPlayer[sampleId]
                     val urlSource = loadingPlayer?.urlSource
                     if (urlSource != null) {
@@ -231,10 +235,10 @@ class SoundPoolManager {
                         synchronized(soundPoolWrapper.urlToPlayers) {
                             val urlPlayers = soundPoolWrapper.urlToPlayers[urlSource] ?: listOf()
                             for (player in urlPlayers) {
-                                Logger.info("Marking $player as loaded")
+                                player.wrappedPlayer.handleLog("Marking $player as loaded")
                                 player.wrappedPlayer.prepared = true
                                 if (player.wrappedPlayer.playing) {
-                                    Logger.info("Delayed start of $player")
+                                    player.wrappedPlayer.handleLog("Delayed start of $player")
                                     player.start()
                                 }
                             }
@@ -246,7 +250,7 @@ class SoundPoolManager {
         } else if (legacySoundPoolWrapper == null) {
             @Suppress("DEPRECATION")
             val soundPool = SoundPool(maxStreams, AudioManager.STREAM_MUSIC, 0)
-            Logger.info("Create legacy SoundPool")
+            ref.handleGlobalLog("Create legacy SoundPool")
             legacySoundPoolWrapper = SoundPoolWrapper(soundPool)
         }
     }

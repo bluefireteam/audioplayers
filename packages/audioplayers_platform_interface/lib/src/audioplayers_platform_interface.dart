@@ -2,10 +2,11 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:audioplayers_platform_interface/src/api/audio_context.dart';
-import 'package:audioplayers_platform_interface/src/api/for_player.dart';
+import 'package:audioplayers_platform_interface/src/api/player_event.dart';
 import 'package:audioplayers_platform_interface/src/api/player_mode.dart';
 import 'package:audioplayers_platform_interface/src/api/release_mode.dart';
 import 'package:audioplayers_platform_interface/src/audioplayers_platform.dart';
+import 'package:meta/meta.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 /// The interface that implementations of audioplayers must implement.
@@ -16,7 +17,10 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 /// will get the default implementation, while platform implementations that
 /// `implements` this interface will be broken by newly added
 /// [AudioplayersPlatformInterface] methods.
-abstract class AudioplayersPlatformInterface extends PlatformInterface {
+abstract class AudioplayersPlatformInterface extends PlatformInterface
+    implements
+        MethodChannelAudioplayersPlatformInterface,
+        EventChannelAudioplayersPlatformInterface {
   AudioplayersPlatformInterface() : super(token: _token);
 
   static final Object _token = Object();
@@ -28,6 +32,14 @@ abstract class AudioplayersPlatformInterface extends PlatformInterface {
   /// class that extends [AudioplayersPlatformInterface] when they register
   /// themselves.
   static AudioplayersPlatformInterface instance = AudioplayersPlatform();
+}
+
+abstract class MethodChannelAudioplayersPlatformInterface {
+  /// Create a player instance for the given playerId.
+  Future<void> create(String playerId);
+
+  /// Dispose the player instance with the given playerId.
+  Future<void> dispose(String playerId);
 
   /// Pauses the audio that is currently playing.
   ///
@@ -120,11 +132,13 @@ abstract class AudioplayersPlatformInterface extends PlatformInterface {
   ///  * otherwise not supported (e.g. LOW_LATENCY mode on Android)
   Future<int?> getCurrentPosition(String playerId);
 
-  Stream<ForPlayer<Duration>> get positionStream;
+  @visibleForTesting
+  Future<void> emitLog(String playerId, String message);
 
-  Stream<ForPlayer<Duration>> get durationStream;
+  @visibleForTesting
+  Future<void> emitError(String playerId, String code, String message);
+}
 
-  Stream<ForPlayer<void>> get completeStream;
-
-  Stream<ForPlayer<void>> get seekCompleteStream;
+abstract class EventChannelAudioplayersPlatformInterface {
+  Stream<PlayerEvent> getEventStream(String playerId);
 }

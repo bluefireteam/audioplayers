@@ -4,9 +4,12 @@ This tutorial should help you get started with the audioplayers library, coverin
 
 In order to install this package, add the [latest version](pub.dev/packages/audioplayers) of `audioplayers` to your `pubspec.yaml` file. This packages uses [the Federated Plugin](https://docs.flutter.dev/development/packages-and-plugins/developing-packages) guidelines to support multiple platforms, so it should just work on all supported platforms your app is built for without any extra configuration. You should not need to add the `audioplayers_*` packages directly.
 
-## Build Requirements
+## Setup Platforms
 
-Audioplayers for Linux (`audioplayers_linux`) is the only platform implementation which relies on additional dependencies. You need to fulfill [these requirements](packages/audioplayers_linux/requirements.md).
+For building and running for certain platforms you need pay attention to additional steps:
+
+* [Linux Setup](packages/audioplayers_linux/setup.md) (`audioplayers_linux`).
+* [Windows Setup](packages/audioplayers_windows/setup.md) (`audioplayers_windows`).
 
 ## AudioPlayer
 
@@ -161,7 +164,7 @@ Normally you want to use `.mediaPlayer` unless you care about performance and yo
 You can globally control the amount of log messages that are emitted by this package:
 
 ```dart
-  await AudioPlayer.global.changeLogLevel(LogLevel.info);
+  Logger.logLevel = LogLevel.info;
 ```
 
 You can pick one of 3 options:
@@ -173,6 +176,8 @@ You can pick one of 3 options:
 **Note**: before opening any issue, always try changing the log level to `.info` to gather any information that my assist you on solving the problem.
 
 **Note**: despite our best efforts, some native SDK implementations that we use spam a lot of log messages that we currently haven't figured out how to conform to this configuration (specially noticeable on Android). If you would like to contribute with a PR, they are more than welcome!
+
+You can also listen for [Log events](#Log event).
 
 ## Audio Context
 
@@ -209,6 +214,7 @@ Note that if this process is not perfect, you can create your configuration from
 ## Streams
 
 Each player has a variety of streams that can be used to listen to events, state changes, and other useful information coming from the player.
+All streams also emit the same native platform errors via the `onError` callback.
 
 #### Duration Event
 
@@ -250,11 +256,50 @@ This Event is called when the audio finishes playing; it's used in the loop meth
 It does not fire when you interrupt the audio with pause or stop.
 
 ```dart
-  player.onPlayerComplete.listen((event) {
+  player.onPlayerComplete.listen((_) {
     onComplete();
     setState(() {
       position = duration;
     });
+  });
+```
+
+### Log event
+
+This event returns the log messages from the native platform. 
+The logs are handled by default via `Logger.log()`, and errors via `Logger.error()`, see [Logs](#Logs).
+
+```dart
+  player.onLog.listen(
+    (String message) => Logger.log(message),
+    onError: (Object e, [StackTrace? stackTrace]) => Logger.error(e, stackTrace),
+  );
+```
+
+Or to handle global logs:
+
+```dart
+  AudioPlayer.global.onLog.listen(
+    (String message) => Logger.log(message),
+    onError: (Object e, [StackTrace? stackTrace]) => Logger.error(e, stackTrace),
+  );
+```
+
+### Event Stream
+
+All mentioned events can also be obtained by a combined event stream.
+
+```dart
+  player.eventStream.listen((PlayerEvent event) {
+    print(event.eventType);
+  });
+```
+
+Or to handle global events:
+
+```dart
+  AudioPlayer.global.eventStream.listen((GlobalEvent event) {
+    print(event.eventType);
   });
 ```
 

@@ -2,7 +2,9 @@ import AVKit
 
 extension String {
     func deletingPrefix(_ prefix: String) -> String {
-        guard self.hasPrefix(prefix) else { return self }
+        guard self.hasPrefix(prefix) else {
+            return self
+        }
         return String(self.dropFirst(prefix.count))
     }
 }
@@ -20,7 +22,9 @@ func toCMTime(millis: Float) -> CMTime {
 }
 
 func fromCMTime(time: CMTime) -> Int {
-    guard CMTIME_IS_NUMERIC(time) else { return 0 }
+    guard CMTIME_IS_NUMERIC(time) else {
+        return 0
+    }
     let seconds: Float64 = CMTimeGetSeconds(time)
     let milliseconds: Int = Int(seconds * 1000)
     return milliseconds
@@ -29,12 +33,17 @@ func fromCMTime(time: CMTime) -> Int {
 class TimeObserver {
     let player: AVPlayer
     let observer: Any
-    
+
     init(
-        player: AVPlayer,
-        observer: Any
+            player: AVPlayer,
+            observer: Any
     ) {
         self.player = player
         self.observer = observer
     }
+}
+
+enum AudioPlayerError: Error {
+    case error(String)
+    case warning(String)
 }

@@ -1,11 +1,15 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_example/tabs/sources.dart';
+import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
+import 'mock_html.dart' if (dart.library.html) 'dart:html' show DomException;
 import 'platform_features.dart';
 import 'source_test_data.dart';
 import 'test_utils.dart';
@@ -121,7 +125,8 @@ void main() {
     testWidgets(
       'test changing AudioContextConfigs',
       (WidgetTester tester) async {
-        final player = AudioPlayer()..setReleaseMode(ReleaseMode.stop);
+        final player = AudioPlayer();
+        await player.setReleaseMode(ReleaseMode.stop);
 
         final td = audioTestDataList[0];
 
@@ -198,6 +203,105 @@ void main() {
         expect(player.state, PlayerState.stopped);
       },
       skip: !features.hasForceSpeaker || !features.hasLowLatency,
+    );
+  });
+
+  group('Logging', () {
+    testWidgets('Emit platform log', (tester) async {
+      final completer = Completer<String>();
+      const playerId = 'somePlayerId';
+      final player = AudioPlayer(playerId: playerId);
+      player.onLog.listen(
+        completer.complete,
+        onError: completer.completeError,
+      );
+
+      await player.creatingCompleter.future;
+      final platform = AudioplayersPlatformInterface.instance;
+      await platform.emitLog(playerId, 'SomeLog');
+
+      final log = await completer.future;
+      expect(log, 'SomeLog');
+    });
+
+    testWidgets('Emit global platform log', (tester) async {
+      final completer = Completer<String>();
+      AudioPlayer.global.onLog.listen(
+        completer.complete,
+        onError: completer.completeError,
+      );
+
+      final global = GlobalAudioplayersPlatformInterface.instance;
+      await global.emitGlobalLog('SomeGlobalLog');
+
+      final log = await completer.future;
+      expect(log, 'SomeGlobalLog');
+    });
+  });
+
+  group('Errors', () {
+    testWidgets('Emit platform error', (tester) async {
+      final completer = Completer<Object>();
+      const playerId = 'somePlayerId';
+      final player = AudioPlayer(playerId: playerId);
+      player.eventStream.listen((_) {}, onError: completer.complete);
+
+      await player.creatingCompleter.future;
+      final platform = AudioplayersPlatformInterface.instance;
+      await platform.emitError(
+        playerId,
+        'SomeErrorCode',
+        'SomeErrorMessage',
+      );
+
+      final exception = await completer.future;
+      expect(exception, isInstanceOf<PlatformException>());
+      final platformException = exception as PlatformException;
+      expect(platformException.code, 'SomeErrorCode');
+      expect(platformException.message, 'SomeErrorMessage');
+    });
+
+    testWidgets('Emit global platform error', (tester) async {
+      final completer = Completer<Object>();
+      AudioPlayer.global.eventStream
+          .listen((_) {}, onError: completer.complete);
+
+      final global = GlobalAudioplayersPlatformInterface.instance;
+      await global.emitGlobalError(
+        'SomeGlobalErrorCode',
+        'SomeGlobalErrorMessage',
+      );
+      final exception = await completer.future;
+      expect(exception, isInstanceOf<PlatformException>());
+      final platformException = exception as PlatformException;
+      expect(platformException.code, 'SomeGlobalErrorCode');
+      expect(platformException.message, 'SomeGlobalErrorMessage');
+    });
+
+    testWidgets(
+      'Throw PlatformException, when playing invalid file',
+      (tester) async {
+        final completer = Completer<Object>();
+        final player = AudioPlayer();
+        // Throws PlatformException via EventChannel:
+        player.eventStream.listen((_) {}, onError: completer.complete);
+        try {
+          // Throws PlatformException via MethodChannel:
+          await player.setSource(AssetSource(invalidAsset));
+          await player.resume();
+          fail('PlatformException not thrown');
+          // ignore: avoid_catches_without_on_clauses
+        } catch (e) {
+          if (kIsWeb) {
+            expect(e, isInstanceOf<DomException>());
+            expect((e as DomException).name, 'NotSupportedError');
+          } else {
+            expect(e, isInstanceOf<PlatformException>());
+          }
+        }
+      },
+      // Linux provides errors only asynchronously.
+      skip: !kIsWeb && Platform.isLinux,
     );
   });
 }

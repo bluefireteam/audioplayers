@@ -1,25 +1,26 @@
 import 'package:audioplayers_platform_interface/src/api/audio_context.dart';
-import 'package:audioplayers_platform_interface/src/api/log_level.dart';
+import 'package:audioplayers_platform_interface/src/api/global_event.dart';
 import 'package:audioplayers_platform_interface/src/global_audioplayers_platform.dart';
+import 'package:meta/meta.dart';
 
-abstract class GlobalAudioplayersPlatformInterface {
+abstract class GlobalAudioplayersPlatformInterface
+    implements
+        MethodChannelGlobalAudioplayersPlatformInterface,
+        EventChannelGlobalAudioplayersPlatformInterface {
   static GlobalAudioplayersPlatformInterface instance =
       GlobalAudioplayersPlatform();
+}
 
-  LogLevel get logLevel;
-
-  Future<void> changeLogLevel(LogLevel value);
-
+abstract class MethodChannelGlobalAudioplayersPlatformInterface {
   Future<void> setGlobalAudioContext(AudioContext ctx);
 
-  void log(LogLevel level, String message) {
-    if (level.getLevel() <= logLevel.getLevel()) {
-      // ignore: avoid_print
-      print(message);
-    }
-  }
+  @visibleForTesting
+  Future<void> emitGlobalLog(String message);
 
-  void info(String message) => log(LogLevel.info, message);
+  @visibleForTesting
+  Future<void> emitGlobalError(String code, String message);
+}
 
-  void error(String message) => log(LogLevel.error, message);
+abstract class EventChannelGlobalAudioplayersPlatformInterface {
+  Stream<GlobalEvent> getGlobalEventStream();
 }

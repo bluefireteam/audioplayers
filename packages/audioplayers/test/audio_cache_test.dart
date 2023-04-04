@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 class FakeAudioCache extends AudioCache {
   List<String> called = [];
 
-  FakeAudioCache({String prefix = 'assets/'}) : super(prefix: prefix);
+  FakeAudioCache({super.prefix});
 
   @override
   Future<Uri> fetchToMemory(String fileName) async {

@@ -2,21 +2,22 @@
 
 #include <flutter_linux/flutter_linux.h>
 
-#include "Logger.h"
-
-AudioPlayer::AudioPlayer(std::string playerId, FlMethodChannel *channel)
-        : _playerId(playerId), _channel(channel) {
+AudioPlayer::AudioPlayer(std::string playerId, FlMethodChannel *methodChannel,
+                         FlEventChannel *eventChannel)
+    : _playerId(playerId),
+      _methodChannel(methodChannel),
+      _eventChannel(eventChannel) {
     gst_init(NULL, NULL);
     playbin = gst_element_factory_make("playbin", "playbin");
     if (!playbin) {
-        Logger::Error(std::string("Not all elements could be created."));
-        return;
+        throw "Not all elements could be created.";
     }
 
     // Setup stereo balance controller
     panorama = gst_element_factory_make("audiopanorama", "audiopanorama");
     if (panorama) {
-        GstElement *audiosink = gst_element_factory_make("autoaudiosink", "audio_sink");
+        GstElement *audiosink =
+            gst_element_factory_make("autoaudiosink", "audio_sink");
 
         GstElement *audiobin = gst_bin_new("audiobin");
         gst_bin_add_many(GST_BIN(audiobin), panorama, audiosink, NULL);
@@ -39,10 +40,10 @@ AudioPlayer::AudioPlayer(std::string playerId, FlMethodChannel *channel)
     bus = gst_element_get_bus(playbin);
 
     // Watch bus messages for one time events
-    gst_bus_add_watch(bus, (GstBusFunc) AudioPlayer::OnBusMessage, this);
+    gst_bus_add_watch(bus, (GstBusFunc)AudioPlayer::OnBusMessage, this);
 
     // Refresh continuously to emit reoccurring events
-    g_timeout_add(1000, (GSourceFunc) AudioPlayer::OnRefresh, this);
+    g_timeout_add(1000, (GSourceFunc)AudioPlayer::OnRefresh, this);
 }
 
 AudioPlayer::~AudioPlayer() {}
@@ -65,7 +66,10 @@ void AudioPlayer::SetSourceUrl(std::string url) {
         if (!_url.empty()) {
             g_object_set(playbin, "uri", _url.c_str(), NULL);
             if (playbin->current_state != GST_STATE_READY) {
-                gst_element_set_state(playbin, GST_STATE_READY);
+                GstStateChangeReturn ret = gst_element_set_state(playbin, GST_STATE_READY);
+                if (ret == GST_STATE_CHANGE_FAILURE) {
+                    throw "Unable to set the pipeline to GST_STATE_READY.";
+                }
             }
         }
     }
@@ -92,7 +96,6 @@ gboolean AudioPlayer::OnBusMessage(GstBus *bus, GstMessage *message,
             data->OnMediaStateChange(message->src, &old_state, &new_state);
             break;
         case GST_MESSAGE_EOS:
-            gst_element_set_state(data->playbin, GST_STATE_READY);
             data->OnPlaybackEnded();
             break;
         case GST_MESSAGE_DURATION_CHANGED:
@@ -117,7 +120,8 @@ gboolean AudioPlayer::OnBusMessage(GstBus *bus, GstMessage *message,
 // Compare with refresh_ui in
 // https://gstreamer.freedesktop.org/documentation/tutorials/basic/toolkit-integration.html?gi-language=c#walkthrough
 gboolean AudioPlayer::OnRefresh(AudioPlayer *data) {
-    // We do not want to update anything unless we are in the PAUSED or PLAYING states
+    // We do not want to update anything unless we are in the PAUSED or PLAYING
+    // states
     if (data->playbin->current_state == GST_STATE_PLAYING) {
         data->OnPositionUpdate();
     }
@@ -125,32 +129,38 @@ gboolean AudioPlayer::OnRefresh(AudioPlayer *data) {
 }
 
 void AudioPlayer::OnMediaError(GError *error, gchar *debug) {
-    std::ostringstream oss;
-    oss << "Error: " << error->code << "; message=" << error->message;
-    g_print("%s\n", oss.str().c_str());
-    if (this->_channel) {
-        g_autoptr(FlValue)
-        map = fl_value_new_map();
-        fl_value_set_string(map, "playerId",
-                            fl_value_new_string(_playerId.c_str()));
-        fl_value_set_string(map, "value",
-                            fl_value_new_string(oss.str().c_str()));
+    if (this->_eventChannel) {
+        this->OnError(std::to_string(error->code).c_str(), error->message,
+                      nullptr, &error);
+    }
+}
 
-        fl_method_channel_invoke_method(this->_channel, "audio.onError", map,
-                                        nullptr, nullptr, nullptr);
+void AudioPlayer::OnError(const gchar *code, const gchar *message,
+                          FlValue *details, GError **error) {
+    if (this->_eventChannel) {
+        fl_event_channel_send_error(this->_eventChannel, code, message, details,
+                                    nullptr, error);
+    } else {
+        std::ostringstream oss;
+        oss << "Error: " << code << "; message=" << message;
+        g_print("%s\n", oss.str().c_str());
     }
 }
 
 void AudioPlayer::OnMediaStateChange(GstObject *src, GstState *old_state,
                                      GstState *new_state) {
     if (strcmp(GST_OBJECT_NAME(src), "playbin") == 0) {
-        if (*new_state >= GST_STATE_READY) {
+        if (*new_state == GST_STATE_READY) {
+            // Need to set to pause state, in order to make player functional
+            GstStateChangeReturn ret = gst_element_set_state(playbin, GST_STATE_PAUSED);
+            if (ret == GST_STATE_CHANGE_FAILURE) {
+                this->OnError("LinuxAudioError", "Unable to set the pipeline from GST_STATE_READY to GST_STATE_PAUSED.", nullptr, nullptr);
+            }
+        } else if (*new_state >= GST_STATE_PAUSED) {
             if (!this->_isInitialized) {
                 this->_isInitialized = true;
                 if (this->_isPlaying) {
                     Resume();
-                } else {
-                    Pause(); // Need to set to pause state, in order to get duration
                 }
             }
         } else if (this->_isInitialized) {
@@ -160,63 +170,65 @@ void AudioPlayer::OnMediaStateChange(GstObject *src, GstState *old_state,
 }
 
 void AudioPlayer::OnPositionUpdate() {
-    if (this->_channel) {
-        g_autoptr(FlValue)
-        map = fl_value_new_map();
-        fl_value_set_string(map, "playerId",
-                            fl_value_new_string(_playerId.c_str()));
+    if (this->_eventChannel) {
+        g_autoptr(FlValue) map = fl_value_new_map();
+        fl_value_set_string(map, "event",
+                            fl_value_new_string("audio.onCurrentPosition"));
         fl_value_set_string(map, "value", fl_value_new_int(GetPosition()));
-        fl_method_channel_invoke_method(this->_channel,
-                                        "audio.onCurrentPosition", map, nullptr,
-                                        nullptr, nullptr);
+        fl_event_channel_send(this->_eventChannel, map, nullptr, nullptr);
     }
 }
 
 void AudioPlayer::OnDurationUpdate() {
-    if (this->_channel) {
-        g_autoptr(FlValue)
-        map = fl_value_new_map();
-        fl_value_set_string(map, "playerId",
-                            fl_value_new_string(_playerId.c_str()));
+    if (this->_eventChannel) {
+        g_autoptr(FlValue) map = fl_value_new_map();
+        fl_value_set_string(map, "event",
+                            fl_value_new_string("audio.onDuration"));
         fl_value_set_string(map, "value", fl_value_new_int(GetDuration()));
-        fl_method_channel_invoke_method(this->_channel, "audio.onDuration", map,
-                                        nullptr, nullptr, nullptr);
+        fl_event_channel_send(this->_eventChannel, map, nullptr, nullptr);
     }
 }
 
 void AudioPlayer::OnSeekCompleted() {
-    if (this->_channel) {
+    if (this->_eventChannel) {
         OnPositionUpdate();
-        g_autoptr(FlValue)
-        map = fl_value_new_map();
-        fl_value_set_string(map, "playerId",
-                            fl_value_new_string(_playerId.c_str()));
+        g_autoptr(FlValue) map = fl_value_new_map();
+        fl_value_set_string(map, "event",
+                            fl_value_new_string("audio.onSeekComplete"));
         fl_value_set_string(map, "value", fl_value_new_bool(true));
-        fl_method_channel_invoke_method(this->_channel, "audio.onSeekComplete",
-                                        map, nullptr, nullptr, nullptr);
+        fl_event_channel_send(this->_eventChannel, map, nullptr, nullptr);
     }
 }
 
 void AudioPlayer::OnPlaybackEnded() {
-    SetPosition(0);
+    if (this->_eventChannel) {
+        g_autoptr(FlValue) map = fl_value_new_map();
+        fl_value_set_string(map, "event",
+                            fl_value_new_string("audio.onComplete"));
+        fl_value_set_string(map, "value", fl_value_new_bool(true));
+        fl_event_channel_send(this->_eventChannel, map, nullptr, nullptr);
+    }
     if (GetLooping()) {
         Play();
+    } else {
+        Pause();
+        SetPosition(0);
     }
-    if (this->_channel) {
-        g_autoptr(FlValue)
-        map = fl_value_new_map();
-        fl_value_set_string(map, "playerId",
-                            fl_value_new_string(_playerId.c_str()));
-        fl_value_set_string(map, "value", fl_value_new_bool(true));
+}
 
-        fl_method_channel_invoke_method(this->_channel, "audio.onComplete", map,
-                                        nullptr, nullptr, nullptr);
+void AudioPlayer::OnLog(const gchar *message) {
+    if (this->_eventChannel) {
+        g_autoptr(FlValue) map = fl_value_new_map();
+        fl_value_set_string(map, "event", fl_value_new_string("audio.onLog"));
+        fl_value_set_string(map, "value", fl_value_new_string(message));
+
+        fl_event_channel_send(this->_eventChannel, map, nullptr, nullptr);
     }
 }
 
 void AudioPlayer::SetBalance(float balance) {
     if (!panorama) {
-        Logger::Error(std::string("Audiopanorama was not initialized"));
+        this->OnLog("Audiopanorama was not initialized");
         return;
     }
 
@@ -228,13 +240,9 @@ void AudioPlayer::SetBalance(float balance) {
     g_object_set(G_OBJECT(panorama), "panorama", balance, NULL);
 }
 
-void AudioPlayer::SetLooping(bool isLooping) {
-    _isLooping = isLooping;
-}
+void AudioPlayer::SetLooping(bool isLooping) { _isLooping = isLooping; }
 
-bool AudioPlayer::GetLooping() {
-    return _isLooping;
-}
+bool AudioPlayer::GetLooping() { return _isLooping; }
 
 void AudioPlayer::SetVolume(double volume) {
     if (volume > 1) {
@@ -276,19 +284,21 @@ void AudioPlayer::SetPlayback(int64_t position, double rate) {
     GstEvent *seek_event;
     if (rate > 0) {
         seek_event = gst_event_new_seek(
-                rate, GST_FORMAT_TIME,
-                GstSeekFlags(GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE),
-                GST_SEEK_TYPE_SET, position * GST_MSECOND, GST_SEEK_TYPE_NONE, -1);
+            rate, GST_FORMAT_TIME,
+            GstSeekFlags(GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE),
+            GST_SEEK_TYPE_SET, position * GST_MSECOND, GST_SEEK_TYPE_NONE, -1);
     } else {
         seek_event = gst_event_new_seek(
-                rate, GST_FORMAT_TIME,
-                GstSeekFlags(GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE),
-                GST_SEEK_TYPE_SET, 0, GST_SEEK_TYPE_SET, position * GST_MSECOND);
+            rate, GST_FORMAT_TIME,
+            GstSeekFlags(GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE),
+            GST_SEEK_TYPE_SET, 0, GST_SEEK_TYPE_SET, position * GST_MSECOND);
     }
+
     if (!gst_element_send_event(playbin, seek_event)) {
-        Logger::Error(std::string("Could not set playback to position ") +
-                      std::to_string(position) + std::string(" and rate ") +
-                      std::to_string(rate) + std::string("."));
+        this->OnLog((std::string("Could not set playback to position ") +
+                     std::to_string(position) + std::string(" and rate ") +
+                     std::to_string(rate) + std::string("."))
+                        .c_str());
         _isSeekCompleted = true;
     }
 }
@@ -313,7 +323,7 @@ void AudioPlayer::SetPosition(int64_t position) {
 int64_t AudioPlayer::GetPosition() {
     gint64 current = 0;
     if (!gst_element_query_position(playbin, GST_FORMAT_TIME, &current)) {
-        Logger::Error(std::string("Could not query current position."));
+        this->OnLog("Could not query current position.");
         return 0;
     }
     return current / 1000000;
@@ -325,7 +335,7 @@ int64_t AudioPlayer::GetPosition() {
 int64_t AudioPlayer::GetDuration() {
     gint64 duration = 0;
     if (!gst_element_query_duration(playbin, GST_FORMAT_TIME, &duration)) {
-        Logger::Error(std::string("Could not query current duration."));
+        this->OnLog("Could not query current duration.");
         return 0;
     }
     return duration / 1000000;
@@ -338,13 +348,14 @@ void AudioPlayer::Play() {
 
 void AudioPlayer::Pause() {
     _isPlaying = false;
-    GstStateChangeReturn ret = gst_element_set_state(playbin, GST_STATE_PAUSED);
-    if (ret == GST_STATE_CHANGE_FAILURE) {
-        Logger::Error(
-                std::string("Unable to set the pipeline to the paused state."));
+    if (!_isInitialized) {
         return;
     }
-    OnPositionUpdate(); // Update to exact position when pausing
+    GstStateChangeReturn ret = gst_element_set_state(playbin, GST_STATE_PAUSED);
+    if (ret == GST_STATE_CHANGE_FAILURE) {
+        throw "Unable to set the pipeline to GST_STATE_PAUSED.";
+    }
+    OnPositionUpdate();  // Update to exact position when pausing
 }
 
 void AudioPlayer::Resume() {
@@ -353,21 +364,18 @@ void AudioPlayer::Resume() {
         return;
     }
     GstStateChangeReturn ret =
-            gst_element_set_state(playbin, GST_STATE_PLAYING);
+        gst_element_set_state(playbin, GST_STATE_PLAYING);
     if (ret == GST_STATE_CHANGE_FAILURE) {
-        Logger::Error(
-                std::string("Unable to set the pipeline to the playing state."));
-        return;
+        throw "Unable to set the pipeline to GST_STATE_PLAYING.";
     }
-    // Update position and duration when start playing, as no event is emitted elsewhere
+    // Update position and duration when start playing, as no event is emitted
+    // elsewhere
     OnPositionUpdate();
     OnDurationUpdate();
 }
 
 void AudioPlayer::Dispose() {
-    if (_isInitialized) {
-        Pause();
-    }
+    Pause();
     gst_object_unref(bus);
     gst_object_unref(source);
     gst_object_unref(panorama);
@@ -375,6 +383,7 @@ void AudioPlayer::Dispose() {
     gst_element_set_state(playbin, GST_STATE_NULL);
     gst_object_unref(playbin);
 
-    _channel = nullptr;
+    _methodChannel = nullptr;
+    _eventChannel = nullptr;
     _isInitialized = false;
 }

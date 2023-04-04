@@ -14,6 +14,9 @@ dependencies:
   screenshot: ^1.3.0
 
 dev_dependencies:
+  # Integration tests for audioplayers_platform_interface are handled 
+  # in this package to avoid maintaining multiple example apps:
+  audioplayers_platform_interface: ^4.0.0
   flame_lint: ^0.2.0
   flutter_test:
     sdk: flutter
