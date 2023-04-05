@@ -2,17 +2,7 @@
 
 Not every feature is available on every platform yet. Use this table to keep track of our work and progress, and please help out if you want to. :)
 
-## Note on Linux Support
-
-This is the current status of Desktop for us:
-
-* [DONE] Add platform interface, refactor API so native implementations are cleaner
-* [DONE] Federate plugin and provide structure to add multi-platform support
-* [DONE] Add macOS support through Darwin (existing)
-* [DONE] (thanks @azchohfi) Add Windows support
-* [DONE] Add Linux support
-
-If you would like to assist us on implementing further steps, please reach our on our [Discord](https://discord.gg/pxrBmy4) server so we can coordinate efforts.
+If you would like to assist us implement a missing feature, please browse the [issue tracker](https://github.com/bluefireteam/audioplayers/issues) and reach out to us on our [Discord](https://discord.gg/pxrBmy4) server so we can coordinate efforts.
 
 ## Note on Android Support
 

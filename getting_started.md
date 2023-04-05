@@ -8,8 +8,8 @@ In order to install this package, add the [latest version](pub.dev/packages/audi
 
 For building and running for certain platforms you need pay attention to additional steps:
 
-* [Linux Setup](packages/audioplayers_linux/setup.md) (`audioplayers_linux`).
-* [Windows Setup](packages/audioplayers_windows/setup.md) (`audioplayers_windows`).
+* [Linux Setup](packages/audioplayers_linux/README.md#setup-for-linux) (`audioplayers_linux`).
+* [Windows Setup](packages/audioplayers_windows/README.md#setup-for-windows) (`audioplayers_windows`).
 
 ## AudioPlayer
 
@@ -307,15 +307,17 @@ Or to handle global events:
 
 ### AudioCache
 
-In order to play Local Assets, you must use the `AudioCache` class. AudioCache is not available for Flutter Web.
-
-Flutter does not provide an easy way to play audio on your assets, but this class helps a lot. It actually copies the asset to a temporary folder in the device, where it is then played as a Local File.
-
+Flutter does not provide an easy way to play audio on your local assets, but that's where the `AudioCache` class comes into play. 
+It actually copies the asset to a temporary folder in the device, where it is then played as a Local File.
 It works as a cache because it keeps track of the copied files so that you can replay them without delay.
+
+If desired, you can change the `AudioCache` per player via the `AudioPlayer().audioCache` property or for all players via `AudioCache.instance`.
 
 ### playerId
 
-By default, each time you initialize a new instance of AudioPlayer, a unique playerId is generated and assigned to it using the [uuid package](https://pub.dev/packages/uuid). This is used internally to route messages between multiple players, and it allows you to control multiple audios at the same time. If you want to specify the playerId, you can do so when creating the playing:
+By default, each time you initialize a new instance of AudioPlayer, a unique playerId is generated and assigned to it using the [uuid package](https://pub.dev/packages/uuid). 
+This is used internally to route messages between multiple players, and it allows you to control multiple audios at the same time. 
+If you want to specify the playerId, you can do so when creating the playing:
 
 ```dart
   final player = AudioPlayer(playerId: 'my_unique_playerId');
