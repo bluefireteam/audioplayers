@@ -281,13 +281,33 @@ void main() {
     testWidgets(
       'Throw PlatformException, when playing invalid file',
       (tester) async {
-        final completer = Completer<Object>();
         final player = AudioPlayer();
-        // Throws PlatformException via EventChannel:
-        player.eventStream.listen((_) {}, onError: completer.complete);
         try {
           // Throws PlatformException via MethodChannel:
           await player.setSource(AssetSource(invalidAsset));
+          await player.resume();
+          fail('PlatformException not thrown');
+          // ignore: avoid_catches_without_on_clauses
+        } catch (e) {
+          if (kIsWeb) {
+            expect(e, isInstanceOf<DomException>());
+            expect((e as DomException).name, 'NotSupportedError');
+          } else {
+            expect(e, isInstanceOf<PlatformException>());
+          }
+        }
+      },
+      // Linux provides errors only asynchronously.
+      skip: !kIsWeb && Platform.isLinux,
+    );
+
+    testWidgets(
+      'Throw PlatformException, when playing non existent file',
+      (tester) async {
+        final player = AudioPlayer();
+        try {
+          // Throws PlatformException via MethodChannel:
+          await player.setSource(UrlSource('non_existent.txt'));
           await player.resume();
           fail('PlatformException not thrown');
           // ignore: avoid_catches_without_on_clauses
