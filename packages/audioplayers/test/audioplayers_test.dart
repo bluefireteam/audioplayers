@@ -130,6 +130,9 @@ void main() {
       playerEvents.forEach((playerEvent) {
         platform.eventStreamController.add(playerEvent);
       });
+
+      // Await closing controller to avoid handling events after test finishes.
+      await platform.eventStreamController.close();
     });
   });
 }

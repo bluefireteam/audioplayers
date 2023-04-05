@@ -139,7 +139,8 @@ void main() {
         );
       }
 
-      eventController.close();
+      // Await closing controller to avoid handling events after test finishes.
+      await eventController.close();
     });
   });
 }

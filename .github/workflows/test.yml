@@ -151,6 +151,10 @@ jobs:
           flutter test integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
           flutter test integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
 
+      - name: Run Android unit tests
+        working-directory: ./packages/audioplayers/example/android
+        run: ./gradlew test
+
   ios:
     runs-on: macOS-latest
     timeout-minutes: 60
