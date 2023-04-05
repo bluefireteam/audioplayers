@@ -71,6 +71,9 @@ void main() {
       globalEvents.forEach((globalEvent) {
         globalPlatform.eventStreamController.add(globalEvent);
       });
+
+      // Await closing controller to avoid handling events after test finishes.
+      await globalPlatform.eventStreamController.close();
     });
   });
 }
