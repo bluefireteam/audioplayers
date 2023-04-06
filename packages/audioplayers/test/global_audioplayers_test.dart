@@ -68,11 +68,7 @@ void main() {
         emitsInOrder(globalEvents),
       );
 
-      globalEvents.forEach((globalEvent) {
-        globalPlatform.eventStreamController.add(globalEvent);
-      });
-
-      // Await closing controller to avoid handling events after test finishes.
+      globalEvents.forEach(globalPlatform.eventStreamController.add);
       await globalPlatform.eventStreamController.close();
     });
   });
