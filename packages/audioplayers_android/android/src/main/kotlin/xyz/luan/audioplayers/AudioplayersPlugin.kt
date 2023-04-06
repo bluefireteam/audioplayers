@@ -290,9 +290,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
                     continue
                 }
                 isAnyPlaying = true
-                val duration = player.getDuration()
                 val time = player.getCurrentPosition()
-                player.eventHandler.success("audio.onDuration", hashMapOf("value" to (duration ?: 0)))
                 player.eventHandler.success("audio.onCurrentPosition", hashMapOf("value" to (time ?: 0)))
             }
             if (isAnyPlaying) {
