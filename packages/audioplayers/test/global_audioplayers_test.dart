@@ -56,9 +56,9 @@ void main() {
 
   group('Global Events', () {
     test('global event stream', () async {
-      final globalEvents = <GlobalEvent>[
-        const GlobalEvent(
-          eventType: GlobalEventType.log,
+      final globalEvents = <GlobalAudioEvent>[
+        const GlobalAudioEvent(
+          eventType: GlobalAudioEventType.log,
           logMessage: 'someLogMessage',
         ),
       ];

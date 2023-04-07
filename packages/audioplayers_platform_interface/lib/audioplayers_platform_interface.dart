@@ -1,5 +1,5 @@
 export 'src/api/audio_context.dart';
-export 'src/api/global_event.dart';
+export 'src/api/global_audio_event.dart';
 export 'src/api/player_event.dart';
 export 'src/api/player_mode.dart';
 export 'src/api/player_state.dart';

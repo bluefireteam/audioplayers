@@ -298,7 +298,7 @@ All mentioned events can also be obtained by a combined event stream.
 Or to handle global events:
 
 ```dart
-  AudioPlayer.global.eventStream.listen((GlobalEvent event) {
+  AudioPlayer.global.eventStream.listen((GlobalAudioEvent event) {
     print(event.eventType);
   });
 ```

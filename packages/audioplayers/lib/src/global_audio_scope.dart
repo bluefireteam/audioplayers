@@ -9,11 +9,11 @@ class GlobalAudioScope {
   final _platform = GlobalAudioplayersPlatformInterface.instance;
 
   /// Stream of global events.
-  late final Stream<GlobalEvent> eventStream;
+  late final Stream<GlobalAudioEvent> eventStream;
 
   /// Stream of global log events.
   Stream<String> get onLog => eventStream
-      .where((event) => event.eventType == GlobalEventType.log)
+      .where((event) => event.eventType == GlobalAudioEventType.log)
       .map((event) => event.logMessage!);
 
   @Deprecated('Use `Logger.logLevel` instead. This will be removed in v5.0.0.')

@@ -1,6 +1,6 @@
 export 'package:audioplayers_platform_interface/src/api/audio_context.dart';
 export 'package:audioplayers_platform_interface/src/api/audio_context_config.dart';
-export 'package:audioplayers_platform_interface/src/api/global_event.dart';
+export 'package:audioplayers_platform_interface/src/api/global_audio_event.dart';
 export 'package:audioplayers_platform_interface/src/api/player_event.dart';
 export 'package:audioplayers_platform_interface/src/api/player_mode.dart';
 export 'package:audioplayers_platform_interface/src/api/player_state.dart';

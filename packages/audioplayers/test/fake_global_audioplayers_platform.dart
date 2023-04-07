@@ -14,8 +14,8 @@ class FakeGlobalCall {
 class FakeGlobalAudioplayersPlatform
     extends GlobalAudioplayersPlatformInterface {
   List<FakeGlobalCall> calls = <FakeGlobalCall>[];
-  StreamController<GlobalEvent> eventStreamController =
-      StreamController<GlobalEvent>.broadcast();
+  StreamController<GlobalAudioEvent> eventStreamController =
+      StreamController<GlobalAudioEvent>.broadcast();
 
   void clear() {
     calls.clear();
@@ -38,8 +38,12 @@ class FakeGlobalAudioplayersPlatform
   @override
   Future<void> emitGlobalLog(String message) async {
     calls.add(FakeGlobalCall(method: 'emitGlobalLog'));
-    eventStreamController
-        .add(GlobalEvent(eventType: GlobalEventType.log, logMessage: message));
+    eventStreamController.add(
+      GlobalAudioEvent(
+        eventType: GlobalAudioEventType.log,
+        logMessage: message,
+      ),
+    );
   }
 
   @override
@@ -50,7 +54,7 @@ class FakeGlobalAudioplayersPlatform
   }
 
   @override
-  Stream<GlobalEvent> getGlobalEventStream() {
+  Stream<GlobalAudioEvent> getGlobalEventStream() {
     calls.add(FakeGlobalCall(method: 'getGlobalEventStream'));
     return eventStreamController.stream;
   }
