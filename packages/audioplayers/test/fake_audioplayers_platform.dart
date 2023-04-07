@@ -15,8 +15,8 @@ class FakeCall {
 class FakeAudioplayersPlatform extends AudioplayersPlatformInterface {
   List<FakeCall> calls = [];
 
-  StreamController<PlayerEvent> eventStreamController =
-      StreamController<PlayerEvent>.broadcast();
+  StreamController<AudioEvent> eventStreamController =
+      StreamController<AudioEvent>.broadcast();
 
   void clear() {
     calls.clear();
@@ -145,7 +145,7 @@ class FakeAudioplayersPlatform extends AudioplayersPlatformInterface {
   }
 
   @override
-  Stream<PlayerEvent> getEventStream(String playerId) {
+  Stream<AudioEvent> getEventStream(String playerId) {
     calls.add(FakeCall(id: playerId, method: 'getEventStream'));
     return eventStreamController.stream;
   }

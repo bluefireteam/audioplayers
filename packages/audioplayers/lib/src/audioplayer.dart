@@ -52,10 +52,10 @@ class AudioPlayer {
 
   /// Stream controller to be able to get a stream on initialization, before the
   /// native event stream is ready via [_create] method.
-  final _eventStreamController = StreamController<PlayerEvent>.broadcast();
+  final _eventStreamController = StreamController<AudioEvent>.broadcast();
   late final StreamSubscription _eventStreamSubscription;
 
-  Stream<PlayerEvent> get eventStream => _eventStreamController.stream;
+  Stream<AudioEvent> get eventStream => _eventStreamController.stream;
 
   final StreamController<PlayerState> _playerStateController =
       StreamController<PlayerState>.broadcast();
@@ -70,7 +70,7 @@ class AudioPlayer {
   ///
   /// You can use it on a progress bar, for instance.
   Stream<Duration> get onPositionChanged => eventStream
-      .where((event) => event.eventType == PlayerEventType.position)
+      .where((event) => event.eventType == AudioEventType.position)
       .map((event) => event.position!);
 
   /// Stream of changes on audio duration.
@@ -78,7 +78,7 @@ class AudioPlayer {
   /// An event is going to be sent as soon as the audio duration is available
   /// (it might take a while to download or buffer it).
   Stream<Duration> get onDurationChanged => eventStream
-      .where((event) => event.eventType == PlayerEventType.duration)
+      .where((event) => event.eventType == AudioEventType.duration)
       .map((event) => event.duration!);
 
   /// Stream of player completions.
@@ -88,17 +88,17 @@ class AudioPlayer {
   ///
   /// [ReleaseMode.loop] also sends events to this stream.
   Stream<void> get onPlayerComplete =>
-      eventStream.where((event) => event.eventType == PlayerEventType.complete);
+      eventStream.where((event) => event.eventType == AudioEventType.complete);
 
   /// Stream of seek completions.
   ///
   /// An event is going to be sent as soon as the audio seek is finished.
   Stream<void> get onSeekComplete => eventStream
-      .where((event) => event.eventType == PlayerEventType.seekComplete);
+      .where((event) => event.eventType == AudioEventType.seekComplete);
 
   /// Stream of log events.
   Stream<String> get onLog => eventStream
-      .where((event) => event.eventType == PlayerEventType.log)
+      .where((event) => event.eventType == AudioEventType.log)
       .map((event) => event.logMessage!);
 
   /// An unique ID generated for this instance of [AudioPlayer].

@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-enum PlayerEventType {
+enum AudioEventType {
   log,
   position,
   duration,
@@ -10,11 +10,11 @@ enum PlayerEventType {
 
 /// Event emitted from the platform implementation.
 @immutable
-class PlayerEvent {
-  /// Creates an instance of [PlayerEvent].
+class AudioEvent {
+  /// Creates an instance of [AudioEvent].
   ///
   /// The [eventType] argument is required.
-  const PlayerEvent({
+  const AudioEvent({
     required this.eventType,
     this.duration,
     this.position,
@@ -22,7 +22,7 @@ class PlayerEvent {
   });
 
   /// The type of the event.
-  final PlayerEventType eventType;
+  final AudioEventType eventType;
 
   /// Duration of the audio.
   final Duration? duration;
@@ -36,7 +36,7 @@ class PlayerEvent {
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        other is PlayerEvent &&
+        other is AudioEvent &&
             runtimeType == other.runtimeType &&
             eventType == other.eventType &&
             duration == other.duration &&
@@ -54,7 +54,7 @@ class PlayerEvent {
 
   @override
   String toString() {
-    return 'PlayerEvent('
+    return 'AudioEvent('
         'eventType: $eventType, '
         'duration: $duration, '
         'position: $position, '

@@ -290,7 +290,7 @@ Or to handle global logs:
 All mentioned events can also be obtained by a combined event stream.
 
 ```dart
-  player.eventStream.listen((PlayerEvent event) {
+  player.eventStream.listen((AudioEvent event) {
     print(event.eventType);
   });
 ```

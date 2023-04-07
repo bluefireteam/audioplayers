@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:audioplayers_platform_interface/src/api/player_event.dart';
+import 'package:audioplayers_platform_interface/src/api/audio_event.dart';
 import 'package:audioplayers_platform_interface/src/audioplayers_platform_interface.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -91,24 +91,24 @@ void main() {
 
       expect(
         platform.getEventStream('p1'),
-        emitsInOrder(<PlayerEvent>[
-          const PlayerEvent(
-            eventType: PlayerEventType.duration,
+        emitsInOrder(<AudioEvent>[
+          const AudioEvent(
+            eventType: AudioEventType.duration,
             duration: Duration(milliseconds: 98765),
           ),
-          const PlayerEvent(
-            eventType: PlayerEventType.position,
+          const AudioEvent(
+            eventType: AudioEventType.position,
             position: Duration(milliseconds: 8765),
           ),
-          const PlayerEvent(
-            eventType: PlayerEventType.log,
+          const AudioEvent(
+            eventType: AudioEventType.log,
             logMessage: 'someLogMessage',
           ),
-          const PlayerEvent(
-            eventType: PlayerEventType.complete,
+          const AudioEvent(
+            eventType: AudioEventType.complete,
           ),
-          const PlayerEvent(
-            eventType: PlayerEventType.seekComplete,
+          const AudioEvent(
+            eventType: AudioEventType.seekComplete,
           ),
         ]),
       );

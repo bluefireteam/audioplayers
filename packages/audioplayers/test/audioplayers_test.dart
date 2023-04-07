@@ -101,33 +101,33 @@ void main() {
     });
 
     test('event stream', () async {
-      final playerEvents = <PlayerEvent>[
-        const PlayerEvent(
-          eventType: PlayerEventType.duration,
+      final audioEvents = <AudioEvent>[
+        const AudioEvent(
+          eventType: AudioEventType.duration,
           duration: Duration(milliseconds: 98765),
         ),
-        const PlayerEvent(
-          eventType: PlayerEventType.position,
+        const AudioEvent(
+          eventType: AudioEventType.position,
           position: Duration(milliseconds: 8765),
         ),
-        const PlayerEvent(
-          eventType: PlayerEventType.log,
+        const AudioEvent(
+          eventType: AudioEventType.log,
           logMessage: 'someLogMessage',
         ),
-        const PlayerEvent(
-          eventType: PlayerEventType.complete,
+        const AudioEvent(
+          eventType: AudioEventType.complete,
         ),
-        const PlayerEvent(
-          eventType: PlayerEventType.seekComplete,
+        const AudioEvent(
+          eventType: AudioEventType.seekComplete,
         ),
       ];
 
       expect(
         player.eventStream,
-        emitsInOrder(playerEvents),
+        emitsInOrder(audioEvents),
       );
 
-      playerEvents.forEach(platform.eventStreamController.add);
+      audioEvents.forEach(platform.eventStreamController.add);
       await platform.eventStreamController.close();
     });
   });
