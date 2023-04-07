@@ -39,7 +39,7 @@ scripts:
       ignore: "*_example"
 
   test:select:
-    run: melos exec flutter test --verbose
+    run: melos exec flutter test
     packageFilters:
       dirExists: test
     description: Run `flutter test` for selected packages.
