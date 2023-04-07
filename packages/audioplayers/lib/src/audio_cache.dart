@@ -51,7 +51,12 @@ class AudioCache {
   /// Note: web relies on the browser cache which is handled entirely by the
   /// browser, thus this will no-op.
   Future<void> clear(String fileName) async {
-    final uri = loadedFiles.remove(fileName);
+    await _clearFile(fileName);
+    loadedFiles.remove(fileName);
+  }
+
+  Future<void> _clearFile(String fileName) async {
+    final uri = loadedFiles[fileName];
     if (uri != null && !kIsWeb) {
       await File(uri.toFilePath()).delete();
     }
@@ -59,7 +64,8 @@ class AudioCache {
 
   /// Clears the whole cache.
   Future<void> clearAll() async {
-    await Future.wait(loadedFiles.keys.map(clear));
+    await Future.wait(loadedFiles.keys.map(_clearFile));
+    loadedFiles.clear();
   }
 
   Future<Uri> fetchToMemory(String fileName) async {
