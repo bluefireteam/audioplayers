@@ -1,5 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
+import 'package:file/memory.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'audio_cache_test.dart';
@@ -14,6 +15,7 @@ void main() {
       AudioplayersPlatformInterface.instance = FakeAudioplayersPlatform();
       GlobalAudioplayersPlatformInterface.instance =
           FakeGlobalAudioplayersPlatform();
+      AudioCache.fileSystem = MemoryFileSystem.test();
     });
 
     test('creates instance', () async {
