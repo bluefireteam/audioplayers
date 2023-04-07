@@ -63,7 +63,7 @@ class AudioCache {
   Future<void> _clearFile(String fileName) async {
     final uri = loadedFiles[fileName];
     if (uri != null && !kIsWeb) {
-      await fileSystem.file(uri.toFilePath()).delete();
+      await fileSystem.file(uri.toFilePath(windows: false)).delete();
     }
   }
 
@@ -129,7 +129,7 @@ class AudioCache {
       throw 'This method cannot be used on web!';
     }
     final uri = await load(fileName);
-    return fileSystem.file(uri.toFilePath());
+    return fileSystem.file(uri.toFilePath(windows: false));
   }
 
   /// Loads a single [fileName] to the cache but returns it as a list of bytes.

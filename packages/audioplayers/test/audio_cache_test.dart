@@ -52,7 +52,7 @@ void main() {
       expect(cache.loadedFiles, <String, Uri>{});
       await cache.load('audio.mp3');
       expect(cache.loadedFiles.isNotEmpty, isTrue);
-      cache.clear('audio.mp3');
+      await cache.clear('audio.mp3');
       expect(cache.loadedFiles, <String, Uri>{});
     });
   });
