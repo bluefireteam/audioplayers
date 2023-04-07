@@ -32,7 +32,7 @@ void main() {
       final cache = FakeAudioCache();
       await cache.load('audio.mp3');
       expect(cache.loadedFiles['audio.mp3'], isNotNull);
-      cache.clearAll();
+      await cache.clearAll();
       expect(cache.loadedFiles, <String, Uri>{});
       await cache.load('audio.mp3');
       expect(cache.loadedFiles.isNotEmpty, isTrue);
