@@ -119,8 +119,8 @@ class AudioPlayer {
   /// Creates a new instance and assigns an unique id to it.
   AudioPlayer({String? playerId}) : playerId = playerId ?? _uuid.v4() {
     _onLogStreamSubscription = onLog.listen(
-      (log) => Logger.log('$log\nSource: $_source'),
-      onError: (Object e, [StackTrace? stackTrace]) => Logger.error(
+      (log) => AudioLogger.log('$log\nSource: $_source'),
+      onError: (Object e, [StackTrace? stackTrace]) => AudioLogger.error(
         AudioPlayerException(this, cause: e),
         stackTrace,
       ),

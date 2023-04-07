@@ -14,10 +14,10 @@ void main() {
     test(
       'when set to INFO everything is logged',
       _print.overridePrint(() {
-        Logger.logLevel = LogLevel.info;
+        AudioLogger.logLevel = AudioLogLevel.info;
 
-        Logger.log('info');
-        Logger.error('error');
+        AudioLogger.log('info');
+        AudioLogger.error('error');
 
         expect(_print.logs, [
           'AudioPlayers Log: info',
@@ -29,10 +29,10 @@ void main() {
     test(
       'when set to ERROR only errors are logged',
       _print.overridePrint(() {
-        Logger.logLevel = LogLevel.error;
+        AudioLogger.logLevel = AudioLogLevel.error;
 
-        Logger.log('info');
-        Logger.error('error');
+        AudioLogger.log('info');
+        AudioLogger.error('error');
 
         expect(_print.logs, [
           '\x1B[31mAudioPlayers throw: error\x1B[0m',
@@ -43,10 +43,10 @@ void main() {
     test(
       'when set to NONE nothing is logged',
       _print.overridePrint(() {
-        Logger.logLevel = LogLevel.none;
+        AudioLogger.logLevel = AudioLogLevel.none;
 
-        Logger.log('info');
-        Logger.error('error');
+        AudioLogger.log('info');
+        AudioLogger.error('error');
 
         expect(_print.logs, <String>[]);
       }),

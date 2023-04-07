@@ -1,16 +1,16 @@
-enum LogLevel implements Comparable<LogLevel> {
+enum AudioLogLevel implements Comparable<AudioLogLevel> {
   none(0),
   error(1),
   info(2);
 
-  const LogLevel(this.level);
+  const AudioLogLevel(this.level);
 
-  factory LogLevel.fromInt(int level) {
+  factory AudioLogLevel.fromInt(int level) {
     return values.firstWhere((e) => e.level == level);
   }
 
   final int level;
 
   @override
-  int compareTo(LogLevel other) => level - other.level;
+  int compareTo(AudioLogLevel other) => level - other.level;
 }

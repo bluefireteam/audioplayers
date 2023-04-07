@@ -164,7 +164,7 @@ Normally you want to use `.mediaPlayer` unless you care about performance and yo
 You can globally control the amount of log messages that are emitted by this package:
 
 ```dart
-  Logger.logLevel = LogLevel.info;
+  AudioLogger.logLevel = AudioLogLevel.info;
 ```
 
 You can pick one of 3 options:
