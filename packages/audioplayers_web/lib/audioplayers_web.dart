@@ -78,8 +78,8 @@ class WebAudioplayersPlatform extends AudioplayersPlatformInterface {
     AudioContext audioContext,
   ) async {
     getPlayer(playerId).eventStreamController.add(
-          const PlayerEvent(
-            eventType: PlayerEventType.log,
+          const AudioEvent(
+            eventType: AudioEventType.log,
             logMessage: 'Setting AudioContext is not supported on Web',
           ),
         );
@@ -146,7 +146,7 @@ class WebAudioplayersPlatform extends AudioplayersPlatformInterface {
   }
 
   @override
-  Stream<PlayerEvent> getEventStream(String playerId) {
+  Stream<AudioEvent> getEventStream(String playerId) {
     return getPlayer(playerId).eventStreamController.stream;
   }
 

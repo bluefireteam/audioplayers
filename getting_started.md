@@ -164,7 +164,7 @@ Normally you want to use `.mediaPlayer` unless you care about performance and yo
 You can globally control the amount of log messages that are emitted by this package:
 
 ```dart
-  Logger.logLevel = LogLevel.info;
+  AudioLogger.logLevel = AudioLogLevel.info;
 ```
 
 You can pick one of 3 options:
@@ -290,7 +290,7 @@ Or to handle global logs:
 All mentioned events can also be obtained by a combined event stream.
 
 ```dart
-  player.eventStream.listen((PlayerEvent event) {
+  player.eventStream.listen((AudioEvent event) {
     print(event.eventType);
   });
 ```
@@ -298,7 +298,7 @@ All mentioned events can also be obtained by a combined event stream.
 Or to handle global events:
 
 ```dart
-  AudioPlayer.global.eventStream.listen((GlobalEvent event) {
+  AudioPlayer.global.eventStream.listen((GlobalAudioEvent event) {
     print(event.eventType);
   });
 ```

@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:audioplayers_platform_interface/src/api/audio_context.dart';
-import 'package:audioplayers_platform_interface/src/api/global_event.dart';
+import 'package:audioplayers_platform_interface/src/api/global_audio_event.dart';
 import 'package:audioplayers_platform_interface/src/global_audioplayers_platform_interface.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -106,9 +106,9 @@ void main() {
 
       expect(
         platform.getGlobalEventStream(),
-        emitsInOrder(<GlobalEvent>[
-          const GlobalEvent(
-            eventType: GlobalEventType.log,
+        emitsInOrder(<GlobalAudioEvent>[
+          const GlobalAudioEvent(
+            eventType: GlobalAudioEventType.log,
             logMessage: 'someLogMessage',
           ),
         ]),

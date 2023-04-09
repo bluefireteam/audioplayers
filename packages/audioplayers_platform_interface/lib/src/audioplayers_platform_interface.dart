@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:audioplayers_platform_interface/src/api/audio_context.dart';
-import 'package:audioplayers_platform_interface/src/api/player_event.dart';
+import 'package:audioplayers_platform_interface/src/api/audio_event.dart';
 import 'package:audioplayers_platform_interface/src/api/player_mode.dart';
 import 'package:audioplayers_platform_interface/src/api/release_mode.dart';
 import 'package:audioplayers_platform_interface/src/audioplayers_platform.dart';
@@ -140,5 +140,5 @@ abstract class MethodChannelAudioplayersPlatformInterface {
 }
 
 abstract class EventChannelAudioplayersPlatformInterface {
-  Stream<PlayerEvent> getEventStream(String playerId);
+  Stream<AudioEvent> getEventStream(String playerId);
 }

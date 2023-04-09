@@ -13,10 +13,10 @@ class LoggerTab extends StatefulWidget {
 
 class _LoggerTabState extends State<LoggerTab>
     with AutomaticKeepAliveClientMixin<LoggerTab> {
-  LogLevel get currentLogLevel => Logger.logLevel;
+  AudioLogLevel get currentLogLevel => AudioLogger.logLevel;
 
-  set currentLogLevel(LogLevel level) {
-    Logger.logLevel = level;
+  set currentLogLevel(AudioLogLevel level) {
+    AudioLogger.logLevel = level;
   }
 
   List<Log> logs = [];
@@ -27,17 +27,20 @@ class _LoggerTabState extends State<LoggerTab>
     super.initState();
     AudioPlayer.global.onLog.listen(
       (message) {
-        if (LogLevel.info.level <= currentLogLevel.level) {
+        if (AudioLogLevel.info.level <= currentLogLevel.level) {
           setState(() {
-            globalLogs.add(Log(message, level: LogLevel.info));
+            globalLogs.add(Log(message, level: AudioLogLevel.info));
           });
         }
       },
       onError: (Object o, [StackTrace? stackTrace]) {
-        if (LogLevel.error.level <= currentLogLevel.level) {
+        if (AudioLogLevel.error.level <= currentLogLevel.level) {
           setState(() {
             globalLogs.add(
-              Log(Logger.errorToString(o, stackTrace), level: LogLevel.error),
+              Log(
+                AudioLogger.errorToString(o, stackTrace),
+                level: AudioLogLevel.error,
+              ),
             );
           });
         }
@@ -45,23 +48,23 @@ class _LoggerTabState extends State<LoggerTab>
     );
     widget.player.onLog.listen(
       (message) {
-        if (LogLevel.info.level <= currentLogLevel.level) {
+        if (AudioLogLevel.info.level <= currentLogLevel.level) {
           final msg = '$message\nSource: ${widget.player.source}';
           setState(() {
-            logs.add(Log(msg, level: LogLevel.info));
+            logs.add(Log(msg, level: AudioLogLevel.info));
           });
         }
       },
       onError: (Object o, [StackTrace? stackTrace]) {
-        if (LogLevel.error.level <= currentLogLevel.level) {
+        if (AudioLogLevel.error.level <= currentLogLevel.level) {
           setState(() {
             logs.add(
               Log(
-                Logger.errorToString(
+                AudioLogger.errorToString(
                   AudioPlayerException(widget.player, cause: o),
                   stackTrace,
                 ),
-                level: LogLevel.error,
+                level: AudioLogLevel.error,
               ),
             );
           });
@@ -83,10 +86,10 @@ class _LoggerTabState extends State<LoggerTab>
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: LogLevel.values
+            children: AudioLogLevel.values
                 .map(
                   (level) => Btn(
-                    txt: level.toString().replaceAll('LogLevel.', ''),
+                    txt: level.toString().replaceAll('AudioLogLevel.', ''),
                     onPressed: () {
                       setState(() => currentLogLevel = level);
                     },
@@ -155,7 +158,7 @@ class LogView extends StatelessWidget {
                     children: [
                       SelectableText(
                         '${log.level}: ${log.message}',
-                        style: log.level == LogLevel.error
+                        style: log.level == AudioLogLevel.error
                             ? const TextStyle(color: Colors.red)
                             : null,
                       ),
@@ -174,6 +177,6 @@ class LogView extends StatelessWidget {
 class Log {
   Log(this.message, {required this.level});
 
-  final LogLevel level;
+  final AudioLogLevel level;
   final String message;
 }

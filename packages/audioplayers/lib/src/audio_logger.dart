@@ -1,17 +1,17 @@
 import 'package:audioplayers/audioplayers.dart';
 
-class Logger {
-  static LogLevel logLevel = LogLevel.error;
+class AudioLogger {
+  static AudioLogLevel logLevel = AudioLogLevel.error;
 
   static void log(String message) {
-    if (LogLevel.info.level <= logLevel.level) {
+    if (AudioLogLevel.info.level <= logLevel.level) {
       // ignore: avoid_print
       print('AudioPlayers Log: $message');
     }
   }
 
   static void error(Object o, [StackTrace? stacktrace]) {
-    if (LogLevel.error.level <= logLevel.level) {
+    if (AudioLogLevel.error.level <= logLevel.level) {
       // ignore: avoid_print
       print(_errorColor(errorToString(o, stacktrace)));
     }

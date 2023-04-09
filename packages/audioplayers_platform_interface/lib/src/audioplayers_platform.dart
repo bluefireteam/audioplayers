@@ -1,11 +1,10 @@
 import 'dart:async';
-
 // TODO(gustl22): remove when upgrading min Flutter version to >=3.3.0
 // ignore: unnecessary_import
 import 'dart:typed_data';
 
 import 'package:audioplayers_platform_interface/src/api/audio_context.dart';
-import 'package:audioplayers_platform_interface/src/api/player_event.dart';
+import 'package:audioplayers_platform_interface/src/api/audio_event.dart';
 import 'package:audioplayers_platform_interface/src/api/player_mode.dart';
 import 'package:audioplayers_platform_interface/src/api/release_mode.dart';
 import 'package:audioplayers_platform_interface/src/audioplayers_platform_interface.dart';
@@ -217,7 +216,7 @@ mixin MethodChannelAudioplayersPlatform
 mixin EventChannelAudioplayersPlatform
     implements EventChannelAudioplayersPlatformInterface {
   @override
-  Stream<PlayerEvent> getEventStream(String playerId) {
+  Stream<AudioEvent> getEventStream(String playerId) {
     // Only can be used after have created the event channel on the native side.
     final eventChannel = EventChannel('xyz.luan/audioplayers/events/$playerId');
 
@@ -229,25 +228,25 @@ mixin EventChannelAudioplayersPlatform
           case 'audio.onDuration':
             final millis = map.getInt('value');
             final duration = Duration(milliseconds: millis);
-            return PlayerEvent(
-              eventType: PlayerEventType.duration,
+            return AudioEvent(
+              eventType: AudioEventType.duration,
               duration: duration,
             );
           case 'audio.onCurrentPosition':
             final millis = map.getInt('value');
             final position = Duration(milliseconds: millis);
-            return PlayerEvent(
-              eventType: PlayerEventType.position,
+            return AudioEvent(
+              eventType: AudioEventType.position,
               position: position,
             );
           case 'audio.onComplete':
-            return const PlayerEvent(eventType: PlayerEventType.complete);
+            return const AudioEvent(eventType: AudioEventType.complete);
           case 'audio.onSeekComplete':
-            return const PlayerEvent(eventType: PlayerEventType.seekComplete);
+            return const AudioEvent(eventType: AudioEventType.seekComplete);
           case 'audio.onLog':
             final value = map.getString('value');
-            return PlayerEvent(
-              eventType: PlayerEventType.log,
+            return AudioEvent(
+              eventType: AudioEventType.log,
               logMessage: value,
             );
           default:

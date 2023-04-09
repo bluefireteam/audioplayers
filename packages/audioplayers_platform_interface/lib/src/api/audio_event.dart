@@ -1,45 +1,63 @@
 import 'package:flutter/foundation.dart';
 
-enum GlobalEventType {
+enum AudioEventType {
   log,
+  position,
+  duration,
+  seekComplete,
+  complete,
 }
 
 /// Event emitted from the platform implementation.
 @immutable
-class GlobalEvent {
-  /// Creates an instance of [GlobalEvent].
+class AudioEvent {
+  /// Creates an instance of [AudioEvent].
   ///
   /// The [eventType] argument is required.
-  const GlobalEvent({
+  const AudioEvent({
     required this.eventType,
+    this.duration,
+    this.position,
     this.logMessage,
   });
 
   /// The type of the event.
-  final GlobalEventType eventType;
+  final AudioEventType eventType;
 
-  /// Log message in the global scope.
+  /// Duration of the audio.
+  final Duration? duration;
+
+  /// Position of the audio.
+  final Duration? position;
+
+  /// Log message in the player scope.
   final String? logMessage;
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        other is GlobalEvent &&
+        other is AudioEvent &&
             runtimeType == other.runtimeType &&
             eventType == other.eventType &&
+            duration == other.duration &&
+            position == other.position &&
             logMessage == other.logMessage;
   }
 
   @override
   int get hashCode => Object.hash(
         eventType,
+        duration,
+        position,
         logMessage,
       );
 
   @override
   String toString() {
-    return 'GlobalEvent('
+    return 'AudioEvent('
         'eventType: $eventType, '
+        'duration: $duration, '
+        'position: $position, '
         'logMessage: $logMessage'
         ')';
   }
