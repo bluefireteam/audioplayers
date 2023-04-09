@@ -127,11 +127,7 @@ void main() {
         emitsInOrder(playerEvents),
       );
 
-      playerEvents.forEach((playerEvent) {
-        platform.eventStreamController.add(playerEvent);
-      });
-
-      // Await closing controller to avoid handling events after test finishes.
+      playerEvents.forEach(platform.eventStreamController.add);
       await platform.eventStreamController.close();
     });
   });

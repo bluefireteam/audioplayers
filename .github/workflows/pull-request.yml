@@ -12,4 +12,10 @@ on:
 jobs:
   call-test:
     uses: ./.github/workflows/test.yml
-    if: github.event.pull_request.draft == false
+    with:
+      enable_android: ${{ github.event.pull_request.draft == false }}
+      enable_web: ${{ github.event.pull_request.draft == false }}
+      enable_ios: ${{ github.event.pull_request.draft == false }}
+      enable_windows: ${{ github.event.pull_request.draft == false }}
+      enable_linux: ${{ github.event.pull_request.draft == false }}
+      enable_macos: ${{ github.event.pull_request.draft == false }}
