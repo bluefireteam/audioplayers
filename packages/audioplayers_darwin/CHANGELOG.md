@@ -1,3 +1,12 @@
+## 4.0.0
+
+> Note: This release has breaking changes.
+
+ - **FIX**(iOS): Default to speaker instead of earpiece on iOS ([#1408](https://github.com/bluefireteam/audioplayers/issues/1408)). ([4ea5907b](https://github.com/bluefireteam/audioplayers/commit/4ea5907bfe5ce83a0d1c100acfc0760d00c2b448))
+ - **FEAT**(ios): set player context globally on `setAudioContext` for iOS only ([#1416](https://github.com/bluefireteam/audioplayers/issues/1416)). ([19af364b](https://github.com/bluefireteam/audioplayers/commit/19af364b7d0404ae436c54cdaa18d50f3a2aacd6))
+ - **DOCS**: update AudioCache explanation, migration guide, replace package READMEs ([#1457](https://github.com/bluefireteam/audioplayers/issues/1457)). ([b8eb1974](https://github.com/bluefireteam/audioplayers/commit/b8eb197435631fafeaa9a26eb76aca8e43e86420))
+ - **BREAKING** **FEAT**: event channel ([#1352](https://github.com/bluefireteam/audioplayers/issues/1352)). ([c9fd6a76](https://github.com/bluefireteam/audioplayers/commit/c9fd6a762c8c346d8d5598e3550c5571a5e460f0))
+
 ## 3.0.1
 
  - **FIX**: Remove one of the duplicated path_providers plugins
