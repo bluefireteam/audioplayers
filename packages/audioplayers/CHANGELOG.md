@@ -1,3 +1,35 @@
+## 4.0.0
+
+> Note: This release has breaking changes.
+
+ - **FIX**(android): Avoid calling onDuration on position event (closes [#136](https://github.com/bluefireteam/audioplayers/issues/136)) ([#1460](https://github.com/bluefireteam/audioplayers/issues/1460)). ([6cfb3753](https://github.com/bluefireteam/audioplayers/commit/6cfb3753cd8003f341d97e0b2417d4512f452267))
+ - **FEAT**: replace `Platform.isX` with `defaultTargetPlatform` ([#1446](https://github.com/bluefireteam/audioplayers/issues/1446)). ([6cd5656c](https://github.com/bluefireteam/audioplayers/commit/6cd5656c0c5deaab1fb4af78a5b7632402c3a1d3))
+ - **FEAT**(example): add invalid asset, small refactor, colored source buttons ([#1445](https://github.com/bluefireteam/audioplayers/issues/1445)). ([92a20fad](https://github.com/bluefireteam/audioplayers/commit/92a20fadd6f549d44b7055b38a48fad2861a05c8))
+ - **FEAT**(android): add `setBalance` ([#58](https://github.com/bluefireteam/audioplayers/issues/58)) ([#1444](https://github.com/bluefireteam/audioplayers/issues/1444)). ([3b5de50e](https://github.com/bluefireteam/audioplayers/commit/3b5de50ea7fa5248165616fc1ffd80da6c66583a))
+ - **FEAT**: extract AudioContext from audio_context_config ([#1440](https://github.com/bluefireteam/audioplayers/issues/1440)). ([e59c3b9f](https://github.com/bluefireteam/audioplayers/commit/e59c3b9f07c1a72f9bf4e424fa3b011645f191d2))
+ - **FEAT**(ios): set player context globally on `setAudioContext` for iOS only ([#1416](https://github.com/bluefireteam/audioplayers/issues/1416)). ([19af364b](https://github.com/bluefireteam/audioplayers/commit/19af364b7d0404ae436c54cdaa18d50f3a2aacd6))
+ - **FEAT**(example): update app icons ([#1417](https://github.com/bluefireteam/audioplayers/issues/1417)). ([ac35df89](https://github.com/bluefireteam/audioplayers/commit/ac35df895cefe3d69dac4c8b1cf07c7f7ed56ca7))
+ - **FEAT**: AudioPool (moved and improved from flame_audio) ([#1403](https://github.com/bluefireteam/audioplayers/issues/1403)). ([ab15cb02](https://github.com/bluefireteam/audioplayers/commit/ab15cb02cf939347772ac9fc961b5f01d7bad94b))
+ - **DOCS**: update AudioCache explanation, migration guide, replace package READMEs ([#1457](https://github.com/bluefireteam/audioplayers/issues/1457)). ([b8eb1974](https://github.com/bluefireteam/audioplayers/commit/b8eb197435631fafeaa9a26eb76aca8e43e86420))
+ - **DOCS**: update example app and screenshots ([#1419](https://github.com/bluefireteam/audioplayers/issues/1419)). ([c48eaf38](https://github.com/bluefireteam/audioplayers/commit/c48eaf389ab5b1cf1d51fadc814f473b8ea813cb))
+ - **BREAKING** **REFACTOR**: prevent from confusing and conflicting class names ([#1465](https://github.com/bluefireteam/audioplayers/issues/1465)). ([7cdb8586](https://github.com/bluefireteam/audioplayers/commit/7cdb858605f24f0abd1a225e04922830233f3e96))
+ - **BREAKING** **REFACTOR**: improve separation of global audioplayer interface ([#1443](https://github.com/bluefireteam/audioplayers/issues/1443)). ([c0b3f85c](https://github.com/bluefireteam/audioplayers/commit/c0b3f85c477f0313299cc2a2898840d6c7d8dcd9))
+ - **BREAKING** **FEAT**: event channel ([#1352](https://github.com/bluefireteam/audioplayers/issues/1352)). ([c9fd6a76](https://github.com/bluefireteam/audioplayers/commit/c9fd6a762c8c346d8d5598e3550c5571a5e460f0))
+ - **BREAKING** **FEAT**: expose classes of package `audioplayers_platform_interface` ([#1442](https://github.com/bluefireteam/audioplayers/issues/1442)). ([a6f89be1](https://github.com/bluefireteam/audioplayers/commit/a6f89be181b7bd664eaf96cb9509bbc5adf5dbb9))
+
+### Migration instructions
+
+| Before | After |
+|---|---|
+| deprecated `AudioPlayer.global.changeLogLevel(LogLevel.info)` | `AudioLogger.logLevel = AudioLogLevel.info` |
+| deprecated `AudioPlayer.global.logLevel` | `AudioLogger.logLevel` |
+| deprecated `AudioPlayer.global.log()` | `AudioLogger.log()` or `AudioLogger.error()` |
+| deprecated `AudioPlayer.global.info()` | `AudioLogger.log()` |
+| deprecated `AudioPlayer.global.error()` | `AudioLogger.error()` |
+| `GlobalPlatformInterface` | `GlobalAudioScope` |
+| deprecated `AudioPlayer.global.setGlobalAudioContext()` | `AudioPlayer.global.setAudioContext()` |
+| `ForPlayer<>` | _removed_ |
+
 ## 3.0.1
 
  - Update a dependency to the latest release.
