@@ -159,6 +159,7 @@ void AudioPlayer::OnMediaStateChange(GstObject *src, GstState *old_state,
         } else if (*new_state >= GST_STATE_PAUSED) {
             if (!this->_isInitialized) {
                 this->_isInitialized = true;
+                this->OnPrepared();
                 if (this->_isPlaying) {
                     Resume();
                 }
@@ -166,6 +167,16 @@ void AudioPlayer::OnMediaStateChange(GstObject *src, GstState *old_state,
         } else if (this->_isInitialized) {
             this->_isInitialized = false;
         }
+    }
+}
+
+void AudioPlayer::OnPrepared() {
+    if (this->_eventChannel) {
+        g_autoptr(FlValue) map = fl_value_new_map();
+        fl_value_set_string(map, "event",
+                            fl_value_new_string("audio.onPrepared"));
+        fl_value_set_string(map, "value", fl_value_new_bool(true));
+        fl_event_channel_send(this->_eventChannel, map, nullptr, nullptr);
     }
 }
 

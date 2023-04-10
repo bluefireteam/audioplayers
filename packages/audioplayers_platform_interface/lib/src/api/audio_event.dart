@@ -6,6 +6,7 @@ enum AudioEventType {
   duration,
   seekComplete,
   complete,
+  prepared,
 }
 
 /// Event emitted from the platform implementation.
