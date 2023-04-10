@@ -308,8 +308,6 @@ void main() {
           }
         }
       },
-      // Linux provides errors only asynchronously.
-      skip: !kIsWeb && Platform.isLinux,
     );
 
     testWidgets(
@@ -331,8 +329,6 @@ void main() {
           }
         }
       },
-      // Linux provides errors only asynchronously.
-      skip: !kIsWeb && Platform.isLinux,
     );
   });
 }

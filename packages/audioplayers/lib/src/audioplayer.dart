@@ -1,4 +1,5 @@
 import 'dart:async';
+
 // TODO(gustl22): remove when upgrading min Flutter version to >=3.3.0
 // ignore: unnecessary_import
 import 'dart:typed_data';
@@ -46,9 +47,13 @@ class AudioPlayer {
   @visibleForTesting
   final creatingCompleter = Completer<void>();
 
+  late Completer<void> _preparedCompleter;
+
   late final StreamSubscription _onPlayerCompleteStreamSubscription;
 
   late final StreamSubscription _onLogStreamSubscription;
+
+  late final StreamSubscription _onPreparedSubscription;
 
   /// Stream controller to be able to get a stream on initialization, before the
   /// native event stream is ready via [_create] method.
@@ -96,6 +101,9 @@ class AudioPlayer {
   Stream<void> get onSeekComplete => eventStream
       .where((event) => event.eventType == AudioEventType.seekComplete);
 
+  Stream<void> get _onPrepared =>
+      eventStream.where((event) => event.eventType == AudioEventType.prepared);
+
   /// Stream of log events.
   Stream<String> get onLog => eventStream
       .where((event) => event.eventType == AudioEventType.log)
@@ -135,6 +143,13 @@ class AudioPlayer {
       onError: (Object _, [StackTrace? __]) {
         /* Errors are already handled via log stream */
       },
+    );
+    _onPreparedSubscription = _onPrepared.listen(
+      (event) {
+        _preparedCompleter.complete();
+      },
+      onError: (Object e, [StackTrace? stackTrace]) =>
+          _preparedCompleter.completeError(e, stackTrace),
     );
     _create();
   }
@@ -276,8 +291,14 @@ class AudioPlayer {
   /// This will delegate to one of the specific methods below depending on
   /// the source type.
   Future<void> setSource(Source source) async {
-    await creatingCompleter.future;
-    return source.setOnPlayer(this);
+    // Implementations of setOnPlayer also call `creatingCompleter.future`
+    await source.setOnPlayer(this);
+  }
+
+  Future<void> _completePrepared(Future<void> Function() fun) async {
+    _preparedCompleter = Completer<void>();
+    await fun();
+    await _preparedCompleter.future;
   }
 
   /// Sets the URL to a remote link.
@@ -287,7 +308,9 @@ class AudioPlayer {
   Future<void> setSourceUrl(String url) async {
     _source = UrlSource(url);
     await creatingCompleter.future;
-    return _platform.setSourceUrl(playerId, url, isLocal: false);
+    await _completePrepared(
+      () => _platform.setSourceUrl(playerId, url, isLocal: false),
+    );
   }
 
   /// Sets the URL to a file in the users device.
@@ -297,7 +320,9 @@ class AudioPlayer {
   Future<void> setSourceDeviceFile(String path) async {
     _source = DeviceFileSource(path);
     await creatingCompleter.future;
-    return _platform.setSourceUrl(playerId, path, isLocal: true);
+    await _completePrepared(
+      () => _platform.setSourceUrl(playerId, path, isLocal: true),
+    );
   }
 
   /// Sets the URL to an asset in your Flutter application.
@@ -309,13 +334,17 @@ class AudioPlayer {
     _source = AssetSource(path);
     final url = await audioCache.load(path);
     await creatingCompleter.future;
-    return _platform.setSourceUrl(playerId, url.path, isLocal: true);
+    await _completePrepared(
+      () => _platform.setSourceUrl(playerId, url.path, isLocal: true),
+    );
   }
 
   Future<void> setSourceBytes(Uint8List bytes) async {
     _source = BytesSource(bytes);
     await creatingCompleter.future;
-    return _platform.setSourceBytes(playerId, bytes);
+    await _completePrepared(
+      () => _platform.setSourceBytes(playerId, bytes),
+    );
   }
 
   /// Get audio duration after setting url.
@@ -357,6 +386,7 @@ class AudioPlayer {
       _onPlayerCompleteStreamSubscription.cancel(),
       _onLogStreamSubscription.cancel(),
       _eventStreamSubscription.cancel(),
+      _onPreparedSubscription.cancel(),
       _eventStreamController.close(),
     ];
 
