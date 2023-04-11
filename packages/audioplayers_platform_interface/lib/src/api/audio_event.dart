@@ -20,6 +20,7 @@ class AudioEvent {
     this.duration,
     this.position,
     this.logMessage,
+    this.isPrepared,
   });
 
   /// The type of the event.
@@ -33,6 +34,9 @@ class AudioEvent {
 
   /// Log message in the player scope.
   final String? logMessage;
+
+  /// Weather the
+  final bool? isPrepared;
 
   @override
   bool operator ==(Object other) {

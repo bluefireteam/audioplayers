@@ -101,8 +101,9 @@ class AudioPlayer {
   Stream<void> get onSeekComplete => eventStream
       .where((event) => event.eventType == AudioEventType.seekComplete);
 
-  Stream<void> get _onPrepared =>
-      eventStream.where((event) => event.eventType == AudioEventType.prepared);
+  Stream<bool> get _onPrepared => eventStream
+      .where((event) => event.eventType == AudioEventType.prepared)
+      .map((event) => event.isPrepared!);
 
   /// Stream of log events.
   Stream<String> get onLog => eventStream
@@ -145,8 +146,12 @@ class AudioPlayer {
       },
     );
     _onPreparedSubscription = _onPrepared.listen(
-      (event) {
-        _preparedCompleter.complete();
+      (isPrepared) {
+        if (isPrepared) {
+          _preparedCompleter.complete();
+        } else {
+          _preparedCompleter = Completer<void>();
+        }
       },
       onError: (Object e, [StackTrace? stackTrace]) {
         if (!_preparedCompleter.isCompleted) {
@@ -302,6 +307,7 @@ class AudioPlayer {
     _preparedCompleter = Completer<void>();
     await fun();
     await _preparedCompleter.future;
+    print('asdf');
   }
 
   /// Sets the URL to a remote link.

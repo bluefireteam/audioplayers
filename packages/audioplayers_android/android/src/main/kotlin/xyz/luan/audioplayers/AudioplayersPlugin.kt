@@ -233,6 +233,10 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
         player.eventHandler.success("audio.onComplete")
     }
 
+    fun handlePrepared(player: WrappedPlayer, isPrepared: Boolean) {
+        handler.post { player.eventHandler.success("audio.onPrepared", hashMapOf("value" to isPrepared)) }
+    }
+
     fun handleLog(player: WrappedPlayer, message: String) {
         handler.post { player.eventHandler.success("audio.onLog", hashMapOf("value" to message)) }
     }
