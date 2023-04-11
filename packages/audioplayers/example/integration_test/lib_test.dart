@@ -293,6 +293,7 @@ void main() {
       'Throw PlatformException, when playing invalid file',
       (tester) async {
         final player = AudioPlayer();
+        await tester.pumpAndSettle();
         try {
           // Throws PlatformException via MethodChannel:
           await player.setSource(AssetSource(invalidAsset));
@@ -314,6 +315,7 @@ void main() {
       'Throw PlatformException, when playing non existent file',
       (tester) async {
         final player = AudioPlayer();
+        await tester.pumpAndSettle();
         try {
           // Throws PlatformException via MethodChannel:
           await player.setSource(UrlSource('non_existent.txt'));
