@@ -206,6 +206,17 @@ void main() {
     );
   });
 
+  group('Platform method channel', () {
+    testWidgets('#create and #dispose', (tester) async {
+      final platform = AudioplayersPlatformInterface.instance;
+
+      const playerId = 'somePlayerId';
+      await platform.create(playerId);
+      await tester.pumpAndSettle();
+      await platform.dispose(playerId);
+    });
+  });
+
   group('Logging', () {
     testWidgets('Emit platform log', (tester) async {
       final completer = Completer<String>();
