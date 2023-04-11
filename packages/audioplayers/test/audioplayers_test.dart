@@ -32,15 +32,17 @@ void main() {
       expect(player.source, null);
     });
 
-    test('#setSource', () async {
+    test('#setSource and #dispose', () async {
       await player.setSource(UrlSource('internet.com/file.mp3'));
       expect(platform.popLastCall().method, 'setSourceUrl');
       expect(player.source, isInstanceOf<UrlSource>());
       final urlSource = player.source as UrlSource?;
       expect(urlSource?.url, 'internet.com/file.mp3');
 
-      await player.release();
-      expect(platform.popLastCall().method, 'release');
+      await player.dispose();
+      expect(platform.popCall().method, 'stop');
+      expect(platform.popCall().method, 'release');
+      expect(platform.popLastCall().method, 'dispose');
       expect(player.source, null);
     });
 
