@@ -104,6 +104,17 @@ void AudioPlayer::OnMediaStateChange(
     }
 }
 
+void AudioPlayer::OnPrepared() {
+    if (this->_eventChannel) {
+        this->_eventHandler->Success(
+                std::make_unique<flutter::EncodableValue>(flutter::EncodableMap(
+                        {{flutter::EncodableValue("event"),
+                                 flutter::EncodableValue("audio.onPrepared")},
+                         {flutter::EncodableValue("value"),
+                                 flutter::EncodableValue(true)}})));
+    }
+}
+
 void AudioPlayer::OnPlaybackEnded() {
     SeekTo(0);
     if (GetLooping()) {
@@ -165,6 +176,7 @@ void AudioPlayer::OnLog(const std::string& message) {
 }
 
 void AudioPlayer::SendInitialized() {
+    OnPrepared();
     OnDurationUpdate();
     OnTimeUpdate();
 }
