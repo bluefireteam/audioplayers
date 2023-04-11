@@ -307,7 +307,6 @@ class AudioPlayer {
     _preparedCompleter = Completer<void>();
     await fun();
     await _preparedCompleter.future;
-    print('asdf');
   }
 
   /// Sets the URL to a remote link.
