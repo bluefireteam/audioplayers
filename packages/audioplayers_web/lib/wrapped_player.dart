@@ -88,6 +88,12 @@ class WrappedPlayer {
     _playerLoadedDataSubscription = p.onLoadedData.listen(
       (_) {
         eventStreamController.add(
+          const AudioEvent(
+            eventType: AudioEventType.prepared,
+            isPrepared: true,
+          ),
+        );
+        eventStreamController.add(
           AudioEvent(
             eventType: AudioEventType.duration,
             duration: p.duration.fromSecondsToDuration(),
