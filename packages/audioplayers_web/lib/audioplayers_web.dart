@@ -152,9 +152,8 @@ class WebAudioplayersPlatform extends AudioplayersPlatformInterface {
 
   @override
   Future<void> dispose(String playerId) async {
-    await Future.forEach<WrappedPlayer>(
-      players.values,
-      (player) => player.dispose(),
-    );
+    final player = getPlayer(playerId);
+    await player.dispose();
+    players.remove(playerId);
   }
 }
