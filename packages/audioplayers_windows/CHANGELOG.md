@@ -1,3 +1,12 @@
+## 2.0.0
+
+> Note: This release has breaking changes.
+
+ - **FEAT**(windows): show nuget download info explicitely in verbose mode ([#1449](https://github.com/bluefireteam/audioplayers/issues/1449)). ([136028fa](https://github.com/bluefireteam/audioplayers/commit/136028fa1cbcf38f80e9cc7ad78b3bb89d2c6d30))
+ - **DOCS**: update AudioCache explanation, migration guide, replace package READMEs ([#1457](https://github.com/bluefireteam/audioplayers/issues/1457)). ([b8eb1974](https://github.com/bluefireteam/audioplayers/commit/b8eb197435631fafeaa9a26eb76aca8e43e86420))
+ - **DOCS**: Fix LICENSE files for windows and linux ([#1431](https://github.com/bluefireteam/audioplayers/issues/1431)). ([1f84e857](https://github.com/bluefireteam/audioplayers/commit/1f84e857a112e663fff73c4e7c6875ebb72c783d))
+ - **BREAKING** **FEAT**: event channel ([#1352](https://github.com/bluefireteam/audioplayers/issues/1352)). ([c9fd6a76](https://github.com/bluefireteam/audioplayers/commit/c9fd6a762c8c346d8d5598e3550c5571a5e460f0))
+
 ## 1.1.3
 
 > Note: This release was an accidental bump.
