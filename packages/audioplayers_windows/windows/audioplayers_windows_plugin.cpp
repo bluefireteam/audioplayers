@@ -223,7 +223,7 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
         result->Success(EncodableValue(1));
     } else if (method_call.method_name().compare("dispose") == 0) {
         player->Dispose();
-        audioPlayers.erase(playerId)
+        audioPlayers.erase(playerId);
         result->Success(EncodableValue(1));
     } else {
         result->NotImplemented();
