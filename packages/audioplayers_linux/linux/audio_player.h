@@ -98,5 +98,5 @@ class AudioPlayer {
 
     void OnPlaybackEnded();
 
-    void OnPrepared();
+    void OnPrepared(bool isPrepared);
 };

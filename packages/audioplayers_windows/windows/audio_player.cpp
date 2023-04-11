@@ -104,14 +104,14 @@ void AudioPlayer::OnMediaStateChange(
     }
 }
 
-void AudioPlayer::OnPrepared() {
+void AudioPlayer::OnPrepared(bool isPrepared) {
     if (this->_eventChannel) {
         this->_eventHandler->Success(
                 std::make_unique<flutter::EncodableValue>(flutter::EncodableMap(
                         {{flutter::EncodableValue("event"),
                                  flutter::EncodableValue("audio.onPrepared")},
                          {flutter::EncodableValue("value"),
-                                 flutter::EncodableValue(true)}})));
+                                 flutter::EncodableValue(isPrepared)}})));
     }
 }
 
@@ -176,7 +176,7 @@ void AudioPlayer::OnLog(const std::string& message) {
 }
 
 void AudioPlayer::SendInitialized() {
-    OnPrepared();
+    OnPrepared(true);
     OnDurationUpdate();
     OnTimeUpdate();
 }

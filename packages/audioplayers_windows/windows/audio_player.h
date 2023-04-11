@@ -107,7 +107,7 @@ class AudioPlayer {
 
     void OnSeekCompleted();
 
-    void OnPrepared();
+    void OnPrepared(bool isPrepared);
 
     std::string _playerId;
 
