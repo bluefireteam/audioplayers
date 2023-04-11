@@ -253,6 +253,9 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
                 return
             }
             player.eventHandler.onError(code: code, message: message, details: nil)
+        } else if method == "dispose" {
+            player.dispose()
+            players[playerId] = nil
         } else {
             result(FlutterMethodNotImplemented)
             return

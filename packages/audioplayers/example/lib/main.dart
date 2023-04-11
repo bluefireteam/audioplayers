@@ -90,8 +90,7 @@ class _ExampleAppState extends State<ExampleApp> {
       case PopupAction.remove:
         setState(() {
           if (audioPlayers.isNotEmpty) {
-            selectedAudioPlayer.stop();
-            selectedAudioPlayer.release();
+            selectedAudioPlayer.dispose();
             audioPlayers.removeAt(selectedPlayerIdx);
           }
           // Adjust index to be in valid range

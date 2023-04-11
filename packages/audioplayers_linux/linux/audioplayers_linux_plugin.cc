@@ -215,6 +215,10 @@ static void audioplayers_linux_plugin_handle_method_call(
                 flMessage == nullptr ? "" : fl_value_get_string(flMessage);
             player->OnError(code, message, nullptr, nullptr);
             result = 1;
+        } else if (strcmp(method, "dispose") == 0) {
+            player->Dispose();
+            audioPlayers.erase(playerId);
+            result = 1;
         } else {
             response = FL_METHOD_RESPONSE(fl_method_not_implemented_response_new());
             fl_method_call_respond(method_call, response, nullptr);

@@ -222,7 +222,7 @@ class AudioPlayer {
   /// The resources are going to be fetched or buffered again as soon as you
   /// call [resume] or change the source.
   Future<void> release() async {
-    await creatingCompleter.future;
+    await stop();
     await _platform.release(playerId);
     state = PlayerState.stopped;
     _source = null;
@@ -350,8 +350,9 @@ class AudioPlayer {
     // First stop and release all native resources.
     await release();
 
+    await _platform.dispose(playerId);
+
     final futures = <Future>[
-      creatingCompleter.future,
       if (!_playerStateController.isClosed) _playerStateController.close(),
       _onPlayerCompleteStreamSubscription.cancel(),
       _onLogStreamSubscription.cancel(),
@@ -362,6 +363,5 @@ class AudioPlayer {
     _source = null;
 
     await Future.wait<dynamic>(futures);
-    await _platform.dispose(playerId);
   }
 }
