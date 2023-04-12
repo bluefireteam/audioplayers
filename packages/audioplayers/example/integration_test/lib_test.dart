@@ -19,12 +19,12 @@ void main() {
 
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
+  final wavUrl1TestData = LibSourceTestData(
+    source: UrlSource(wavUrl1),
+    duration: const Duration(milliseconds: 451),
+  );
   final audioTestDataList = [
-    if (features.hasUrlSource)
-      LibSourceTestData(
-        source: UrlSource(wavUrl1),
-        duration: const Duration(milliseconds: 451),
-      ),
+    if (features.hasUrlSource) wavUrl1TestData,
     if (features.hasUrlSource)
       LibSourceTestData(
         source: UrlSource(wavUrl2),
@@ -128,7 +128,7 @@ void main() {
         final player = AudioPlayer();
         await player.setReleaseMode(ReleaseMode.stop);
 
-        final td = audioTestDataList[0];
+        final td = wavUrl1TestData;
 
         var audioContext = AudioContextConfig(
           //ignore: avoid_redundant_argument_values
@@ -169,7 +169,7 @@ void main() {
         final player = AudioPlayer()..setReleaseMode(ReleaseMode.stop);
         player.setPlayerMode(PlayerMode.lowLatency);
 
-        final td = audioTestDataList[0];
+        final td = wavUrl1TestData;
 
         var audioContext = AudioContextConfig(
           //ignore: avoid_redundant_argument_values
@@ -214,6 +214,42 @@ void main() {
       await platform.create(playerId);
       await tester.pumpAndSettle();
       await platform.dispose(playerId);
+    });
+
+    testWidgets('#setSource #getPosition and #getDuration', (tester) async {
+      final platform = AudioplayersPlatformInterface.instance;
+
+      const playerId = 'somePlayerId';
+      await platform.create(playerId);
+      await tester.pumpAndSettle();
+
+      final preparedCompleter = Completer<void>();
+      final eventStream = platform.getEventStream(playerId);
+      final eventSub = eventStream
+          .where((event) => event.eventType == AudioEventType.prepared)
+          .map((event) => event.isPrepared!)
+          .listen(
+        (event) {
+          if (event) {
+            preparedCompleter.complete();
+          }
+        },
+        onError: preparedCompleter.completeError,
+      );
+      await platform.setSourceUrl(
+        playerId,
+        (wavUrl1TestData.source as UrlSource).url,
+      );
+      await preparedCompleter.future;
+
+      expect(await platform.getCurrentPosition(playerId), 0);
+      expect(
+        await platform.getDuration(playerId),
+        wavUrl1TestData.duration.inMilliseconds,
+      );
+
+      await platform.dispose(playerId);
+      eventSub.cancel();
     });
   });
 
