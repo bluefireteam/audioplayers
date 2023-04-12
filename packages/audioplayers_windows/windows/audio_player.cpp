@@ -105,7 +105,7 @@ void AudioPlayer::OnMediaStateChange(
 }
 
 void AudioPlayer::OnPrepared(bool isPrepared) {
-    if (this->_eventChannel) {
+    if (this->_eventHandler) {
         this->_eventHandler->Success(
                 std::make_unique<flutter::EncodableValue>(flutter::EncodableMap(
                         {{flutter::EncodableValue("event"),

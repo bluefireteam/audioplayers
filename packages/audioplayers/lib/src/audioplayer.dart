@@ -47,7 +47,7 @@ class AudioPlayer {
   @visibleForTesting
   final creatingCompleter = Completer<void>();
 
-  late Completer<void> _preparedCompleter;
+  Completer<void>? _preparedCompleter;
 
   late final StreamSubscription _onPlayerCompleteStreamSubscription;
 
@@ -148,14 +148,14 @@ class AudioPlayer {
     _onPreparedSubscription = _onPrepared.listen(
       (isPrepared) {
         if (isPrepared) {
-          _preparedCompleter.complete();
+          _preparedCompleter?.complete();
         } else {
           _preparedCompleter = Completer<void>();
         }
       },
       onError: (Object e, [StackTrace? stackTrace]) {
-        if (!_preparedCompleter.isCompleted) {
-          _preparedCompleter.completeError(e, stackTrace);
+        if (_preparedCompleter?.isCompleted == false) {
+          _preparedCompleter?.completeError(e, stackTrace);
         }
       },
     );
@@ -306,7 +306,7 @@ class AudioPlayer {
   Future<void> _completePrepared(Future<void> Function() fun) async {
     _preparedCompleter = Completer<void>();
     await fun();
-    await _preparedCompleter.future;
+    await _preparedCompleter?.future;
   }
 
   /// Sets the URL to a remote link.
