@@ -1,3 +1,7 @@
+## 3.0.1
+
+ - **FIX**: dispose player implementation ([#1470](https://github.com/bluefireteam/audioplayers/issues/1470)). ([d9026c15](https://github.com/bluefireteam/audioplayers/commit/d9026c1538cc83dfba5745771ad71c307b6da852))
+
 ## 3.0.0
 
 > Note: This release has breaking changes.

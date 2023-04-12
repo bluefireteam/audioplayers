@@ -3,6 +3,52 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2023-04-12
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`audioplayers` - `v4.0.1`](#audioplayers---v401)
+ - [`audioplayers_android` - `v3.0.1`](#audioplayers_android---v301)
+ - [`audioplayers_darwin` - `v4.0.1`](#audioplayers_darwin---v401)
+ - [`audioplayers_linux` - `v2.0.1`](#audioplayers_linux---v201)
+ - [`audioplayers_web` - `v3.0.1`](#audioplayers_web---v301)
+ - [`audioplayers_windows` - `v2.0.1`](#audioplayers_windows---v201)
+
+---
+
+#### `audioplayers` - `v4.0.1`
+
+ - **FIX**: dispose player implementation ([#1470](https://github.com/bluefireteam/audioplayers/issues/1470)). ([d9026c15](https://github.com/bluefireteam/audioplayers/commit/d9026c1538cc83dfba5745771ad71c307b6da852))
+
+#### `audioplayers_android` - `v3.0.1`
+
+ - **FIX**: dispose player implementation ([#1470](https://github.com/bluefireteam/audioplayers/issues/1470)). ([d9026c15](https://github.com/bluefireteam/audioplayers/commit/d9026c1538cc83dfba5745771ad71c307b6da852))
+
+#### `audioplayers_darwin` - `v4.0.1`
+
+ - **FIX**: dispose player implementation ([#1470](https://github.com/bluefireteam/audioplayers/issues/1470)). ([d9026c15](https://github.com/bluefireteam/audioplayers/commit/d9026c1538cc83dfba5745771ad71c307b6da852))
+
+#### `audioplayers_linux` - `v2.0.1`
+
+ - **FIX**: dispose player implementation ([#1470](https://github.com/bluefireteam/audioplayers/issues/1470)). ([d9026c15](https://github.com/bluefireteam/audioplayers/commit/d9026c1538cc83dfba5745771ad71c307b6da852))
+
+#### `audioplayers_web` - `v3.0.1`
+
+ - **FIX**: dispose player implementation ([#1470](https://github.com/bluefireteam/audioplayers/issues/1470)). ([d9026c15](https://github.com/bluefireteam/audioplayers/commit/d9026c1538cc83dfba5745771ad71c307b6da852))
+
+#### `audioplayers_windows` - `v2.0.1`
+
+ - **FIX**: dispose player implementation ([#1470](https://github.com/bluefireteam/audioplayers/issues/1470)). ([d9026c15](https://github.com/bluefireteam/audioplayers/commit/d9026c1538cc83dfba5745771ad71c307b6da852))
+
+
 ## 2023-04-10
 
 ### Changes
