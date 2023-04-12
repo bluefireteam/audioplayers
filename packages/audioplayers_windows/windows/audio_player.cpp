@@ -30,10 +30,11 @@ AudioPlayer::AudioPlayer(
     auto onPlaybackEndedCB = std::bind(&AudioPlayer::OnPlaybackEnded, this);
     auto onTimeUpdateCB = std::bind(&AudioPlayer::OnTimeUpdate, this);
     auto onSeekCompletedCB = std::bind(&AudioPlayer::OnSeekCompleted, this);
+    auto onLoadedCB = std::bind(&AudioPlayer::SendInitialized, this);
 
     // Create and initialize the MediaEngineWrapper which manages media playback
     m_mediaEngineWrapper = winrt::make_self<media::MediaEngineWrapper>(
-        nullptr, onError, onBufferingStateChanged, onPlaybackEndedCB,
+        onLoadedCB, onError, onBufferingStateChanged, onPlaybackEndedCB,
         onTimeUpdateCB, onSeekCompletedCB);
 
     m_mediaEngineWrapper->Initialize();
@@ -59,6 +60,7 @@ void AudioPlayer::SetSourceUrl(std::string url) {
             winrt::to_hstring(url).c_str(), sourceResolutionFlags, nullptr,
             &objectType, reinterpret_cast<IUnknown**>(mediaSource.put_void())));
 
+        OnPrepared(false);
         _isInitialized = false;
         m_mediaEngineWrapper->SetMediaSource(mediaSource.get());
     }
@@ -97,10 +99,7 @@ void AudioPlayer::OnMediaStateChange(
     media::MediaEngineWrapper::BufferingState bufferingState) {
     if (bufferingState !=
         media::MediaEngineWrapper::BufferingState::HAVE_NOTHING) {
-        if (!this->_isInitialized) {
-            this->_isInitialized = true;
-            this->SendInitialized();
-        }
+        // TODO(Gustl22): add buffering state
     }
 }
 
@@ -176,9 +175,12 @@ void AudioPlayer::OnLog(const std::string& message) {
 }
 
 void AudioPlayer::SendInitialized() {
-    OnPrepared(true);
-    OnDurationUpdate();
-    OnTimeUpdate();
+    if (!this->_isInitialized) {
+        this->_isInitialized = true;
+        OnPrepared(true);
+        OnDurationUpdate();
+        OnTimeUpdate();
+    }
 }
 
 void AudioPlayer::Dispose() {

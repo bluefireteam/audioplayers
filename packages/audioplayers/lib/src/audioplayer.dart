@@ -306,7 +306,7 @@ class AudioPlayer {
   Future<void> _completePrepared(Future<void> Function() fun) async {
     _preparedCompleter = Completer<void>();
     await fun();
-    await _preparedCompleter?.future;
+    await _preparedCompleter?.future.timeout(const Duration(seconds: 30));
   }
 
   /// Sets the URL to a remote link.
