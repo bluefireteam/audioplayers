@@ -67,6 +67,8 @@ class WrappedPlayer {
     p.volume = _currentVolume;
     p.playbackRate = _currentPlaybackRate;
 
+    _setupStreams(p);
+
     // setup stereo panning
     final audioContext = JsAudioContext();
     final source = audioContext.createMediaElementSource(player!);
@@ -74,8 +76,19 @@ class WrappedPlayer {
     source.connect(_stereoPanner!);
     _stereoPanner?.connect(audioContext.destination);
 
-    _playerPlaySubscription = p.onPlay.listen(
+    // Preload the source
+    p.load();
+  }
+
+  void _setupStreams(AudioElement p) {
+    _playerLoadedDataSubscription = p.onLoadedData.listen(
       (_) {
+        eventStreamController.add(
+          const AudioEvent(
+            eventType: AudioEventType.prepared,
+            isPrepared: true,
+          ),
+        );
         eventStreamController.add(
           AudioEvent(
             eventType: AudioEventType.duration,
@@ -85,14 +98,8 @@ class WrappedPlayer {
       },
       onError: eventStreamController.addError,
     );
-    _playerLoadedDataSubscription = p.onLoadedData.listen(
-      (_) {
-        eventStreamController.add(
-          const AudioEvent(
-            eventType: AudioEventType.prepared,
-            isPrepared: true,
-          ),
-        );
+    _playerPlaySubscription = p.onPlay.listen(
+          (_) {
         eventStreamController.add(
           AudioEvent(
             eventType: AudioEventType.duration,
@@ -124,7 +131,7 @@ class WrappedPlayer {
     _playerEndedSubscription = p.onEnded.listen(
       (_) {
         _pausedAt = 0;
-        player?.currentTime = 0;
+        p.currentTime = 0;
         eventStreamController.add(
           const AudioEvent(eventType: AudioEventType.complete),
         );
