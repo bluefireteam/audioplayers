@@ -326,14 +326,13 @@ void main() {
     });
 
     testWidgets(
-      'Throw PlatformException, when playing invalid file',
+      'Throw PlatformException, when loading invalid file',
       (tester) async {
         final player = AudioPlayer();
         await tester.pumpAndSettle();
         try {
           // Throws PlatformException via MethodChannel:
           await player.setSource(AssetSource(invalidAsset));
-          await player.resume();
           fail('PlatformException not thrown');
           // ignore: avoid_catches_without_on_clauses
         } catch (e) {
@@ -348,14 +347,13 @@ void main() {
     );
 
     testWidgets(
-      'Throw PlatformException, when playing non existent file',
+      'Throw PlatformException, when loading non existent file',
       (tester) async {
         final player = AudioPlayer();
         await tester.pumpAndSettle();
         try {
           // Throws PlatformException via MethodChannel:
           await player.setSource(UrlSource('non_existent.txt'));
-          await player.resume();
           fail('PlatformException not thrown');
           // ignore: avoid_catches_without_on_clauses
         } catch (e) {
