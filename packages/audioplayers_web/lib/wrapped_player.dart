@@ -99,7 +99,7 @@ class WrappedPlayer {
       onError: eventStreamController.addError,
     );
     _playerPlaySubscription = p.onPlay.listen(
-          (_) {
+      (_) {
         eventStreamController.add(
           AudioEvent(
             eventType: AudioEventType.duration,
