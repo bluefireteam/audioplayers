@@ -244,7 +244,7 @@ void main() {
         playerId,
         (wavUrl1TestData.source as UrlSource).url,
       );
-      await preparedCompleter.future.timeout(Duration(seconds: 30));
+      await preparedCompleter.future.timeout(const Duration(seconds: 30));
 
       expect(await platform.getCurrentPosition(playerId), 0);
       expect(
