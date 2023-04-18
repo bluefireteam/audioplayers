@@ -7,11 +7,11 @@ class LabeledDropDown<T> extends StatelessWidget {
   final void Function(T?) onChange;
 
   const LabeledDropDown({
-    super.key,
     required this.label,
     required this.options,
     required this.selected,
     required this.onChange,
+    super.key,
   });
 
   @override
@@ -34,11 +34,11 @@ class CustomDropDown<T> extends StatelessWidget {
   final bool isExpanded;
 
   const CustomDropDown({
-    super.key,
     required this.options,
     required this.selected,
     required this.onChange,
     this.isExpanded = false,
+    super.key,
   });
 
   @override

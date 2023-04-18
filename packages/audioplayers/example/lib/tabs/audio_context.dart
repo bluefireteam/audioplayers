@@ -8,13 +8,16 @@ import 'package:flutter/material.dart';
 class AudioContextTab extends StatefulWidget {
   final AudioPlayer player;
 
-  const AudioContextTab({super.key, required this.player});
+  const AudioContextTab({
+    required this.player,
+    super.key,
+  });
 
   @override
-  _AudioContextTabState createState() => _AudioContextTabState();
+  AudioContextTabState createState() => AudioContextTabState();
 }
 
-class _AudioContextTabState extends State<AudioContextTab>
+class AudioContextTabState extends State<AudioContextTab>
     with AutomaticKeepAliveClientMixin<AudioContextTab> {
   static GlobalAudioScope get _global => AudioPlayer.global;
 
@@ -102,22 +105,22 @@ class _AudioContextTabState extends State<AudioContextTab>
       children: [
         Cbx(
           'Force Speaker',
-          audioContextConfig.forceSpeaker,
+          value: audioContextConfig.forceSpeaker,
           (v) => updateConfig(audioContextConfig.copy(forceSpeaker: v)),
         ),
         Cbx(
           'Duck Audio',
-          audioContextConfig.duckAudio,
+          value: audioContextConfig.duckAudio,
           (v) => updateConfig(audioContextConfig.copy(duckAudio: v)),
         ),
         Cbx(
           'Respect Silence',
-          audioContextConfig.respectSilence,
+          value: audioContextConfig.respectSilence,
           (v) => updateConfig(audioContextConfig.copy(respectSilence: v)),
         ),
         Cbx(
           'Stay Awake',
-          audioContextConfig.stayAwake,
+          value: audioContextConfig.stayAwake,
           (v) => updateConfig(audioContextConfig.copy(stayAwake: v)),
         ),
       ],
@@ -129,14 +132,14 @@ class _AudioContextTabState extends State<AudioContextTab>
       children: [
         Cbx(
           'isSpeakerphoneOn',
-          audioContext.android.isSpeakerphoneOn,
+          value: audioContext.android.isSpeakerphoneOn,
           (v) => updateAudioContextAndroid(
             audioContext.android.copy(isSpeakerphoneOn: v),
           ),
         ),
         Cbx(
           'stayAwake',
-          audioContext.android.stayAwake,
+          value: audioContext.android.stayAwake,
           (v) => updateAudioContextAndroid(
             audioContext.android.copy(stayAwake: v),
           ),
@@ -187,7 +190,7 @@ class _AudioContextTabState extends State<AudioContextTab>
         final options = audioContext.iOS.options.toList();
         return Cbx(
           option.name,
-          options.contains(option),
+          value: options.contains(option),
           (v) {
             if (v) {
               options.add(option);

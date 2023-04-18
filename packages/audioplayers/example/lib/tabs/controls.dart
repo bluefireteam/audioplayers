@@ -10,7 +10,10 @@ import 'package:flutter/material.dart';
 class ControlsTab extends StatefulWidget {
   final AudioPlayer player;
 
-  const ControlsTab({super.key, required this.player});
+  const ControlsTab({
+    required this.player,
+    super.key,
+  });
 
   @override
   State<ControlsTab> createState() => _ControlsTabState();
@@ -188,11 +191,11 @@ class SeekDialog extends StatelessWidget {
   final String value;
 
   const SeekDialog({
-    super.key,
     required this.seekDuration,
     required this.seekPercent,
     required this.value,
     required this.setValue,
+    super.key,
   });
 
   @override

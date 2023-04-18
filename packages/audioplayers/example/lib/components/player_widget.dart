@@ -6,7 +6,10 @@ import 'package:flutter/material.dart';
 class PlayerWidget extends StatefulWidget {
   final AudioPlayer player;
 
-  const PlayerWidget({super.key, required this.player});
+  const PlayerWidget({
+    required this.player,
+    super.key,
+  });
 
   @override
   State<StatefulWidget> createState() {
