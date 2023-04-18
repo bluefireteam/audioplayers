@@ -7,8 +7,8 @@ class Cbx extends StatelessWidget {
 
   const Cbx(
     this.label,
-    this.value,
     this.update, {
+    required this.value,
     super.key,
   });
 

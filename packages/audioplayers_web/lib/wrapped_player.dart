@@ -39,16 +39,16 @@ class WrappedPlayer {
     }
   }
 
-  void setVolume(double volume) {
+  set volume(double volume) {
     _currentVolume = volume;
     player?.volume = volume;
   }
 
-  void setBalance(double balance) {
+  set balance(double balance) {
     _stereoPanner?.pan.value = balance;
   }
 
-  void setPlaybackRate(double rate) {
+  set playbackRate(double rate) {
     _currentPlaybackRate = rate;
     player?.playbackRate = rate;
   }
@@ -129,7 +129,7 @@ class WrappedPlayer {
 
   bool shouldLoop() => _currentReleaseMode == ReleaseMode.loop;
 
-  void setReleaseMode(ReleaseMode releaseMode) {
+  set releaseMode(ReleaseMode releaseMode) {
     _currentReleaseMode = releaseMode;
     player?.loop = shouldLoop();
   }
