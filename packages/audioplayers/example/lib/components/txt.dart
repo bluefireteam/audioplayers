@@ -3,10 +3,11 @@ import 'package:flutter/material.dart';
 class TxtBox extends StatefulWidget {
   final String value;
   final void Function(String) onChange;
+
   const TxtBox({
-    super.key,
     required this.value,
     required this.onChange,
+    super.key,
   });
 
   @override

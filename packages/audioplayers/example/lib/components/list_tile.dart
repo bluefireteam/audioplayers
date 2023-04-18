@@ -6,10 +6,10 @@ class WrappedListTile extends StatelessWidget {
   final Widget? trailing;
 
   const WrappedListTile({
-    super.key,
     required this.children,
     this.leading,
     this.trailing,
+    super.key,
   });
 
   @override
