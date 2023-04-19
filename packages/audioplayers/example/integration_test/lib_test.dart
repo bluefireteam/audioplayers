@@ -214,6 +214,9 @@ void main() {
       await platform.create(playerId);
       await tester.pumpAndSettle();
       await platform.dispose(playerId);
+      
+      // Call method after player has been released
+      await platform.stop(playerId);
     });
   });
 
