@@ -40,29 +40,34 @@ AudioPlayer::AudioPlayer(
     m_mediaEngineWrapper->Initialize();
 }
 
+// This method should be called asynchronously, to avoid freezing UI
 void AudioPlayer::SetSourceUrl(std::string url) {
     if (_url != url) {
         _url = url;
-        // Create a source resolver to create an IMFMediaSource for the content
-        // URL. This will create an instance of an inbuilt OS media source for
-        // playback. An application can skip this step and instantiate a custom
-        // IMFMediaSource implementation instead.
-        winrt::com_ptr<IMFSourceResolver> sourceResolver;
-        THROW_IF_FAILED(MFCreateSourceResolver(sourceResolver.put()));
-        constexpr uint32_t sourceResolutionFlags =
-            MF_RESOLUTION_MEDIASOURCE |
-            MF_RESOLUTION_CONTENT_DOES_NOT_HAVE_TO_MATCH_EXTENSION_OR_MIME_TYPE |
-            MF_RESOLUTION_READ;
-        MF_OBJECT_TYPE objectType = {};
-
-        winrt::com_ptr<IMFMediaSource> mediaSource;
-        THROW_IF_FAILED(sourceResolver->CreateObjectFromURL(
-            winrt::to_hstring(url).c_str(), sourceResolutionFlags, nullptr,
-            &objectType, reinterpret_cast<IUnknown**>(mediaSource.put_void())));
-
-        OnPrepared(false);
         _isInitialized = false;
-        m_mediaEngineWrapper->SetMediaSource(mediaSource.get());
+        
+        try {
+            // Create a source resolver to create an IMFMediaSource for the content
+            // URL. This will create an instance of an inbuilt OS media source for
+            // playback. An application can skip this step and instantiate a custom
+            // IMFMediaSource implementation instead.
+            winrt::com_ptr<IMFSourceResolver> sourceResolver;
+            THROW_IF_FAILED(MFCreateSourceResolver(sourceResolver.put()));
+            constexpr uint32_t sourceResolutionFlags =
+                MF_RESOLUTION_MEDIASOURCE |
+                MF_RESOLUTION_CONTENT_DOES_NOT_HAVE_TO_MATCH_EXTENSION_OR_MIME_TYPE |
+                MF_RESOLUTION_READ;
+            MF_OBJECT_TYPE objectType = {};
+
+            winrt::com_ptr<IMFMediaSource> mediaSource;
+            THROW_IF_FAILED(sourceResolver->CreateObjectFromURL(
+                winrt::to_hstring(url).c_str(), sourceResolutionFlags, nullptr,
+                &objectType, reinterpret_cast<IUnknown**>(mediaSource.put_void())));
+
+            m_mediaEngineWrapper->SetMediaSource(mediaSource.get());
+        } catch (...) {
+            this->OnError("WindowsAudioError", "Error setting url to '" + url + "'.", nullptr);
+        }
     }
 }
 

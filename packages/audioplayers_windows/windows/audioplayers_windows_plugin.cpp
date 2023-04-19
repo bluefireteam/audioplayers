@@ -175,12 +175,8 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
             return;
         }
 
-        try {
-            player->SetSourceUrl(url);
-            result->Success(EncodableValue(1));
-        } catch (...) {
-            result->Error("WindowsAudioError", "Error setting url to '" + url + "'.", nullptr);
-        }
+        std::thread(&AudioPlayer::SetSourceUrl, player, url).detach();
+        result->Success(EncodableValue(1));
     } else if (method_call.method_name().compare("getDuration") == 0) {
         result->Success(EncodableValue(player->GetDuration() / 10000));
     } else if (method_call.method_name().compare("setVolume") == 0) {
