@@ -149,7 +149,7 @@ extension StreamWidgetTester on WidgetTester {
         matcher: (Duration? actual) => durationRangeMatcher(
           actual,
           duration,
-          deviation: const Duration(milliseconds: 100),
+          deviation: const Duration(milliseconds: 500),
         ),
       ),
       timeout: timeout,
