@@ -4,6 +4,7 @@ import 'dart:html';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
 import 'package:audioplayers_web/num_extension.dart';
 import 'package:audioplayers_web/web_audio_js.dart';
+import 'package:flutter/services.dart';
 
 class WrappedPlayer {
   final String playerId;
@@ -23,6 +24,7 @@ class WrappedPlayer {
   StreamSubscription? _playerLoadedDataSubscription;
   StreamSubscription? _playerPlaySubscription;
   StreamSubscription? _playerSeekedSubscription;
+  StreamSubscription? _playerErrorSubscription;
 
   WrappedPlayer(this.playerId);
 
@@ -138,6 +140,17 @@ class WrappedPlayer {
       },
       onError: eventStreamController.addError,
     );
+    _playerErrorSubscription = p.onError.listen(
+      (_) {
+        eventStreamController.addError(
+          PlatformException(
+            code: p.error?.code.toString() ?? 'WebAudioError',
+            message: p.error?.message,
+          ),
+        );
+      },
+      onError: eventStreamController.addError,
+    );
   }
 
   bool shouldLoop() => _currentReleaseMode == ReleaseMode.loop;
@@ -162,6 +175,8 @@ class WrappedPlayer {
     _playerSeekedSubscription = null;
     _playerPlaySubscription?.cancel();
     _playerPlaySubscription = null;
+    _playerErrorSubscription?.cancel();
+    _playerErrorSubscription = null;
   }
 
   Future<void> start(double position) async {

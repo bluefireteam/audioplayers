@@ -9,7 +9,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
-import 'mock_html.dart' if (dart.library.html) 'dart:html' show DomException;
 import 'platform_features.dart';
 import 'source_test_data.dart';
 import 'test_utils.dart';
@@ -340,12 +339,7 @@ void main() {
           fail('PlatformException not thrown');
           // ignore: avoid_catches_without_on_clauses
         } catch (e) {
-          if (kIsWeb) {
-            expect(e, isInstanceOf<DomException>());
-            expect((e as DomException).name, 'NotSupportedError');
-          } else {
-            expect(e, isInstanceOf<PlatformException>());
-          }
+          expect(e, isInstanceOf<PlatformException>());
         }
       },
     );
@@ -361,12 +355,7 @@ void main() {
           fail('PlatformException not thrown');
           // ignore: avoid_catches_without_on_clauses
         } catch (e) {
-          if (kIsWeb) {
-            expect(e, isInstanceOf<DomException>());
-            expect((e as DomException).name, 'NotSupportedError');
-          } else {
-            expect(e, isInstanceOf<PlatformException>());
-          }
+          expect(e, isInstanceOf<PlatformException>());
         }
       },
     );
