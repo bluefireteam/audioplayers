@@ -2,12 +2,13 @@ import 'package:audioplayers_example/components/btn.dart';
 import 'package:flutter/material.dart';
 
 class SimpleDlg extends StatelessWidget {
-  final String message, action;
+  final String message;
+  final String action;
 
   const SimpleDlg({
-    super.key,
     required this.message,
     required this.action,
+    super.key,
   });
 
   @override
@@ -31,8 +32,8 @@ class Dlg extends StatelessWidget {
   final Widget child;
 
   const Dlg({
-    super.key,
     required this.child,
+    super.key,
   });
 
   @override

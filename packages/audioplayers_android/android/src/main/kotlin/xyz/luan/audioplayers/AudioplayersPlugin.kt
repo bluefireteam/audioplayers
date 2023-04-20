@@ -119,11 +119,6 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
         val player = getPlayer(playerId)
         try {
             when (call.method) {
-                "dispose" -> {
-                    player.dispose()
-                    players.remove(playerId)
-                }
-
                 "setSourceUrl" -> {
                     val url = call.argument<String>("url") ?: error("url is required")
                     val isLocal = call.argument<Boolean>("isLocal") ?: false
@@ -152,10 +147,10 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
                     player.volume = volume.toFloat()
                 }
 
-            "setBalance" -> {
-                val balance = call.argument<Double>("balance") ?: error("balance is required")
-                player.balance = balance.toFloat()
-            }
+                "setBalance" -> {
+                    val balance = call.argument<Double>("balance") ?: error("balance is required")
+                    player.balance = balance.toFloat()
+                }
 
                 "setPlaybackRate" -> {
                     val rate = call.argument<Double>("playbackRate") ?: error("playbackRate is required")
@@ -196,6 +191,11 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
                     val code = call.argument<String>("code") ?: error("code is required")
                     val message = call.argument<String>("message") ?: error("message is required")
                     player.handleError(code, message, null)
+                }
+
+                "dispose" -> {
+                    player.dispose()
+                    players.remove(playerId)
                 }
 
                 else -> {
@@ -290,9 +290,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
                     continue
                 }
                 isAnyPlaying = true
-                val duration = player.getDuration()
                 val time = player.getCurrentPosition()
-                player.eventHandler.success("audio.onDuration", hashMapOf("value" to (duration ?: 0)))
                 player.eventHandler.success("audio.onCurrentPosition", hashMapOf("value" to (time ?: 0)))
             }
             if (isAnyPlaying) {

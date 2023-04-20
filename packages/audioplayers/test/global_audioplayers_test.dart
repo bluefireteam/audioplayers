@@ -56,9 +56,9 @@ void main() {
 
   group('Global Events', () {
     test('global event stream', () async {
-      final globalEvents = <GlobalEvent>[
-        const GlobalEvent(
-          eventType: GlobalEventType.log,
+      final globalEvents = <GlobalAudioEvent>[
+        const GlobalAudioEvent(
+          eventType: GlobalAudioEventType.log,
           logMessage: 'someLogMessage',
         ),
       ];
@@ -68,11 +68,7 @@ void main() {
         emitsInOrder(globalEvents),
       );
 
-      globalEvents.forEach((globalEvent) {
-        globalPlatform.eventStreamController.add(globalEvent);
-      });
-
-      // Await closing controller to avoid handling events after test finishes.
+      globalEvents.forEach(globalPlatform.eventStreamController.add);
       await globalPlatform.eventStreamController.close();
     });
   });

@@ -5,27 +5,30 @@ import 'package:flutter/services.dart';
 
 class WebGlobalAudioplayersPlatform
     extends GlobalAudioplayersPlatformInterface {
-  final _eventStreamController = StreamController<GlobalEvent>.broadcast();
+  final _eventStreamController = StreamController<GlobalAudioEvent>.broadcast();
 
   @override
   Future<void> setGlobalAudioContext(AudioContext ctx) async {
     _eventStreamController.add(
-      const GlobalEvent(
-        eventType: GlobalEventType.log,
+      const GlobalAudioEvent(
+        eventType: GlobalAudioEventType.log,
         logMessage: 'Setting global AudioContext is not supported on Web',
       ),
     );
   }
 
   @override
-  Stream<GlobalEvent> getGlobalEventStream() {
+  Stream<GlobalAudioEvent> getGlobalEventStream() {
     return _eventStreamController.stream;
   }
 
   @override
   Future<void> emitGlobalLog(String message) async {
     _eventStreamController.add(
-      GlobalEvent(eventType: GlobalEventType.log, logMessage: message),
+      GlobalAudioEvent(
+        eventType: GlobalAudioEventType.log,
+        logMessage: message,
+      ),
     );
   }
 

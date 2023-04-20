@@ -32,15 +32,17 @@ void main() {
       expect(player.source, null);
     });
 
-    test('#setSource', () async {
+    test('#setSource and #dispose', () async {
       await player.setSource(UrlSource('internet.com/file.mp3'));
       expect(platform.popLastCall().method, 'setSourceUrl');
       expect(player.source, isInstanceOf<UrlSource>());
       final urlSource = player.source as UrlSource?;
       expect(urlSource?.url, 'internet.com/file.mp3');
 
-      await player.release();
-      expect(platform.popLastCall().method, 'release');
+      await player.dispose();
+      expect(platform.popCall().method, 'stop');
+      expect(platform.popCall().method, 'release');
+      expect(platform.popLastCall().method, 'dispose');
       expect(player.source, null);
     });
 
@@ -101,37 +103,33 @@ void main() {
     });
 
     test('event stream', () async {
-      final playerEvents = <PlayerEvent>[
-        const PlayerEvent(
-          eventType: PlayerEventType.duration,
+      final audioEvents = <AudioEvent>[
+        const AudioEvent(
+          eventType: AudioEventType.duration,
           duration: Duration(milliseconds: 98765),
         ),
-        const PlayerEvent(
-          eventType: PlayerEventType.position,
+        const AudioEvent(
+          eventType: AudioEventType.position,
           position: Duration(milliseconds: 8765),
         ),
-        const PlayerEvent(
-          eventType: PlayerEventType.log,
+        const AudioEvent(
+          eventType: AudioEventType.log,
           logMessage: 'someLogMessage',
         ),
-        const PlayerEvent(
-          eventType: PlayerEventType.complete,
+        const AudioEvent(
+          eventType: AudioEventType.complete,
         ),
-        const PlayerEvent(
-          eventType: PlayerEventType.seekComplete,
+        const AudioEvent(
+          eventType: AudioEventType.seekComplete,
         ),
       ];
 
       expect(
         player.eventStream,
-        emitsInOrder(playerEvents),
+        emitsInOrder(audioEvents),
       );
 
-      playerEvents.forEach((playerEvent) {
-        platform.eventStreamController.add(playerEvent);
-      });
-
-      // Await closing controller to avoid handling events after test finishes.
+      audioEvents.forEach(platform.eventStreamController.add);
       await platform.eventStreamController.close();
     });
   });

@@ -164,7 +164,7 @@ Normally you want to use `.mediaPlayer` unless you care about performance and yo
 You can globally control the amount of log messages that are emitted by this package:
 
 ```dart
-  Logger.logLevel = LogLevel.info;
+  AudioLogger.logLevel = AudioLogLevel.info;
 ```
 
 You can pick one of 3 options:
@@ -197,7 +197,7 @@ To configure a player specific Audio Context (if desired), use:
 
 **Note:** As the iOS platform can not handle contexts for each player individually, for convenience this would also set the Audio Context globally.
 
-While each platform has its own set of configurations, they are somewhat related, and you can create them using a unified interface call [`AudioContextConfig`](https://pub.dev/documentation/audioplayers_platform_interface/latest/src_api_audio_context_config/src_api_audio_context_config-library.html).
+While each platform has its own set of configurations, they are somewhat related, and you can create them using a unified interface call [`AudioContextConfig`](https://pub.dev/documentation/audioplayers/latest/audioplayers/AudioContextConfig-class.html).
 It provides generic abstractions that convey intent, that are then converted to platform specific configurations.
 
 Note that if this process is not perfect, you can create your configuration from scratch by providing exact details for each platform via
@@ -290,7 +290,7 @@ Or to handle global logs:
 All mentioned events can also be obtained by a combined event stream.
 
 ```dart
-  player.eventStream.listen((PlayerEvent event) {
+  player.eventStream.listen((AudioEvent event) {
     print(event.eventType);
   });
 ```
@@ -298,7 +298,7 @@ All mentioned events can also be obtained by a combined event stream.
 Or to handle global events:
 
 ```dart
-  AudioPlayer.global.eventStream.listen((GlobalEvent event) {
+  AudioPlayer.global.eventStream.listen((GlobalAudioEvent event) {
     print(event.eventType);
   });
 ```

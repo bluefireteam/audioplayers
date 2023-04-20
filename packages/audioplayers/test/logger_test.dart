@@ -6,20 +6,20 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  final _print = OverridePrint();
+  final printZone = OverridePrint();
 
   group('Logger', () {
-    setUp(_print.clear);
+    setUp(printZone.clear);
 
     test(
       'when set to INFO everything is logged',
-      _print.overridePrint(() {
-        Logger.logLevel = LogLevel.info;
+      printZone.overridePrint(() {
+        AudioLogger.logLevel = AudioLogLevel.info;
 
-        Logger.log('info');
-        Logger.error('error');
+        AudioLogger.log('info');
+        AudioLogger.error('error');
 
-        expect(_print.logs, [
+        expect(printZone.logs, [
           'AudioPlayers Log: info',
           '\x1B[31mAudioPlayers throw: error\x1B[0m',
         ]);
@@ -28,13 +28,13 @@ void main() {
 
     test(
       'when set to ERROR only errors are logged',
-      _print.overridePrint(() {
-        Logger.logLevel = LogLevel.error;
+      printZone.overridePrint(() {
+        AudioLogger.logLevel = AudioLogLevel.error;
 
-        Logger.log('info');
-        Logger.error('error');
+        AudioLogger.log('info');
+        AudioLogger.error('error');
 
-        expect(_print.logs, [
+        expect(printZone.logs, [
           '\x1B[31mAudioPlayers throw: error\x1B[0m',
         ]);
       }),
@@ -42,13 +42,13 @@ void main() {
 
     test(
       'when set to NONE nothing is logged',
-      _print.overridePrint(() {
-        Logger.logLevel = LogLevel.none;
+      printZone.overridePrint(() {
+        AudioLogger.logLevel = AudioLogLevel.none;
 
-        Logger.log('info');
-        Logger.error('error');
+        AudioLogger.log('info');
+        AudioLogger.error('error');
 
-        expect(_print.logs, <String>[]);
+        expect(printZone.logs, <String>[]);
       }),
     );
   });

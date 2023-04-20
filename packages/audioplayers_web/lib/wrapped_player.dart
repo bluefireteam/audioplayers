@@ -7,7 +7,7 @@ import 'package:audioplayers_web/web_audio_js.dart';
 
 class WrappedPlayer {
   final String playerId;
-  final eventStreamController = StreamController<PlayerEvent>.broadcast();
+  final eventStreamController = StreamController<AudioEvent>.broadcast();
 
   double? _pausedAt;
   double _currentVolume = 1.0;
@@ -39,16 +39,16 @@ class WrappedPlayer {
     }
   }
 
-  void setVolume(double volume) {
+  set volume(double volume) {
     _currentVolume = volume;
     player?.volume = volume;
   }
 
-  void setBalance(double balance) {
+  set balance(double balance) {
     _stereoPanner?.pan.value = balance;
   }
 
-  void setPlaybackRate(double rate) {
+  set playbackRate(double rate) {
     _currentPlaybackRate = rate;
     player?.playbackRate = rate;
   }
@@ -77,8 +77,8 @@ class WrappedPlayer {
     _playerPlaySubscription = p.onPlay.listen(
       (_) {
         eventStreamController.add(
-          PlayerEvent(
-            eventType: PlayerEventType.duration,
+          AudioEvent(
+            eventType: AudioEventType.duration,
             duration: p.duration.fromSecondsToDuration(),
           ),
         );
@@ -88,8 +88,8 @@ class WrappedPlayer {
     _playerLoadedDataSubscription = p.onLoadedData.listen(
       (_) {
         eventStreamController.add(
-          PlayerEvent(
-            eventType: PlayerEventType.duration,
+          AudioEvent(
+            eventType: AudioEventType.duration,
             duration: p.duration.fromSecondsToDuration(),
           ),
         );
@@ -99,8 +99,8 @@ class WrappedPlayer {
     _playerTimeUpdateSubscription = p.onTimeUpdate.listen(
       (_) {
         eventStreamController.add(
-          PlayerEvent(
-            eventType: PlayerEventType.position,
+          AudioEvent(
+            eventType: AudioEventType.position,
             position: p.currentTime.fromSecondsToDuration(),
           ),
         );
@@ -110,7 +110,7 @@ class WrappedPlayer {
     _playerSeekedSubscription = p.onSeeked.listen(
       (_) {
         eventStreamController.add(
-          const PlayerEvent(eventType: PlayerEventType.seekComplete),
+          const AudioEvent(eventType: AudioEventType.seekComplete),
         );
       },
       onError: eventStreamController.addError,
@@ -120,7 +120,7 @@ class WrappedPlayer {
         _pausedAt = 0;
         player?.currentTime = 0;
         eventStreamController.add(
-          const PlayerEvent(eventType: PlayerEventType.complete),
+          const AudioEvent(eventType: AudioEventType.complete),
         );
       },
       onError: eventStreamController.addError,
@@ -129,7 +129,7 @@ class WrappedPlayer {
 
   bool shouldLoop() => _currentReleaseMode == ReleaseMode.loop;
 
-  void setReleaseMode(ReleaseMode releaseMode) {
+  set releaseMode(ReleaseMode releaseMode) {
     _currentReleaseMode = releaseMode;
     player?.loop = shouldLoop();
   }
@@ -159,8 +159,8 @@ class WrappedPlayer {
     if (player == null) {
       recreateNode();
     }
-    await player?.play();
     player?.currentTime = position;
+    await player?.play();
   }
 
   Future<void> resume() async {
@@ -198,7 +198,7 @@ class WrappedPlayer {
 
   void log(String message) {
     eventStreamController.add(
-      PlayerEvent(eventType: PlayerEventType.log, logMessage: message),
+      AudioEvent(eventType: AudioEventType.log, logMessage: message),
     );
   }
 

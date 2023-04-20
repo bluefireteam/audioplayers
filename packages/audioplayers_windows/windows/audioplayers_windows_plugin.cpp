@@ -221,6 +221,10 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
         auto message = GetArgument<std::string>("message", args, std::string());
         player->OnError(code, message, nullptr);
         result->Success(EncodableValue(1));
+    } else if (method_call.method_name().compare("dispose") == 0) {
+        player->Dispose();
+        audioPlayers.erase(playerId);
+        result->Success(EncodableValue(1));
     } else {
         result->NotImplemented();
     }

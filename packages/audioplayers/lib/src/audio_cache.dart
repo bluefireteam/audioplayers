@@ -1,9 +1,11 @@
 import 'dart:async';
-import 'dart:io';
+
 // TODO(gustl22): remove when upgrading min Flutter version to >=3.3.0
 // ignore: unnecessary_import
 import 'dart:typed_data';
 
+import 'package:file/file.dart';
+import 'package:file/local.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart' as http;
@@ -25,6 +27,9 @@ import 'package:path_provider/path_provider.dart';
 class AudioCache {
   /// A globlally accessible instance used by default by all players.
   static AudioCache instance = AudioCache();
+
+  @visibleForTesting
+  static FileSystem fileSystem = const LocalFileSystem();
 
   /// A reference to the loaded files absolute URLs.
   ///
@@ -51,16 +56,28 @@ class AudioCache {
   /// Note: web relies on the browser cache which is handled entirely by the
   /// browser, thus this will no-op.
   Future<void> clear(String fileName) async {
-    final uri = loadedFiles.remove(fileName);
+    await _clearFile(fileName);
+    loadedFiles.remove(fileName);
+  }
+
+  Future<void> _clearFile(String fileName) async {
+    final uri = loadedFiles[fileName];
     if (uri != null && !kIsWeb) {
-      await File(uri.toFilePath()).delete();
+      await fileSystem.file(uri.toFilePath(windows: false)).delete();
     }
   }
 
   /// Clears the whole cache.
   Future<void> clearAll() async {
-    await Future.wait(loadedFiles.keys.map(clear));
+    await Future.wait(loadedFiles.keys.map(_clearFile));
+    loadedFiles.clear();
   }
+
+  @visibleForTesting
+  Future<ByteData> loadAsset(String path) => rootBundle.load(path);
+
+  @visibleForTesting
+  Future<String> getTempDir() async => (await getTemporaryDirectory()).path;
 
   Future<Uri> fetchToMemory(String fileName) async {
     if (kIsWeb) {
@@ -72,10 +89,10 @@ class AudioCache {
     }
 
     // read local asset from rootBundle
-    final byteData = await rootBundle.load('$prefix$fileName');
+    final byteData = await loadAsset('$prefix$fileName');
 
     // create a temporary file on the device to be read by the native side
-    final file = File('${(await getTemporaryDirectory()).path}/$fileName');
+    final file = fileSystem.file('${await getTempDir()}/$fileName');
     await file.create(recursive: true);
     await file.writeAsBytes(byteData.buffer.asUint8List());
 
@@ -112,7 +129,7 @@ class AudioCache {
       throw 'This method cannot be used on web!';
     }
     final uri = await load(fileName);
-    return File(uri.toFilePath());
+    return fileSystem.file(uri.toFilePath(windows: false));
   }
 
   /// Loads a single [fileName] to the cache but returns it as a list of bytes.

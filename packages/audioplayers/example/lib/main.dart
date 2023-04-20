@@ -24,20 +24,20 @@ void main() {
     MaterialApp(
       home: Screenshot<void>(
         controller: screenshotController,
-        child: const ExampleApp(),
+        child: const _ExampleApp(),
       ),
     ),
   );
 }
 
-class ExampleApp extends StatefulWidget {
-  const ExampleApp({super.key});
+class _ExampleApp extends StatefulWidget {
+  const _ExampleApp();
 
   @override
   _ExampleAppState createState() => _ExampleAppState();
 }
 
-class _ExampleAppState extends State<ExampleApp> {
+class _ExampleAppState extends State<_ExampleApp> {
   List<AudioPlayer> audioPlayers = List.generate(
     defaultPlayerCount,
     (_) => AudioPlayer()..setReleaseMode(ReleaseMode.stop),
@@ -100,8 +100,7 @@ class _ExampleAppState extends State<ExampleApp> {
       case PopupAction.remove:
         setState(() {
           if (audioPlayers.isNotEmpty) {
-            selectedAudioPlayer.stop();
-            selectedAudioPlayer.release();
+            selectedAudioPlayer.dispose();
             audioPlayers.removeAt(selectedPlayerIdx);
           }
           // Adjust index to be in valid range

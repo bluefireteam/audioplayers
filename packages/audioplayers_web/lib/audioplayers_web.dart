@@ -78,8 +78,8 @@ class WebAudioplayersPlatform extends AudioplayersPlatformInterface {
     AudioContext audioContext,
   ) async {
     getPlayer(playerId).eventStreamController.add(
-          const PlayerEvent(
-            eventType: PlayerEventType.log,
+          const AudioEvent(
+            eventType: AudioEventType.log,
             logMessage: 'Setting AudioContext is not supported on Web',
           ),
         );
@@ -95,12 +95,12 @@ class WebAudioplayersPlatform extends AudioplayersPlatformInterface {
 
   @override
   Future<void> setPlaybackRate(String playerId, double playbackRate) async {
-    getPlayer(playerId).setPlaybackRate(playbackRate);
+    getPlayer(playerId).playbackRate = playbackRate;
   }
 
   @override
   Future<void> setReleaseMode(String playerId, ReleaseMode releaseMode) async {
-    getPlayer(playerId).setReleaseMode(releaseMode);
+    getPlayer(playerId).releaseMode = releaseMode;
   }
 
   @override
@@ -120,12 +120,12 @@ class WebAudioplayersPlatform extends AudioplayersPlatformInterface {
 
   @override
   Future<void> setVolume(String playerId, double volume) async {
-    getPlayer(playerId).setVolume(volume);
+    getPlayer(playerId).volume = volume;
   }
 
   @override
   Future<void> setBalance(String playerId, double balance) async {
-    getPlayer(playerId).setBalance(balance);
+    getPlayer(playerId).balance = balance;
   }
 
   @override
@@ -146,15 +146,14 @@ class WebAudioplayersPlatform extends AudioplayersPlatformInterface {
   }
 
   @override
-  Stream<PlayerEvent> getEventStream(String playerId) {
+  Stream<AudioEvent> getEventStream(String playerId) {
     return getPlayer(playerId).eventStreamController.stream;
   }
 
   @override
   Future<void> dispose(String playerId) async {
-    await Future.forEach<WrappedPlayer>(
-      players.values,
-      (player) => player.dispose(),
-    );
+    final player = getPlayer(playerId);
+    await player.dispose();
+    players.remove(playerId);
   }
 }
