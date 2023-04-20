@@ -177,7 +177,9 @@ Duration? _parseDuration(String? s) {
   if (s == null || s.isEmpty) {
     return null;
   }
-  var hours = 0, minutes = 0, micros = 0;
+  var hours = 0;
+  var minutes = 0;
+  var micros = 0;
   final parts = s.split(':');
   if (parts.length > 2) {
     hours = int.parse(parts[parts.length - 3]);

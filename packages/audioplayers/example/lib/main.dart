@@ -17,17 +17,17 @@ const defaultPlayerCount = 4;
 typedef OnError = void Function(Exception exception);
 
 void main() {
-  runApp(const MaterialApp(home: ExampleApp()));
+  runApp(const MaterialApp(home: _ExampleApp()));
 }
 
-class ExampleApp extends StatefulWidget {
-  const ExampleApp({super.key});
+class _ExampleApp extends StatefulWidget {
+  const _ExampleApp();
 
   @override
   _ExampleAppState createState() => _ExampleAppState();
 }
 
-class _ExampleAppState extends State<ExampleApp> {
+class _ExampleAppState extends State<_ExampleApp> {
   List<AudioPlayer> audioPlayers = List.generate(
     defaultPlayerCount,
     (_) => AudioPlayer()..setReleaseMode(ReleaseMode.stop),

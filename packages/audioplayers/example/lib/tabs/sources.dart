@@ -29,7 +29,10 @@ const invalidAsset = 'invalid.txt';
 class SourcesTab extends StatefulWidget {
   final AudioPlayer player;
 
-  const SourcesTab({super.key, required this.player});
+  const SourcesTab({
+    required this.player,
+    super.key,
+  });
 
   @override
   State<SourcesTab> createState() => _SourcesTabState();
