@@ -187,8 +187,8 @@ class WrappedPlayer {
     if (player == null) {
       recreateNode();
     }
-    await player?.play();
     player?.currentTime = position;
+    await player?.play();
   }
 
   Future<void> resume() async {
