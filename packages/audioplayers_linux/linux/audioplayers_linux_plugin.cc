@@ -48,6 +48,9 @@ static void audioplayers_linux_plugin_create_player(
 static AudioPlayer *audioplayers_linux_plugin_get_player(
     const std::string &playerId) {
     auto searchPlayer = audioPlayers.find(playerId);
+    if(searchPlayer == audioPlayers.end()) {
+        return nullptr;
+    }
     return searchPlayer->second.get();
 }
 
@@ -118,6 +121,13 @@ static void audioplayers_linux_plugin_handle_method_call(
     }
 
     auto player = audioplayers_linux_plugin_get_player(playerId);
+    if(!player) {
+        response = FL_METHOD_RESPONSE(fl_method_error_response_new(
+                "LinuxAudioError", "Player has not yet been created or has already been disposed.",
+                nullptr));
+        fl_method_call_respond(method_call, response, nullptr);
+        return;
+    }
 
     try {
         if (strcmp(method, "pause") == 0) {

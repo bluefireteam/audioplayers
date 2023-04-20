@@ -210,7 +210,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
     }
 
     private fun getPlayer(playerId: String): WrappedPlayer {
-        return players[playerId] ?: error("Player with id $playerId was not created!")
+        return players[playerId] ?: error("Player has not yet been created or has already been disposed.")
     }
 
     fun getApplicationContext(): Context {
