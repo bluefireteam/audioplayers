@@ -123,4 +123,8 @@ class AudioPool {
     await player.setReleaseMode(ReleaseMode.stop);
     return player;
   }
+
+  /// Disposes the audio pool. Then it cannot be used anymore.
+  Future<void> dispose() =>
+      Future.wait(availablePlayers.map((e) => e.dispose()));
 }
