@@ -151,11 +151,17 @@ void AudioPlayer::OnMediaStateChange(GstObject *src, GstState *old_state,
                                      GstState *new_state) {
     if (strcmp(GST_OBJECT_NAME(src), "playbin") == 0) {
         if (*new_state == GST_STATE_READY) {
+            if (this->_isInitialized) {
+                this->_isInitialized = false;
+            }
             // Need to set to pause state, in order to make player functional
             GstStateChangeReturn ret = gst_element_set_state(playbin, GST_STATE_PAUSED);
             if (ret == GST_STATE_CHANGE_FAILURE) {
                 this->OnError("LinuxAudioError", "Unable to set the pipeline from GST_STATE_READY to GST_STATE_PAUSED.", nullptr, nullptr);
             }
+        }  else if (*old_state == GST_STATE_PAUSED && *new_state == GST_STATE_PLAYING) {
+            OnPositionUpdate();
+            OnDurationUpdate();
         } else if (*new_state >= GST_STATE_PAUSED) {
             if (!this->_isInitialized) {
                 this->_isInitialized = true;
@@ -222,8 +228,8 @@ void AudioPlayer::OnPlaybackEnded() {
     if (GetLooping()) {
         Play();
     } else {
-        Pause();
         SetPosition(0);
+        Pause();
     }
 }
 
@@ -358,7 +364,9 @@ void AudioPlayer::Play() {
 }
 
 void AudioPlayer::Pause() {
-    _isPlaying = false;
+    if (_isPlaying) {
+        _isPlaying = false;
+    }
     if (!_isInitialized) {
         return;
     }
@@ -370,19 +378,22 @@ void AudioPlayer::Pause() {
 }
 
 void AudioPlayer::Resume() {
-    _isPlaying = true;
+    if (!_isPlaying) {
+        _isPlaying = true;
+    }
     if (!_isInitialized) {
         return;
     }
     GstStateChangeReturn ret =
         gst_element_set_state(playbin, GST_STATE_PLAYING);
-    if (ret == GST_STATE_CHANGE_FAILURE) {
+    if (ret == GST_STATE_CHANGE_SUCCESS) {
+        // Update position and duration when start playing, as no event is emitted
+        // elsewhere
+        OnPositionUpdate();
+        OnDurationUpdate();
+    } else if (ret == GST_STATE_CHANGE_FAILURE) {
         throw "Unable to set the pipeline to GST_STATE_PLAYING.";
     }
-    // Update position and duration when start playing, as no event is emitted
-    // elsewhere
-    OnPositionUpdate();
-    OnDurationUpdate();
 }
 
 void AudioPlayer::Dispose() {
