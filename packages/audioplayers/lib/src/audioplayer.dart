@@ -47,13 +47,9 @@ class AudioPlayer {
   @visibleForTesting
   final creatingCompleter = Completer<void>();
 
-  Completer<void>? _preparedCompleter;
-
   late final StreamSubscription _onPlayerCompleteStreamSubscription;
 
   late final StreamSubscription _onLogStreamSubscription;
-
-  late final StreamSubscription _onPreparedSubscription;
 
   /// Stream controller to be able to get a stream on initialization, before the
   /// native event stream is ready via [_create] method.
@@ -143,20 +139,6 @@ class AudioPlayer {
       },
       onError: (Object _, [StackTrace? __]) {
         /* Errors are already handled via log stream */
-      },
-    );
-    _onPreparedSubscription = _onPrepared.listen(
-      (isPrepared) {
-        if (isPrepared) {
-          _preparedCompleter?.complete();
-        } else {
-          _preparedCompleter = Completer<void>();
-        }
-      },
-      onError: (Object e, [StackTrace? stackTrace]) {
-        if (_preparedCompleter?.isCompleted == false) {
-          _preparedCompleter?.completeError(e, stackTrace);
-        }
       },
     );
     _create();
@@ -304,9 +286,21 @@ class AudioPlayer {
   }
 
   Future<void> _completePrepared(Future<void> Function() fun) async {
-    _preparedCompleter = Completer<void>();
+    final preparedCompleter = Completer<void>();
+    final onPreparedSubscription = _onPrepared.listen((isPrepared) {
+        if (isPrepared) {
+          preparedCompleter?.complete();
+        }
+      },
+      onError: (Object e, [StackTrace? stackTrace]) {
+        if (preparedCompleter?.isCompleted == false) {
+          preparedCompleter?.completeError(e, stackTrace);
+        }
+      },
+    );
     await fun();
-    await _preparedCompleter?.future.timeout(const Duration(seconds: 30));
+    await preparedCompleter.future.timeout(const Duration(seconds: 30));
+    onPreparedSubscription.cancel();
   }
 
   /// Sets the URL to a remote link.
@@ -391,7 +385,6 @@ class AudioPlayer {
       if (!_playerStateController.isClosed) _playerStateController.close(),
       _onPlayerCompleteStreamSubscription.cancel(),
       _onLogStreamSubscription.cancel(),
-      _onPreparedSubscription.cancel(),
       _eventStreamSubscription.cancel(),
       _eventStreamController.close(),
     ];
