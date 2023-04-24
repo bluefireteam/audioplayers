@@ -231,8 +231,8 @@ void main() {
           .where((event) => event.eventType == AudioEventType.prepared)
           .map((event) => event.isPrepared!)
           .listen(
-        (event) {
-          if (event) {
+        (isPrepared) {
+          if (isPrepared) {
             preparedCompleter.complete();
           }
         },
@@ -261,7 +261,7 @@ void main() {
       final completer = Completer<String>();
       const playerId = 'somePlayerId';
       final player = AudioPlayer(playerId: playerId);
-      player.onLog.listen(
+      final onLogSub = player.onLog.listen(
         completer.complete,
         onError: completer.completeError,
       );
@@ -272,6 +272,7 @@ void main() {
 
       final log = await completer.future;
       expect(log, 'SomeLog');
+      onLogSub.cancel();
     });
 
     testWidgets('Emit global platform log', (tester) async {
