@@ -129,7 +129,7 @@ class AudioPlayer {
   AudioPlayer({String? playerId}) : playerId = playerId ?? _uuid.v4() {
     _onLogStreamSubscription = onLog.listen(
       (log) => AudioLogger.log('$log\nSource: $_source'),
-      onError: (Object e, [StackTrace? st]) => AudioLogger.error(
+      onError: (Object e, [StackTrace? stackTrace]) => AudioLogger.error(
         AudioPlayerException(this, cause: e),
         st,
       ),
@@ -170,8 +170,8 @@ class AudioPlayer {
             onError: _eventStreamController.addError,
           );
       creatingCompleter.complete();
-    } on Exception catch (e, st) {
-      creatingCompleter.completeError(e, st);
+    } on Exception catch (e, stackTrace) {
+      creatingCompleter.completeError(e, stackTrace);
     }
   }
 
