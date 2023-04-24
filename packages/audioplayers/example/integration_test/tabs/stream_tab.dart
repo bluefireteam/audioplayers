@@ -125,7 +125,7 @@ extension StreamWidgetTester on WidgetTester {
   // Update interval for position:
   // Android: ~200ms
   // Windows: ~250ms
-  // Linux: ~1s
+  // Linux: ~250ms
   // Web: ~250ms
   // Darwin: ?
 
