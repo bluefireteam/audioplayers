@@ -61,7 +61,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
         players.clear()
         mainScope.cancel()
         soundPoolManager.dispose()
-        globalEvents.endOfStream()
+        globalEvents.dispose()
     }
 
     private fun safeCall(
@@ -340,7 +340,7 @@ private fun MethodCall.audioContext(): AudioContextAndroid {
     )
 }
 
-class EventHandler(eventChannel: EventChannel) : EventChannel.StreamHandler {
+class EventHandler(private val eventChannel: EventChannel) : EventChannel.StreamHandler {
     private var eventSink: EventChannel.EventSink? = null
 
     init {
@@ -353,6 +353,7 @@ class EventHandler(eventChannel: EventChannel) : EventChannel.StreamHandler {
 
     override fun onCancel(arguments: Any?) {
         eventSink = null
+        eventChannel.setStreamHandler(null)
     }
 
     fun success(method: String, arguments: Map<String, Any> = HashMap()) {
@@ -363,7 +364,8 @@ class EventHandler(eventChannel: EventChannel) : EventChannel.StreamHandler {
         eventSink?.error(errorCode, errorMessage, errorDetails)
     }
 
-    fun endOfStream() {
+    fun dispose() {
         eventSink?.endOfStream()
+        onCancel(null)
     }
 }

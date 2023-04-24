@@ -387,19 +387,20 @@ class AudioPlayer {
     // First stop and release all native resources.
     await release();
 
-    await _platform.dispose(playerId);
-
     final futures = <Future>[
       if (!_playerStateController.isClosed) _playerStateController.close(),
       _onPlayerCompleteStreamSubscription.cancel(),
       _onLogStreamSubscription.cancel(),
-      _eventStreamSubscription.cancel(),
       _onPreparedSubscription.cancel(),
+      _eventStreamSubscription.cancel(),
       _eventStreamController.close(),
     ];
 
     _source = null;
 
     await Future.wait<dynamic>(futures);
+
+    // Needs to be called after cancelling event stream subscription:
+    await _platform.dispose(playerId);
   }
 }

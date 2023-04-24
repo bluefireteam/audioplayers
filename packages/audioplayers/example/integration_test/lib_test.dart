@@ -89,6 +89,7 @@ void main() {
           }
           await players[i].stop();
         }
+        await Future.wait(players.map((p) => p.dispose()));
       },
       // FIXME: Causes media error on Android (see #1333, #1353)
       // Unexpected platform error: MediaPlayer error with
@@ -115,6 +116,7 @@ void main() {
         }
         await player.stop();
       }
+      await player.dispose();
     });
   });
 
@@ -157,6 +159,7 @@ void main() {
         await tester.pumpAndSettle();
         await tester.pump(td.duration + const Duration(seconds: 8));
         expect(player.state, PlayerState.completed);
+        await player.dispose();
       },
       skip: !features.hasForceSpeaker,
     );
@@ -168,7 +171,8 @@ void main() {
     testWidgets(
       'test changing AudioContextConfigs in LOW_LATENCY mode',
       (WidgetTester tester) async {
-        final player = AudioPlayer()..setReleaseMode(ReleaseMode.stop);
+        final player = AudioPlayer();
+        await player.setReleaseMode(ReleaseMode.stop);
         player.setPlayerMode(PlayerMode.lowLatency);
 
         final td = wavUrl1TestData;
@@ -204,6 +208,7 @@ void main() {
         expect(player.state, PlayerState.playing);
         await player.stop();
         expect(player.state, PlayerState.stopped);
+        await player.dispose();
       },
       skip: !features.hasForceSpeaker || !features.hasLowLatency,
     );
@@ -227,7 +232,7 @@ void main() {
 
       final preparedCompleter = Completer<void>();
       final eventStream = platform.getEventStream(playerId);
-      final eventSub = eventStream
+      final onPreparedSub = eventStream
           .where((event) => event.eventType == AudioEventType.prepared)
           .map((event) => event.isPrepared!)
           .listen(
@@ -251,33 +256,34 @@ void main() {
         wavUrl1TestData.duration.inMilliseconds,
       );
 
+      await onPreparedSub.cancel();
       await platform.dispose(playerId);
-      eventSub.cancel();
     });
   });
 
   group('Logging', () {
     testWidgets('Emit platform log', (tester) async {
-      final completer = Completer<String>();
+      final logCompleter = Completer<String>();
       const playerId = 'somePlayerId';
       final player = AudioPlayer(playerId: playerId);
       final onLogSub = player.onLog.listen(
-        completer.complete,
-        onError: completer.completeError,
+        logCompleter.complete,
+        onError: logCompleter.completeError,
       );
 
       await player.creatingCompleter.future;
       final platform = AudioplayersPlatformInterface.instance;
       await platform.emitLog(playerId, 'SomeLog');
 
-      final log = await completer.future;
+      final log = await logCompleter.future;
       expect(log, 'SomeLog');
-      onLogSub.cancel();
+      await onLogSub.cancel();
+      await player.dispose();
     });
 
     testWidgets('Emit global platform log', (tester) async {
       final completer = Completer<String>();
-      AudioPlayer.global.onLog.listen(
+      final eventStreamSub = AudioPlayer.global.onLog.listen(
         completer.complete,
         onError: completer.completeError,
       );
@@ -287,6 +293,7 @@ void main() {
 
       final log = await completer.future;
       expect(log, 'SomeGlobalLog');
+      await eventStreamSub.cancel();
     });
   });
 
@@ -295,7 +302,8 @@ void main() {
       final completer = Completer<Object>();
       const playerId = 'somePlayerId';
       final player = AudioPlayer(playerId: playerId);
-      player.eventStream.listen((_) {}, onError: completer.complete);
+      final eventStreamSub =
+          player.eventStream.listen((_) {}, onError: completer.complete);
 
       await player.creatingCompleter.future;
       final platform = AudioplayersPlatformInterface.instance;
@@ -310,11 +318,13 @@ void main() {
       final platformException = exception as PlatformException;
       expect(platformException.code, 'SomeErrorCode');
       expect(platformException.message, 'SomeErrorMessage');
+      await eventStreamSub.cancel();
+      await player.dispose();
     });
 
     testWidgets('Emit global platform error', (tester) async {
       final completer = Completer<Object>();
-      AudioPlayer.global.eventStream
+      final eventStreamSub = AudioPlayer.global.eventStream
           .listen((_) {}, onError: completer.complete);
 
       final global = GlobalAudioplayersPlatformInterface.instance;
@@ -327,6 +337,7 @@ void main() {
       final platformException = exception as PlatformException;
       expect(platformException.code, 'SomeGlobalErrorCode');
       expect(platformException.message, 'SomeGlobalErrorMessage');
+      await eventStreamSub.cancel();
     });
 
     testWidgets(
@@ -342,6 +353,7 @@ void main() {
         } catch (e) {
           expect(e, isInstanceOf<PlatformException>());
         }
+        await player.dispose();
       },
     );
 
@@ -358,6 +370,7 @@ void main() {
         } catch (e) {
           expect(e, isInstanceOf<PlatformException>());
         }
+        await player.dispose();
       },
     );
   });
