@@ -131,7 +131,7 @@ class AudioPlayer {
       (log) => AudioLogger.log('$log\nSource: $_source'),
       onError: (Object e, [StackTrace? stackTrace]) => AudioLogger.error(
         AudioPlayerException(this, cause: e),
-        st,
+        stackTrace,
       ),
     );
     _onPlayerCompleteStreamSubscription = onPlayerComplete.listen(
