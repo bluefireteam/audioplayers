@@ -228,8 +228,8 @@ void AudioPlayer::OnPlaybackEnded() {
     if (GetLooping()) {
         Play();
     } else {
-        SetPosition(0);
         Pause();
+        SetPosition(0);
     }
 }
 
@@ -371,10 +371,11 @@ void AudioPlayer::Pause() {
         return;
     }
     GstStateChangeReturn ret = gst_element_set_state(playbin, GST_STATE_PAUSED);
-    if (ret == GST_STATE_CHANGE_FAILURE) {
+    if (ret == GST_STATE_CHANGE_SUCCESS) {
+        OnPositionUpdate();  // Update to exact position when pausing
+    } else if (ret == GST_STATE_CHANGE_FAILURE) {
         throw "Unable to set the pipeline to GST_STATE_PAUSED.";
     }
-    OnPositionUpdate();  // Update to exact position when pausing
 }
 
 void AudioPlayer::Resume() {
