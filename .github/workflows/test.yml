@@ -159,7 +159,7 @@ jobs:
         run: "xcrun simctl list devices"
       - name: Start simulator
         run: |
-          UDID=$(xcrun simctl list devices | grep "iPhone 14" | grep -E -o -i "([0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12})")
+          UDID=$(xcrun simctl list devices | grep "iPhone" | sed -n 1p | grep -E -o -i "([0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12})")
           echo "Using simulator $UDID"
           xcrun simctl boot "${UDID:?No Simulator with this name iPhone found}"
 
