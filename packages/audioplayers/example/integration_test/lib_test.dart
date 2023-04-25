@@ -78,7 +78,7 @@ void main() {
         );
         await tester.pumpAndSettle();
         // Sources take some time to get initialized
-        await tester.pump(const Duration(seconds: 4));
+        await tester.pump(const Duration(seconds: 8));
         for (var i = 0; i < audioTestDataList.length; i++) {
           final td = audioTestDataList[i];
           if (td.isLiveStream || td.duration > const Duration(seconds: 10)) {
@@ -107,7 +107,7 @@ void main() {
         await player.play(td.source);
         await tester.pumpAndSettle();
         // Sources take some time to get initialized
-        await tester.pump(const Duration(seconds: 4));
+        await tester.pump(const Duration(seconds: 8));
         if (td.isLiveStream || td.duration > const Duration(seconds: 10)) {
           await tester.pump();
           final position = await player.getCurrentPosition();

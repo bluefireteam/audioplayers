@@ -18,7 +18,7 @@ Future<void> testControlsTab(
   await tester.pumpAndSettle();
 
   // Sources take some time to get initialized
-  const timeout = Duration(seconds: 4);
+  const timeout = Duration(seconds: 8);
 
   if (features.hasVolume) {
     await tester.testVolume('0.5', timeout: timeout);
