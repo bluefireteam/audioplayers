@@ -109,20 +109,11 @@ jobs:
            --dart-define USE_LOCAL_SERVER=true
 
   android:
-    runs-on: macos-latest
+    runs-on: macos-13
     timeout-minutes: 90
     if: inputs.enable_android
     steps:
       - uses: actions/checkout@v3
-
-      - name: Setup Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v2
 
       - uses: subosito/flutter-action@v2
       - uses: bluefireteam/melos-action@main
@@ -156,7 +147,7 @@ jobs:
         run: ./gradlew test
 
   ios:
-    runs-on: macos-latest
+    runs-on: macos-13
     timeout-minutes: 60
     if: inputs.enable_ios
     steps:
