@@ -287,7 +287,8 @@ class AudioPlayer {
 
   Future<void> _completePrepared(Future<void> Function() fun) async {
     final preparedCompleter = Completer<void>();
-    final onPreparedSubscription = _onPrepared.listen((isPrepared) {
+    final onPreparedSubscription = _onPrepared.listen(
+      (isPrepared) {
         if (isPrepared) {
           preparedCompleter?.complete();
         }
