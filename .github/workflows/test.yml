@@ -109,20 +109,11 @@ jobs:
            --dart-define USE_LOCAL_SERVER=true
 
   android:
-    runs-on: macOS-latest
+    runs-on: macos-13
     timeout-minutes: 90
     if: inputs.enable_android
     steps:
       - uses: actions/checkout@v3
-
-      - name: Setup Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v2
 
       - uses: subosito/flutter-action@v2
       - uses: bluefireteam/melos-action@main
@@ -156,7 +147,7 @@ jobs:
         run: ./gradlew test
 
   ios:
-    runs-on: macOS-latest
+    runs-on: macos-13
     timeout-minutes: 60
     if: inputs.enable_ios
     steps:
@@ -168,7 +159,7 @@ jobs:
         run: "xcrun simctl list devices"
       - name: Start simulator
         run: |
-          UDID=$(xcrun simctl list devices | grep "iPhone" | sed -n 1p | awk -F '\\)? \\(' '{ print $2 }')
+          UDID=$(xcrun simctl list devices | grep "iPhone" | sed -n 1p | grep -E -o -i "([0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12})")
           echo "Using simulator $UDID"
           xcrun simctl boot "${UDID:?No Simulator with this name iPhone found}"
 
@@ -181,16 +172,12 @@ jobs:
           flutter test integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
 
   macos:
-    runs-on: macOS-latest
+    runs-on: macos-13
     timeout-minutes: 30
     if: inputs.enable_macos
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
-        # TODO: Once GitHub CI supports metal we should bump the Flutter version to latest. (#1405)
-        with:
-          flutter-version: '3.3.10'
-          channel: 'stable'
       - uses: bluefireteam/melos-action@main
 
       - name: setup-cocoapods
