@@ -147,6 +147,13 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
     }
 
     auto player = GetPlayer(playerId);
+    if(!player) {
+        result->Error(
+            "WindowsAudioError",
+            "Player has not yet been created or has already been disposed.",
+            nullptr);
+        return;
+    }
 
     if (method_call.method_name().compare("pause") == 0) {
         player->Pause();
@@ -244,6 +251,9 @@ void AudioplayersWindowsPlugin::CreatePlayer(std::string playerId) {
 
 AudioPlayer *AudioplayersWindowsPlugin::GetPlayer(std::string playerId) {
     auto searchPlayer = audioPlayers.find(playerId);
+    if(searchPlayer == audioPlayers.end()) {
+        return nullptr;
+    }
     return searchPlayer->second.get();
 }
 

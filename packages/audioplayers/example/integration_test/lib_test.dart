@@ -222,6 +222,17 @@ void main() {
       await platform.create(playerId);
       await tester.pumpAndSettle();
       await platform.dispose(playerId);
+
+      try {
+        // Call method after player has been released should throw a PlatformException
+        await platform.stop(playerId);
+        fail('PlatformException not thrown');
+      } on PlatformException catch (e) {
+        expect(
+          e.message,
+          'Player has not yet been created or has already been disposed.',
+        );
+      }
     });
 
     testWidgets('#setSource #getPosition and #getDuration', (tester) async {

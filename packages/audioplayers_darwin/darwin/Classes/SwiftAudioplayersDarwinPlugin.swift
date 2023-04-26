@@ -147,7 +147,10 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
             return
         }
 
-        let player = self.getPlayer(playerId: playerId)
+        guard let player = self.getPlayer(playerId: playerId) else {
+            result(FlutterError(code: "DarwinAudioError", message: "Player has not yet been created or has already been disposed.", details: nil))
+            return
+        }
 
         if method == "pause" {
             player.pause()
@@ -280,8 +283,8 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
         players[playerId] = newPlayer
     }
 
-    func getPlayer(playerId: String) -> WrappedMediaPlayer {
-        return players[playerId]!
+    func getPlayer(playerId: String) -> WrappedMediaPlayer? {
+        return players[playerId]
     }
 
     func controlAudioSession() {

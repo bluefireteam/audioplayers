@@ -11,4 +11,7 @@ enum PlayerState {
 
   /// The audio successfully completed (reached the end).
   completed,
+  
+  /// The player has been disposed and should not be used anymore.
+  disposed,
 }
