@@ -59,10 +59,10 @@ class AudioPlayer {
 
    private:
     // Gst members
-    GstElement *playbin;
-    GstElement *source;
-    GstElement *panorama;
-    GstBus *bus;
+    GstElement *playbin = nullptr;
+    GstElement *source = nullptr;
+    GstElement *panorama = nullptr;
+    GstBus *bus = nullptr;
 
     bool _isInitialized = false;
     bool _isPlaying = false;
