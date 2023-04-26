@@ -240,6 +240,11 @@ static void audioplayers_linux_plugin_handle_method_call(
 }
 
 static void audioplayers_linux_plugin_dispose(GObject *object) {
+    for (const auto& entry : audioPlayers) {
+        entry.second->Dispose();
+    }
+    gst_deinit();
+    
     G_OBJECT_CLASS(audioplayers_linux_plugin_parent_class)->dispose(object);
 }
 
@@ -248,7 +253,9 @@ static void audioplayers_linux_plugin_class_init(
     G_OBJECT_CLASS(klass)->dispose = audioplayers_linux_plugin_dispose;
 }
 
-static void audioplayers_linux_plugin_init(AudioplayersLinuxPlugin *self) {}
+static void audioplayers_linux_plugin_init(AudioplayersLinuxPlugin *self) {
+    gst_init(NULL, NULL);
+}
 
 static void method_call_cb(FlMethodChannel *methods, FlMethodCall *method_call,
                            gpointer user_data) {
