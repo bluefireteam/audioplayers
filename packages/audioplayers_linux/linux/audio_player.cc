@@ -431,6 +431,8 @@ void AudioPlayer::Dispose() {
     }
     gst_object_unref(GST_OBJECT(playbin));
     playbin = nullptr;
+    g_clear_object(&_methodChannel);
+    g_clear_object(&_eventChannel);
     _methodChannel = nullptr;
     _eventChannel = nullptr;
 }

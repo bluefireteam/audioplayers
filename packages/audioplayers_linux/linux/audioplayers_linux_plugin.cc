@@ -244,7 +244,9 @@ static void audioplayers_linux_plugin_dispose(GObject *object) {
         entry.second->Dispose();
     }
     gst_deinit();
-    
+    g_clear_object(&globalEvents);
+    g_clear_object(&globalMethods);
+    g_clear_object(&methods);
     G_OBJECT_CLASS(audioplayers_linux_plugin_parent_class)->dispose(object);
 }
 
