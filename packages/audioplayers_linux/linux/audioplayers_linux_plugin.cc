@@ -227,7 +227,8 @@ static void audioplayers_linux_plugin_handle_method_call(
             result = 1;
         } else if (strcmp(method, "dispose") == 0) {
             player->Dispose();
-            audioPlayers.erase(playerId);
+            auto searchPlayer = audioPlayers.find(playerId);
+            audioPlayers.erase(searchPlayer);
             result = 1;
         } else {
             response = FL_METHOD_RESPONSE(fl_method_not_implemented_response_new());
@@ -250,6 +251,7 @@ static void audioplayers_linux_plugin_handle_method_call(
 }
 
 static void audioplayers_linux_plugin_dispose(GObject *object) {
+    g_print("Global dispose");
     for (const auto& entry : audioPlayers) {
         entry.second->Dispose();
     }
