@@ -5,7 +5,6 @@
 AudioPlayer::AudioPlayer(std::string playerId, FlMethodChannel *methodChannel,
                          FlEventChannel *eventChannel)
     : _playerId(playerId),
-      _methodChannel(methodChannel),
       _eventChannel(eventChannel) {
     playbin = gst_element_factory_make("playbin", NULL);
     if (!playbin) {
@@ -416,6 +415,8 @@ void AudioPlayer::Dispose() {
     if(source) gst_object_unref(GST_OBJECT(source));
 
     if(panorama) {
+        gst_element_set_state(audiobin, GST_STATE_NULL);
+        
         gst_element_remove_pad(audiobin, panoramaSinkPad);
         gst_bin_remove(GST_BIN(audiobin), audiosink);
         gst_bin_remove(GST_BIN(audiobin), panorama);
@@ -424,6 +425,10 @@ void AudioPlayer::Dispose() {
         panorama = nullptr;
     }
 
+    // FIXME(gustl22): find the reaseon for:
+    // GStreamer-CRITICAL: gst_element_set_state: assertion 'GST_IS_ELEMENT (element)' failed
+    // GStreamer-CRITICAL: gst_object_unref: assertion '((GObject *) object)->ref_count > 0' failed
+    
     GstState playbinState;
     gst_element_get_state(playbin, &playbinState, NULL, GST_CLOCK_TIME_NONE);
     if(playbinState > GST_STATE_NULL) {
@@ -431,8 +436,7 @@ void AudioPlayer::Dispose() {
     }
     gst_object_unref(GST_OBJECT(playbin));
     playbin = nullptr;
-    g_clear_object(&_methodChannel);
+    // Do not dispose method channel as it is used by multiple players!
     g_clear_object(&_eventChannel);
-    _methodChannel = nullptr;
     _eventChannel = nullptr;
 }

@@ -75,7 +75,6 @@ class AudioPlayer {
 
     std::string _url{};
     std::string _playerId;
-    FlMethodChannel *_methodChannel;
     FlEventChannel *_eventChannel;
 
     static void SourceSetup(GstElement *playbin, GstElement *source,
