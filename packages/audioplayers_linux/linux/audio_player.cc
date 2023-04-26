@@ -91,7 +91,7 @@ gboolean AudioPlayer::OnBusMessage(GstBus *bus, GstMessage *message,
 
             gst_message_parse_state_changed(message, &old_state, &new_state,
                                             NULL);
-            data->OnMediaStateChange(message->src, &old_state, &new_state);
+            data->OnMediaStateChange(GST_MESSAGE_SRC(message), &old_state, &new_state);
             break;
         case GST_MESSAGE_EOS:
             data->OnPlaybackEnded();
@@ -152,7 +152,7 @@ void AudioPlayer::OnMediaStateChange(GstObject *src, GstState *old_state,
         return;
     }
     
-    if (strcmp(GST_OBJECT_NAME(src), "playbin") == 0) {
+    if (src == GST_OBJECT(playbin)) {
         if (*new_state == GST_STATE_READY) {
             if (this->_isInitialized) {
                 this->_isInitialized = false;
