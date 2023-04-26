@@ -7,28 +7,26 @@ AudioPlayer::AudioPlayer(std::string playerId, FlMethodChannel *methodChannel,
     : _playerId(playerId),
       _methodChannel(methodChannel),
       _eventChannel(eventChannel) {
-    playbin = gst_element_factory_make("playbin", "playbin");
+    playbin = gst_element_factory_make("playbin", NULL);
     if (!playbin) {
         throw "Not all elements could be created.";
     }
 
     // Setup stereo balance controller
-    panorama = gst_element_factory_make("audiopanorama", "audiopanorama");
+    panorama = gst_element_factory_make("audiopanorama", NULL);
     if (panorama) {
-        GstElement *audiosink =
-            gst_element_factory_make("autoaudiosink", "audio_sink");
-
-        GstElement *audiobin = gst_bin_new("audiobin");
+        audiobin = gst_bin_new(NULL);
+        audiosink = gst_element_factory_make("autoaudiosink", NULL);
+        
         gst_bin_add_many(GST_BIN(audiobin), panorama, audiosink, NULL);
         gst_element_link(panorama, audiosink);
 
         GstPad *sinkpad = gst_element_get_static_pad(panorama, "sink");
-        gst_element_add_pad(audiobin, gst_ghost_pad_new("sink", sinkpad));
+        panoramaSinkPad = gst_ghost_pad_new("sink", sinkpad);
+        gst_element_add_pad(audiobin, panoramaSinkPad);
         gst_object_unref(GST_OBJECT(sinkpad));
 
         g_object_set(G_OBJECT(playbin), "audio-sink", audiobin, NULL);
-        gst_object_unref(GST_OBJECT(audiobin));
-
         g_object_set(G_OBJECT(panorama), "method", 1, NULL);
     }
 
@@ -57,9 +55,9 @@ void AudioPlayer::SourceSetup(GstElement *playbin, GstElement *source,
 };
 
 void AudioPlayer::SetSourceUrl(std::string url) {
-    if(!playbin) throw "Player was already disposed (SetSourceUrl)";
     if (_url != url) {
         _url = url;
+        if(!playbin) throw "Player was already disposed (SetSourceUrl)";
         gst_element_set_state(playbin, GST_STATE_NULL);
         _isInitialized = false;
         _isPlaying = false;
@@ -267,12 +265,12 @@ void AudioPlayer::SetLooping(bool isLooping) { _isLooping = isLooping; }
 bool AudioPlayer::GetLooping() { return _isLooping; }
 
 void AudioPlayer::SetVolume(double volume) {
-    if(!playbin) throw "Player was already disposed (SetVolume)";
     if (volume > 1) {
         volume = 1;
     } else if (volume < 0) {
         volume = 0;
     }
+    if(!playbin) throw "Player was already disposed (SetVolume)";
     g_object_set(G_OBJECT(playbin), "volume", volume, NULL);
 }
 
@@ -285,7 +283,10 @@ void AudioPlayer::SetVolume(double volume) {
  * @param rate the playback rate (speed)
  */
 void AudioPlayer::SetPlayback(int64_t position, double rate) {
-    if(!playbin) throw "Player was already disposed (SetPlayback)";
+    if (rate != 0 && _playbackRate != rate) {
+        _playbackRate = rate;
+    }
+    
     if (!_isInitialized) {
         return;
     }
@@ -300,9 +301,6 @@ void AudioPlayer::SetPlayback(int64_t position, double rate) {
         return;
     }
 
-    if (_playbackRate != rate) {
-        _playbackRate = rate;
-    }
     _isSeekCompleted = false;
 
     GstEvent *seek_event;
@@ -318,6 +316,7 @@ void AudioPlayer::SetPlayback(int64_t position, double rate) {
             GST_SEEK_TYPE_SET, 0, GST_SEEK_TYPE_SET, position * GST_MSECOND);
     }
 
+    if(!playbin) throw "Player was already disposed (SetPlayback)";
     if (!gst_element_send_event(playbin, seek_event)) {
         this->OnLog((std::string("Could not set playback to position ") +
                      std::to_string(position) + std::string(" and rate ") +
@@ -345,8 +344,8 @@ void AudioPlayer::SetPosition(int64_t position) {
  * @return int64_t the position in milliseconds
  */
 int64_t AudioPlayer::GetPosition() {
-    if(!playbin) throw "Player was already disposed (GetPosition)";
     gint64 current = 0;
+    if(!playbin) throw "Player was already disposed (GetPosition)";
     if (!gst_element_query_position(playbin, GST_FORMAT_TIME, &current)) {
         this->OnLog("Could not query current position.");
         return 0;
@@ -358,8 +357,8 @@ int64_t AudioPlayer::GetPosition() {
  * @return int64_t the duration in milliseconds
  */
 int64_t AudioPlayer::GetDuration() {
-    if(!playbin) throw "Player was already disposed (GetDuration)";
     gint64 duration = 0;
+    if(!playbin) throw "Player was already disposed (GetDuration)";
     if (!gst_element_query_duration(playbin, GST_FORMAT_TIME, &duration)) {
         this->OnLog("Could not query current duration.");
         return 0;
@@ -373,13 +372,13 @@ void AudioPlayer::Play() {
 }
 
 void AudioPlayer::Pause() {
-    if(!playbin) throw "Player was already disposed (Pause)";
     if (_isPlaying) {
         _isPlaying = false;
     }
     if (!_isInitialized) {
         return;
     }
+    if(!playbin) throw "Player was already disposed (Pause)";
     GstStateChangeReturn ret = gst_element_set_state(playbin, GST_STATE_PAUSED);
     if (ret == GST_STATE_CHANGE_SUCCESS) {
         OnPositionUpdate();  // Update to exact position when pausing
@@ -389,13 +388,13 @@ void AudioPlayer::Pause() {
 }
 
 void AudioPlayer::Resume() {
-    if(!playbin) throw "Player was already disposed (Resume)";
     if (!_isPlaying) {
         _isPlaying = true;
     }
     if (!_isInitialized) {
         return;
     }
+    if(!playbin) throw "Player was already disposed (Resume)";
     GstStateChangeReturn ret =
         gst_element_set_state(playbin, GST_STATE_PLAYING);
     if (ret == GST_STATE_CHANGE_SUCCESS) {
@@ -409,21 +408,29 @@ void AudioPlayer::Resume() {
 }
 
 void AudioPlayer::Dispose() {
+    if(!playbin) throw "Player was already disposed (Dispose)";
     if(_isPlaying) _isPlaying = false;
+    if(_isInitialized) _isInitialized = false;
+
     if(bus) gst_object_unref(GST_OBJECT(bus));
-//    if(source) gst_object_unref(GST_OBJECT(source));
-//    if(panorama) gst_object_unref(GST_OBJECT(panorama));
-    if(playbin) {
-        GstState playbinState;
-        gst_element_get_state(playbin, &playbinState, NULL, GST_CLOCK_TIME_NONE);
-        if(playbinState > GST_STATE_NULL) {
-            gst_element_set_state(playbin, GST_STATE_NULL);
-        }
-        gst_object_unref(GST_OBJECT(playbin));
-        playbin = nullptr;
+    if(source) gst_object_unref(GST_OBJECT(source));
+
+    if(panorama) {
+        gst_element_remove_pad(audiobin, panoramaSinkPad);
+        gst_bin_remove(GST_BIN(audiobin), audiosink);
+        gst_bin_remove(GST_BIN(audiobin), panorama);
+
+        gst_object_unref(GST_OBJECT(audiobin));
+        panorama = nullptr;
     }
 
+    GstState playbinState;
+    gst_element_get_state(playbin, &playbinState, NULL, GST_CLOCK_TIME_NONE);
+    if(playbinState > GST_STATE_NULL) {
+        gst_element_set_state(playbin, GST_STATE_NULL);
+    }
+    gst_object_unref(GST_OBJECT(playbin));
+    playbin = nullptr;
     _methodChannel = nullptr;
     _eventChannel = nullptr;
-    if(_isInitialized) _isInitialized = false;
 }

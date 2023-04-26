@@ -62,6 +62,9 @@ class AudioPlayer {
     GstElement *playbin = nullptr;
     GstElement *source = nullptr;
     GstElement *panorama = nullptr;
+    GstElement *audiobin = nullptr;
+    GstElement *audiosink = nullptr;
+    GstPad *panoramaSinkPad = nullptr;
     GstBus *bus = nullptr;
 
     bool _isInitialized = false;
