@@ -399,17 +399,25 @@ void AudioPlayer::Dispose() {
     
     g_source_remove(_refreshId);
 
-    if(bus) gst_object_unref(GST_OBJECT(bus));
-    if(source) gst_object_unref(GST_OBJECT(source));
+    if(bus) {
+        gst_bus_remove_watch(bus);
+        gst_object_unref(GST_OBJECT(bus));
+        bus = nullptr;
+    }
+
+    if(source) {
+        gst_object_unref(GST_OBJECT(source));
+        source = nullptr;
+    }
 
     if(panorama) {
         gst_element_set_state(audiobin, GST_STATE_NULL);
-        
+
         gst_element_remove_pad(audiobin, panoramaSinkPad);
         gst_bin_remove(GST_BIN(audiobin), audiosink);
         gst_bin_remove(GST_BIN(audiobin), panorama);
 
-        gst_object_unref(GST_OBJECT(audiobin));
+        // audiobin gets unreferenced (2x) via playbin
         panorama = nullptr;
     }
 
