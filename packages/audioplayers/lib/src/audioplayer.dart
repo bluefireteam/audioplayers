@@ -35,7 +35,7 @@ class AudioPlayer {
   Source? get source => _source;
 
   set state(PlayerState state) {
-    if(_playerState == PlayerState.disposed) {
+    if (_playerState == PlayerState.disposed) {
       throw Exception('AudioPlayer has been disposed');
     }
     if (!_playerStateController.isClosed) {
@@ -352,7 +352,7 @@ class AudioPlayer {
   Future<void> dispose() async {
     // First stop and release all native resources.
     await release();
-    
+
     state = PlayerState.disposed;
 
     final futures = <Future>[
