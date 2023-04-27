@@ -80,15 +80,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Setup Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v2
-
       - uses: subosito/flutter-action@v2
       - uses: bluefireteam/melos-action@main
 
@@ -97,7 +88,7 @@ jobs:
         run: flutter build apk --release
 
   ios:
-    runs-on: macOS-latest
+    runs-on: macos-latest
     timeout-minutes: 30
     if: inputs.enable_ios
     steps:
@@ -110,7 +101,7 @@ jobs:
         run: flutter build ios --release --no-codesign
 
   macos:
-    runs-on: macOS-latest
+    runs-on: macos-latest
     timeout-minutes: 30
     if: inputs.enable_macos
     steps:
