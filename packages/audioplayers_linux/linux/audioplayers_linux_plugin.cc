@@ -227,8 +227,7 @@ static void audioplayers_linux_plugin_handle_method_call(
             result = 1;
         } else if (strcmp(method, "dispose") == 0) {
             player->Dispose();
-            auto searchPlayer = audioPlayers.find(playerId);
-            audioPlayers.erase(searchPlayer);
+            audioPlayers.erase(playerId);
             result = 1;
         } else {
             response = FL_METHOD_RESPONSE(fl_method_not_implemented_response_new());
@@ -244,8 +243,9 @@ static void audioplayers_linux_plugin_handle_method_call(
             "LinuxAudioError", error, nullptr));
         fl_method_call_respond(method_call, response, nullptr);
     } catch (...) {
+        std::exception_ptr p = std::current_exception();
         response = FL_METHOD_RESPONSE(fl_method_error_response_new(
-            "LinuxAudioError", "Unkown AudioPlayersLinux error", nullptr));
+            "LinuxAudioError", p ? p.__cxa_exception_type()->name() : "Unknown AudioPlayersLinux error", nullptr));
         fl_method_call_respond(method_call, response, nullptr);
     }
 }
