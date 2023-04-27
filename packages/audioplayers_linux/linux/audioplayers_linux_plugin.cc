@@ -227,7 +227,8 @@ static void audioplayers_linux_plugin_handle_method_call(
             result = 1;
         } else if (strcmp(method, "dispose") == 0) {
             player->Dispose();
-            audioPlayers.erase(playerId);
+            auto searchPlayer = audioPlayers.find(playerId);
+            audioPlayers.erase(searchPlayer);
             result = 1;
         } else {
             response = FL_METHOD_RESPONSE(fl_method_not_implemented_response_new());
@@ -250,6 +251,14 @@ static void audioplayers_linux_plugin_handle_method_call(
 }
 
 static void audioplayers_linux_plugin_dispose(GObject *object) {
+    g_print("Global dispose");
+    for (const auto& entry : audioPlayers) {
+        entry.second->Dispose();
+    }
+    gst_deinit();
+    g_clear_object(&globalEvents);
+    g_clear_object(&globalMethods);
+    g_clear_object(&methods);
     G_OBJECT_CLASS(audioplayers_linux_plugin_parent_class)->dispose(object);
 }
 
@@ -258,7 +267,9 @@ static void audioplayers_linux_plugin_class_init(
     G_OBJECT_CLASS(klass)->dispose = audioplayers_linux_plugin_dispose;
 }
 
-static void audioplayers_linux_plugin_init(AudioplayersLinuxPlugin *self) {}
+static void audioplayers_linux_plugin_init(AudioplayersLinuxPlugin *self) {
+    gst_init(NULL, NULL);
+}
 
 static void method_call_cb(FlMethodChannel *methods, FlMethodCall *method_call,
                            gpointer user_data) {

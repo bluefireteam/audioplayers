@@ -129,8 +129,8 @@ void main() {
         emitsInOrder(audioEvents),
       );
 
-      audioEvents.forEach(platform.eventStreamController.add);
-      await platform.eventStreamController.close();
+      audioEvents.forEach(platform.eventStreamControllers['p1']!.add);
+      await platform.eventStreamControllers['p1']!.close();
     });
   });
 }

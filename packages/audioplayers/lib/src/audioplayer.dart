@@ -355,8 +355,6 @@ class AudioPlayer {
     
     state = PlayerState.disposed;
 
-    await _platform.dispose(playerId);
-
     final futures = <Future>[
       if (!_playerStateController.isClosed) _playerStateController.close(),
       _onPlayerCompleteStreamSubscription.cancel(),
@@ -368,5 +366,8 @@ class AudioPlayer {
     _source = null;
 
     await Future.wait<dynamic>(futures);
+
+    // Needs to be called after cancelling event stream subscription:
+    await _platform.dispose(playerId);
   }
 }

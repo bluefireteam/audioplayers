@@ -47,9 +47,9 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
         binaryMessenger = binding.binaryMessenger
         soundPoolManager = SoundPoolManager(this)
         methods = MethodChannel(binding.binaryMessenger, "xyz.luan/audioplayers")
-        methods.setMethodCallHandler { call, response -> safeCall(call, response, ::handler) }
+        methods.setMethodCallHandler { call, response -> safeCall(call, response, ::methodHandler) }
         globalMethods = MethodChannel(binding.binaryMessenger, "xyz.luan/audioplayers.global")
-        globalMethods.setMethodCallHandler { call, response -> safeCall(call, response, ::globalHandler) }
+        globalMethods.setMethodCallHandler { call, response -> safeCall(call, response, ::globalMethodHandler) }
         updateRunnable = UpdateRunnable(players, methods, handler, this)
         globalEvents = EventHandler(EventChannel(binding.binaryMessenger, "xyz.luan/audioplayers.global/events"))
     }
@@ -61,7 +61,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
         players.clear()
         mainScope.cancel()
         soundPoolManager.dispose()
-        globalEvents.endOfStream()
+        globalEvents.dispose()
     }
 
     private fun safeCall(
@@ -78,7 +78,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
         }
     }
 
-    private fun globalHandler(call: MethodCall, response: MethodChannel.Result) {
+    private fun globalMethodHandler(call: MethodCall, response: MethodChannel.Result) {
         when (call.method) {
             "setAudioContext" -> {
                 val audioManager = getAudioManager()
@@ -108,7 +108,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
         response.success(1)
     }
 
-    private fun handler(call: MethodCall, response: MethodChannel.Result) {
+    private fun methodHandler(call: MethodCall, response: MethodChannel.Result) {
         val playerId = call.argument<String>("playerId") ?: return
         if (call.method == "create") {
             val eventHandler = EventHandler(EventChannel(binaryMessenger, "xyz.luan/audioplayers/events/$playerId"))
@@ -194,8 +194,10 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
                 }
 
                 "dispose" -> {
-                    player.dispose()
-                    players.remove(playerId)
+                    handler.post {
+                        player.dispose()
+                        players.remove(playerId)
+                    }
                 }
 
                 else -> {
@@ -226,11 +228,20 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
     }
 
     fun handleDuration(player: WrappedPlayer) {
-        player.eventHandler.success("audio.onDuration", hashMapOf("value" to (player.getDuration() ?: 0)))
+        handler.post {
+            player.eventHandler.success(
+                "audio.onDuration",
+                hashMapOf("value" to (player.getDuration() ?: 0))
+            )
+        }
     }
 
     fun handleComplete(player: WrappedPlayer) {
-        player.eventHandler.success("audio.onComplete")
+        handler.post { player.eventHandler.success("audio.onComplete") }
+    }
+
+    fun handlePrepared(player: WrappedPlayer, isPrepared: Boolean) {
+        handler.post { player.eventHandler.success("audio.onPrepared", hashMapOf("value" to isPrepared)) }
     }
 
     fun handleLog(player: WrappedPlayer, message: String) {
@@ -250,10 +261,12 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
     }
 
     fun handleSeekComplete(player: WrappedPlayer) {
-        player.eventHandler.success("audio.onSeekComplete")
-        player.eventHandler.success(
-            "audio.onCurrentPosition", hashMapOf("value" to (player.getCurrentPosition() ?: 0))
-        )
+        handler.post {
+            player.eventHandler.success("audio.onSeekComplete")
+            player.eventHandler.success(
+                "audio.onCurrentPosition", hashMapOf("value" to (player.getCurrentPosition() ?: 0))
+            )
+        }
     }
 
     override fun startUpdates() {
@@ -327,7 +340,7 @@ private fun MethodCall.audioContext(): AudioContextAndroid {
     )
 }
 
-class EventHandler(eventChannel: EventChannel) : EventChannel.StreamHandler {
+class EventHandler(private val eventChannel: EventChannel) : EventChannel.StreamHandler {
     private var eventSink: EventChannel.EventSink? = null
 
     init {
@@ -340,6 +353,7 @@ class EventHandler(eventChannel: EventChannel) : EventChannel.StreamHandler {
 
     override fun onCancel(arguments: Any?) {
         eventSink = null
+        eventChannel.setStreamHandler(null)
     }
 
     fun success(method: String, arguments: Map<String, Any> = HashMap()) {
@@ -350,7 +364,8 @@ class EventHandler(eventChannel: EventChannel) : EventChannel.StreamHandler {
         eventSink?.error(errorCode, errorMessage, errorDetails)
     }
 
-    fun endOfStream() {
+    fun dispose() {
         eventSink?.endOfStream()
+        onCancel(null)
     }
 }
