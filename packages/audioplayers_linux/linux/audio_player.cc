@@ -39,7 +39,7 @@ AudioPlayer::AudioPlayer(std::string playerId, FlMethodChannel *methodChannel,
     gst_bus_add_watch(bus, (GstBusFunc)AudioPlayer::OnBusMessage, this);
 
     // Refresh continuously to emit reoccurring events
-    g_timeout_add(1000, (GSourceFunc)AudioPlayer::OnRefresh, this);
+    _refreshId = g_timeout_add(1000, (GSourceFunc)AudioPlayer::OnRefresh, this);
 }
 
 AudioPlayer::~AudioPlayer() {}
@@ -116,9 +116,13 @@ gboolean AudioPlayer::OnBusMessage(GstBus *bus, GstMessage *message,
 // Compare with refresh_ui in
 // https://gstreamer.freedesktop.org/documentation/tutorials/basic/toolkit-integration.html?gi-language=c#walkthrough
 gboolean AudioPlayer::OnRefresh(AudioPlayer *data) {
-    if(!data->playbin) return FALSE;
+    if(data->playbin == nullptr) {
+        return FALSE;
+    }
     // We do not want to update anything unless we are in PLAYING state
-    if (data->playbin->current_state == GST_STATE_PLAYING) {
+    GstState playbinState;
+    gst_element_get_state(data->playbin, &playbinState, NULL, GST_CLOCK_TIME_NONE);
+    if (playbinState == GST_STATE_PLAYING) {
         data->OnPositionUpdate();
     }
     return TRUE;
@@ -392,6 +396,8 @@ void AudioPlayer::Dispose() {
     if(!playbin) throw "Player was already disposed (Dispose)";
     if(_isPlaying) _isPlaying = false;
     if(_isInitialized) _isInitialized = false;
+    
+    g_source_remove(_refreshId);
 
     if(bus) gst_object_unref(GST_OBJECT(bus));
     if(source) gst_object_unref(GST_OBJECT(source));
@@ -417,8 +423,8 @@ void AudioPlayer::Dispose() {
         gst_element_set_state(playbin, GST_STATE_NULL);
     }
     gst_object_unref(GST_OBJECT(playbin));
-    playbin = nullptr;
     // Do not dispose method channel as it is used by multiple players!
     g_clear_object(&_eventChannel);
     _eventChannel = nullptr;
+    playbin = nullptr;
 }

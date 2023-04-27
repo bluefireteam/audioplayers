@@ -251,7 +251,6 @@ static void audioplayers_linux_plugin_handle_method_call(
 }
 
 static void audioplayers_linux_plugin_dispose(GObject *object) {
-    g_print("Global dispose");
     for (const auto& entry : audioPlayers) {
         entry.second->Dispose();
     }
