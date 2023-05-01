@@ -195,7 +195,7 @@ class WrappedMediaPlayer {
                 let interval = toCMTime(millis: 0.2)
                 let timeObserver = player.addPeriodicTimeObserver(forInterval: interval, queue: nil) {
                     [weak self] time in
-                    self!.onTimeInterval(time: time)
+                    self?.onTimeInterval(time: time)
                 }
                 self.observers.append(TimeObserver(player: player, observer: timeObserver))
             }
@@ -206,7 +206,7 @@ class WrappedMediaPlayer {
                 queue: nil
             ) {
                 [weak self] (notification) in
-                self!.onSoundComplete()
+                self?.onSoundComplete()
             }
             self.observers.append(TimeObserver(player: player, observer: anObserver))
             
