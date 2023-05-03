@@ -45,7 +45,7 @@ void AudioPlayer::SetSourceUrl(std::string url) {
     if (_url != url) {
         _url = url;
         _isInitialized = false;
-        
+
         try {
             // Create a source resolver to create an IMFMediaSource for the content
             // URL. This will create an instance of an inbuilt OS media source for
@@ -66,6 +66,7 @@ void AudioPlayer::SetSourceUrl(std::string url) {
 
             m_mediaEngineWrapper->SetMediaSource(mediaSource.get());
         } catch (...) {
+            // Forward errors to event stream, as this is called asynchronously
             this->OnError("WindowsAudioError", "Error setting url to '" + url + "'.", nullptr);
         }
     }

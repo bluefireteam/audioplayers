@@ -35,7 +35,7 @@ class AudioEvent {
   /// Log message in the player scope.
   final String? logMessage;
 
-  /// Weather the
+  /// Whether the source is prepared to be played.
   final bool? isPrepared;
 
   @override
