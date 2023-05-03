@@ -286,9 +286,6 @@ void audioplayers_linux_plugin_register_with_registrar(
     AudioplayersLinuxPlugin *plugin = AUDIOPLAYERS_LINUX_PLUGIN(
         g_object_new(audioplayers_linux_plugin_get_type(), nullptr));
 
-    // Init GStreamer
-    gst_init(NULL, NULL);
-
     binaryMessenger = fl_plugin_registrar_get_messenger(registrar);
 
     g_autoptr(FlStandardMethodCodec) methodCodec =

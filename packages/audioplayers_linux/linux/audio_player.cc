@@ -6,6 +6,9 @@ AudioPlayer::AudioPlayer(std::string playerId, FlMethodChannel *methodChannel,
                          FlEventChannel *eventChannel)
     : _playerId(playerId),
       _eventChannel(eventChannel) {
+    // Init GStreamer
+    gst_init(NULL, NULL);
+
     playbin = gst_element_factory_make("playbin", NULL);
     if (!playbin) {
         throw "Not all elements could be created.";
