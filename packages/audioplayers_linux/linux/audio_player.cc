@@ -153,7 +153,7 @@ void AudioPlayer::OnError(const gchar *code, const gchar *message,
 
 void AudioPlayer::OnMediaStateChange(GstObject *src, GstState *old_state,
                                      GstState *new_state) {
-    if(!playbin) {
+    if (!playbin) {
         this->OnError("LinuxAudioError", "Player was already disposed (OnMediaStateChange).", nullptr, nullptr);
         return;
     }
