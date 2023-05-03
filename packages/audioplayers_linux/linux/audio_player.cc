@@ -6,7 +6,8 @@ AudioPlayer::AudioPlayer(std::string playerId, FlMethodChannel *methodChannel,
                          FlEventChannel *eventChannel)
     : _playerId(playerId),
       _eventChannel(eventChannel) {
-    // Init GStreamer
+    // GStreamer lib only needs to be initialized once, but doing it while registering the plugin can be problematic as
+    // it likely needs a GUI to be present. Calling it multiple times is fine.
     gst_init(NULL, NULL);
 
     playbin = gst_element_factory_make("playbin", NULL);
