@@ -424,10 +424,6 @@ void AudioPlayer::Dispose() {
         // audiobin gets unreferenced (2x) via playbin
         panorama = nullptr;
     }
-
-    // FIXME(gustl22): find the reaseon for:
-    // GStreamer-CRITICAL: gst_element_set_state: assertion 'GST_IS_ELEMENT (element)' failed
-    // GStreamer-CRITICAL: gst_object_unref: assertion '((GObject *) object)->ref_count > 0' failed
     
     GstState playbinState;
     gst_element_get_state(playbin, &playbinState, NULL, GST_CLOCK_TIME_NONE);
