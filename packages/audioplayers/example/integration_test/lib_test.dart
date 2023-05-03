@@ -320,7 +320,7 @@ void main() {
           .where((event) => event.eventType == AudioEventType.prepared)
           .map((event) => event.isPrepared!)
           .listen(
-            (isPrepared) {
+        (isPrepared) {
           if (isPrepared) {
             preparedCompleter.complete();
           }
