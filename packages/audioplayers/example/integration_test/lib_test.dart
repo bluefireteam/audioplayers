@@ -364,6 +364,7 @@ void main() {
       expect(platformException.code, 'SomeGlobalErrorCode');
       expect(platformException.message, 'SomeGlobalErrorMessage');
       await eventStreamSub.cancel();
+      await tester.pumpAndSettle();
     });
   });
 }
