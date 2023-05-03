@@ -162,7 +162,10 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
             }
             return
         } else if method == "release" {
-            player.release()
+            player.release() {
+                result(1)
+            }
+            return
         } else if method == "seek" {
             guard let position = args["position"] as? Int else {
                 result(FlutterError(code: "DarwinAudioError", message: "Null position received on seek", details: nil))
@@ -258,8 +261,11 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
             }
             player.eventHandler.onError(code: code, message: message, details: nil)
         } else if method == "dispose" {
-            player.dispose()
-            players[playerId] = nil
+            player.dispose() {
+                self.players[playerId] = nil
+                result(1)
+            }
+            return
         } else {
             result(FlutterMethodNotImplemented)
             return

@@ -72,6 +72,7 @@ class AudioPlayer {
     bool _isLooping = false;
     bool _isSeekCompleted = true;
     double _playbackRate = 1.0;
+    guint _refreshId;
 
     std::string _url{};
     std::string _playerId;

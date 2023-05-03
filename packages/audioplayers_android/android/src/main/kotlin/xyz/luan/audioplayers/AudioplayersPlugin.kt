@@ -365,7 +365,9 @@ class EventHandler(private val eventChannel: EventChannel) : EventChannel.Stream
     }
 
     fun dispose() {
-        eventSink?.endOfStream()
-        onCancel(null)
+        eventSink?.let {
+            it.endOfStream()
+            onCancel(null)
+        }
     }
 }

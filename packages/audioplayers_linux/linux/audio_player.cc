@@ -6,6 +6,10 @@ AudioPlayer::AudioPlayer(std::string playerId, FlMethodChannel *methodChannel,
                          FlEventChannel *eventChannel)
     : _playerId(playerId),
       _eventChannel(eventChannel) {
+    // GStreamer lib only needs to be initialized once, but doing it while registering the plugin can be problematic as
+    // it likely needs a GUI to be present. Calling it multiple times is fine.
+    gst_init(NULL, NULL);
+
     playbin = gst_element_factory_make("playbin", NULL);
     if (!playbin) {
         throw "Not all elements could be created.";
@@ -16,7 +20,7 @@ AudioPlayer::AudioPlayer(std::string playerId, FlMethodChannel *methodChannel,
     if (panorama) {
         audiobin = gst_bin_new(NULL);
         audiosink = gst_element_factory_make("autoaudiosink", NULL);
-        
+
         gst_bin_add_many(GST_BIN(audiobin), panorama, audiosink, NULL);
         gst_element_link(panorama, audiosink);
 
@@ -39,7 +43,7 @@ AudioPlayer::AudioPlayer(std::string playerId, FlMethodChannel *methodChannel,
     gst_bus_add_watch(bus, (GstBusFunc)AudioPlayer::OnBusMessage, this);
 
     // Refresh continuously to emit reoccurring events
-    g_timeout_add(250, (GSourceFunc)AudioPlayer::OnRefresh, this);
+    _refreshId = g_timeout_add(250, (GSourceFunc)AudioPlayer::OnRefresh, this);
 }
 
 AudioPlayer::~AudioPlayer() {}
@@ -56,7 +60,6 @@ void AudioPlayer::SourceSetup(GstElement *playbin, GstElement *source,
 void AudioPlayer::SetSourceUrl(std::string url) {
     if (_url != url) {
         _url = url;
-        if(!playbin) throw "Player was already disposed (SetSourceUrl)";
         gst_element_set_state(playbin, GST_STATE_NULL);
         _isInitialized = false;
         _isPlaying = false;
@@ -117,9 +120,13 @@ gboolean AudioPlayer::OnBusMessage(GstBus *bus, GstMessage *message,
 // Compare with refresh_ui in
 // https://gstreamer.freedesktop.org/documentation/tutorials/basic/toolkit-integration.html?gi-language=c#walkthrough
 gboolean AudioPlayer::OnRefresh(AudioPlayer *data) {
-    if(!data->playbin) return FALSE;
+    if(data->playbin == nullptr) {
+        return FALSE;
+    }
     // We do not want to update anything unless we are in PLAYING state
-    if (data->playbin->current_state == GST_STATE_PLAYING) {
+    GstState playbinState;
+    gst_element_get_state(data->playbin, &playbinState, NULL, GST_CLOCK_TIME_NONE);
+    if (playbinState == GST_STATE_PLAYING) {
         data->OnPositionUpdate();
     }
     return TRUE;
@@ -147,10 +154,10 @@ void AudioPlayer::OnError(const gchar *code, const gchar *message,
 void AudioPlayer::OnMediaStateChange(GstObject *src, GstState *old_state,
                                      GstState *new_state) {
     if(!playbin) {
-        this->OnError("LinuxAudioError", "Player was already disposed (OnMediaStateChange).", nullptr, nullptr);         
+        this->OnError("LinuxAudioError", "Player was already disposed (OnMediaStateChange).", nullptr, nullptr);
         return;
     }
-    
+
     if (src == GST_OBJECT(playbin)) {
         if (*new_state == GST_STATE_READY) {
             if (this->_isInitialized) {
@@ -269,7 +276,6 @@ void AudioPlayer::SetVolume(double volume) {
     } else if (volume < 0) {
         volume = 0;
     }
-    if(!playbin) throw "Player was already disposed (SetVolume)";
     g_object_set(G_OBJECT(playbin), "volume", volume, NULL);
 }
 
@@ -285,7 +291,7 @@ void AudioPlayer::SetPlayback(int64_t position, double rate) {
     if (rate != 0 && _playbackRate != rate) {
         _playbackRate = rate;
     }
-    
+
     if (!_isInitialized) {
         return;
     }
@@ -315,7 +321,6 @@ void AudioPlayer::SetPlayback(int64_t position, double rate) {
             GST_SEEK_TYPE_SET, 0, GST_SEEK_TYPE_SET, position * GST_MSECOND);
     }
 
-    if(!playbin) throw "Player was already disposed (SetPlayback)";
     if (!gst_element_send_event(playbin, seek_event)) {
         this->OnLog((std::string("Could not set playback to position ") +
                      std::to_string(position) + std::string(" and rate ") +
@@ -344,7 +349,6 @@ void AudioPlayer::SetPosition(int64_t position) {
  */
 int64_t AudioPlayer::GetPosition() {
     gint64 current = 0;
-    if(!playbin) throw "Player was already disposed (GetPosition)";
     if (!gst_element_query_position(playbin, GST_FORMAT_TIME, &current)) {
         this->OnLog("Could not query current position.");
         return 0;
@@ -357,7 +361,6 @@ int64_t AudioPlayer::GetPosition() {
  */
 int64_t AudioPlayer::GetDuration() {
     gint64 duration = 0;
-    if(!playbin) throw "Player was already disposed (GetDuration)";
     if (!gst_element_query_duration(playbin, GST_FORMAT_TIME, &duration)) {
         this->OnLog("Could not query current duration.");
         return 0;
@@ -377,7 +380,6 @@ void AudioPlayer::Pause() {
     if (!_isInitialized) {
         return;
     }
-    if(!playbin) throw "Player was already disposed (Pause)";
     GstStateChangeReturn ret = gst_element_set_state(playbin, GST_STATE_PAUSED);
     if (ret == GST_STATE_CHANGE_SUCCESS) {
         OnPositionUpdate();  // Update to exact position when pausing
@@ -393,7 +395,6 @@ void AudioPlayer::Resume() {
     if (!_isInitialized) {
         return;
     }
-    if(!playbin) throw "Player was already disposed (Resume)";
     GstStateChangeReturn ret =
         gst_element_set_state(playbin, GST_STATE_PLAYING);
     if (ret == GST_STATE_CHANGE_SUCCESS) {
@@ -411,32 +412,38 @@ void AudioPlayer::Dispose() {
     if(_isPlaying) _isPlaying = false;
     if(_isInitialized) _isInitialized = false;
 
-    if(bus) gst_object_unref(GST_OBJECT(bus));
-    if(source) gst_object_unref(GST_OBJECT(source));
+    g_source_remove(_refreshId);
+
+    if(bus) {
+        gst_bus_remove_watch(bus);
+        gst_object_unref(GST_OBJECT(bus));
+        bus = nullptr;
+    }
+
+    if(source) {
+        gst_object_unref(GST_OBJECT(source));
+        source = nullptr;
+    }
 
     if(panorama) {
         gst_element_set_state(audiobin, GST_STATE_NULL);
-        
+
         gst_element_remove_pad(audiobin, panoramaSinkPad);
         gst_bin_remove(GST_BIN(audiobin), audiosink);
         gst_bin_remove(GST_BIN(audiobin), panorama);
 
-        gst_object_unref(GST_OBJECT(audiobin));
+        // audiobin gets unreferenced (2x) via playbin
         panorama = nullptr;
     }
 
-    // FIXME(gustl22): find the reaseon for:
-    // GStreamer-CRITICAL: gst_element_set_state: assertion 'GST_IS_ELEMENT (element)' failed
-    // GStreamer-CRITICAL: gst_object_unref: assertion '((GObject *) object)->ref_count > 0' failed
-    
     GstState playbinState;
     gst_element_get_state(playbin, &playbinState, NULL, GST_CLOCK_TIME_NONE);
     if(playbinState > GST_STATE_NULL) {
         gst_element_set_state(playbin, GST_STATE_NULL);
     }
     gst_object_unref(GST_OBJECT(playbin));
-    playbin = nullptr;
     // Do not dispose method channel as it is used by multiple players!
     g_clear_object(&_eventChannel);
     _eventChannel = nullptr;
+    playbin = nullptr;
 }
