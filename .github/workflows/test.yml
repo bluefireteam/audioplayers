@@ -168,8 +168,8 @@ jobs:
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         run: |
           ( cd server; dart run bin/server.dart ) &
-          flutter run integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
-          flutter run integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
+          flutter test integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
+          flutter test integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
 
   macos:
     runs-on: macos-13
@@ -190,8 +190,8 @@ jobs:
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         run: |
           ( cd server; dart run bin/server.dart ) &
-          flutter run -d macos integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
-          flutter run -d macos integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
+          flutter test -d macos integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
+          flutter test -d macos integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
 
   windows:
     runs-on: windows-latest
