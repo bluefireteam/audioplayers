@@ -292,12 +292,12 @@ class AudioPlayer {
     final onPreparedSubscription = _onPrepared.listen(
       (isPrepared) {
         if (isPrepared) {
-          preparedCompleter?.complete();
+          preparedCompleter.complete();
         }
       },
       onError: (Object e, [StackTrace? stackTrace]) {
-        if (preparedCompleter?.isCompleted == false) {
-          preparedCompleter?.completeError(e, stackTrace);
+        if (preparedCompleter.isCompleted == false) {
+          preparedCompleter.completeError(e, stackTrace);
         }
       },
     );
