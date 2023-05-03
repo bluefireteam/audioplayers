@@ -353,6 +353,6 @@ class WrappedPlayer internal constructor(
 
     fun dispose() {
         release()
-        eventHandler.endOfStream()
+        eventHandler.dispose()
     }
 }

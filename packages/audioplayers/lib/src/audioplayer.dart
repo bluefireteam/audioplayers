@@ -35,6 +35,9 @@ class AudioPlayer {
   Source? get source => _source;
 
   set state(PlayerState state) {
+    if (_playerState == PlayerState.disposed) {
+      throw Exception('AudioPlayer has been disposed');
+    }
     if (!_playerStateController.isClosed) {
       _playerStateController.add(state);
     }
@@ -350,7 +353,7 @@ class AudioPlayer {
     // First stop and release all native resources.
     await release();
 
-    await _platform.dispose(playerId);
+    state = PlayerState.disposed;
 
     final futures = <Future>[
       if (!_playerStateController.isClosed) _playerStateController.close(),
@@ -363,5 +366,8 @@ class AudioPlayer {
     _source = null;
 
     await Future.wait<dynamic>(futures);
+
+    // Needs to be called after cancelling event stream subscription:
+    await _platform.dispose(playerId);
   }
 }

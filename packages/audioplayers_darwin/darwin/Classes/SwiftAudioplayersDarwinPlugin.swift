@@ -147,7 +147,10 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
             return
         }
 
-        let player = self.getPlayer(playerId: playerId)
+        guard let player = self.getPlayer(playerId: playerId) else {
+            result(FlutterError(code: "DarwinAudioError", message: "Player has not yet been created or has already been disposed.", details: nil))
+            return
+        }
 
         if method == "pause" {
             player.pause()
@@ -159,7 +162,10 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
             }
             return
         } else if method == "release" {
-            player.release()
+            player.release() {
+                result(1)
+            }
+            return
         } else if method == "seek" {
             guard let position = args["position"] as? Int else {
                 result(FlutterError(code: "DarwinAudioError", message: "Null position received on seek", details: nil))
@@ -254,8 +260,11 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
             }
             player.eventHandler.onError(code: code, message: message, details: nil)
         } else if method == "dispose" {
-            player.dispose()
-            players[playerId] = nil
+            player.dispose() {
+                self.players[playerId] = nil
+                result(1)
+            }
+            return
         } else {
             result(FlutterMethodNotImplemented)
             return
@@ -279,8 +288,8 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
         players[playerId] = newPlayer
     }
 
-    func getPlayer(playerId: String) -> WrappedMediaPlayer {
-        return players[playerId]!
+    func getPlayer(playerId: String) -> WrappedMediaPlayer? {
+        return players[playerId]
     }
 
     func controlAudioSession() {

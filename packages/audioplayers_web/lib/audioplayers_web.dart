@@ -30,7 +30,8 @@ class WebAudioplayersPlatform extends AudioplayersPlatformInterface {
         ? players[playerId]!
         : throw PlatformException(
             code: 'WebAudioError',
-            message: 'Player with id $playerId was not created!',
+            message:
+                'Player has not yet been created or has already been disposed.',
           );
   }
 

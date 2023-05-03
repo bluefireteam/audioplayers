@@ -15,8 +15,7 @@ class FakeCall {
 class FakeAudioplayersPlatform extends AudioplayersPlatformInterface {
   List<FakeCall> calls = [];
 
-  StreamController<AudioEvent> eventStreamController =
-      StreamController<AudioEvent>.broadcast();
+  Map<String, StreamController<AudioEvent>> eventStreamControllers = {};
 
   void clear() {
     calls.clear();
@@ -34,12 +33,13 @@ class FakeAudioplayersPlatform extends AudioplayersPlatformInterface {
   @override
   Future<void> create(String playerId) async {
     calls.add(FakeCall(id: playerId, method: 'create'));
+    eventStreamControllers[playerId] = StreamController<AudioEvent>.broadcast();
   }
 
   @override
   Future<void> dispose(String playerId) async {
     calls.add(FakeCall(id: playerId, method: 'dispose'));
-    eventStreamController.close();
+    eventStreamControllers[playerId]?.close();
   }
 
   @override
@@ -147,6 +147,6 @@ class FakeAudioplayersPlatform extends AudioplayersPlatformInterface {
   @override
   Stream<AudioEvent> getEventStream(String playerId) {
     calls.add(FakeCall(id: playerId, method: 'getEventStream'));
-    return eventStreamController.stream;
+    return eventStreamControllers[playerId]!.stream;
   }
 }
