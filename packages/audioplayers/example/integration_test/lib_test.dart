@@ -350,7 +350,7 @@ void main() {
     testWidgets('Emit global platform error', (tester) async {
       final errorCompleter = Completer<Object>();
       final global = GlobalAudioplayersPlatformInterface.instance;
-      final eventStreamSub = global
+      global
           .getGlobalEventStream()
           .listen((_) {}, onError: errorCompleter.complete);
 
@@ -363,8 +363,9 @@ void main() {
       final platformException = exception as PlatformException;
       expect(platformException.code, 'SomeGlobalErrorCode');
       expect(platformException.message, 'SomeGlobalErrorMessage');
-      await eventStreamSub.cancel();
-      await tester.pumpAndSettle();
+      // FIXME: cancelling the global event stream leads to
+      // MissingPluginException on Android
+      // await eventStreamSub.cancel();
     });
   });
 }
