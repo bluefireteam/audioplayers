@@ -266,9 +266,7 @@ static void audioplayers_linux_plugin_class_init(
     G_OBJECT_CLASS(klass)->dispose = audioplayers_linux_plugin_dispose;
 }
 
-static void audioplayers_linux_plugin_init(AudioplayersLinuxPlugin *self) {
-    gst_init(NULL, NULL);
-}
+static void audioplayers_linux_plugin_init(AudioplayersLinuxPlugin *self) {}
 
 static void method_call_cb(FlMethodChannel *methods, FlMethodCall *method_call,
                            gpointer user_data) {
@@ -287,6 +285,9 @@ void audioplayers_linux_plugin_register_with_registrar(
     FlPluginRegistrar *registrar) {
     AudioplayersLinuxPlugin *plugin = AUDIOPLAYERS_LINUX_PLUGIN(
         g_object_new(audioplayers_linux_plugin_get_type(), nullptr));
+
+    // Init GStreamer
+    gst_init(NULL, NULL);
 
     binaryMessenger = fl_plugin_registrar_get_messenger(registrar);
 
