@@ -70,15 +70,18 @@ void main() {
       (WidgetTester tester) async {
         final players =
             List.generate(audioTestDataList.length, (_) => AudioPlayer());
+        print("Dispose Debug A");
 
         // Start all players simultaneously
         final iterator = List<int>.generate(audioTestDataList.length, (i) => i);
         await Future.wait<void>(
           iterator.map((i) => players[i].play(audioTestDataList[i].source)),
         );
+        print("Dispose Debug B");
         await tester.pumpAndSettle();
         // Sources take some time to get initialized
         await tester.pump(const Duration(seconds: 8));
+        print("Dispose Debug C");
         for (var i = 0; i < audioTestDataList.length; i++) {
           final td = audioTestDataList[i];
           if (td.isLiveStream || td.duration > const Duration(seconds: 10)) {
@@ -89,7 +92,9 @@ void main() {
           }
           await players[i].stop();
         }
+        print("Dispose Debug D");
         await Future.wait(players.map((p) => p.dispose()));
+        print("Dispose Debug E");
       },
       // FIXME: Causes media error on Android (see #1333, #1353)
       // Unexpected platform error: MediaPlayer error with
@@ -99,8 +104,10 @@ void main() {
 
     testWidgets('play multiple sources consecutively',
         (WidgetTester tester) async {
+          print("Dispose Debug F");
       final player = AudioPlayer();
 
+          print("Dispose Debug G");
       for (var i = 0; i < audioTestDataList.length; i++) {
         final td = audioTestDataList[i];
         await player.play(td.source);
@@ -113,8 +120,10 @@ void main() {
           printWithTimeOnFailure('Test position: $td');
           expect(position, greaterThan(Duration.zero));
         }
+        print("Dispose Debug H");
         await player.stop();
       }
+          print("Dispose Debug I");
       await player.dispose();
     });
   });
