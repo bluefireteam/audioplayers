@@ -45,14 +45,6 @@ class WrappedMediaPlayer {
         self.url = url
     }
     
-    func dispose() {
-        for observer in observers {
-            NotificationCenter.default.removeObserver(observer.observer)
-        }
-        keyValueObservation?.invalidate()
-        observers = []
-    }
-    
     func getDurationCMTime() -> CMTime? {
         return player?.currentItem?.asset.duration
     }
@@ -125,9 +117,24 @@ class WrappedMediaPlayer {
         seek(time: toCMTime(millis: 0), completer: completer)
     }
     
+    func releaseSync() {
+        keyValueObservation?.invalidate()
+        for observer in observers {
+            NotificationCenter.default.removeObserver(observer.observer)
+        }
+        observers = []
+        player?.replaceCurrentItem(with: nil)
+    }
+
     func release(completer: Completer? = nil) {
         stop {
-            self.dispose()
+            self.releaseSync()
+            completer?()
+        }
+    }
+
+    func dispose(completer: Completer? = nil) {
+        release {
             completer?()
         }
     }
@@ -178,9 +185,8 @@ class WrappedMediaPlayer {
             playerItem.audioTimePitchAlgorithm = AVAudioTimePitchAlgorithm.timeDomain
             let player: AVPlayer
             if let existingPlayer = self.player {
-                keyValueObservation?.invalidate()
+                releaseSync()
                 self.url = url
-                dispose()
                 existingPlayer.replaceCurrentItem(with: playerItem)
                 player = existingPlayer
             } else {
@@ -219,6 +225,7 @@ class WrappedMediaPlayer {
                     self.updateDuration()
                     completer?()
                 } else if status == .failed {
+                    self.releaseSync()
                     completerError?()
                 }
             }
