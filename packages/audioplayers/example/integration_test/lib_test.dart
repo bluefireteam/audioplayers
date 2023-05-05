@@ -353,7 +353,8 @@ void main() {
       const playerId = 'somePlayerId';
       await platform.create(playerId);
 
-      final eventStreamSub = platform
+      /* final eventStreamSub = */
+      platform
           .getEventStream(playerId)
           .listen((_) {}, onError: errorCompleter.complete);
 
@@ -368,13 +369,17 @@ void main() {
       final platformException = exception as PlatformException;
       expect(platformException.code, 'SomeErrorCode');
       expect(platformException.message, 'SomeErrorMessage');
-      await eventStreamSub.cancel();
+      // FIXME: cancelling the event stream leads to
+      // MissingPluginException on Linux, if dispose player afterwards
+      // await eventStreamSub.cancel();
       await platform.dispose(playerId);
     });
 
     testWidgets('Emit global platform error', (tester) async {
       final errorCompleter = Completer<Object>();
       final global = GlobalAudioplayersPlatformInterface.instance;
+
+      /* final eventStreamSub = */
       global
           .getGlobalEventStream()
           .listen((_) {}, onError: errorCompleter.complete);
@@ -389,7 +394,7 @@ void main() {
       expect(platformException.code, 'SomeGlobalErrorCode');
       expect(platformException.message, 'SomeGlobalErrorMessage');
       // FIXME: cancelling the global event stream leads to
-      // MissingPluginException on Android
+      // MissingPluginException on Android, if dispose app afterwards
       // await eventStreamSub.cancel();
     });
   });
