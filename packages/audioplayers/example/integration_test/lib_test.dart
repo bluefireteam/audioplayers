@@ -346,6 +346,31 @@ void main() {
   });
 
   group('Platform event channel', () {
+    testWidgets(
+      'Reuse same platform event channel id',
+      (tester) async {
+        final platform = AudioplayersPlatformInterface.instance;
+
+        const playerId = 'somePlayerId';
+        await platform.create(playerId);
+
+        final eventStreamSub = platform.getEventStream(playerId).listen((_) {});
+
+        await eventStreamSub.cancel();
+        await platform.dispose(playerId);
+
+        // Recreate player with same player Id
+        await platform.create(playerId);
+
+        final eventStreamSub2 =
+            platform.getEventStream(playerId).listen((_) {});
+
+        await eventStreamSub2.cancel();
+        await platform.dispose(playerId);
+      },
+      //skip: !kIsWeb && Platform.isLinux,
+    );
+
     testWidgets('Emit platform error', (tester) async {
       final errorCompleter = Completer<Object>();
       final platform = AudioplayersPlatformInterface.instance;
@@ -353,8 +378,7 @@ void main() {
       const playerId = 'somePlayerId';
       await platform.create(playerId);
 
-      /* final eventStreamSub = */
-      platform
+      final eventStreamSub = platform
           .getEventStream(playerId)
           .listen((_) {}, onError: errorCompleter.complete);
 
@@ -369,9 +393,7 @@ void main() {
       final platformException = exception as PlatformException;
       expect(platformException.code, 'SomeErrorCode');
       expect(platformException.message, 'SomeErrorMessage');
-      // FIXME: cancelling the event stream leads to
-      // MissingPluginException on Linux, if dispose player afterwards
-      // await eventStreamSub.cancel();
+      await eventStreamSub.cancel();
       await platform.dispose(playerId);
     });
 
