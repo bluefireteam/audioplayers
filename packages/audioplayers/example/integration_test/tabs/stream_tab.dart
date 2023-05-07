@@ -115,17 +115,19 @@ Future<void> testStreamsTab(
 }
 
 extension StreamWidgetTester on WidgetTester {
-  // Precision for duration & position:
-  // Android: two tenth of a second
+  // Precision for position & duration:
+  // Android: millisecond
   // Windows: millisecond
-  // Linux: second
-  // Web: second
+  // Linux: millisecond
+  // Web: millisecond
+  // Darwin: millisecond
 
-  // Update interval for duration & position:
-  // Android: two tenth of a second
+  // Update interval for position:
+  // Android: ~200ms
   // Windows: ~250ms
-  // Linux: second
-  // Web: second
+  // Linux: ~250ms
+  // Web: ~250ms
+  // Darwin: ?
 
   Future<void> stopStream() async {
     final st = StackTrace.current.toString();
@@ -144,7 +146,11 @@ extension StreamWidgetTester on WidgetTester {
     await waitFor(
       () async => expectWidgetHasDuration(
         const Key('onDurationText'),
-        matcher: (Duration? actual) => durationRangeMatcher(actual, duration),
+        matcher: (Duration? actual) => durationRangeMatcher(
+          actual,
+          duration,
+          deviation: const Duration(milliseconds: 500),
+        ),
       ),
       timeout: timeout,
       stackTrace: st,

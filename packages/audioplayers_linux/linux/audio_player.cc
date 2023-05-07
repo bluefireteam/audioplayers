@@ -20,7 +20,7 @@ AudioPlayer::AudioPlayer(std::string playerId, FlMethodChannel *methodChannel,
     if (panorama) {
         audiobin = gst_bin_new(NULL);
         audiosink = gst_element_factory_make("autoaudiosink", NULL);
-        
+
         gst_bin_add_many(GST_BIN(audiobin), panorama, audiosink, NULL);
         gst_element_link(panorama, audiosink);
 
@@ -43,7 +43,7 @@ AudioPlayer::AudioPlayer(std::string playerId, FlMethodChannel *methodChannel,
     gst_bus_add_watch(bus, (GstBusFunc)AudioPlayer::OnBusMessage, this);
 
     // Refresh continuously to emit reoccurring events
-    _refreshId = g_timeout_add(1000, (GSourceFunc)AudioPlayer::OnRefresh, this);
+    _refreshId = g_timeout_add(250, (GSourceFunc)AudioPlayer::OnRefresh, this);
 }
 
 AudioPlayer::~AudioPlayer() {}
