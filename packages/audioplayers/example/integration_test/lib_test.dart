@@ -346,6 +346,7 @@ void main() {
   });
 
   group('Platform event channel', () {
+    // TODO(gustl22): remove once https://github.com/flutter/flutter/issues/126209 is fixed
     testWidgets(
       'Reuse same platform event channel id',
       (tester) async {
@@ -368,7 +369,6 @@ void main() {
         await eventStreamSub2.cancel();
         await platform.dispose(playerId);
       },
-      //skip: !kIsWeb && Platform.isLinux,
     );
 
     testWidgets('Emit platform error', (tester) async {
