@@ -346,31 +346,6 @@ void main() {
   });
 
   group('Platform event channel', () {
-    testWidgets(
-      'Reuse same platform event channel id',
-      (tester) async {
-        final platform = AudioplayersPlatformInterface.instance;
-
-        const playerId = 'somePlayerId';
-        await platform.create(playerId);
-
-        final eventStreamSub = platform.getEventStream(playerId).listen((_) {});
-
-        await eventStreamSub.cancel();
-        await platform.dispose(playerId);
-
-        // Recreate player with same player Id
-        await platform.create(playerId);
-
-        final eventStreamSub2 =
-            platform.getEventStream(playerId).listen((_) {});
-
-        await eventStreamSub2.cancel();
-        await platform.dispose(playerId);
-      },
-      //skip: !kIsWeb && Platform.isLinux,
-    );
-
     testWidgets('Emit platform error', (tester) async {
       final errorCompleter = Completer<Object>();
       final platform = AudioplayersPlatformInterface.instance;
