@@ -227,10 +227,6 @@ static void audioplayers_linux_plugin_handle_method_call(
             result = 1;
         } else if (strcmp(method, "dispose") == 0) {
             player->Dispose();
-            // FIXME: explicitly removing the channel from the binary messenger, see https://github.com/flutter/flutter/issues/126209
-            fl_binary_messenger_set_message_handler_on_channel(
-                    binaryMessenger, ("xyz.luan/audioplayers/events/" + playerId).c_str(), nullptr, nullptr, nullptr);
-
             audioPlayers.erase(playerId);
             result = 1;
         } else {

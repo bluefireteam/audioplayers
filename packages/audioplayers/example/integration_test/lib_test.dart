@@ -18,6 +18,9 @@ void main() {
 
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
+  final isAndroid = !kIsWeb && Platform.isAndroid;
+  final isLinux = !kIsWeb && Platform.isLinux;
+
   final wavUrl1TestData = LibSourceTestData(
     source: UrlSource(wavUrl1),
     duration: const Duration(milliseconds: 451),
@@ -94,7 +97,7 @@ void main() {
       // FIXME: Causes media error on Android (see #1333, #1353)
       // Unexpected platform error: MediaPlayer error with
       // what:MEDIA_ERROR_UNKNOWN {what:1} extra:MEDIA_ERROR_SYSTEM
-      skip: !kIsWeb && Platform.isAndroid,
+      skip: isAndroid,
     );
 
     testWidgets('play multiple sources consecutively',
@@ -217,7 +220,9 @@ void main() {
   group('Logging', () {
     testWidgets('Emit platform log', (tester) async {
       final logCompleter = Completer<String>();
-      const playerId = 'somePlayerId';
+
+      // FIXME: Cannot reuse event channel with same id on Linux
+      final playerId = isLinux ? 'somePlayerId0' : 'somePlayerId';
       final player = AudioPlayer(playerId: playerId);
       final onLogSub = player.onLog.listen(
         logCompleter.complete,
@@ -290,7 +295,8 @@ void main() {
     testWidgets('#create and #dispose', (tester) async {
       final platform = AudioplayersPlatformInterface.instance;
 
-      const playerId = 'somePlayerId';
+      // FIXME: Cannot reuse event channel with same id on Linux
+      final playerId = isLinux ? 'somePlayerId1' : 'somePlayerId';
       await platform.create(playerId);
       await tester.pumpAndSettle();
       await platform.dispose(playerId);
@@ -311,7 +317,8 @@ void main() {
     testWidgets('#setSource #getPosition and #getDuration', (tester) async {
       final platform = AudioplayersPlatformInterface.instance;
 
-      const playerId = 'somePlayerId';
+      // FIXME: Cannot reuse event channel with same id on Linux
+      final playerId = isLinux ? 'somePlayerId2' : 'somePlayerId';
       await platform.create(playerId);
 
       final preparedCompleter = Completer<void>();
@@ -369,13 +376,15 @@ void main() {
         await eventStreamSub2.cancel();
         await platform.dispose(playerId);
       },
+      skip: isLinux,
     );
 
     testWidgets('Emit platform error', (tester) async {
       final errorCompleter = Completer<Object>();
       final platform = AudioplayersPlatformInterface.instance;
 
-      const playerId = 'somePlayerId';
+      // FIXME: Cannot reuse event channel with same id on Linux
+      final playerId = isLinux ? 'somePlayerId3' : 'somePlayerId';
       await platform.create(playerId);
 
       final eventStreamSub = platform
