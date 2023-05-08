@@ -68,13 +68,13 @@ namespace
 
             switch((MF_MEDIA_ENGINE_EVENT)eventCode)
             {
-                case MF_MEDIA_ENGINE_EVENT_LOADEDMETADATA:
+                case MF_MEDIA_ENGINE_EVENT_LOADEDDATA:
                     m_onLoadedCB();
                     break;
                 case MF_MEDIA_ENGINE_EVENT_ERROR:
                     m_errorCB((MF_MEDIA_ENGINE_ERR)param1, (HRESULT)param2);
                     break;
-                case MF_MEDIA_ENGINE_EVENT_PLAYING:
+                case MF_MEDIA_ENGINE_EVENT_CANPLAY:
                     m_bufferingStateChangeCB(MediaEngineWrapper::BufferingState::HAVE_ENOUGH);
                     break;
                 case MF_MEDIA_ENGINE_EVENT_WAITING:

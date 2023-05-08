@@ -99,6 +99,10 @@ class AudioPlayer {
   Stream<void> get onSeekComplete => eventStream
       .where((event) => event.eventType == AudioEventType.seekComplete);
 
+  Stream<bool> get _onPrepared => eventStream
+      .where((event) => event.eventType == AudioEventType.prepared)
+      .map((event) => event.isPrepared!);
+
   /// Stream of log events.
   Stream<String> get onLog => eventStream
       .where((event) => event.eventType == AudioEventType.log)
@@ -150,8 +154,8 @@ class AudioPlayer {
             onError: _eventStreamController.addError,
           );
       creatingCompleter.complete();
-    } on Exception catch (e, st) {
-      creatingCompleter.completeError(e, st);
+    } on Exception catch (e, stackTrace) {
+      creatingCompleter.completeError(e, stackTrace);
     }
   }
 
@@ -279,8 +283,27 @@ class AudioPlayer {
   /// This will delegate to one of the specific methods below depending on
   /// the source type.
   Future<void> setSource(Source source) async {
-    await creatingCompleter.future;
-    return source.setOnPlayer(this);
+    // Implementations of setOnPlayer also call `creatingCompleter.future`
+    await source.setOnPlayer(this);
+  }
+
+  Future<void> _completePrepared(Future<void> Function() fun) async {
+    final preparedCompleter = Completer<void>();
+    final onPreparedSubscription = _onPrepared.listen(
+      (isPrepared) {
+        if (isPrepared) {
+          preparedCompleter.complete();
+        }
+      },
+      onError: (Object e, [StackTrace? stackTrace]) {
+        if (preparedCompleter.isCompleted == false) {
+          preparedCompleter.completeError(e, stackTrace);
+        }
+      },
+    );
+    await fun();
+    await preparedCompleter.future.timeout(const Duration(seconds: 30));
+    onPreparedSubscription.cancel();
   }
 
   /// Sets the URL to a remote link.
@@ -290,7 +313,9 @@ class AudioPlayer {
   Future<void> setSourceUrl(String url) async {
     _source = UrlSource(url);
     await creatingCompleter.future;
-    return _platform.setSourceUrl(playerId, url, isLocal: false);
+    await _completePrepared(
+      () => _platform.setSourceUrl(playerId, url, isLocal: false),
+    );
   }
 
   /// Sets the URL to a file in the users device.
@@ -300,7 +325,9 @@ class AudioPlayer {
   Future<void> setSourceDeviceFile(String path) async {
     _source = DeviceFileSource(path);
     await creatingCompleter.future;
-    return _platform.setSourceUrl(playerId, path, isLocal: true);
+    await _completePrepared(
+      () => _platform.setSourceUrl(playerId, path, isLocal: true),
+    );
   }
 
   /// Sets the URL to an asset in your Flutter application.
@@ -312,13 +339,17 @@ class AudioPlayer {
     _source = AssetSource(path);
     final url = await audioCache.load(path);
     await creatingCompleter.future;
-    return _platform.setSourceUrl(playerId, url.path, isLocal: true);
+    await _completePrepared(
+      () => _platform.setSourceUrl(playerId, url.path, isLocal: true),
+    );
   }
 
   Future<void> setSourceBytes(Uint8List bytes) async {
     _source = BytesSource(bytes);
     await creatingCompleter.future;
-    return _platform.setSourceBytes(playerId, bytes);
+    await _completePrepared(
+      () => _platform.setSourceBytes(playerId, bytes),
+    );
   }
 
   /// Get audio duration after setting url.

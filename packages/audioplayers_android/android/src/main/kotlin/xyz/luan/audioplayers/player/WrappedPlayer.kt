@@ -95,7 +95,15 @@ class WrappedPlayer internal constructor(
         }
 
     var released = true
-    var prepared = false
+
+    var prepared: Boolean = false
+        set(value) {
+            if (field != value) {
+                field = value
+                ref.handlePrepared(this, value)
+            }
+        }
+
     var playing = false
     var shouldSeekTo = -1
 

@@ -153,11 +153,11 @@ void AudioPlayer::OnError(const gchar *code, const gchar *message,
 
 void AudioPlayer::OnMediaStateChange(GstObject *src, GstState *old_state,
                                      GstState *new_state) {
-    if(!playbin) {
-        this->OnError("LinuxAudioError", "Player was already disposed (OnMediaStateChange).", nullptr, nullptr);         
+    if (!playbin) {
+        this->OnError("LinuxAudioError", "Player was already disposed (OnMediaStateChange).", nullptr, nullptr);
         return;
     }
-    
+
     if (src == GST_OBJECT(playbin)) {
         if (*new_state == GST_STATE_READY) {
             if (this->_isInitialized) {
@@ -174,6 +174,7 @@ void AudioPlayer::OnMediaStateChange(GstObject *src, GstState *old_state,
         } else if (*new_state >= GST_STATE_PAUSED) {
             if (!this->_isInitialized) {
                 this->_isInitialized = true;
+                this->OnPrepared(true);
                 if (this->_isPlaying) {
                     Resume();
                 }
@@ -181,6 +182,16 @@ void AudioPlayer::OnMediaStateChange(GstObject *src, GstState *old_state,
         } else if (this->_isInitialized) {
             this->_isInitialized = false;
         }
+    }
+}
+
+void AudioPlayer::OnPrepared(bool isPrepared) {
+    if (this->_eventChannel) {
+        g_autoptr(FlValue) map = fl_value_new_map();
+        fl_value_set_string(map, "event",
+                            fl_value_new_string("audio.onPrepared"));
+        fl_value_set_string(map, "value", fl_value_new_bool(isPrepared));
+        fl_event_channel_send(this->_eventChannel, map, nullptr, nullptr);
     }
 }
 
@@ -280,7 +291,7 @@ void AudioPlayer::SetPlayback(int64_t position, double rate) {
     if (rate != 0 && _playbackRate != rate) {
         _playbackRate = rate;
     }
-    
+
     if (!_isInitialized) {
         return;
     }
@@ -400,7 +411,7 @@ void AudioPlayer::Dispose() {
     if(!playbin) throw "Player was already disposed (Dispose)";
     if(_isPlaying) _isPlaying = false;
     if(_isInitialized) _isInitialized = false;
-    
+
     g_source_remove(_refreshId);
 
     if(bus) {
@@ -424,7 +435,7 @@ void AudioPlayer::Dispose() {
         // audiobin gets unreferenced (2x) via playbin
         panorama = nullptr;
     }
-    
+
     GstState playbinState;
     gst_element_get_state(playbin, &playbinState, NULL, GST_CLOCK_TIME_NONE);
     if(playbinState > GST_STATE_NULL) {

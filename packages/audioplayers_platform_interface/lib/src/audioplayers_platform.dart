@@ -243,6 +243,12 @@ mixin EventChannelAudioplayersPlatform
             return const AudioEvent(eventType: AudioEventType.complete);
           case 'audio.onSeekComplete':
             return const AudioEvent(eventType: AudioEventType.seekComplete);
+          case 'audio.onPrepared':
+            final isPrepared = map.getBool('value');
+            return AudioEvent(
+              eventType: AudioEventType.prepared,
+              isPrepared: isPrepared,
+            );
           case 'audio.onLog':
             final value = map.getString('value');
             return AudioEvent(
