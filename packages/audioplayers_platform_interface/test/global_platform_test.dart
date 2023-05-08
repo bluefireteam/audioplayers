@@ -86,7 +86,7 @@ void main() {
       final call = popLastCall();
       expect(call.method, 'setAudioContext');
       expect(call.args, {
-        'category': 'playback',
+        'category': 'playAndRecord',
         'options': [
           'mixWithOthers',
           'defaultToSpeaker',

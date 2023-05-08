@@ -118,7 +118,7 @@ class AudioContextConfig {
     return AudioContextIOS(
       category: respectSilence
           ? AVAudioSessionCategory.ambient
-          : AVAudioSessionCategory.playback,
+          : AVAudioSessionCategory.playAndRecord,
       options: [AVAudioSessionOptions.mixWithOthers] +
           (duckAudio ? [AVAudioSessionOptions.duckOthers] : []) +
           (forceSpeaker ? [AVAudioSessionOptions.defaultToSpeaker] : []),

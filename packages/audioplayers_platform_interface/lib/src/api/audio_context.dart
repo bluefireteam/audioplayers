@@ -106,7 +106,7 @@ class AudioContextIOS {
   final List<AVAudioSessionOptions> options;
 
   const AudioContextIOS({
-    this.category = AVAudioSessionCategory.playback,
+    this.category = AVAudioSessionCategory.playAndRecord,
     this.options = const [
       AVAudioSessionOptions.mixWithOthers,
       AVAudioSessionOptions.defaultToSpeaker
