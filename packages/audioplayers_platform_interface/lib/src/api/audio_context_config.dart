@@ -43,9 +43,10 @@ class AudioContextConfig {
   /// thus is forbidden when [respectSilence] is set.
   final bool duckAudio;
 
-  /// Whether the "silent" mode of the device should be respect.
-  /// By default (false), if the device is on silent mode, the audio will not be
-  /// played.
+  /// Whether the "silent" mode of the device should be respected.
+  /// When `false` (the default), audio will be played even if the device is in
+  /// silent mode.
+  /// When `true` and the device is in silent mode, audio will not be played.
   ///
   /// On Android, this will mandate the `USAGE_NOTIFICATION_RINGTONE` usage
   /// type.
