@@ -47,6 +47,7 @@ class AudioContextConfig {
   ///
   /// When `false` (the default), audio will be played even if the device is in
   /// silent mode.
+  ///
   /// When `true` and the device is in silent mode, audio will not be played.
   ///
   /// On Android, this will mandate the `USAGE_NOTIFICATION_RINGTONE` usage
