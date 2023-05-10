@@ -44,6 +44,7 @@ class AudioContextConfig {
   final bool duckAudio;
 
   /// Whether the "silent" mode of the device should be respected.
+  ///
   /// When `false` (the default), audio will be played even if the device is in
   /// silent mode.
   /// When `true` and the device is in silent mode, audio will not be played.
