@@ -31,7 +31,9 @@ apply plugin: 'de.mannodermaus.android-junit5'
 android {
     compileSdk 33
 
-    namespace 'xyz.luan.audioplayers'
+    if (project.android.hasProperty('namespace')) {
+        namespace 'xyz.luan.audioplayers'
+    }
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
