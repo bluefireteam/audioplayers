@@ -4,6 +4,7 @@ import 'dart:html';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
 import 'package:audioplayers_web/num_extension.dart';
 import 'package:audioplayers_web/web_audio_js.dart';
+import 'package:flutter/services.dart';
 
 class WrappedPlayer {
   final String playerId;
@@ -23,6 +24,7 @@ class WrappedPlayer {
   StreamSubscription? _playerLoadedDataSubscription;
   StreamSubscription? _playerPlaySubscription;
   StreamSubscription? _playerSeekedSubscription;
+  StreamSubscription? _playerErrorSubscription;
 
   WrappedPlayer(this.playerId);
 
@@ -67,6 +69,8 @@ class WrappedPlayer {
     p.volume = _currentVolume;
     p.playbackRate = _currentPlaybackRate;
 
+    _setupStreams(p);
+
     // setup stereo panning
     final audioContext = JsAudioContext();
     final source = audioContext.createMediaElementSource(player!);
@@ -74,8 +78,19 @@ class WrappedPlayer {
     source.connect(_stereoPanner!);
     _stereoPanner?.connect(audioContext.destination);
 
-    _playerPlaySubscription = p.onPlay.listen(
+    // Preload the source
+    p.load();
+  }
+
+  void _setupStreams(AudioElement p) {
+    _playerLoadedDataSubscription = p.onLoadedData.listen(
       (_) {
+        eventStreamController.add(
+          const AudioEvent(
+            eventType: AudioEventType.prepared,
+            isPrepared: true,
+          ),
+        );
         eventStreamController.add(
           AudioEvent(
             eventType: AudioEventType.duration,
@@ -85,7 +100,7 @@ class WrappedPlayer {
       },
       onError: eventStreamController.addError,
     );
-    _playerLoadedDataSubscription = p.onLoadedData.listen(
+    _playerPlaySubscription = p.onPlay.listen(
       (_) {
         eventStreamController.add(
           AudioEvent(
@@ -118,9 +133,20 @@ class WrappedPlayer {
     _playerEndedSubscription = p.onEnded.listen(
       (_) {
         _pausedAt = 0;
-        player?.currentTime = 0;
+        p.currentTime = 0;
         eventStreamController.add(
           const AudioEvent(eventType: AudioEventType.complete),
+        );
+      },
+      onError: eventStreamController.addError,
+    );
+    _playerErrorSubscription = p.onError.listen(
+      (_) {
+        eventStreamController.addError(
+          PlatformException(
+            code: p.error?.code.toString() ?? 'WebAudioError',
+            message: p.error?.message,
+          ),
         );
       },
       onError: eventStreamController.addError,
@@ -149,6 +175,8 @@ class WrappedPlayer {
     _playerSeekedSubscription = null;
     _playerPlaySubscription?.cancel();
     _playerPlaySubscription = null;
+    _playerErrorSubscription?.cancel();
+    _playerErrorSubscription = null;
   }
 
   Future<void> start(double position) async {

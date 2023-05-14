@@ -30,37 +30,45 @@ AudioPlayer::AudioPlayer(
     auto onPlaybackEndedCB = std::bind(&AudioPlayer::OnPlaybackEnded, this);
     auto onTimeUpdateCB = std::bind(&AudioPlayer::OnTimeUpdate, this);
     auto onSeekCompletedCB = std::bind(&AudioPlayer::OnSeekCompleted, this);
+    auto onLoadedCB = std::bind(&AudioPlayer::SendInitialized, this);
 
     // Create and initialize the MediaEngineWrapper which manages media playback
     m_mediaEngineWrapper = winrt::make_self<media::MediaEngineWrapper>(
-        nullptr, onError, onBufferingStateChanged, onPlaybackEndedCB,
+        onLoadedCB, onError, onBufferingStateChanged, onPlaybackEndedCB,
         onTimeUpdateCB, onSeekCompletedCB);
 
     m_mediaEngineWrapper->Initialize();
 }
 
+// This method should be called asynchronously, to avoid freezing UI
 void AudioPlayer::SetSourceUrl(std::string url) {
     if (_url != url) {
         _url = url;
-        // Create a source resolver to create an IMFMediaSource for the content
-        // URL. This will create an instance of an inbuilt OS media source for
-        // playback. An application can skip this step and instantiate a custom
-        // IMFMediaSource implementation instead.
-        winrt::com_ptr<IMFSourceResolver> sourceResolver;
-        THROW_IF_FAILED(MFCreateSourceResolver(sourceResolver.put()));
-        constexpr uint32_t sourceResolutionFlags =
-            MF_RESOLUTION_MEDIASOURCE |
-            MF_RESOLUTION_CONTENT_DOES_NOT_HAVE_TO_MATCH_EXTENSION_OR_MIME_TYPE |
-            MF_RESOLUTION_READ;
-        MF_OBJECT_TYPE objectType = {};
-
-        winrt::com_ptr<IMFMediaSource> mediaSource;
-        THROW_IF_FAILED(sourceResolver->CreateObjectFromURL(
-            winrt::to_hstring(url).c_str(), sourceResolutionFlags, nullptr,
-            &objectType, reinterpret_cast<IUnknown**>(mediaSource.put_void())));
-
         _isInitialized = false;
-        m_mediaEngineWrapper->SetMediaSource(mediaSource.get());
+
+        try {
+            // Create a source resolver to create an IMFMediaSource for the content
+            // URL. This will create an instance of an inbuilt OS media source for
+            // playback. An application can skip this step and instantiate a custom
+            // IMFMediaSource implementation instead.
+            winrt::com_ptr<IMFSourceResolver> sourceResolver;
+            THROW_IF_FAILED(MFCreateSourceResolver(sourceResolver.put()));
+            constexpr uint32_t sourceResolutionFlags =
+                MF_RESOLUTION_MEDIASOURCE |
+                MF_RESOLUTION_CONTENT_DOES_NOT_HAVE_TO_MATCH_EXTENSION_OR_MIME_TYPE |
+                MF_RESOLUTION_READ;
+            MF_OBJECT_TYPE objectType = {};
+
+            winrt::com_ptr<IMFMediaSource> mediaSource;
+            THROW_IF_FAILED(sourceResolver->CreateObjectFromURL(
+                winrt::to_hstring(url).c_str(), sourceResolutionFlags, nullptr,
+                &objectType, reinterpret_cast<IUnknown**>(mediaSource.put_void())));
+
+            m_mediaEngineWrapper->SetMediaSource(mediaSource.get());
+        } catch (...) {
+            // Forward errors to event stream, as this is called asynchronously
+            this->OnError("WindowsAudioError", "Error setting url to '" + url + "'.", nullptr);
+        }
     }
 }
 
@@ -97,10 +105,18 @@ void AudioPlayer::OnMediaStateChange(
     media::MediaEngineWrapper::BufferingState bufferingState) {
     if (bufferingState !=
         media::MediaEngineWrapper::BufferingState::HAVE_NOTHING) {
-        if (!this->_isInitialized) {
-            this->_isInitialized = true;
-            this->SendInitialized();
-        }
+        // TODO(Gustl22): add buffering state
+    }
+}
+
+void AudioPlayer::OnPrepared(bool isPrepared) {
+    if (this->_eventHandler) {
+        this->_eventHandler->Success(
+                std::make_unique<flutter::EncodableValue>(flutter::EncodableMap(
+                        {{flutter::EncodableValue("event"),
+                                 flutter::EncodableValue("audio.onPrepared")},
+                         {flutter::EncodableValue("value"),
+                                 flutter::EncodableValue(isPrepared)}})));
     }
 }
 
@@ -165,8 +181,12 @@ void AudioPlayer::OnLog(const std::string& message) {
 }
 
 void AudioPlayer::SendInitialized() {
-    OnDurationUpdate();
-    OnTimeUpdate();
+    if (!this->_isInitialized) {
+        this->_isInitialized = true;
+        OnPrepared(true);
+        OnDurationUpdate();
+        OnTimeUpdate();
+    }
 }
 
 void AudioPlayer::Dispose() {

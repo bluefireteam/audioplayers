@@ -59,20 +59,23 @@ class AudioPlayer {
 
    private:
     // Gst members
-    GstElement *playbin;
-    GstElement *source;
-    GstElement *panorama;
-    GstBus *bus;
+    GstElement *playbin = nullptr;
+    GstElement *source = nullptr;
+    GstElement *panorama = nullptr;
+    GstElement *audiobin = nullptr;
+    GstElement *audiosink = nullptr;
+    GstPad *panoramaSinkPad = nullptr;
+    GstBus *bus = nullptr;
 
     bool _isInitialized = false;
     bool _isPlaying = false;
     bool _isLooping = false;
     bool _isSeekCompleted = true;
     double _playbackRate = 1.0;
+    guint _refreshId;
 
     std::string _url{};
     std::string _playerId;
-    FlMethodChannel *_methodChannel;
     FlEventChannel *_eventChannel;
 
     static void SourceSetup(GstElement *playbin, GstElement *source,
@@ -97,4 +100,6 @@ class AudioPlayer {
     void OnSeekCompleted();
 
     void OnPlaybackEnded();
+
+    void OnPrepared(bool isPrepared);
 };

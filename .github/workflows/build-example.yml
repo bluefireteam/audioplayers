@@ -67,6 +67,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.7.12'
+          channel: 'stable'
       - uses: bluefireteam/melos-action@main
 
       - name: Example app - Build Web app
@@ -79,17 +82,10 @@ jobs:
     if: inputs.enable_android
     steps:
       - uses: actions/checkout@v3
-
-      - name: Setup Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v2
-
       - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.7.12'
+          channel: 'stable'
       - uses: bluefireteam/melos-action@main
 
       - name: Example App - Build Android APK
@@ -97,12 +93,15 @@ jobs:
         run: flutter build apk --release
 
   ios:
-    runs-on: macOS-latest
+    runs-on: macos-latest
     timeout-minutes: 30
     if: inputs.enable_ios
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.7.12'
+          channel: 'stable'
       - uses: bluefireteam/melos-action@main
 
       - name: Example app - Build iOS
@@ -110,12 +109,15 @@ jobs:
         run: flutter build ios --release --no-codesign
 
   macos:
-    runs-on: macOS-latest
+    runs-on: macos-latest
     timeout-minutes: 30
     if: inputs.enable_macos
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.7.12'
+          channel: 'stable'
       - uses: bluefireteam/melos-action@main
 
       - name: setup-cocoapods
@@ -133,6 +135,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.7.12'
+          channel: 'stable'
       - uses: bluefireteam/melos-action@main
 
       - name: Example app - Build Windows app
@@ -146,6 +151,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.7.12'
+          channel: 'stable'
       - uses: bluefireteam/melos-action@main
 
       - name: Install Flutter requirements for Linux

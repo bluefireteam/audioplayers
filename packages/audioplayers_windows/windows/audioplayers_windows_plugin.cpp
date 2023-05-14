@@ -147,6 +147,13 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
     }
 
     auto player = GetPlayer(playerId);
+    if(!player) {
+        result->Error(
+            "WindowsAudioError",
+            "Player has not yet been created or has already been disposed.",
+            nullptr);
+        return;
+    }
 
     if (method_call.method_name().compare("pause") == 0) {
         player->Pause();
@@ -175,12 +182,8 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
             return;
         }
 
-        try {
-            player->SetSourceUrl(url);
-            result->Success(EncodableValue(1));
-        } catch (...) {
-            result->Error("WindowsAudioError", "Error setting url to '" + url + "'.", nullptr);
-        }
+        std::thread(&AudioPlayer::SetSourceUrl, player, url).detach();
+        result->Success(EncodableValue(1));
     } else if (method_call.method_name().compare("getDuration") == 0) {
         result->Success(EncodableValue(player->GetDuration() / 10000));
     } else if (method_call.method_name().compare("setVolume") == 0) {
@@ -248,6 +251,9 @@ void AudioplayersWindowsPlugin::CreatePlayer(std::string playerId) {
 
 AudioPlayer *AudioplayersWindowsPlugin::GetPlayer(std::string playerId) {
     auto searchPlayer = audioPlayers.find(playerId);
+    if(searchPlayer == audioPlayers.end()) {
+        return nullptr;
+    }
     return searchPlayer->second.get();
 }
 

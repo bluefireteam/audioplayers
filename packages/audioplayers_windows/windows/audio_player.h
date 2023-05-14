@@ -107,6 +107,8 @@ class AudioPlayer {
 
     void OnSeekCompleted();
 
+    void OnPrepared(bool isPrepared);
+
     std::string _playerId;
 
     flutter::MethodChannel<flutter::EncodableValue>* _methodChannel;

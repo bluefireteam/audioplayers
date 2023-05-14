@@ -147,7 +147,10 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
             return
         }
 
-        let player = self.getPlayer(playerId: playerId)
+        guard let player = self.getPlayer(playerId: playerId) else {
+            result(FlutterError(code: "DarwinAudioError", message: "Player has not yet been created or has already been disposed.", details: nil))
+            return
+        }
 
         if method == "pause" {
             player.pause()
@@ -159,7 +162,10 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
             }
             return
         } else if method == "release" {
-            player.release()
+            player.release() {
+                result(1)
+            }
+            return
         } else if method == "seek" {
             guard let position = args["position"] as? Int else {
                 result(FlutterError(code: "DarwinAudioError", message: "Null position received on seek", details: nil))
@@ -180,10 +186,11 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
             }
 
             player.setSourceUrl(url: url!, isLocal: isLocal, completer: {
-                result(1)
+                player.eventHandler.onPrepared(isPrepared: true)
             }, completerError: {
-                result(FlutterError(code: "DarwinAudioError", message: "AVPlayerItem.Status.failed on setSourceUrl", details: nil))
+                player.eventHandler.onError(code: "DarwinAudioError", message: "AVPlayerItem.Status.failed on setSourceUrl", details: nil)
             })
+            result(1)
             return
         } else if method == "setSourceBytes" {
             result(FlutterError(code: "DarwinAudioError", message: "setSourceBytes is not currently implemented on iOS", details: nil))
@@ -254,8 +261,11 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
             }
             player.eventHandler.onError(code: code, message: message, details: nil)
         } else if method == "dispose" {
-            player.dispose()
-            players[playerId] = nil
+            player.dispose() {
+                self.players[playerId] = nil
+                result(1)
+            }
+            return
         } else {
             result(FlutterMethodNotImplemented)
             return
@@ -279,8 +289,8 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
         players[playerId] = newPlayer
     }
 
-    func getPlayer(playerId: String) -> WrappedMediaPlayer {
-        return players[playerId]!
+    func getPlayer(playerId: String) -> WrappedMediaPlayer? {
+        return players[playerId]
     }
 
     func controlAudioSession() {
@@ -330,6 +340,12 @@ class AudioPlayersStreamHandler: NSObject, FlutterStreamHandler {
     func onDuration(millis: Int) {
         if let eventSink = self.sink {
             eventSink(["event": "audio.onDuration", "value": millis])
+        }
+    }
+
+    func onPrepared(isPrepared: Bool) {
+        if let eventSink = self.sink {
+            eventSink(["event": "audio.onPrepared", "value": isPrepared])
         }
     }
 
