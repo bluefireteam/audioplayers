@@ -67,6 +67,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.7.12'
+          channel: 'stable'
       - uses: bluefireteam/melos-action@main
 
       - name: Example app - Build Web app
@@ -79,8 +82,10 @@ jobs:
     if: inputs.enable_android
     steps:
       - uses: actions/checkout@v3
-
       - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.7.12'
+          channel: 'stable'
       - uses: bluefireteam/melos-action@main
 
       - name: Example App - Build Android APK
@@ -94,6 +99,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.7.12'
+          channel: 'stable'
       - uses: bluefireteam/melos-action@main
 
       - name: Example app - Build iOS
@@ -107,6 +115,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.7.12'
+          channel: 'stable'
       - uses: bluefireteam/melos-action@main
 
       - name: setup-cocoapods
@@ -124,6 +135,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.7.12'
+          channel: 'stable'
       - uses: bluefireteam/melos-action@main
 
       - name: Example app - Build Windows app
@@ -137,6 +151,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.7.12'
+          channel: 'stable'
       - uses: bluefireteam/melos-action@main
 
       - name: Install Flutter requirements for Linux
