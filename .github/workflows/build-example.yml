@@ -44,11 +44,11 @@ on:
         default: true
         type: boolean
   workflow_call:
-    flutter_version:
-      required: false
-      default: '3.7.12'
-      type: string
     inputs:
+      flutter_version:
+        required: false
+        default: '3.7.12'
+        type: string
       enable_android:
         required: false
         default: true
