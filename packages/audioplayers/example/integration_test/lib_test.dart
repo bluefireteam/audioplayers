@@ -75,7 +75,8 @@ void main() {
 
         // Start all players simultaneously
         final iterator = List<int>.generate(audioTestDataList.length, (i) => i);
-        if (isLinux) { // FIXME(gustl22): Linux needs additional pump
+        if (isLinux) {
+          // FIXME(gustl22): Linux needs additional pump (#1507)
           await tester.pump();
         }
         await Future.wait<void>(
@@ -94,7 +95,8 @@ void main() {
           }
           await players[i].stop();
         }
-        if (isLinux) { // FIXME(gustl22): Linux needs additional pump
+        if (isLinux) {
+          // FIXME(gustl22): Linux needs additional pump (#1507)
           await tester.pump();
         }
         await Future.wait(players.map((p) => p.dispose()));
@@ -111,7 +113,8 @@ void main() {
 
       for (var i = 0; i < audioTestDataList.length; i++) {
         final td = audioTestDataList[i];
-        if (isLinux) { // FIXME(gustl22): Linux needs additional pump
+        if (isLinux) {
+          // FIXME(gustl22): Linux needs additional pump (#1507)
           await tester.pump();
         }
         await player.play(td.source);
@@ -126,7 +129,8 @@ void main() {
         }
         await player.stop();
       }
-      if (isLinux) { // FIXME(gustl22): Linux needs additional pump
+      if (isLinux) {
+        // FIXME(gustl22): Linux needs additional pump (#1507)
         await tester.pump();
       }
       await player.dispose();
@@ -155,7 +159,8 @@ void main() {
         await AudioPlayer.global.setAudioContext(audioContext);
         await player.setAudioContext(audioContext);
 
-        if (isLinux) { // FIXME(gustl22): Linux needs additional pump
+        if (isLinux) {
+          // FIXME(gustl22): Linux needs additional pump (#1507)
           await tester.pump();
         }
         await player.play(td.source);
@@ -174,7 +179,8 @@ void main() {
         await tester.pumpAndSettle();
         await tester.pump(td.duration + const Duration(seconds: 8));
         expect(player.state, PlayerState.completed);
-        if (isLinux) { // FIXME(gustl22): Linux needs additional pump
+        if (isLinux) {
+          // FIXME(gustl22): Linux needs additional pump (#1507)
           await tester.pump();
         }
         await player.dispose();
@@ -204,7 +210,8 @@ void main() {
         await AudioPlayer.global.setAudioContext(audioContext);
         await player.setAudioContext(audioContext);
 
-        if (isLinux) { // FIXME(gustl22): Linux needs additional pump
+        if (isLinux) {
+          // FIXME(gustl22): Linux needs additional pump (#1507)
           await tester.pump();
         }
         await player.setSource(td.source);
@@ -228,7 +235,8 @@ void main() {
         expect(player.state, PlayerState.playing);
         await player.stop();
         expect(player.state, PlayerState.stopped);
-        if (isLinux) { // FIXME(gustl22): Linux needs additional pump
+        if (isLinux) {
+          // FIXME(gustl22): Linux needs additional pump (#1507)
           await tester.pump();
         }
         await player.dispose();
@@ -282,7 +290,8 @@ void main() {
         final player = AudioPlayer();
         try {
           // Throws PlatformException via MethodChannel:
-          if (isLinux) { // FIXME(gustl22): Linux needs additional pump
+          if (isLinux) {
+            // FIXME(gustl22): Linux needs additional pump (#1507)
             await tester.pump();
           }
           await player.setSource(AssetSource(invalidAsset));
@@ -291,7 +300,8 @@ void main() {
         } catch (e) {
           expect(e, isInstanceOf<PlatformException>());
         }
-        if (isLinux) { // FIXME(gustl22): Linux needs additional pump
+        if (isLinux) {
+          // FIXME(gustl22): Linux needs additional pump (#1507)
           await tester.pump();
         }
         await player.dispose();
@@ -304,7 +314,8 @@ void main() {
         final player = AudioPlayer();
         try {
           // Throws PlatformException via MethodChannel:
-          if (isLinux) { // FIXME(gustl22): Linux needs additional pump
+          if (isLinux) {
+            // FIXME(gustl22): Linux needs additional pump (#1507)
             await tester.pump();
           }
           await player.setSource(UrlSource('non_existent.txt'));
@@ -313,7 +324,8 @@ void main() {
         } catch (e) {
           expect(e, isInstanceOf<PlatformException>());
         }
-        if (isLinux) { // FIXME(gustl22): Linux needs additional pump
+        if (isLinux) {
+          // FIXME(gustl22): Linux needs additional pump (#1507)
           await tester.pump();
         }
         await player.dispose();
@@ -364,7 +376,8 @@ void main() {
         },
         onError: preparedCompleter.completeError,
       );
-      if (isLinux) { // FIXME(gustl22): Linux needs additional pump
+      if (isLinux) {
+        // FIXME(gustl22): Linux needs additional pump (#1507)
         await tester.pump();
       }
       await platform.setSourceUrl(
@@ -379,7 +392,8 @@ void main() {
         wavUrl1TestData.duration.inMilliseconds,
       );
 
-      if (isLinux) { // FIXME(gustl22): Linux needs additional pump
+      if (isLinux) {
+        // FIXME(gustl22): Linux needs additional pump (#1507)
         await tester.pump();
       }
       await onPreparedSub.cancel();
