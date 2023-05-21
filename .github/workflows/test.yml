@@ -265,5 +265,5 @@ jobs:
           export DISPLAY=:99
           sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
           ( cd server; dart run bin/server.dart ) &
-          flutter test --verbose -d linux integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
-          flutter test --verbose -d linux integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
+          flutter test -d linux integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
+          flutter test -d linux integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
