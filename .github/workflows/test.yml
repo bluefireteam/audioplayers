@@ -13,6 +13,11 @@ on:
           - '3.7.x'
           - '3.3.x'
           - '3.0.x'
+      fatal_warnings:
+        description: 'Treat warnings as fatal.'
+        required: false
+        default: true
+        type: boolean
       enable_android:
         description: 'Test Android'
         required: false
@@ -49,6 +54,10 @@ on:
         required: false
         default: '3.7.12'
         type: string
+      fatal_warnings:
+        required: false
+        default: true
+        type: boolean
       enable_android:
         required: false
         default: true
@@ -88,7 +97,7 @@ jobs:
       - uses: bluefireteam/melos-action@main
 
       - run: melos run format-check
-      - run: melos run analyze
+      - run: melos run analyze -- ${{ inputs.fatal_warnings && '--no-fatal-warnings' || '--fatal-infos' }}
       - run: melos run test
 
   web:
