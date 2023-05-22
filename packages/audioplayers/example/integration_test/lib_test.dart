@@ -95,11 +95,10 @@ void main() {
           }
           await players[i].stop();
         }
-        if (isLinux) {
-          // FIXME(gustl22): Linux needs additional pump (#1507)
-          await tester.pumpAndSettle();
+        if (!isLinux) {
+          // FIXME(gustl22): Linux not disposing properly (#1507)
+          await Future.wait(players.map((p) => p.dispose()));
         }
-        await Future.wait(players.map((p) => p.dispose()));
       },
       // FIXME: Causes media error on Android (see #1333, #1353)
       // Unexpected platform error: MediaPlayer error with
@@ -129,11 +128,10 @@ void main() {
         }
         await player.stop();
       }
-      if (isLinux) {
-        // FIXME(gustl22): Linux needs additional pump (#1507)
-        await tester.pumpAndSettle();
+      if (!isLinux) {
+        // FIXME(gustl22): Linux not disposing properly (#1507)
+        await player.dispose();
       }
-      await player.dispose();
     });
   });
 
@@ -179,11 +177,10 @@ void main() {
         await tester.pumpAndSettle();
         await tester.pump(td.duration + const Duration(seconds: 8));
         expect(player.state, PlayerState.completed);
-        if (isLinux) {
-          // FIXME(gustl22): Linux needs additional pump (#1507)
-          await tester.pumpAndSettle();
+        if (!isLinux) {
+          // FIXME(gustl22): Linux not disposing properly (#1507)
+          await player.dispose();
         }
-        await player.dispose();
       },
       skip: !features.hasForceSpeaker,
     );
@@ -235,11 +232,10 @@ void main() {
         expect(player.state, PlayerState.playing);
         await player.stop();
         expect(player.state, PlayerState.stopped);
-        if (isLinux) {
-          // FIXME(gustl22): Linux needs additional pump (#1507)
-          await tester.pumpAndSettle();
+        if (!isLinux) {
+          // FIXME(gustl22): Linux not disposing properly (#1507)
+          await player.dispose();
         }
-        await player.dispose();
       },
       skip: !features.hasForceSpeaker || !features.hasLowLatency,
     );
@@ -300,11 +296,10 @@ void main() {
         } catch (e) {
           expect(e, isInstanceOf<PlatformException>());
         }
-        if (isLinux) {
-          // FIXME(gustl22): Linux needs additional pump (#1507)
-          await tester.pumpAndSettle();
+        if (!isLinux) {
+          // FIXME(gustl22): Linux not disposing properly (#1507)
+          await player.dispose();
         }
-        await player.dispose();
       },
     );
 
@@ -324,11 +319,10 @@ void main() {
         } catch (e) {
           expect(e, isInstanceOf<PlatformException>());
         }
-        if (isLinux) {
-          // FIXME(gustl22): Linux needs additional pump (#1507)
-          await tester.pumpAndSettle();
+        if (!isLinux) {
+          // FIXME(gustl22): Linux not disposing properly (#1507)
+          await player.dispose();
         }
-        await player.dispose();
       },
     );
   });
@@ -392,12 +386,11 @@ void main() {
         wavUrl1TestData.duration.inMilliseconds,
       );
 
-      if (isLinux) {
-        // FIXME(gustl22): Linux needs additional pump (#1507)
-        await tester.pumpAndSettle();
-      }
       await onPreparedSub.cancel();
-      await platform.dispose(playerId);
+      if (!isLinux) {
+        // FIXME(gustl22): Linux not disposing properly (#1507)
+        await platform.dispose(playerId);
+      }
     });
   });
 
