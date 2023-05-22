@@ -14,7 +14,7 @@ on:
           - '3.3.x'
           - '3.0.x'
       fatal_warnings:
-        description: 'Treat warnings as fatal.'
+        description: 'Treat warnings as fatal'
         required: false
         default: true
         type: boolean
