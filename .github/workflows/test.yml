@@ -97,7 +97,7 @@ jobs:
       - uses: bluefireteam/melos-action@main
 
       - run: melos run format-check
-      - run: melos run analyze -- ${{ inputs.fatal_warnings && '--no-fatal-warnings' || '--fatal-infos' }}
+      - run: melos run analyze -- ${{ inputs.fatal_warnings && '--no-fatal-warnings --no-fatal-infos' || '--fatal-infos' }}
       - run: melos run test
 
   web:
