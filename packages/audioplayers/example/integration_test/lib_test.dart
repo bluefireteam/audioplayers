@@ -97,7 +97,7 @@ void main() {
         }
         if (isLinux) {
           // FIXME(gustl22): Linux needs additional pump (#1507)
-          await tester.pump();
+          await tester.pumpAndSettle();
         }
         await Future.wait(players.map((p) => p.dispose()));
       },
