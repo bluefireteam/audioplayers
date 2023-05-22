@@ -131,7 +131,7 @@ void main() {
       }
       if (isLinux) {
         // FIXME(gustl22): Linux needs additional pump (#1507)
-        await tester.pump();
+        await tester.pumpAndSettle();
       }
       await player.dispose();
     });
@@ -181,7 +181,7 @@ void main() {
         expect(player.state, PlayerState.completed);
         if (isLinux) {
           // FIXME(gustl22): Linux needs additional pump (#1507)
-          await tester.pump();
+          await tester.pumpAndSettle();
         }
         await player.dispose();
       },
@@ -237,7 +237,7 @@ void main() {
         expect(player.state, PlayerState.stopped);
         if (isLinux) {
           // FIXME(gustl22): Linux needs additional pump (#1507)
-          await tester.pump();
+          await tester.pumpAndSettle();
         }
         await player.dispose();
       },
@@ -249,7 +249,7 @@ void main() {
     testWidgets('Emit platform log', (tester) async {
       final logCompleter = Completer<String>();
 
-      // FIXME: Cannot reuse event channel with same id on Linux
+      // FIXME(gustl22): Cannot reuse event channel with same id on Linux (flutter/flutter#126209)
       final playerId = isLinux ? 'somePlayerId0' : 'somePlayerId';
       final player = AudioPlayer(playerId: playerId);
       final onLogSub = player.onLog.listen(
@@ -302,7 +302,7 @@ void main() {
         }
         if (isLinux) {
           // FIXME(gustl22): Linux needs additional pump (#1507)
-          await tester.pump();
+          await tester.pumpAndSettle();
         }
         await player.dispose();
       },
@@ -326,7 +326,7 @@ void main() {
         }
         if (isLinux) {
           // FIXME(gustl22): Linux needs additional pump (#1507)
-          await tester.pump();
+          await tester.pumpAndSettle();
         }
         await player.dispose();
       },
@@ -337,7 +337,7 @@ void main() {
     testWidgets('#create and #dispose', (tester) async {
       final platform = AudioplayersPlatformInterface.instance;
 
-      // FIXME: Cannot reuse event channel with same id on Linux
+      // FIXME(gustl22): Cannot reuse event channel with same id on Linux (flutter/flutter#126209)
       final playerId = isLinux ? 'somePlayerId1' : 'somePlayerId';
       await platform.create(playerId);
       await tester.pumpAndSettle();
@@ -359,7 +359,7 @@ void main() {
     testWidgets('#setSource #getPosition and #getDuration', (tester) async {
       final platform = AudioplayersPlatformInterface.instance;
 
-      // FIXME: Cannot reuse event channel with same id on Linux
+      // FIXME(gustl22): Cannot reuse event channel with same id on Linux (flutter/flutter#126209)
       final playerId = isLinux ? 'somePlayerId2' : 'somePlayerId';
       await platform.create(playerId);
 
@@ -394,7 +394,7 @@ void main() {
 
       if (isLinux) {
         // FIXME(gustl22): Linux needs additional pump (#1507)
-        await tester.pump();
+        await tester.pumpAndSettle();
       }
       await onPreparedSub.cancel();
       await platform.dispose(playerId);
@@ -432,7 +432,7 @@ void main() {
       final errorCompleter = Completer<Object>();
       final platform = AudioplayersPlatformInterface.instance;
 
-      // FIXME: Cannot reuse event channel with same id on Linux
+      // FIXME(gustl22): Cannot reuse event channel with same id on Linux (flutter/flutter#126209)
       final playerId = isLinux ? 'somePlayerId3' : 'somePlayerId';
       await platform.create(playerId);
 
