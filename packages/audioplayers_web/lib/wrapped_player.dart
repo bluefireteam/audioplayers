@@ -161,6 +161,8 @@ class WrappedPlayer {
   }
 
   void release() {
+    player?.src = '';
+    player?.remove();
     _cancel();
     player = null;
     _stereoPanner = null;
