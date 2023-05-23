@@ -161,7 +161,7 @@ class WrappedPlayer {
   }
 
   void release() {
-    // Release `AudioElement` as mentioned in the https://github.com/bluefireteam/audioplayers/issues/966
+    // Release `AudioElement` correctly (#966)
     player?.src = '';
     player?.remove();
     _cancel();
