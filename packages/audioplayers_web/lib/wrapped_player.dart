@@ -34,7 +34,8 @@ class WrappedPlayer {
     }
     _currentUrl = url;
 
-    stop();
+    release();
+    _pausedAt = 0;
     recreateNode();
     if (_isPlaying) {
       await resume();
@@ -132,8 +133,7 @@ class WrappedPlayer {
     );
     _playerEndedSubscription = p.onEnded.listen(
       (_) {
-        _pausedAt = 0;
-        p.currentTime = 0;
+        stop();
         eventStreamController.add(
           const AudioEvent(eventType: AudioEventType.complete),
         );
@@ -205,9 +205,12 @@ class WrappedPlayer {
   }
 
   void stop() {
-    _cancel();
+    pause();
     _pausedAt = 0;
     player?.currentTime = 0;
+    if (_currentReleaseMode == ReleaseMode.release) {
+      release();
+    }
   }
 
   void seek(int position) {
@@ -216,14 +219,6 @@ class WrappedPlayer {
 
     if (!_isPlaying) {
       _pausedAt = seekPosition;
-    }
-  }
-
-  void _cancel() {
-    _isPlaying = false;
-    player?.pause();
-    if (_currentReleaseMode == ReleaseMode.release) {
-      player = null;
     }
   }
 
