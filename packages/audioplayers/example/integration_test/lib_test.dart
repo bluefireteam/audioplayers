@@ -72,33 +72,42 @@ void main() {
       (WidgetTester tester) async {
         final players =
             List.generate(audioTestDataList.length, (_) => AudioPlayer());
-
+        print('DEBUG lib_test: 1');
         // Start all players simultaneously
         final iterator = List<int>.generate(audioTestDataList.length, (i) => i);
+        print('DEBUG lib_test: 2');
         if (isLinux) {
           // FIXME(gustl22): Linux needs additional pump (#1507)
           await tester.pump();
         }
+        print('DEBUG lib_test: 3');
         await Future.wait<void>(
           iterator.map((i) => players[i].play(audioTestDataList[i].source)),
         );
+        print('DEBUG lib_test: 4');
         await tester.pumpAndSettle();
         // Sources take some time to get initialized
         await tester.pump(const Duration(seconds: 8));
+        print('DEBUG lib_test: 5');
         for (var i = 0; i < audioTestDataList.length; i++) {
+          print('DEBUG lib_test: 6, Loop $i');
           final td = audioTestDataList[i];
           if (td.isLiveStream || td.duration > const Duration(seconds: 10)) {
+            print('DEBUG lib_test: 6A, Loop $i');
             await tester.pump();
             final position = await players[i].getCurrentPosition();
             printWithTimeOnFailure('Test position: $td');
             expect(position, greaterThan(Duration.zero));
           }
+          print('DEBUG lib_test: 7, Loop $i');
           await players[i].stop();
         }
+        print('DEBUG lib_test: 8');
         if (!isLinux) {
           // FIXME(gustl22): Linux not disposing properly (#1507)
           await Future.wait(players.map((p) => p.dispose()));
         }
+        print('DEBUG lib_test: 9');
       },
       // FIXME: Causes media error on Android (see #1333, #1353)
       // Unexpected platform error: MediaPlayer error with
@@ -108,7 +117,9 @@ void main() {
 
     testWidgets('play multiple sources consecutively',
         (WidgetTester tester) async {
+      print('DEBUG lib_test: 10');
       final player = AudioPlayer();
+      print('DEBUG lib_test: 11');
 
       for (var i = 0; i < audioTestDataList.length; i++) {
         final td = audioTestDataList[i];
@@ -143,6 +154,7 @@ void main() {
     testWidgets(
       'test changing AudioContextConfigs',
       (WidgetTester tester) async {
+        print('DEBUG lib_test: 20');
         final player = AudioPlayer();
         await player.setReleaseMode(ReleaseMode.stop);
 
