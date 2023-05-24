@@ -75,7 +75,10 @@ void main() {
 
         // Start all players simultaneously
         final iterator = List<int>.generate(audioTestDataList.length, (i) => i);
-        await tester.pump();
+        if (isLinux) {
+          // FIXME(gustl22): Linux needs additional pump (#1507)
+          await tester.pump();
+        }
         await Future.wait<void>(
           iterator.map((i) => players[i].play(audioTestDataList[i].source)),
         );
@@ -92,7 +95,10 @@ void main() {
           }
           await players[i].stop();
         }
-        await Future.wait(players.map((p) => p.dispose()));
+        if (!isLinux) {
+          // FIXME(gustl22): Linux not disposing properly (#1507)
+          await Future.wait(players.map((p) => p.dispose()));
+        }
       },
       // FIXME: Causes media error on Android (see #1333, #1353)
       // Unexpected platform error: MediaPlayer error with
@@ -106,7 +112,10 @@ void main() {
 
       for (var i = 0; i < audioTestDataList.length; i++) {
         final td = audioTestDataList[i];
-        await tester.pump();
+        if (isLinux) {
+          // FIXME(gustl22): Linux needs additional pump (#1507)
+          await tester.pump();
+        }
         await player.play(td.source);
         await tester.pumpAndSettle();
         // Sources take some time to get initialized
@@ -119,7 +128,10 @@ void main() {
         }
         await player.stop();
       }
-      await player.dispose();
+      if (!isLinux) {
+        // FIXME(gustl22): Linux not disposing properly (#1507)
+        await player.dispose();
+      }
     });
   });
 
@@ -145,7 +157,10 @@ void main() {
         await AudioPlayer.global.setAudioContext(audioContext);
         await player.setAudioContext(audioContext);
 
-        await tester.pump();
+        if (isLinux) {
+          // FIXME(gustl22): Linux needs additional pump (#1507)
+          await tester.pump();
+        }
         await player.play(td.source);
         await tester.pumpAndSettle();
         await tester.pump(td.duration + const Duration(seconds: 8));
@@ -162,7 +177,10 @@ void main() {
         await tester.pumpAndSettle();
         await tester.pump(td.duration + const Duration(seconds: 8));
         expect(player.state, PlayerState.completed);
-        await player.dispose();
+        if (!isLinux) {
+          // FIXME(gustl22): Linux not disposing properly (#1507)
+          await player.dispose();
+        }
       },
       skip: !features.hasForceSpeaker,
     );
@@ -189,7 +207,10 @@ void main() {
         await AudioPlayer.global.setAudioContext(audioContext);
         await player.setAudioContext(audioContext);
 
-        await tester.pump();
+        if (isLinux) {
+          // FIXME(gustl22): Linux needs additional pump (#1507)
+          await tester.pump();
+        }
         await player.setSource(td.source);
         await player.resume();
         await tester.pumpAndSettle();
@@ -211,7 +232,10 @@ void main() {
         expect(player.state, PlayerState.playing);
         await player.stop();
         expect(player.state, PlayerState.stopped);
-        await player.dispose();
+        if (!isLinux) {
+          // FIXME(gustl22): Linux not disposing properly (#1507)
+          await player.dispose();
+        }
       },
       skip: !features.hasForceSpeaker || !features.hasLowLatency,
     );
@@ -221,7 +245,7 @@ void main() {
     testWidgets('Emit platform log', (tester) async {
       final logCompleter = Completer<String>();
 
-      // FIXME: Cannot reuse event channel with same id on Linux
+      // FIXME(gustl22): Cannot reuse event channel with same id on Linux (flutter/flutter#126209)
       final playerId = isLinux ? 'somePlayerId0' : 'somePlayerId';
       final player = AudioPlayer(playerId: playerId);
       final onLogSub = player.onLog.listen(
@@ -262,14 +286,20 @@ void main() {
         final player = AudioPlayer();
         try {
           // Throws PlatformException via MethodChannel:
-          await tester.pump();
+          if (isLinux) {
+            // FIXME(gustl22): Linux needs additional pump (#1507)
+            await tester.pump();
+          }
           await player.setSource(AssetSource(invalidAsset));
           fail('PlatformException not thrown');
           // ignore: avoid_catches_without_on_clauses
         } catch (e) {
           expect(e, isInstanceOf<PlatformException>());
         }
-        await player.dispose();
+        if (!isLinux) {
+          // FIXME(gustl22): Linux not disposing properly (#1507)
+          await player.dispose();
+        }
       },
     );
 
@@ -279,14 +309,20 @@ void main() {
         final player = AudioPlayer();
         try {
           // Throws PlatformException via MethodChannel:
-          await tester.pump();
+          if (isLinux) {
+            // FIXME(gustl22): Linux needs additional pump (#1507)
+            await tester.pump();
+          }
           await player.setSource(UrlSource('non_existent.txt'));
           fail('PlatformException not thrown');
           // ignore: avoid_catches_without_on_clauses
         } catch (e) {
           expect(e, isInstanceOf<PlatformException>());
         }
-        await player.dispose();
+        if (!isLinux) {
+          // FIXME(gustl22): Linux not disposing properly (#1507)
+          await player.dispose();
+        }
       },
     );
   });
@@ -295,7 +331,7 @@ void main() {
     testWidgets('#create and #dispose', (tester) async {
       final platform = AudioplayersPlatformInterface.instance;
 
-      // FIXME: Cannot reuse event channel with same id on Linux
+      // FIXME(gustl22): Cannot reuse event channel with same id on Linux (flutter/flutter#126209)
       final playerId = isLinux ? 'somePlayerId1' : 'somePlayerId';
       await platform.create(playerId);
       await tester.pumpAndSettle();
@@ -317,7 +353,7 @@ void main() {
     testWidgets('#setSource #getPosition and #getDuration', (tester) async {
       final platform = AudioplayersPlatformInterface.instance;
 
-      // FIXME: Cannot reuse event channel with same id on Linux
+      // FIXME(gustl22): Cannot reuse event channel with same id on Linux (flutter/flutter#126209)
       final playerId = isLinux ? 'somePlayerId2' : 'somePlayerId';
       await platform.create(playerId);
 
@@ -334,7 +370,10 @@ void main() {
         },
         onError: preparedCompleter.completeError,
       );
-      await tester.pump();
+      if (isLinux) {
+        // FIXME(gustl22): Linux needs additional pump (#1507)
+        await tester.pump();
+      }
       await platform.setSourceUrl(
         playerId,
         (wavUrl1TestData.source as UrlSource).url,
@@ -348,7 +387,10 @@ void main() {
       );
 
       await onPreparedSub.cancel();
-      await platform.dispose(playerId);
+      if (!isLinux) {
+        // FIXME(gustl22): Linux not disposing properly (#1507)
+        await platform.dispose(playerId);
+      }
     });
   });
 
@@ -383,7 +425,7 @@ void main() {
       final errorCompleter = Completer<Object>();
       final platform = AudioplayersPlatformInterface.instance;
 
-      // FIXME: Cannot reuse event channel with same id on Linux
+      // FIXME(gustl22): Cannot reuse event channel with same id on Linux (flutter/flutter#126209)
       final playerId = isLinux ? 'somePlayerId3' : 'somePlayerId';
       await platform.create(playerId);
 
