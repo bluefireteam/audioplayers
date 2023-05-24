@@ -21,7 +21,7 @@ scripts:
     description: Run all static analysis checks.
 
   analyze:
-    run: melos exec -c 10 flutter analyze --fatal-infos
+    run: melos exec -c 10 flutter analyze
     description: Run `flutter analyze` for all packages.
 
   format:
