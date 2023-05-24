@@ -1,27 +1,10 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:audioplayers_example/components/tgl.dart';
-import 'package:audioplayers_example/main.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 
 extension WidgetTesterUtils on WidgetTester {
-  Future<String> takeBase64Screenshot() async {
-    final binding = IntegrationTestWidgetsFlutterBinding.instance;
-    if (!kIsWeb) {
-      await binding.convertFlutterSurfaceToImage();
-    }
-    await pumpAndSettle();
-    final date = DateTime.now();
-    final data = await binding.takeScreenshot('screenshot-$date');
-    // See: https://github.com/flutter/flutter/issues/92381
-    // await binding.revertFlutterImage();
-    return base64Encode(data);
-  }
-
   /// Wait until appearance and disappearance
   Future<void> waitOneshot(
     Key key, {
@@ -113,13 +96,6 @@ extension WidgetTesterUtils on WidgetTester {
         timeout!,
       );
     } on TimeoutException catch (e) {
-      /*final base64Shot = kIsWeb ||
-          defaultTargetPlatform == TargetPlatform.iOS ||
-          defaultTargetPlatform == TargetPlatform.android
-          ? await takeBase64Screenshot()
-          : 'Screenshot on Desktop not supported';*/
-      final uInt8 = (await screenshotController.capture()) ?? [0];
-      final base64Shot = base64Encode(uInt8);
       throw Exception(
         '''$e
 
@@ -128,12 +104,7 @@ $stackTrace
 First Failure: 
 $firstFailureMsg
 Last Failure: 
-$lastFailureMsg
-
-### Took Screenshot:
-
-$base64Shot
-''',
+$lastFailureMsg''',
       );
     }
   }

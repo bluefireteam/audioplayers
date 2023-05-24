@@ -11,23 +11,13 @@ import 'package:audioplayers_example/tabs/sources.dart';
 import 'package:audioplayers_example/tabs/streams.dart';
 import 'package:audioplayers_example/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:screenshot/screenshot.dart';
 
 const defaultPlayerCount = 4;
 
 typedef OnError = void Function(Exception exception);
 
-ScreenshotController screenshotController = ScreenshotController();
-
 void main() {
-  runApp(
-    MaterialApp(
-      home: Screenshot<void>(
-        controller: screenshotController,
-        child: const _ExampleApp(),
-      ),
-    ),
-  );
+  runApp(const MaterialApp(home: _ExampleApp()));
 }
 
 class _ExampleApp extends StatefulWidget {
