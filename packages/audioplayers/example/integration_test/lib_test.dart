@@ -20,7 +20,6 @@ void main() {
 
   final isAndroid = !kIsWeb && Platform.isAndroid;
   final isLinux = !kIsWeb && Platform.isLinux;
-  final isWindows = !kIsWeb && Platform.isWindows;
 
   final wavUrl1TestData = LibSourceTestData(
     source: UrlSource(wavUrl1),
