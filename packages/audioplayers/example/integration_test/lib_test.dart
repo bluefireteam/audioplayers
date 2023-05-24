@@ -77,8 +77,7 @@ void main() {
         // Start all players simultaneously
         final iterator = List<int>.generate(audioTestDataList.length, (i) => i);
         print('DEBUG lib_test: 2');
-        if (isLinux || isWindows) {
-          // FIXME(gustl22): Windows needs additional pump in Flutter <=3.3.x
+        if (isLinux) {
           // FIXME(gustl22): Linux needs additional pump (#1507)
           await tester.pump();
         }
@@ -125,8 +124,7 @@ void main() {
 
       for (var i = 0; i < audioTestDataList.length; i++) {
         final td = audioTestDataList[i];
-        if (isLinux || isWindows) {
-          // FIXME(gustl22): Windows needs additional pump in Flutter <=3.3.x
+        if (isLinux) {
           // FIXME(gustl22): Linux needs additional pump (#1507)
           await tester.pump();
         }
@@ -172,8 +170,7 @@ void main() {
         await AudioPlayer.global.setAudioContext(audioContext);
         await player.setAudioContext(audioContext);
 
-        if (isLinux || isWindows) {
-          // FIXME(gustl22): Windows needs additional pump in Flutter <=3.3.x
+        if (isLinux) {
           // FIXME(gustl22): Linux needs additional pump (#1507)
           await tester.pump();
         }
@@ -223,8 +220,7 @@ void main() {
         await AudioPlayer.global.setAudioContext(audioContext);
         await player.setAudioContext(audioContext);
 
-        if (isLinux || isWindows) {
-          // FIXME(gustl22): Windows needs additional pump in Flutter <=3.3.x
+        if (isLinux) {
           // FIXME(gustl22): Linux needs additional pump (#1507)
           await tester.pump();
         }
@@ -303,8 +299,7 @@ void main() {
         final player = AudioPlayer();
         try {
           // Throws PlatformException via MethodChannel:
-          if (isLinux || isWindows) {
-            // FIXME(gustl22): Windows needs additional pump in Flutter <=3.3.x
+          if (isLinux) {
             // FIXME(gustl22): Linux needs additional pump (#1507)
             await tester.pump();
           }
@@ -327,8 +322,7 @@ void main() {
         final player = AudioPlayer();
         try {
           // Throws PlatformException via MethodChannel:
-          if (isLinux || isWindows) {
-            // FIXME(gustl22): Windows needs additional pump in Flutter <=3.3.x
+          if (isLinux) {
             // FIXME(gustl22): Linux needs additional pump (#1507)
             await tester.pump();
           }
@@ -389,8 +383,7 @@ void main() {
         },
         onError: preparedCompleter.completeError,
       );
-      if (isLinux || isWindows) {
-        // FIXME(gustl22): Windows needs additional pump in Flutter <=3.3.x
+      if (isLinux) {
         // FIXME(gustl22): Linux needs additional pump (#1507)
         await tester.pump();
       }
