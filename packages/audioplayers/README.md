@@ -25,7 +25,12 @@ If you are interest in migrating major versions, please check the [changelog](CH
 
 ## Getting Started
 
-We tried to make audioplayers as simple to use as possible.
+We tried to make audioplayers as simple to use as possible:
+
+```dart
+final player = AudioPlayer();
+await player.play(UrlSource('https://example.com/my-audio.wav'));
+```
 
 Please follow our [Getting Started tutorial](https://github.com/bluefireteam/audioplayers/blob/main/getting_started.md) for all high-level information you need to know.
 
