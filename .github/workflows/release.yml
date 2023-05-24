@@ -8,5 +8,7 @@ jobs:
   call-min-flutter-test:
     uses: ./.github/workflows/test.yml
     with:
-      flutter_version: '3.3.0'
+      flutter_version: '3.3.x'
       fatal_warnings: false
+      # TODO(gustl22): Windows tests fail on Flutter <= 3.3.x, remove when setting min version to 3.7.x
+      enable_windows: false
