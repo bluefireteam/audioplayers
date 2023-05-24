@@ -18,19 +18,19 @@ Future<void> testControlsTab(
   await tester.pumpAndSettle();
 
   // Sources take some time to get initialized
-  const timeout = Duration(seconds: 8);
+  const stopDuration = Duration(seconds: 5);
 
   if (features.hasVolume) {
-    await tester.testVolume('0.5', timeout: timeout);
-    await tester.testVolume('0.0', timeout: timeout);
-    await tester.testVolume('1.0', timeout: timeout);
+    await tester.testVolume('0.5', stopDuration: stopDuration);
+    await tester.testVolume('0.0', stopDuration: stopDuration);
+    await tester.testVolume('1.0', stopDuration: stopDuration);
     // No tests for volume > 1
   }
 
   if (features.hasBalance) {
-    await tester.testBalance('-1.0', timeout: timeout);
-    await tester.testBalance('1.0', timeout: timeout);
-    await tester.testBalance('0.0', timeout: timeout);
+    await tester.testBalance('-1.0', stopDuration: stopDuration);
+    await tester.testBalance('1.0', stopDuration: stopDuration);
+    await tester.testBalance('0.0', stopDuration: stopDuration);
   }
 
   if (features.hasPlaybackRate && !audioSourceTestData.isLiveStream) {
@@ -144,37 +144,37 @@ extension ControlsWidgetTester on WidgetTester {
 
   Future<void> testVolume(
     String volume, {
-    Duration timeout = const Duration(seconds: 1),
+    Duration stopDuration = const Duration(seconds: 1),
   }) async {
     printWithTimeOnFailure('Test Volume: $volume');
     await scrollToAndTap(Key('control-volume-$volume'));
     await resume();
     // TODO(Gustl22): get volume from native implementation
-    await pump(timeout);
+    await pump(stopDuration);
     await stop();
   }
 
   Future<void> testBalance(
     String balance, {
-    Duration timeout = const Duration(seconds: 1),
+    Duration stopDuration = const Duration(seconds: 1),
   }) async {
     printWithTimeOnFailure('Test Balance: $balance');
     await scrollToAndTap(Key('control-balance-$balance'));
     await resume();
     // TODO(novikov): get balance from native implementation
-    await pump(timeout);
+    await pump(stopDuration);
     await stop();
   }
 
   Future<void> testRate(
     String rate, {
-    Duration timeout = const Duration(seconds: 2),
+    Duration stopDuration = const Duration(seconds: 2),
   }) async {
     printWithTimeOnFailure('Test Rate: $rate');
     await scrollToAndTap(Key('control-rate-$rate'));
     await resume();
     // TODO(Gustl22): get rate from native implementation
-    await pump(timeout);
+    await pump(stopDuration);
     await stop();
   }
 
