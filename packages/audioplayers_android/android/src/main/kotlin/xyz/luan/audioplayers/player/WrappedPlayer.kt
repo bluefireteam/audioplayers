@@ -34,6 +34,8 @@ class WrappedPlayer internal constructor(
                     playing = false
                     player?.release()
                 }
+            } else {
+                ref.handlePrepared(this, true)
             }
         }
 
