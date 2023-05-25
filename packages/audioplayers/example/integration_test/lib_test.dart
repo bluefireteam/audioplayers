@@ -394,6 +394,44 @@ void main() {
     });
   });
 
+  testWidgets('Set same source twice (#1441)', (tester) async {
+    final platform = AudioplayersPlatformInterface.instance;
+
+    // FIXME(gustl22): Cannot reuse event channel with same id on Linux (flutter/flutter#126209)
+    final playerId = isLinux ? 'somePlayerId3' : 'somePlayerId';
+    await platform.create(playerId);
+
+    final eventStream = platform.getEventStream(playerId);
+    for (var i = 0; i < 2; i++) {
+      final preparedCompleter = Completer<void>();
+      final onPreparedSub = eventStream
+          .where((event) => event.eventType == AudioEventType.prepared)
+          .map((event) => event.isPrepared!)
+          .listen(
+        (isPrepared) {
+          if (isPrepared) {
+            preparedCompleter.complete();
+          }
+        },
+        onError: preparedCompleter.completeError,
+      );
+      if (isLinux) {
+        // FIXME(gustl22): Linux needs additional pump (#1507)
+        await tester.pump();
+      }
+      await platform.setSourceUrl(
+        playerId,
+        (wavUrl1TestData.source as UrlSource).url,
+      );
+      await preparedCompleter.future.timeout(const Duration(seconds: 30));
+      await onPreparedSub.cancel();
+    }
+    if (!isLinux) {
+      // FIXME(gustl22): Linux not disposing properly (#1507)
+      await platform.dispose(playerId);
+    }
+  });
+
   group('Platform event channel', () {
     // TODO(gustl22): remove once https://github.com/flutter/flutter/issues/126209 is fixed
     testWidgets(
@@ -426,7 +464,7 @@ void main() {
       final platform = AudioplayersPlatformInterface.instance;
 
       // FIXME(gustl22): Cannot reuse event channel with same id on Linux (flutter/flutter#126209)
-      final playerId = isLinux ? 'somePlayerId3' : 'somePlayerId';
+      final playerId = isLinux ? 'somePlayerId4' : 'somePlayerId';
       await platform.create(playerId);
 
       final eventStreamSub = platform
