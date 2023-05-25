@@ -31,7 +31,7 @@ Future<void> testStreamsTab(
   }
 
   // Sources take some time to get initialized
-  const timeout = Duration(seconds: 30);
+  const timeout = Duration(seconds: 8);
 
   await tester.pumpAndSettle();
   await tester.scrollToAndTap(const Key('play_button'));
