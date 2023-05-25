@@ -394,7 +394,7 @@ void main() {
     });
   });
 
-  testWidgets('Set same source twice (#1441)', (tester) async {
+  testWidgets('Set same source twice (#1520)', (tester) async {
     final platform = AudioplayersPlatformInterface.instance;
 
     // FIXME(gustl22): Cannot reuse event channel with same id on Linux (flutter/flutter#126209)
