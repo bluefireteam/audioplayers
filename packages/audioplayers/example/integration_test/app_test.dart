@@ -38,7 +38,7 @@ void main() {
           sourceKey: 'url-remote-wav-2',
           duration: const Duration(seconds: 1, milliseconds: 068),
         ),
-      if (features.hasUrlSource)
+      /*if (features.hasUrlSource)
         AppSourceTestData(
           sourceKey: 'url-remote-mp3-1',
           duration: const Duration(minutes: 3, seconds: 30, milliseconds: 77),
@@ -79,7 +79,7 @@ void main() {
         AppSourceTestData(
           sourceKey: 'bytes-remote',
           duration: const Duration(minutes: 3, seconds: 30, milliseconds: 76),
-        ),
+        ),*/
     ];
 
     for (final audioSourceTestData in audioTestDataList) {

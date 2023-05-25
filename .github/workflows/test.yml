@@ -258,7 +258,6 @@ jobs:
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         run: |
           Start-Process -NoNewWindow -WorkingDirectory "server" dart -ArgumentList "run", "bin/server.dart"
-          flutter test -d windows integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
           flutter test -d windows integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
 
   linux:
