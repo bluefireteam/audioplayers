@@ -404,7 +404,7 @@ void main() {
     final eventStream = platform.getEventStream(playerId);
     for (var i = 0; i < 2; i++) {
       final preparedCompleter = Completer<void>();
-      final onPreparedSub = eventStream
+      eventStream
           .where((event) => event.eventType == AudioEventType.prepared)
           .map((event) => event.isPrepared!)
           .listen(
@@ -424,7 +424,6 @@ void main() {
         (wavUrl1TestData.source as UrlSource).url,
       );
       await preparedCompleter.future.timeout(const Duration(seconds: 30));
-      await onPreparedSub.cancel();
     }
     if (!isLinux) {
       // FIXME(gustl22): Linux not disposing properly (#1507)
