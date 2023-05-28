@@ -353,7 +353,6 @@ class EventHandler(private val eventChannel: EventChannel) : EventChannel.Stream
 
     override fun onCancel(arguments: Any?) {
         eventSink = null
-        eventChannel.setStreamHandler(null)
     }
 
     fun success(method: String, arguments: Map<String, Any> = HashMap()) {
@@ -369,5 +368,6 @@ class EventHandler(private val eventChannel: EventChannel) : EventChannel.Stream
             it.endOfStream()
             onCancel(null)
         }
+        eventChannel.setStreamHandler(null)
     }
 }
