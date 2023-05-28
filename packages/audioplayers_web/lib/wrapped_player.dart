@@ -30,7 +30,13 @@ class WrappedPlayer {
 
   Future<void> setUrl(String url) async {
     if (_currentUrl == url) {
-      return; // nothing to do
+      eventStreamController.add(
+        const AudioEvent(
+          eventType: AudioEventType.prepared,
+          isPrepared: true,
+        ),
+      );
+      return;
     }
     _currentUrl = url;
 
