@@ -53,10 +53,6 @@ class AudioPlayer {
   /// Stream controller to be able to get a stream on initialization, before the
   /// native event stream is ready via [_create] method.
   final _eventStreamController = StreamController<AudioEvent>.broadcast();
-  
-  /// The event stream subscription must be kept open until `dispose` is called.
-  /// Otherwise native broadcast stream is cancelled due to no other listeners,
-  /// and then `create` must be called again.
   late final StreamSubscription _eventStreamSubscription;
 
   Stream<AudioEvent> get eventStream => _eventStreamController.stream;

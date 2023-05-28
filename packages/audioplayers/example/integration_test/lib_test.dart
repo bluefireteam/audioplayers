@@ -402,19 +402,12 @@ void main() {
     await platform.create(playerId);
 
     final eventStream = platform.getEventStream(playerId);
-
-    // Add controller to always listen to the event stream until it's manually 
-    // cancelled. Otherwise the even stream would have been closed automatically
-    // when cancelling the prepared stream (here the last listener).
-    final preparedController = StreamController<bool>.broadcast();
-    final eventStreamSub = eventStream
-        .where((event) => event.eventType == AudioEventType.prepared)
-        .map((event) => event.isPrepared!)
-        .listen(preparedController.add);
-    
     for (var i = 0; i < 2; i++) {
       final preparedCompleter = Completer<void>();
-      final onPreparedSub = preparedController.stream.listen(
+      final onPreparedSub = eventStream
+          .where((event) => event.eventType == AudioEventType.prepared)
+          .map((event) => event.isPrepared!)
+          .listen(
         (isPrepared) {
           if (isPrepared) {
             preparedCompleter.complete();
@@ -433,8 +426,6 @@ void main() {
       await preparedCompleter.future.timeout(const Duration(seconds: 30));
       await onPreparedSub.cancel();
     }
-    await eventStreamSub.cancel();
-    await preparedController.close();
     if (!isLinux) {
       // FIXME(gustl22): Linux not disposing properly (#1507)
       await platform.dispose(playerId);
