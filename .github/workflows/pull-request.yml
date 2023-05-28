@@ -13,9 +13,9 @@ jobs:
   call-test:
     uses: ./.github/workflows/test.yml
     with:
-      enable_android: false
+      enable_android: true
       enable_web: false
       enable_ios: false
-      enable_windows: ${{ github.event.pull_request.draft == false }}
+      enable_windows: true
       enable_linux: false
       enable_macos: false
