@@ -34,6 +34,42 @@ You should only need to run this command once.
 
 > You do not need to run `flutter pub get` once bootstrap has been completed.
 
+### Current Development
+
+If you want to use the most recent changes in your own project add following dependencies to your `pubspec.yaml` or `pubspec_overrrides.yaml`:
+
+```yaml
+dependency_overrides:
+  audioplayers:
+    git:
+      url: https://github.com/bluefireteam/audioplayers.git
+      path: 'packages/audioplayers'
+  audioplayers_platform_interface:
+    git:
+      url: https://github.com/bluefireteam/audioplayers.git
+      path: 'packages/audioplayers_platform_interface'
+  audioplayers_web:
+    git:
+      url: https://github.com/bluefireteam/audioplayers.git
+      path: 'packages/audioplayers_web'
+  audioplayers_linux:
+    git:
+      url: https://github.com/bluefireteam/audioplayers.git
+      path: 'packages/audioplayers_linux'
+  audioplayers_android:
+    git:
+      url: https://github.com/bluefireteam/audioplayers.git
+      path: 'packages/audioplayers_android'
+  audioplayers_darwin:
+    git:
+      url: https://github.com/bluefireteam/audioplayers.git
+      path: 'packages/audioplayers_darwin'
+  audioplayers_windows:
+    git:
+      url: https://github.com/bluefireteam/audioplayers.git
+      path: 'packages/audioplayers_windows'
+```
+
 ## Old Issues/PRs
 
 We have many existing open issues and a few open PRs that were created before this doc was created. We will try to respect their ignorance of this file's existence by doing our best effort to answer/address/fix/merge them as we normally would up to this point (i.e. as time permits). 
