@@ -274,9 +274,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
     }
 
     override fun stopUpdates() {
-        // should not cancel things in handler, otherwise 
-        // the https://github.com/bluefireteam/audioplayers/issues/1522 bug appears
-        // handler.removeCallbacksAndMessages(null)
+        updateRunnable?.let { handler.removeCallbacks(it) }
     }
 
     private class UpdateRunnable(
