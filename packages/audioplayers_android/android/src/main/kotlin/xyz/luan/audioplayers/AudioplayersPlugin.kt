@@ -56,6 +56,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
 
     override fun onDetachedFromEngine(binding: FlutterPluginBinding) {
         stopUpdates()
+        handler.removeCallbacksAndMessages(null)
         updateRunnable = null
         players.values.forEach { it.dispose() }
         players.clear()
