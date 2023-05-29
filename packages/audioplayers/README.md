@@ -16,7 +16,7 @@
 
 ---
 
-<img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot_src.png" width="25%"/><img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot_ctrl.png" width="25%"/><img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot_stream.png" width="25%"/><img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot_ctx.png" width="25%"/>
+<a title="Sources" href="https://github.com/bluefireteam/audioplayers/blob/main/packages/audioplayers/example/lib/tabs/sources.dart"><img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot_src.png" width="25%"/></a><a title="Controls" href="https://github.com/bluefireteam/audioplayers/blob/main/packages/audioplayers/example/lib/tabs/controls.dart"><img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot_ctrl.png" width="25%"/></a><a title="Streams" href="https://github.com/bluefireteam/audioplayers/blob/main/packages/audioplayers/example/lib/tabs/streams.dart"><img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot_stream.png" width="25%"/></a><a title="Audio Context" href="https://github.com/bluefireteam/audioplayers/blob/main/packages/audioplayers/example/lib/tabs/audio_context.dart"><img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot_ctx.png" width="25%"/></a>
 
 **Note**: all the docs are kept up to date to reflect the content of the current newest release. If you are looking for older information and guidance, please checkout the [tag](https://github.com/bluefireteam/audioplayers/tags) related to the version that you are looking for.
 
@@ -25,7 +25,12 @@ If you are interest in migrating major versions, please check the [changelog](CH
 
 ## Getting Started
 
-We tried to make audioplayers as simple to use as possible.
+We tried to make audioplayers as simple to use as possible:
+
+```dart
+final player = AudioPlayer();
+await player.play(UrlSource('https://example.com/my-audio.wav'));
+```
 
 Please follow our [Getting Started tutorial](https://github.com/bluefireteam/audioplayers/blob/main/getting_started.md) for all high-level information you need to know.
 
