@@ -106,22 +106,26 @@ class AudioContextTabState extends State<AudioContextTab>
         Cbx(
           'Force Speaker',
           value: audioContextConfig.forceSpeaker,
-          (v) => updateConfig(audioContextConfig.copy(forceSpeaker: v)),
+          ({value}) =>
+              updateConfig(audioContextConfig.copy(forceSpeaker: value)),
         ),
         Cbx(
           'Duck Audio',
           value: audioContextConfig.duckAudio,
-          (v) => updateConfig(audioContextConfig.copy(duckAudio: v)),
+          ({value}) => updateConfig(
+            audioContextConfig.copy(duckAudio: value),
+          ),
         ),
         Cbx(
           'Respect Silence',
           value: audioContextConfig.respectSilence,
-          (v) => updateConfig(audioContextConfig.copy(respectSilence: v)),
+          ({value}) =>
+              updateConfig(audioContextConfig.copy(respectSilence: value)),
         ),
         Cbx(
           'Stay Awake',
           value: audioContextConfig.stayAwake,
-          (v) => updateConfig(audioContextConfig.copy(stayAwake: v)),
+          ({value}) => updateConfig(audioContextConfig.copy(stayAwake: value)),
         ),
       ],
     );
@@ -133,15 +137,15 @@ class AudioContextTabState extends State<AudioContextTab>
         Cbx(
           'isSpeakerphoneOn',
           value: audioContext.android.isSpeakerphoneOn,
-          (v) => updateAudioContextAndroid(
-            audioContext.android.copy(isSpeakerphoneOn: v),
+          ({value}) => updateAudioContextAndroid(
+            audioContext.android.copy(isSpeakerphoneOn: value),
           ),
         ),
         Cbx(
           'stayAwake',
           value: audioContext.android.stayAwake,
-          (v) => updateAudioContextAndroid(
-            audioContext.android.copy(stayAwake: v),
+          ({value}) => updateAudioContextAndroid(
+            audioContext.android.copy(stayAwake: value),
           ),
         ),
         LabeledDropDown<AndroidContentType>(
@@ -191,8 +195,8 @@ class AudioContextTabState extends State<AudioContextTab>
         return Cbx(
           option.name,
           value: options.contains(option),
-          (v) {
-            if (v) {
+          ({value}) {
+            if (value ?? false) {
               options.add(option);
             } else {
               options.remove(option);

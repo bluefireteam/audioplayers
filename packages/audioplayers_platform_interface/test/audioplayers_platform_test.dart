@@ -13,7 +13,7 @@ void main() {
   final platform = AudioplayersPlatformInterface.instance;
 
   final methodCalls = <MethodCall>[];
-  TestDefaultBinaryMessengerBinding.instance!.defaultBinaryMessenger
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
       .setMockMethodCallHandler(
     const MethodChannel('xyz.luan/audioplayers'),
     (MethodCall methodCall) async {
