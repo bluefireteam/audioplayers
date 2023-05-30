@@ -21,10 +21,10 @@ dependencies:
 
 dev_dependencies:
   dartdoc: ^6.1.5
-  flame_lint: ^0.2.0
+  flame_lint: ^1.0.0
   flutter_test:
     sdk: flutter
 
 environment:
-  sdk: ">=2.18.0 <3.0.0"
-  flutter: ">=3.3.0"
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.10.0"

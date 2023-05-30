@@ -8,7 +8,7 @@ dependencies:
   file_picker: ^5.0.1
   flutter:
     sdk: flutter
-  http: ^0.13.1
+  http: ^1.0.0
   path_provider: ^2.0.12
   provider: ^6.0.5
 
@@ -16,7 +16,7 @@ dev_dependencies:
   # Integration tests for audioplayers_platform_interface are handled 
   # in this package to avoid maintaining multiple example apps:
   audioplayers_platform_interface: ^5.0.1
-  flame_lint: ^0.2.0
+  flame_lint: ^1.0.0
   flutter_test:
     sdk: flutter
   integration_test:
@@ -29,5 +29,5 @@ flutter:
     - assets/
 
 environment:
-  sdk: ">=2.18.0 <3.0.0"
-  flutter: ">=3.3.0"
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.10.0"
