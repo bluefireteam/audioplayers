@@ -42,6 +42,16 @@ class _SourcesTabState extends State<SourcesTab>
     with AutomaticKeepAliveClientMixin<SourcesTab> {
   AudioPlayer get player => widget.player;
 
+  late AudioPool pool;
+  late AudioPool pool2;
+  late AudioPool pool3;
+
+  @override
+  void initState() {
+    _initPools();
+    super.initState();
+  }
+
   Future<void> _setSource(Source source) async {
     await player.setSource(source);
     toast(
@@ -99,6 +109,17 @@ class _SourcesTabState extends State<SourcesTab>
     if (path != null) {
       _setSource(DeviceFileSource(path));
     }
+  }
+
+  Future<void> _initPools() async {
+    pool = await AudioPool.createFromAsset(
+      path: wavAsset,
+      maxPlayers: 3,
+    );
+    pool2 = await AudioPool.createFromAsset(
+      path: mp3Asset,
+      maxPlayers: 3,
+    );
   }
 
   @override
@@ -183,6 +204,26 @@ class _SourcesTabState extends State<SourcesTab>
           source: AssetSource(invalidAsset),
           buttonColor: Colors.red,
         ),
+        ListTile(
+          title: const Text('AudioPool'),
+          subtitle: const Text('laser.wav pool'),
+          trailing: IconButton(
+            tooltip: 'Play',
+            onPressed: () => pool.start(),
+            icon: const Icon(Icons.play_arrow),
+            color: Theme.of(context).primaryColor,
+          ),
+        ),
+        ListTile(
+          title: const Text('AudioPool'),
+          subtitle: const Text('nasa_on_a_mission.mp3 pool'),
+          trailing: IconButton(
+            tooltip: 'Play',
+            onPressed: () => pool2.start(),
+            icon: const Icon(Icons.play_arrow),
+            color: Theme.of(context).primaryColor,
+          ),
+        )
       ],
     );
   }
