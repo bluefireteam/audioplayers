@@ -51,7 +51,7 @@ on:
     inputs:
       flutter_version:
         required: false
-        default: '3.7.12'
+        default: '3.10.2'
         type: string
       fatal_warnings:
         required: false
