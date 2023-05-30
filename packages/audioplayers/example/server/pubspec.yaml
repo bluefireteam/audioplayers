@@ -11,4 +11,4 @@ dependencies:
 
 dev_dependencies:
   flame_lint: ^1.0.0
-  http: ^0.13.0
+  http: ^1.0.0
