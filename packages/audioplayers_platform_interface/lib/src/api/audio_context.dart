@@ -139,40 +139,31 @@ class AudioContextIOS {
 enum AndroidContentType {
   /// Content type value to use when the content type is unknown, or other than
   /// the ones defined.
-  unknown,
+  unknown(0),
 
   /// Content type value to use when the content type is speech.
-  speech,
+  speech(1),
 
   /// Content type value to use when the content type is music.
-  music,
+  music(2),
 
   /// Content type value to use when the content type is a soundtrack, typically
   /// accompanying a movie or TV program.
-  movie,
+  movie(3),
 
   /// Content type value to use when the content type is a sound used to
   /// accompany a user action, such as a beep or sound effect expressing a key
   /// click, or event, such as the type of a sound for a bonus being received in
   /// a game. These sounds are mostly synthesized or short Foley sounds.
-  sonification,
-}
+  sonification(4);
 
-extension AndroidContentTypeValue on AndroidContentType {
-  int get value {
-    switch (this) {
-      case AndroidContentType.unknown:
-        return 0;
-      case AndroidContentType.speech:
-        return 1;
-      case AndroidContentType.music:
-        return 2;
-      case AndroidContentType.movie:
-        return 3;
-      case AndroidContentType.sonification:
-        return 4;
-    }
+  const AndroidContentType(this.value);
+
+  factory AndroidContentType.fromInt(int value) {
+    return values.firstWhere((e) => e.value == value);
   }
+
+  final int value;
 }
 
 /// "why" you are playing a sound, what is this sound used for. This is achieved
@@ -185,110 +176,77 @@ extension AndroidContentTypeValue on AndroidContentType {
 /// recommended to build any instance with this information supplied.
 enum AndroidUsageType {
   /// Usage value to use when the usage is unknown.
-  unknown,
+  unknown(0),
 
   /// Usage value to use when the usage is media, such as music, or movie
   /// soundtracks.
-  media,
+  media(1),
 
   /// Usage value to use when the usage is voice communications, such as
   /// telephony or VoIP.
-  voiceCommunication,
+  voiceCommunication(2),
 
   /// Usage value to use when the usage is in-call signalling, such as with a
   /// "busy" beep, or DTMF tones.
-  voiceCommunicationSignalling,
+  voiceCommunicationSignalling(3),
 
   /// Usage value to use when the usage is an alarm (e.g. wake-up alarm).
-  alarm,
+  alarm(4),
 
   /// Usage value to use when the usage is notification. See other notification
   /// usages for more specialized uses.
-  notification,
+  notification(5),
 
   /// Usage value to use when the usage is telephony ringtone.
-  notificationRingtone,
+  notificationRingtone(6),
 
   /// Usage value to use when the usage is a request to enter/end a
   /// communication, such as a VoIP communication or video-conference.
-  notificationCommunicationRequest,
+  notificationCommunicationRequest(7),
 
   /// Usage value to use when the usage is notification for an "instant"
   /// communication such as a chat, or SMS.
-  notificationCommunicationInstant,
+  notificationCommunicationInstant(8),
 
   /// Usage value to use when the usage is notification for a non-immediate type
   /// of communication such as e-mail.
-  notificationCommunicationDelayed,
+  notificationCommunicationDelayed(9),
 
   /// Usage value to use when the usage is to attract the user's attention, such
   /// as a reminder or low battery warning.
-  notificationEvent,
+  notificationEvent(10),
 
   /// Usage value to use when the usage is for accessibility, such as with a
   /// screen reader.
-  assistanceAccessibility,
+  assistanceAccessibility(11),
 
   /// Usage value to use when the usage is driving or navigation directions.
-  assistanceNavigationGuidance,
+  assistanceNavigationGuidance(12),
 
   /// Usage value to use when the usage is sonification, such as  with user
   /// interface sounds.
-  assistanceSonification,
+  assistanceSonification(13),
 
   /// Usage value to use when the usage is for game audio.
-  game,
+  game(14),
 
   /// @hide
   ///
   /// Usage value to use when feeding audio to the platform and replacing
   /// "traditional" audio source, such as audio capture devices.
-  virtualSource,
+  virtualSource(15),
 
   /// Usage value to use for audio responses to user queries, audio instructions
   /// or help utterances.
-  assistant,
-}
+  assistant(16);
 
-extension AndroidUsageTypeValue on AndroidUsageType {
-  int get value {
-    switch (this) {
-      case AndroidUsageType.unknown:
-        return 0;
-      case AndroidUsageType.media:
-        return 1;
-      case AndroidUsageType.voiceCommunication:
-        return 2;
-      case AndroidUsageType.voiceCommunicationSignalling:
-        return 3;
-      case AndroidUsageType.alarm:
-        return 4;
-      case AndroidUsageType.notification:
-        return 5;
-      case AndroidUsageType.notificationRingtone:
-        return 6;
-      case AndroidUsageType.notificationCommunicationRequest:
-        return 7;
-      case AndroidUsageType.notificationCommunicationInstant:
-        return 8;
-      case AndroidUsageType.notificationCommunicationDelayed:
-        return 9;
-      case AndroidUsageType.notificationEvent:
-        return 10;
-      case AndroidUsageType.assistanceAccessibility:
-        return 11;
-      case AndroidUsageType.assistanceNavigationGuidance:
-        return 12;
-      case AndroidUsageType.assistanceSonification:
-        return 13;
-      case AndroidUsageType.game:
-        return 14;
-      case AndroidUsageType.virtualSource:
-        return 15;
-      case AndroidUsageType.assistant:
-        return 16;
-    }
+  const AndroidUsageType(this.value);
+
+  factory AndroidUsageType.fromInt(int value) {
+    return values.firstWhere((e) => e.value == value);
   }
+
+  final int value;
 }
 
 /// There are four focus request types. A successful focus request with each
@@ -302,7 +260,7 @@ enum AndroidAudioFocus {
   /// after the user finishes interacting with your application, (s)he doesn't
   /// expect another audio stream to resume. Examples of uses of this focus gain
   /// are for music playback, for a game or a video player.
-  gain,
+  gain(1),
 
   /// AudioManager#AUDIOFOCUS_GAIN_TRANSIENT is for a situation when you know
   /// your application is temporarily grabbing focus from the current owner,
@@ -313,7 +271,7 @@ enum AndroidAudioFocus {
   /// an end. When any of those events ends, and if the user was listening to
   /// music when it started, the user expects music to resume, but didn't wish
   /// to listen to both at the same time.
-  gainTransient,
+  gainTransient(2),
 
   /// AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK: this focus request type
   /// is similar to AUDIOFOCUS_GAIN_TRANSIENT for the temporary aspect of the
@@ -322,32 +280,25 @@ enum AndroidAudioFocus {
   /// "ducked". Examples are when playing driving directions or notifications,
   /// it's ok for music to keep playing, but not loud enough that it would
   /// prevent the directions to be hard to understand. A typical attenuation by
-  /// the "ducked" application is a factor of 0.2f (or -14dB), that can for 
+  /// the "ducked" application is a factor of 0.2f (or -14dB), that can for
   /// instance be applied with MediaPlayer.setVolume(0.2f) when using this class
   /// for playback.
-  gainTransientMayDuck,
+  gainTransientMayDuck(3),
 
   /// AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE is also for a temporary
   /// request, but also expresses that your application expects the device to
   /// not play anything else. This is typically used if you are doing audio
   /// recording or speech recognition, and don't want for examples notifications
   /// to be played by the system during that time.
-  gainTransientExclusive,
-}
+  gainTransientExclusive(4);
 
-extension AndroidAudioFocusValue on AndroidAudioFocus {
-  int get value {
-    switch (this) {
-      case AndroidAudioFocus.gain:
-        return 1;
-      case AndroidAudioFocus.gainTransient:
-        return 2;
-      case AndroidAudioFocus.gainTransientMayDuck:
-        return 3;
-      case AndroidAudioFocus.gainTransientExclusive:
-        return 4;
-    }
+  const AndroidAudioFocus(this.value);
+
+  factory AndroidAudioFocus.fromInt(int value) {
+    return values.firstWhere((e) => e.value == value);
   }
+
+  final int value;
 }
 
 /// The audio mode encompasses audio routing AND the behavior of the telephony
@@ -358,37 +309,28 @@ extension AndroidAudioFocusValue on AndroidAudioFocus {
 /// from the radio layer to feed the platform mixer.
 enum AndroidAudioMode {
   /// Normal audio mode: not ringing and no call established.
-  normal,
+  normal(0),
 
   /// Ringing audio mode. An incoming is being signaled.
-  ringtone,
+  ringtone(1),
 
   /// In call audio mode. A telephony call is established.
-  inCall,
+  inCall(2),
 
   /// In communication audio mode. An audio/video chat or VoIP call is established.
-  inCommunication,
+  inCommunication(3),
 
   /// Call screening in progress. Call is connected and audio is accessible to
   /// call screening applications but other audio use cases are still possible.
-  callScreening
-}
+  callScreening(4);
 
-extension AndroidAudioModeValue on AndroidAudioMode {
-  int get value {
-    switch (this) {
-      case AndroidAudioMode.normal:
-        return 0;
-      case AndroidAudioMode.ringtone:
-        return 1;
-      case AndroidAudioMode.inCall:
-        return 2;
-      case AndroidAudioMode.inCommunication:
-        return 3;
-      case AndroidAudioMode.callScreening:
-        return 4;
-    }
+  const AndroidAudioMode(this.value);
+
+  factory AndroidAudioMode.fromInt(int value) {
+    return values.firstWhere((e) => e.value == value);
   }
+
+  final int value;
 }
 
 /// This is a Dart representation of the equivalent enum on Swift.
