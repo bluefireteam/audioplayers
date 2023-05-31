@@ -14,7 +14,7 @@ data class AudioContextAndroid(
     val stayAwake: Boolean,
     val contentType: Int,
     val usageType: Int,
-    val audioFocus: Int?,
+    val audioFocus: Int,
     val audioMode: Int,
 ) {
     @SuppressLint("InlinedApi") // we are just using numerical constants
@@ -23,7 +23,7 @@ data class AudioContextAndroid(
         stayAwake = false,
         contentType = CONTENT_TYPE_MUSIC,
         usageType = USAGE_MEDIA,
-        audioFocus = null,
+        audioFocus = AudioManager.AUDIOFOCUS_GAIN,
         audioMode = AudioManager.MODE_NORMAL,
     )
 

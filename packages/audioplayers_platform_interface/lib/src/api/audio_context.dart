@@ -58,7 +58,7 @@ class AudioContextAndroid {
   final bool stayAwake;
   final AndroidContentType contentType;
   final AndroidUsageType usageType;
-  final AndroidAudioFocus? audioFocus;
+  final AndroidAudioFocus audioFocus;
 
   const AudioContextAndroid({
     this.isSpeakerphoneOn = true,
@@ -94,7 +94,7 @@ class AudioContextAndroid {
       'stayAwake': stayAwake,
       'contentType': contentType.value,
       'usageType': usageType.value,
-      'audioFocus': audioFocus?.value,
+      'audioFocus': audioFocus.value,
     };
   }
 }
@@ -254,6 +254,10 @@ enum AndroidUsageType {
 /// previously held audio focus.
 /// See https://developer.android.com/reference/android/media/AudioFocusRequest
 enum AndroidAudioFocus {
+  /// AudioManager#AUDIOFOCUS_NONE expresses that your app requests no audio 
+  /// focus.
+  none(0),
+  
   /// AudioManager#AUDIOFOCUS_GAIN expresses the fact that your application is
   /// now the sole source of audio that the user is listening to.
   /// The duration of the audio playback is unknown, and is possibly very long:
