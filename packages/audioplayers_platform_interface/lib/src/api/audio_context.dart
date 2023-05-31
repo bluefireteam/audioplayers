@@ -291,52 +291,53 @@ extension AndroidUsageTypeValue on AndroidUsageType {
   }
 }
 
+/// There are four focus request types. A successful focus request with each
+/// will yield different behaviors by the system and the other application that
+/// previously held audio focus.
+/// See https://developer.android.com/reference/android/media/AudioFocusRequest
 enum AndroidAudioFocus {
-  /// Used to indicate no audio focus has been gained or lost, or requested.
-  none,
-
-  /// Used to indicate a gain of audio focus, or a request of audio focus, of
-  /// unknown duration.
-  ///
-  /// @see OnAudioFocusChangeListener#onAudioFocusChange(int)
-  /// @see #requestAudioFocus(OnAudioFocusChangeListener, int, int)
+  /// AudioManager#AUDIOFOCUS_GAIN expresses the fact that your application is
+  /// now the sole source of audio that the user is listening to.
+  /// The duration of the audio playback is unknown, and is possibly very long:
+  /// after the user finishes interacting with your application, (s)he doesn't
+  /// expect another audio stream to resume. Examples of uses of this focus gain
+  /// are for music playback, for a game or a video player.
   gain,
 
-  /// Used to indicate a temporary gain or request of audio focus, anticipated
-  /// to last a short amount of time. Examples of temporary changes are the
-  /// playback of driving directions, or an event notification.
-  ///
-  /// @see OnAudioFocusChangeListener#onAudioFocusChange(int)
-  /// @see #requestAudioFocus(OnAudioFocusChangeListener, int, int)
+  /// AudioManager#AUDIOFOCUS_GAIN_TRANSIENT is for a situation when you know
+  /// your application is temporarily grabbing focus from the current owner,
+  /// but the user expects playback to go back to where it was once your
+  /// application no longer requires audio focus. An example is for playing an
+  /// alarm, or during a VoIP call. The playback is known to be finite:
+  /// the alarm will time-out or be dismissed, the VoIP call has a beginning and
+  /// an end. When any of those events ends, and if the user was listening to
+  /// music when it started, the user expects music to resume, but didn't wish
+  /// to listen to both at the same time.
   gainTransient,
 
-  /// Used to indicate a temporary request of audio focus, anticipated to last a
-  /// short amount of time, and where it is acceptable for other audio
-  /// applications to keep playing after having lowered their output level
-  /// (also referred to as "ducking").
-  /// Examples of temporary changes are the playback of driving directions where
-  /// playback of music in the background is acceptable.
-  ///
-  /// @see OnAudioFocusChangeListener#onAudioFocusChange(int)
-  /// @see #requestAudioFocus(OnAudioFocusChangeListener, int, int)
+  /// AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK: this focus request type
+  /// is similar to AUDIOFOCUS_GAIN_TRANSIENT for the temporary aspect of the
+  /// focus request, but it also expresses the fact during the time you own
+  /// focus, you allow another application to keep playing at a reduced volume,
+  /// "ducked". Examples are when playing driving directions or notifications,
+  /// it's ok for music to keep playing, but not loud enough that it would
+  /// prevent the directions to be hard to understand. A typical attenuation by
+  /// the "ducked" application is a factor of 0.2f (or -14dB), that can for 
+  /// instance be applied with MediaPlayer.setVolume(0.2f) when using this class
+  /// for playback.
   gainTransientMayDuck,
 
-  /// Used to indicate a temporary request of audio focus, anticipated to last a
-  /// short amount of time, during which no other applications, or system
-  /// components, should play anything. Examples of exclusive and transient
-  /// audio focus requests are voice memo recording and speech recognition,
-  /// during which the system shouldn't play any notifications, and media
-  /// playback should have paused.
-  ///
-  /// @see #requestAudioFocus(OnAudioFocusChangeListener, int, int)
+  /// AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE is also for a temporary
+  /// request, but also expresses that your application expects the device to
+  /// not play anything else. This is typically used if you are doing audio
+  /// recording or speech recognition, and don't want for examples notifications
+  /// to be played by the system during that time.
   gainTransientExclusive,
 }
 
 extension AndroidAudioFocusValue on AndroidAudioFocus {
   int get value {
     switch (this) {
-      case AndroidAudioFocus.none:
-        return 0;
       case AndroidAudioFocus.gain:
         return 1;
       case AndroidAudioFocus.gainTransient:
