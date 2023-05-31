@@ -21,7 +21,11 @@ flutter:
         default_package: audioplayers_windows
 
 dependencies:
-  audioplayers_android: ^3.0.2
+  audioplayers_android: 
+   git:
+      url: git@github.com:jgrandchavin/audioplayers
+      ref:  fix/illegale_state_exception_on_android
+      path: packages/audioplayers_android
   audioplayers_darwin: ^4.1.0
   audioplayers_linux: ^2.1.0
   audioplayers_platform_interface: ^5.0.1
