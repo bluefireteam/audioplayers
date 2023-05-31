@@ -8,7 +8,7 @@ dependencies:
   file_picker: ^5.0.1
   flutter:
     sdk: flutter
-  http: ^1.0.0
+  http: '>=0.13.1 <2.0.0'
   path_provider: ^2.0.12
   provider: ^6.0.5
 
@@ -29,5 +29,5 @@ flutter:
     - assets/
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
-  flutter: ">=3.10.0"
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: '>=3.10.0'
