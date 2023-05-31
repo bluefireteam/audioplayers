@@ -80,7 +80,7 @@ class WrappedPlayer internal constructor(
     val isLooping: Boolean
         get() = releaseMode == ReleaseMode.LOOP
 
-    var playerMode: PlayerMode = MEDIA_PLAYER
+    var playerMode: PlayerMode = LOW_LATENCY
         set(value) {
             if (field != value) {
                 field = value
