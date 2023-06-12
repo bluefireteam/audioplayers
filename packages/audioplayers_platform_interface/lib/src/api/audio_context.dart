@@ -254,14 +254,14 @@ enum AndroidUsageType {
 /// previously held audio focus.
 /// See https://developer.android.com/reference/android/media/AudioFocusRequest
 enum AndroidAudioFocus {
-  /// AudioManager#AUDIOFOCUS_NONE expresses that your app requests no audio 
+  /// AudioManager#AUDIOFOCUS_NONE expresses that your app requests no audio
   /// focus.
   /// NOTE: Here it is used as replacement for an AudioFocus set to null, to
   /// make it more convenient to unset the focus again.
   /// Despite to the docs, AUDIOFOCUS_NONE is already present at API level 19.
   /// https://developer.android.com/reference/android/media/AudioManager#AUDIOFOCUS_NONE
   none(0),
-  
+
   /// AudioManager#AUDIOFOCUS_GAIN expresses the fact that your application is
   /// now the sole source of audio that the user is listening to.
   /// The duration of the audio playback is unknown, and is possibly very long:
