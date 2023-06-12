@@ -30,7 +30,7 @@ void main() {
   }
 
   group('Global Method Channel', () {
-    TestDefaultBinaryMessengerBinding.instance!.defaultBinaryMessenger
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
       const MethodChannel('xyz.luan/audioplayers.global'),
       (MethodCall methodCall) async {

@@ -69,6 +69,8 @@ void AudioPlayer::SetSourceUrl(std::string url) {
             // Forward errors to event stream, as this is called asynchronously
             this->OnError("WindowsAudioError", "Error setting url to '" + url + "'.", nullptr);
         }
+    } else {
+        OnPrepared(true);
     }
 }
 

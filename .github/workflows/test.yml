@@ -2,6 +2,21 @@ name: test
 on:
   workflow_dispatch:
     inputs:
+      flutter_version:
+        description: 'Flutter Version'
+        required: false
+        default: '3.7.x'
+        type: choice
+        options:
+          - 'any'
+          - '3.10.x'
+          - '3.7.x'
+          - '3.3.x'
+      fatal_warnings:
+        description: 'Treat warnings as fatal'
+        required: false
+        default: true
+        type: boolean
       enable_android:
         description: 'Test Android'
         required: false
@@ -34,6 +49,14 @@ on:
         type: boolean
   workflow_call:
     inputs:
+      flutter_version:
+        required: false
+        default: '3.10.2'
+        type: string
+      fatal_warnings:
+        required: false
+        default: true
+        type: boolean
       enable_android:
         required: false
         default: true
@@ -67,10 +90,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ inputs.flutter_version }}
+          channel: 'stable'
       - uses: bluefireteam/melos-action@main
 
       - run: melos run format-check
-      - run: melos run analyze
+      - run: melos run analyze -- ${{ inputs.fatal_warnings && '--fatal-infos' || '--no-fatal-warnings --no-fatal-infos' }}
       - run: melos run test
 
   web:
@@ -80,6 +106,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ inputs.flutter_version }}
+          channel: 'stable'
       - uses: bluefireteam/melos-action@main
       - uses: nanasess/setup-chromedriver@v1
 
@@ -114,8 +143,10 @@ jobs:
     if: inputs.enable_android
     steps:
       - uses: actions/checkout@v3
-
       - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ inputs.flutter_version }}
+          channel: 'stable'
       - uses: bluefireteam/melos-action@main
 
       - name: Download Android emulator image
@@ -153,6 +184,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ inputs.flutter_version }}
+          channel: 'stable'
       - uses: bluefireteam/melos-action@main
 
       - name: List all simulators
@@ -178,6 +212,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ inputs.flutter_version }}
+          channel: 'stable'
       - uses: bluefireteam/melos-action@main
 
       - name: setup-cocoapods
@@ -200,6 +237,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ inputs.flutter_version }}
+          channel: 'stable'
       - uses: bluefireteam/melos-action@main
       
       - name: Start audio server
@@ -227,6 +267,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ inputs.flutter_version }}
+          channel: 'stable'
       - uses: bluefireteam/melos-action@main
       - name: Install Flutter requirements for Linux
         run: |

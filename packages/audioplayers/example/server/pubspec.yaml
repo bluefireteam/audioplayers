@@ -2,7 +2,7 @@ name: audioplayers_test_server
 publish_to: none
 
 environment:
-  sdk: ">=2.17.0 <3.0.0"
+  sdk: '>=3.0.0 <4.0.0'
 
 dependencies:
   shelf: ^1.2.0
@@ -10,5 +10,5 @@ dependencies:
   shelf_static: ^1.0.0
 
 dev_dependencies:
-  flame_lint: ^0.2.0
-  http: ^0.13.0
+  flame_lint: ^1.0.0
+  http: '>=0.13.1 <2.0.0'

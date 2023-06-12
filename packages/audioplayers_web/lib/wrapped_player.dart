@@ -30,7 +30,13 @@ class WrappedPlayer {
 
   Future<void> setUrl(String url) async {
     if (_currentUrl == url) {
-      return; // nothing to do
+      eventStreamController.add(
+        const AudioEvent(
+          eventType: AudioEventType.prepared,
+          isPrepared: true,
+        ),
+      );
+      return;
     }
     _currentUrl = url;
 
@@ -161,6 +167,9 @@ class WrappedPlayer {
   }
 
   void release() {
+    // Release `AudioElement` correctly (#966)
+    player?.src = '';
+    player?.remove();
     _cancel();
     player = null;
     _stereoPanner = null;

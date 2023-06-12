@@ -56,6 +56,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
 
     override fun onDetachedFromEngine(binding: FlutterPluginBinding) {
         stopUpdates()
+        handler.removeCallbacksAndMessages(null)
         updateRunnable = null
         players.values.forEach { it.dispose() }
         players.clear()
@@ -274,7 +275,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
     }
 
     override fun stopUpdates() {
-        handler.removeCallbacksAndMessages(null)
+        updateRunnable?.let { handler.removeCallbacks(it) }
     }
 
     private class UpdateRunnable(
@@ -353,7 +354,6 @@ class EventHandler(private val eventChannel: EventChannel) : EventChannel.Stream
 
     override fun onCancel(arguments: Any?) {
         eventSink = null
-        eventChannel.setStreamHandler(null)
     }
 
     fun success(method: String, arguments: Map<String, Any> = HashMap()) {
@@ -369,5 +369,6 @@ class EventHandler(private val eventChannel: EventChannel) : EventChannel.Stream
             it.endOfStream()
             onCancel(null)
         }
+        eventChannel.setStreamHandler(null)
     }
 }

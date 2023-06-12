@@ -12,12 +12,12 @@ void createNativeEventStream({
   required String channel,
   Stream<ByteData>? byteDataStream,
 }) {
-  TestDefaultBinaryMessengerBinding.instance!.defaultBinaryMessenger
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
       .setMockMessageHandler(channel, (ByteData? message) async {
     final methodCall = const StandardMethodCodec().decodeMethodCall(message);
     if (methodCall.method == 'listen') {
       byteDataStream?.listen((byteData) async {
-        await TestDefaultBinaryMessengerBinding.instance!.defaultBinaryMessenger
+        await TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
             .handlePlatformMessage(
           channel,
           byteData,

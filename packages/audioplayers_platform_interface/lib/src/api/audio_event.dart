@@ -46,7 +46,8 @@ class AudioEvent {
             eventType == other.eventType &&
             duration == other.duration &&
             position == other.position &&
-            logMessage == other.logMessage;
+            logMessage == other.logMessage &&
+            isPrepared == other.isPrepared;
   }
 
   @override
@@ -55,6 +56,7 @@ class AudioEvent {
         duration,
         position,
         logMessage,
+        isPrepared,
       );
 
   @override
@@ -63,7 +65,8 @@ class AudioEvent {
         'eventType: $eventType, '
         'duration: $duration, '
         'position: $position, '
-        'logMessage: $logMessage'
+        'logMessage: $logMessage, '
+        'isPrepared: $isPrepared'
         ')';
   }
 }

@@ -2,6 +2,17 @@ name: build example
 on:
   workflow_dispatch:
     inputs:
+      flutter_version:
+        description: 'Flutter Version'
+        required: false
+        default: '3.7.x'
+        type: choice
+        options:
+          - 'any'
+          - '3.10.x'
+          - '3.7.x'
+          - '3.3.x'
+          - '3.0.x'
       enable_android:
         description: 'Build Android'
         required: false
@@ -34,6 +45,10 @@ on:
         type: boolean
   workflow_call:
     inputs:
+      flutter_version:
+        required: false
+        default: '3.10.2'
+        type: string
       enable_android:
         required: false
         default: true
@@ -67,6 +82,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ inputs.flutter_version }}
+          channel: 'stable'
       - uses: bluefireteam/melos-action@main
 
       - name: Example app - Build Web app
@@ -79,8 +97,10 @@ jobs:
     if: inputs.enable_android
     steps:
       - uses: actions/checkout@v3
-
       - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ inputs.flutter_version }}
+          channel: 'stable'
       - uses: bluefireteam/melos-action@main
 
       - name: Example App - Build Android APK
@@ -94,6 +114,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ inputs.flutter_version }}
+          channel: 'stable'
       - uses: bluefireteam/melos-action@main
 
       - name: Example app - Build iOS
@@ -107,6 +130,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ inputs.flutter_version }}
+          channel: 'stable'
       - uses: bluefireteam/melos-action@main
 
       - name: setup-cocoapods
@@ -124,6 +150,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ inputs.flutter_version }}
+          channel: 'stable'
       - uses: bluefireteam/melos-action@main
 
       - name: Example app - Build Windows app
@@ -137,6 +166,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ inputs.flutter_version }}
+          channel: 'stable'
       - uses: bluefireteam/melos-action@main
 
       - name: Install Flutter requirements for Linux

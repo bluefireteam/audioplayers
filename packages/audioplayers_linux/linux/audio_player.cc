@@ -72,6 +72,8 @@ void AudioPlayer::SetSourceUrl(std::string url) {
                 }
             }
         }
+    } else {
+        this->OnPrepared(true);
     }
 }
 
