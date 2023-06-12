@@ -336,7 +336,7 @@ private fun MethodCall.audioContext(): AudioContextAndroid {
         stayAwake = argument<Boolean>("stayAwake") ?: error("stayAwake is required"),
         contentType = argument<Int>("contentType") ?: error("contentType is required"),
         usageType = argument<Int>("usageType") ?: error("usageType is required"),
-        audioFocus = argument<Int>("audioFocus"),
+        audioFocus = argument<Int>("audioFocus") ?: error("audioFocus is required"),
         audioMode = argument<Int>("audioMode") ?: error("audioMode is required"),
     )
 }
