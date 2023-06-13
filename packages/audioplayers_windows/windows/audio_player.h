@@ -73,7 +73,7 @@ class AudioPlayer {
 
     int64_t GetDuration();
 
-    void SeekTo(int64_t seek);
+    void SeekTo(double seek);
 
     void SetSourceUrl(std::string url);
 

@@ -233,7 +233,7 @@ bool MediaEngineWrapper::GetLooping()
     return looping;
 }
 
-void MediaEngineWrapper::SeekTo(uint64_t timeStamp)
+void MediaEngineWrapper::SeekTo(double timeStamp)
 {
     RunSyncInMTA([&]()
     {
@@ -241,14 +241,14 @@ void MediaEngineWrapper::SeekTo(uint64_t timeStamp)
         if (m_mediaEngine == nullptr) {
             return;
         }
-        const double timestampInSeconds = ConvertHnsToSeconds(timeStamp);
+        const double timestampInSeconds = timeStamp / 1000.0;
         THROW_IF_FAILED(m_mediaEngine->SetCurrentTime(timestampInSeconds));
     });
 }
 
 uint64_t MediaEngineWrapper::GetMediaTime()
 {
-    uint64_t currentTimeInHns = 0;
+    uint64_t currentTime = 0;
     RunSyncInMTA([&]()
     {
         auto lock = m_lock.lock();
@@ -256,14 +256,14 @@ uint64_t MediaEngineWrapper::GetMediaTime()
             return;
         }
         double currentTimeInSeconds = m_mediaEngine->GetCurrentTime();
-        currentTimeInHns = ConvertSecondsToHns(currentTimeInSeconds);
+        currentTime = (uint64_t) (currentTimeInSeconds * 1000.0);
     });
-    return currentTimeInHns;
+    return currentTime;
 }
 
 uint64_t MediaEngineWrapper::GetDuration()
 {
-    uint64_t durationInHns = 0;
+    uint64_t duration = 0;
     RunSyncInMTA([&]()
     {
         auto lock = m_lock.lock();
@@ -271,9 +271,9 @@ uint64_t MediaEngineWrapper::GetDuration()
             return;
         }
         double durationInSeconds = m_mediaEngine->GetDuration();
-        durationInHns = ConvertSecondsToHns(durationInSeconds);
+        duration = (uint64_t) (durationInSeconds * 1000.0);
     });
-    return durationInHns;
+    return duration;
 }
 
 std::vector<std::tuple<uint64_t, uint64_t>> MediaEngineWrapper::GetBufferedRanges()

@@ -145,8 +145,7 @@ void AudioPlayer::OnTimeUpdate() {
                   flutter::EncodableValue("audio.onCurrentPosition")},
                  {flutter::EncodableValue("value"),
                   flutter::EncodableValue(
-                      (int64_t)m_mediaEngineWrapper->GetMediaTime() /
-                      10000)}})));
+                      (int64_t)m_mediaEngineWrapper->GetMediaTime())}})));
     }
 }
 
@@ -158,8 +157,7 @@ void AudioPlayer::OnDurationUpdate() {
                   flutter::EncodableValue("audio.onDuration")},
                  {flutter::EncodableValue("value"),
                   flutter::EncodableValue(
-                      (int64_t)m_mediaEngineWrapper->GetDuration() /
-                      10000)}})));
+                      (int64_t)m_mediaEngineWrapper->GetDuration())}})));
     }
 }
 
@@ -244,4 +242,4 @@ int64_t AudioPlayer::GetDuration() {
     return m_mediaEngineWrapper->GetDuration();
 }
 
-void AudioPlayer::SeekTo(int64_t seek) { m_mediaEngineWrapper->SeekTo(seek); }
+void AudioPlayer::SeekTo(double seek) { m_mediaEngineWrapper->SeekTo(seek); }
