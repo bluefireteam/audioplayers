@@ -34,6 +34,8 @@ class WrappedPlayer internal constructor(
                     playing = false
                     player?.release()
                 }
+            } else {
+                ref.handlePrepared(this, true)
             }
         }
 
@@ -135,7 +137,8 @@ class WrappedPlayer internal constructor(
         if (context == audioContext) {
             return
         }
-        if (context.audioFocus != null && audioContext.audioFocus == null) {
+        if (context.audioFocus != AudioManager.AUDIOFOCUS_NONE
+                && audioContext.audioFocus == AudioManager.AUDIOFOCUS_NONE) {
             focusManager.handleStop()
         }
         this.context = audioContext.copy()
