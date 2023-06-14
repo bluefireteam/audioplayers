@@ -12,7 +12,6 @@ on:
           - '3.10.x'
           - '3.7.x'
           - '3.3.x'
-          - '3.0.x'
       fatal_warnings:
         description: 'Treat warnings as fatal'
         required: false
@@ -52,7 +51,7 @@ on:
     inputs:
       flutter_version:
         required: false
-        default: '3.7.12'
+        default: '3.10.2'
         type: string
       fatal_warnings:
         required: false
