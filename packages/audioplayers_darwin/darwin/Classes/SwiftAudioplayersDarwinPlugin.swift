@@ -186,6 +186,7 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
             }
 
             player.setSourceUrl(url: url!, isLocal: isLocal, completer: {
+                print("setSourceUrl isPrepared")
                 player.eventHandler.onPrepared(isPrepared: true)
             }, completerError: {
                 player.eventHandler.onError(code: "DarwinAudioError", message: "AVPlayerItem.Status.failed on setSourceUrl", details: nil)
@@ -333,19 +334,19 @@ class AudioPlayersStreamHandler: NSObject, FlutterStreamHandler {
 
     func onCurrentPosition(millis: Int) {
         if let eventSink = self.sink {
-            eventSink(["event": "audio.onCurrentPosition", "value": millis])
+            eventSink(["event": "audio.onCurrentPosition", "value": millis] as [String : Any])
         }
     }
 
     func onDuration(millis: Int) {
         if let eventSink = self.sink {
-            eventSink(["event": "audio.onDuration", "value": millis])
+            eventSink(["event": "audio.onDuration", "value": millis] as [String : Any])
         }
     }
 
     func onPrepared(isPrepared: Bool) {
         if let eventSink = self.sink {
-            eventSink(["event": "audio.onPrepared", "value": isPrepared])
+            eventSink(["event": "audio.onPrepared", "value": isPrepared] as [String : Any])
         }
     }
 

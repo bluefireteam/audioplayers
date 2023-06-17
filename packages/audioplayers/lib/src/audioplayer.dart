@@ -298,9 +298,12 @@ class AudioPlayer {
         }
       },
     );
-    await fun();
-    await preparedCompleter.future.timeout(const Duration(seconds: 30));
-    onPreparedSubscription.cancel();
+    try {
+      await fun();
+      await preparedCompleter.future.timeout(const Duration(seconds: 30));
+    } finally {
+      onPreparedSubscription.cancel();
+    }
   }
 
   /// Sets the URL to a remote link.
