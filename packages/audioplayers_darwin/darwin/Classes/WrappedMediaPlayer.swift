@@ -55,10 +55,10 @@ class WrappedMediaPlayer {
             reset()
             self.url = url
             let playerItem = createPlayerItem(url, isLocal)
-            setupPlayerItemStatusObservation(playerItem, completer, completerError)
+            setUpPlayerItemStatusObservation(playerItem, completer, completerError)
             let player = updatePlayer(playerItem) ?? createPlayer(playerItem)
-            setupPositionObserver(player)
-            setupSoundCompletedObserver(player, playerItem)
+            setUpPositionObserver(player)
+            setUpSoundCompletedObserver(player, playerItem)
         } else {
             if playbackStatus == .readyToPlay {
                 completer?()
@@ -173,7 +173,7 @@ class WrappedMediaPlayer {
         return self.player
     }
 
-    private func setupPlayerItemStatusObservation(_ playerItem: AVPlayerItem, _ completer: Completer?, _ completerError: CompleterError?) {
+    private func setUpPlayerItemStatusObservation(_ playerItem: AVPlayerItem, _ completer: Completer?, _ completerError: CompleterError?) {
         playerItemStatusObservation = playerItem.observe(\AVPlayerItem.status) { (playerItem, change) in
             let status = playerItem.status
             self.eventHandler.onLog(message: "player status: \(status), change: \(change)")
@@ -192,7 +192,7 @@ class WrappedMediaPlayer {
         }
     }
 
-    private func setupPositionObserver(_ player: AVPlayer) {
+    private func setUpPositionObserver(_ player: AVPlayer) {
         let interval = toCMTime(millis: 200)
         let observer = player.addPeriodicTimeObserver(forInterval: interval, queue: nil) {
             [weak self] time in
@@ -201,7 +201,7 @@ class WrappedMediaPlayer {
         self.observers.append(TimeObserver(player: player, observer: observer))
     }
 
-    private func setupSoundCompletedObserver(_ player: AVPlayer, _ playerItem: AVPlayerItem) {
+    private func setUpSoundCompletedObserver(_ player: AVPlayer, _ playerItem: AVPlayerItem) {
         let observer = NotificationCenter.default.addObserver(
             forName: NSNotification.Name.AVPlayerItemDidPlayToEndTime,
             object: playerItem,
