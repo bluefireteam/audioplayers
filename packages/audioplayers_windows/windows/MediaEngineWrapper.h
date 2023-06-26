@@ -43,7 +43,7 @@ class MediaEngineWrapper : public winrt::implements<MediaEngineWrapper, IUnknown
     void Shutdown();
 
     // Control various aspects of playback
-    void StartPlayingFrom(uint64_t timeStamp);
+    void StartPlayingFrom(double timestampInSeconds);
     void Resume();
     void SetPlaybackRate(double playbackRate);
     void SetVolume(float volume);
@@ -52,12 +52,12 @@ class MediaEngineWrapper : public winrt::implements<MediaEngineWrapper, IUnknown
     void SeekTo(double timeStamp);
 
     // Query the current playback position
-    uint64_t GetMediaTime();
-    uint64_t GetDuration();
+    double GetMediaTime();
+    double GetDuration();
 
     bool GetLooping();
 
-    std::vector<std::tuple<uint64_t, uint64_t>> GetBufferedRanges();
+    std::vector<std::tuple<int64_t, int64_t>> GetBufferedRanges();
 
   private:
     wil::critical_section m_lock;

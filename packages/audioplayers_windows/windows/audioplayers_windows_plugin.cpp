@@ -14,10 +14,9 @@
 #include <map>
 #include <memory>
 #include <sstream>
-#include <stdlib.h>
-#include <inttypes.h>
 
 #include "audio_player.h"
+#include "audioplayers_helpers.h"
 
 namespace {
 
@@ -165,15 +164,16 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
         result->Success(EncodableValue(1));
     } else if (method_call.method_name().compare("stop") == 0) {
         player->Pause();
-        player->SeekTo(0.0);
+        player->SeekTo(0);
         result->Success(EncodableValue(1));
     } else if (method_call.method_name().compare("release") == 0) {
         player->Pause();
-        player->SeekTo(0.0);
+        player->SeekTo(0);
         result->Success(EncodableValue(1));
     } else if (method_call.method_name().compare("seek") == 0) {
-        auto position = GetArgument<double>("position", args, (double)(player->GetPosition()));
-        player->SeekTo(position);
+        auto positionInMs = GetArgument<int>("position", args,
+                                         (int)ConvertSecondsToMs(player->GetPosition()));
+        player->SeekTo(ConvertMsToSeconds(positionInMs));
         result->Success(EncodableValue(1));
     } else if (method_call.method_name().compare("setSourceUrl") == 0) {
         auto url = GetArgument<std::string>("url", args, std::string());
@@ -186,13 +186,13 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
         std::thread(&AudioPlayer::SetSourceUrl, player, url).detach();
         result->Success(EncodableValue(1));
     } else if (method_call.method_name().compare("getDuration") == 0) {
-        result->Success(EncodableValue(player->GetDuration()));
+        result->Success(EncodableValue(ConvertSecondsToMs(player->GetDuration())));
     } else if (method_call.method_name().compare("setVolume") == 0) {
         auto volume = GetArgument<double>("volume", args, 1.0);
         player->SetVolume(volume);
         result->Success(EncodableValue(1));
     } else if (method_call.method_name().compare("getCurrentPosition") == 0) {
-        result->Success(EncodableValue(player->GetPosition()));
+        result->Success(EncodableValue(ConvertSecondsToMs(player->GetPosition())));
     } else if (method_call.method_name().compare("setPlaybackRate") == 0) {
         auto playbackRate = GetArgument<double>("playbackRate", args, 1.0);
         player->SetPlaybackSpeed(playbackRate);

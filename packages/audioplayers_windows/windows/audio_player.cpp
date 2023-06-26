@@ -9,6 +9,8 @@
 #include <shobjidl.h>
 #include <windows.h>
 
+#include "audioplayers_helpers.h"
+
 #undef GetCurrentTime
 
 using namespace winrt;
@@ -145,7 +147,7 @@ void AudioPlayer::OnTimeUpdate() {
                   flutter::EncodableValue("audio.onCurrentPosition")},
                  {flutter::EncodableValue("value"),
                   flutter::EncodableValue(
-                      (int64_t)m_mediaEngineWrapper->GetMediaTime())}})));
+                      ConvertSecondsToMs(m_mediaEngineWrapper->GetMediaTime()))}})));
     }
 }
 
@@ -157,7 +159,7 @@ void AudioPlayer::OnDurationUpdate() {
                   flutter::EncodableValue("audio.onDuration")},
                  {flutter::EncodableValue("value"),
                   flutter::EncodableValue(
-                      (int64_t)m_mediaEngineWrapper->GetDuration())}})));
+                      ConvertSecondsToMs(m_mediaEngineWrapper->GetDuration()))}})));
     }
 }
 
@@ -234,11 +236,11 @@ void AudioPlayer::Resume() {
     OnDurationUpdate();
 }
 
-int64_t AudioPlayer::GetPosition() {
+double AudioPlayer::GetPosition() {
     return m_mediaEngineWrapper->GetMediaTime();
 }
 
-int64_t AudioPlayer::GetDuration() {
+double AudioPlayer::GetDuration() {
     return m_mediaEngineWrapper->GetDuration();
 }
 
