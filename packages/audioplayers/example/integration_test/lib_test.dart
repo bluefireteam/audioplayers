@@ -330,33 +330,21 @@ void main() {
   });
 
   group('Platform method channel', () {
-    testWidgets('#create and #dispose', (tester) async {
-      final platform = AudioplayersPlatformInterface.instance;
+    late AudioplayersPlatformInterface platform;
+    late String playerId;
 
-      final playerId = 'somePlayerId${isLinux ? linuxPlayerCount++ : ''}';
+    setUp(() async {
+      platform = AudioplayersPlatformInterface.instance;
+      playerId = 'somePlayerId${isLinux ? linuxPlayerCount++ : ''}';
       await platform.create(playerId);
-      await tester.pumpAndSettle();
-      await platform.dispose(playerId);
-
-      try {
-        // Call method after player has been released should throw a
-        // PlatformException
-        await platform.stop(playerId);
-        fail('PlatformException not thrown');
-      } on PlatformException catch (e) {
-        expect(
-          e.message,
-          'Player has not yet been created or has already been disposed.',
-        );
-      }
     });
 
-    testWidgets('#setSource #getPosition and #getDuration', (tester) async {
-      final platform = AudioplayersPlatformInterface.instance;
+    tearDown(() async {
+      // TODO(gustl22): move dispose method here
+    });
 
-      final playerId = 'somePlayerId${isLinux ? linuxPlayerCount++ : ''}';
-      await platform.create(playerId);
-
+    Future<void> prepareSource(WidgetTester tester,
+        {required LibSourceTestData testData}) async {
       final preparedCompleter = Completer<void>();
       final eventStream = platform.getEventStream(playerId);
       final onPreparedSub = eventStream
@@ -376,17 +364,36 @@ void main() {
       }
       await platform.setSourceUrl(
         playerId,
-        (wavUrl1TestData.source as UrlSource).url,
+        (testData.source as UrlSource).url,
       );
       await preparedCompleter.future.timeout(const Duration(seconds: 30));
+      await onPreparedSub.cancel();
+    }
 
+    testWidgets('#create and #dispose', (tester) async {
+      await tester.pumpAndSettle();
+      await platform.dispose(playerId);
+
+      try {
+        // Call method after player has been released should throw a
+        // PlatformException
+        await platform.stop(playerId);
+        fail('PlatformException not thrown');
+      } on PlatformException catch (e) {
+        expect(
+          e.message,
+          'Player has not yet been created or has already been disposed.',
+        );
+      }
+    });
+
+    testWidgets('#setSource #getPosition and #getDuration', (tester) async {
+      await prepareSource(tester, testData: wavUrl1TestData);
       expect(await platform.getCurrentPosition(playerId), 0);
       expect(
         await platform.getDuration(playerId),
         wavUrl1TestData.duration.inMilliseconds,
       );
-
-      await onPreparedSub.cancel();
       if (!isLinux) {
         // FIXME(gustl22): Linux not disposing properly (#1507)
         await platform.dispose(playerId);
@@ -394,11 +401,6 @@ void main() {
     });
 
     testWidgets('Set same source twice (#1520)', (tester) async {
-      final platform = AudioplayersPlatformInterface.instance;
-
-      final playerId = 'somePlayerId${isLinux ? linuxPlayerCount++ : ''}';
-      await platform.create(playerId);
-
       final eventStream = platform.getEventStream(playerId);
       for (var i = 0; i < 2; i++) {
         final preparedCompleter = Completer<void>();
