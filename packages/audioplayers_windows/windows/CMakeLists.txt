@@ -33,6 +33,7 @@ add_library(${PLUGIN_NAME} SHARED
   "audioplayers_windows_plugin.cpp"
   "audio_player.h"
   "audio_player.cpp"
+  "audioplayers_helpers.h"
   "event_stream_handler.h"
   "MediaEngineExtension.h"
   "MediaEngineExtension.cpp"

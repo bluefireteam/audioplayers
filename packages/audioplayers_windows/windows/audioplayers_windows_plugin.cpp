@@ -16,6 +16,7 @@
 #include <sstream>
 
 #include "audio_player.h"
+#include "audioplayers_helpers.h"
 
 namespace {
 
@@ -170,9 +171,9 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
         player->SeekTo(0);
         result->Success(EncodableValue(1));
     } else if (method_call.method_name().compare("seek") == 0) {
-        auto position = GetArgument<int>("position", args,
-                                         (int)(player->GetPosition() / 10000));
-        player->SeekTo(static_cast<int64_t>(position * 10000.0));
+        auto positionInMs = GetArgument<int>("position", args,
+                                         (int)ConvertSecondsToMs(player->GetPosition()));
+        player->SeekTo(ConvertMsToSeconds(positionInMs));
         result->Success(EncodableValue(1));
     } else if (method_call.method_name().compare("setSourceUrl") == 0) {
         auto url = GetArgument<std::string>("url", args, std::string());
@@ -185,13 +186,13 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
         std::thread(&AudioPlayer::SetSourceUrl, player, url).detach();
         result->Success(EncodableValue(1));
     } else if (method_call.method_name().compare("getDuration") == 0) {
-        result->Success(EncodableValue(player->GetDuration() / 10000));
+        result->Success(EncodableValue(ConvertSecondsToMs(player->GetDuration())));
     } else if (method_call.method_name().compare("setVolume") == 0) {
         auto volume = GetArgument<double>("volume", args, 1.0);
         player->SetVolume(volume);
         result->Success(EncodableValue(1));
     } else if (method_call.method_name().compare("getCurrentPosition") == 0) {
-        result->Success(EncodableValue(player->GetPosition() / 10000));
+        result->Success(EncodableValue(ConvertSecondsToMs(player->GetPosition())));
     } else if (method_call.method_name().compare("setPlaybackRate") == 0) {
         auto playbackRate = GetArgument<double>("playbackRate", args, 1.0);
         player->SetPlaybackSpeed(playbackRate);
