@@ -21,9 +21,16 @@ void main() {
   final isAndroid = !kIsWeb && Platform.isAndroid;
   final isLinux = !kIsWeb && Platform.isLinux;
 
+  // FIXME(gustl22): Cannot reuse event channel with same id on Linux (flutter/flutter#126209)
+  var linuxPlayerCount = 0;
+
   final wavUrl1TestData = LibSourceTestData(
     source: UrlSource(wavUrl1),
     duration: const Duration(milliseconds: 451),
+  );
+  final mp3Url1TestData = LibSourceTestData(
+    source: UrlSource(mp3Url1),
+    duration: const Duration(minutes: 3, seconds: 30, milliseconds: 77),
   );
   final audioTestDataList = [
     if (features.hasUrlSource) wavUrl1TestData,
@@ -32,11 +39,7 @@ void main() {
         source: UrlSource(wavUrl2),
         duration: const Duration(seconds: 1, milliseconds: 068),
       ),
-    if (features.hasUrlSource)
-      LibSourceTestData(
-        source: UrlSource(mp3Url1),
-        duration: const Duration(minutes: 3, seconds: 30, milliseconds: 77),
-      ),
+    if (features.hasUrlSource) mp3Url1TestData,
     if (features.hasUrlSource)
       LibSourceTestData(
         source: UrlSource(mp3Url2),
@@ -245,8 +248,7 @@ void main() {
     testWidgets('Emit platform log', (tester) async {
       final logCompleter = Completer<String>();
 
-      // FIXME(gustl22): Cannot reuse event channel with same id on Linux (flutter/flutter#126209)
-      final playerId = isLinux ? 'somePlayerId0' : 'somePlayerId';
+      final playerId = 'somePlayerId${isLinux ? linuxPlayerCount++ : ''}';
       final player = AudioPlayer(playerId: playerId);
       final onLogSub = player.onLog.listen(
         logCompleter.complete,
@@ -331,8 +333,7 @@ void main() {
     testWidgets('#create and #dispose', (tester) async {
       final platform = AudioplayersPlatformInterface.instance;
 
-      // FIXME(gustl22): Cannot reuse event channel with same id on Linux (flutter/flutter#126209)
-      final playerId = isLinux ? 'somePlayerId1' : 'somePlayerId';
+      final playerId = 'somePlayerId${isLinux ? linuxPlayerCount++ : ''}';
       await platform.create(playerId);
       await tester.pumpAndSettle();
       await platform.dispose(playerId);
@@ -353,8 +354,7 @@ void main() {
     testWidgets('#setSource #getPosition and #getDuration', (tester) async {
       final platform = AudioplayersPlatformInterface.instance;
 
-      // FIXME(gustl22): Cannot reuse event channel with same id on Linux (flutter/flutter#126209)
-      final playerId = isLinux ? 'somePlayerId2' : 'somePlayerId';
+      final playerId = 'somePlayerId${isLinux ? linuxPlayerCount++ : ''}';
       await platform.create(playerId);
 
       final preparedCompleter = Completer<void>();
@@ -392,10 +392,115 @@ void main() {
         await platform.dispose(playerId);
       }
     });
+
+    testWidgets('#seek with millisecond precision', (tester) async {
+      final platform = AudioplayersPlatformInterface.instance;
+
+      final playerId = 'somePlayerId${isLinux ? linuxPlayerCount++ : ''}';
+      await platform.create(playerId);
+
+      final preparedCompleter = Completer<void>();
+      final eventStream = platform.getEventStream(playerId);
+      final onPreparedSub = eventStream
+          .where((event) => event.eventType == AudioEventType.prepared)
+          .map((event) => event.isPrepared!)
+          .listen(
+        (isPrepared) {
+          if (isPrepared) {
+            preparedCompleter.complete();
+          }
+        },
+        onError: preparedCompleter.completeError,
+      );
+      if (isLinux) {
+        // FIXME(gustl22): Linux needs additional pump (#1507)
+        await tester.pump();
+      }
+      await platform.setSourceUrl(
+        playerId,
+        (mp3Url1TestData.source as UrlSource).url,
+      );
+      await preparedCompleter.future.timeout(const Duration(seconds: 30));
+
+      final seekCompleter = Completer<void>();
+      final onSeekSub = eventStream
+          .where((event) => event.eventType == AudioEventType.seekComplete)
+          .listen(
+        (_) {
+          seekCompleter.complete();
+        },
+        onError: seekCompleter.completeError,
+      );
+      await platform.seek(playerId, const Duration(milliseconds: 21));
+      await seekCompleter.future.timeout(const Duration(seconds: 30));
+      await onSeekSub.cancel();
+      expect(await platform.getCurrentPosition(playerId), 21);
+
+      await onPreparedSub.cancel();
+      if (!isLinux) {
+        // FIXME(gustl22): Linux not disposing properly (#1507)
+        await platform.dispose(playerId);
+      }
+    });
+
+    testWidgets('Set same source twice (#1520)', (tester) async {
+      final platform = AudioplayersPlatformInterface.instance;
+
+      final playerId = 'somePlayerId${isLinux ? linuxPlayerCount++ : ''}';
+      await platform.create(playerId);
+
+      final eventStream = platform.getEventStream(playerId);
+      for (var i = 0; i < 2; i++) {
+        final preparedCompleter = Completer<void>();
+        final onPreparedSub = eventStream
+            .where((event) => event.eventType == AudioEventType.prepared)
+            .map((event) => event.isPrepared!)
+            .listen(
+          (isPrepared) {
+            if (isPrepared) {
+              preparedCompleter.complete();
+            }
+          },
+          onError: preparedCompleter.completeError,
+        );
+        if (isLinux) {
+          // FIXME(gustl22): Linux needs additional pump (#1507)
+          await tester.pump();
+        }
+        await platform.setSourceUrl(
+          playerId,
+          (wavUrl1TestData.source as UrlSource).url,
+        );
+        await preparedCompleter.future.timeout(const Duration(seconds: 30));
+        await onPreparedSub.cancel();
+      }
+      if (!isLinux) {
+        // FIXME(gustl22): Linux not disposing properly (#1507)
+        await platform.dispose(playerId);
+      }
+    });
   });
 
   group('Platform event channel', () {
-    // TODO(gustl22): remove once https://github.com/flutter/flutter/issues/126209 is fixed
+    testWidgets('Listen and cancel twice', (tester) async {
+      final platform = AudioplayersPlatformInterface.instance;
+
+      final playerId = 'somePlayerId${isLinux ? linuxPlayerCount++ : ''}';
+      await platform.create(playerId);
+
+      final eventStream = platform.getEventStream(playerId);
+      for (var i = 0; i < 2; i++) {
+        final eventSub = eventStream.listen(null);
+        await eventSub.cancel();
+      }
+      if (!isLinux) {
+        // FIXME(gustl22): Linux not disposing properly (#1507)
+        await platform.dispose(playerId);
+      }
+    });
+
+    // TODO(gustl22): remove once https://github.com/flutter/flutter/issues/126209
+    // is fixed, as tests should cover the problem in flutter engine.
     testWidgets(
       'Reuse same platform event channel id',
       (tester) async {
@@ -425,8 +530,7 @@ void main() {
       final errorCompleter = Completer<Object>();
       final platform = AudioplayersPlatformInterface.instance;
 
-      // FIXME(gustl22): Cannot reuse event channel with same id on Linux (flutter/flutter#126209)
-      final playerId = isLinux ? 'somePlayerId3' : 'somePlayerId';
+      final playerId = 'somePlayerId${isLinux ? linuxPlayerCount++ : ''}';
       await platform.create(playerId);
 
       final eventStreamSub = platform

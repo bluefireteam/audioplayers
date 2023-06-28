@@ -1,0 +1,12 @@
+name: release
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  call-min-flutter-test:
+    uses: ./.github/workflows/test.yml
+    with:
+      flutter_version: '3.10.x'
+      fatal_warnings: false
