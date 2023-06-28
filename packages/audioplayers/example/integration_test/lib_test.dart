@@ -319,13 +319,13 @@ void main() {
     });
 
     tearDown(() async {
-      // TODO(gustl22): move dispose method here
+      await platform.dispose(playerId);
     });
 
     Future<void> prepareSource(WidgetTester tester,
         {required LibSourceTestData testData}) async {
-      final preparedCompleter = Completer<void>();
       final eventStream = platform.getEventStream(playerId);
+      final preparedCompleter = Completer<void>();
       final onPreparedSub = eventStream
           .where((event) => event.eventType == AudioEventType.prepared)
           .map((event) => event.isPrepared!)
@@ -364,6 +364,9 @@ void main() {
           'Player has not yet been created or has already been disposed.',
         );
       }
+
+      // Create player again, so it can be disposed in tearDown
+      await platform.create(playerId);
     });
 
     testWidgets('#setSource #getPosition and #getDuration', (tester) async {
@@ -373,12 +376,12 @@ void main() {
         await platform.getDuration(playerId),
         wavUrl1TestData.duration.inMilliseconds,
       );
-      await platform.dispose(playerId);
     });
 
     testWidgets('#seek with millisecond precision', (tester) async {
       await prepareSource(tester, testData: mp3Url1TestData);
-      
+
+      final eventStream = platform.getEventStream(playerId);
       final seekCompleter = Completer<void>();
       final onSeekSub = eventStream
           .where((event) => event.eventType == AudioEventType.seekComplete)
@@ -392,40 +395,39 @@ void main() {
       await seekCompleter.future.timeout(const Duration(seconds: 30));
       await onSeekSub.cancel();
       expect(await platform.getCurrentPosition(playerId), 21);
-
-      await platform.dispose(playerId);
     });
 
     testWidgets('Set same source twice (#1520)', (tester) async {
       for (var i = 0; i < 2; i++) {
         await prepareSource(tester, testData: wavUrl1TestData);
       }
-      await platform.dispose(playerId);
     });
   });
 
   group('Platform event channel', () {
-    testWidgets('Listen and cancel twice', (tester) async {
-      final platform = AudioplayersPlatformInterface.instance;
+    late AudioplayersPlatformInterface platform;
+    late String playerId;
 
-      const playerId = 'somePlayerId';
+    setUp(() async {
+      platform = AudioplayersPlatformInterface.instance;
+      playerId = 'somePlayerId';
       await platform.create(playerId);
+    });
 
+    tearDown(() async {
+      await platform.dispose(playerId);
+    });
+    
+    testWidgets('Listen and cancel twice', (tester) async {
       final eventStream = platform.getEventStream(playerId);
       for (var i = 0; i < 2; i++) {
         final eventSub = eventStream.listen(null);
         await eventSub.cancel();
       }
-      await platform.dispose(playerId);
     });
 
     testWidgets('Emit platform error', (tester) async {
       final errorCompleter = Completer<Object>();
-      final platform = AudioplayersPlatformInterface.instance;
-
-      const playerId = 'somePlayerId';
-      await platform.create(playerId);
-
       final eventStreamSub = platform
           .getEventStream(playerId)
           .listen((_) {}, onError: errorCompleter.complete);
@@ -442,12 +444,11 @@ void main() {
       expect(platformException.code, 'SomeErrorCode');
       expect(platformException.message, 'SomeErrorMessage');
       await eventStreamSub.cancel();
-      await platform.dispose(playerId);
     });
 
     testWidgets('Emit global platform error', (tester) async {
-      final errorCompleter = Completer<Object>();
       final global = GlobalAudioplayersPlatformInterface.instance;
+      final errorCompleter = Completer<Object>();
 
       /* final eventStreamSub = */
       global
