@@ -21,12 +21,13 @@ void main() {
   final isAndroid = !kIsWeb && Platform.isAndroid;
   final isLinux = !kIsWeb && Platform.isLinux;
 
-  // FIXME(gustl22): Cannot reuse event channel with same id on Linux (flutter/flutter#126209)
-  var linuxPlayerCount = 0;
-
   final wavUrl1TestData = LibSourceTestData(
     source: UrlSource(wavUrl1),
     duration: const Duration(milliseconds: 451),
+  );
+  final mp3Url1TestData = LibSourceTestData(
+    source: UrlSource(mp3Url1),
+    duration: const Duration(minutes: 3, seconds: 30, milliseconds: 77),
   );
   final audioTestDataList = [
     if (features.hasUrlSource) wavUrl1TestData,
@@ -35,11 +36,7 @@ void main() {
         source: UrlSource(wavUrl2),
         duration: const Duration(seconds: 1, milliseconds: 068),
       ),
-    if (features.hasUrlSource)
-      LibSourceTestData(
-        source: UrlSource(mp3Url1),
-        duration: const Duration(minutes: 3, seconds: 30, milliseconds: 77),
-      ),
+    if (features.hasUrlSource) mp3Url1TestData,
     if (features.hasUrlSource)
       LibSourceTestData(
         source: UrlSource(mp3Url2),
@@ -79,7 +76,7 @@ void main() {
         // Start all players simultaneously
         final iterator = List<int>.generate(audioTestDataList.length, (i) => i);
         if (isLinux) {
-          // FIXME(gustl22): Linux needs additional pump (#1507)
+          // FIXME(gustl22): Linux needs additional pump (#1556)
           await tester.pump();
         }
         await Future.wait<void>(
@@ -98,10 +95,7 @@ void main() {
           }
           await players[i].stop();
         }
-        if (!isLinux) {
-          // FIXME(gustl22): Linux not disposing properly (#1507)
-          await Future.wait(players.map((p) => p.dispose()));
-        }
+        await Future.wait(players.map((p) => p.dispose()));
       },
       // FIXME: Causes media error on Android (see #1333, #1353)
       // Unexpected platform error: MediaPlayer error with
@@ -116,7 +110,7 @@ void main() {
       for (var i = 0; i < audioTestDataList.length; i++) {
         final td = audioTestDataList[i];
         if (isLinux) {
-          // FIXME(gustl22): Linux needs additional pump (#1507)
+          // FIXME(gustl22): Linux needs additional pump (#1556)
           await tester.pump();
         }
         await player.play(td.source);
@@ -131,10 +125,7 @@ void main() {
         }
         await player.stop();
       }
-      if (!isLinux) {
-        // FIXME(gustl22): Linux not disposing properly (#1507)
-        await player.dispose();
-      }
+      await player.dispose();
     });
   });
 
@@ -161,7 +152,7 @@ void main() {
         await player.setAudioContext(audioContext);
 
         if (isLinux) {
-          // FIXME(gustl22): Linux needs additional pump (#1507)
+          // FIXME(gustl22): Linux needs additional pump (#1556)
           await tester.pump();
         }
         await player.play(td.source);
@@ -180,10 +171,7 @@ void main() {
         await tester.pumpAndSettle();
         await tester.pump(td.duration + const Duration(seconds: 8));
         expect(player.state, PlayerState.completed);
-        if (!isLinux) {
-          // FIXME(gustl22): Linux not disposing properly (#1507)
-          await player.dispose();
-        }
+        await player.dispose();
       },
       skip: !features.hasForceSpeaker,
     );
@@ -211,7 +199,7 @@ void main() {
         await player.setAudioContext(audioContext);
 
         if (isLinux) {
-          // FIXME(gustl22): Linux needs additional pump (#1507)
+          // FIXME(gustl22): Linux needs additional pump (#1556)
           await tester.pump();
         }
         await player.setSource(td.source);
@@ -235,10 +223,7 @@ void main() {
         expect(player.state, PlayerState.playing);
         await player.stop();
         expect(player.state, PlayerState.stopped);
-        if (!isLinux) {
-          // FIXME(gustl22): Linux not disposing properly (#1507)
-          await player.dispose();
-        }
+        await player.dispose();
       },
       skip: !features.hasForceSpeaker || !features.hasLowLatency,
     );
@@ -248,7 +233,7 @@ void main() {
     testWidgets('Emit platform log', (tester) async {
       final logCompleter = Completer<String>();
 
-      final playerId = 'somePlayerId${isLinux ? linuxPlayerCount++ : ''}';
+      const playerId = 'somePlayerId';
       final player = AudioPlayer(playerId: playerId);
       final onLogSub = player.onLog.listen(
         logCompleter.complete,
@@ -289,7 +274,7 @@ void main() {
         try {
           // Throws PlatformException via MethodChannel:
           if (isLinux) {
-            // FIXME(gustl22): Linux needs additional pump (#1507)
+            // FIXME(gustl22): Linux needs additional pump (#1556)
             await tester.pump();
           }
           await player.setSource(AssetSource(invalidAsset));
@@ -298,10 +283,7 @@ void main() {
         } catch (e) {
           expect(e, isInstanceOf<PlatformException>());
         }
-        if (!isLinux) {
-          // FIXME(gustl22): Linux not disposing properly (#1507)
-          await player.dispose();
-        }
+        await player.dispose();
       },
     );
 
@@ -312,7 +294,7 @@ void main() {
         try {
           // Throws PlatformException via MethodChannel:
           if (isLinux) {
-            // FIXME(gustl22): Linux needs additional pump (#1507)
+            // FIXME(gustl22): Linux needs additional pump (#1556)
             await tester.pump();
           }
           await player.setSource(UrlSource('non_existent.txt'));
@@ -321,10 +303,7 @@ void main() {
         } catch (e) {
           expect(e, isInstanceOf<PlatformException>());
         }
-        if (!isLinux) {
-          // FIXME(gustl22): Linux not disposing properly (#1507)
-          await player.dispose();
-        }
+        await player.dispose();
       },
     );
   });
@@ -335,7 +314,7 @@ void main() {
 
     setUp(() async {
       platform = AudioplayersPlatformInterface.instance;
-      playerId = 'somePlayerId${isLinux ? linuxPlayerCount++ : ''}';
+      playerId = 'somePlayerId';
       await platform.create(playerId);
     });
 
@@ -351,7 +330,7 @@ void main() {
           .where((event) => event.eventType == AudioEventType.prepared)
           .map((event) => event.isPrepared!)
           .listen(
-        (isPrepared) {
+            (isPrepared) {
           if (isPrepared) {
             preparedCompleter.complete();
           }
@@ -369,7 +348,7 @@ void main() {
       await preparedCompleter.future.timeout(const Duration(seconds: 30));
       await onPreparedSub.cancel();
     }
-
+    
     testWidgets('#create and #dispose', (tester) async {
       await tester.pumpAndSettle();
       await platform.dispose(playerId);
@@ -394,42 +373,34 @@ void main() {
         await platform.getDuration(playerId),
         wavUrl1TestData.duration.inMilliseconds,
       );
-      if (!isLinux) {
-        // FIXME(gustl22): Linux not disposing properly (#1507)
-        await platform.dispose(playerId);
-      }
+      await platform.dispose(playerId);
+    });
+
+    testWidgets('#seek with millisecond precision', (tester) async {
+      await prepareSource(tester, testData: mp3Url1TestData);
+      
+      final seekCompleter = Completer<void>();
+      final onSeekSub = eventStream
+          .where((event) => event.eventType == AudioEventType.seekComplete)
+          .listen(
+        (_) {
+          seekCompleter.complete();
+        },
+        onError: seekCompleter.completeError,
+      );
+      await platform.seek(playerId, const Duration(milliseconds: 21));
+      await seekCompleter.future.timeout(const Duration(seconds: 30));
+      await onSeekSub.cancel();
+      expect(await platform.getCurrentPosition(playerId), 21);
+
+      await platform.dispose(playerId);
     });
 
     testWidgets('Set same source twice (#1520)', (tester) async {
-      final eventStream = platform.getEventStream(playerId);
       for (var i = 0; i < 2; i++) {
-        final preparedCompleter = Completer<void>();
-        final onPreparedSub = eventStream
-            .where((event) => event.eventType == AudioEventType.prepared)
-            .map((event) => event.isPrepared!)
-            .listen(
-          (isPrepared) {
-            if (isPrepared) {
-              preparedCompleter.complete();
-            }
-          },
-          onError: preparedCompleter.completeError,
-        );
-        if (isLinux) {
-          // FIXME(gustl22): Linux needs additional pump (#1507)
-          await tester.pump();
-        }
-        await platform.setSourceUrl(
-          playerId,
-          (wavUrl1TestData.source as UrlSource).url,
-        );
-        await preparedCompleter.future.timeout(const Duration(seconds: 30));
-        await onPreparedSub.cancel();
+        await prepareSource(tester, testData: wavUrl1TestData);
       }
-      if (!isLinux) {
-        // FIXME(gustl22): Linux not disposing properly (#1507)
-        await platform.dispose(playerId);
-      }
+      await platform.dispose(playerId);
     });
   });
 
@@ -437,7 +408,7 @@ void main() {
     testWidgets('Listen and cancel twice', (tester) async {
       final platform = AudioplayersPlatformInterface.instance;
 
-      final playerId = 'somePlayerId${isLinux ? linuxPlayerCount++ : ''}';
+      const playerId = 'somePlayerId';
       await platform.create(playerId);
 
       final eventStream = platform.getEventStream(playerId);
@@ -445,44 +416,14 @@ void main() {
         final eventSub = eventStream.listen(null);
         await eventSub.cancel();
       }
-      if (!isLinux) {
-        // FIXME(gustl22): Linux not disposing properly (#1507)
-        await platform.dispose(playerId);
-      }
+      await platform.dispose(playerId);
     });
-
-    // TODO(gustl22): remove once https://github.com/flutter/flutter/issues/126209
-    // is fixed, as tests should cover the problem in flutter engine.
-    testWidgets(
-      'Reuse same platform event channel id',
-      (tester) async {
-        final platform = AudioplayersPlatformInterface.instance;
-
-        const playerId = 'somePlayerId';
-        await platform.create(playerId);
-
-        final eventStreamSub = platform.getEventStream(playerId).listen((_) {});
-
-        await eventStreamSub.cancel();
-        await platform.dispose(playerId);
-
-        // Recreate player with same player Id
-        await platform.create(playerId);
-
-        final eventStreamSub2 =
-            platform.getEventStream(playerId).listen((_) {});
-
-        await eventStreamSub2.cancel();
-        await platform.dispose(playerId);
-      },
-      skip: isLinux,
-    );
 
     testWidgets('Emit platform error', (tester) async {
       final errorCompleter = Completer<Object>();
       final platform = AudioplayersPlatformInterface.instance;
 
-      final playerId = 'somePlayerId${isLinux ? linuxPlayerCount++ : ''}';
+      const playerId = 'somePlayerId';
       await platform.create(playerId);
 
       final eventStreamSub = platform
