@@ -19,6 +19,7 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   final isAndroid = !kIsWeb && Platform.isAndroid;
+  final isLinux = !kIsWeb && Platform.isLinux;
 
   final wavUrl1TestData = LibSourceTestData(
     source: UrlSource(wavUrl1),
@@ -74,6 +75,10 @@ void main() {
 
         // Start all players simultaneously
         final iterator = List<int>.generate(audioTestDataList.length, (i) => i);
+        if (isLinux) {
+          // FIXME(gustl22): Linux needs additional pump (#1507)
+          await tester.pump();
+        }
         await Future.wait<void>(
           iterator.map((i) => players[i].play(audioTestDataList[i].source)),
         );
@@ -104,6 +109,10 @@ void main() {
 
       for (var i = 0; i < audioTestDataList.length; i++) {
         final td = audioTestDataList[i];
+        if (isLinux) {
+          // FIXME(gustl22): Linux needs additional pump (#1507)
+          await tester.pump();
+        }
         await player.play(td.source);
         await tester.pumpAndSettle();
         // Sources take some time to get initialized
@@ -142,6 +151,10 @@ void main() {
         await AudioPlayer.global.setAudioContext(audioContext);
         await player.setAudioContext(audioContext);
 
+        if (isLinux) {
+          // FIXME(gustl22): Linux needs additional pump (#1507)
+          await tester.pump();
+        }
         await player.play(td.source);
         await tester.pumpAndSettle();
         await tester.pump(td.duration + const Duration(seconds: 8));
@@ -185,6 +198,10 @@ void main() {
         await AudioPlayer.global.setAudioContext(audioContext);
         await player.setAudioContext(audioContext);
 
+        if (isLinux) {
+          // FIXME(gustl22): Linux needs additional pump (#1507)
+          await tester.pump();
+        }
         await player.setSource(td.source);
         await player.resume();
         await tester.pumpAndSettle();
@@ -256,6 +273,10 @@ void main() {
         final player = AudioPlayer();
         try {
           // Throws PlatformException via MethodChannel:
+          if (isLinux) {
+            // FIXME(gustl22): Linux needs additional pump (#1507)
+            await tester.pump();
+          }
           await player.setSource(AssetSource(invalidAsset));
           fail('PlatformException not thrown');
           // ignore: avoid_catches_without_on_clauses
@@ -272,6 +293,10 @@ void main() {
         final player = AudioPlayer();
         try {
           // Throws PlatformException via MethodChannel:
+          if (isLinux) {
+            // FIXME(gustl22): Linux needs additional pump (#1507)
+            await tester.pump();
+          }
           await player.setSource(UrlSource('non_existent.txt'));
           fail('PlatformException not thrown');
           // ignore: avoid_catches_without_on_clauses
@@ -324,6 +349,10 @@ void main() {
         },
         onError: preparedCompleter.completeError,
       );
+      if (isLinux) {
+        // FIXME(gustl22): Linux needs additional pump (#1507)
+        await tester.pump();
+      }
       await platform.setSourceUrl(
         playerId,
         (wavUrl1TestData.source as UrlSource).url,
@@ -359,6 +388,10 @@ void main() {
         },
         onError: preparedCompleter.completeError,
       );
+      if (isLinux) {
+        // FIXME(gustl22): Linux needs additional pump (#1507)
+        await tester.pump();
+      }
       await platform.setSourceUrl(
         playerId,
         (mp3Url1TestData.source as UrlSource).url,
@@ -403,6 +436,10 @@ void main() {
           },
           onError: preparedCompleter.completeError,
         );
+        if (isLinux) {
+          // FIXME(gustl22): Linux needs additional pump (#1507)
+          await tester.pump();
+        }
         await platform.setSourceUrl(
           playerId,
           (wavUrl1TestData.source as UrlSource).url,
