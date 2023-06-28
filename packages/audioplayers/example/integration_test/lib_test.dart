@@ -466,32 +466,6 @@ void main() {
       await platform.dispose(playerId);
     });
 
-    // TODO(gustl22): remove once https://github.com/flutter/flutter/issues/126209
-    // is fixed, as tests should cover the problem in flutter engine.
-    testWidgets(
-      'Reuse same platform event channel id',
-      (tester) async {
-        final platform = AudioplayersPlatformInterface.instance;
-
-        const playerId = 'somePlayerId';
-        await platform.create(playerId);
-
-        final eventStreamSub = platform.getEventStream(playerId).listen((_) {});
-
-        await eventStreamSub.cancel();
-        await platform.dispose(playerId);
-
-        // Recreate player with same player Id
-        await platform.create(playerId);
-
-        final eventStreamSub2 =
-            platform.getEventStream(playerId).listen((_) {});
-
-        await eventStreamSub2.cancel();
-        await platform.dispose(playerId);
-      },
-    );
-
     testWidgets('Emit platform error', (tester) async {
       final errorCompleter = Completer<Object>();
       final platform = AudioplayersPlatformInterface.instance;
