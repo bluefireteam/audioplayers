@@ -85,10 +85,7 @@ void main() {
       await platform.setGlobalAudioContext(const AudioContext());
       final call = popLastCall();
       expect(call.method, 'setAudioContext');
-      expect(call.args, {
-        'category': 'playback',
-        'options': []
-      });
+      expect(call.args, {'category': 'playback', 'options': []});
     });
   });
 
