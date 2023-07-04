@@ -109,9 +109,7 @@ class AudioContextIOS {
   // Note when changing the defaults, it should also be changed in native code.
   const AudioContextIOS({
     this.category = AVAudioSessionCategory.playback,
-    this.options = const [
-      AVAudioSessionOptions.mixWithOthers,
-    ],
+    this.options = const [],
   });
 
   AudioContextIOS copy({

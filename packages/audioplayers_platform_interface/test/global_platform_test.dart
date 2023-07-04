@@ -87,9 +87,7 @@ void main() {
       expect(call.method, 'setAudioContext');
       expect(call.args, {
         'category': 'playback',
-        'options': [
-          'mixWithOthers',
-        ]
+        'options': []
       });
     });
   });

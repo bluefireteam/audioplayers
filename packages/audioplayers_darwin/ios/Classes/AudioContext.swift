@@ -6,7 +6,7 @@ struct AudioContext {
 
     init() {
         self.category = .playback
-        self.options = [.mixWithOthers]
+        self.options = []
     }
 
     init(

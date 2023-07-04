@@ -124,8 +124,9 @@ class AudioContextConfig {
           : (forceSpeaker
               ? AVAudioSessionCategory.playAndRecord
               : AVAudioSessionCategory.playback),
-      options: [AVAudioSessionOptions.mixWithOthers] +
-          (duckAudio ? [AVAudioSessionOptions.duckOthers] : []) +
+      options: (duckAudio
+              ? [AVAudioSessionOptions.duckOthers]
+              : <AVAudioSessionOptions>[]) +
           (forceSpeaker ? [AVAudioSessionOptions.defaultToSpeaker] : []),
     );
   }
