@@ -74,7 +74,7 @@ class AudioContextConfig {
   final bool stayAwake;
 
   AudioContextConfig({
-    this.forceSpeaker = true,
+    this.forceSpeaker = false,
     this.duckAudio = false,
     this.respectSilence = false,
     this.stayAwake = true,

@@ -60,10 +60,11 @@ class AudioContextAndroid {
   final AndroidUsageType usageType;
   final AndroidAudioFocus audioFocus;
 
+  // Note when changing the defaults, it should also be changed in native code.
   const AudioContextAndroid({
-    this.isSpeakerphoneOn = true,
+    this.isSpeakerphoneOn = false,
     this.audioMode = AndroidAudioMode.normal,
-    this.stayAwake = true,
+    this.stayAwake = false,
     this.contentType = AndroidContentType.music,
     this.usageType = AndroidUsageType.media,
     this.audioFocus = AndroidAudioFocus.gain,
@@ -105,6 +106,7 @@ class AudioContextIOS {
   final AVAudioSessionCategory category;
   final List<AVAudioSessionOptions> options;
 
+  // Note when changing the defaults, it should also be changed in native code.
   const AudioContextIOS({
     this.category = AVAudioSessionCategory.playback,
     this.options = const [

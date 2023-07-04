@@ -27,6 +27,11 @@ void main() {
       globalPlatform.clear();
     });
 
+    /// Note that the [AudioContextIOS.category] has to be
+    /// [AVAudioSessionCategory.playback] to default the audio to the receiver
+    /// (e.g. built-in speakers or BT-device, if connected).
+    /// If using [AVAudioSessionCategory.playAndRecord] the audio will come from
+    /// the earpiece unless [AVAudioSessionOptions.defaultToSpeaker] is used.
     test('set AudioContext', () async {
       await globalScope.setAudioContext(const AudioContext());
       final call = globalPlatform.popLastCall();
@@ -35,9 +40,9 @@ void main() {
         call.value,
         const AudioContext(
           android: AudioContextAndroid(
-            isSpeakerphoneOn: true,
+            isSpeakerphoneOn: false,
             audioMode: AndroidAudioMode.normal,
-            stayAwake: true,
+            stayAwake: false,
             contentType: AndroidContentType.music,
             usageType: AndroidUsageType.media,
             audioFocus: AndroidAudioFocus.gain,

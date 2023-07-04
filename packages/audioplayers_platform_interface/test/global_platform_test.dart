@@ -71,9 +71,9 @@ void main() {
       final call = popLastCall();
       expect(call.method, 'setAudioContext');
       expect(call.args, {
-        'isSpeakerphoneOn': true,
+        'isSpeakerphoneOn': false,
         'audioMode': 0,
-        'stayAwake': true,
+        'stayAwake': false,
         'contentType': 2,
         'usageType': 1,
         'audioFocus': 1,
