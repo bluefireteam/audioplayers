@@ -156,6 +156,6 @@ enum AudioContextConfigRoute {
   /// * call `overrideOutputAudioPort(AVAudioSession.PortOverride.speaker)`
   ///
   /// Note that, on iOS, this forces the category to be `.playAndRecord`, and
-  /// thus is forbidden when [respectSilence] is set.
+  /// thus is forbidden when [AudioContextConfig.respectSilence] is set.
   speaker,
 }
