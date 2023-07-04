@@ -89,7 +89,6 @@ void main() {
         'category': 'playback',
         'options': [
           'mixWithOthers',
-          'defaultToSpeaker',
         ]
       });
     });

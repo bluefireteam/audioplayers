@@ -109,7 +109,6 @@ class AudioContextIOS {
     this.category = AVAudioSessionCategory.playback,
     this.options = const [
       AVAudioSessionOptions.mixWithOthers,
-      AVAudioSessionOptions.defaultToSpeaker
     ],
   });
 
@@ -394,34 +393,64 @@ enum AVAudioSessionCategory {
 enum AVAudioSessionOptions {
   /// An option that indicates whether audio from this session mixes with audio
   /// from active sessions in other audio apps.
+  /// You can set this option explicitly only if the audio session category is
+  /// `playAndRecord`, `playback`, or `multiRoute`.
+  /// If you set the audio session category to `ambient`, the session
+  /// automatically sets this option. Likewise, setting the `duckOthers` or
+  /// `interruptSpokenAudioAndMixWithOthers` options also enables this option.
+  /// See: https://developer.apple.com/documentation/avfaudio/avaudiosession/categoryoptions/1616611-mixwithothers
   mixWithOthers,
 
   /// An option that reduces the volume of other audio sessions while audio from
   /// this session plays.
+  /// You can set this option only if the audio session category is
+  /// `playAndRecord`, `playback`, or `multiRoute`.
+  /// Setting it implicitly sets the `mixWithOthers` option.
+  /// https://developer.apple.com/documentation/avfaudio/avaudiosession/categoryoptions/1616618-duckothers
   duckOthers,
 
   /// An option that determines whether to pause spoken audio content from other
   /// sessions when your app plays its audio.
+  /// You can set this option only if the audio session category is
+  /// `playAndRecord`, `playback`, or `multiRoute`. Setting this option also
+  /// sets `mixWithOthers`.
+  /// See: https://developer.apple.com/documentation/avfaudio/avaudiosession/categoryoptions/1616534-interruptspokenaudioandmixwithot
   interruptSpokenAudioAndMixWithOthers,
 
   /// An option that determines whether Bluetooth hands-free devices appear as
   /// available input routes.
+  /// You can set this option only if the audio session category is
+  /// `playAndRecord` or `record`.
+  /// See: https://developer.apple.com/documentation/avfaudio/avaudiosession/categoryoptions/1616518-allowbluetooth
   allowBluetooth,
 
   /// An option that determines whether you can stream audio from this session
   /// to Bluetooth devices that support the Advanced Audio Distribution Profile
   /// (A2DP).
+  /// The system automatically routes to A2DP ports if you configure an app’s
+  /// audio session to use the `ambient`, `soloAmbient`, or `playback`
+  /// categories.
+  /// See: https://developer.apple.com/documentation/avfaudio/avaudiosession/categoryoptions/1771735-allowbluetootha2dp
   allowBluetoothA2DP,
 
   /// An option that determines whether you can stream audio from this session
   /// to AirPlay devices.
+  /// You can only explicitly set this option if the audio session’s category is
+  /// set to `playAndRecord`.
+  /// See: https://developer.apple.com/documentation/avfaudio/avaudiosession/categoryoptions/1771736-allowairplay
   allowAirPlay,
 
   /// An option that determines whether audio from the session defaults to the
   /// built-in speaker instead of the receiver.
+  /// You can set this option only when using the `playAndRecord` category.
+  /// See: https://developer.apple.com/documentation/avfaudio/avaudiosession/categoryoptions/1616462-defaulttospeaker
   defaultToSpeaker,
 
   /// An option that indicates whether the system interrupts the audio session
   /// when it mutes the built-in microphone.
+  /// If your app uses an audio session category that supports input and output,
+  /// such as `playAndRecord`, you can set this option to disable the default
+  /// behavior and continue using the session.
+  /// See: https://developer.apple.com/documentation/avfaudio/avaudiosession/categoryoptions/3727255-overridemutedmicrophoneinterrupt
   overrideMutedMicrophoneInterruption,
 }

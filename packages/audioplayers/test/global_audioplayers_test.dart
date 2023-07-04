@@ -46,7 +46,6 @@ void main() {
             category: AVAudioSessionCategory.playback,
             options: [
               AVAudioSessionOptions.mixWithOthers,
-              AVAudioSessionOptions.defaultToSpeaker
             ],
           ),
         ),
