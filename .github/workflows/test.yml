@@ -270,7 +270,7 @@ jobs:
         with:
           # TODO: uncomment and change to `stable`, when flutter/flutter#129534 has been released.
           # flutter-version: ${{ inputs.flutter_version }}
-          channel: 'main'
+          channel: 'master'
       - uses: bluefireteam/melos-action@main
       - name: Install Flutter requirements for Linux
         run: |
