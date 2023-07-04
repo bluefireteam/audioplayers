@@ -170,7 +170,8 @@ void main() {
         expect(player.state, PlayerState.completed);
 
         audioContext = AudioContextConfig(
-          route: AudioContextConfigRoute.speaker,
+          //ignore: avoid_redundant_argument_values
+          route: AudioContextConfigRoute.system,
           respectSilence: true,
         ).build();
         await AudioPlayer.global.setAudioContext(audioContext);
@@ -223,7 +224,8 @@ void main() {
         expect(player.state, PlayerState.stopped);
 
         audioContext = AudioContextConfig(
-          route: AudioContextConfigRoute.speaker,
+          //ignore: avoid_redundant_argument_values
+          route: AudioContextConfigRoute.system,
           respectSilence: true,
         ).build();
         await AudioPlayer.global.setAudioContext(audioContext);
