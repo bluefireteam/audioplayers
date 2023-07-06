@@ -153,7 +153,7 @@ void main() {
 
         var audioContext = AudioContextConfig(
           //ignore: avoid_redundant_argument_values
-          forceSpeaker: true,
+          route: AudioContextConfigRoute.system,
           //ignore: avoid_redundant_argument_values
           respectSilence: false,
         ).build();
@@ -170,7 +170,8 @@ void main() {
         expect(player.state, PlayerState.completed);
 
         audioContext = AudioContextConfig(
-          forceSpeaker: false,
+          //ignore: avoid_redundant_argument_values
+          route: AudioContextConfigRoute.system,
           respectSilence: true,
         ).build();
         await AudioPlayer.global.setAudioContext(audioContext);
@@ -203,7 +204,7 @@ void main() {
 
         var audioContext = AudioContextConfig(
           //ignore: avoid_redundant_argument_values
-          forceSpeaker: true,
+          route: AudioContextConfigRoute.system,
           //ignore: avoid_redundant_argument_values
           respectSilence: false,
         ).build();
@@ -223,7 +224,8 @@ void main() {
         expect(player.state, PlayerState.stopped);
 
         audioContext = AudioContextConfig(
-          forceSpeaker: false,
+          //ignore: avoid_redundant_argument_values
+          route: AudioContextConfigRoute.system,
           respectSilence: true,
         ).build();
         await AudioPlayer.global.setAudioContext(audioContext);
