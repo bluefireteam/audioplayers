@@ -95,6 +95,10 @@ void main() {
           }
           await players[i].stop();
         }
+        if (isLinux) {
+          // FIXME(gustl22): Linux needs additional pump (#1556)
+          await tester.pump();
+        }
         await Future.wait(players.map((p) => p.dispose()));
       },
       // FIXME: Causes media error on Android (see #1333, #1353)
