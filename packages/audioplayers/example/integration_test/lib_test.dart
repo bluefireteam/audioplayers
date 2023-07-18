@@ -66,50 +66,36 @@ void main() {
       ),
   ];
 
-  print('A');
-
   group('play multiple sources', () {
     testWidgets(
       'play multiple sources simultaneously',
       (WidgetTester tester) async {
-        print('B');
         final players =
             List.generate(audioTestDataList.length, (_) => AudioPlayer());
 
-        print('C');
         // Start all players simultaneously
         final iterator = List<int>.generate(audioTestDataList.length, (i) => i);
         if (isLinux) {
           // FIXME(gustl22): Linux needs additional pump (#1556)
           await tester.pump();
         }
-        print('D');
         await Future.wait<void>(
           iterator.map((i) => players[i].play(audioTestDataList[i].source)),
         );
-
-        print('E');
         await tester.pumpAndSettle();
         // Sources take some time to get initialized
         await tester.pump(const Duration(seconds: 8));
-        print('F');
         for (var i = 0; i < audioTestDataList.length; i++) {
-          print('G$i');
           final td = audioTestDataList[i];
           if (td.isLiveStream || td.duration > const Duration(seconds: 10)) {
             await tester.pump();
-            print('H$i');
             final position = await players[i].getCurrentPosition();
             printWithTimeOnFailure('Test position: $td');
             expect(position, greaterThan(Duration.zero));
-            print('I$i');
           }
           await players[i].stop();
-          print('J$i');
         }
-        print('K');
         await Future.wait(players.map((p) => p.dispose()));
-        print('L');
       },
       // FIXME: Causes media error on Android (see #1333, #1353)
       // Unexpected platform error: MediaPlayer error with
@@ -119,11 +105,9 @@ void main() {
 
     testWidgets('play multiple sources consecutively',
         (WidgetTester tester) async {
-      print('M');
       final player = AudioPlayer();
 
       for (var i = 0; i < audioTestDataList.length; i++) {
-        print('N$i');
         final td = audioTestDataList[i];
         if (isLinux) {
           // FIXME(gustl22): Linux needs additional pump (#1556)
@@ -141,9 +125,7 @@ void main() {
         }
         await player.stop();
       }
-      print('O');
       await player.dispose();
-      print('P');
     });
   });
 
@@ -155,7 +137,6 @@ void main() {
     testWidgets(
       'test changing AudioContextConfigs',
       (WidgetTester tester) async {
-        print('Q');
         final player = AudioPlayer();
         await player.setReleaseMode(ReleaseMode.stop);
 
