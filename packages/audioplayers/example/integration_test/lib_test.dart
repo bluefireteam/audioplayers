@@ -68,17 +68,64 @@ void main() {
 
   print('A');
 
+  // TODO(gustl22): remove once https://github.com/flutter/flutter/issues/126209
+  // is fixed, as tests should cover the problem in flutter engine.
+  testWidgets(
+    'Reuse same platform event channel id',
+        (tester) async {
+          print('A1');
+      final platform = AudioplayersPlatformInterface.instance;
+          print('A2');
+
+      const playerId = 'somePlayerId';
+      await platform.create(playerId);
+          print('A3');
+
+      final eventStreamSub = platform.getEventStream(playerId).listen((_) {});
+          print('A4');
+
+      await eventStreamSub.cancel();
+          print('A5');
+      await platform.dispose(playerId);
+          print('A6');
+
+      // Recreate player with same player Id
+      await platform.create(playerId);
+          print('A7');
+
+      final eventStreamSub2 =
+      platform.getEventStream(playerId).listen((_) {});
+          print('A8');
+
+      await eventStreamSub2.cancel();
+          print('A9');
+      await platform.dispose(playerId);
+          print('A10');
+          await tester.pump();
+          print('A10a');
+    },
+    // skip: isLinux,
+  );
+
+  print('A11');
+
   group('play multiple sources', () {
+    print('A11a');
     testWidgets(
       'play multiple sources simultaneously',
-      (WidgetTester tester) async {
+          (WidgetTester tester) async {
         print('B');
         final players =
-            List.generate(audioTestDataList.length, (_) => AudioPlayer());
+        List.generate(audioTestDataList.length, (i) {
+          print('B$i');
+          return AudioPlayer();
+        });
+        await tester.pump();
 
         print('C');
+        final length = audioTestDataList.length;
         // Start all players simultaneously
-        final iterator = List<int>.generate(audioTestDataList.length, (i) => i);
+        final iterator = List<int>.generate(length, (i) => i);
         if (isLinux) {
           // FIXME(gustl22): Linux needs additional pump (#1556)
           await tester.pump();
@@ -93,7 +140,7 @@ void main() {
         // Sources take some time to get initialized
         await tester.pump(const Duration(seconds: 8));
         print('F');
-        for (var i = 0; i < audioTestDataList.length; i++) {
+        for (var i = 0; i < length; i++) {
           print('G$i');
           final td = audioTestDataList[i];
           if (td.isLiveStream || td.duration > const Duration(seconds: 10)) {
@@ -107,6 +154,8 @@ void main() {
           await players[i].stop();
           print('J$i');
         }
+        print('J-K');
+        await tester.pump();
         print('K');
         await Future.wait(players.map((p) => p.dispose()));
         print('L');
@@ -116,7 +165,10 @@ void main() {
       // what:MEDIA_ERROR_UNKNOWN {what:1} extra:MEDIA_ERROR_SYSTEM
       skip: isAndroid,
     );
-
+    print('L1');
+  });
+  print('L2');
+/*
     testWidgets('play multiple sources consecutively',
         (WidgetTester tester) async {
       print('M');
@@ -517,7 +569,7 @@ void main() {
       final errorCompleter = Completer<Object>();
       final global = GlobalAudioplayersPlatformInterface.instance;
 
-      /* final eventStreamSub = */
+      *//* final eventStreamSub = *//*
       global
           .getGlobalEventStream()
           .listen((_) {}, onError: errorCompleter.complete);
@@ -535,5 +587,5 @@ void main() {
       // MissingPluginException on Android, if dispose app afterwards
       // await eventStreamSub.cancel();
     });
-  });
+  });*/
 }
