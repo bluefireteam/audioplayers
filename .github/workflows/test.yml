@@ -271,14 +271,6 @@ jobs:
           # TODO: uncomment and change to `stable`, when flutter/flutter#129534 has been released.
           # flutter-version: ${{ inputs.flutter_version }}
           channel: 'master'
-      - run: flutter --version
-      - run: |
-          echo CACHE-PATH=${{ steps.flutter-action.outputs.CACHE-PATH }}
-          echo CACHE-KEY=${{ steps.flutter-action.outputs.CACHE-KEY }}
-          echo CHANNEL=${{ steps.flutter-action.outputs.CHANNEL }}
-          echo VERSION=${{ steps.flutter-action.outputs.VERSION }}
-          echo ARCHITECTURE=${{ steps.flutter-action.outputs.ARCHITECTURE }}
-        shell: bash
       - uses: bluefireteam/melos-action@main
       - name: Install Flutter requirements for Linux
         run: |
