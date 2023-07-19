@@ -422,7 +422,7 @@ void main() {
           },
           onError: preparedCompleter.completeError,
         );
-        tester.pumpLinux();
+        await tester.pumpLinux();
         await platform.setSourceUrl(
           playerId,
           (wavUrl1TestData.source as UrlSource).url,
@@ -430,6 +430,7 @@ void main() {
         await preparedCompleter.future.timeout(const Duration(seconds: 30));
         await onPreparedSub.cancel();
       }
+      await tester.pumpLinux();
       await platform.dispose(playerId);
     });
   });
@@ -446,6 +447,7 @@ void main() {
         final eventSub = eventStream.listen(null);
         await eventSub.cancel();
       }
+      await tester.pumpLinux();
       await platform.dispose(playerId);
     });
 
