@@ -19,7 +19,6 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   final isAndroid = !kIsWeb && Platform.isAndroid;
-  final isLinux = !kIsWeb && Platform.isLinux;
 
   final wavUrl1TestData = LibSourceTestData(
     source: UrlSource(wavUrl1),
@@ -75,10 +74,7 @@ void main() {
 
         // Start all players simultaneously
         final iterator = List<int>.generate(audioTestDataList.length, (i) => i);
-        if (isLinux) {
-          // FIXME(gustl22): Linux needs additional pump (#1556)
-          await tester.pump();
-        }
+        await tester.pumpLinux();
         await Future.wait<void>(
           iterator.map((i) => players[i].play(audioTestDataList[i].source)),
         );
@@ -94,6 +90,7 @@ void main() {
             expect(position, greaterThan(Duration.zero));
           }
           await players[i].stop();
+          await tester.pumpLinux();
         }
         await Future.wait(players.map((p) => p.dispose()));
       },
@@ -109,10 +106,7 @@ void main() {
 
       for (var i = 0; i < audioTestDataList.length; i++) {
         final td = audioTestDataList[i];
-        if (isLinux) {
-          // FIXME(gustl22): Linux needs additional pump (#1556)
-          await tester.pump();
-        }
+        await tester.pumpLinux();
         await player.play(td.source);
         await tester.pumpAndSettle();
         // Sources take some time to get initialized
@@ -125,6 +119,7 @@ void main() {
         }
         await player.stop();
       }
+      await tester.pumpLinux();
       await player.dispose();
     });
   });
@@ -144,24 +139,22 @@ void main() {
 
         var audioContext = AudioContextConfig(
           //ignore: avoid_redundant_argument_values
-          forceSpeaker: true,
+          route: AudioContextConfigRoute.system,
           //ignore: avoid_redundant_argument_values
           respectSilence: false,
         ).build();
         await AudioPlayer.global.setAudioContext(audioContext);
         await player.setAudioContext(audioContext);
 
-        if (isLinux) {
-          // FIXME(gustl22): Linux needs additional pump (#1556)
-          await tester.pump();
-        }
+        await tester.pumpLinux();
         await player.play(td.source);
         await tester.pumpAndSettle();
         await tester.pump(td.duration + const Duration(seconds: 8));
         expect(player.state, PlayerState.completed);
 
         audioContext = AudioContextConfig(
-          forceSpeaker: false,
+          //ignore: avoid_redundant_argument_values
+          route: AudioContextConfigRoute.system,
           respectSilence: true,
         ).build();
         await AudioPlayer.global.setAudioContext(audioContext);
@@ -171,6 +164,7 @@ void main() {
         await tester.pumpAndSettle();
         await tester.pump(td.duration + const Duration(seconds: 8));
         expect(player.state, PlayerState.completed);
+        await tester.pumpLinux();
         await player.dispose();
       },
       skip: !features.hasForceSpeaker,
@@ -191,17 +185,14 @@ void main() {
 
         var audioContext = AudioContextConfig(
           //ignore: avoid_redundant_argument_values
-          forceSpeaker: true,
+          route: AudioContextConfigRoute.system,
           //ignore: avoid_redundant_argument_values
           respectSilence: false,
         ).build();
         await AudioPlayer.global.setAudioContext(audioContext);
         await player.setAudioContext(audioContext);
 
-        if (isLinux) {
-          // FIXME(gustl22): Linux needs additional pump (#1556)
-          await tester.pump();
-        }
+        await tester.pumpLinux();
         await player.setSource(td.source);
         await player.resume();
         await tester.pumpAndSettle();
@@ -211,7 +202,8 @@ void main() {
         expect(player.state, PlayerState.stopped);
 
         audioContext = AudioContextConfig(
-          forceSpeaker: false,
+          //ignore: avoid_redundant_argument_values
+          route: AudioContextConfigRoute.system,
           respectSilence: true,
         ).build();
         await AudioPlayer.global.setAudioContext(audioContext);
@@ -223,6 +215,7 @@ void main() {
         expect(player.state, PlayerState.playing);
         await player.stop();
         expect(player.state, PlayerState.stopped);
+        await tester.pumpLinux();
         await player.dispose();
       },
       skip: !features.hasForceSpeaker || !features.hasLowLatency,
@@ -247,6 +240,7 @@ void main() {
       final log = await logCompleter.future;
       expect(log, 'SomeLog');
       await onLogSub.cancel();
+      await tester.pumpLinux();
       await player.dispose();
     });
 
@@ -272,17 +266,15 @@ void main() {
       (tester) async {
         final player = AudioPlayer();
         try {
+          await tester.pumpLinux();
           // Throws PlatformException via MethodChannel:
-          if (isLinux) {
-            // FIXME(gustl22): Linux needs additional pump (#1556)
-            await tester.pump();
-          }
           await player.setSource(AssetSource(invalidAsset));
           fail('PlatformException not thrown');
           // ignore: avoid_catches_without_on_clauses
         } catch (e) {
           expect(e, isInstanceOf<PlatformException>());
         }
+        await tester.pumpLinux();
         await player.dispose();
       },
     );
@@ -292,17 +284,15 @@ void main() {
       (tester) async {
         final player = AudioPlayer();
         try {
+          await tester.pumpLinux();
           // Throws PlatformException via MethodChannel:
-          if (isLinux) {
-            // FIXME(gustl22): Linux needs additional pump (#1556)
-            await tester.pump();
-          }
           await player.setSource(UrlSource('non_existent.txt'));
           fail('PlatformException not thrown');
           // ignore: avoid_catches_without_on_clauses
         } catch (e) {
           expect(e, isInstanceOf<PlatformException>());
         }
+        await tester.pumpLinux();
         await player.dispose();
       },
     );
@@ -337,10 +327,7 @@ void main() {
         },
         onError: preparedCompleter.completeError,
       );
-      if (isLinux) {
-        // FIXME(gustl22): Linux needs additional pump (#1507)
-        await tester.pump();
-      }
+      await tester.pumpLinux();
       await platform.setSourceUrl(
         playerId,
         (testData.source as UrlSource).url,
@@ -348,7 +335,7 @@ void main() {
       await preparedCompleter.future.timeout(const Duration(seconds: 30));
       await onPreparedSub.cancel();
     }
-    
+
     testWidgets('#create and #dispose', (tester) async {
       await tester.pumpAndSettle();
       await platform.dispose(playerId);
@@ -367,6 +354,7 @@ void main() {
 
       // Create player again, so it can be disposed in tearDown
       await platform.create(playerId);
+      await tester.pumpLinux();
     });
 
     testWidgets('#setSource #getPosition and #getDuration', (tester) async {
@@ -386,7 +374,7 @@ void main() {
       final onSeekSub = eventStream
           .where((event) => event.eventType == AudioEventType.seekComplete)
           .listen(
-        (_) {
+            (_) {
           seekCompleter.complete();
         },
         onError: seekCompleter.completeError,
@@ -395,12 +383,14 @@ void main() {
       await seekCompleter.future.timeout(const Duration(seconds: 30));
       await onSeekSub.cancel();
       expect(await platform.getCurrentPosition(playerId), 21);
+      await tester.pumpLinux();
     });
 
     testWidgets('Set same source twice (#1520)', (tester) async {
       for (var i = 0; i < 2; i++) {
         await prepareSource(tester, testData: wavUrl1TestData);
       }
+      await tester.pumpLinux();
     });
   });
 
@@ -417,13 +407,14 @@ void main() {
     tearDown(() async {
       await platform.dispose(playerId);
     });
-    
+
     testWidgets('Listen and cancel twice', (tester) async {
       final eventStream = platform.getEventStream(playerId);
       for (var i = 0; i < 2; i++) {
         final eventSub = eventStream.listen(null);
         await eventSub.cancel();
       }
+      await tester.pumpLinux();
     });
 
     testWidgets('Emit platform error', (tester) async {
@@ -444,6 +435,7 @@ void main() {
       expect(platformException.code, 'SomeErrorCode');
       expect(platformException.message, 'SomeErrorMessage');
       await eventStreamSub.cancel();
+      await tester.pumpLinux();
     });
 
     testWidgets('Emit global platform error', (tester) async {
@@ -469,4 +461,13 @@ void main() {
       // await eventStreamSub.cancel();
     });
   });
+}
+
+extension on WidgetTester {
+  Future<void> pumpLinux() async {
+    if (!kIsWeb && Platform.isLinux) {
+      // FIXME(gustl22): Linux needs additional pump (#1556)
+      await pump();
+    }
+  }
 }
