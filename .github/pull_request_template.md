@@ -10,7 +10,8 @@ changed. -->
 <!-- Before you create this PR confirm that it meets all requirements listed below by checking the
 relevant checkboxes (`[x]`). This will ensure a smooth and quick review process. -->
 
-- [ ] The title of my PR starts with a [Conventional Commit] prefix (`fix:`, `feat:`, `docs:`, `chore:` etc).
+- [ ] The title of my PR starts with a [Conventional Commit] prefix (`fix:`, `feat:`, `refactor:`,
+      `docs:`, `chore:`, `test:`, `ci:` etc).
 - [ ] I have read the [Contributor Guide] and followed the process outlined for submitting PRs.
 - [ ] I have updated/added tests for ALL new/updated/fixed functionality.
 - [ ] I have updated/added relevant documentation and added dartdoc comments with `///`, where necessary.
@@ -21,13 +22,16 @@ relevant checkboxes (`[x]`). This will ensure a smooth and quick review process.
 <!-- Does your PR require audioplayers users to manually update their apps to accommodate your change? 
 
 If the PR is a breaking change this should be indicated with suffix "!" 
-(for example, `feat!:`, `fix!:`). See [Conventional Commit] for details.
--->
+(for example, `feat!:`, `fix!:`). See [Conventional Commit] for details. -->
 
 - [ ] Yes, this is a breaking change.
 - [ ] No, this is *not* a breaking change.
 
-<!-- ### Migration instructions
+<!-- If the PR is breaking, uncomment following section and add instructions for how to migrate from
+the currently released version to the new proposed way. -->
+
+<!--
+### Migration instructions
 
 Before:
 ```
@@ -36,9 +40,6 @@ Before:
 After:
 ```
 ```
-
-If the PR is breaking, uncomment this header and add instructions for how to migrate from the
-currently released version to the new proposed way.
 -->
 
 ## Related Issues
