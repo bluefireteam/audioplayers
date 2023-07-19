@@ -65,19 +65,25 @@ void main() {
       ),
   ];
 
+  print('A');
+
   group('play multiple sources', () {
     testWidgets(
       'play multiple sources simultaneously',
       (WidgetTester tester) async {
+        print('A1');
         final players =
             List.generate(audioTestDataList.length, (_) => AudioPlayer());
+        print('A2');
 
         // Start all players simultaneously
         final iterator = List<int>.generate(audioTestDataList.length, (i) => i);
+        print('A3');
         await tester.pumpLinux();
         await Future.wait<void>(
           iterator.map((i) => players[i].play(audioTestDataList[i].source)),
         );
+        print('A4');
         await tester.pumpAndSettle();
         // Sources take some time to get initialized
         await tester.pump(const Duration(seconds: 8));
@@ -89,16 +95,21 @@ void main() {
             printWithTimeOnFailure('Test position: $td');
             expect(position, greaterThan(Duration.zero));
           }
+          print('A5-$i');
           await players[i].stop();
         }
+        print('A6');
         await tester.pumpLinux();
+        print('A7');
         await Future.wait(players.map((p) => p.dispose()));
+        print('A8');
       },
       // FIXME: Causes media error on Android (see #1333, #1353)
       // Unexpected platform error: MediaPlayer error with
       // what:MEDIA_ERROR_UNKNOWN {what:1} extra:MEDIA_ERROR_SYSTEM
       skip: isAndroid,
     );
+    print('B');
 
     testWidgets('play multiple sources consecutively',
         (WidgetTester tester) async {
@@ -132,6 +143,7 @@ void main() {
     testWidgets(
       'test changing AudioContextConfigs',
       (WidgetTester tester) async {
+        print('C');
         final player = AudioPlayer();
         await player.setReleaseMode(ReleaseMode.stop);
 
@@ -177,6 +189,7 @@ void main() {
     testWidgets(
       'test changing AudioContextConfigs in LOW_LATENCY mode',
       (WidgetTester tester) async {
+        print('D');
         final player = AudioPlayer();
         await player.setReleaseMode(ReleaseMode.stop);
         player.setPlayerMode(PlayerMode.lowLatency);
@@ -224,6 +237,7 @@ void main() {
 
   group('Logging', () {
     testWidgets('Emit platform log', (tester) async {
+      print('E');
       final logCompleter = Completer<String>();
 
       const playerId = 'somePlayerId';
@@ -245,6 +259,7 @@ void main() {
     });
 
     testWidgets('Emit global platform log', (tester) async {
+      print('F');
       final completer = Completer<String>();
       final eventStreamSub = AudioPlayer.global.onLog.listen(
         completer.complete,
@@ -264,6 +279,7 @@ void main() {
     testWidgets(
       'Throw PlatformException, when loading invalid file',
       (tester) async {
+        print('G');
         final player = AudioPlayer();
         try {
           await tester.pumpLinux();
@@ -282,6 +298,7 @@ void main() {
     testWidgets(
       'Throw PlatformException, when loading non existent file',
       (tester) async {
+        print('H');
         final player = AudioPlayer();
         try {
           await tester.pumpLinux();
@@ -300,6 +317,7 @@ void main() {
 
   group('Platform method channel', () {
     testWidgets('#create and #dispose', (tester) async {
+      print('J');
       final platform = AudioplayersPlatformInterface.instance;
 
       const playerId = 'somePlayerId';
@@ -321,6 +339,7 @@ void main() {
     });
 
     testWidgets('#setSource #getPosition and #getDuration', (tester) async {
+      print('K');
       final platform = AudioplayersPlatformInterface.instance;
 
       const playerId = 'somePlayerId';
@@ -358,6 +377,7 @@ void main() {
     });
 
     testWidgets('#seek with millisecond precision', (tester) async {
+      print('L');
       final platform = AudioplayersPlatformInterface.instance;
 
       const playerId = 'somePlayerId';
@@ -403,6 +423,7 @@ void main() {
     });
 
     testWidgets('Set same source twice (#1520)', (tester) async {
+      print('M');
       final platform = AudioplayersPlatformInterface.instance;
 
       const playerId = 'somePlayerId';
@@ -437,6 +458,7 @@ void main() {
 
   group('Platform event channel', () {
     testWidgets('Listen and cancel twice', (tester) async {
+      print('N');
       final platform = AudioplayersPlatformInterface.instance;
 
       const playerId = 'somePlayerId';
@@ -452,6 +474,7 @@ void main() {
     });
 
     testWidgets('Emit platform error', (tester) async {
+      print('O');
       final errorCompleter = Completer<Object>();
       final platform = AudioplayersPlatformInterface.instance;
 
@@ -479,6 +502,7 @@ void main() {
     });
 
     testWidgets('Emit global platform error', (tester) async {
+      print('P');
       final errorCompleter = Completer<Object>();
       final global = GlobalAudioplayersPlatformInterface.instance;
 
@@ -501,6 +525,8 @@ void main() {
       // await eventStreamSub.cancel();
     });
   });
+
+  print('Z');
 }
 
 extension on WidgetTester {
