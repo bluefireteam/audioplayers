@@ -27,7 +27,7 @@ If the PR is a breaking change this should be indicated with suffix "!"
 - [ ] Yes, this is a breaking change.
 - [ ] No, this is *not* a breaking change.
 
-<!-- If the PR is breaking, uncomment following section and add instructions for how to migrate from
+<!-- If the PR is breaking, uncomment the following section and add instructions for how to migrate from
 the currently released version to the new proposed way. -->
 
 <!--
