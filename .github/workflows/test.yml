@@ -247,9 +247,10 @@ jobs:
       - name: Install virtual audio device
         shell: powershell
         run: |
+          New-ItemProperty -Path "HKLM:SYSTEM\CurrentControlSet\Control\CI\Policy" -Name "UpgradedSystem" -Value "00000001" -PropertyType "dword"
           Invoke-WebRequest https://github.com/duncanthrax/scream/releases/download/4.0/Scream4.0.zip -OutFile Scream.zip
           Expand-Archive -Path Scream.zip -DestinationPath Scream
-          Import-Certificate -FilePath Scream\Install\driver\x64\Scream.cat -CertStoreLocation Cert:\LocalMachine\TrustedPublisher 
+          Import-Certificate -FilePath Scream\Install\driver\x64\Scream.cat -CertStoreLocation Cert:\LocalMachine\TrustedPublisher
           Scream\Install\helpers\devcon-x64.exe install Scream\Install\driver\x64\Scream.inf *Scream
       - name: Run Flutter integration tests
         shell: powershell
