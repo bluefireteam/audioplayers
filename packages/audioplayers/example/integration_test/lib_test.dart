@@ -320,7 +320,7 @@ void main() {
           .where((event) => event.eventType == AudioEventType.prepared)
           .map((event) => event.isPrepared!)
           .listen(
-            (isPrepared) {
+        (isPrepared) {
           if (isPrepared) {
             preparedCompleter.complete();
           }
@@ -374,7 +374,7 @@ void main() {
       final onSeekSub = eventStream
           .where((event) => event.eventType == AudioEventType.seekComplete)
           .listen(
-            (_) {
+        (_) {
           seekCompleter.complete();
         },
         onError: seekCompleter.completeError,
