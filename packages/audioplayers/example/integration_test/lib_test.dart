@@ -99,10 +99,10 @@ void main() {
           await players[i].stop();
         }
         print('A7');
+        await tester.pumpLinux();
+        print('A8');
         await Future.wait(players.map((p) => p.dispose()));
         print('A9');
-        await tester.pumpLinux();
-        print('A10');
       },
       // FIXME: Causes media error on Android (see #1333, #1353)
       // Unexpected platform error: MediaPlayer error with
