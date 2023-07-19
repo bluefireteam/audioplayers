@@ -233,7 +233,7 @@ jobs:
   windows:
     runs-on: windows-latest
     timeout-minutes: 30
-    if: inputs.enable_windows
+    if: false # FIXME(gustl22): Revert to "inputs.enable_windows" when virtual audio device can be installed (#1573)
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
