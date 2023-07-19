@@ -90,8 +90,8 @@ void main() {
             expect(position, greaterThan(Duration.zero));
           }
           await players[i].stop();
+          await tester.pumpLinux();
         }
-        await tester.pumpLinux();
         await Future.wait(players.map((p) => p.dispose()));
       },
       // FIXME: Causes media error on Android (see #1333, #1353)
