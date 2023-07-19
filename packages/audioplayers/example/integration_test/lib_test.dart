@@ -97,11 +97,11 @@ void main() {
           }
           print('A5-$i');
           await players[i].stop();
-          print('A6-$i');
-          await tester.pumpLinux();
         }
-        print('A8');
+        print('A7');
         await Future.wait(players.map((p) => p.dispose()));
+        print('A9');
+        await tester.pumpLinux();
         print('A10');
       },
       // FIXME: Causes media error on Android (see #1333, #1353)
