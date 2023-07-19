@@ -97,22 +97,26 @@ void main() {
           }
           print('A5-$i');
           await players[i].stop();
+          print('A6-$i');
+          await tester.pumpLinux();
         }
-        print('A6');
-        await tester.pumpLinux();
         print('A7');
-        await Future.wait(players.map((p) => p.dispose()));
+        await tester.pumpLinux();
         print('A8');
+        await Future.wait(players.map((p) => p.dispose()));
+        print('A9');
+        await tester.pumpLinux();
+        print('A10');
       },
       // FIXME: Causes media error on Android (see #1333, #1353)
       // Unexpected platform error: MediaPlayer error with
       // what:MEDIA_ERROR_UNKNOWN {what:1} extra:MEDIA_ERROR_SYSTEM
       skip: isAndroid,
     );
-    print('B');
 
     testWidgets('play multiple sources consecutively',
         (WidgetTester tester) async {
+          print('B');
       final player = AudioPlayer();
 
       for (var i = 0; i < audioTestDataList.length; i++) {
