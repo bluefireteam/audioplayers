@@ -16,18 +16,9 @@ import 'package:flutter/foundation.dart';
 class AudioContextConfig {
   /// Normally, audio played will respect the devices configured preferences.
   /// However, if you want to bypass that and flag the system to use the
-  /// built-in speakers, you can set this flag.
-  ///
-  /// On android, it will set `audioManager.isSpeakerphoneOn`.
-  ///
-  /// On iOS, it will either:
-  ///
-  /// * set the `.defaultToSpeaker` option OR
-  /// * call `overrideOutputAudioPort(AVAudioSession.PortOverride.speaker)`
-  ///
-  /// Note that, on iOS, this forces the category to be `.playAndRecord`, and
-  /// thus is forbidden when [respectSilence] is set.
-  final bool forceSpeaker;
+  /// built-in speakers or the earpiece, you can set this flag.
+  /// See [AudioContextConfigRoute] for more details on the options.
+  final AudioContextConfigRoute route;
 
   /// This flag determines how your audio interacts with other audio playing on
   /// the device.
@@ -74,20 +65,20 @@ class AudioContextConfig {
   final bool stayAwake;
 
   AudioContextConfig({
-    this.forceSpeaker = true,
+    this.route = AudioContextConfigRoute.system,
     this.duckAudio = false,
     this.respectSilence = false,
-    this.stayAwake = true,
+    this.stayAwake = false,
   });
 
   AudioContextConfig copy({
-    bool? forceSpeaker,
+    AudioContextConfigRoute? route,
     bool? duckAudio,
     bool? respectSilence,
     bool? stayAwake,
   }) {
     return AudioContextConfig(
-      forceSpeaker: forceSpeaker ?? this.forceSpeaker,
+      route: route ?? this.route,
       duckAudio: duckAudio ?? this.duckAudio,
       respectSilence: respectSilence ?? this.respectSilence,
       stayAwake: stayAwake ?? this.stayAwake,
@@ -103,11 +94,13 @@ class AudioContextConfig {
 
   AudioContextAndroid buildAndroid() {
     return AudioContextAndroid(
-      isSpeakerphoneOn: forceSpeaker,
+      isSpeakerphoneOn: route == AudioContextConfigRoute.speaker,
       stayAwake: stayAwake,
       usageType: respectSilence
           ? AndroidUsageType.notificationRingtone
-          : AndroidUsageType.media,
+          : (route == AudioContextConfigRoute.earpiece
+              ? AndroidUsageType.voiceCommunication
+              : AndroidUsageType.media),
       audioFocus: duckAudio
           ? AndroidAudioFocus.gainTransientMayDuck
           : AndroidAudioFocus.gain,
@@ -121,19 +114,48 @@ class AudioContextConfig {
     return AudioContextIOS(
       category: respectSilence
           ? AVAudioSessionCategory.ambient
-          : AVAudioSessionCategory.playback,
-      options: [AVAudioSessionOptions.mixWithOthers] +
-          (duckAudio ? [AVAudioSessionOptions.duckOthers] : []) +
-          (forceSpeaker ? [AVAudioSessionOptions.defaultToSpeaker] : []),
+          : (route == AudioContextConfigRoute.speaker
+              ? AVAudioSessionCategory.playAndRecord
+              : (route == AudioContextConfigRoute.earpiece
+                  ? AVAudioSessionCategory.playAndRecord
+                  : AVAudioSessionCategory.playback)),
+      options: (duckAudio
+              ? [AVAudioSessionOptions.duckOthers]
+              : <AVAudioSessionOptions>[]) +
+          (route == AudioContextConfigRoute.speaker
+              ? [AVAudioSessionOptions.defaultToSpeaker]
+              : []),
     );
   }
 
   void validateIOS() {
     // Please create a custom [AudioContextIOS] if the generic flags cannot
     // represent your needs.
-    if (respectSilence && forceSpeaker) {
+    if (respectSilence && route == AudioContextConfigRoute.speaker) {
       throw 'On iOS it is impossible to set both respectSilence and '
           'forceSpeaker';
     }
   }
+}
+
+enum AudioContextConfigRoute {
+  /// Use the system's default route. This can be e.g. the built-in speaker, the
+  /// earpiece, or a bluetooth device.
+  system,
+
+  /// On android, it will set `AndroidUsageType.voiceCommunication`.
+  ///
+  /// On iOS, it will set `AVAudioSessionCategory.playAndRecord`.
+  earpiece,
+
+  /// On android, it will set `audioManager.isSpeakerphoneOn`.
+  ///
+  /// On iOS, it will either:
+  ///
+  /// * set the `.defaultToSpeaker` option OR
+  /// * call `overrideOutputAudioPort(AVAudioSession.PortOverride.speaker)`
+  ///
+  /// Note that, on iOS, this forces the category to be `.playAndRecord`, and
+  /// thus is forbidden when [AudioContextConfig.respectSilence] is set.
+  speaker,
 }

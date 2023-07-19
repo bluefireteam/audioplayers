@@ -28,6 +28,10 @@ void main() {
     source: UrlSource(wavUrl1),
     duration: const Duration(milliseconds: 451),
   );
+  final mp3Url1TestData = LibSourceTestData(
+    source: UrlSource(mp3Url1),
+    duration: const Duration(minutes: 3, seconds: 30, milliseconds: 77),
+  );
   final audioTestDataList = [
     if (features.hasUrlSource) wavUrl1TestData,
     if (features.hasUrlSource)
@@ -35,11 +39,7 @@ void main() {
         source: UrlSource(wavUrl2),
         duration: const Duration(seconds: 1, milliseconds: 068),
       ),
-    if (features.hasUrlSource)
-      LibSourceTestData(
-        source: UrlSource(mp3Url1),
-        duration: const Duration(minutes: 3, seconds: 30, milliseconds: 77),
-      ),
+    if (features.hasUrlSource) mp3Url1TestData,
     if (features.hasUrlSource)
       LibSourceTestData(
         source: UrlSource(mp3Url2),
@@ -153,7 +153,7 @@ void main() {
 
         var audioContext = AudioContextConfig(
           //ignore: avoid_redundant_argument_values
-          forceSpeaker: true,
+          route: AudioContextConfigRoute.system,
           //ignore: avoid_redundant_argument_values
           respectSilence: false,
         ).build();
@@ -170,7 +170,8 @@ void main() {
         expect(player.state, PlayerState.completed);
 
         audioContext = AudioContextConfig(
-          forceSpeaker: false,
+          //ignore: avoid_redundant_argument_values
+          route: AudioContextConfigRoute.system,
           respectSilence: true,
         ).build();
         await AudioPlayer.global.setAudioContext(audioContext);
@@ -203,7 +204,7 @@ void main() {
 
         var audioContext = AudioContextConfig(
           //ignore: avoid_redundant_argument_values
-          forceSpeaker: true,
+          route: AudioContextConfigRoute.system,
           //ignore: avoid_redundant_argument_values
           respectSilence: false,
         ).build();
@@ -223,7 +224,8 @@ void main() {
         expect(player.state, PlayerState.stopped);
 
         audioContext = AudioContextConfig(
-          forceSpeaker: false,
+          //ignore: avoid_redundant_argument_values
+          route: AudioContextConfigRoute.system,
           respectSilence: true,
         ).build();
         await AudioPlayer.global.setAudioContext(audioContext);
@@ -385,6 +387,56 @@ void main() {
         await platform.getDuration(playerId),
         wavUrl1TestData.duration.inMilliseconds,
       );
+
+      await onPreparedSub.cancel();
+      if (!isLinux) {
+        // FIXME(gustl22): Linux not disposing properly (#1507)
+        await platform.dispose(playerId);
+      }
+    });
+
+    testWidgets('#seek with millisecond precision', (tester) async {
+      final platform = AudioplayersPlatformInterface.instance;
+
+      final playerId = 'somePlayerId${isLinux ? linuxPlayerCount++ : ''}';
+      await platform.create(playerId);
+
+      final preparedCompleter = Completer<void>();
+      final eventStream = platform.getEventStream(playerId);
+      final onPreparedSub = eventStream
+          .where((event) => event.eventType == AudioEventType.prepared)
+          .map((event) => event.isPrepared!)
+          .listen(
+        (isPrepared) {
+          if (isPrepared) {
+            preparedCompleter.complete();
+          }
+        },
+        onError: preparedCompleter.completeError,
+      );
+      if (isLinux) {
+        // FIXME(gustl22): Linux needs additional pump (#1507)
+        await tester.pump();
+      }
+      await platform.setSourceUrl(
+        playerId,
+        (mp3Url1TestData.source as UrlSource).url,
+      );
+      await preparedCompleter.future.timeout(const Duration(seconds: 30));
+
+      final seekCompleter = Completer<void>();
+      final onSeekSub = eventStream
+          .where((event) => event.eventType == AudioEventType.seekComplete)
+          .listen(
+        (_) {
+          seekCompleter.complete();
+        },
+        onError: seekCompleter.completeError,
+      );
+      await platform.seek(playerId, const Duration(milliseconds: 21));
+      await seekCompleter.future.timeout(const Duration(seconds: 30));
+      await onSeekSub.cancel();
+      expect(await platform.getCurrentPosition(playerId), 21);
 
       await onPreparedSub.cancel();
       if (!isLinux) {
