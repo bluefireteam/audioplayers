@@ -19,7 +19,6 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   final isAndroid = !kIsWeb && Platform.isAndroid;
-  final isLinux = !kIsWeb && Platform.isLinux;
 
   final wavUrl1TestData = LibSourceTestData(
     source: UrlSource(wavUrl1),
