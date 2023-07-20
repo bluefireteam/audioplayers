@@ -312,32 +312,6 @@ void main() {
       await platform.dispose(playerId);
     });
 
-    Future<void> prepareSource(
-      WidgetTester tester, {
-      required LibSourceTestData testData,
-    }) async {
-      final eventStream = platform.getEventStream(playerId);
-      final preparedCompleter = Completer<void>();
-      final onPreparedSub = eventStream
-          .where((event) => event.eventType == AudioEventType.prepared)
-          .map((event) => event.isPrepared!)
-          .listen(
-        (isPrepared) {
-          if (isPrepared) {
-            preparedCompleter.complete();
-          }
-        },
-        onError: preparedCompleter.completeError,
-      );
-      await tester.pumpLinux();
-      await platform.setSourceUrl(
-        playerId,
-        (testData.source as UrlSource).url,
-      );
-      await preparedCompleter.future.timeout(const Duration(seconds: 30));
-      await onPreparedSub.cancel();
-    }
-
     testWidgets('#create and #dispose', (tester) async {
       await tester.pumpAndSettle();
       await platform.dispose(playerId);
@@ -360,16 +334,25 @@ void main() {
     });
 
     testWidgets('#setSource #getPosition and #getDuration', (tester) async {
-      await prepareSource(tester, testData: wavUrl1TestData);
+      await tester.prepareSource(
+        playerId: playerId,
+        platform: platform,
+        testData: wavUrl1TestData,
+      );
       expect(await platform.getCurrentPosition(playerId), 0);
       expect(
         await platform.getDuration(playerId),
         wavUrl1TestData.duration.inMilliseconds,
       );
+      await tester.pumpLinux();
     });
 
     testWidgets('#seek with millisecond precision', (tester) async {
-      await prepareSource(tester, testData: mp3Url1TestData);
+      await tester.prepareSource(
+        playerId: playerId,
+        platform: platform,
+        testData: mp3Url1TestData,
+      );
 
       final eventStream = platform.getEventStream(playerId);
       final seekCompleter = Completer<void>();
@@ -390,7 +373,11 @@ void main() {
 
     testWidgets('Set same source twice (#1520)', (tester) async {
       for (var i = 0; i < 2; i++) {
-        await prepareSource(tester, testData: wavUrl1TestData);
+        await tester.prepareSource(
+          playerId: playerId,
+          platform: platform,
+          testData: wavUrl1TestData,
+        );
       }
       await tester.pumpLinux();
     });
@@ -471,5 +458,32 @@ extension on WidgetTester {
       // FIXME(gustl22): Linux needs additional pump (#1556)
       await pump();
     }
+  }
+
+  Future<void> prepareSource({
+    required String playerId,
+    required AudioplayersPlatformInterface platform,
+    required LibSourceTestData testData,
+  }) async {
+    final eventStream = platform.getEventStream(playerId);
+    final preparedCompleter = Completer<void>();
+    final onPreparedSub = eventStream
+        .where((event) => event.eventType == AudioEventType.prepared)
+        .map((event) => event.isPrepared!)
+        .listen(
+      (isPrepared) {
+        if (isPrepared) {
+          preparedCompleter.complete();
+        }
+      },
+      onError: preparedCompleter.completeError,
+    );
+    await pumpLinux();
+    await platform.setSourceUrl(
+      playerId,
+      (testData.source as UrlSource).url,
+    );
+    await preparedCompleter.future.timeout(const Duration(seconds: 30));
+    await onPreparedSub.cancel();
   }
 }
