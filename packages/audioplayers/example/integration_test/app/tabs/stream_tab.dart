@@ -2,9 +2,10 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../platform_features.dart';
-import '../source_test_data.dart';
-import '../test_utils.dart';
+import '../../platform_features.dart';
+import '../../test_utils.dart';
+import '../app_source_test_data.dart';
+import '../app_test_utils.dart';
 import 'properties.dart';
 
 Future<void> testStreamsTab(
