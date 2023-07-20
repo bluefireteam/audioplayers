@@ -1,15 +1,14 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_example/tabs/sources.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
 import 'lib/lib_source_test_data.dart';
+import 'lib/lib_test_utils.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -245,13 +244,6 @@ void main() {
 }
 
 extension on WidgetTester {
-  Future<void> pumpLinux() async {
-    if (!kIsWeb && Platform.isLinux) {
-      // FIXME(gustl22): Linux needs additional pump (#1556)
-      await pump();
-    }
-  }
-
   Future<void> prepareSource({
     required String playerId,
     required AudioplayersPlatformInterface platform,
