@@ -312,8 +312,10 @@ void main() {
       await platform.dispose(playerId);
     });
 
-    Future<void> prepareSource(WidgetTester tester,
-        {required LibSourceTestData testData}) async {
+    Future<void> prepareSource(
+      WidgetTester tester, {
+      required LibSourceTestData testData,
+    }) async {
       final eventStream = platform.getEventStream(playerId);
       final preparedCompleter = Completer<void>();
       final onPreparedSub = eventStream
