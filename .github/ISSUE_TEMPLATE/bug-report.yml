@@ -24,7 +24,7 @@ body:
       label: Expected behaviour
       placeholder: Tell us, what did you expect to happen?
     validations:
-      required: false
+      required: true
   - type: textarea
     id: reproduction-steps
     attributes:
