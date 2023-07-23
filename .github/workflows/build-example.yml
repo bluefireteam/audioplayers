@@ -104,8 +104,9 @@ jobs:
           java-version: '17'
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ inputs.flutter_version }}
-          channel: 'stable'
+          # TODO: use `inputs.flutter_version` and change to `stable`, when flutter/flutter#127628 has been released.
+          flutter-version: '3.13.0-0.1.pre'
+          channel: 'beta'
       - uses: bluefireteam/melos-action@main
 
       - name: Example App - Build Android APK
