@@ -23,13 +23,40 @@ class AudioPlayer {
   /// change anything as the global instance will be used by default.
   AudioCache audioCache = AudioCache.instance;
 
-  PlayerState _playerState = PlayerState.stopped;
-
-  PlayerState get state => _playerState;
+  /// An unique ID generated for this instance of [AudioPlayer].
+  ///
+  /// This is used to properly exchange messages with the [MethodChannel].
+  final String playerId;
 
   Source? _source;
 
   Source? get source => _source;
+
+  double _volume = 1.0;
+
+  double get volume => _volume;
+
+  double _balance = 0.0;
+
+  double get balance => _balance;
+
+  double _playbackRate = 1.0;
+
+  double get playbackRate => _playbackRate;
+
+  /// Current mode of the audio player. Can be updated at any time, but is going
+  /// to take effect only at the next time you play the audio.
+  PlayerMode _mode = PlayerMode.mediaPlayer;
+
+  PlayerMode get mode => _mode;
+
+  ReleaseMode _releaseMode = ReleaseMode.release;
+
+  ReleaseMode get releaseMode => _releaseMode;
+
+  PlayerState _playerState = PlayerState.stopped;
+
+  PlayerState get state => _playerState;
 
   set state(PlayerState state) {
     if (_playerState == PlayerState.disposed) {
@@ -104,21 +131,6 @@ class AudioPlayer {
   Stream<String> get onLog => eventStream
       .where((event) => event.eventType == AudioEventType.log)
       .map((event) => event.logMessage!);
-
-  /// An unique ID generated for this instance of [AudioPlayer].
-  ///
-  /// This is used to properly exchange messages with the [MethodChannel].
-  final String playerId;
-
-  /// Current mode of the audio player. Can be updated at any time, but is going
-  /// to take effect only at the next time you play the audio.
-  PlayerMode _mode = PlayerMode.mediaPlayer;
-
-  PlayerMode get mode => _mode;
-
-  ReleaseMode _releaseMode = ReleaseMode.release;
-
-  ReleaseMode get releaseMode => _releaseMode;
 
   /// Creates a new instance and assigns an unique id to it.
   AudioPlayer({String? playerId}) : playerId = playerId ?? _uuid.v4() {
@@ -244,6 +256,7 @@ class AudioPlayer {
   ///  1 - The right channel is at full volume; the left channel is silent.
   ///  0 - Both channels are at the same volume.
   Future<void> setBalance(double balance) async {
+    _balance = balance;
     await creatingCompleter.future;
     return _platform.setBalance(playerId, balance);
   }
@@ -253,6 +266,7 @@ class AudioPlayer {
   /// 0 is mute and 1 is the max volume. The values between 0 and 1 are linearly
   /// interpolated.
   Future<void> setVolume(double volume) async {
+    _volume = volume;
     await creatingCompleter.future;
     return _platform.setVolume(playerId, volume);
   }
@@ -271,6 +285,7 @@ class AudioPlayer {
   /// iOS and macOS have limits between 0.5 and 2x
   /// Android SDK version should be 23 or higher
   Future<void> setPlaybackRate(double playbackRate) async {
+    _playbackRate = playbackRate;
     await creatingCompleter.future;
     return _platform.setPlaybackRate(playerId, playbackRate);
   }
