@@ -258,9 +258,7 @@ jobs:
           flutter-version: ${{ inputs.flutter_version }}
           channel: 'stable'
       - uses: bluefireteam/melos-action@main
-      
-      - name: Start audio server
-        run: net start audiosrv
+      - uses: LABSN/sound-ci-helpers@v1
 #      - name: Install virtual audio device
 #        shell: powershell
 #        run: |
