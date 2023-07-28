@@ -86,22 +86,7 @@ class WrappedMediaPlayer {
             }
             self.observers.append(TimeObserver(player: player, observer: anObserver))
 
-            // is sound ready
-            let newplayerItemStatusObservation = playerItem.observe(\AVPlayerItem.status) { (playerItem, change) in
-                let status = playerItem.status
-                self.eventHandler.onLog(message: "player status: \(status) change: \(change)")
-
-                if status == .readyToPlay {
-                    self.updateDuration()
-                    completer?()
-                } else if status == .failed {
-                    self.reset()
-                    completerError?()
-                }
-            }
-
-            playerItemStatusObservation?.invalidate()
-            playerItemStatusObservation = newplayerItemStatusObservation
+            setUpPlayerItemStatusObservation(playerItem, completer, completerError)
         } else {
             if playbackStatus == .readyToPlay {
                 completer?()
@@ -199,6 +184,27 @@ class WrappedMediaPlayer {
         let playerItem = AVPlayerItem.init(url: parsedUrl)
         playerItem.audioTimePitchAlgorithm = AVAudioTimePitchAlgorithm.timeDomain
         return playerItem
+    }
+
+    private func setUpPlayerItemStatusObservation(_ playerItem: AVPlayerItem, _ completer: Completer?, _ completerError: CompleterError?) {
+        let newplayerItemStatusObservation = playerItem.observe(\AVPlayerItem.status) { (playerItem, change) in
+        let status = playerItem.status
+            self.eventHandler.onLog(message: "player status: \(status), change: \(change)")
+
+            switch playerItem.status {
+            case .readyToPlay:
+                self.updateDuration()
+                completer?()
+            case .failed:
+                self.reset()
+                completerError?()
+            default:
+                break
+            }
+        }
+    
+        playerItemStatusObservation?.invalidate()
+        playerItemStatusObservation = newplayerItemStatusObservation
     }
 
     private func configParameters(player: AVPlayer) {
