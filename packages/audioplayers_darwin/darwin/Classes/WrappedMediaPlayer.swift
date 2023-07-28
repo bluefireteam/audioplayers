@@ -10,68 +10,68 @@ typealias CompleterError = () -> Void
 class WrappedMediaPlayer {
     var reference: SwiftAudioplayersDarwinPlugin
     var eventHandler: AudioPlayersStreamHandler
-    
+
     var player: AVPlayer?
-    
+
     var observers: [TimeObserver]
     var keyValueObservation: NSKeyValueObservation?
-    
+
     var isPlaying: Bool
     var playbackRate: Double
     var volume: Double
     var looping: Bool
 
     var url: String?
-    
+
     init(
-        reference: SwiftAudioplayersDarwinPlugin,
-        eventHandler: AudioPlayersStreamHandler,
-        player: AVPlayer? = nil,
-        playbackRate: Double = defaultPlaybackRate,
-        volume: Double = defaultVolume,
-        looping: Bool = defaultLooping,
-        url: String? = nil
+            reference: SwiftAudioplayersDarwinPlugin,
+            eventHandler: AudioPlayersStreamHandler,
+            player: AVPlayer? = nil,
+            playbackRate: Double = defaultPlaybackRate,
+            volume: Double = defaultVolume,
+            looping: Bool = defaultLooping,
+            url: String? = nil
     ) {
         self.reference = reference
         self.eventHandler = eventHandler
         self.player = player
         self.observers = []
         self.keyValueObservation = nil
-        
+
         self.isPlaying = false
         self.playbackRate = playbackRate
         self.volume = volume
         self.looping = looping
         self.url = url
     }
-    
+
     func getDurationCMTime() -> CMTime? {
         return player?.currentItem?.asset.duration
     }
-    
+
     func getDuration() -> Int? {
         guard let duration = getDurationCMTime() else {
             return nil
         }
         return fromCMTime(time: duration)
     }
-    
+
     private func getCurrentCMTime() -> CMTime? {
         return player?.currentTime()
     }
-    
+
     func getCurrentPosition() -> Int? {
         guard let time = getCurrentCMTime() else {
             return nil
         }
         return fromCMTime(time: time)
     }
-    
+
     func pause() {
         isPlaying = false
         player?.pause()
     }
-    
+
     func resume() {
         isPlaying = true
         if let player = self.player {
@@ -84,17 +84,17 @@ class WrappedMediaPlayer {
             updateDuration()
         }
     }
-    
+
     func setVolume(volume: Double) {
         self.volume = volume
         player?.volume = Float(volume)
     }
-    
+
     func setPlaybackRate(playbackRate: Double) {
         self.playbackRate = playbackRate
         player?.rate = Float(playbackRate)
     }
-    
+
     func seek(time: CMTime, completer: Completer? = nil) {
         guard let currentItem = player?.currentItem else {
             completer?()
@@ -111,12 +111,12 @@ class WrappedMediaPlayer {
             }
         }
     }
-    
+
     func stop(completer: Completer? = nil) {
         pause()
         seek(time: toCMTime(millis: 0), completer: completer)
     }
-    
+
     func releaseSync() {
         keyValueObservation?.invalidate()
         for observer in observers {
@@ -138,7 +138,7 @@ class WrappedMediaPlayer {
             completer?()
         }
     }
-    
+
     func onSoundComplete() {
         if !isPlaying {
             return
@@ -151,16 +151,16 @@ class WrappedMediaPlayer {
                 self.isPlaying = false
             }
         }
-        
+
         reference.controlAudioSession()
         eventHandler.onComplete()
     }
-    
+
     func onTimeInterval(time: CMTime) {
         let millis = fromCMTime(time: time)
         eventHandler.onCurrentPosition(millis: millis)
     }
-    
+
     func updateDuration() {
         guard let duration = player?.currentItem?.asset.duration else {
             return
@@ -170,15 +170,15 @@ class WrappedMediaPlayer {
             eventHandler.onDuration(millis: millis)
         }
     }
-    
-    func setSourceUrl (
-        url: String,
-        isLocal: Bool,
-        completer: Completer? = nil,
-        completerError: CompleterError? = nil
+
+    func setSourceUrl(
+            url: String,
+            isLocal: Bool,
+            completer: Completer? = nil,
+            completerError: CompleterError? = nil
     ) {
         let playbackStatus = player?.currentItem?.status
-        
+
         if self.url != url || playbackStatus == .failed || playbackStatus == nil {
             let parsedUrl = isLocal ? URL.init(fileURLWithPath: url.deletingPrefix("file://")) : URL.init(string: url)!
             let playerItem = AVPlayerItem.init(url: parsedUrl)
@@ -192,11 +192,11 @@ class WrappedMediaPlayer {
             } else {
                 player = AVPlayer.init(playerItem: playerItem)
                 configParameters(player: player)
-                
+
                 self.player = player
                 self.observers = []
                 self.url = url
-                
+
                 // stream player position
                 let interval = toCMTime(millis: 200)
                 let timeObserver = player.addPeriodicTimeObserver(forInterval: interval, queue: nil) {
@@ -205,22 +205,22 @@ class WrappedMediaPlayer {
                 }
                 self.observers.append(TimeObserver(player: player, observer: timeObserver))
             }
-            
+
             let anObserver = NotificationCenter.default.addObserver(
-                forName: NSNotification.Name.AVPlayerItemDidPlayToEndTime,
-                object: playerItem,
-                queue: nil
+                    forName: NSNotification.Name.AVPlayerItemDidPlayToEndTime,
+                    object: playerItem,
+                    queue: nil
             ) {
                 [weak self] (notification) in
                 self?.onSoundComplete()
             }
             self.observers.append(TimeObserver(player: player, observer: anObserver))
-            
+
             // is sound ready
             let newKeyValueObservation = playerItem.observe(\AVPlayerItem.status) { (playerItem, change) in
                 let status = playerItem.status
                 self.eventHandler.onLog(message: "player status: \(status) change: \(change)")
-                
+
                 if status == .readyToPlay {
                     self.updateDuration()
                     completer?()
@@ -229,7 +229,7 @@ class WrappedMediaPlayer {
                     completerError?()
                 }
             }
-            
+
             keyValueObservation?.invalidate()
             keyValueObservation = newKeyValueObservation
         } else {
