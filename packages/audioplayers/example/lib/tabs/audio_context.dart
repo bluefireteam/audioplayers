@@ -103,11 +103,14 @@ class AudioContextTabState extends State<AudioContextTab>
   Widget _genericTab() {
     return TabContent(
       children: [
-        Cbx(
-          'Force Speaker',
-          value: audioContextConfig.forceSpeaker,
-          ({value}) =>
-              updateConfig(audioContextConfig.copy(forceSpeaker: value)),
+        LabeledDropDown<AudioContextConfigRoute>(
+          label: 'Audio Route',
+          key: const Key('audioRoute'),
+          options: {for (var e in AudioContextConfigRoute.values) e: e.name},
+          selected: audioContextConfig.route,
+          onChange: (v) => updateConfig(
+            audioContextConfig.copy(route: v),
+          ),
         ),
         Cbx(
           'Duck Audio',
