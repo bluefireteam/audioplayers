@@ -69,11 +69,11 @@ class AudioPlayer {
 
     bool GetLooping();
 
-    int64_t GetPosition();
+    double GetPosition();
 
-    int64_t GetDuration();
+    double GetDuration();
 
-    void SeekTo(int64_t seek);
+    void SeekTo(double seek);
 
     void SetSourceUrl(std::string url);
 

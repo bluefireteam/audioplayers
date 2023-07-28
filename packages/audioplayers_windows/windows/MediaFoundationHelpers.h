@@ -143,21 +143,4 @@ inline void RunSyncInMTA(std::function<void()> callback)
     }
 }
 
-constexpr uint64_t c_hnsPerSecond = 10000000;
-
-template<typename SecondsT>
-inline uint64_t ConvertSecondsToHns(SecondsT seconds)
-{
-    if (isinf(seconds))
-        return 0;
-    return static_cast<uint64_t>(seconds * c_hnsPerSecond);
-}
-
-template<typename HnsT>
-inline double ConvertHnsToSeconds(HnsT hns)
-{
-    return static_cast<double>(hns) / c_hnsPerSecond;
-}
-
-
 } // namespace media

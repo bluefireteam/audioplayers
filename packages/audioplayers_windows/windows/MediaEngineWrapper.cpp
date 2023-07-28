@@ -18,6 +18,7 @@
 
 #include "MediaEngineWrapper.h"
 #include "MediaFoundationHelpers.h"
+#include "audioplayers_helpers.h"
 #include <Audioclient.h>
 
 using namespace Microsoft::WRL;
@@ -143,7 +144,7 @@ void MediaEngineWrapper::Shutdown()
     });
 }
 
-void MediaEngineWrapper::StartPlayingFrom(uint64_t timeStamp)
+void MediaEngineWrapper::StartPlayingFrom(double timestampInSeconds)
 {
     RunSyncInMTA([&]()
     {
@@ -151,7 +152,6 @@ void MediaEngineWrapper::StartPlayingFrom(uint64_t timeStamp)
         if (m_mediaEngine == nullptr) {
             return;
         }
-        const double timestampInSeconds = ConvertHnsToSeconds(timeStamp);
         THROW_IF_FAILED(m_mediaEngine->SetCurrentTime(timestampInSeconds));
         THROW_IF_FAILED(m_mediaEngine->Play());
     });
@@ -233,7 +233,7 @@ bool MediaEngineWrapper::GetLooping()
     return looping;
 }
 
-void MediaEngineWrapper::SeekTo(uint64_t timeStamp)
+void MediaEngineWrapper::SeekTo(double timestampInSeconds)
 {
     RunSyncInMTA([&]()
     {
@@ -241,44 +241,44 @@ void MediaEngineWrapper::SeekTo(uint64_t timeStamp)
         if (m_mediaEngine == nullptr) {
             return;
         }
-        const double timestampInSeconds = ConvertHnsToSeconds(timeStamp);
         THROW_IF_FAILED(m_mediaEngine->SetCurrentTime(timestampInSeconds));
     });
 }
 
-uint64_t MediaEngineWrapper::GetMediaTime()
+// Get media time in seconds
+double MediaEngineWrapper::GetMediaTime()
 {
-    uint64_t currentTimeInHns = 0;
+    double currentTimeInSeconds = 0;
     RunSyncInMTA([&]()
     {
         auto lock = m_lock.lock();
         if (m_mediaEngine == nullptr) {
             return;
         }
-        double currentTimeInSeconds = m_mediaEngine->GetCurrentTime();
-        currentTimeInHns = ConvertSecondsToHns(currentTimeInSeconds);
+        currentTimeInSeconds = m_mediaEngine->GetCurrentTime();
     });
-    return currentTimeInHns;
+    return currentTimeInSeconds;
 }
 
-uint64_t MediaEngineWrapper::GetDuration()
+// Get duration in seconds
+double MediaEngineWrapper::GetDuration()
 {
-    uint64_t durationInHns = 0;
+    double durationInSeconds = 0;
     RunSyncInMTA([&]()
     {
         auto lock = m_lock.lock();
         if (m_mediaEngine == nullptr) {
             return;
         }
-        double durationInSeconds = m_mediaEngine->GetDuration();
-        durationInHns = ConvertSecondsToHns(durationInSeconds);
+        durationInSeconds = m_mediaEngine->GetDuration();
     });
-    return durationInHns;
+    return durationInSeconds;
 }
 
-std::vector<std::tuple<uint64_t, uint64_t>> MediaEngineWrapper::GetBufferedRanges()
+// Get buffered ranges in milliseconds
+std::vector<std::tuple<int64_t, int64_t>> MediaEngineWrapper::GetBufferedRanges()
 {
-    std::vector<std::tuple<uint64_t, uint64_t>> result;
+    std::vector<std::tuple<int64_t, int64_t>> result;
     RunSyncInMTA([&]()
     {
         auto lock = m_lock.lock();
@@ -296,7 +296,7 @@ std::vector<std::tuple<uint64_t, uint64_t>> MediaEngineWrapper::GetBufferedRange
         {
             mediaTimeRange->GetStart(i, &start);
             mediaTimeRange->GetEnd(i, &end);
-            result.push_back(std::make_tuple(ConvertSecondsToHns(start), ConvertSecondsToHns(end)));
+            result.push_back(std::make_tuple(ConvertSecondsToMs(start), ConvertSecondsToMs(end)));
         }
     });
     return result;
