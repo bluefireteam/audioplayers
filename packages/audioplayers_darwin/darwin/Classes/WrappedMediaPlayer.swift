@@ -57,7 +57,7 @@ class WrappedMediaPlayer {
             playerItem.audioTimePitchAlgorithm = AVAudioTimePitchAlgorithm.timeDomain
             let player: AVPlayer
             if let existingPlayer = self.player {
-                releaseSync()
+                reset()
                 self.url = url
                 existingPlayer.replaceCurrentItem(with: playerItem)
                 player = existingPlayer
@@ -97,7 +97,7 @@ class WrappedMediaPlayer {
                     self.updateDuration()
                     completer?()
                 } else if status == .failed {
-                    self.releaseSync()
+                    self.reset()
                     completerError?()
                 }
             }
@@ -177,7 +177,7 @@ class WrappedMediaPlayer {
 
     func release(completer: Completer? = nil) {
         stop {
-            self.releaseSync()
+            self.reset()
             completer?()
         }
     }
@@ -203,8 +203,9 @@ class WrappedMediaPlayer {
         }
     }
 
-    func releaseSync() {
+    private func reset() {
         playerItemStatusObservation?.invalidate()
+        playerItemStatusObservation = nil
         for observer in observers {
             NotificationCenter.default.removeObserver(observer.observer)
         }
