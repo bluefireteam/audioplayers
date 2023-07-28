@@ -70,16 +70,7 @@ class WrappedMediaPlayer {
                 setUpPositionObserver(player)
             }
 
-            let anObserver = NotificationCenter.default.addObserver(
-                    forName: NSNotification.Name.AVPlayerItemDidPlayToEndTime,
-                    object: playerItem,
-                    queue: nil
-            ) {
-                [weak self] (notification) in
-                self?.onSoundComplete()
-            }
-            self.observers.append(TimeObserver(player: player, observer: anObserver))
-
+            setUpSoundCompletedObserver(player, playerItem)
             setUpPlayerItemStatusObservation(playerItem, completer, completerError)
         } else {
             if playbackStatus == .readyToPlay {
@@ -206,6 +197,18 @@ class WrappedMediaPlayer {
         let observer = player.addPeriodicTimeObserver(forInterval: interval, queue: nil) {
             [weak self] time in
             self?.onTimeInterval(time: time)
+        }
+        self.observers.append(TimeObserver(player: player, observer: observer))
+    }
+
+    private func setUpSoundCompletedObserver(_ player: AVPlayer, _ playerItem: AVPlayerItem) {
+        let observer = NotificationCenter.default.addObserver(
+            forName: NSNotification.Name.AVPlayerItemDidPlayToEndTime,
+            object: playerItem,
+            queue: nil
+        ) {
+            [weak self] (notification) in
+            self?.onSoundComplete()
         }
         self.observers.append(TimeObserver(player: player, observer: observer))
     }
