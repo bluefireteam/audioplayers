@@ -67,13 +67,7 @@ class WrappedMediaPlayer {
                 self.observers = []
                 self.url = url
 
-                // stream player position
-                let interval = toCMTime(millis: 200)
-                let timeObserver = player.addPeriodicTimeObserver(forInterval: interval, queue: nil) {
-                    [weak self] time in
-                    self?.onTimeInterval(time: time)
-                }
-                self.observers.append(TimeObserver(player: player, observer: timeObserver))
+                setUpPositionObserver(player)
             }
 
             let anObserver = NotificationCenter.default.addObserver(
@@ -205,6 +199,15 @@ class WrappedMediaPlayer {
     
         playerItemStatusObservation?.invalidate()
         playerItemStatusObservation = newplayerItemStatusObservation
+    }
+
+    private func setUpPositionObserver(_ player: AVPlayer) {
+        let interval = toCMTime(millis: 200)
+        let observer = player.addPeriodicTimeObserver(forInterval: interval, queue: nil) {
+            [weak self] time in
+            self?.onTimeInterval(time: time)
+        }
+        self.observers.append(TimeObserver(player: player, observer: observer))
     }
 
     private func configParameters(player: AVPlayer) {
