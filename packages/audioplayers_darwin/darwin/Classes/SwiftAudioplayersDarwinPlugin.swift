@@ -99,7 +99,7 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
                 try globalContext.apply()
             } catch AudioPlayerError.warning(let warnMsg) {
                 globalEvents.onLog(message: warnMsg)
-            }  catch {
+            } catch {
                 result(FlutterError(code: "DarwinAudioError", message: "Error configuring global audio session: \(error)", details: nil))
             }
         } else if method == "emitLog" {
@@ -333,19 +333,19 @@ class AudioPlayersStreamHandler: NSObject, FlutterStreamHandler {
 
     func onCurrentPosition(millis: Int) {
         if let eventSink = self.sink {
-            eventSink(["event": "audio.onCurrentPosition", "value": millis] as [String : Any])
+            eventSink(["event": "audio.onCurrentPosition", "value": millis] as [String: Any])
         }
     }
 
     func onDuration(millis: Int) {
         if let eventSink = self.sink {
-            eventSink(["event": "audio.onDuration", "value": millis] as [String : Any])
+            eventSink(["event": "audio.onDuration", "value": millis] as [String: Any])
         }
     }
 
     func onPrepared(isPrepared: Bool) {
         if let eventSink = self.sink {
-            eventSink(["event": "audio.onPrepared", "value": isPrepared] as [String : Any])
+            eventSink(["event": "audio.onPrepared", "value": isPrepared] as [String: Any])
         }
     }
 

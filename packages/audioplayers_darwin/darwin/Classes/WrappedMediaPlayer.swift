@@ -8,20 +8,18 @@ typealias Completer = () -> Void
 typealias CompleterError = () -> Void
 
 class WrappedMediaPlayer {
-    var reference: SwiftAudioplayersDarwinPlugin
-    var eventHandler: AudioPlayersStreamHandler
-
-    var player: AVPlayer?
-
-    var observers: [TimeObserver]
-    var keyValueObservation: NSKeyValueObservation?
-
-    var isPlaying: Bool
-    var playbackRate: Double
-    var volume: Double
+    private(set) var eventHandler: AudioPlayersStreamHandler
+    private(set) var isPlaying: Bool
     var looping: Bool
 
-    var url: String?
+    private var reference: SwiftAudioplayersDarwinPlugin
+    private var player: AVPlayer?
+    private var playbackRate: Double
+    private var volume: Double
+    private var url: String?
+
+    private var observers: [TimeObserver]
+    private var playerItemStatusObservation: NSKeyValueObservation?
 
     init(
             reference: SwiftAudioplayersDarwinPlugin,
@@ -36,7 +34,7 @@ class WrappedMediaPlayer {
         self.eventHandler = eventHandler
         self.player = player
         self.observers = []
-        self.keyValueObservation = nil
+        self.playerItemStatusObservation = nil
 
         self.isPlaying = false
         self.playbackRate = playbackRate
@@ -45,8 +43,72 @@ class WrappedMediaPlayer {
         self.url = url
     }
 
-    func getDurationCMTime() -> CMTime? {
-        return player?.currentItem?.asset.duration
+    func setSourceUrl(
+            url: String,
+            isLocal: Bool,
+            completer: Completer? = nil,
+            completerError: CompleterError? = nil
+    ) {
+        let playbackStatus = player?.currentItem?.status
+
+        if self.url != url || playbackStatus == .failed || playbackStatus == nil {
+            let parsedUrl = isLocal ? URL.init(fileURLWithPath: url.deletingPrefix("file://")) : URL.init(string: url)!
+            let playerItem = AVPlayerItem.init(url: parsedUrl)
+            playerItem.audioTimePitchAlgorithm = AVAudioTimePitchAlgorithm.timeDomain
+            let player: AVPlayer
+            if let existingPlayer = self.player {
+                releaseSync()
+                self.url = url
+                existingPlayer.replaceCurrentItem(with: playerItem)
+                player = existingPlayer
+            } else {
+                player = AVPlayer.init(playerItem: playerItem)
+                configParameters(player: player)
+
+                self.player = player
+                self.observers = []
+                self.url = url
+
+                // stream player position
+                let interval = toCMTime(millis: 200)
+                let timeObserver = player.addPeriodicTimeObserver(forInterval: interval, queue: nil) {
+                    [weak self] time in
+                    self?.onTimeInterval(time: time)
+                }
+                self.observers.append(TimeObserver(player: player, observer: timeObserver))
+            }
+
+            let anObserver = NotificationCenter.default.addObserver(
+                    forName: NSNotification.Name.AVPlayerItemDidPlayToEndTime,
+                    object: playerItem,
+                    queue: nil
+            ) {
+                [weak self] (notification) in
+                self?.onSoundComplete()
+            }
+            self.observers.append(TimeObserver(player: player, observer: anObserver))
+
+            // is sound ready
+            let newplayerItemStatusObservation = playerItem.observe(\AVPlayerItem.status) { (playerItem, change) in
+                let status = playerItem.status
+                self.eventHandler.onLog(message: "player status: \(status) change: \(change)")
+
+                if status == .readyToPlay {
+                    self.updateDuration()
+                    completer?()
+                } else if status == .failed {
+                    self.releaseSync()
+                    completerError?()
+                }
+            }
+
+            playerItemStatusObservation?.invalidate()
+            playerItemStatusObservation = newplayerItemStatusObservation
+        } else {
+            if playbackStatus == .readyToPlay {
+                completer?()
+            }
+        }
     }
 
     func getDuration() -> Int? {
@@ -54,10 +116,6 @@ class WrappedMediaPlayer {
             return nil
         }
         return fromCMTime(time: duration)
-    }
-
-    private func getCurrentCMTime() -> CMTime? {
-        return player?.currentTime()
     }
 
     func getCurrentPosition() -> Int? {
@@ -117,15 +175,6 @@ class WrappedMediaPlayer {
         seek(time: toCMTime(millis: 0), completer: completer)
     }
 
-    func releaseSync() {
-        keyValueObservation?.invalidate()
-        for observer in observers {
-            NotificationCenter.default.removeObserver(observer.observer)
-        }
-        observers = []
-        player?.replaceCurrentItem(with: nil)
-    }
-
     func release(completer: Completer? = nil) {
         stop {
             self.releaseSync()
@@ -139,7 +188,41 @@ class WrappedMediaPlayer {
         }
     }
 
-    func onSoundComplete() {
+    private func getDurationCMTime() -> CMTime? {
+        return player?.currentItem?.asset.duration
+    }
+
+    private func getCurrentCMTime() -> CMTime? {
+        return player?.currentTime()
+    }
+
+    func configParameters(player: AVPlayer) {
+        if (isPlaying) {
+            player.volume = Float(volume)
+            player.rate = Float(playbackRate)
+        }
+    }
+
+    func releaseSync() {
+        playerItemStatusObservation?.invalidate()
+        for observer in observers {
+            NotificationCenter.default.removeObserver(observer.observer)
+        }
+        observers = []
+        player?.replaceCurrentItem(with: nil)
+    }
+
+    private func updateDuration() {
+        guard let duration = player?.currentItem?.asset.duration else {
+            return
+        }
+        if CMTimeGetSeconds(duration) > 0 {
+            let millis = fromCMTime(time: duration)
+            eventHandler.onDuration(millis: millis)
+        }
+    }
+
+    private func onSoundComplete() {
         if !isPlaying {
             return
         }
@@ -156,93 +239,8 @@ class WrappedMediaPlayer {
         eventHandler.onComplete()
     }
 
-    func onTimeInterval(time: CMTime) {
+    private func onTimeInterval(time: CMTime) {
         let millis = fromCMTime(time: time)
         eventHandler.onCurrentPosition(millis: millis)
-    }
-
-    func updateDuration() {
-        guard let duration = player?.currentItem?.asset.duration else {
-            return
-        }
-        if CMTimeGetSeconds(duration) > 0 {
-            let millis = fromCMTime(time: duration)
-            eventHandler.onDuration(millis: millis)
-        }
-    }
-
-    func setSourceUrl(
-            url: String,
-            isLocal: Bool,
-            completer: Completer? = nil,
-            completerError: CompleterError? = nil
-    ) {
-        let playbackStatus = player?.currentItem?.status
-
-        if self.url != url || playbackStatus == .failed || playbackStatus == nil {
-            let parsedUrl = isLocal ? URL.init(fileURLWithPath: url.deletingPrefix("file://")) : URL.init(string: url)!
-            let playerItem = AVPlayerItem.init(url: parsedUrl)
-            playerItem.audioTimePitchAlgorithm = AVAudioTimePitchAlgorithm.timeDomain
-            let player: AVPlayer
-            if let existingPlayer = self.player {
-                releaseSync()
-                self.url = url
-                existingPlayer.replaceCurrentItem(with: playerItem)
-                player = existingPlayer
-            } else {
-                player = AVPlayer.init(playerItem: playerItem)
-                configParameters(player: player)
-
-                self.player = player
-                self.observers = []
-                self.url = url
-
-                // stream player position
-                let interval = toCMTime(millis: 200)
-                let timeObserver = player.addPeriodicTimeObserver(forInterval: interval, queue: nil) {
-                    [weak self] time in
-                    self?.onTimeInterval(time: time)
-                }
-                self.observers.append(TimeObserver(player: player, observer: timeObserver))
-            }
-
-            let anObserver = NotificationCenter.default.addObserver(
-                    forName: NSNotification.Name.AVPlayerItemDidPlayToEndTime,
-                    object: playerItem,
-                    queue: nil
-            ) {
-                [weak self] (notification) in
-                self?.onSoundComplete()
-            }
-            self.observers.append(TimeObserver(player: player, observer: anObserver))
-
-            // is sound ready
-            let newKeyValueObservation = playerItem.observe(\AVPlayerItem.status) { (playerItem, change) in
-                let status = playerItem.status
-                self.eventHandler.onLog(message: "player status: \(status) change: \(change)")
-
-                if status == .readyToPlay {
-                    self.updateDuration()
-                    completer?()
-                } else if status == .failed {
-                    self.releaseSync()
-                    completerError?()
-                }
-            }
-
-            keyValueObservation?.invalidate()
-            keyValueObservation = newKeyValueObservation
-        } else {
-            if playbackStatus == .readyToPlay {
-                completer?()
-            }
-        }
-    }
-
-    func configParameters(player: AVPlayer) {
-        if (isPlaying) {
-            player.volume = Float(volume)
-            player.rate = Float(playbackRate)
-        }
     }
 }
