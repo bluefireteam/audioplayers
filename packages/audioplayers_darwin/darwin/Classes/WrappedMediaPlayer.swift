@@ -52,9 +52,7 @@ class WrappedMediaPlayer {
         let playbackStatus = player?.currentItem?.status
 
         if self.url != url || playbackStatus == .failed || playbackStatus == nil {
-            let parsedUrl = isLocal ? URL.init(fileURLWithPath: url.deletingPrefix("file://")) : URL.init(string: url)!
-            let playerItem = AVPlayerItem.init(url: parsedUrl)
-            playerItem.audioTimePitchAlgorithm = AVAudioTimePitchAlgorithm.timeDomain
+            let playerItem = createPlayerItem(url, isLocal)
             let player: AVPlayer
             if let existingPlayer = self.player {
                 reset()
@@ -196,7 +194,14 @@ class WrappedMediaPlayer {
         return player?.currentTime()
     }
 
-    func configParameters(player: AVPlayer) {
+    private func createPlayerItem(_ url: String, _ isLocal: Bool) -> AVPlayerItem {
+        let parsedUrl = isLocal ? URL.init(fileURLWithPath: url.deletingPrefix("file://")) : URL.init(string: url)!
+        let playerItem = AVPlayerItem.init(url: parsedUrl)
+        playerItem.audioTimePitchAlgorithm = AVAudioTimePitchAlgorithm.timeDomain
+        return playerItem
+    }
+
+    private func configParameters(player: AVPlayer) {
         if (isPlaying) {
             player.volume = Float(volume)
             player.rate = Float(playbackRate)
