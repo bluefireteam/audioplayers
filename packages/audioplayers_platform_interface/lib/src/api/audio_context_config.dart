@@ -132,8 +132,8 @@ class AudioContextConfig {
     // Please create a custom [AudioContextIOS] if the generic flags cannot
     // represent your needs.
     if (respectSilence && route == AudioContextConfigRoute.speaker) {
-      throw 'On iOS it is impossible to set both respectSilence and '
-          'forceSpeaker';
+      throw 'On iOS it is impossible to set both `respectSilence` and route '
+          '`speaker`';
     }
   }
 }
