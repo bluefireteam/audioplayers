@@ -11,7 +11,7 @@ class AudioContext {
   AudioContext({
     AudioContextAndroid? android,
     AudioContextIOS? iOS,
-  }) : this.android = android ?? const AudioContextAndroid() {
+  }) : android = android ?? const AudioContextAndroid() {
     this.iOS = iOS ?? AudioContextIOS();
   }
 
