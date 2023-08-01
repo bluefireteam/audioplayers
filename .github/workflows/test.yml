@@ -110,7 +110,7 @@ jobs:
           flutter-version: ${{ inputs.flutter_version }}
           channel: 'stable'
       - uses: bluefireteam/melos-action@main
-      - uses: nanasess/setup-chromedriver@v1
+      - uses: nanasess/setup-chromedriver@v2
 
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
