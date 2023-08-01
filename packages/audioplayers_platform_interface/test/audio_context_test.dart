@@ -21,7 +21,7 @@ void main() {
         ),
         iOS: AudioContextIOS(
           category: AVAudioSessionCategory.playback,
-          options: const [],
+          options: const {},
         ),
       ),
     );
@@ -32,7 +32,7 @@ void main() {
       // Throws AssertionError:
       AudioContextIOS(
         category: AVAudioSessionCategory.ambient,
-        options: const [AVAudioSessionOptions.mixWithOthers],
+        options: const {AVAudioSessionOptions.mixWithOthers},
       );
       fail('AssertionError not thrown');
       // ignore: avoid_catches_without_on_clauses
@@ -43,5 +43,23 @@ void main() {
           'You can set the option `mixWithOthers` explicitly only if the audio '
           'session category is `playAndRecord`, `playback`, or `multiRoute`.');
     }
+  });
+
+  test('Equality of AudioContextIOS', () async {
+    final context1 = AudioContextIOS(
+      category: AVAudioSessionCategory.playAndRecord,
+      options: const {
+        AVAudioSessionOptions.mixWithOthers,
+        AVAudioSessionOptions.defaultToSpeaker,
+      },
+    );
+    final context2 = AudioContextIOS(
+      category: AVAudioSessionCategory.playAndRecord,
+      options: const {
+        AVAudioSessionOptions.defaultToSpeaker,
+        AVAudioSessionOptions.mixWithOthers,
+      },
+    );
+    expect(context1, context2);
   });
 }

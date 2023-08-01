@@ -1,12 +1,14 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 
 /// An Audio Context is a set of secondary, platform-specific aspects of audio
 /// playback, typically related to how the act of playing audio interacts with
 /// other features of the device. [AudioContext] is containing platform specific
 /// configurations: [AudioContextAndroid] and [AudioContextIOS].
+@immutable
 class AudioContext {
   final AudioContextAndroid android;
-  late AudioContextIOS iOS;
+  late final AudioContextIOS iOS;
 
   AudioContext({
     AudioContextAndroid? android,
@@ -38,10 +40,34 @@ class AudioContext {
       return <String, dynamic>{};
     }
   }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is AudioContext &&
+            runtimeType == other.runtimeType &&
+            android == other.android &&
+            iOS == other.iOS;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        android,
+        iOS,
+      );
+
+  @override
+  String toString() {
+    return 'AudioContext('
+        'android: $android, '
+        'iOS: $iOS'
+        ')';
+  }
 }
 
 /// A platform-specific class to encapsulate a collection of attributes about an
 /// Android audio stream.
+@immutable
 class AudioContextAndroid {
   /// Sets the speakerphone on or off, globally.
   ///
@@ -100,18 +126,54 @@ class AudioContextAndroid {
       'audioFocus': audioFocus.value,
     };
   }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is AudioContextAndroid &&
+            runtimeType == other.runtimeType &&
+            isSpeakerphoneOn == other.isSpeakerphoneOn &&
+            audioMode == other.audioMode &&
+            stayAwake == other.stayAwake &&
+            contentType == other.contentType &&
+            usageType == other.usageType &&
+            audioFocus == other.audioFocus;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        isSpeakerphoneOn,
+        audioMode,
+        stayAwake,
+        contentType,
+        usageType,
+        audioFocus,
+      );
+
+  @override
+  String toString() {
+    return 'AudioContextAndroid('
+        'isSpeakerphoneOn: $isSpeakerphoneOn, '
+        'audioMode: $audioMode, '
+        'stayAwake: $stayAwake, '
+        'contentType: $contentType, '
+        'usageType: $usageType, '
+        'audioFocus: $audioFocus'
+        ')';
+  }
 }
 
 /// A platform-specific class to encapsulate a collection of attributes about an
 /// iOS audio stream.
+@immutable
 class AudioContextIOS {
   final AVAudioSessionCategory category;
-  final List<AVAudioSessionOptions> options;
+  final Set<AVAudioSessionOptions> options;
 
   // Note when changing the defaults, it should also be changed in native code.
   AudioContextIOS({
     this.category = AVAudioSessionCategory.playback,
-    this.options = const [],
+    this.options = const {},
   })  : assert(
             category == AVAudioSessionCategory.playback ||
                 category == AVAudioSessionCategory.playAndRecord ||
@@ -175,7 +237,7 @@ class AudioContextIOS {
 
   AudioContextIOS copy({
     AVAudioSessionCategory? category,
-    List<AVAudioSessionOptions>? options,
+    Set<AVAudioSessionOptions>? options,
   }) {
     return AudioContextIOS(
       category: category ?? this.category,
@@ -188,6 +250,29 @@ class AudioContextIOS {
       'category': category.name,
       'options': options.map((e) => e.name).toList(),
     };
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is AudioContextIOS &&
+            runtimeType == other.runtimeType &&
+            category == other.category &&
+            const SetEquality().equals(options, other.options);
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        category,
+        options,
+      );
+
+  @override
+  String toString() {
+    return 'AudioContextIOS('
+        'category: $category, '
+        'options: $options'
+        ')';
   }
 }
 

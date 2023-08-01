@@ -119,12 +119,11 @@ class AudioContextConfig {
               : (route == AudioContextConfigRoute.earpiece
                   ? AVAudioSessionCategory.playAndRecord
                   : AVAudioSessionCategory.playback)),
-      options: (duckAudio
-              ? [AVAudioSessionOptions.duckOthers]
-              : <AVAudioSessionOptions>[]) +
-          (route == AudioContextConfigRoute.speaker
-              ? [AVAudioSessionOptions.defaultToSpeaker]
-              : []),
+      options: {
+        if (duckAudio) AVAudioSessionOptions.duckOthers,
+        if (route == AudioContextConfigRoute.speaker)
+          AVAudioSessionOptions.defaultToSpeaker,
+      },
     );
   }
 
