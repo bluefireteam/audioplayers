@@ -250,7 +250,7 @@ jobs:
   windows:
     runs-on: windows-latest
     timeout-minutes: 30
-    if: true # FIXME(gustl22): Revert to "inputs.enable_windows" when virtual audio device can be installed (#1573)
+    if: inputs.enable_windows
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
@@ -260,14 +260,16 @@ jobs:
       - uses: bluefireteam/melos-action@main
       - name: Start audio server
         run: net start audiosrv
-      - uses: LABSN/sound-ci-helpers@v1
-#      - name: Install virtual audio device
-#        shell: powershell
-#        run: |
-#          Invoke-WebRequest https://github.com/duncanthrax/scream/releases/download/4.0/Scream4.0.zip -OutFile Scream.zip
-#          Expand-Archive -Path Scream.zip -DestinationPath Scream
-#          Import-Certificate -FilePath Scream\Install\driver\x64\Scream.cat -CertStoreLocation Cert:\LocalMachine\TrustedPublisher
-#          Scream\Install\helpers\devcon-x64.exe install Scream\Install\driver\x64\Scream.inf *Scream
+      - name: Install virtual audio device
+        shell: powershell
+        # TODO(gustl22): Remove workaround of setting the time when virtual audio device certificate is valid again (#1573)
+        run: |
+          Invoke-WebRequest https://github.com/duncanthrax/scream/releases/download/4.0/Scream4.0.zip -OutFile Scream.zip
+          Expand-Archive -Path Scream.zip -DestinationPath Scream
+          $currentDate = Get-Date; Set-Date (Get-Date "2023-07-04 12:00:00")
+          Import-Certificate -FilePath Scream\Install\driver\x64\Scream.cat -CertStoreLocation Cert:\LocalMachine\TrustedPublisher
+          Scream\Install\helpers\devcon-x64.exe install Scream\Install\driver\x64\Scream.inf *Scream
+          Set-Date $currentDate; net stop w32time; w32tm /unregister; w32tm /register; net start w32time; w32tm /resync
       - name: Run Flutter integration tests
         shell: powershell
         working-directory: ./packages/audioplayers/example
