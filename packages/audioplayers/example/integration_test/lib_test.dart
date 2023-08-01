@@ -18,6 +18,12 @@ void main() {
   final isAndroid = !kIsWeb && Platform.isAndroid;
 
   group('play multiple sources', () {
+    late List<LibSourceTestData> audioTestDataList;
+
+    setUp(() async {
+      audioTestDataList = await getAudioTestDataList();
+    });
+
     testWidgets(
       'play multiple sources simultaneously',
       (WidgetTester tester) async {

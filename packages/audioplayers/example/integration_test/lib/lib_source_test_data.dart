@@ -1,5 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_example/tabs/sources.dart';
+import 'package:http/http.dart';
 
 import '../platform_features.dart';
 import '../source_test_data.dart';
@@ -36,7 +37,7 @@ final mp3Url1TestData = LibSourceTestData(
   duration: const Duration(minutes: 3, seconds: 30, milliseconds: 77),
 );
 
-final audioTestDataList = [
+Future<List<LibSourceTestData>> getAudioTestDataList() async => [
   if (_features.hasUrlSource) wavUrl1TestData,
   if (_features.hasUrlSource)
     LibSourceTestData(
@@ -70,5 +71,15 @@ final audioTestDataList = [
     LibSourceTestData(
       source: AssetSource(mp3Asset),
       duration: const Duration(minutes: 1, seconds: 34, milliseconds: 119),
+    ),
+  if (_features.hasBytesSource)
+    LibSourceTestData(
+      source: BytesSource(await AudioCache.instance.loadAsBytes(wavAsset)),
+      duration: const Duration(seconds: 1, milliseconds: 068),
+    ),
+  if (_features.hasBytesSource)
+    LibSourceTestData(
+      source: BytesSource(await readBytes(Uri.parse(mp3Url1))),
+      duration: const Duration(minutes: 3, seconds: 30, milliseconds: 76),
     ),
 ];
