@@ -49,7 +49,7 @@ void main() {
           ),
           iOS: AudioContextIOS(
             category: AVAudioSessionCategory.playback,
-            options: [],
+            options: const {},
           ),
         ),
       );

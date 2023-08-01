@@ -194,7 +194,7 @@ class AudioContextTabState extends State<AudioContextTab>
   Widget _iosTab() {
     final iosOptions = AVAudioSessionOptions.values.map(
       (option) {
-        final options = audioContext.iOS.options.toList();
+        final options = audioContext.iOS.options;
         return Cbx(
           option.name,
           value: options.contains(option),
