@@ -266,10 +266,10 @@ jobs:
         run: |
           Invoke-WebRequest https://github.com/duncanthrax/scream/releases/download/4.0/Scream4.0.zip -OutFile Scream.zip
           Expand-Archive -Path Scream.zip -DestinationPath Scream
-          $currentDate = Get-Date; Set-Date (Get-Date "2023-07-04 12:00:00")
+          Set-Date (Get-Date "2023-07-04 12:00:00")
           Import-Certificate -FilePath Scream\Install\driver\x64\Scream.cat -CertStoreLocation Cert:\LocalMachine\TrustedPublisher
           Scream\Install\helpers\devcon-x64.exe install Scream\Install\driver\x64\Scream.inf *Scream
-          Set-Date $currentDate; net stop w32time; w32tm /unregister; w32tm /register; net start w32time; w32tm /resync
+          w32tm /resync /force; $currentDate = Get-Date; Write-Host "Current Date: $currentDate";
       - name: Run Flutter integration tests
         shell: powershell
         working-directory: ./packages/audioplayers/example
