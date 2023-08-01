@@ -6,7 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('create default AudioContext', () async {
+  test('Create default AudioContext', () async {
     final context = AudioContext();
     expect(
       context,
@@ -27,19 +27,21 @@ void main() {
     );
   });
 
-  test('create invalid AudioContextIOS', () async {
+  test('Create invalid AudioContextIOS', () async {
     try {
       // Throws AssertionError:
       AudioContextIOS(
-        category: AVAudioSessionCategory.playback,
+        category: AVAudioSessionCategory.ambient,
         options: const [AVAudioSessionOptions.mixWithOthers],
       );
       fail('AssertionError not thrown');
       // ignore: avoid_catches_without_on_clauses
     } catch (e) {
       expect(e, isInstanceOf<AssertionError>());
-      expect((e as AssertionError).message,
-          'You can set the option `mixWithOthers` explicitly only if the audio session category is `playAndRecord`, `playback`, or `multiRoute`.')
+      expect(
+          (e as AssertionError).message,
+          'You can set the option `mixWithOthers` explicitly only if the audio '
+          'session category is `playAndRecord`, `playback`, or `multiRoute`.');
     }
   });
 }

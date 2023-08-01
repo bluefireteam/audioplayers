@@ -113,50 +113,65 @@ class AudioContextIOS {
     this.category = AVAudioSessionCategory.playback,
     this.options = const [],
   })  : assert(
-            !options.contains(AVAudioSessionOptions.mixWithOthers) ^
-                (category == AVAudioSessionCategory.playAndRecord ||
-                    category == AVAudioSessionCategory.playback ||
-                    category == AVAudioSessionCategory.multiRoute),
-            'You can set the option `mixWithOthers` explicitly only if the audio session category is `playAndRecord`, `playback`, or `multiRoute`.'),
+            category == AVAudioSessionCategory.playback ||
+                category == AVAudioSessionCategory.playAndRecord ||
+                category == AVAudioSessionCategory.multiRoute ||
+                !options.contains(AVAudioSessionOptions.mixWithOthers),
+            'You can set the option `mixWithOthers` explicitly only if the '
+            'audio session category is `playAndRecord`, `playback`, or '
+            '`multiRoute`.'),
         assert(
-            !options.contains(AVAudioSessionOptions.duckOthers) ^
-                (category == AVAudioSessionCategory.playAndRecord ||
-                    category == AVAudioSessionCategory.playback ||
-                    category == AVAudioSessionCategory.multiRoute),
-            'You can set the option `duckOthers` explicitly only if the audio session category is `playAndRecord`, `playback`, or `multiRoute`.'),
+          category == AVAudioSessionCategory.playback ||
+              category == AVAudioSessionCategory.playAndRecord ||
+              category == AVAudioSessionCategory.multiRoute ||
+              !options.contains(AVAudioSessionOptions.duckOthers),
+          'You can set the option `duckOthers` explicitly only if the audio '
+          'session category is `playAndRecord`, `playback`, or `multiRoute`.',
+        ),
         assert(
-            !options.contains(AVAudioSessionOptions
-                    .interruptSpokenAudioAndMixWithOthers) ^
-                (category == AVAudioSessionCategory.playAndRecord ||
-                    category == AVAudioSessionCategory.playback ||
-                    category == AVAudioSessionCategory.multiRoute),
-            'You can set the option `interruptSpokenAudioAndMixWithOthers` explicitly only if the audio session category is `playAndRecord`, `playback`, or `multiRoute`.'),
+            category == AVAudioSessionCategory.playback ||
+                category == AVAudioSessionCategory.playAndRecord ||
+                category == AVAudioSessionCategory.multiRoute ||
+                !options.contains(
+                  AVAudioSessionOptions.interruptSpokenAudioAndMixWithOthers,
+                ),
+            'You can set the option `interruptSpokenAudioAndMixWithOthers` '
+            'explicitly only if the audio session category is `playAndRecord`, '
+            '`playback`, or `multiRoute`.'),
         assert(
-            !options.contains(AVAudioSessionOptions.allowBluetooth) ^
-                (category == AVAudioSessionCategory.playAndRecord ||
-                    category == AVAudioSessionCategory.record),
-            'You can set the option `allowBluetooth` explicitly only if the audio session category is `playAndRecord` or `record`.'),
+            category == AVAudioSessionCategory.playAndRecord ||
+                category == AVAudioSessionCategory.record ||
+                !options.contains(AVAudioSessionOptions.allowBluetooth),
+            'You can set the option `allowBluetooth` explicitly only if the '
+            'audio session category is `playAndRecord` or `record`.'),
         assert(
-            !options.contains(AVAudioSessionOptions.allowBluetoothA2DP) ^
-                (category == AVAudioSessionCategory.playAndRecord ||
-                    category == AVAudioSessionCategory.record ||
-                    category == AVAudioSessionCategory.multiRoute),
-            'You can set the option `allowBluetoothA2DP` explicitly only if the audio session category is `playAndRecord`, `record`, or `multiRoute`.'),
+            category == AVAudioSessionCategory.playAndRecord ||
+                category == AVAudioSessionCategory.record ||
+                category == AVAudioSessionCategory.multiRoute ||
+                !options.contains(AVAudioSessionOptions.allowBluetoothA2DP),
+            'You can set the option `allowBluetoothA2DP` explicitly only if '
+            'the audio session category is `playAndRecord`, `record`, or '
+            '`multiRoute`.'),
         assert(
-            !options.contains(AVAudioSessionOptions.allowAirPlay) ^
-                (category == AVAudioSessionCategory.playAndRecord),
-            'You can set the option `allowAirPlay` explicitly only if the audio session category is `playAndRecord`.'),
+            category == AVAudioSessionCategory.playAndRecord ||
+                !options.contains(AVAudioSessionOptions.allowAirPlay),
+            'You can set the option `allowAirPlay` explicitly only if the '
+            'audio session category is `playAndRecord`.'),
         assert(
-            !options.contains(AVAudioSessionOptions.defaultToSpeaker) ^
-                (category == AVAudioSessionCategory.playAndRecord),
-            'You can set the option `defaultToSpeaker` explicitly only if the audio session category is `playAndRecord`.'),
+            category == AVAudioSessionCategory.playAndRecord ||
+                !options.contains(AVAudioSessionOptions.defaultToSpeaker),
+            'You can set the option `defaultToSpeaker` explicitly only if the '
+            'audio session category is `playAndRecord`.'),
         assert(
-            !options.contains(
-                    AVAudioSessionOptions.overrideMutedMicrophoneInterruption) ^
-                (category == AVAudioSessionCategory.playAndRecord ||
-                    category == AVAudioSessionCategory.record ||
-                    category == AVAudioSessionCategory.multiRoute),
-            'You can set the option `overrideMutedMicrophoneInterruption` explicitly only if the audio session category is `playAndRecord`, `record`, or `multiRoute`.');
+            category == AVAudioSessionCategory.playAndRecord ||
+                category == AVAudioSessionCategory.record ||
+                category == AVAudioSessionCategory.multiRoute ||
+                !options.contains(
+                  AVAudioSessionOptions.overrideMutedMicrophoneInterruption,
+                ),
+            'You can set the option `overrideMutedMicrophoneInterruption` '
+            'explicitly only if the audio session category is `playAndRecord`, '
+            '`record`, or `multiRoute`.');
 
   AudioContextIOS copy({
     AVAudioSessionCategory? category,
