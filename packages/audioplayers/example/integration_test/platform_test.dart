@@ -89,9 +89,10 @@ void main() {
     );
   });
 
-  group('Platform method channel', () {
+  group('Platform method channel', () async {
     late AudioplayersPlatformInterface platform;
     late String playerId;
+    final audioTestDataList = await getAudioTestDataList();
 
     setUp(() async {
       platform = AudioplayersPlatformInterface.instance;
@@ -124,43 +125,45 @@ void main() {
       await tester.pumpLinux();
     });
 
-    testWidgets('#setSource #getPosition and #getDuration', (tester) async {
-      await tester.prepareSource(
-        playerId: playerId,
-        platform: platform,
-        testData: wavUrl1TestData,
-      );
-      expect(await platform.getCurrentPosition(playerId), 0);
-      expect(
-        await platform.getDuration(playerId),
-        wavUrl1TestData.duration.inMilliseconds,
-      );
-      await tester.pumpLinux();
-    });
+    for (final td in audioTestDataList) {
+      testWidgets('#setSource #getPosition and #getDuration', (tester) async {
+        await tester.prepareSource(
+          playerId: playerId,
+          platform: platform,
+          testData: td,
+        );
+        expect(await platform.getCurrentPosition(playerId), 0);
+        expect(
+          await platform.getDuration(playerId),
+          td.duration.inMilliseconds,
+        );
+        await tester.pumpLinux();
+      });
 
-    testWidgets('#seek with millisecond precision', (tester) async {
-      await tester.prepareSource(
-        playerId: playerId,
-        platform: platform,
-        testData: mp3Url1TestData,
-      );
+      testWidgets('#seek with millisecond precision', (tester) async {
+        await tester.prepareSource(
+          playerId: playerId,
+          platform: platform,
+          testData: td,
+        );
 
-      final eventStream = platform.getEventStream(playerId);
-      final seekCompleter = Completer<void>();
-      final onSeekSub = eventStream
-          .where((event) => event.eventType == AudioEventType.seekComplete)
-          .listen(
-        (_) {
-          seekCompleter.complete();
-        },
-        onError: seekCompleter.completeError,
-      );
-      await platform.seek(playerId, const Duration(milliseconds: 21));
-      await seekCompleter.future.timeout(const Duration(seconds: 30));
-      await onSeekSub.cancel();
-      expect(await platform.getCurrentPosition(playerId), 21);
-      await tester.pumpLinux();
-    });
+        final eventStream = platform.getEventStream(playerId);
+        final seekCompleter = Completer<void>();
+        final onSeekSub = eventStream
+            .where((event) => event.eventType == AudioEventType.seekComplete)
+            .listen(
+          (_) {
+            seekCompleter.complete();
+          },
+          onError: seekCompleter.completeError,
+        );
+        await platform.seek(playerId, const Duration(milliseconds: 21));
+        await seekCompleter.future.timeout(const Duration(seconds: 30));
+        await onSeekSub.cancel();
+        expect(await platform.getCurrentPosition(playerId), 21);
+        await tester.pumpLinux();
+      });
+    }
 
     testWidgets('Set same source twice (#1520)', (tester) async {
       for (var i = 0; i < 2; i++) {

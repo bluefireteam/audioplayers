@@ -17,12 +17,8 @@ void main() {
 
   final isAndroid = !kIsWeb && Platform.isAndroid;
 
-  group('play multiple sources', () {
-    late List<LibSourceTestData> audioTestDataList;
-
-    setUp(() async {
-      audioTestDataList = await getAudioTestDataList();
-    });
+  group('play multiple sources', () async {
+    final audioTestDataList = await getAudioTestDataList();
 
     testWidgets(
       'play multiple sources simultaneously',
@@ -62,8 +58,7 @@ void main() {
         (WidgetTester tester) async {
       final player = AudioPlayer();
 
-      for (var i = 0; i < audioTestDataList.length; i++) {
-        final td = audioTestDataList[i];
+      for (final td in audioTestDataList) {
         await tester.pumpLinux();
         await player.play(td.source);
         await tester.pumpAndSettle();
