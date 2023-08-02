@@ -258,8 +258,10 @@ void main() async {
           await tester.pumpLinux();
         });
       }
+    }
 
-      for (final td in audioTestDataList) {
+    for (final td in audioTestDataList) {
+      if (features.hasReleaseModeRelease && !td.isLiveStream) {
         testWidgets('#ReleaseMode.release ${td.source}', (tester) async {
           await tester.prepareSource(
             playerId: playerId,
