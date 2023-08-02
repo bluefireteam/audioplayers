@@ -16,7 +16,7 @@ class LibSourceTestData extends SourceTestData {
 
   @override
   String toString() {
-    return 'RawSourceTestData('
+    return 'LibSourceTestData('
         'source: $source, '
         'duration: $duration, '
         'isLiveStream: $isLiveStream'

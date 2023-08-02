@@ -9,9 +9,11 @@ import 'package:integration_test/integration_test.dart';
 
 import 'lib/lib_source_test_data.dart';
 import 'lib/lib_test_utils.dart';
+import 'platform_features.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  final features = PlatformFeatures.instance();
 
   group('Logging', () {
     testWidgets('Emit platform log', (tester) async {
@@ -126,7 +128,8 @@ void main() {
     });
 
     for (final td in audioTestDataList) {
-      testWidgets('#setSource #getPosition and #getDuration', (tester) async {
+      testWidgets('#setSource #getPosition and #getDuration ${td.source}',
+          (tester) async {
         await tester.prepareSource(
           playerId: playerId,
           platform: platform,
@@ -140,29 +143,123 @@ void main() {
         await tester.pumpLinux();
       });
 
-      testWidgets('#seek with millisecond precision', (tester) async {
-        await tester.prepareSource(
-          playerId: playerId,
-          platform: platform,
-          testData: td,
-        );
+      if (features.hasVolume) {
+        testWidgets('#volume ${td.source}', (tester) async {
+          await tester.prepareSource(
+            playerId: playerId,
+            platform: platform,
+            testData: td,
+          );
+          for (final volume in [0.0, 0.5, 1.0]) {
+            await platform.setVolume(playerId, volume);
+            await platform.resume(playerId);
+            await tester.pump(const Duration(seconds: 1));
+            await platform.stop(playerId);
+          }
+          // May check native volume here
+          await tester.pumpLinux();
+        });
+      }
 
-        final eventStream = platform.getEventStream(playerId);
-        final seekCompleter = Completer<void>();
-        final onSeekSub = eventStream
-            .where((event) => event.eventType == AudioEventType.seekComplete)
-            .listen(
-          (_) {
-            seekCompleter.complete();
-          },
-          onError: seekCompleter.completeError,
-        );
-        await platform.seek(playerId, const Duration(milliseconds: 21));
-        await seekCompleter.future.timeout(const Duration(seconds: 30));
-        await onSeekSub.cancel();
-        expect(await platform.getCurrentPosition(playerId), 21);
-        await tester.pumpLinux();
-      });
+      if (features.hasBalance) {
+        testWidgets('#balance ${td.source}', (tester) async {
+          await tester.prepareSource(
+            playerId: playerId,
+            platform: platform,
+            testData: td,
+          );
+          for (final balance in [-1.0, 0.0, 1.0]) {
+            await platform.setBalance(playerId, balance);
+            await platform.resume(playerId);
+            await tester.pump(const Duration(seconds: 1));
+            await platform.stop(playerId);
+          }
+          // May check native balance here
+          await tester.pumpLinux();
+        });
+      }
+
+      if (features.hasPlaybackRate && !td.isLiveStream) {
+        testWidgets('#playbackRate ${td.source}', (tester) async {
+          await tester.prepareSource(
+            playerId: playerId,
+            platform: platform,
+            testData: td,
+          );
+          for (final playbackRate in [0.5, 1.0, 2.0]) {
+            await platform.setPlaybackRate(playerId, playbackRate);
+            await platform.resume(playerId);
+            await tester.pump(const Duration(seconds: 1));
+            await platform.stop(playerId);
+          }
+          // May check native playback rate here
+          await tester.pumpLinux();
+        });
+      }
+
+      if (features.hasSeek && !td.isLiveStream) {
+        testWidgets('#seek with millisecond precision ${td.source}',
+            (tester) async {
+          await tester.prepareSource(
+            playerId: playerId,
+            platform: platform,
+            testData: td,
+          );
+
+          final eventStream = platform.getEventStream(playerId);
+          final seekCompleter = Completer<void>();
+          final onSeekSub = eventStream
+              .where((event) => event.eventType == AudioEventType.seekComplete)
+              .listen(
+            (_) {
+              seekCompleter.complete();
+            },
+            onError: seekCompleter.completeError,
+          );
+          await platform.seek(playerId, const Duration(milliseconds: 21));
+          await seekCompleter.future.timeout(const Duration(seconds: 30));
+          await onSeekSub.cancel();
+          expect(await platform.getCurrentPosition(playerId), 21);
+          await tester.pumpLinux();
+        });
+      }
+
+      if (features.hasReleaseModeLoop &&
+          !td.isLiveStream &&
+          td.duration < const Duration(seconds: 2)) {
+        testWidgets('#ReleaseMode.loop ${td.source}', (tester) async {
+          await tester.prepareSource(
+            playerId: playerId,
+            platform: platform,
+            testData: td,
+          );
+          await platform.setReleaseMode(playerId, ReleaseMode.loop);
+          await platform.resume(playerId);
+          await tester.pump(const Duration(seconds: 3));
+          await platform.stop(playerId);
+
+          // May check number of loops here
+          await tester.pumpLinux();
+        });
+
+        testWidgets('#ReleaseMode.release ${td.source}', (tester) async {
+          await tester.prepareSource(
+            playerId: playerId,
+            platform: platform,
+            testData: td,
+          );
+          await platform.setReleaseMode(playerId, ReleaseMode.release);
+          await platform.resume(playerId);
+          await tester.pump(const Duration(seconds: 3));
+          // No need to call stop, as it should be released by now
+          // TODO(Gustl22): test if source was released
+
+          // May check number of loops here
+          await tester.pumpLinux();
+
+          // TODO(Gustl22): test 'platform.release()'
+        });
+      }
     }
 
     testWidgets('Set same source twice (#1520)', (tester) async {

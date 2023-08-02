@@ -66,6 +66,7 @@ Future<void> testControlsTab(
     await tester.stop();
   }
 
+  // Test all features in low latency mode:
   final isBytesSource = audioSourceTestData.sourceKey.contains('bytes');
   if (features.hasLowLatency &&
       !audioSourceTestData.isLiveStream &&
@@ -150,7 +151,6 @@ extension ControlsWidgetTester on WidgetTester {
     printWithTimeOnFailure('Test Volume: $volume');
     await scrollToAndTap(Key('control-volume-$volume'));
     await resume();
-    // TODO(Gustl22): get volume from native implementation
     await pump(timeout);
     await stop();
   }
@@ -162,7 +162,6 @@ extension ControlsWidgetTester on WidgetTester {
     printWithTimeOnFailure('Test Balance: $balance');
     await scrollToAndTap(Key('control-balance-$balance'));
     await resume();
-    // TODO(novikov): get balance from native implementation
     await pump(timeout);
     await stop();
   }
@@ -174,7 +173,6 @@ extension ControlsWidgetTester on WidgetTester {
     printWithTimeOnFailure('Test Rate: $rate');
     await scrollToAndTap(Key('control-rate-$rate'));
     await resume();
-    // TODO(Gustl22): get rate from native implementation
     await pump(timeout);
     await stop();
   }
@@ -224,6 +222,5 @@ extension ControlsWidgetTester on WidgetTester {
     if (isResume) {
       await resume();
     }
-    // TODO(Gustl22): get release mode from native implementation
   }
 }
