@@ -148,8 +148,10 @@ void main() async {
         );
         await tester.pumpLinux();
       });
+    }
 
-      if (features.hasVolume) {
+    if (features.hasVolume) {
+      for (final td in audioTestDataList) {
         testWidgets('#volume ${td.source}', (tester) async {
           await tester.prepareSource(
             playerId: playerId,
@@ -166,8 +168,10 @@ void main() async {
           await tester.pumpLinux();
         });
       }
+    }
 
-      if (features.hasBalance) {
+    if (features.hasBalance) {
+      for (final td in audioTestDataList) {
         testWidgets('#balance ${td.source}', (tester) async {
           await tester.prepareSource(
             playerId: playerId,
@@ -184,7 +188,9 @@ void main() async {
           await tester.pumpLinux();
         });
       }
+    }
 
+    for (final td in audioTestDataList) {
       if (features.hasPlaybackRate && !td.isLiveStream) {
         testWidgets('#playbackRate ${td.source}', (tester) async {
           await tester.prepareSource(
@@ -202,7 +208,9 @@ void main() async {
           await tester.pumpLinux();
         });
       }
+    }
 
+    for (final td in audioTestDataList) {
       if (features.hasSeek && !td.isLiveStream) {
         testWidgets('#seek with millisecond precision ${td.source}',
             (tester) async {
@@ -229,7 +237,9 @@ void main() async {
           await tester.pumpLinux();
         });
       }
+    }
 
+    for (final td in audioTestDataList) {
       if (features.hasReleaseModeLoop &&
           !td.isLiveStream &&
           td.duration < const Duration(seconds: 2)) {
@@ -247,7 +257,9 @@ void main() async {
           // May check number of loops here
           await tester.pumpLinux();
         });
+      }
 
+      for (final td in audioTestDataList) {
         testWidgets('#ReleaseMode.release ${td.source}', (tester) async {
           await tester.prepareSource(
             playerId: playerId,
