@@ -11,9 +11,10 @@ import 'lib/lib_source_test_data.dart';
 import 'lib/lib_test_utils.dart';
 import 'platform_features.dart';
 
-void main() {
+void main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   final features = PlatformFeatures.instance();
+  final audioTestDataList = await getAudioTestDataList();
 
   group('Logging', () {
     testWidgets('Emit platform log', (tester) async {
@@ -91,10 +92,9 @@ void main() {
     );
   });
 
-  group('Platform method channel', () async {
+  group('Platform method channel', () {
     late AudioplayersPlatformInterface platform;
     late String playerId;
-    final audioTestDataList = await getAudioTestDataList();
 
     setUp(() async {
       platform = AudioplayersPlatformInterface.instance;
@@ -363,10 +363,15 @@ extension on WidgetTester {
       onError: preparedCompleter.completeError,
     );
     await pumpLinux();
-    await platform.setSourceUrl(
-      playerId,
-      (testData.source as UrlSource).url,
-    );
+    final source = testData.source;
+    if (source is UrlSource) {
+      await platform.setSourceUrl(playerId, source.url);
+    } else if (source is AssetSource) {
+      final url = await AudioCache.instance.load(source.path);
+      await platform.setSourceUrl(playerId, url.path, isLocal: true);
+    } else if (source is BytesSource) {
+      await platform.setSourceBytes(playerId, source.bytes);
+    }
     await preparedCompleter.future.timeout(const Duration(seconds: 30));
     await onPreparedSub.cancel();
   }

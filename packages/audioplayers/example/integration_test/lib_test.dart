@@ -10,16 +10,13 @@ import 'lib/lib_test_utils.dart';
 import 'platform_features.dart';
 import 'test_utils.dart';
 
-void main() {
-  final features = PlatformFeatures.instance();
-
+void main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-
+  final features = PlatformFeatures.instance();
   final isAndroid = !kIsWeb && Platform.isAndroid;
+  final audioTestDataList = await getAudioTestDataList();
 
-  group('play multiple sources', () async {
-    final audioTestDataList = await getAudioTestDataList();
-
+  group('play multiple sources', () {
     testWidgets(
       'play multiple sources simultaneously',
       (WidgetTester tester) async {
