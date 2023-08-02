@@ -225,11 +225,9 @@ void main() async {
           final onSeekSub = eventStream
               .where((event) => event.eventType == AudioEventType.seekComplete)
               .listen(
-            (_) {
-              seekCompleter.complete();
-            },
-            onError: seekCompleter.completeError,
-          );
+                (_) => seekCompleter.complete(),
+                onError: seekCompleter.completeError,
+              );
           await platform.seek(playerId, const Duration(milliseconds: 21));
           await seekCompleter.future.timeout(const Duration(seconds: 30));
           await onSeekSub.cancel();
@@ -307,6 +305,34 @@ void main() async {
     tearDown(() async {
       await platform.dispose(playerId);
     });
+
+    for (final td in audioTestDataList) {
+      if (features.hasPositionEvent &&
+          (td.isLiveStream || td.duration > const Duration(seconds: 2))) {
+        testWidgets('#positionEvent ${td.source}', (tester) async {
+          await tester.prepareSource(
+            playerId: playerId,
+            platform: platform,
+            testData: td,
+          );
+
+          final eventStream = platform.getEventStream(playerId);
+          Duration? position;
+          final onPositionSub = eventStream
+              .where((event) => event.eventType == AudioEventType.position)
+              .listen(
+                (event) => position = event.position,
+              );
+
+          await platform.resume(playerId);
+          await tester.pumpAndSettle(const Duration(seconds: 1));
+          expect(position, greaterThan(Duration.zero));
+          await platform.stop(playerId);
+          await onPositionSub.cancel();
+          await tester.pumpLinux();
+        });
+      }
+    }
 
     testWidgets('Listen and cancel twice', (tester) async {
       final eventStream = platform.getEventStream(playerId);
