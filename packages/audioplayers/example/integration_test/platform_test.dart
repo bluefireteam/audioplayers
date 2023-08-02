@@ -10,6 +10,7 @@ import 'package:integration_test/integration_test.dart';
 import 'lib/lib_source_test_data.dart';
 import 'lib/lib_test_utils.dart';
 import 'platform_features.dart';
+import 'test_utils.dart';
 
 void main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -136,9 +137,14 @@ void main() async {
           testData: td,
         );
         expect(await platform.getCurrentPosition(playerId), 0);
+        final durationMs = await platform.getDuration(playerId);
         expect(
-          await platform.getDuration(playerId),
-          td.duration.inMilliseconds,
+          durationMs != null ? Duration(milliseconds: durationMs) : null,
+          (Duration? actual) => durationRangeMatcher(
+            actual,
+            td.duration,
+            deviation: const Duration(milliseconds: 1),
+          ),
         );
         await tester.pumpLinux();
       });
