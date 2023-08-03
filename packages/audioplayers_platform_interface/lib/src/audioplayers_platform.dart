@@ -12,6 +12,18 @@ import 'package:flutter/services.dart';
 class AudioplayersPlatform extends AudioplayersPlatformInterface
     with MethodChannelAudioplayersPlatform, EventChannelAudioplayersPlatform {
   AudioplayersPlatform();
+
+  @override
+  Future<void> create(String playerId) async {
+    await super.create(playerId);
+    createEventStream(playerId);
+  }
+
+  @override
+  Future<void> dispose(String playerId) async {
+    await super.dispose(playerId);
+    disposeEventStream(playerId);
+  }
 }
 
 mixin MethodChannelAudioplayersPlatform
@@ -212,12 +224,12 @@ mixin MethodChannelAudioplayersPlatform
 
 mixin EventChannelAudioplayersPlatform
     implements EventChannelAudioplayersPlatformInterface {
-  @override
-  Stream<AudioEvent> getEventStream(String playerId) {
-    // Only can be used after have created the event channel on the native side.
-    final eventChannel = EventChannel('xyz.luan/audioplayers/events/$playerId');
+  final Map<String, Stream<AudioEvent>> streams = {};
 
-    return eventChannel.receiveBroadcastStream().map(
+  // Only can be used after have created the event channel on the native side.
+  void createEventStream(String playerId) {
+    final eventChannel = EventChannel('xyz.luan/audioplayers/events/$playerId');
+    streams[playerId] = eventChannel.receiveBroadcastStream().map(
       (dynamic event) {
         final map = event as Map<dynamic, dynamic>;
         final eventType = map.getString('event');
@@ -257,5 +269,16 @@ mixin EventChannelAudioplayersPlatform
         }
       },
     );
+  }
+
+  void disposeEventStream(String playerId) {
+    if (streams.containsKey(playerId)) {
+      streams.remove(playerId);
+    }
+  }
+
+  @override
+  Stream<AudioEvent> getEventStream(String playerId) {
+    return streams[playerId]!;
   }
 }
