@@ -323,10 +323,7 @@ void main() async {
             platform: platform,
             testData: td,
           );
-          // TODO(Gustl22): Test duration event during preparation instead of
-          // during playing.
 
-          await platform.resume(playerId);
           expect(
             await durationCompleter.future.timeout(const Duration(seconds: 30)),
             (Duration? actual) => durationRangeMatcher(
@@ -335,8 +332,6 @@ void main() async {
               deviation: const Duration(milliseconds: 1),
             ),
           );
-          await platform.stop(playerId);
-
           await onDurationSub.cancel();
           await tester.pumpLinux();
         });
