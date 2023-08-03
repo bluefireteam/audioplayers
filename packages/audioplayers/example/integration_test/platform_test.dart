@@ -307,6 +307,43 @@ void main() async {
     });
 
     for (final td in audioTestDataList) {
+      if (features.hasDurationEvent && !td.isLiveStream) {
+        testWidgets('#durationEvent ${td.source}', (tester) async {
+          final eventStream = platform.getEventStream(playerId);
+          final durationCompleter = Completer<Duration?>();
+          final onDurationSub = eventStream
+              .where((event) => event.eventType == AudioEventType.duration)
+              .listen(
+                (event) => durationCompleter.complete(event.duration),
+                onError: durationCompleter.completeError,
+              );
+
+          await tester.prepareSource(
+            playerId: playerId,
+            platform: platform,
+            testData: td,
+          );
+          // TODO(Gustl22): Test duration event during preparation instead of
+          // during playing.
+
+          await platform.resume(playerId);
+          expect(
+            await durationCompleter.future.timeout(const Duration(seconds: 30)),
+            (Duration? actual) => durationRangeMatcher(
+              actual,
+              td.duration,
+              deviation: const Duration(milliseconds: 1),
+            ),
+          );
+          await platform.stop(playerId);
+
+          await onDurationSub.cancel();
+          await tester.pumpLinux();
+        });
+      }
+    }
+
+    for (final td in audioTestDataList) {
       if (features.hasPositionEvent &&
           (td.isLiveStream || td.duration > const Duration(seconds: 2))) {
         testWidgets('#positionEvent ${td.source}', (tester) async {
