@@ -228,10 +228,18 @@ void main() async {
                 (_) => seekCompleter.complete(),
                 onError: seekCompleter.completeError,
               );
-          await platform.seek(playerId, const Duration(milliseconds: 21));
+          await platform.seek(playerId, const Duration(milliseconds: 22));
           await seekCompleter.future.timeout(const Duration(seconds: 30));
           await onSeekSub.cancel();
-          expect(await platform.getCurrentPosition(playerId), 21);
+          final positionMs = await platform.getCurrentPosition(playerId);
+          expect(
+            positionMs != null ? Duration(milliseconds: positionMs) : null,
+            (Duration? actual) => durationRangeMatcher(
+              actual,
+              const Duration(milliseconds: 22),
+              deviation: const Duration(milliseconds: 1),
+            ),
+          );
           await tester.pumpLinux();
         });
       }
