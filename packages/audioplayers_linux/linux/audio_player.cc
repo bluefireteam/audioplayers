@@ -364,6 +364,8 @@ int64_t AudioPlayer::GetPosition() {
 int64_t AudioPlayer::GetDuration() {
     gint64 duration = 0;
     if (!gst_element_query_duration(playbin, GST_FORMAT_TIME, &duration)) {
+        // FIXME: Get duration for MP3 with variable bit rate with gst-discoverer:
+        // https://gstreamer.freedesktop.org/documentation/pbutils/gstdiscoverer.html?gi-language=c#gst_discoverer_info_get_duration
         this->OnLog("Could not query current duration.");
         return 0;
     }

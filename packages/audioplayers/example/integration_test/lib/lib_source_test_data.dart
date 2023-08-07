@@ -11,6 +11,7 @@ class LibSourceTestData extends SourceTestData {
   LibSourceTestData({
     required this.source,
     required super.duration,
+    super.isVBR,
     super.isLiveStream,
   });
 
@@ -34,6 +35,7 @@ final wavUrl1TestData = LibSourceTestData(
 final mp3Url1TestData = LibSourceTestData(
   source: UrlSource(mp3Url1),
   duration: const Duration(minutes: 3, seconds: 30, milliseconds: 77),
+  isVBR: true,
 );
 
 // Some sources are commented which are considered redundant

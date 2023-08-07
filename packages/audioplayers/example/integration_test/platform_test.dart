@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_example/tabs/sources.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -15,6 +17,7 @@ import 'test_utils.dart';
 void main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   final features = PlatformFeatures.instance();
+  final isLinux = !kIsWeb && Platform.isLinux;
   final audioTestDataList = await getAudioTestDataList();
 
   group('Logging', () {
@@ -129,25 +132,29 @@ void main() async {
     });
 
     for (final td in audioTestDataList) {
-      testWidgets('#setSource #getPosition and #getDuration ${td.source}',
-          (tester) async {
-        await tester.prepareSource(
-          playerId: playerId,
-          platform: platform,
-          testData: td,
-        );
-        expect(await platform.getCurrentPosition(playerId), 0);
-        final durationMs = await platform.getDuration(playerId);
-        expect(
-          durationMs != null ? Duration(milliseconds: durationMs) : null,
-          (Duration? actual) => durationRangeMatcher(
-            actual,
-            td.duration,
-            deviation: const Duration(milliseconds: 1),
-          ),
-        );
-        await tester.pumpLinux();
-      });
+      testWidgets(
+        '#setSource #getPosition and #getDuration ${td.source}',
+        (tester) async {
+          await tester.prepareSource(
+            playerId: playerId,
+            platform: platform,
+            testData: td,
+          );
+          expect(await platform.getCurrentPosition(playerId), 0);
+          final durationMs = await platform.getDuration(playerId);
+          expect(
+            durationMs != null ? Duration(milliseconds: durationMs) : null,
+            (Duration? actual) => durationRangeMatcher(
+              actual,
+              td.duration,
+              deviation: const Duration(milliseconds: 1),
+            ),
+          );
+          await tester.pumpLinux();
+        },
+        skip: isLinux &&
+            td.isVBR, // TODO(gustl22): cannot determine duration for VBR on Linux
+      );
     }
 
     if (features.hasVolume) {

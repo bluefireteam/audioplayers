@@ -8,6 +8,7 @@ class AppSourceTestData extends SourceTestData {
   AppSourceTestData({
     required this.sourceKey,
     required super.duration,
+    super.isVBR,
     super.isLiveStream,
   });
 
@@ -39,6 +40,7 @@ final audioTestDataList = [
   /*if (_features.hasUrlSource)
     AppSourceTestData(
       sourceKey: 'url-remote-mp3-1',
+      isVBR: true,
       duration: const Duration(minutes: 3, seconds: 30, milliseconds: 77),
     ),*/
   /*if (_features.hasUrlSource)
