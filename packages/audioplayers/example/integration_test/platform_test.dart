@@ -152,8 +152,8 @@ void main() async {
           );
           await tester.pumpLinux();
         },
-        skip: isLinux &&
-            td.isVBR, // TODO(gustl22): cannot determine duration for VBR on Linux
+        // TODO(gustl22): cannot determine duration for VBR on Linux
+        skip: isLinux && td.isVBR,
       );
     }
 
@@ -323,33 +323,39 @@ void main() async {
 
     for (final td in audioTestDataList) {
       if (features.hasDurationEvent && !td.isLiveStream) {
-        testWidgets('#durationEvent ${td.source}', (tester) async {
-          final eventStream = platform.getEventStream(playerId);
-          final durationCompleter = Completer<Duration?>();
-          final onDurationSub = eventStream
-              .where((event) => event.eventType == AudioEventType.duration)
-              .listen(
-                (event) => durationCompleter.complete(event.duration),
-                onError: durationCompleter.completeError,
-              );
+        testWidgets(
+          '#durationEvent ${td.source}',
+          (tester) async {
+            final eventStream = platform.getEventStream(playerId);
+            final durationCompleter = Completer<Duration?>();
+            final onDurationSub = eventStream
+                .where((event) => event.eventType == AudioEventType.duration)
+                .listen(
+                  (event) => durationCompleter.complete(event.duration),
+                  onError: durationCompleter.completeError,
+                );
 
-          await tester.prepareSource(
-            playerId: playerId,
-            platform: platform,
-            testData: td,
-          );
+            await tester.prepareSource(
+              playerId: playerId,
+              platform: platform,
+              testData: td,
+            );
 
-          expect(
-            await durationCompleter.future.timeout(const Duration(seconds: 30)),
-            (Duration? actual) => durationRangeMatcher(
-              actual,
-              td.duration,
-              deviation: const Duration(milliseconds: 1),
-            ),
-          );
-          await onDurationSub.cancel();
-          await tester.pumpLinux();
-        });
+            expect(
+              await durationCompleter.future
+                  .timeout(const Duration(seconds: 30)),
+              (Duration? actual) => durationRangeMatcher(
+                actual,
+                td.duration,
+                deviation: const Duration(milliseconds: 1),
+              ),
+            );
+            await onDurationSub.cancel();
+            await tester.pumpLinux();
+          },
+          // TODO(gustl22): cannot determine duration for VBR on Linux
+          skip: isLinux && td.isVBR,
+        );
       }
     }
 
