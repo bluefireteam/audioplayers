@@ -38,6 +38,12 @@ final mp3Url1TestData = LibSourceTestData(
   isVBR: true,
 );
 
+final m3u8UrltestData = LibSourceTestData(
+  source: UrlSource(m3u8StreamUrl),
+  duration: Duration.zero,
+  isLiveStream: true,
+);
+
 // Some sources are commented which are considered redundant
 Future<List<LibSourceTestData>> getAudioTestDataList() async {
   return [
@@ -54,11 +60,7 @@ Future<List<LibSourceTestData>> getAudioTestDataList() async {
         duration: const Duration(minutes: 1, seconds: 34, milliseconds: 119),
       ),*/
     if (_features.hasUrlSource && _features.hasPlaylistSourceType)
-      LibSourceTestData(
-        source: UrlSource(m3u8StreamUrl),
-        duration: Duration.zero,
-        isLiveStream: true,
-      ),
+      m3u8UrltestData,
     if (_features.hasUrlSource)
       LibSourceTestData(
         source: UrlSource(mpgaStreamUrl),
