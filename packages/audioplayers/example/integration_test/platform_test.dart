@@ -148,7 +148,7 @@ void main() async {
         // FIXME(gustl22): cannot determine initial duration for VBR on Linux
         // FIXME(gustl22): determines wrong initial position for m3u8 on Linux
         skip: isLinux && td.isVBR ||
-            isLinux && td.source == m3u8UrltestData.source,
+            isLinux && td.source == m3u8UrlTestData.source,
       );
     }
 
@@ -325,6 +325,10 @@ void main() async {
               platform: platform,
               testData: td,
             );
+
+            if (td.source == wavAssetTestData.source) {
+              await tester.pumpLinux();
+            }
 
             expect(
               await durationCompleter.future

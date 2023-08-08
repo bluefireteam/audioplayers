@@ -20,6 +20,7 @@ class LibSourceTestData extends SourceTestData {
     return 'LibSourceTestData('
         'source: $source, '
         'duration: $duration, '
+        'isVBR: $isVBR, '
         'isLiveStream: $isLiveStream'
         ')';
   }
@@ -38,10 +39,15 @@ final mp3Url1TestData = LibSourceTestData(
   isVBR: true,
 );
 
-final m3u8UrltestData = LibSourceTestData(
+final m3u8UrlTestData = LibSourceTestData(
   source: UrlSource(m3u8StreamUrl),
   duration: Duration.zero,
   isLiveStream: true,
+);
+
+final wavAssetTestData = LibSourceTestData(
+  source: AssetSource(wavAsset),
+  duration: const Duration(seconds: 1, milliseconds: 068),
 );
 
 // Some sources are commented which are considered redundant
@@ -60,18 +66,14 @@ Future<List<LibSourceTestData>> getAudioTestDataList() async {
         duration: const Duration(minutes: 1, seconds: 34, milliseconds: 119),
       ),*/
     if (_features.hasUrlSource && _features.hasPlaylistSourceType)
-      m3u8UrltestData,
+      m3u8UrlTestData,
     if (_features.hasUrlSource)
       LibSourceTestData(
         source: UrlSource(mpgaStreamUrl),
         duration: Duration.zero,
         isLiveStream: true,
       ),
-    if (_features.hasAssetSource)
-      LibSourceTestData(
-        source: AssetSource(wavAsset),
-        duration: const Duration(seconds: 1, milliseconds: 068),
-      ),
+    if (_features.hasAssetSource) wavAssetTestData,
     /*if (_features.hasAssetSource)
       LibSourceTestData(
         source: AssetSource(mp3Asset),

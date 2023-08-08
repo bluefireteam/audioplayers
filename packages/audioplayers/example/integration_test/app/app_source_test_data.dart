@@ -17,6 +17,7 @@ class AppSourceTestData extends SourceTestData {
     return 'UiSourceTestData('
         'sourceKey: $sourceKey, '
         'duration: $duration, '
+        'isVBR: $isVBR, '
         'isLiveStream: $isLiveStream'
         ')';
   }
