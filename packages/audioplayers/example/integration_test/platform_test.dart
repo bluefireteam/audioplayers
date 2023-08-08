@@ -443,7 +443,11 @@ extension on WidgetTester {
           preparedCompleter.complete();
         }
       },
-      onError: preparedCompleter.completeError,
+      onError: (Object e, [StackTrace? st]) {
+        if (!preparedCompleter.isCompleted) {
+          preparedCompleter.completeError(e, st);
+        }
+      },
     );
     await pumpLinux();
     final source = testData.source;
