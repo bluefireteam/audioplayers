@@ -48,6 +48,7 @@ void main() async {
         } catch (e) {
           expect(e, isInstanceOf<PlatformException>());
         }
+        await tester.pumpLinux();
       },
     );
 
@@ -66,6 +67,7 @@ void main() async {
         } catch (e) {
           expect(e, isInstanceOf<PlatformException>());
         }
+        await tester.pumpLinux();
       },
     );
 
@@ -87,6 +89,7 @@ void main() async {
 
       // Create player again, so it can be disposed in tearDown
       await platform.create(playerId);
+      await tester.pumpLinux();
     });
 
     for (final td in audioTestDataList) {
@@ -108,6 +111,7 @@ void main() async {
               deviation: const Duration(milliseconds: 1),
             ),
           );
+          await tester.pumpLinux();
         },
         // FIXME(gustl22): cannot determine initial duration for VBR on Linux
         // FIXME(gustl22): determines wrong initial position for m3u8 on Linux
@@ -131,6 +135,7 @@ void main() async {
             await platform.stop(playerId);
           }
           // May check native volume here
+          await tester.pumpLinux();
         });
       }
     }
@@ -150,6 +155,7 @@ void main() async {
             await platform.stop(playerId);
           }
           // May check native balance here
+          await tester.pumpLinux();
         });
       }
     }
@@ -169,6 +175,7 @@ void main() async {
             await platform.stop(playerId);
           }
           // May check native playback rate here
+          await tester.pumpLinux();
         });
       }
     }
@@ -203,6 +210,7 @@ void main() async {
               deviation: const Duration(milliseconds: 1),
             ),
           );
+          await tester.pumpLinux();
         });
       }
     }
@@ -223,6 +231,7 @@ void main() async {
           await platform.stop(playerId);
 
           // May check number of loops here
+          await tester.pumpLinux();
         });
       }
     }
@@ -241,6 +250,7 @@ void main() async {
           // No need to call stop, as it should be released by now
           // TODO(Gustl22): test if source was released
           // TODO(Gustl22): test 'platform.release()'
+          await tester.pumpLinux();
         });
       }
     }
@@ -253,6 +263,7 @@ void main() async {
           testData: wavUrl1TestData,
         );
       }
+      await tester.pumpLinux();
     });
   });
 
@@ -304,6 +315,7 @@ void main() async {
               ),
             );
             await onDurationSub.cancel();
+            await tester.pumpLinux();
           },
           // TODO(gustl22): cannot determine duration for VBR on Linux
           skip: isLinux && td.isVBR,
@@ -334,6 +346,7 @@ void main() async {
           expect(position, greaterThan(Duration.zero));
           await platform.stop(playerId);
           await onPositionSub.cancel();
+          await tester.pumpLinux();
         });
       }
     }
@@ -343,6 +356,7 @@ void main() async {
       for (var i = 0; i < 2; i++) {
         final eventSub = eventStream.listen(null);
         await eventSub.cancel();
+        await tester.pumpLinux();
       }
     });
 
@@ -359,6 +373,7 @@ void main() async {
       final log = await logCompleter.future;
       expect(log, 'SomeLog');
       await logSub.cancel();
+      await tester.pumpLinux();
     });
 
     testWidgets('Emit global platform log', (tester) async {
@@ -379,6 +394,7 @@ void main() async {
       // FIXME: cancelling the global event stream leads to
       // MissingPluginException on Android, if dispose app afterwards
       // await eventStreamSub.cancel();
+      await tester.pumpLinux();
     });
 
     testWidgets('Emit platform error', (tester) async {
@@ -399,6 +415,7 @@ void main() async {
       expect(platformException.code, 'SomeErrorCode');
       expect(platformException.message, 'SomeErrorMessage');
       await eventStreamSub.cancel();
+      await tester.pumpLinux();
     });
 
     testWidgets('Emit global platform error', (tester) async {
@@ -422,6 +439,7 @@ void main() async {
       // FIXME: cancelling the global event stream leads to
       // MissingPluginException on Android, if dispose app afterwards
       // await eventStreamSub.cancel();
+      await tester.pumpLinux();
     });
   });
 }
