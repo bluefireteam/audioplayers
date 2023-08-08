@@ -50,6 +50,16 @@ final wavAssetTestData = LibSourceTestData(
   duration: const Duration(seconds: 1, milliseconds: 068),
 );
 
+final invalidAssetTestData = LibSourceTestData(
+  source: AssetSource(invalidAsset),
+  duration: Duration.zero,
+);
+
+final nonExistentUrlTestData = LibSourceTestData(
+  source: UrlSource('non_existent.txt'),
+  duration: Duration.zero,
+);
+
 // Some sources are commented which are considered redundant
 Future<List<LibSourceTestData>> getAudioTestDataList() async {
   return [

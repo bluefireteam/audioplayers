@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
-import 'package:audioplayers_example/tabs/sources.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -20,77 +19,6 @@ void main() async {
   final isLinux = !kIsWeb && Platform.isLinux;
   final audioTestDataList = await getAudioTestDataList();
 
-  group('Logging', () {
-    testWidgets('Emit platform log', (tester) async {
-      final logCompleter = Completer<String>();
-
-      const playerId = 'somePlayerId';
-      final player = AudioPlayer(playerId: playerId);
-      final onLogSub = player.onLog.listen(
-        logCompleter.complete,
-        onError: logCompleter.completeError,
-      );
-
-      await player.creatingCompleter.future;
-      final platform = AudioplayersPlatformInterface.instance;
-      await platform.emitLog(playerId, 'SomeLog');
-
-      final log = await logCompleter.future;
-      expect(log, 'SomeLog');
-      await onLogSub.cancel();
-      await player.dispose();
-    });
-
-    testWidgets('Emit global platform log', (tester) async {
-      final completer = Completer<String>();
-      final eventStreamSub = AudioPlayer.global.onLog.listen(
-        completer.complete,
-        onError: completer.completeError,
-      );
-
-      final global = GlobalAudioplayersPlatformInterface.instance;
-      await global.emitGlobalLog('SomeGlobalLog');
-
-      final log = await completer.future;
-      expect(log, 'SomeGlobalLog');
-      await eventStreamSub.cancel();
-    });
-  });
-
-  group('Errors', () {
-    testWidgets(
-      'Throw PlatformException, when loading invalid file',
-      (tester) async {
-        final player = AudioPlayer();
-        try {
-          // Throws PlatformException via MethodChannel:
-          await player.setSource(AssetSource(invalidAsset));
-          fail('PlatformException not thrown');
-          // ignore: avoid_catches_without_on_clauses
-        } catch (e) {
-          expect(e, isInstanceOf<PlatformException>());
-        }
-        await player.dispose();
-      },
-    );
-
-    testWidgets(
-      'Throw PlatformException, when loading non existent file',
-      (tester) async {
-        final player = AudioPlayer();
-        try {
-          // Throws PlatformException via MethodChannel:
-          await player.setSource(UrlSource('non_existent.txt'));
-          fail('PlatformException not thrown');
-          // ignore: avoid_catches_without_on_clauses
-        } catch (e) {
-          expect(e, isInstanceOf<PlatformException>());
-        }
-        await player.dispose();
-      },
-    );
-  });
-
   group('Platform method channel', () {
     late AudioplayersPlatformInterface platform;
     late String playerId;
@@ -104,6 +32,42 @@ void main() async {
     tearDown(() async {
       await platform.dispose(playerId);
     });
+
+    testWidgets(
+      'Throw PlatformException, when loading invalid file',
+      (tester) async {
+        try {
+          // Throws PlatformException via MethodChannel:
+          await tester.prepareSource(
+            playerId: playerId,
+            platform: platform,
+            testData: invalidAssetTestData,
+          );
+          fail('PlatformException not thrown');
+          // ignore: avoid_catches_without_on_clauses
+        } catch (e) {
+          expect(e, isInstanceOf<PlatformException>());
+        }
+      },
+    );
+
+    testWidgets(
+      'Throw PlatformException, when loading non existent file',
+      (tester) async {
+        try {
+          // Throws PlatformException via MethodChannel:
+          await tester.prepareSource(
+            playerId: playerId,
+            platform: platform,
+            testData: nonExistentUrlTestData,
+          );
+          fail('PlatformException not thrown');
+          // ignore: avoid_catches_without_on_clauses
+        } catch (e) {
+          expect(e, isInstanceOf<PlatformException>());
+        }
+      },
+    );
 
     testWidgets('#create and #dispose', (tester) async {
       await tester.pumpAndSettle();
@@ -380,6 +344,41 @@ void main() async {
         final eventSub = eventStream.listen(null);
         await eventSub.cancel();
       }
+    });
+
+    testWidgets('Emit platform log', (tester) async {
+      final logCompleter = Completer<String>();
+      final logSub = platform
+          .getEventStream(playerId)
+          .where((event) => event.eventType == AudioEventType.log)
+          .map((event) => event.logMessage)
+          .listen(logCompleter.complete, onError: logCompleter.completeError);
+
+      await platform.emitLog(playerId, 'SomeLog');
+
+      final log = await logCompleter.future;
+      expect(log, 'SomeLog');
+      await logSub.cancel();
+    });
+
+    testWidgets('Emit global platform log', (tester) async {
+      final global = GlobalAudioplayersPlatformInterface.instance;
+      final logCompleter = Completer<Object>();
+
+      /* final eventStreamSub = */
+      global
+          .getGlobalEventStream()
+          .where((event) => event.eventType == AudioEventType.log)
+          .map((event) => event.logMessage)
+          .listen(logCompleter.complete, onError: logCompleter.completeError);
+
+      await global.emitGlobalLog('SomeGlobalLog');
+
+      final log = await logCompleter.future;
+      expect(log, 'SomeGlobalLog');
+      // FIXME: cancelling the global event stream leads to
+      // MissingPluginException on Android, if dispose app afterwards
+      // await eventStreamSub.cancel();
     });
 
     testWidgets('Emit platform error', (tester) async {
