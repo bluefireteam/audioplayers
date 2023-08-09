@@ -261,6 +261,7 @@ jobs:
       - name: Start audio server
         run: net start audiosrv
       - name: Install virtual audio device
+        timeout-minutes: 1
         shell: powershell
         # TODO(gustl22): Remove workaround of setting the time when virtual audio device certificate is valid again (#1573)
         run: |
