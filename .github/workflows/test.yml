@@ -267,19 +267,19 @@ jobs:
         run: |
           Invoke-WebRequest https://github.com/duncanthrax/scream/releases/download/4.0/Scream4.0.zip -OutFile Scream.zip
           Expand-Archive -Path Scream.zip -DestinationPath Scream
-          Set-Date (Get-Date "2023-07-04 12:00:00"); $currentDate = Get-Date; Write-Host "Current Date: $currentDate";
+          Set-Date (Get-Date "2023-07-04 12:00:00"); $currentDate = Get-Date; Write-Host "Current System Date: $currentDate";
           Import-Certificate -FilePath Scream\Install\driver\x64\Scream.cat -CertStoreLocation Cert:\LocalMachine\TrustedPublisher
           Scream\Install\helpers\devcon-x64.exe install Scream\Install\driver\x64\Scream.inf *Scream
-          w32tm /resync /force; $currentDate = Get-Date; Write-Host "Current Date: $currentDate";
-#      - name: Run Flutter integration tests
-#        shell: powershell
-#        working-directory: ./packages/audioplayers/example
-#        # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
-#        run: |
-#          Start-Process -NoNewWindow -WorkingDirectory "server" dart -ArgumentList "run", "bin/server.dart"
-#          flutter test -d windows integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
-#          flutter test -d windows integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
-#          flutter test -d windows integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
+          w32tm /resync /force; $currentDate = Get-Date; Write-Host "Current System Date: $currentDate";
+      - name: Run Flutter integration tests
+        shell: powershell
+        working-directory: ./packages/audioplayers/example
+        # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
+        run: |
+          Start-Process -NoNewWindow -WorkingDirectory "server" dart -ArgumentList "run", "bin/server.dart"
+          flutter test -d windows integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
+          flutter test -d windows integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
+          flutter test -d windows integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
 
   linux:
     runs-on: ubuntu-latest
