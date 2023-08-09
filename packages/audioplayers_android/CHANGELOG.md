@@ -1,3 +1,7 @@
+## 4.0.1
+
+ - **REVERT**(android): Upgrade androidx.core:core-ktx, restore support for AGP7 ([#1590](https://github.com/bluefireteam/audioplayers/issues/1590)). ([f6bf1260](https://github.com/bluefireteam/audioplayers/commit/f6bf12609ec9e457451f1c786522bff28a1555f4))
+
 ## 4.0.0
 
 > Note: This release has breaking changes.
