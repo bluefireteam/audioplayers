@@ -45,6 +45,12 @@ final m3u8UrlTestData = LibSourceTestData(
   isLiveStream: true,
 );
 
+final mpgaUrlTestData = LibSourceTestData(
+  source: UrlSource(mpgaStreamUrl),
+  duration: Duration.zero,
+  isLiveStream: true,
+);
+
 final wavAssetTestData = LibSourceTestData(
   source: AssetSource(wavAsset),
   duration: const Duration(seconds: 1, milliseconds: 068),
@@ -77,12 +83,7 @@ Future<List<LibSourceTestData>> getAudioTestDataList() async {
       ),*/
     if (_features.hasUrlSource && _features.hasPlaylistSourceType)
       m3u8UrlTestData,
-    if (_features.hasUrlSource)
-      LibSourceTestData(
-        source: UrlSource(mpgaStreamUrl),
-        duration: Duration.zero,
-        isLiveStream: true,
-      ),
+    if (_features.hasUrlSource) mpgaUrlTestData,
     if (_features.hasAssetSource) wavAssetTestData,
     /*if (_features.hasAssetSource)
       LibSourceTestData(
