@@ -20,7 +20,9 @@ final mp3Url2 = '$host/files/audio/nasa_on_a_mission.mp3';
 final m3u8StreamUrl = useLocalServer
     ? '$host/files/live_streams/nasa_power_of_the_rovers.m3u8'
     : 'https://a.files.bbci.co.uk/media/live/manifesto/audio/simulcast/hls/nonuk/sbr_low/ak/bbc_radio_one.m3u8';
-const mpgaStreamUrl = 'https://timesradio.wireless.radio/stream';
+final mpgaStreamUrl = useLocalServer
+    ? '$host/stream/wav'
+    : 'https://timesradio.wireless.radio/stream';
 
 const wavAsset = 'laser.wav';
 const mp3Asset = 'nasa_on_a_mission.mp3';
