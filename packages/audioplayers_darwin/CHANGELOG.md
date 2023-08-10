@@ -1,3 +1,7 @@
+## 5.0.1
+
+ - **REFACTOR**(darwin): Rearrange code ([#1585](https://github.com/bluefireteam/audioplayers/issues/1585)). ([13639d1f](https://github.com/bluefireteam/audioplayers/commit/13639d1f2fe5afbc17f4e862e2da0f7551b8fc3e))
+
 ## 5.0.0
 
 > Note: This release has breaking changes.
