@@ -78,8 +78,16 @@ class StreamRoute {
         'Accept-Ranges': 'bytes',
         ...contentType,
       };
+      var counter = 0;
+      const throttlePerByteInMs = 50;
       final res = Response.ok(
-        file.openRead(),
+        file.openRead().asyncMap((event) async {
+          await Future.delayed(
+            Duration(milliseconds: counter * throttlePerByteInMs),
+          );
+          counter++;
+          return event;
+        }),
         headers: head,
       );
       return res;
