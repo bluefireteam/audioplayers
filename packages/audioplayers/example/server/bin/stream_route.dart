@@ -11,8 +11,8 @@ class StreamRoute {
       final range = request.headers['range'];
       const contentType = {'Content-Type': 'audio/wav'};
       if (range != null) {
-        final file = File('public/files/audio/laser.wav').openRead();
-        final fileSize = await file.length;
+        final file = File('public/files/audio/laser.wav');
+        final fileSize = await file.length();
 
         final parts = range.replaceFirst('bytes=', '').split('-');
         final start = int.parse(parts[0]);
@@ -25,15 +25,19 @@ class StreamRoute {
           );
         }
 
-        final streamReader = ChunkedStreamReader<int>(file);
+        final streamReader = ChunkedStreamReader<int>(file.openRead());
+        final chunkLength = end - start + 1;
         final head = {
           'Content-Range': 'bytes $start-$end/$fileSize',
           'Accept-Ranges': 'bytes',
-          'Content-Length': '${(end - start) + 1}',
+          'Content-Length': '$chunkLength',
           ...contentType,
         };
+        if (start > 0) {
+          await streamReader.readChunk(start);
+        }
         final res = Response.ok(
-          await streamReader.readChunk(2),
+          await streamReader.readChunk(chunkLength),
           headers: head,
         );
         return res;
