@@ -130,7 +130,6 @@ void main() async {
           );
           for (final volume in [0.0, 0.5, 1.0]) {
             await platform.setVolume(playerId, volume);
-            await tester._mpgaWebCooldown(td);
             await platform.resume(playerId);
             await tester.pump(const Duration(seconds: 1));
             await platform.stop(playerId);
@@ -151,7 +150,6 @@ void main() async {
           );
           for (final balance in [-1.0, 0.0, 1.0]) {
             await platform.setBalance(playerId, balance);
-            await tester._mpgaWebCooldown(td);
             await platform.resume(playerId);
             await tester.pump(const Duration(seconds: 1));
             await platform.stop(playerId);
@@ -172,7 +170,6 @@ void main() async {
           );
           for (final playbackRate in [0.5, 1.0, 2.0]) {
             await platform.setPlaybackRate(playerId, playbackRate);
-            await tester._mpgaWebCooldown(td);
             await platform.resume(playerId);
             await tester.pump(const Duration(seconds: 1));
             await platform.stop(playerId);
@@ -448,13 +445,6 @@ void main() async {
 }
 
 extension on WidgetTester {
-  Future<void> _mpgaWebCooldown(LibSourceTestData td) async {
-    if (kIsWeb && td.source == mpgaUrlTestData.source) {
-      // FIXME: web needs cooldown, to be able to resume mpga source
-      await pump(const Duration(seconds: 1));
-    }
-  }
-  
   Future<void> prepareSource({
     required String playerId,
     required AudioplayersPlatformInterface platform,
