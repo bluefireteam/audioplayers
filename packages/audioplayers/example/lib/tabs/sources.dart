@@ -6,7 +6,7 @@ import 'package:audioplayers_example/utils.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
+import 'package:http/http.dart' as http;
 
 const useLocalServer = bool.fromEnvironment('USE_LOCAL_SERVER');
 
@@ -91,7 +91,7 @@ class _SourcesTabState extends State<SourcesTab>
     Future<void> Function(Source) fun, {
     required String url,
   }) async {
-    final bytes = await readBytes(Uri.parse(url));
+    final bytes = await http.readBytes(Uri.parse(url));
     await fun(BytesSource(bytes));
   }
 
