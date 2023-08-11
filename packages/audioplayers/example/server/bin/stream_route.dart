@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:async/async.dart';
@@ -5,6 +6,21 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
 class StreamRoute {
+  static const timesRadioUrl = 'https://timesradio.wireless.radio/stream';
+
+  final mpegStreamController = StreamController<List<int>>.broadcast();
+
+  StreamRoute() {
+    init();
+  }
+
+  Future<void> init() async {
+    final client = HttpClient();
+    final request = await client.getUrl(Uri.parse(timesRadioUrl));
+    final response = await request.close();
+    mpegStreamController.addStream(response.listenAndBuffer());
+  }
+
   Router get router {
     final router = Router();
     router.get('/wav', (Request request) async {
@@ -57,37 +73,14 @@ class StreamRoute {
     });
 
     router.get('/mpeg', (Request request) async {
-      final range = request.headers['range'];
       const contentType = {'Content-Type': 'audio/mpeg'};
-      final file = File('public/files/audio/nasa_on_a_mission.mp3');
-      final fileSize = await file.length();
-
-      if (range != null) {
-        final parts = range.replaceFirst('bytes=', '').split('-');
-        final start = int.parse(parts[0]);
-
-        if (start >= fileSize) {
-          return Response(
-            416,
-            body: 'Requested range not satisfiable\n$start >= $fileSize',
-          );
-        }
-      }
 
       final head = {
         'Accept-Ranges': 'bytes',
         ...contentType,
       };
-      var counter = 0;
-      const throttlePerByteInMs = 50;
       final res = Response.ok(
-        file.openRead().asyncMap((event) async {
-          await Future.delayed(
-            Duration(milliseconds: counter * throttlePerByteInMs),
-          );
-          counter++;
-          return event;
-        }),
+        mpegStreamController.stream,
         headers: head,
       );
       return res;
