@@ -170,8 +170,9 @@ class WrappedPlayer {
     // Release `AudioElement` correctly (#966)
     player?.src = '';
     player?.remove();
-    _cancel();
     player = null;
+    _isPlaying = false;
+    _pausedAt = 0;
     _stereoPanner = null;
 
     _playerLoadedDataSubscription?.cancel();
