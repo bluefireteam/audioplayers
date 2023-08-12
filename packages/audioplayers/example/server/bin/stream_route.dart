@@ -7,18 +7,44 @@ import 'package:shelf_router/shelf_router.dart';
 
 class StreamRoute {
   static const timesRadioUrl = 'https://timesradio.wireless.radio/stream';
+  static const mpegRecordUrl = 'public/files/audio/mpeg-record.bin';
+  static const _isLiveMode = false;
+  static const _isRecordMode = false;
 
   final mpegStreamController = StreamController<List<int>>.broadcast();
 
-  StreamRoute() {
-    init();
+  StreamRoute() : assert(!_isRecordMode || _isLiveMode) {
+    if (_isRecordMode) {
+      final recordOutput = File(mpegRecordUrl);
+      mpegStreamController.stream.listen((bytes) async {
+        await recordOutput.writeAsBytes([bytes.length, ...bytes]);
+      });
+    }
+    if (_isLiveMode) {
+      playLiveStream();
+    } else {
+      playLiveStream();
+    }
   }
 
-  Future<void> init() async {
+  Future<void> playLiveStream() async {
     final client = HttpClient();
     final request = await client.getUrl(Uri.parse(timesRadioUrl));
     final response = await request.close();
-    mpegStreamController.addStream(response.listenAndBuffer());
+    mpegStreamController.addStream(response);
+  }
+
+  Future<void> playLocalStream() async {
+    final recordInput = File(mpegRecordUrl);
+    final streamReader = ChunkedStreamReader(recordInput.openRead());
+    final fileSize = await recordInput.length();
+    var position = 0;
+    while (position < fileSize) {
+      final chunkLength = (await streamReader.readChunk(1))[0];
+      final chunk = await streamReader.readChunk(chunkLength);
+      position += chunkLength + 1;
+      mpegStreamController.add(chunk);
+    }
   }
 
   Router get router {
