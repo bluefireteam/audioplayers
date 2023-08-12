@@ -15,16 +15,33 @@ class StreamRoute {
 
   StreamRoute() : assert(!_isRecordMode || _isLiveMode) {
     if (_isRecordMode) {
-      final recordOutput = File(mpegRecordUrl);
-      mpegStreamController.stream.listen((bytes) async {
-        await recordOutput.writeAsBytes([bytes.length, ...bytes]);
-      });
+      recordLiveStream();
     }
     if (_isLiveMode) {
       playLiveStream();
     } else {
-      playLiveStream();
+      playLocalStream();
     }
+  }
+
+  Future<void> recordLiveStream() async {
+    // Save lists of bytes in a file, where each first byte indicates the
+    // length of its following list.
+    final recordOutput = File(mpegRecordUrl);
+    if (recordOutput.existsSync()) {
+      await recordOutput.delete();
+    }
+    var time = DateTime.now();
+    mpegStreamController.stream.listen((bytes) async {
+      final now = DateTime.now();
+      print(now.difference(time));
+      time = now;
+      await recordOutput.writeAsBytes(
+        [bytes.length, ...bytes],
+        flush: true,
+        mode: FileMode.append,
+      );
+    });
   }
 
   Future<void> playLiveStream() async {
@@ -39,12 +56,21 @@ class StreamRoute {
     final streamReader = ChunkedStreamReader(recordInput.openRead());
     final fileSize = await recordInput.length();
     var position = 0;
+    final mpegBytes = <List<int>>[];
     while (position < fileSize) {
       final chunkLength = (await streamReader.readChunk(1))[0];
       final chunk = await streamReader.readChunk(chunkLength);
       position += chunkLength + 1;
-      mpegStreamController.add(chunk);
+      mpegBytes.add(chunk);
     }
+    var mpegBytesPosition = 0;
+    Timer.periodic(const Duration(milliseconds: 200), (timer) {
+      mpegStreamController.add(mpegBytes[mpegBytesPosition]);
+      mpegBytesPosition++;
+      if (mpegBytesPosition >= mpegBytes.length) {
+        mpegBytesPosition = 0;
+      }
+    });
   }
 
   Router get router {
