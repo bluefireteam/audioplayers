@@ -383,7 +383,7 @@ void main() async {
       /* final eventStreamSub = */
       global
           .getGlobalEventStream()
-          .where((event) => event.eventType == AudioEventType.log)
+          .where((event) => event.eventType == GlobalAudioEventType.log)
           .map((event) => event.logMessage)
           .listen(logCompleter.complete, onError: logCompleter.completeError);
 
