@@ -75,6 +75,8 @@ class AudioPlayer {
 
     void SeekTo(double seek);
 
+    void SetSourceBytes(std::vector<uint8_t> bytes);
+
     void SetSourceUrl(std::string url);
 
     void OnLog(const std::string& message);

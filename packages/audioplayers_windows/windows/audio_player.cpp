@@ -42,6 +42,37 @@ AudioPlayer::AudioPlayer(
     m_mediaEngineWrapper->Initialize();
 }
 
+void AudioPlayer::SetSourceBytes(std::vector<uint8_t> bytes) {
+    size_t size = bytes.size();
+    // TODO(dogukangul): support .wav files 
+
+    try {
+        winrt::com_ptr<IMFSourceResolver> sourceResolver;
+        THROW_IF_FAILED(MFCreateSourceResolver(sourceResolver.put()));
+        constexpr uint32_t sourceResolutionFlags =
+            MF_RESOLUTION_MEDIASOURCE |
+            MF_RESOLUTION_CONTENT_DOES_NOT_HAVE_TO_MATCH_EXTENSION_OR_MIME_TYPE |
+            MF_RESOLUTION_READ;
+        MF_OBJECT_TYPE objectType = {};
+
+        winrt::com_ptr<IMFMediaSource> mediaSource;
+
+        IMFByteStream *stream = NULL;
+        MFCreateTempFile(MF_ACCESSMODE_READWRITE, MF_OPENMODE_DELETE_IF_EXIST, MF_FILEFLAGS_NONE, &stream);
+        ULONG writeBytes = 0;
+        stream->Write(bytes.data(), (ULONG)size, &writeBytes);
+        stream->SetCurrentPosition(0);
+
+        sourceResolver->CreateObjectFromByteStream(stream, nullptr, 
+                                                sourceResolutionFlags, nullptr,
+                                                &objectType, reinterpret_cast<IUnknown**>(mediaSource.put_void()));
+        m_mediaEngineWrapper->SetMediaSource(mediaSource.get());
+    } catch (...) {
+        // Forward errors to event stream, as this is called asynchronously
+        this->OnError("WindowsAudioError", "Error settig bytes", nullptr);
+    }
+}
+
 // This method should be called asynchronously, to avoid freezing UI
 void AudioPlayer::SetSourceUrl(std::string url) {
     if (_url != url) {
