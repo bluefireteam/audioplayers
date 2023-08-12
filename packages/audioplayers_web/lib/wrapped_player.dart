@@ -236,6 +236,7 @@ class WrappedPlayer {
   }
 
   Future<void> dispose() async {
+    release();
     eventStreamController.close();
   }
 }
