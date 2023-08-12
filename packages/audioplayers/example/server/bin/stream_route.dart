@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:async/async.dart';
 import 'package:shelf/shelf.dart';
@@ -8,8 +10,8 @@ import 'package:shelf_router/shelf_router.dart';
 class StreamRoute {
   static const timesRadioUrl = 'https://timesradio.wireless.radio/stream';
   static const mpegRecordUrl = 'public/files/audio/mpeg-record.bin';
-  static const _isLiveMode = false;
-  static const _isRecordMode = false;
+  static const _isLiveMode = true;
+  static const _isRecordMode = true;
 
   final mpegStreamController = StreamController<List<int>>.broadcast();
 
@@ -25,7 +27,7 @@ class StreamRoute {
   }
 
   Future<void> recordLiveStream() async {
-    // Save lists of bytes in a file, where each first byte indicates the
+    // Save lists of bytes in a file, where each first four bytes indicate the
     // length of its following list.
     final recordOutput = File(mpegRecordUrl);
     if (recordOutput.existsSync()) {
@@ -37,12 +39,18 @@ class StreamRoute {
       print(now.difference(time));
       time = now;
       await recordOutput.writeAsBytes(
-        [bytes.length, ...bytes],
+        [...int32ToBytes(bytes.length), ...bytes],
         flush: true,
         mode: FileMode.append,
       );
     });
   }
+
+  Uint8List int32ToBytes(int value) =>
+      Uint8List(4)..buffer.asInt32List()[0] = value;
+
+  int bytesToInt32(List<int> bytes) =>
+      Uint8List.fromList(bytes).buffer.asInt32List()[0];
 
   Future<void> playLiveStream() async {
     final client = HttpClient();
@@ -58,13 +66,13 @@ class StreamRoute {
     var position = 0;
     final mpegBytes = <List<int>>[];
     while (position < fileSize) {
-      final chunkLength = (await streamReader.readChunk(1))[0];
+      final chunkLength = bytesToInt32(await streamReader.readChunk(4));
       final chunk = await streamReader.readChunk(chunkLength);
-      position += chunkLength + 1;
+      position += chunkLength + 4;
       mpegBytes.add(chunk);
     }
     var mpegBytesPosition = 0;
-    Timer.periodic(const Duration(milliseconds: 200), (timer) {
+    Timer.periodic(const Duration(milliseconds: 2000), (timer) {
       mpegStreamController.add(mpegBytes[mpegBytesPosition]);
       mpegBytesPosition++;
       if (mpegBytesPosition >= mpegBytes.length) {
