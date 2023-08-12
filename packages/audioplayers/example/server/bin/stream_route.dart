@@ -1,7 +1,6 @@
 // ignore_for_file: avoid_print
 import 'dart:async';
 import 'dart:io';
-import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:async/async.dart';
@@ -32,14 +31,8 @@ class StreamRoute {
     // Save lists of bytes in a file, where each first four bytes indicate the
     // length of its following list.
     final recordOutput = File(mpegRecordUrl);
-    var time = DateTime.now();
     final fileBytes = <int>[];
     final mpegSub = mpegStreamController.stream.listen((bytes) async {
-      final now = DateTime.now();
-      print(now.difference(time));
-      print(bytes.length);
-      print(bytes.sublist(0, min(5, bytes.length)));
-      time = now;
       fileBytes.addAll([...int32ToBytes(bytes.length), ...bytes]);
     });
     Future.delayed(recordingTime).then((value) async {
@@ -78,7 +71,7 @@ class StreamRoute {
       mpegBytes.add(chunk);
     }
     var mpegBytesPosition = 0;
-    Timer.periodic(const Duration(milliseconds: 2000), (timer) {
+    Timer.periodic(const Duration(milliseconds: 150), (timer) {
       mpegStreamController.add(mpegBytes[mpegBytesPosition]);
       mpegBytesPosition++;
       if (mpegBytesPosition >= mpegBytes.length) {
