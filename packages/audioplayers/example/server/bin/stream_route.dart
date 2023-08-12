@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_print
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
@@ -10,8 +11,8 @@ import 'package:shelf_router/shelf_router.dart';
 class StreamRoute {
   static const timesRadioUrl = 'https://timesradio.wireless.radio/stream';
   static const mpegRecordUrl = 'public/files/audio/mpeg-record.bin';
-  static const _isLiveMode = true;
-  static const _isRecordMode = true;
+  static const _isLiveMode = false || _isRecordMode;
+  static const _isRecordMode = false;
 
   final mpegStreamController = StreamController<List<int>>.broadcast();
 
@@ -27,21 +28,26 @@ class StreamRoute {
   }
 
   Future<void> recordLiveStream() async {
+    const recordingTime = Duration(seconds: 10);
     // Save lists of bytes in a file, where each first four bytes indicate the
     // length of its following list.
     final recordOutput = File(mpegRecordUrl);
-    if (recordOutput.existsSync()) {
-      await recordOutput.delete();
-    }
     var time = DateTime.now();
-    mpegStreamController.stream.listen((bytes) async {
+    final fileBytes = <int>[];
+    final mpegSub = mpegStreamController.stream.listen((bytes) async {
       final now = DateTime.now();
       print(now.difference(time));
+      print(bytes.length);
+      print(bytes.sublist(0, min(5, bytes.length)));
       time = now;
+      fileBytes.addAll([...int32ToBytes(bytes.length), ...bytes]);
+    });
+    Future.delayed(recordingTime).then((value) async {
+      print('Recording finished');
+      await mpegSub.cancel();
       await recordOutput.writeAsBytes(
-        [...int32ToBytes(bytes.length), ...bytes],
+        fileBytes,
         flush: true,
-        mode: FileMode.append,
       );
     });
   }
