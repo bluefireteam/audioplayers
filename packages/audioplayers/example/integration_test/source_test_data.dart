@@ -3,7 +3,7 @@ abstract class SourceTestData {
   Duration duration;
 
   bool isLiveStream;
-  
+
   /// Whether this source has variable bitrate
   bool isVBR;
 
