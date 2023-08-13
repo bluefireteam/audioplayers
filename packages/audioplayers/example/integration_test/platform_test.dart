@@ -108,7 +108,7 @@ void main() async {
             (Duration? actual) => durationRangeMatcher(
               actual,
               td.duration,
-              deviation: const Duration(milliseconds: 1),
+              deviation: Duration(milliseconds: td.isVBR ? 100 : 1),
             ),
           );
           await tester.pumpLinux();
@@ -311,7 +311,7 @@ void main() async {
               (Duration? actual) => durationRangeMatcher(
                 actual,
                 td.duration,
-                deviation: const Duration(milliseconds: 1),
+                deviation: Duration(milliseconds: td.isVBR ? 100 : 1),
               ),
             );
             await onDurationSub.cancel();
