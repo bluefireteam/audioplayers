@@ -13,12 +13,10 @@ void main() {
   final platform = AudioplayersPlatformInterface.instance;
 
   final methodCalls = <MethodCall>[];
-  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-      .setMockMethodCallHandler(
-    const MethodChannel('xyz.luan/audioplayers'),
-    (MethodCall methodCall) async {
+  createNativeMethodStream(
+    channel: 'xyz.luan/audioplayers',
+    onMethodCall: (MethodCall methodCall) async {
       methodCalls.add(methodCall);
-      return 0;
     },
   );
 
@@ -83,14 +81,17 @@ void main() {
   group('AudioPlayers Event Channel', () {
     test('emit events', () async {
       final eventController = StreamController<ByteData>.broadcast();
+      const playerId = 'p1';
 
       createNativeEventStream(
         channel: 'xyz.luan/audioplayers/events/p1',
         byteDataStream: eventController.stream,
       );
 
+      await platform.create(playerId);
+
       expect(
-        platform.getEventStream('p1'),
+        platform.getEventStream(playerId),
         emitsInOrder(<AudioEvent>[
           const AudioEvent(
             eventType: AudioEventType.duration,
@@ -140,6 +141,7 @@ void main() {
       }
 
       await eventController.close();
+      await platform.dispose(playerId);
     });
   });
 }

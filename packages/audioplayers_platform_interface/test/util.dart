@@ -7,6 +7,20 @@ extension MethodCallParser on MethodCall {
   Map<Object?, Object?> get args => arguments as Map<Object?, Object?>;
 }
 
+void createNativeMethodStream({
+  required String channel,
+  required Future<void> Function(MethodCall methodCall) onMethodCall,
+}) {
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(
+    MethodChannel(channel),
+    (MethodCall methodCall) async {
+      await onMethodCall(methodCall);
+      return null;
+    },
+  );
+}
+
 // See: https://github.com/flutter/packages/blob/12609a2abbb0a30b9d32af7b73599bfc834e609e/packages/video_player/video_player_android/test/android_video_player_test.dart#L270
 void createNativeEventStream({
   required String channel,
