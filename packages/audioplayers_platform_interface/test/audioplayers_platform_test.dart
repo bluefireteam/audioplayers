@@ -13,12 +13,6 @@ void main() {
   final platform = AudioplayersPlatformInterface.instance;
 
   final methodCalls = <MethodCall>[];
-  createNativeMethodStream(
-    channel: 'xyz.luan/audioplayers',
-    onMethodCall: (MethodCall methodCall) async {
-      methodCalls.add(methodCall);
-    },
-  );
 
   void clear() {
     methodCalls.clear();
@@ -34,7 +28,24 @@ void main() {
   }
 
   group('AudioPlayers Method Channel', () {
-    setUp(clear);
+    setUp(() {
+      clear();
+
+      createNativeMethodHandler(
+        channel: 'xyz.luan/audioplayers',
+        handler: (MethodCall methodCall) async {
+          methodCalls.add(methodCall);
+          switch (methodCall.method) {
+            case 'getDuration':
+              return 0;
+            case 'getCurrentPosition':
+              return 0;
+            default:
+              return null;
+          }
+        },
+      );
+    });
 
     test('#setSource', () async {
       await platform.setSourceUrl('p1', 'internet.com/file.mp3');

@@ -30,14 +30,16 @@ void main() {
   }
 
   group('Global Method Channel', () {
-    createNativeMethodStream(
-      channel: 'xyz.luan/audioplayers.global',
-      onMethodCall: (MethodCall methodCall) async {
-        methodCalls.add(methodCall);
-      },
-    );
-
-    setUp(clear);
+    setUp(() {
+      clear();
+      createNativeMethodHandler(
+        channel: 'xyz.luan/audioplayers.global',
+        handler: (MethodCall methodCall) async {
+          methodCalls.add(methodCall);
+          return null;
+        },
+      );
+    });
 
     test('set AudioContext for Windows', () async {
       debugDefaultTargetPlatformOverride = TargetPlatform.windows;

@@ -7,17 +7,14 @@ extension MethodCallParser on MethodCall {
   Map<Object?, Object?> get args => arguments as Map<Object?, Object?>;
 }
 
-void createNativeMethodStream({
+void createNativeMethodHandler({
   required String channel,
-  required Future<void> Function(MethodCall methodCall) onMethodCall,
+  Future<Object?>? Function(MethodCall message)? handler,
 }) {
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
       .setMockMethodCallHandler(
     MethodChannel(channel),
-    (MethodCall methodCall) async {
-      await onMethodCall(methodCall);
-      return null;
-    },
+    handler,
   );
 }
 
