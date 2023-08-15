@@ -247,10 +247,10 @@ void main() async {
           await platform.setReleaseMode(playerId, ReleaseMode.release);
           await platform.resume(playerId);
           if (td.duration < const Duration(seconds: 2)) {
-            await tester.pump(const Duration(seconds: 3));
+            await tester.pumpAndSettle(const Duration(seconds: 3));
             // No need to call stop, as it should be released by now
           } else {
-            await tester.pump(const Duration(seconds: 1));
+            await tester.pumpAndSettle(const Duration(seconds: 1));
             await platform.stop(playerId);
           }
           // TODO(Gustl22): test if source was released
@@ -372,6 +372,33 @@ void main() async {
           expect(position, greaterThan(Duration.zero));
           await platform.stop(playerId);
           await onPositionSub.cancel();
+          await tester.pumpLinux();
+        });
+      }
+    }
+
+    for (final td in audioTestDataList) {
+      if (!td.isLiveStream && td.duration < const Duration(seconds: 2)) {
+        testWidgets('#completeEvent ${td.source}', (tester) async {
+          await tester.prepareSource(
+            playerId: playerId,
+            platform: platform,
+            testData: td,
+          );
+
+          final eventStream = platform.getEventStream(playerId);
+          final completeCompleter = Completer<void>();
+          final onCompleteSub = eventStream
+              .where((event) => event.eventType == AudioEventType.complete)
+              .listen(
+                completeCompleter.complete,
+                onError: completeCompleter.completeError,
+              );
+
+          await platform.resume(playerId);
+          await tester.pumpAndSettle(const Duration(seconds: 3));
+          await completeCompleter.future.timeout(const Duration(seconds: 30));
+          onCompleteSub.cancel();
           await tester.pumpLinux();
         });
       }
