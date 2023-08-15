@@ -147,7 +147,7 @@ void AudioPlayer::OnTimeUpdate() {
                   flutter::EncodableValue("audio.onCurrentPosition")},
                  {flutter::EncodableValue("value"),
                   flutter::EncodableValue(
-                      ConvertSecondsToMs(m_mediaEngineWrapper->GetMediaTime()))}})));
+                      ConvertSecondsToMs(m_mediaEngineWrapper->GetMediaTime().value_or(0)))}})));
     }
 }
 
@@ -159,7 +159,7 @@ void AudioPlayer::OnDurationUpdate() {
                   flutter::EncodableValue("audio.onDuration")},
                  {flutter::EncodableValue("value"),
                   flutter::EncodableValue(
-                      ConvertSecondsToMs(m_mediaEngineWrapper->GetDuration()))}})));
+                      ConvertSecondsToMs(m_mediaEngineWrapper->GetDuration().value_or(0)))}})));
     }
 }
 
@@ -225,7 +225,7 @@ void AudioPlayer::SetBalance(double balance) {
 
 void AudioPlayer::Play() {
     m_mediaEngineWrapper->StartPlayingFrom(
-        m_mediaEngineWrapper->GetMediaTime());
+        m_mediaEngineWrapper->GetMediaTime().value_or(0));
     OnDurationUpdate();
 }
 
@@ -236,11 +236,11 @@ void AudioPlayer::Resume() {
     OnDurationUpdate();
 }
 
-double AudioPlayer::GetPosition() {
+std::optional<double> AudioPlayer::GetPosition() {
     return m_mediaEngineWrapper->GetMediaTime();
 }
 
-double AudioPlayer::GetDuration() {
+std::optional<double> AudioPlayer::GetDuration() {
     return m_mediaEngineWrapper->GetDuration();
 }
 

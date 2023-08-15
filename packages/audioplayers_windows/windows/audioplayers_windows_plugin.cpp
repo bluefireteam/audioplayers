@@ -120,13 +120,13 @@ void AudioplayersWindowsPlugin::HandleGlobalMethodCall(
         auto code = GetArgument<std::string>("code", args, std::string());
         auto message = GetArgument<std::string>("message", args, std::string());
         globalEvents->Error(code, message, nullptr);
-        result->Success(EncodableValue(1));
+        result->Success();
     } else {
         result->NotImplemented();
         return;
     }
 
-    result->Success(EncodableValue(1));
+    result->Success();
 }
 
 void AudioplayersWindowsPlugin::HandleMethodCall(
@@ -143,7 +143,7 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
 
     if (method_call.method_name().compare("create") == 0) {
         CreatePlayer(playerId);
-        result->Success(EncodableValue(1));
+        result->Success();
         return;
     }
 
@@ -158,23 +158,18 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
 
     if (method_call.method_name().compare("pause") == 0) {
         player->Pause();
-        result->Success(EncodableValue(1));
     } else if (method_call.method_name().compare("resume") == 0) {
         player->Resume();
-        result->Success(EncodableValue(1));
     } else if (method_call.method_name().compare("stop") == 0) {
         player->Pause();
         player->SeekTo(0);
-        result->Success(EncodableValue(1));
     } else if (method_call.method_name().compare("release") == 0) {
         player->Pause();
         player->SeekTo(0);
-        result->Success(EncodableValue(1));
     } else if (method_call.method_name().compare("seek") == 0) {
         auto positionInMs = GetArgument<int>("position", args,
-                                         (int)ConvertSecondsToMs(player->GetPosition()));
+                                         (int)ConvertSecondsToMs(player->GetPosition().value_or(0)));
         player->SeekTo(ConvertMsToSeconds(positionInMs));
-        result->Success(EncodableValue(1));
     } else if (method_call.method_name().compare("setSourceUrl") == 0) {
         auto url = GetArgument<std::string>("url", args, std::string());
 
@@ -184,19 +179,24 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
         }
 
         std::thread(&AudioPlayer::SetSourceUrl, player, url).detach();
-        result->Success(EncodableValue(1));
     } else if (method_call.method_name().compare("getDuration") == 0) {
-        result->Success(EncodableValue(ConvertSecondsToMs(player->GetDuration())));
+        auto optDuration = player->GetDuration();
+        if (optDuration.has_value()) {
+            result->Success(EncodableValue(ConvertSecondsToMs(optDuration.value())));
+            return;
+        }
     } else if (method_call.method_name().compare("setVolume") == 0) {
         auto volume = GetArgument<double>("volume", args, 1.0);
         player->SetVolume(volume);
-        result->Success(EncodableValue(1));
     } else if (method_call.method_name().compare("getCurrentPosition") == 0) {
-        result->Success(EncodableValue(ConvertSecondsToMs(player->GetPosition())));
+        auto optPosition = player->GetPosition();
+        if (optPosition.has_value()) {
+            result->Success(EncodableValue(ConvertSecondsToMs(optPosition.value())));
+            return;
+        }
     } else if (method_call.method_name().compare("setPlaybackRate") == 0) {
         auto playbackRate = GetArgument<double>("playbackRate", args, 1.0);
         player->SetPlaybackSpeed(playbackRate);
-        result->Success(EncodableValue(1));
     } else if (method_call.method_name().compare("setReleaseMode") == 0) {
         auto releaseMode =
             GetArgument<std::string>("releaseMode", args, std::string());
@@ -208,30 +208,26 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
         }
         auto looping = releaseMode.find("loop") != std::string::npos;
         player->SetLooping(looping);
-        result->Success(EncodableValue(1));
     } else if (method_call.method_name().compare("setPlayerMode") == 0) {
         // windows doesn't have multiple player modes, so this should no-op
-        result->Success(EncodableValue(1));
     } else if (method_call.method_name().compare("setBalance") == 0) {
         auto balance = GetArgument<double>("balance", args, 0.0);
         player->SetBalance(balance);
-        result->Success(EncodableValue(1));
     } else if (method_call.method_name().compare("emitLog") == 0) {
         auto message = GetArgument<std::string>("message", args, std::string());
         player->OnLog(message);
-        result->Success(EncodableValue(1));
     } else if (method_call.method_name().compare("emitError") == 0) {
         auto code = GetArgument<std::string>("code", args, std::string());
         auto message = GetArgument<std::string>("message", args, std::string());
         player->OnError(code, message, nullptr);
-        result->Success(EncodableValue(1));
     } else if (method_call.method_name().compare("dispose") == 0) {
         player->Dispose();
         audioPlayers.erase(playerId);
-        result->Success(EncodableValue(1));
     } else {
         result->NotImplemented();
+        return;
     }
+    result->Success();
 }
 
 void AudioplayersWindowsPlugin::CreatePlayer(std::string playerId) {

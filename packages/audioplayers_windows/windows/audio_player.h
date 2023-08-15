@@ -69,9 +69,9 @@ class AudioPlayer {
 
     bool GetLooping();
 
-    double GetPosition();
+    std::optional<double> GetPosition();
 
-    double GetDuration();
+    std::optional<double> GetDuration();
 
     void SeekTo(double seek);
 

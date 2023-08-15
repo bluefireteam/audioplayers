@@ -246,31 +246,30 @@ void MediaEngineWrapper::SeekTo(double timestampInSeconds)
 }
 
 // Get media time in seconds
-double MediaEngineWrapper::GetMediaTime()
+std::optional<double> MediaEngineWrapper::GetMediaTime()
 {
-    double currentTimeInSeconds = 0;
-    RunSyncInMTA([&]()
-    {
+    std::optional<double> currentTimeInSeconds;
+    RunSyncInMTA([&]() {
         auto lock = m_lock.lock();
-        if (m_mediaEngine == nullptr) {
-            return;
-        }
-        currentTimeInSeconds = m_mediaEngine->GetCurrentTime();
+        currentTimeInSeconds =
+            m_mediaEngine == nullptr
+                ? std::nullopt
+                : std::make_optional(m_mediaEngine->GetCurrentTime());
     });
     return currentTimeInSeconds;
 }
 
 // Get duration in seconds
-double MediaEngineWrapper::GetDuration()
+std::optional<double> MediaEngineWrapper::GetDuration()
 {
-    double durationInSeconds = 0;
+    std::optional<double> durationInSeconds;
     RunSyncInMTA([&]()
     {
         auto lock = m_lock.lock();
-        if (m_mediaEngine == nullptr) {
-            return;
-        }
-        durationInSeconds = m_mediaEngine->GetDuration();
+        durationInSeconds =
+            m_mediaEngine == nullptr
+                ? std::nullopt
+                : std::make_optional(m_mediaEngine->GetDuration());
     });
     return durationInSeconds;
 }

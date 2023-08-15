@@ -52,8 +52,8 @@ class MediaEngineWrapper : public winrt::implements<MediaEngineWrapper, IUnknown
     void SeekTo(double timeStamp);
 
     // Query the current playback position
-    double GetMediaTime();
-    double GetDuration();
+    std::optional<double> GetMediaTime();
+    std::optional<double> GetDuration();
 
     bool GetLooping();
 
