@@ -9,7 +9,7 @@ import 'package:shelf_router/shelf_router.dart';
 
 class StreamRoute {
   static const timesRadioUrl = 'https://timesradio.wireless.radio/stream';
-  static const mpegRecordUrl = 'public/files/live_streams/mpeg-record.bin';
+  static const mpegRecordPath = 'public/files/live_streams/mpeg-record.bin';
   static const _isLiveMode = false || _isRecordMode;
   static const _isRecordMode = false;
 
@@ -30,7 +30,7 @@ class StreamRoute {
     const recordingTime = Duration(seconds: 10);
     // Save lists of bytes in a file, where each first four bytes indicate the
     // length of its following list.
-    final recordOutput = File(mpegRecordUrl);
+    final recordOutput = File(mpegRecordPath);
     final fileBytes = <int>[];
     final mpegSub = mpegStreamController.stream.listen((bytes) async {
       fileBytes.addAll([...int32ToBytes(bytes.length), ...bytes]);
@@ -59,7 +59,7 @@ class StreamRoute {
   }
 
   Future<void> playLocalStream() async {
-    final recordInput = File(mpegRecordUrl);
+    final recordInput = File(mpegRecordPath);
     final streamReader = ChunkedStreamReader(recordInput.openRead());
     final fileSize = await recordInput.length();
     var position = 0;
