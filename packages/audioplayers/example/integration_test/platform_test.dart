@@ -318,7 +318,10 @@ void main() async {
             await tester.pumpLinux();
           },
           // TODO(gustl22): cannot determine duration for VBR on Linux
-          skip: isLinux && td.isVBR,
+          // FIXME(gustl22): duration event is not emitted for short duration
+          // WAV on Linux (only platform tests, may be a race condition).
+          skip: isLinux && td.isVBR ||
+              isLinux && td.duration < const Duration(seconds: 5),
         );
       }
     }
