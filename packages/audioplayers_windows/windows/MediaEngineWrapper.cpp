@@ -340,6 +340,7 @@ void MediaEngineWrapper::SetMediaSource(IMFMediaSource* mediaSource) {
 
 void MediaEngineWrapper::ReleaseMediaSource() {
     m_mediaEngineExtension->SetMediaSource(nullptr);
+    m_mediaEngine->SetSource(nullptr);
 }
 
 // Callback methods
