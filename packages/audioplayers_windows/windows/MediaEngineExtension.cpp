@@ -92,11 +92,7 @@ void MediaEngineExtension::SetMediaSource(IUnknown* mfMediaSource)
 {
     auto lock = m_lock.lock();
     THROW_HR_IF(MF_E_SHUTDOWN, m_hasShutdown);
-    if(mfMediaSource) {
-        m_mfMediaSource.copy_from(mfMediaSource);
-    } else {
-        m_mfMediaSource = nullptr;
-    }
+    m_mfMediaSource.copy_from(mfMediaSource);
 }
 
 // Break circular references.
