@@ -191,13 +191,19 @@ void AudioPlayer::SendInitialized() {
     }
 }
 
-void AudioPlayer::Dispose() {
+void AudioPlayer::Release() {
     if (_isInitialized) {
         m_mediaEngineWrapper->Pause();
     }
+    m_mediaEngineWrapper->ReleaseMediaSource();
+    _isInitialized = false;
+}
+
+void AudioPlayer::Dispose() {
+    Release();
+    m_mediaEngineWrapper->Shutdown();
     _methodChannel = nullptr;
     _eventHandler = nullptr;
-    _isInitialized = false;
 }
 
 void AudioPlayer::SetLooping(bool isLooping) {

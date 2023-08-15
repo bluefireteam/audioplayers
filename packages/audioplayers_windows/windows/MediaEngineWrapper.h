@@ -38,6 +38,9 @@ class MediaEngineWrapper : public winrt::implements<MediaEngineWrapper, IUnknown
     // Initialize with the provided media source
     void SetMediaSource(IMFMediaSource* mediaSource);
 
+    // Release media resources
+    void ReleaseMediaSource();
+
     // Stop playback and cleanup resources
     void Pause();
     void Shutdown();
