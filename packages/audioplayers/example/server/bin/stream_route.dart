@@ -9,7 +9,7 @@ import 'package:shelf_router/shelf_router.dart';
 
 class StreamRoute {
   static const timesRadioUrl = 'https://timesradio.wireless.radio/stream';
-  static const mpegRecordUrl = 'public/files/audio/mpeg-record.bin';
+  static const mpegRecordUrl = 'public/files/live_streams/mpeg-record.bin';
   static const _isLiveMode = false || _isRecordMode;
   static const _isRecordMode = false;
 
