@@ -146,6 +146,7 @@ class WrappedMediaPlayer {
     func release(completer: Completer? = nil) {
         stop {
             self.reset()
+            url = nil
             completer?()
         }
     }
@@ -161,7 +162,7 @@ class WrappedMediaPlayer {
     }
 
     private func getCurrentCMTime() -> CMTime? {
-        return player?.currentTime()
+        return player?.currentItem?.currentTime()
     }
 
     private func createPlayerItem(_ url: String, _ isLocal: Bool) -> AVPlayerItem {
