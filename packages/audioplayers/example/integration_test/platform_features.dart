@@ -6,7 +6,6 @@ class PlatformFeatures {
     hasBytesSource: false,
     hasPlaylistSourceType: false,
     hasLowLatency: false,
-    hasReleaseModeRelease: false,
     hasForceSpeaker: false,
     hasDuckAudio: false,
     hasRespectSilence: false,
@@ -23,7 +22,6 @@ class PlatformFeatures {
   static const iosPlatformFeatures = PlatformFeatures(
     hasBytesSource: false,
     hasPlaylistSourceType: false,
-    hasReleaseModeRelease: false,
     hasLowLatency: false,
     hasBalance: false,
   );
@@ -32,7 +30,6 @@ class PlatformFeatures {
     hasBytesSource: false,
     hasPlaylistSourceType: false,
     hasLowLatency: false,
-    hasReleaseModeRelease: false,
     hasForceSpeaker: false,
     hasDuckAudio: false,
     hasRespectSilence: false,
@@ -45,7 +42,6 @@ class PlatformFeatures {
   static const linuxPlatformFeatures = PlatformFeatures(
     hasBytesSource: false,
     hasLowLatency: false,
-    hasReleaseModeRelease: false,
     // MP3 duration is estimated: https://bugzilla.gnome.org/show_bug.cgi?id=726144
     // Use GstDiscoverer to get duration before playing: https://gstreamer.freedesktop.org/documentation/pbutils/gstdiscoverer.html?gi-language=c
     hasMp3Duration: false,
@@ -61,7 +57,6 @@ class PlatformFeatures {
     hasBytesSource: false,
     hasPlaylistSourceType: false,
     hasLowLatency: false,
-    hasReleaseModeRelease: false,
     hasForceSpeaker: false,
     hasDuckAudio: false,
     hasRespectSilence: false,
