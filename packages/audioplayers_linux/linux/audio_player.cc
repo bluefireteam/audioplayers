@@ -202,7 +202,8 @@ void AudioPlayer::OnPositionUpdate() {
         g_autoptr(FlValue) map = fl_value_new_map();
         fl_value_set_string(map, "event",
                             fl_value_new_string("audio.onCurrentPosition"));
-        fl_value_set_string(map, "value", fl_value_new_int(GetPosition()));
+        auto optPosition = GetPosition();
+        fl_value_set_string(map, "value", optPosition.has_value() ? fl_value_new_int(optPosition.value()) : nullptr);
         fl_event_channel_send(this->_eventChannel, map, nullptr, nullptr);
     }
 }
@@ -333,7 +334,7 @@ void AudioPlayer::SetPlayback(int64_t position, double rate) {
 }
 
 void AudioPlayer::SetPlaybackRate(double rate) {
-    SetPlayback(GetPosition(), rate);
+    SetPlayback(GetPosition().value_or(0), rate);
 }
 
 /**
@@ -349,11 +350,11 @@ void AudioPlayer::SetPosition(int64_t position) {
 /**
  * @return int64_t the position in milliseconds
  */
-int64_t AudioPlayer::GetPosition() {
+std::optional<int64_t> AudioPlayer::GetPosition() {
     gint64 current = 0;
     if (!gst_element_query_position(playbin, GST_FORMAT_TIME, &current)) {
         this->OnLog("Could not query current position.");
-        return 0;
+        return std::nullopt;
     }
     return current / 1000000;
 }
@@ -361,13 +362,13 @@ int64_t AudioPlayer::GetPosition() {
 /**
  * @return int64_t the duration in milliseconds
  */
-int64_t AudioPlayer::GetDuration() {
+std::optional<int64_t> AudioPlayer::GetDuration() {
     gint64 duration = 0;
     if (!gst_element_query_duration(playbin, GST_FORMAT_TIME, &duration)) {
         // FIXME: Get duration for MP3 with variable bit rate with gst-discoverer:
         // https://gstreamer.freedesktop.org/documentation/pbutils/gstdiscoverer.html?gi-language=c#gst_discoverer_info_get_duration
         this->OnLog("Could not query current duration.");
-        return 0;
+        return std::nullopt;
     }
     return duration / 1000000;
 }

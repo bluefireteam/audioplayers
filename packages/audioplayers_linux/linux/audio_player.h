@@ -24,9 +24,9 @@ class AudioPlayer {
     AudioPlayer(std::string playerId, FlMethodChannel *methodChannel,
                 FlEventChannel *eventChannel);
 
-    int64_t GetPosition();
+    std::optional<int64_t> GetPosition();
 
-    int64_t GetDuration();
+    std::optional<int64_t> GetDuration();
 
     bool GetLooping();
 
