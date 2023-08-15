@@ -246,13 +246,32 @@ void main() async {
           );
           await platform.setReleaseMode(playerId, ReleaseMode.release);
           await platform.resume(playerId);
-          await tester.pump(const Duration(seconds: 3));
-          // No need to call stop, as it should be released by now
+          if (td.duration < const Duration(seconds: 2)) {
+            await tester.pump(const Duration(seconds: 3));
+            // No need to call stop, as it should be released by now
+          } else {
+            await tester.pump(const Duration(seconds: 1));
+            await platform.stop(playerId);
+          }
           // TODO(Gustl22): test if source was released
-          // TODO(Gustl22): test 'platform.release()'
+          expect(await platform.getDuration(playerId), Duration.zero);
           await tester.pumpLinux();
         });
       }
+    }
+
+    for (final td in audioTestDataList) {
+      testWidgets('#release ${td.source}', (tester) async {
+        await tester.prepareSource(
+          playerId: playerId,
+          platform: platform,
+          testData: td,
+        );
+        await platform.release(playerId);
+        // TODO(Gustl22): test if source was released
+        expect(await platform.getDuration(playerId), Duration.zero);
+        await tester.pumpLinux();
+      });
     }
 
     testWidgets('Set same source twice (#1520)', (tester) async {
