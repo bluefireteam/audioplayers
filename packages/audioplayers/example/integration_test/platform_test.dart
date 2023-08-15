@@ -255,6 +255,7 @@ void main() async {
           }
           // TODO(Gustl22): test if source was released
           expect(await platform.getDuration(playerId), Duration.zero);
+          expect(await platform.getCurrentPosition(playerId), Duration.zero);
           await tester.pumpLinux();
         });
       }
@@ -267,9 +268,12 @@ void main() async {
           platform: platform,
           testData: td,
         );
+        await tester.pump(const Duration(seconds: 1));
         await platform.release(playerId);
         // TODO(Gustl22): test if source was released
+        // Check if position & duration is zero after play & release
         expect(await platform.getDuration(playerId), Duration.zero);
+        expect(await platform.getCurrentPosition(playerId), Duration.zero);
         await tester.pumpLinux();
       });
     }
