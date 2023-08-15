@@ -36,6 +36,7 @@
 #include <future>
 #include <map>
 #include <memory>
+#include <optional>
 #include <sstream>
 #include <string>
 

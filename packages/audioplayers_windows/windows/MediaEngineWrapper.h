@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <tuple>
 
 #include "MediaFoundationHelpers.h"
