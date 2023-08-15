@@ -202,8 +202,7 @@ void AudioPlayer::OnPositionUpdate() {
         g_autoptr(FlValue) map = fl_value_new_map();
         fl_value_set_string(map, "event",
                             fl_value_new_string("audio.onCurrentPosition"));
-        auto optPosition = GetPosition();
-        fl_value_set_string(map, "value", optPosition.has_value() ? fl_value_new_int(optPosition.value()) : nullptr);
+        fl_value_set_string(map, "value", fl_value_new_int(GetPosition().value_or(0)));
         fl_event_channel_send(this->_eventChannel, map, nullptr, nullptr);
     }
 }
@@ -213,7 +212,7 @@ void AudioPlayer::OnDurationUpdate() {
         g_autoptr(FlValue) map = fl_value_new_map();
         fl_value_set_string(map, "event",
                             fl_value_new_string("audio.onDuration"));
-        fl_value_set_string(map, "value", fl_value_new_int(GetDuration()));
+        fl_value_set_string(map, "value", fl_value_new_int(GetDuration().value_or(0)));
         fl_event_channel_send(this->_eventChannel, map, nullptr, nullptr);
     }
 }
@@ -356,7 +355,7 @@ std::optional<int64_t> AudioPlayer::GetPosition() {
         this->OnLog("Could not query current position.");
         return std::nullopt;
     }
-    return current / 1000000;
+    return std::make_optional(current / 1000000);
 }
 
 /**
@@ -370,7 +369,7 @@ std::optional<int64_t> AudioPlayer::GetDuration() {
         this->OnLog("Could not query current duration.");
         return std::nullopt;
     }
-    return duration / 1000000;
+    return std::make_optional(duration / 1000000);
 }
 
 void AudioPlayer::Play() {
