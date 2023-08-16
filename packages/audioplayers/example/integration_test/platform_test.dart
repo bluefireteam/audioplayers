@@ -105,7 +105,7 @@ void main() async {
           final durationMs = await platform.getDuration(playerId);
           expect(
             durationMs != null ? Duration(milliseconds: durationMs) : null,
-            // TODO(gustl22): duration should be null for streams,
+            // TODO(gustl22): once duration is always null for streams,
             //  then can remove fallback for Duration.zero
             (Duration? actual) => durationRangeMatcher(
               actual ?? Duration.zero,

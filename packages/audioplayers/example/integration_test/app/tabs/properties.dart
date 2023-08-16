@@ -18,7 +18,12 @@ extension PropertiesWidgetTester on WidgetTester {
         await pump();
         expectWidgetHasDuration(
           const Key('durationText'),
-          matcher: (Duration? actual) => durationRangeMatcher(actual, duration),
+          // TODO(gustl22): once duration is always null for streams,
+          //  then can remove fallback for Duration.zero
+          matcher: (Duration? actual) => durationRangeMatcher(
+            actual ?? Duration.zero,
+            duration ?? Duration.zero,
+          ),
         );
       },
       timeout: timeout,
