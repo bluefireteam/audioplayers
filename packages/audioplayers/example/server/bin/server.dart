@@ -25,8 +25,10 @@ Future<void> main() async {
   final liveMode =
       recordMode || bool.parse(Platform.environment['LIVE_MODE'] ?? 'false');
   final routeHandler = shelf_router.Router()
-    ..mount('/stream',
-        StreamRoute(isLiveMode: liveMode, isRecordMode: recordMode).pipeline);
+    ..mount(
+      '/stream',
+      StreamRoute(isLiveMode: liveMode, isRecordMode: recordMode).pipeline,
+    );
 
   final cascade = Cascade().add(publicStaticHandler).add(routeHandler);
 
