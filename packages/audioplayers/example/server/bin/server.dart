@@ -15,7 +15,20 @@ Future<void> main() async {
   final isLogRequests =
       (Platform.environment['LOG_REQUESTS'] ?? 'false') == 'true';
 
-  final cascade = Cascade().add(_staticHandler).add(_router);
+  final publicStaticHandler = shelf_static.createStaticHandler(
+    'public',
+    defaultDocument: 'index.html',
+    serveFilesOutsidePath: true,
+  );
+
+  final recordMode = bool.parse(Platform.environment['RECORD_MODE'] ?? 'false');
+  final liveMode =
+      recordMode || bool.parse(Platform.environment['LIVE_MODE'] ?? 'false');
+  final routeHandler = shelf_router.Router()
+    ..mount('/stream',
+        StreamRoute(isLiveMode: liveMode, isRecordMode: recordMode).pipeline);
+
+  final cascade = Cascade().add(publicStaticHandler).add(routeHandler);
 
   var pipeline = const Pipeline();
   if (isLogRequests) {
@@ -43,11 +56,3 @@ Future<void> main() async {
     'Serving at http://${server.address.host}:${server.port} with latency of $requestTimeoutMillis ms',
   );
 }
-
-final _staticHandler = shelf_static.createStaticHandler(
-  'public',
-  defaultDocument: 'index.html',
-  serveFilesOutsidePath: true,
-);
-
-final _router = shelf_router.Router()..mount('/stream', StreamRoute().pipeline);
