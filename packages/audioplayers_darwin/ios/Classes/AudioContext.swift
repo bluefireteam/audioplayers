@@ -5,8 +5,8 @@ struct AudioContext {
     let options: [AVAudioSession.CategoryOptions]
 
     init() {
-        self.category = .playAndRecord
-        self.options = [.mixWithOthers, .defaultToSpeaker]
+        self.category = .playback
+        self.options = []
     }
 
     init(

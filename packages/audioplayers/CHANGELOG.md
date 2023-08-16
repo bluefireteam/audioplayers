@@ -1,3 +1,19 @@
+## 5.1.0
+
+ - **REFACTOR**(darwin): Rearrange code ([#1585](https://github.com/bluefireteam/audioplayers/issues/1585)). ([13639d1f](https://github.com/bluefireteam/audioplayers/commit/13639d1f2fe5afbc17f4e862e2da0f7551b8fc3e))
+ - **FEAT**: Get current volume, balance and playbackRate ([#1582](https://github.com/bluefireteam/audioplayers/issues/1582)). ([0c2ff7b1](https://github.com/bluefireteam/audioplayers/commit/0c2ff7b1289238150388e571396ac92b28a8ea5d))
+
+## 5.0.0
+
+> Note: This release has breaking changes.
+
+ - **REFACTOR**(windows): simplify position and duration processing ([#1553](https://github.com/bluefireteam/audioplayers/issues/1553)). ([ca63c5a4](https://github.com/bluefireteam/audioplayers/commit/ca63c5a4b120e0d1ea421e6ab30f590c314a33f2))
+ - **FIX**(example): Use kotlin version compatible with AGP8 ([#1577](https://github.com/bluefireteam/audioplayers/issues/1577)). ([8f4b1bb0](https://github.com/bluefireteam/audioplayers/commit/8f4b1bb0bc93df095bff2a4d4c2f92a4c4a85d17))
+ - **FIX**(linux): allow reusing event channel with same name ([#1555](https://github.com/bluefireteam/audioplayers/issues/1555)). ([5471189f](https://github.com/bluefireteam/audioplayers/commit/5471189f9469e973f9262a120b02b321ca0dce24))
+ - **FEAT**(android): Add support for AGP 8 in example, add compileOptions to build.gradle ([#1503](https://github.com/bluefireteam/audioplayers/issues/1503)). ([7c08e4e1](https://github.com/bluefireteam/audioplayers/commit/7c08e4e1a524f53294f6967996fd31837e62cb81))
+ - **BREAKING** **FIX**: Default audio output to system preferences ([#1563](https://github.com/bluefireteam/audioplayers/issues/1563)). ([381c43e3](https://github.com/bluefireteam/audioplayers/commit/381c43e3725fbb0cb4fd35982893a3c92b188886))
+ - **BREAKING** **CHORE**: Bump Flutter to version 3.10.x ([#1529](https://github.com/bluefireteam/audioplayers/issues/1529)). ([c1296c9b](https://github.com/bluefireteam/audioplayers/commit/c1296c9ba0cc43284b31d78f2f484454fbf6b773))
+
 ## 4.1.0
 
  - **REFACTOR**: Adapt to flame_lint v0.2.0+2 ([#1477](https://github.com/bluefireteam/audioplayers/issues/1477)). ([e1d7fb6a](https://github.com/bluefireteam/audioplayers/commit/e1d7fb6ab57c8a523c80dfc673bde3b7379b2add))

@@ -19,7 +19,7 @@ data class AudioContextAndroid(
 ) {
     @SuppressLint("InlinedApi") // we are just using numerical constants
     constructor() : this(
-        isSpeakerphoneOn = true,
+        isSpeakerphoneOn = false,
         stayAwake = false,
         contentType = CONTENT_TYPE_MUSIC,
         usageType = USAGE_MEDIA,
