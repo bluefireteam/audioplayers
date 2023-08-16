@@ -8,15 +8,13 @@ class AppSourceTestData extends SourceTestData {
   AppSourceTestData({
     required this.sourceKey,
     required super.duration,
-    super.isLiveStream,
   });
 
   @override
   String toString() {
     return 'UiSourceTestData('
         'sourceKey: $sourceKey, '
-        'duration: $duration, '
-        'isLiveStream: $isLiveStream'
+        'duration: $duration'
         ')';
   }
 }
@@ -47,14 +45,12 @@ final audioTestDataList = [
   if (_features.hasUrlSource && _features.hasPlaylistSourceType)
     AppSourceTestData(
       sourceKey: 'url-remote-m3u8',
-      duration: Duration.zero,
-      isLiveStream: true,
+      duration: null,
     ),
   if (_features.hasUrlSource)
     AppSourceTestData(
       sourceKey: 'url-remote-mpga',
-      duration: Duration.zero,
-      isLiveStream: true,
+      duration: null,
     ),
   if (_features.hasAssetSource)
     AppSourceTestData(

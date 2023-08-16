@@ -96,17 +96,17 @@ class AudioPlayer {
   /// position of the playback if the status is [PlayerState.playing].
   ///
   /// You can use it on a progress bar, for instance.
-  Stream<Duration> get onPositionChanged => eventStream
+  Stream<Duration?> get onPositionChanged => eventStream
       .where((event) => event.eventType == AudioEventType.position)
-      .map((event) => event.position!);
+      .map((event) => event.position);
 
   /// Stream of changes on audio duration.
   ///
   /// An event is going to be sent as soon as the audio duration is available
   /// (it might take a while to download or buffer it).
-  Stream<Duration> get onDurationChanged => eventStream
+  Stream<Duration?> get onDurationChanged => eventStream
       .where((event) => event.eventType == AudioEventType.duration)
-      .map((event) => event.duration!);
+      .map((event) => event.duration);
 
   /// Stream of player completions.
   ///
