@@ -182,8 +182,10 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
         auto optDuration = player->GetDuration();
         if (optDuration.has_value()) {
             result->Success(EncodableValue(ConvertSecondsToMs(optDuration.value())));
-            return;
+        } else {
+            result->Success(EncodableValue(std::monostate{}));
         }
+        return;
     } else if (method_call.method_name().compare("setVolume") == 0) {
         auto volume = GetArgument<double>("volume", args, 1.0);
         player->SetVolume(volume);
@@ -191,8 +193,10 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
         auto optPosition = player->GetPosition();
         if (optPosition.has_value()) {
             result->Success(EncodableValue(ConvertSecondsToMs(optPosition.value())));
-            return;
+        } else {
+            result->Success(EncodableValue(std::monostate{}));
         }
+        return;
     } else if (method_call.method_name().compare("setPlaybackRate") == 0) {
         auto playbackRate = GetArgument<double>("playbackRate", args, 1.0);
         player->SetPlaybackSpeed(playbackRate);
