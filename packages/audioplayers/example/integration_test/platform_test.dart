@@ -218,7 +218,7 @@ void main() async {
     for (final td in audioTestDataList) {
       if (features.hasReleaseModeLoop &&
           !td.isLiveStream &&
-          td.duration < const Duration(seconds: 2)) {
+          td.duration! < const Duration(seconds: 2)) {
         testWidgets('#ReleaseMode.loop ${td.source}', (tester) async {
           await tester.prepareSource(
             playerId: playerId,
@@ -246,7 +246,7 @@ void main() async {
           );
           await platform.setReleaseMode(playerId, ReleaseMode.release);
           await platform.resume(playerId);
-          if (td.duration < const Duration(seconds: 2)) {
+          if (td.duration! < const Duration(seconds: 2)) {
             await tester.pumpAndSettle(const Duration(seconds: 3));
             // No need to call stop, as it should be released by now
           } else {
@@ -344,14 +344,14 @@ void main() async {
           // FIXME(gustl22): duration event is not emitted for short duration
           // WAV on Linux (only platform tests, may be a race condition).
           skip: isLinux && td.isVBR ||
-              isLinux && td.duration < const Duration(seconds: 5),
+              isLinux && td.duration! < const Duration(seconds: 5),
         );
       }
     }
 
     for (final td in audioTestDataList) {
       if (features.hasPositionEvent &&
-          (td.isLiveStream || td.duration > const Duration(seconds: 2))) {
+          (td.isLiveStream || td.duration! > const Duration(seconds: 2))) {
         testWidgets('#positionEvent ${td.source}', (tester) async {
           await tester.prepareSource(
             playerId: playerId,
@@ -378,7 +378,7 @@ void main() async {
     }
 
     for (final td in audioTestDataList) {
-      if (!td.isLiveStream && td.duration < const Duration(seconds: 2)) {
+      if (!td.isLiveStream && td.duration! < const Duration(seconds: 2)) {
         testWidgets('#completeEvent ${td.source}', (tester) async {
           await tester.prepareSource(
             playerId: playerId,

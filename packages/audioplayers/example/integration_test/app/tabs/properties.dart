@@ -7,7 +7,7 @@ import '../app_test_utils.dart';
 
 extension PropertiesWidgetTester on WidgetTester {
   Future<void> testDuration(
-    Duration duration, {
+    Duration? duration, {
     Duration timeout = const Duration(seconds: 4),
   }) async {
     printWithTimeOnFailure('Test Duration: $duration');

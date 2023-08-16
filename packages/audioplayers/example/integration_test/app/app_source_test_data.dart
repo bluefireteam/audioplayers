@@ -9,7 +9,6 @@ class AppSourceTestData extends SourceTestData {
     required this.sourceKey,
     required super.duration,
     super.isVBR,
-    super.isLiveStream,
   });
 
   @override
@@ -52,8 +51,7 @@ final audioTestDataList = [
   if (_features.hasUrlSource && _features.hasPlaylistSourceType)
     AppSourceTestData(
       sourceKey: 'url-remote-m3u8',
-      duration: Duration.zero,
-      isLiveStream: true,
+      duration: null,
     ),
   /*if (_features.hasUrlSource)
     AppSourceTestData(

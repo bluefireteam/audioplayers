@@ -12,7 +12,6 @@ class LibSourceTestData extends SourceTestData {
     required this.source,
     required super.duration,
     super.isVBR,
-    super.isLiveStream,
   });
 
   @override
@@ -41,14 +40,12 @@ final mp3Url1TestData = LibSourceTestData(
 
 final m3u8UrlTestData = LibSourceTestData(
   source: UrlSource(m3u8StreamUrl),
-  duration: Duration.zero,
-  isLiveStream: true,
+  duration: null,
 );
 
 final mpgaUrlTestData = LibSourceTestData(
   source: UrlSource(mpgaStreamUrl),
-  duration: Duration.zero,
-  isLiveStream: true,
+  duration: null,
 );
 
 final wavAssetTestData = LibSourceTestData(
