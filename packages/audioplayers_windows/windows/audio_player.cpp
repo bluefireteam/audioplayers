@@ -247,6 +247,9 @@ void AudioPlayer::Resume() {
 }
 
 double AudioPlayer::GetPosition() {
+    if(!_isInitialized) {
+        return std::numeric_limits<double>::quiet_NaN();
+    }
     return m_mediaEngineWrapper->GetMediaTime();
 }
 
