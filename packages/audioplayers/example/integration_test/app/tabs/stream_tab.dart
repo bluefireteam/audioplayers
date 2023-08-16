@@ -63,8 +63,10 @@ Future<void> testStreamsTab(
 
   if (features.hasDurationEvent && !audioSourceTestData.isLiveStream) {
     // Test if onDurationText is set.
-    await tester.testOnDuration(audioSourceTestData.duration!,
-        timeout: timeout);
+    await tester.testOnDuration(
+      audioSourceTestData.duration!,
+      timeout: timeout,
+    );
   }
 
   const sampleDuration = Duration(seconds: 3);
