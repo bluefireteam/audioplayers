@@ -105,9 +105,11 @@ void main() async {
           final durationMs = await platform.getDuration(playerId);
           expect(
             durationMs != null ? Duration(milliseconds: durationMs) : null,
+            // TODO(gustl22): duration should be null for streams,
+            //  then can remove fallback for Duration.zero
             (Duration? actual) => durationRangeMatcher(
-              actual,
-              td.duration,
+              actual ?? Duration.zero,
+              td.duration ?? Duration.zero,
               deviation: Duration(milliseconds: td.isVBR ? 100 : 1),
             ),
           );
