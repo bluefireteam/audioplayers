@@ -131,7 +131,11 @@ class WebAudioplayersPlatform extends AudioplayersPlatformInterface {
 
   @override
   Future<void> stop(String playerId) async {
-    getPlayer(playerId).stop();
+    if (_currentReleaseMode == ReleaseMode.release) {
+      await getPlayer(playerId).release();
+    } else {
+      getPlayer(playerId).stop();
+    }
   }
 
   @override
