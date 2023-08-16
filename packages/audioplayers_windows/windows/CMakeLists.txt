@@ -44,7 +44,6 @@ add_library(${PLUGIN_NAME} SHARED
 apply_standard_settings(${PLUGIN_NAME})
 set_target_properties(${PLUGIN_NAME} PROPERTIES
   CXX_VISIBILITY_PRESET hidden)
-target_compile_features(${PLUGIN_NAME} PRIVATE cxx_std_17)
 
 target_link_libraries(${PLUGIN_NAME} PRIVATE ${CMAKE_BINARY_DIR}/packages/Microsoft.Windows.ImplementationLibrary/build/native/Microsoft.Windows.ImplementationLibrary.targets)
 target_link_libraries(${PLUGIN_NAME} PRIVATE Mfplat windowsapp)

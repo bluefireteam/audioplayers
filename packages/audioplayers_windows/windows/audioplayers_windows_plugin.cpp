@@ -167,7 +167,7 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
         player->Release();
     } else if (method_call.method_name().compare("seek") == 0) {
         auto positionInMs = GetArgument<int>("position", args,
-                                         (int)ConvertSecondsToMs(player->GetPosition().value_or(0)));
+                                         (int)ConvertSecondsToMs(player->GetPosition()));
         player->SeekTo(ConvertMsToSeconds(positionInMs));
     } else if (method_call.method_name().compare("setSourceUrl") == 0) {
         auto url = GetArgument<std::string>("url", args, std::string());
@@ -179,23 +179,19 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
 
         std::thread(&AudioPlayer::SetSourceUrl, player, url).detach();
     } else if (method_call.method_name().compare("getDuration") == 0) {
-        auto optDuration = player->GetDuration();
-        if (optDuration.has_value()) {
-            result->Success(EncodableValue(ConvertSecondsToMs(optDuration.value())));
-        } else {
-            result->Success(EncodableValue(std::monostate{}));
-        }
+        auto duration = player->GetDuration();
+        result->Success(isnan(duration)
+                            ? EncodableValue(std::monostate{})
+                            : EncodableValue(ConvertSecondsToMs(duration)));
         return;
     } else if (method_call.method_name().compare("setVolume") == 0) {
         auto volume = GetArgument<double>("volume", args, 1.0);
         player->SetVolume(volume);
     } else if (method_call.method_name().compare("getCurrentPosition") == 0) {
-        auto optPosition = player->GetPosition();
-        if (optPosition.has_value()) {
-            result->Success(EncodableValue(ConvertSecondsToMs(optPosition.value())));
-        } else {
-            result->Success(EncodableValue(std::monostate{}));
-        }
+        auto position = player->GetPosition();
+        result->Success(isnan(position)
+                            ? EncodableValue(std::monostate{})
+                            : EncodableValue(ConvertSecondsToMs(position)));
         return;
     } else if (method_call.method_name().compare("setPlaybackRate") == 0) {
         auto playbackRate = GetArgument<double>("playbackRate", args, 1.0);

@@ -141,25 +141,29 @@ void AudioPlayer::OnPlaybackEnded() {
 
 void AudioPlayer::OnTimeUpdate() {
     if (this->_eventHandler) {
+        auto position = m_mediaEngineWrapper->GetMediaTime();
         this->_eventHandler->Success(
             std::make_unique<flutter::EncodableValue>(flutter::EncodableMap(
                 {{flutter::EncodableValue("event"),
                   flutter::EncodableValue("audio.onCurrentPosition")},
                  {flutter::EncodableValue("value"),
-                  flutter::EncodableValue(
-                      ConvertSecondsToMs(m_mediaEngineWrapper->GetMediaTime().value_or(0)))}})));
+                  isnan(position) ? flutter::EncodableValue(std::monostate{})
+                                  : flutter::EncodableValue(
+                                        ConvertSecondsToMs(position))}})));
     }
 }
 
 void AudioPlayer::OnDurationUpdate() {
+    auto duration = m_mediaEngineWrapper->GetDuration();
     if (this->_eventHandler) {
         this->_eventHandler->Success(
             std::make_unique<flutter::EncodableValue>(flutter::EncodableMap(
                 {{flutter::EncodableValue("event"),
                   flutter::EncodableValue("audio.onDuration")},
                  {flutter::EncodableValue("value"),
-                  flutter::EncodableValue(
-                      ConvertSecondsToMs(m_mediaEngineWrapper->GetDuration().value_or(0)))}})));
+                  isnan(duration) ? flutter::EncodableValue(std::monostate{})
+                                  : flutter::EncodableValue(
+                                        ConvertSecondsToMs(duration))}})));
     }
 }
 
@@ -231,7 +235,7 @@ void AudioPlayer::SetBalance(double balance) {
 
 void AudioPlayer::Play() {
     m_mediaEngineWrapper->StartPlayingFrom(
-        m_mediaEngineWrapper->GetMediaTime().value_or(0));
+        m_mediaEngineWrapper->GetMediaTime());
     OnDurationUpdate();
 }
 
@@ -242,11 +246,11 @@ void AudioPlayer::Resume() {
     OnDurationUpdate();
 }
 
-std::optional<double> AudioPlayer::GetPosition() {
+double AudioPlayer::GetPosition() {
     return m_mediaEngineWrapper->GetMediaTime();
 }
 
-std::optional<double> AudioPlayer::GetDuration() {
+double AudioPlayer::GetDuration() {
     return m_mediaEngineWrapper->GetDuration();
 }
 

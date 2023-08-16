@@ -245,31 +245,32 @@ void MediaEngineWrapper::SeekTo(double timestampInSeconds)
     });
 }
 
-// Get media time in seconds
-std::optional<double> MediaEngineWrapper::GetMediaTime()
+// Get media time in seconds, returns NaN if no duration is available.
+double MediaEngineWrapper::GetMediaTime()
 {
-    std::optional<double> currentTimeInSeconds;
-    RunSyncInMTA([&]() {
+    double currentTimeInSeconds = std::numeric_limits<double>::quiet_NaN();
+    RunSyncInMTA([&]()
+    {
         auto lock = m_lock.lock();
-        currentTimeInSeconds =
-            m_mediaEngine == nullptr
-                ? std::nullopt
-                : std::make_optional(m_mediaEngine->GetCurrentTime());
+        if (m_mediaEngine == nullptr) {
+            return;
+        }
+        currentTimeInSeconds = m_mediaEngine->GetCurrentTime();
     });
     return currentTimeInSeconds;
 }
 
-// Get duration in seconds
-std::optional<double> MediaEngineWrapper::GetDuration()
+// Get duration in seconds, returns NaN if no duration is available.
+double MediaEngineWrapper::GetDuration()
 {
-    std::optional<double> durationInSeconds;
+    double durationInSeconds = std::numeric_limits<double>::quiet_NaN();
     RunSyncInMTA([&]()
     {
         auto lock = m_lock.lock();
-        durationInSeconds =
-            m_mediaEngine == nullptr
-                ? std::nullopt
-                : std::make_optional(m_mediaEngine->GetDuration());
+        if (m_mediaEngine == nullptr) {
+            return;
+        }
+        durationInSeconds = m_mediaEngine->GetDuration();
     });
     return durationInSeconds;
 }

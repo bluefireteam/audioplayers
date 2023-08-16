@@ -36,7 +36,6 @@
 #include <future>
 #include <map>
 #include <memory>
-#include <optional>
 #include <sstream>
 #include <string>
 
@@ -72,9 +71,9 @@ class AudioPlayer {
 
     bool GetLooping();
 
-    std::optional<double> GetPosition();
+    double GetPosition();
 
-    std::optional<double> GetDuration();
+    double GetDuration();
 
     void SeekTo(double seek);
 

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <optional>
 #include <tuple>
 
 #include "MediaFoundationHelpers.h"
@@ -56,8 +55,8 @@ class MediaEngineWrapper : public winrt::implements<MediaEngineWrapper, IUnknown
     void SeekTo(double timeStamp);
 
     // Query the current playback position
-    std::optional<double> GetMediaTime();
-    std::optional<double> GetDuration();
+    double GetMediaTime();
+    double GetDuration();
 
     bool GetLooping();
 
