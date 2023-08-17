@@ -7,7 +7,7 @@ import '../app_test_utils.dart';
 
 extension PropertiesWidgetTester on WidgetTester {
   Future<void> testDuration(
-    Duration duration, {
+    Duration? duration, {
     Duration timeout = const Duration(seconds: 4),
   }) async {
     printWithTimeOnFailure('Test Duration: $duration');
@@ -18,7 +18,12 @@ extension PropertiesWidgetTester on WidgetTester {
         await pump();
         expectWidgetHasDuration(
           const Key('durationText'),
-          matcher: (Duration? actual) => durationRangeMatcher(actual, duration),
+          // TODO(gustl22): once duration is always null for streams,
+          //  then can remove fallback for Duration.zero
+          matcher: (Duration? actual) => durationRangeMatcher(
+            actual ?? Duration.zero,
+            duration ?? Duration.zero,
+          ),
         );
       },
       timeout: timeout,

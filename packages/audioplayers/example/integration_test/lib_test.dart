@@ -35,7 +35,7 @@ void main() {
         await tester.pump(const Duration(seconds: 8));
         for (var i = 0; i < audioTestDataList.length; i++) {
           final td = audioTestDataList[i];
-          if (td.isLiveStream || td.duration > const Duration(seconds: 10)) {
+          if (td.isLiveStream || td.duration! > const Duration(seconds: 10)) {
             await tester.pump();
             final position = await players[i].getCurrentPosition();
             printWithTimeOnFailure('Test position: $td');
@@ -63,7 +63,7 @@ void main() {
         await tester.pumpAndSettle();
         // Sources take some time to get initialized
         await tester.pump(const Duration(seconds: 8));
-        if (td.isLiveStream || td.duration > const Duration(seconds: 10)) {
+        if (td.isLiveStream || td.duration! > const Duration(seconds: 10)) {
           await tester.pump();
           final position = await player.getCurrentPosition();
           printWithTimeOnFailure('Test position: $td');
@@ -101,7 +101,8 @@ void main() {
         await tester.pumpLinux();
         await player.play(td.source);
         await tester.pumpAndSettle();
-        await tester.pump(td.duration + const Duration(seconds: 8));
+        await tester
+            .pump((td.duration ?? Duration.zero) + const Duration(seconds: 8));
         expect(player.state, PlayerState.completed);
 
         audioContext = AudioContextConfig(
@@ -114,7 +115,8 @@ void main() {
 
         await player.resume();
         await tester.pumpAndSettle();
-        await tester.pump(td.duration + const Duration(seconds: 8));
+        await tester
+            .pump((td.duration ?? Duration.zero) + const Duration(seconds: 8));
         expect(player.state, PlayerState.completed);
         await tester.pumpLinux();
         await player.dispose();
@@ -148,7 +150,8 @@ void main() {
         await player.setSource(td.source);
         await player.resume();
         await tester.pumpAndSettle();
-        await tester.pump(td.duration + const Duration(seconds: 8));
+        await tester
+            .pump((td.duration ?? Duration.zero) + const Duration(seconds: 8));
         expect(player.state, PlayerState.playing);
         await player.stop();
         expect(player.state, PlayerState.stopped);
@@ -163,7 +166,8 @@ void main() {
 
         await player.resume();
         await tester.pumpAndSettle();
-        await tester.pump(td.duration + const Duration(seconds: 8));
+        await tester
+            .pump((td.duration ?? Duration.zero) + const Duration(seconds: 8));
         expect(player.state, PlayerState.playing);
         await player.stop();
         expect(player.state, PlayerState.stopped);
