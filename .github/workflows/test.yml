@@ -257,7 +257,7 @@ jobs:
         shell: powershell
         run: |
           Get-Service -Name vmictimesync -DependentServices
-          Set-Service -Name vmictimesync -Status stopped -StartupType disabled -Force
+          Set-Service -Name vmictimesync -Status stopped -StartupType disabled
           Set-ItemProperty HKLM:\SYSTEM\CurrentControlSet\services\W32Time\Parameters -Name 'Type' -Value 'NoSync'
       - uses: subosito/flutter-action@v2
         with:
