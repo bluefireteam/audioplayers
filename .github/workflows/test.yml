@@ -268,6 +268,7 @@ jobs:
           Invoke-WebRequest https://github.com/duncanthrax/scream/releases/download/4.0/Scream4.0.zip -OutFile Scream.zip
           Expand-Archive -Path Scream.zip -DestinationPath Scream
           # Disable sync with Hyper-V and set date to allow installing certificate
+          Get-Service -Name vmictimesync -DependentServices
           Set-Service -Name vmictimesync -Status stopped -StartupType disabled
           Set-ItemProperty HKLM:\SYSTEM\CurrentControlSet\services\W32Time\Parameters -Name 'Type' -Value 'NoSync'
           net stop w32time; Set-Date (Get-Date "2023-07-04 12:00:00"); $currentDate = Get-Date; Write-Host "Current System Date: $currentDate";
