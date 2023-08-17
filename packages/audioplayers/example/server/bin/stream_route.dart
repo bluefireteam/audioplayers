@@ -10,16 +10,15 @@ import 'package:shelf_router/shelf_router.dart';
 class StreamRoute {
   static const timesRadioUrl = 'https://timesradio.wireless.radio/stream';
   static const mpegRecordPath = 'public/files/live_streams/mpeg-record.bin';
-  static const _isLiveMode = false || _isRecordMode;
-  static const _isRecordMode = false;
 
   final mpegStreamController = StreamController<List<int>>.broadcast();
 
-  StreamRoute() : assert(!_isRecordMode || _isLiveMode) {
-    if (_isRecordMode) {
+  StreamRoute({bool isLiveMode = false, bool isRecordMode = false})
+      : assert(!isRecordMode || isLiveMode) {
+    if (isRecordMode) {
       recordLiveStream();
     }
-    if (_isLiveMode) {
+    if (isLiveMode) {
       playLiveStream();
     } else {
       playLocalStream();
