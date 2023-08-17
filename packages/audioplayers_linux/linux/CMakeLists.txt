@@ -15,6 +15,7 @@ add_library(${PLUGIN_NAME} SHARED
 )
 apply_standard_settings(${PLUGIN_NAME})
 set_target_properties(${PLUGIN_NAME} PROPERTIES CXX_VISIBILITY_PRESET hidden)
+target_compile_features(${PLUGIN_NAME} PRIVATE cxx_std_17)
 
 # System-level dependencies.
 find_package(PkgConfig REQUIRED)

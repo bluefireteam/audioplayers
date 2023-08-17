@@ -53,7 +53,7 @@ Future<void> testControlsTab(
 
     if (isImmediateDurationSupported) {
       await tester.testPosition(
-        Duration(seconds: audioSourceTestData.duration.inSeconds ~/ 2),
+        Duration(seconds: audioSourceTestData.duration!.inSeconds ~/ 2),
         matcher: greaterThanOrEqualTo,
       );
     }
@@ -97,8 +97,8 @@ Future<void> testControlsTab(
     await tester.pumpAndSettle();
   }
 
-  if (audioSourceTestData.duration < const Duration(seconds: 2) &&
-      !audioSourceTestData.isLiveStream) {
+  if (!audioSourceTestData.isLiveStream &&
+      audioSourceTestData.duration! < const Duration(seconds: 2)) {
     if (features.hasReleaseModeLoop) {
       await tester.testReleaseMode(ReleaseMode.loop);
       await tester.pump(const Duration(seconds: 3));

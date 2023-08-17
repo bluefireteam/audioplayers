@@ -141,25 +141,29 @@ void AudioPlayer::OnPlaybackEnded() {
 
 void AudioPlayer::OnTimeUpdate() {
     if (this->_eventHandler) {
+        auto position = m_mediaEngineWrapper->GetMediaTime();
         this->_eventHandler->Success(
             std::make_unique<flutter::EncodableValue>(flutter::EncodableMap(
                 {{flutter::EncodableValue("event"),
                   flutter::EncodableValue("audio.onCurrentPosition")},
                  {flutter::EncodableValue("value"),
-                  flutter::EncodableValue(
-                      ConvertSecondsToMs(m_mediaEngineWrapper->GetMediaTime()))}})));
+                  isnan(position) ? flutter::EncodableValue(std::monostate{})
+                                  : flutter::EncodableValue(
+                                        ConvertSecondsToMs(position))}})));
     }
 }
 
 void AudioPlayer::OnDurationUpdate() {
+    auto duration = m_mediaEngineWrapper->GetDuration();
     if (this->_eventHandler) {
         this->_eventHandler->Success(
             std::make_unique<flutter::EncodableValue>(flutter::EncodableMap(
                 {{flutter::EncodableValue("event"),
                   flutter::EncodableValue("audio.onDuration")},
                  {flutter::EncodableValue("value"),
-                  flutter::EncodableValue(
-                      ConvertSecondsToMs(m_mediaEngineWrapper->GetDuration()))}})));
+                  isnan(duration) ? flutter::EncodableValue(std::monostate{})
+                                  : flutter::EncodableValue(
+                                        ConvertSecondsToMs(duration))}})));
     }
 }
 
@@ -237,6 +241,9 @@ void AudioPlayer::Resume() {
 }
 
 double AudioPlayer::GetPosition() {
+    if(!_isInitialized) {
+        return std::numeric_limits<double>::quiet_NaN();
+    }
     return m_mediaEngineWrapper->GetMediaTime();
 }
 

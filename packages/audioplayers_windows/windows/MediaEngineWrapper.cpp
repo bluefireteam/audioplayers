@@ -245,10 +245,10 @@ void MediaEngineWrapper::SeekTo(double timestampInSeconds)
     });
 }
 
-// Get media time in seconds
+// Get media time in seconds, returns NaN if no duration is available.
 double MediaEngineWrapper::GetMediaTime()
 {
-    double currentTimeInSeconds = 0;
+    double currentTimeInSeconds = std::numeric_limits<double>::quiet_NaN();
     RunSyncInMTA([&]()
     {
         auto lock = m_lock.lock();
@@ -260,10 +260,10 @@ double MediaEngineWrapper::GetMediaTime()
     return currentTimeInSeconds;
 }
 
-// Get duration in seconds
+// Get duration in seconds, returns NaN if no duration is available.
 double MediaEngineWrapper::GetDuration()
 {
-    double durationInSeconds = 0;
+    double durationInSeconds = std::numeric_limits<double>::quiet_NaN();
     RunSyncInMTA([&]()
     {
         auto lock = m_lock.lock();
