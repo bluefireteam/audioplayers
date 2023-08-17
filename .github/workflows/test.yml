@@ -99,6 +99,12 @@ jobs:
       - run: melos run analyze -- ${{ inputs.fatal_warnings && '--fatal-infos' || '--no-fatal-warnings --no-fatal-infos' }}
       - run: melos run test
 
+      - name: Lint Code Base
+        uses: super-linter/super-linter@v5
+        env:
+          VALIDATE_ALL_CODEBASE: true
+          DEFAULT_BRANCH: main
+
   web:
     runs-on: ubuntu-latest
     timeout-minutes: 30
