@@ -11,15 +11,13 @@ class LibSourceTestData extends SourceTestData {
   LibSourceTestData({
     required this.source,
     required super.duration,
-    super.isLiveStream,
   });
 
   @override
   String toString() {
     return 'RawSourceTestData('
         'source: $source, '
-        'duration: $duration, '
-        'isLiveStream: $isLiveStream'
+        'duration: $duration'
         ')';
   }
 }
@@ -52,14 +50,12 @@ final audioTestDataList = [
   if (_features.hasUrlSource && _features.hasPlaylistSourceType)
     LibSourceTestData(
       source: UrlSource(m3u8StreamUrl),
-      duration: Duration.zero,
-      isLiveStream: true,
+      duration: null,
     ),
   if (_features.hasUrlSource)
     LibSourceTestData(
       source: UrlSource(mpgaStreamUrl),
-      duration: Duration.zero,
-      isLiveStream: true,
+      duration: null,
     ),
   if (_features.hasAssetSource)
     LibSourceTestData(

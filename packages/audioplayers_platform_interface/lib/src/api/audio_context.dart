@@ -1,17 +1,21 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 
 /// An Audio Context is a set of secondary, platform-specific aspects of audio
 /// playback, typically related to how the act of playing audio interacts with
 /// other features of the device. [AudioContext] is containing platform specific
 /// configurations: [AudioContextAndroid] and [AudioContextIOS].
+@immutable
 class AudioContext {
   final AudioContextAndroid android;
-  final AudioContextIOS iOS;
+  late final AudioContextIOS iOS;
 
-  const AudioContext({
-    this.android = const AudioContextAndroid(),
-    this.iOS = const AudioContextIOS(),
-  });
+  AudioContext({
+    AudioContextAndroid? android,
+    AudioContextIOS? iOS,
+  }) : android = android ?? const AudioContextAndroid() {
+    this.iOS = iOS ?? AudioContextIOS();
+  }
 
   AudioContext copy({
     AudioContextAndroid? android,
@@ -36,10 +40,34 @@ class AudioContext {
       return <String, dynamic>{};
     }
   }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is AudioContext &&
+            runtimeType == other.runtimeType &&
+            android == other.android &&
+            iOS == other.iOS;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        android,
+        iOS,
+      );
+
+  @override
+  String toString() {
+    return 'AudioContext('
+        'android: $android, '
+        'iOS: $iOS'
+        ')';
+  }
 }
 
 /// A platform-specific class to encapsulate a collection of attributes about an
 /// Android audio stream.
+@immutable
 class AudioContextAndroid {
   /// Sets the speakerphone on or off, globally.
   ///
@@ -98,23 +126,118 @@ class AudioContextAndroid {
       'audioFocus': audioFocus.value,
     };
   }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is AudioContextAndroid &&
+            runtimeType == other.runtimeType &&
+            isSpeakerphoneOn == other.isSpeakerphoneOn &&
+            audioMode == other.audioMode &&
+            stayAwake == other.stayAwake &&
+            contentType == other.contentType &&
+            usageType == other.usageType &&
+            audioFocus == other.audioFocus;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        isSpeakerphoneOn,
+        audioMode,
+        stayAwake,
+        contentType,
+        usageType,
+        audioFocus,
+      );
+
+  @override
+  String toString() {
+    return 'AudioContextAndroid('
+        'isSpeakerphoneOn: $isSpeakerphoneOn, '
+        'audioMode: $audioMode, '
+        'stayAwake: $stayAwake, '
+        'contentType: $contentType, '
+        'usageType: $usageType, '
+        'audioFocus: $audioFocus'
+        ')';
+  }
 }
 
 /// A platform-specific class to encapsulate a collection of attributes about an
 /// iOS audio stream.
+@immutable
 class AudioContextIOS {
   final AVAudioSessionCategory category;
-  final List<AVAudioSessionOptions> options;
+  final Set<AVAudioSessionOptions> options;
 
   // Note when changing the defaults, it should also be changed in native code.
-  const AudioContextIOS({
+  AudioContextIOS({
     this.category = AVAudioSessionCategory.playback,
-    this.options = const [],
-  });
+    this.options = const {},
+  })  : assert(
+            category == AVAudioSessionCategory.playback ||
+                category == AVAudioSessionCategory.playAndRecord ||
+                category == AVAudioSessionCategory.multiRoute ||
+                !options.contains(AVAudioSessionOptions.mixWithOthers),
+            'You can set the option `mixWithOthers` explicitly only if the '
+            'audio session category is `playAndRecord`, `playback`, or '
+            '`multiRoute`.'),
+        assert(
+          category == AVAudioSessionCategory.playback ||
+              category == AVAudioSessionCategory.playAndRecord ||
+              category == AVAudioSessionCategory.multiRoute ||
+              !options.contains(AVAudioSessionOptions.duckOthers),
+          'You can set the option `duckOthers` explicitly only if the audio '
+          'session category is `playAndRecord`, `playback`, or `multiRoute`.',
+        ),
+        assert(
+            category == AVAudioSessionCategory.playback ||
+                category == AVAudioSessionCategory.playAndRecord ||
+                category == AVAudioSessionCategory.multiRoute ||
+                !options.contains(
+                  AVAudioSessionOptions.interruptSpokenAudioAndMixWithOthers,
+                ),
+            'You can set the option `interruptSpokenAudioAndMixWithOthers` '
+            'explicitly only if the audio session category is `playAndRecord`, '
+            '`playback`, or `multiRoute`.'),
+        assert(
+            category == AVAudioSessionCategory.playAndRecord ||
+                category == AVAudioSessionCategory.record ||
+                !options.contains(AVAudioSessionOptions.allowBluetooth),
+            'You can set the option `allowBluetooth` explicitly only if the '
+            'audio session category is `playAndRecord` or `record`.'),
+        assert(
+            category == AVAudioSessionCategory.playAndRecord ||
+                category == AVAudioSessionCategory.record ||
+                category == AVAudioSessionCategory.multiRoute ||
+                !options.contains(AVAudioSessionOptions.allowBluetoothA2DP),
+            'You can set the option `allowBluetoothA2DP` explicitly only if '
+            'the audio session category is `playAndRecord`, `record`, or '
+            '`multiRoute`.'),
+        assert(
+            category == AVAudioSessionCategory.playAndRecord ||
+                !options.contains(AVAudioSessionOptions.allowAirPlay),
+            'You can set the option `allowAirPlay` explicitly only if the '
+            'audio session category is `playAndRecord`.'),
+        assert(
+            category == AVAudioSessionCategory.playAndRecord ||
+                !options.contains(AVAudioSessionOptions.defaultToSpeaker),
+            'You can set the option `defaultToSpeaker` explicitly only if the '
+            'audio session category is `playAndRecord`.'),
+        assert(
+            category == AVAudioSessionCategory.playAndRecord ||
+                category == AVAudioSessionCategory.record ||
+                category == AVAudioSessionCategory.multiRoute ||
+                !options.contains(
+                  AVAudioSessionOptions.overrideMutedMicrophoneInterruption,
+                ),
+            'You can set the option `overrideMutedMicrophoneInterruption` '
+            'explicitly only if the audio session category is `playAndRecord`, '
+            '`record`, or `multiRoute`.');
 
   AudioContextIOS copy({
     AVAudioSessionCategory? category,
-    List<AVAudioSessionOptions>? options,
+    Set<AVAudioSessionOptions>? options,
   }) {
     return AudioContextIOS(
       category: category ?? this.category,
@@ -127,6 +250,29 @@ class AudioContextIOS {
       'category': category.name,
       'options': options.map((e) => e.name).toList(),
     };
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is AudioContextIOS &&
+            runtimeType == other.runtimeType &&
+            category == other.category &&
+            const SetEquality().equals(options, other.options);
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        category,
+        options,
+      );
+
+  @override
+  String toString() {
+    return 'AudioContextIOS('
+        'category: $category, '
+        'options: $options'
+        ')';
   }
 }
 

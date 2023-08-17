@@ -224,17 +224,19 @@ mixin EventChannelAudioplayersPlatform
         switch (eventType) {
           case 'audio.onDuration':
             final millis = map.getInt('value');
-            final duration = Duration(milliseconds: millis);
             return AudioEvent(
               eventType: AudioEventType.duration,
-              duration: duration,
+              duration: millis != null
+                  ? Duration(milliseconds: millis)
+                  : Duration.zero,
             );
           case 'audio.onCurrentPosition':
             final millis = map.getInt('value');
-            final position = Duration(milliseconds: millis);
             return AudioEvent(
               eventType: AudioEventType.position,
-              position: position,
+              position: millis != null
+                  ? Duration(milliseconds: millis)
+                  : Duration.zero,
             );
           case 'audio.onComplete':
             return const AudioEvent(eventType: AudioEventType.complete);

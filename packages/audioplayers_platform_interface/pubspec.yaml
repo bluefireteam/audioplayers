@@ -5,6 +5,7 @@ homepage: https://github.com/bluefireteam/audioplayers
 repository: https://github.com/bluefireteam/audioplayers/tree/master/packages/audioplayers_platform_interface
 
 dependencies:
+  collection: ^1.17.1
   flutter:
     sdk: flutter
   meta: ^1.7.0
