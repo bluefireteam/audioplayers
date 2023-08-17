@@ -95,7 +95,7 @@ void main() {
       const playerId = 'p1';
 
       createNativeEventStream(
-        channel: 'xyz.luan/audioplayers/events/p1',
+        channel: 'xyz.luan/audioplayers/events/$playerId',
         byteDataStream: eventController.stream,
       );
 
