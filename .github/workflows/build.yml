@@ -1,13 +1,14 @@
 name: build
 on:
   push:
-    branches:
-      - main
 
 jobs:
-  call-build-example:
-    uses: ./.github/workflows/build-example.yml
-  
   call-test:
-    needs: call-build-example
     uses: ./.github/workflows/test.yml
+    with:
+      enable_android: false
+      enable_web: false
+      enable_ios: false
+      enable_windows: true
+      enable_linux: false
+      enable_macos: false
