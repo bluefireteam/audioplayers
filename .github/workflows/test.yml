@@ -260,16 +260,17 @@ jobs:
       - uses: bluefireteam/melos-action@main
       - name: Start audio server
         run: net start audiosrv
-      # TODO(gustl22): Remove sound-ci-helpers and enable virtual audio device, when certificate is valid again (#1573)
-      - uses: LABSN/sound-ci-helpers@v1
-      #- name: Install virtual audio device
-      #  timeout-minutes: 1
-      #  shell: powershell
-      #  run: |
-      #    Invoke-WebRequest https://github.com/duncanthrax/scream/releases/download/4.0/Scream4.0.zip -OutFile Scream.zip
-      #    Expand-Archive -Path Scream.zip -DestinationPath Scream
-      #    Import-Certificate -FilePath Scream\Install\driver\x64\Scream.cat -CertStoreLocation Cert:\LocalMachine\TrustedPublisher
-      #    Scream\Install\helpers\devcon-x64.exe install Scream\Install\driver\x64\Scream.inf *Scream
+      - name: Install virtual audio device
+        timeout-minutes: 1
+        shell: powershell
+        # TODO(gustl22): Remove workaround of setting the time when virtual audio device certificate is valid again (#1573)
+        run: |
+          Invoke-WebRequest https://github.com/duncanthrax/scream/releases/download/4.0/Scream4.0.zip -OutFile Scream.zip
+          Expand-Archive -Path Scream.zip -DestinationPath Scream
+          Set-Date (Get-Date "2023-07-04 12:00:00"); $currentDate = Get-Date; Write-Host "Current System Date: $currentDate";
+          Import-Certificate -FilePath Scream\Install\driver\x64\Scream.cat -CertStoreLocation Cert:\LocalMachine\TrustedPublisher
+          Scream\Install\helpers\devcon-x64.exe install Scream\Install\driver\x64\Scream.inf *Scream
+          w32tm /resync /force; $currentDate = Get-Date; Write-Host "Current System Date: $currentDate";
       - name: Run Flutter integration tests
         shell: powershell
         working-directory: ./packages/audioplayers/example
