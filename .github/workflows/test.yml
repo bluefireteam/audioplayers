@@ -106,6 +106,7 @@ jobs:
           DEFAULT_BRANCH: main
           VALIDATE_KOTLIN_ANDROID: true
           VALIDATE_CPP: true
+          FILTER_REGEX_EXCLUDE: packages/audioplayers/example/.*
 
   web:
     runs-on: ubuntu-latest
