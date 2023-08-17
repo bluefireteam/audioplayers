@@ -119,12 +119,11 @@ class AudioContextConfig {
               : (route == AudioContextConfigRoute.earpiece
                   ? AVAudioSessionCategory.playAndRecord
                   : AVAudioSessionCategory.playback)),
-      options: (duckAudio
-              ? [AVAudioSessionOptions.duckOthers]
-              : <AVAudioSessionOptions>[]) +
-          (route == AudioContextConfigRoute.speaker
-              ? [AVAudioSessionOptions.defaultToSpeaker]
-              : []),
+      options: {
+        if (duckAudio) AVAudioSessionOptions.duckOthers,
+        if (route == AudioContextConfigRoute.speaker)
+          AVAudioSessionOptions.defaultToSpeaker,
+      },
     );
   }
 
@@ -132,8 +131,8 @@ class AudioContextConfig {
     // Please create a custom [AudioContextIOS] if the generic flags cannot
     // represent your needs.
     if (respectSilence && route == AudioContextConfigRoute.speaker) {
-      throw 'On iOS it is impossible to set both respectSilence and '
-          'forceSpeaker';
+      throw 'On iOS it is impossible to set both `respectSilence` and route '
+          '`speaker`';
     }
   }
 }

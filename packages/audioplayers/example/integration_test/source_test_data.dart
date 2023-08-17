@@ -1,19 +1,17 @@
 /// Data of a ui test source.
 abstract class SourceTestData {
-  Duration duration;
+  Duration? duration;
 
-  bool isLiveStream;
+  bool get isLiveStream => duration == null;
 
   SourceTestData({
     required this.duration,
-    this.isLiveStream = false,
   });
 
   @override
   String toString() {
     return 'SourceTestData('
-        'duration: $duration, '
-        'isLiveStream: $isLiveStream'
+        'duration: $duration'
         ')';
   }
 }
