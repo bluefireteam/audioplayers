@@ -102,6 +102,7 @@ jobs:
       - name: Lint Code Base
         uses: super-linter/super-linter@v5
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_ALL_CODEBASE: true
           DEFAULT_BRANCH: main
           VALIDATE_KOTLIN_ANDROID: true
