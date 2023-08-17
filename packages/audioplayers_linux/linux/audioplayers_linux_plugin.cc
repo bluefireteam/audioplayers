@@ -99,7 +99,6 @@ static void audioplayers_linux_plugin_handle_global_method_call(
 static void audioplayers_linux_plugin_handle_method_call(
     AudioplayersLinuxPlugin *self, FlMethodCall *method_call) {
     g_autoptr(FlMethodResponse) response = nullptr;
-    int result;
     const gchar *method = fl_method_call_get_name(method_call);
     FlValue *args = fl_method_call_get_args(method_call);
 
