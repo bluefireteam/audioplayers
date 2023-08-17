@@ -267,10 +267,13 @@ jobs:
         run: |
           Invoke-WebRequest https://github.com/duncanthrax/scream/releases/download/4.0/Scream4.0.zip -OutFile Scream.zip
           Expand-Archive -Path Scream.zip -DestinationPath Scream
-          Set-Date (Get-Date "2023-07-04 12:00:00"); $currentDate = Get-Date; Write-Host "Current System Date: $currentDate";
+          # Disable sync with Hyper-V and set date to allow installing certificate
+          Set-Service -Name vmictimesync -Status stopped -StartupType disabled
+          Set-ItemProperty HKLM:\SYSTEM\CurrentControlSet\services\W32Time\Parameters -Name 'Type' -Value 'NoSync'
+          net stop w32time; Set-Date (Get-Date "2023-07-04 12:00:00"); $currentDate = Get-Date; Write-Host "Current System Date: $currentDate";
           Import-Certificate -FilePath Scream\Install\driver\x64\Scream.cat -CertStoreLocation Cert:\LocalMachine\TrustedPublisher
           Scream\Install\helpers\devcon-x64.exe install Scream\Install\driver\x64\Scream.inf *Scream
-          w32tm /resync /force; $currentDate = Get-Date; Write-Host "Current System Date: $currentDate";
+          net start w32time; w32tm /resync /force; $currentDate = Get-Date; Write-Host "Current System Date: $currentDate";
       - name: Run Flutter integration tests
         shell: powershell
         working-directory: ./packages/audioplayers/example
