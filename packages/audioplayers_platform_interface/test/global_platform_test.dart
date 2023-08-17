@@ -30,16 +30,16 @@ void main() {
   }
 
   group('Global Method Channel', () {
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(
-      const MethodChannel('xyz.luan/audioplayers.global'),
-      (MethodCall methodCall) async {
-        methodCalls.add(methodCall);
-        return 1;
-      },
-    );
-
-    setUp(clear);
+    setUp(() {
+      clear();
+      createNativeMethodHandler(
+        channel: 'xyz.luan/audioplayers.global',
+        handler: (MethodCall methodCall) async {
+          methodCalls.add(methodCall);
+          return null;
+        },
+      );
+    });
 
     test('set AudioContext for Windows', () async {
       debugDefaultTargetPlatformOverride = TargetPlatform.windows;
