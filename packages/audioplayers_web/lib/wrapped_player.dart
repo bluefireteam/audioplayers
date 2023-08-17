@@ -175,8 +175,6 @@ class WrappedPlayer {
     player?.src = '';
     player?.remove();
     player = null;
-    _isPlaying = false;
-    _pausedAt = 0;
     _stereoPanner = null;
 
     _playerLoadedDataSubscription?.cancel();

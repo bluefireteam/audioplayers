@@ -195,7 +195,7 @@ void AudioPlayer::SendInitialized() {
     }
 }
 
-void AudioPlayer::Release() {
+void AudioPlayer::ReleaseMediaSource() {
     if (_isInitialized) {
         m_mediaEngineWrapper->Pause();
     }
@@ -204,7 +204,7 @@ void AudioPlayer::Release() {
 }
 
 void AudioPlayer::Dispose() {
-    Release();
+    ReleaseMediaSource();
     m_mediaEngineWrapper->Shutdown();
     _methodChannel = nullptr;
     _eventHandler = nullptr;
