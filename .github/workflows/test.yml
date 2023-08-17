@@ -258,10 +258,10 @@ jobs:
           flutter-version: ${{ inputs.flutter_version }}
           channel: 'stable'
       - uses: bluefireteam/melos-action@main
+      - name: Start audio server
+        run: net start audiosrv
       # TODO(gustl22): Remove sound-ci-helpers and enable virtual audio device, when certificate is valid again (#1573)
       - uses: LABSN/sound-ci-helpers@v1
-      #- name: Start audio server
-      #  run: net start audiosrv
       #- name: Install virtual audio device
       #  timeout-minutes: 1
       #  shell: powershell
