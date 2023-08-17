@@ -5,7 +5,7 @@ on:
       flutter_version:
         description: 'Flutter Version'
         required: false
-        default: '3.7.x'
+        default: 'any'
         type: choice
         options:
           - 'any'
@@ -51,7 +51,7 @@ on:
     inputs:
       flutter_version:
         required: false
-        default: '3.10.2'
+        default: '3.10.6'
         type: string
       fatal_warnings:
         required: false
