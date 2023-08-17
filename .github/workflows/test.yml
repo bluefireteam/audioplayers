@@ -105,7 +105,7 @@ jobs:
           VALIDATE_ALL_CODEBASE: true
           DEFAULT_BRANCH: main
           VALIDATE_KOTLIN_ANDROID: true
-          VALIDATE_CPP: true
+          VALIDATE_CLANG_FORMAT: true
           FILTER_REGEX_EXCLUDE: packages/audioplayers/example/.*
 
   web:
