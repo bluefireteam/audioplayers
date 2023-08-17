@@ -253,10 +253,6 @@ jobs:
     if: inputs.enable_windows
     steps:
       - uses: actions/checkout@v3
-      - name: Disable time sync with Hyper-V (#1573)
-        run: |
-          Set-Service -Name vmictimesync -Status stopped -StartupType disabled
-          Set-ItemProperty HKLM:\SYSTEM\CurrentControlSet\services\W32Time\Parameters -Name 'Type' -Value 'NoSync'
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ inputs.flutter_version }}
@@ -264,6 +260,10 @@ jobs:
       - uses: bluefireteam/melos-action@main
       - name: Start audio server
         run: net start audiosrv
+      - name: Disable time sync with Hyper-V (#1573)
+        run: |
+          Set-Service -Name vmictimesync -Status stopped -StartupType disabled
+          Set-ItemProperty HKLM:\SYSTEM\CurrentControlSet\services\W32Time\Parameters -Name 'Type' -Value 'NoSync'
       - name: Install virtual audio device
         timeout-minutes: 1
         # TODO(gustl22): Remove workaround of setting the time when virtual audio device certificate is valid again (#1573)
