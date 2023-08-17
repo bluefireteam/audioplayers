@@ -204,7 +204,7 @@ void AudioPlayer::ReleaseMediaSource() {
 }
 
 void AudioPlayer::Dispose() {
-    Release();
+    ReleaseMediaSource();
     m_mediaEngineWrapper->Shutdown();
     _methodChannel = nullptr;
     _eventHandler = nullptr;
