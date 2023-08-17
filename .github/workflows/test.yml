@@ -104,7 +104,8 @@ jobs:
         env:
           VALIDATE_ALL_CODEBASE: true
           DEFAULT_BRANCH: main
-          VALIDATE_DART: false
+          VALIDATE_KOTLIN_ANDROID: true
+          VALIDATE_CPP: true
 
   web:
     runs-on: ubuntu-latest
