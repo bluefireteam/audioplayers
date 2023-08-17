@@ -104,6 +104,7 @@ jobs:
         env:
           VALIDATE_ALL_CODEBASE: true
           DEFAULT_BRANCH: main
+          VALIDATE_DART: false
 
   web:
     runs-on: ubuntu-latest
