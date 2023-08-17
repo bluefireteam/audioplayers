@@ -133,7 +133,7 @@ void main() {
       expect(await platform.getCurrentPosition(playerId), 0);
       expect(
         await platform.getDuration(playerId),
-        wavUrl1TestData.duration.inMilliseconds,
+        wavUrl1TestData.duration!.inMilliseconds,
       );
       await tester.pumpLinux();
     });

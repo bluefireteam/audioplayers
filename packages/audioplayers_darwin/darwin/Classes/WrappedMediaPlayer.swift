@@ -161,7 +161,7 @@ class WrappedMediaPlayer {
     }
 
     private func getCurrentCMTime() -> CMTime? {
-        return player?.currentTime()
+        return player?.currentItem?.currentTime()
     }
 
     private func createPlayerItem(_ url: String, _ isLocal: Bool) -> AVPlayerItem {

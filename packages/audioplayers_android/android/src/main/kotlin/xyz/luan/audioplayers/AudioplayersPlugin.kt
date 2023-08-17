@@ -159,12 +159,12 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
                 }
 
                 "getDuration" -> {
-                    response.success(player.getDuration() ?: 0)
+                    response.success(player.getDuration())
                     return
                 }
 
                 "getCurrentPosition" -> {
-                    response.success(player.getCurrentPosition() ?: 0)
+                    response.success(player.getCurrentPosition())
                     return
                 }
 
