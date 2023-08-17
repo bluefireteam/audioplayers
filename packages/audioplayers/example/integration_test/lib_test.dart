@@ -100,7 +100,7 @@ void main() async {
         await player.play(td.source);
         await tester.pumpAndSettle();
         await tester
-            .pump(td.duration ?? Duration.zero + const Duration(seconds: 8));
+            .pump((td.duration ?? Duration.zero) + const Duration(seconds: 8));
         expect(player.state, PlayerState.completed);
 
         audioContext = AudioContextConfig(
@@ -114,7 +114,7 @@ void main() async {
         await player.resume();
         await tester.pumpAndSettle();
         await tester
-            .pump(td.duration ?? Duration.zero + const Duration(seconds: 8));
+            .pump((td.duration ?? Duration.zero) + const Duration(seconds: 8));
         expect(player.state, PlayerState.completed);
         await tester.pumpLinux();
         await player.dispose();
@@ -149,7 +149,7 @@ void main() async {
         await player.resume();
         await tester.pumpAndSettle();
         await tester
-            .pump(td.duration ?? Duration.zero + const Duration(seconds: 8));
+            .pump((td.duration ?? Duration.zero) + const Duration(seconds: 8));
         expect(player.state, PlayerState.playing);
         await player.stop();
         expect(player.state, PlayerState.stopped);
@@ -165,7 +165,7 @@ void main() async {
         await player.resume();
         await tester.pumpAndSettle();
         await tester
-            .pump(td.duration ?? Duration.zero + const Duration(seconds: 8));
+            .pump((td.duration ?? Duration.zero) + const Duration(seconds: 8));
         expect(player.state, PlayerState.playing);
         await player.stop();
         expect(player.state, PlayerState.stopped);

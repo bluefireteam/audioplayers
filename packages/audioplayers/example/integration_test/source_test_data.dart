@@ -15,7 +15,8 @@ abstract class SourceTestData {
   @override
   String toString() {
     return 'SourceTestData('
-        'duration: $duration '
+        'duration: $duration, '
+        'isVBR: $isVBR'
         ')';
   }
 }

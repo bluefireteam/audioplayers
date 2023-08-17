@@ -16,8 +16,7 @@ class AppSourceTestData extends SourceTestData {
     return 'UiSourceTestData('
         'sourceKey: $sourceKey, '
         'duration: $duration, '
-        'isVBR: $isVBR, '
-        'isLiveStream: $isLiveStream'
+        'isVBR: $isVBR'
         ')';
   }
 }
@@ -56,8 +55,7 @@ final audioTestDataList = [
   /*if (_features.hasUrlSource)
     AppSourceTestData(
       sourceKey: 'url-remote-mpga',
-      duration: Duration.zero,
-      isLiveStream: true,
+      duration: null,
     ),*/
   /*if (_features.hasAssetSource)
     AppSourceTestData(

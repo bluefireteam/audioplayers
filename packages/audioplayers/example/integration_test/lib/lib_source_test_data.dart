@@ -19,8 +19,7 @@ class LibSourceTestData extends SourceTestData {
     return 'LibSourceTestData('
         'source: $source, '
         'duration: $duration, '
-        'isVBR: $isVBR, '
-        'isLiveStream: $isLiveStream'
+        'isVBR: $isVBR'
         ')';
   }
 }
@@ -55,12 +54,12 @@ final wavAssetTestData = LibSourceTestData(
 
 final invalidAssetTestData = LibSourceTestData(
   source: AssetSource(invalidAsset),
-  duration: Duration.zero,
+  duration: null,
 );
 
 final nonExistentUrlTestData = LibSourceTestData(
   source: UrlSource('non_existent.txt'),
-  duration: Duration.zero,
+  duration: null,
 );
 
 // Some sources are commented which are considered redundant

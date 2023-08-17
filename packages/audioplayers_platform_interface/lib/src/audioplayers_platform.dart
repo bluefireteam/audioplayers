@@ -238,13 +238,17 @@ mixin EventChannelAudioplayersPlatform
             final millis = map.getInt('value');
             return AudioEvent(
               eventType: AudioEventType.duration,
-              duration: millis != null ? Duration(milliseconds: millis) : null,
+              duration: millis != null
+                  ? Duration(milliseconds: millis)
+                  : Duration.zero,
             );
           case 'audio.onCurrentPosition':
             final millis = map.getInt('value');
             return AudioEvent(
               eventType: AudioEventType.position,
-              position: millis != null ? Duration(milliseconds: millis) : null,
+              position: millis != null
+                  ? Duration(milliseconds: millis)
+                  : Duration.zero,
             );
           case 'audio.onComplete':
             return const AudioEvent(eventType: AudioEventType.complete);
