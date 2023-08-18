@@ -53,6 +53,8 @@ class AudioPlayer {
 
     void Dispose();
 
+    void ReleaseMediaSource();
+
     void SetLooping(bool isLooping);
 
     void SetVolume(double volume);

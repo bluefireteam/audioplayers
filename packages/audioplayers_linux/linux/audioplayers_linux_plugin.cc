@@ -139,8 +139,7 @@ static void audioplayers_linux_plugin_handle_method_call(
             player->Pause();
             player->SetPosition(0);
         } else if (strcmp(method, "release") == 0) {
-            player->Pause();
-            player->SetPosition(0);
+            player->ReleaseMediaSource();
         } else if (strcmp(method, "seek") == 0) {
             auto flPosition = fl_value_lookup_string(args, "position");
             int position = flPosition == nullptr ? (int)(player->GetPosition().value_or(0))

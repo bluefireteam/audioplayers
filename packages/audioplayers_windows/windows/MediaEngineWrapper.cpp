@@ -339,6 +339,11 @@ void MediaEngineWrapper::SetMediaSource(IMFMediaSource* mediaSource) {
     THROW_IF_FAILED(mediaEngineEx->SetSource(source.get()));
 }
 
+void MediaEngineWrapper::ReleaseMediaSource() {
+    m_mediaEngineExtension->SetMediaSource(nullptr);
+    m_mediaEngine->SetSource(nullptr);
+}
+
 // Callback methods
 
 void MediaEngineWrapper::OnLoaded()
