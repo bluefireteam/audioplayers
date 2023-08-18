@@ -10,21 +10,21 @@ import androidx.annotation.RequiresApi
 import java.util.Objects
 
 data class AudioContextAndroid(
-    val isSpeakerphoneOn: Boolean,
-    val stayAwake: Boolean,
-    val contentType: Int,
-    val usageType: Int,
-    val audioFocus: Int,
-    val audioMode: Int,
+        val isSpeakerphoneOn: Boolean,
+        val stayAwake: Boolean,
+        val contentType: Int,
+        val usageType: Int,
+        val audioFocus: Int,
+        val audioMode: Int,
 ) {
     @SuppressLint("InlinedApi") // we are just using numerical constants
     constructor() : this(
-        isSpeakerphoneOn = false,
-        stayAwake = false,
-        contentType = CONTENT_TYPE_MUSIC,
-        usageType = USAGE_MEDIA,
-        audioFocus = AudioManager.AUDIOFOCUS_GAIN,
-        audioMode = AudioManager.MODE_NORMAL,
+            isSpeakerphoneOn = false,
+            stayAwake = false,
+            contentType = CONTENT_TYPE_MUSIC,
+            usageType = USAGE_MEDIA,
+            audioFocus = AudioManager.AUDIOFOCUS_GAIN,
+            audioMode = AudioManager.MODE_NORMAL,
     )
 
     fun setAttributesOnPlayer(player: MediaPlayer) {
@@ -39,9 +39,9 @@ data class AudioContextAndroid(
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     fun buildAttributes(): AudioAttributes {
         return Builder()
-            .setUsage(usageType)
-            .setContentType(contentType)
-            .build()
+                .setUsage(usageType)
+                .setContentType(contentType)
+                .build()
     }
 
     @Deprecated("This is used for Android older than LOLLIPOP", replaceWith = ReplaceWith("buildAttributes"))
@@ -55,11 +55,11 @@ data class AudioContextAndroid(
 
     override fun hashCode() = Objects.hash(isSpeakerphoneOn, stayAwake, contentType, usageType, audioFocus, audioMode)
 
-    override fun equals(other: Any?) = (other is AudioContextAndroid)
-            && isSpeakerphoneOn == other.isSpeakerphoneOn
-            && stayAwake == other.stayAwake
-            && contentType == other.contentType
-            && usageType == other.usageType
-            && audioFocus == other.audioFocus
-            && audioMode == other.audioMode
+    override fun equals(other: Any?) = (other is AudioContextAndroid) &&
+            isSpeakerphoneOn == other.isSpeakerphoneOn &&
+            stayAwake == other.stayAwake &&
+            contentType == other.contentType &&
+            usageType == other.usageType &&
+            audioFocus == other.audioFocus &&
+            audioMode == other.audioMode
 }

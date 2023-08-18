@@ -8,9 +8,9 @@ import xyz.luan.audioplayers.player.SoundPoolPlayer
 
 @RequiresApi(Build.VERSION_CODES.M)
 data class BytesSource(
-    val dataSource: ByteDataSource,
-): Source {
-    constructor(bytes: ByteArray): this(ByteDataSource(bytes))
+        val dataSource: ByteDataSource,
+) : Source {
+    constructor(bytes: ByteArray) : this(ByteDataSource(bytes))
 
     override fun setForMediaPlayer(mediaPlayer: MediaPlayer) {
         mediaPlayer.setDataSource(dataSource)

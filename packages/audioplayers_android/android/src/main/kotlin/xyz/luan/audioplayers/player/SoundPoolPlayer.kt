@@ -15,8 +15,8 @@ import java.util.Collections.synchronizedMap
 private const val MAX_STREAMS = 32
 
 class SoundPoolPlayer(
-    val wrappedPlayer: WrappedPlayer,
-    private val soundPoolManager: SoundPoolManager,
+        val wrappedPlayer: WrappedPlayer,
+        private val soundPoolManager: SoundPoolManager,
 ) : Player {
 
     /** The id of the sound of source which will be played */
@@ -33,7 +33,7 @@ class SoundPoolPlayer(
                     release()
                     soundPoolManager.createSoundPoolWrapper(MAX_STREAMS, value)
                     soundPoolWrapper = soundPoolManager.getSoundPoolWrapper(value)
-                        ?: error("Could not create SoundPool $value")
+                            ?: error("Could not create SoundPool $value")
                 }
             }
             field = value
@@ -50,7 +50,7 @@ class SoundPoolPlayer(
     init {
         soundPoolManager.createSoundPoolWrapper(MAX_STREAMS, audioContext)
         soundPoolWrapper = soundPoolManager.getSoundPoolWrapper(audioContext)
-            ?: error("Could not create SoundPool $audioContext")
+                ?: error("Could not create SoundPool $audioContext")
     }
 
     override fun stop() {
@@ -119,7 +119,7 @@ class SoundPoolPlayer(
                 soundId = intSoundId
 
                 wrappedPlayer.handleLog(
-                    "time to call load() for $urlSource: ${System.currentTimeMillis() - start} player=$this",
+                        "time to call load() for $urlSource: ${System.currentTimeMillis() - start} player=$this",
                 )
             }
             urlPlayers.add(this)
@@ -167,12 +167,12 @@ class SoundPoolPlayer(
             soundPool.resume(streamId)
         } else if (soundId != null) {
             this.streamId = soundPool.play(
-                soundId,
-                wrappedPlayer.volume,
-                wrappedPlayer.volume,
-                0,
-                wrappedPlayer.isLooping.loopModeInteger(),
-                wrappedPlayer.rate,
+                    soundId,
+                    wrappedPlayer.volume,
+                    wrappedPlayer.volume,
+                    0,
+                    wrappedPlayer.isLooping.loopModeInteger(),
+                    wrappedPlayer.rate,
             )
         }
     }
@@ -196,7 +196,7 @@ class SoundPoolPlayer(
 }
 
 class SoundPoolManager(
-    private val ref: AudioplayersPlugin,
+        private val ref: AudioplayersPlugin,
 ) {
 
     // Only needed for legacy apps with SDK < 21
@@ -220,9 +220,9 @@ class SoundPoolManager(
             val attrs = audioContext.buildAttributes()
             if (!soundPoolWrappers.containsKey(attrs)) {
                 val soundPool = SoundPool.Builder()
-                    .setAudioAttributes(attrs)
-                    .setMaxStreams(maxStreams)
-                    .build()
+                        .setAudioAttributes(attrs)
+                        .setMaxStreams(maxStreams)
+                        .build()
                 ref.handleGlobalLog("Create SoundPool with $attrs")
                 val soundPoolWrapper = SoundPoolWrapper(soundPool)
                 soundPoolWrapper.soundPool.setOnLoadCompleteListener { _, sampleId, _ ->
@@ -287,7 +287,7 @@ class SoundPoolWrapper(val soundPool: SoundPool) {
      * the url is removed from this map.
      */
     val urlToPlayers: MutableMap<UrlSource, MutableList<SoundPoolPlayer>> =
-        synchronizedMap(mutableMapOf<UrlSource, MutableList<SoundPoolPlayer>>())
+            synchronizedMap(mutableMapOf<UrlSource, MutableList<SoundPoolPlayer>>())
 
     fun dispose() {
         soundPool.release()

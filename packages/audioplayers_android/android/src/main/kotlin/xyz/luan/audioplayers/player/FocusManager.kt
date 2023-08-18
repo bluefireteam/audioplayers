@@ -7,7 +7,7 @@ import androidx.annotation.RequiresApi
 import xyz.luan.audioplayers.AudioContextAndroid
 
 class FocusManager(
-    private val player: WrappedPlayer,
+        private val player: WrappedPlayer,
 ) {
     private var audioFocusChangeListener: AudioManager.OnAudioFocusChangeListener? = null
     private var audioFocusRequest: AudioFocusRequest? = null
@@ -45,9 +45,9 @@ class FocusManager(
         val audioFocus = context.audioFocus ?: return andThen()
 
         val audioFocusRequest = AudioFocusRequest.Builder(audioFocus)
-            .setAudioAttributes(context.buildAttributes())
-            .setOnAudioFocusChangeListener { handleFocusResult(it, andThen) }
-            .build()
+                .setAudioAttributes(context.buildAttributes())
+                .setOnAudioFocusChangeListener { handleFocusResult(it, andThen) }
+                .build()
         this.audioFocusRequest = audioFocusRequest
 
         val result = audioManager.requestAudioFocus(audioFocusRequest)
@@ -60,9 +60,9 @@ class FocusManager(
         audioFocusChangeListener = AudioManager.OnAudioFocusChangeListener { handleFocusResult(it, andThen) }
         @Suppress("DEPRECATION")
         val result = audioManager.requestAudioFocus(
-            audioFocusChangeListener,
-            AudioManager.STREAM_MUSIC,
-            audioFocus,
+                audioFocusChangeListener,
+                AudioManager.STREAM_MUSIC,
+                audioFocus,
         )
         handleFocusResult(result, andThen)
     }

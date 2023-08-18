@@ -9,9 +9,9 @@ import java.net.URI
 import java.net.URL
 
 data class UrlSource(
-    val url: String,
-    val isLocal: Boolean,
-): Source {
+        val url: String,
+        val isLocal: Boolean,
+) : Source {
     override fun setForMediaPlayer(mediaPlayer: MediaPlayer) {
         mediaPlayer.setDataSource(url)
     }

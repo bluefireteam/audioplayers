@@ -3,20 +3,20 @@ package xyz.luan.audioplayers.player
 import android.content.Context
 import android.media.AudioManager
 import android.media.MediaPlayer
-import kotlin.math.min
 import xyz.luan.audioplayers.*
 import xyz.luan.audioplayers.PlayerMode.LOW_LATENCY
 import xyz.luan.audioplayers.PlayerMode.MEDIA_PLAYER
 import xyz.luan.audioplayers.source.Source
+import kotlin.math.min
 
 // For some reason this cannot be accessed from MediaPlayer.MEDIA_ERROR_SYSTEM
 private const val MEDIA_ERROR_SYSTEM = -2147483648
 
 class WrappedPlayer internal constructor(
-    private val ref: AudioplayersPlugin,
-    val eventHandler: EventHandler,
-    var context: AudioContextAndroid,
-    private val soundPoolManager: SoundPoolManager,
+        private val ref: AudioplayersPlugin,
+        val eventHandler: EventHandler,
+        var context: AudioContextAndroid,
+        private val soundPoolManager: SoundPoolManager,
 ) {
     private var player: Player? = null
 
