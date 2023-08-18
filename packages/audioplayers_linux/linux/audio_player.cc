@@ -77,6 +77,18 @@ void AudioPlayer::SetSourceUrl(std::string url) {
     }
 }
 
+void AudioPlayer::ReleaseMediaSource() {
+    if(_isPlaying) _isPlaying = false;
+    if(_isInitialized) _isInitialized = false;
+    _url.clear();
+
+    GstState playbinState;
+    gst_element_get_state(playbin, &playbinState, NULL, GST_CLOCK_TIME_NONE);
+    if(playbinState > GST_STATE_NULL) {
+        gst_element_set_state(playbin, GST_STATE_NULL);
+    }
+}
+
 gboolean AudioPlayer::OnBusMessage(GstBus *bus, GstMessage *message,
                                    AudioPlayer *data) {
     switch (GST_MESSAGE_TYPE(message)) {
@@ -413,8 +425,7 @@ void AudioPlayer::Resume() {
 
 void AudioPlayer::Dispose() {
     if(!playbin) throw "Player was already disposed (Dispose)";
-    if(_isPlaying) _isPlaying = false;
-    if(_isInitialized) _isInitialized = false;
+    ReleaseMediaSource();
 
     g_source_remove(_refreshId);
 
@@ -440,11 +451,6 @@ void AudioPlayer::Dispose() {
         panorama = nullptr;
     }
 
-    GstState playbinState;
-    gst_element_get_state(playbin, &playbinState, NULL, GST_CLOCK_TIME_NONE);
-    if(playbinState > GST_STATE_NULL) {
-        gst_element_set_state(playbin, GST_STATE_NULL);
-    }
     gst_object_unref(GST_OBJECT(playbin));
     // Do not dispose method channel as it is used by multiple players!
     g_clear_object(&_eventChannel);
