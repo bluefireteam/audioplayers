@@ -6,4 +6,4 @@ ij_kotlin_continuation_indent_size = 4
 ij_kotlin_allow_trailing_comma_on_call_site = true
 ij_kotlin_allow_trailing_comma = true
 ij_kotlin_packages_to_use_import_on_demand = unset
-klint_standard_no-wildcard-imports = disabled
+ktlint_standard_no-wildcard-imports = disabled
