@@ -116,8 +116,8 @@ class _ControlsTabState extends State<ControlsTab>
             EnumTgl<PlayerMode>(
               key: const Key('control-player-mode'),
               options: {
-                for (var e in PlayerMode.values)
-                  'control-player-mode-${e.name}': e
+                for (final e in PlayerMode.values)
+                  'control-player-mode-${e.name}': e,
               },
               selected: widget.player.mode,
               onChange: (playerMode) async {
@@ -132,8 +132,8 @@ class _ControlsTabState extends State<ControlsTab>
             EnumTgl<ReleaseMode>(
               key: const Key('control-release-mode'),
               options: {
-                for (var e in ReleaseMode.values)
-                  'control-release-mode-${e.name}': e
+                for (final e in ReleaseMode.values)
+                  'control-release-mode-${e.name}': e,
               },
               selected: widget.player.releaseMode,
               onChange: (releaseMode) async {
