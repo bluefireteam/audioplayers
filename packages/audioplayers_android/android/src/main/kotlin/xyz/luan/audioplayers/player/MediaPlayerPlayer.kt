@@ -23,7 +23,7 @@ class MediaPlayerPlayer(
         return mediaPlayer
     }
 
-    override fun getDuration(): Int? {
+    override fun getDuration(): Int {
         // media player returns -1 if the duration is unknown
         return mediaPlayer.duration.takeUnless { it == -1 }
     }

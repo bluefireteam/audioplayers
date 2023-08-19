@@ -20,7 +20,7 @@ data class UrlSource(
         soundPoolPlayer.setUrlSource(this)
     }
 
-    fun getAudioPathForSoundPool(): String? {
+    fun getAudioPathForSoundPool(): String {
         if (isLocal) {
             return url.removePrefix("file://")
         }
