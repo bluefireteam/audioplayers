@@ -9,6 +9,7 @@ on:
         type: choice
         options:
           - 'any'
+          - '3.13.x'
           - '3.10.x'
           - '3.7.x'
           - '3.3.x'
@@ -47,7 +48,7 @@ on:
     inputs:
       flutter_version:
         required: false
-        default: '3.10.6'
+        default: '3.13.0'
         type: string
       enable_android:
         required: false
@@ -104,9 +105,8 @@ jobs:
           java-version: '17'
       - uses: subosito/flutter-action@v2
         with:
-          # TODO: use `inputs.flutter_version` and change to `stable`, when flutter/flutter#127628 has been released.
-          flutter-version: '3.13.0-0.1.pre'
-          channel: 'beta'
+          flutter-version: ${{ inputs.flutter_version }}
+          channel: 'stable'
       - uses: bluefireteam/melos-action@main
 
       - name: Example App - Build Android APK

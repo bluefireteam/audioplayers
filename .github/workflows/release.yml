@@ -8,5 +8,5 @@ jobs:
   call-min-flutter-test:
     uses: ./.github/workflows/test.yml
     with:
-      flutter_version: '3.10.x'
+      flutter_version: '3.13.0'
       fatal_warnings: false
