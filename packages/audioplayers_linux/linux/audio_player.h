@@ -51,6 +51,8 @@ class AudioPlayer {
 
     void SetSourceUrl(std::string url);
 
+    void ReleaseMediaSource();
+
     void OnError(const gchar *code, const gchar *message, FlValue *details,
                  GError **error);
 

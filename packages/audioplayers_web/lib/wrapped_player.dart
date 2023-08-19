@@ -40,7 +40,7 @@ class WrappedPlayer {
     }
     _currentUrl = url;
 
-    stop();
+    release();
     recreateNode();
     if (_isPlaying) {
       await resume();
@@ -138,8 +138,11 @@ class WrappedPlayer {
     );
     _playerEndedSubscription = p.onEnded.listen(
       (_) {
-        _pausedAt = 0;
-        p.currentTime = 0;
+        if (_currentReleaseMode == ReleaseMode.release) {
+          release();
+        } else {
+          stop();
+        }
         eventStreamController.add(
           const AudioEvent(eventType: AudioEventType.complete),
         );
@@ -167,10 +170,10 @@ class WrappedPlayer {
   }
 
   void release() {
+    stop();
     // Release `AudioElement` correctly (#966)
     player?.src = '';
     player?.remove();
-    _cancel();
     player = null;
     _stereoPanner = null;
 
@@ -211,7 +214,7 @@ class WrappedPlayer {
   }
 
   void stop() {
-    _cancel();
+    pause();
     _pausedAt = 0;
     player?.currentTime = 0;
   }
@@ -225,14 +228,6 @@ class WrappedPlayer {
     }
   }
 
-  void _cancel() {
-    _isPlaying = false;
-    player?.pause();
-    if (_currentReleaseMode == ReleaseMode.release) {
-      player = null;
-    }
-  }
-
   void log(String message) {
     eventStreamController.add(
       AudioEvent(eventType: AudioEventType.log, logMessage: message),
@@ -240,6 +235,7 @@ class WrappedPlayer {
   }
 
   Future<void> dispose() async {
+    release();
     eventStreamController.close();
   }
 }

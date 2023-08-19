@@ -164,8 +164,7 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
         player->Pause();
         player->SeekTo(0);
     } else if (method_call.method_name().compare("release") == 0) {
-        player->Pause();
-        player->SeekTo(0);
+        player->ReleaseMediaSource();
     } else if (method_call.method_name().compare("seek") == 0) {
         auto positionInMs = GetArgument<int>("position", args,
                                          (int)ConvertSecondsToMs(player->GetPosition()));
