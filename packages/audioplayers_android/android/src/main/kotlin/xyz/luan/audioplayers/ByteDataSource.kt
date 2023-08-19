@@ -32,5 +32,4 @@ class ByteDataSource(
         }
         return remainingSize.toInt()
     }
-
 }
