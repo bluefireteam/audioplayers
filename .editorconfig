@@ -3,3 +3,4 @@ ij_kotlin_code_style_defaults = KOTLIN_OFFICIAL
 ij_kotlin_continuation_indent_size = 4
 ij_kotlin_allow_trailing_comma_on_call_site = true
 ij_kotlin_allow_trailing_comma = true
+ij_kotlin_packages_to_use_import_on_demand = unset
