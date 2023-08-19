@@ -137,8 +137,8 @@ class WrappedPlayer internal constructor(
         if (context == audioContext) {
             return
         }
-        if (context.audioFocus != AudioManager.AUDIOFOCUS_NONE
-            && audioContext.audioFocus == AudioManager.AUDIOFOCUS_NONE
+        if (context.audioFocus != AudioManager.AUDIOFOCUS_NONE &&
+            audioContext.audioFocus == AudioManager.AUDIOFOCUS_NONE
         ) {
             focusManager.handleStop()
         }

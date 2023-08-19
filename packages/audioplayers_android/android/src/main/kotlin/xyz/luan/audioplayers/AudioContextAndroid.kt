@@ -7,7 +7,7 @@ import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Build
 import androidx.annotation.RequiresApi
-import java.util.Objects
+import java.util.*
 
 data class AudioContextAndroid(
     val isSpeakerphoneOn: Boolean,
@@ -56,10 +56,10 @@ data class AudioContextAndroid(
     override fun hashCode() = Objects.hash(isSpeakerphoneOn, stayAwake, contentType, usageType, audioFocus, audioMode)
 
     override fun equals(other: Any?) = (other is AudioContextAndroid) &&
-            isSpeakerphoneOn == other.isSpeakerphoneOn &&
-            stayAwake == other.stayAwake &&
-            contentType == other.contentType &&
-            usageType == other.usageType &&
-            audioFocus == other.audioFocus &&
-            audioMode == other.audioMode
+        isSpeakerphoneOn == other.isSpeakerphoneOn &&
+        stayAwake == other.stayAwake &&
+        contentType == other.contentType &&
+        usageType == other.usageType &&
+        audioFocus == other.audioFocus &&
+        audioMode == other.audioMode
 }

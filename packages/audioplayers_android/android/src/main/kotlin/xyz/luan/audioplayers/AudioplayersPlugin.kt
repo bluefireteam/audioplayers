@@ -231,7 +231,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
         handler.post {
             player.eventHandler.success(
                 "audio.onDuration",
-                hashMapOf("value" to (player.getDuration() ?: 0))
+                hashMapOf("value" to (player.getDuration() ?: 0)),
             )
         }
     }
@@ -264,7 +264,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
         handler.post {
             player.eventHandler.success("audio.onSeekComplete")
             player.eventHandler.success(
-                "audio.onCurrentPosition", hashMapOf("value" to (player.getCurrentPosition() ?: 0))
+                "audio.onCurrentPosition", hashMapOf("value" to (player.getCurrentPosition() ?: 0)),
             )
         }
     }
