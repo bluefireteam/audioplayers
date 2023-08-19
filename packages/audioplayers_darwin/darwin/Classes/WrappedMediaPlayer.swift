@@ -146,6 +146,7 @@ class WrappedMediaPlayer {
     func release(completer: Completer? = nil) {
         stop {
             self.reset()
+            self.url = nil
             completer?()
         }
     }

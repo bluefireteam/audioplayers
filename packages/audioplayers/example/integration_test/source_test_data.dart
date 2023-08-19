@@ -4,14 +4,19 @@ abstract class SourceTestData {
 
   bool get isLiveStream => duration == null;
 
+  /// Whether this source has variable bitrate
+  bool isVBR;
+
   SourceTestData({
     required this.duration,
+    this.isVBR = false,
   });
 
   @override
   String toString() {
     return 'SourceTestData('
-        'duration: $duration'
+        'duration: $duration, '
+        'isVBR: $isVBR'
         ')';
   }
 }
