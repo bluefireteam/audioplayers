@@ -2,12 +2,16 @@ package xyz.luan.audioplayers
 
 import android.annotation.SuppressLint
 import android.media.AudioAttributes
-import android.media.AudioAttributes.*
+import android.media.AudioAttributes.Builder
+import android.media.AudioAttributes.CONTENT_TYPE_MUSIC
+import android.media.AudioAttributes.USAGE_MEDIA
+import android.media.AudioAttributes.USAGE_NOTIFICATION_RINGTONE
+import android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Build
 import androidx.annotation.RequiresApi
-import java.util.Objects
+import java.util.*
 
 data class AudioContextAndroid(
     val isSpeakerphoneOn: Boolean,
