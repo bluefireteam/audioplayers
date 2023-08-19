@@ -6,7 +6,7 @@ import androidx.annotation.RequiresApi
 
 @RequiresApi(Build.VERSION_CODES.M)
 class ByteDataSource(
-        private val data: ByteArray
+    private val data: ByteArray
 ) : MediaDataSource() {
     @Synchronized
     override fun getSize(): Long = data.size.toLong()

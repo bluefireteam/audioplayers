@@ -8,7 +8,7 @@ import xyz.luan.audioplayers.player.SoundPoolPlayer
 
 @RequiresApi(Build.VERSION_CODES.M)
 data class BytesSource(
-        val dataSource: ByteDataSource,
+    val dataSource: ByteDataSource,
 ) : Source {
     constructor(bytes: ByteArray) : this(ByteDataSource(bytes))
 

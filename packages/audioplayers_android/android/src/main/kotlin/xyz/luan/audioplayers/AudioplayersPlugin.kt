@@ -65,9 +65,9 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
     }
 
     private fun safeCall(
-            call: MethodCall,
-            response: MethodChannel.Result,
-            handler: FlutterHandler,
+        call: MethodCall,
+        response: MethodChannel.Result,
+        handler: FlutterHandler,
     ) {
         mainScope.launch(Dispatchers.IO) {
             try {
@@ -230,8 +230,8 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
     fun handleDuration(player: WrappedPlayer) {
         handler.post {
             player.eventHandler.success(
-                    "audio.onDuration",
-                    hashMapOf("value" to (player.getDuration() ?: 0))
+                "audio.onDuration",
+                hashMapOf("value" to (player.getDuration() ?: 0))
             )
         }
     }
@@ -264,7 +264,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
         handler.post {
             player.eventHandler.success("audio.onSeekComplete")
             player.eventHandler.success(
-                    "audio.onCurrentPosition", hashMapOf("value" to (player.getCurrentPosition() ?: 0))
+                "audio.onCurrentPosition", hashMapOf("value" to (player.getCurrentPosition() ?: 0))
             )
         }
     }
@@ -278,10 +278,10 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
     }
 
     private class UpdateRunnable(
-            mediaPlayers: ConcurrentMap<String, WrappedPlayer>,
-            methodChannel: MethodChannel,
-            handler: Handler,
-            updateCallback: IUpdateCallback,
+        mediaPlayers: ConcurrentMap<String, WrappedPlayer>,
+        methodChannel: MethodChannel,
+        handler: Handler,
+        updateCallback: IUpdateCallback,
     ) : Runnable {
         private val mediaPlayers = WeakReference(mediaPlayers)
         private val methodChannel = WeakReference(methodChannel)
@@ -331,12 +331,12 @@ fun String.toConstantCase(): String {
 
 private fun MethodCall.audioContext(): AudioContextAndroid {
     return AudioContextAndroid(
-            isSpeakerphoneOn = argument<Boolean>("isSpeakerphoneOn") ?: error("isSpeakerphoneOn is required"),
-            stayAwake = argument<Boolean>("stayAwake") ?: error("stayAwake is required"),
-            contentType = argument<Int>("contentType") ?: error("contentType is required"),
-            usageType = argument<Int>("usageType") ?: error("usageType is required"),
-            audioFocus = argument<Int>("audioFocus") ?: error("audioFocus is required"),
-            audioMode = argument<Int>("audioMode") ?: error("audioMode is required"),
+        isSpeakerphoneOn = argument<Boolean>("isSpeakerphoneOn") ?: error("isSpeakerphoneOn is required"),
+        stayAwake = argument<Boolean>("stayAwake") ?: error("stayAwake is required"),
+        contentType = argument<Int>("contentType") ?: error("contentType is required"),
+        usageType = argument<Int>("usageType") ?: error("usageType is required"),
+        audioFocus = argument<Int>("audioFocus") ?: error("audioFocus is required"),
+        audioMode = argument<Int>("audioMode") ?: error("audioMode is required"),
     )
 }
 

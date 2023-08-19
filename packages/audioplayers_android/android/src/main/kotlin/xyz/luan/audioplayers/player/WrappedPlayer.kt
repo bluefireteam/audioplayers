@@ -13,10 +13,10 @@ import kotlin.math.min
 private const val MEDIA_ERROR_SYSTEM = -2147483648
 
 class WrappedPlayer internal constructor(
-        private val ref: AudioplayersPlugin,
-        val eventHandler: EventHandler,
-        var context: AudioContextAndroid,
-        private val soundPoolManager: SoundPoolManager,
+    private val ref: AudioplayersPlugin,
+    val eventHandler: EventHandler,
+    var context: AudioContextAndroid,
+    private val soundPoolManager: SoundPoolManager,
 ) {
     private var player: Player? = null
 
@@ -138,7 +138,8 @@ class WrappedPlayer internal constructor(
             return
         }
         if (context.audioFocus != AudioManager.AUDIOFOCUS_NONE
-                && audioContext.audioFocus == AudioManager.AUDIOFOCUS_NONE) {
+            && audioContext.audioFocus == AudioManager.AUDIOFOCUS_NONE
+        ) {
             focusManager.handleStop()
         }
         this.context = audioContext.copy()
