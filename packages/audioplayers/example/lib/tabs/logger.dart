@@ -149,7 +149,7 @@ class LogView extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(title),
-            IconButton(onPressed: onDelete, icon: const Icon(Icons.delete))
+            IconButton(onPressed: onDelete, icon: const Icon(Icons.delete)),
           ],
         ),
         Expanded(
@@ -165,7 +165,7 @@ class LogView extends StatelessWidget {
                             ? const TextStyle(color: Colors.red)
                             : null,
                       ),
-                      Divider(color: Colors.grey.shade400)
+                      Divider(color: Colors.grey.shade400),
                     ],
                   ),
                 )
