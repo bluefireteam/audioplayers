@@ -122,7 +122,7 @@ class _SourcesTabState extends State<SourcesTab>
         ),
         _createSourceTile(
           setSourceKey: const Key('setSource-url-remote-mp3-1'),
-          title: 'Remote URL MP3 1',
+          title: 'Remote URL MP3 1 (VBR)',
           subtitle: 'ambient_c_motion.mp3',
           source: UrlSource(mp3Url1),
         ),

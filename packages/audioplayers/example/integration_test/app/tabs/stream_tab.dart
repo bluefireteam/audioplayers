@@ -23,10 +23,7 @@ Future<void> testStreamsTab(
     await tester.testPosition(Duration.zero);
   }
 
-  final isImmediateDurationSupported =
-      features.hasMp3Duration || !audioSourceTestData.sourceKey.contains('mp3');
-
-  if (features.hasDurationEvent && isImmediateDurationSupported) {
+  if (features.hasDurationEvent && !audioSourceTestData.isVBR) {
     // Display duration before playing
     await tester.testDuration(audioSourceTestData.duration);
   }

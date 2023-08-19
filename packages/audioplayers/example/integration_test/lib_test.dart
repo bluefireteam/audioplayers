@@ -10,12 +10,11 @@ import 'lib/lib_test_utils.dart';
 import 'platform_features.dart';
 import 'test_utils.dart';
 
-void main() {
-  final features = PlatformFeatures.instance();
-
+void main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-
+  final features = PlatformFeatures.instance();
   final isAndroid = !kIsWeb && Platform.isAndroid;
+  final audioTestDataList = await getAudioTestDataList();
 
   group('play multiple sources', () {
     testWidgets(
@@ -56,8 +55,7 @@ void main() {
         (WidgetTester tester) async {
       final player = AudioPlayer();
 
-      for (var i = 0; i < audioTestDataList.length; i++) {
-        final td = audioTestDataList[i];
+      for (final td in audioTestDataList) {
         await tester.pumpLinux();
         await player.play(td.source);
         await tester.pumpAndSettle();
