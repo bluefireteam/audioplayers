@@ -100,6 +100,15 @@ jobs:
       - run: melos run analyze -- ${{ inputs.fatal_warnings && '--fatal-infos' || '--no-fatal-warnings --no-fatal-infos' }}
       - run: melos run test
 
+      - name: Lint Code Base
+        uses: super-linter/super-linter@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VALIDATE_ALL_CODEBASE: false
+          DEFAULT_BRANCH: main
+          VALIDATE_KOTLIN_ANDROID: true
+          VALIDATE_CLANG_FORMAT: true
+
   web:
     runs-on: ubuntu-latest
     timeout-minutes: 30

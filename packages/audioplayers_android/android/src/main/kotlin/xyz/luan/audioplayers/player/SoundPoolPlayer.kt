@@ -10,7 +10,7 @@ import xyz.luan.audioplayers.source.Source
 import xyz.luan.audioplayers.source.UrlSource
 import java.util.Collections.synchronizedMap
 
-/// Value should not exceed 32
+/** Value should not exceed 32 */
 // TODO(luan): make this configurable
 private const val MAX_STREAMS = 32
 
