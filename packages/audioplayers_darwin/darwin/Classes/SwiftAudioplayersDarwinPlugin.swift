@@ -10,8 +10,8 @@ import AVKit
   import AVFAudio
 #endif
 
-let CHANNEL_NAME = "xyz.luan/audioplayers"
-let GLOBAL_CHANNEL_NAME = "xyz.luan/audioplayers.global"
+let channelName = "xyz.luan/audioplayers"
+let globalChannelName = "xyz.luan/audioplayers.global"
 
 public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
   var registrar: FlutterPluginRegistrar
@@ -57,11 +57,11 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
       let binaryMessenger = registrar.messenger
     #endif
 
-    let methods = FlutterMethodChannel(name: CHANNEL_NAME, binaryMessenger: binaryMessenger)
+    let methods = FlutterMethodChannel(name: channelName, binaryMessenger: binaryMessenger)
     let globalMethods = FlutterMethodChannel(
-      name: GLOBAL_CHANNEL_NAME, binaryMessenger: binaryMessenger)
+      name: globalChannelName, binaryMessenger: binaryMessenger)
     let globalEvents = FlutterEventChannel(
-      name: GLOBAL_CHANNEL_NAME + "/events", binaryMessenger: binaryMessenger)
+      name: globalChannelName + "/events", binaryMessenger: binaryMessenger)
 
     let instance = SwiftAudioplayersDarwinPlugin(
       registrar: registrar,
@@ -347,7 +347,7 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
 
   func createPlayer(playerId: String) {
     let eventChannel = FlutterEventChannel(
-      name: CHANNEL_NAME + "/events/" + playerId, binaryMessenger: self.binaryMessenger)
+      name: channelName + "/events/" + playerId, binaryMessenger: self.binaryMessenger)
 
     let eventHandler = AudioPlayersStreamHandler()
 
