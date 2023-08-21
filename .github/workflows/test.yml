@@ -108,6 +108,7 @@ jobs:
           DEFAULT_BRANCH: main
           VALIDATE_KOTLIN_ANDROID: true
           VALIDATE_CLANG_FORMAT: true
+      - run: docker run --rm --workdir=/work --volume=$PWD:/work mtgto/swift-format:5.8 lint --parallel --strict --recursive .
 
   web:
     runs-on: ubuntu-latest
