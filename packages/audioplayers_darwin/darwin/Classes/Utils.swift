@@ -30,7 +30,7 @@ func fromCMTime(time: CMTime) -> Int {
   return milliseconds
 }
 
-class TimeObserver {
+class TimeObserver{
   let player: AVPlayer
   let observer: Any
 
