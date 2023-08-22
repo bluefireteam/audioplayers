@@ -107,6 +107,13 @@ jobs:
           DEFAULT_BRANCH: main
           VALIDATE_KOTLIN_ANDROID: true
           VALIDATE_CLANG_FORMAT: true
+      - name: Lint Swift
+        # TODO: check if swift-format can be integrated in super-linter, as soon as Alpine is supported
+        # https://github.com/apple/swift-docker/issues/231
+        # https://github.com/super-linter/super-linter/pull/4568
+        run: |
+          docker run --rm --workdir=/work --volume=$PWD:/work mtgto/swift-format:5.8 \
+           lint --parallel --strict --recursive packages/audioplayers_darwin
 
   web:
     runs-on: ubuntu-latest
