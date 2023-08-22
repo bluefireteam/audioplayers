@@ -1,4 +1,3 @@
-// swift-format-ignore-file
 //
 //  Generated file. Do not edit.
 //
