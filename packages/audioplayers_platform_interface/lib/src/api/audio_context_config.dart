@@ -99,40 +99,44 @@ class AudioContextConfig {
       usageType: respectSilence
           ? AndroidUsageType.notificationRingtone
           : (route == AudioContextConfigRoute.earpiece
-              ? AndroidUsageType.voiceCommunication
-              : AndroidUsageType.media),
+          ? AndroidUsageType.voiceCommunication
+          : AndroidUsageType.media),
       audioFocus: duckAudio
           ? AndroidAudioFocus.gainTransientMayDuck
           : AndroidAudioFocus.gain,
     );
   }
 
-  AudioContextIOS buildIOS() {
-    if (defaultTargetPlatform == TargetPlatform.iOS) {
-      validateIOS();
+  AudioContextIOS? buildIOS() {
+    if (defaultTargetPlatform != TargetPlatform.iOS) {
+      return null;
     }
-    return AudioContextIOS(
-      category: respectSilence
-          ? AVAudioSessionCategory.ambient
-          : (route == AudioContextConfigRoute.speaker
-              ? AVAudioSessionCategory.playAndRecord
-              : (route == AudioContextConfigRoute.earpiece
-                  ? AVAudioSessionCategory.playAndRecord
-                  : AVAudioSessionCategory.playback)),
-      options: {
-        if (duckAudio) AVAudioSessionOptions.duckOthers,
-        if (route == AudioContextConfigRoute.speaker)
-          AVAudioSessionOptions.defaultToSpeaker,
-      },
-    );
-  }
-
-  void validateIOS() {
-    // Please create a custom [AudioContextIOS] if the generic flags cannot
-    // represent your needs.
-    if (respectSilence && route == AudioContextConfigRoute.speaker) {
-      throw 'On iOS it is impossible to set both `respectSilence` and route '
-          '`speaker`';
+    try {
+      return AudioContextIOS(
+        category: respectSilence
+            ? AVAudioSessionCategory.ambient
+            : (route == AudioContextConfigRoute.speaker
+            ? AVAudioSessionCategory.playAndRecord
+            : (route == AudioContextConfigRoute.earpiece
+            ? AVAudioSessionCategory.playAndRecord
+            : AVAudioSessionCategory.playback)),
+        options: {
+          if (duckAudio) AVAudioSessionOptions.duckOthers,
+          if (route == AudioContextConfigRoute.speaker)
+            AVAudioSessionOptions.defaultToSpeaker,
+        },
+      );
+    } on AssertionError catch (e) {
+      // Please create a custom [AudioContextIOS] if the generic flags cannot
+      // represent your needs.
+      throw AssertionError(
+          'Invalid AudioContextConfig on iOS platform: ['
+              'route: $route, '
+              'duckAudio: $duckAudio, '
+              'respectSilence: $respectSilence, '
+              'stayAwake: $stayAwake]. \n'
+              'Details: ${e.message}'
+      );
     }
   }
 }
