@@ -50,12 +50,16 @@ class DeviceFileSource extends Source {
 /// instance.
 class AssetSource extends Source {
   final String path;
+  final bool withPrefix;
 
-  AssetSource(this.path);
+  AssetSource(
+    this.path, {
+    this.withPrefix = true,
+  });
 
   @override
   Future<void> setOnPlayer(AudioPlayer player) {
-    return player.setSourceAsset(path);
+    return player.setSourceAsset(path, withPrefix: withPrefix);
   }
 
   @override

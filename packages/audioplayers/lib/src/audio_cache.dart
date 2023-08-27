@@ -75,7 +75,7 @@ class AudioCache {
   @visibleForTesting
   Future<String> getTempDir() async => (await getTemporaryDirectory()).path;
 
-  Future<Uri> fetchToMemory(String fileName) async {
+  Future<Uri> fetchToMemory(String fileName, {bool withPrefix = true}) async {
     if (kIsWeb) {
       final uri = _sanitizeURLForWeb(fileName);
       // We rely on browser caching here. Once the browser downloads this file,
@@ -85,7 +85,8 @@ class AudioCache {
     }
 
     // read local asset from rootBundle
-    final byteData = await loadAsset('$prefix$fileName');
+    final byteData =
+        await loadAsset(withPrefix ? '$prefix$fileName' : fileName);
 
     // create a temporary file on the device to be read by the native side
     final file = fileSystem.file('${await getTempDir()}/$fileName');
@@ -109,9 +110,10 @@ class AudioCache {
   /// Loads a single [fileName] to the cache.
   ///
   /// Also returns a [Future] to access that file.
-  Future<Uri> load(String fileName) async {
+  Future<Uri> load(String fileName, {bool withPrefix = true}) async {
     if (!loadedFiles.containsKey(fileName)) {
-      loadedFiles[fileName] = await fetchToMemory(fileName);
+      loadedFiles[fileName] =
+          await fetchToMemory(fileName, withPrefix: withPrefix);
     }
     return loadedFiles[fileName]!;
   }

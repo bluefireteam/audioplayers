@@ -347,9 +347,9 @@ class AudioPlayer {
   ///
   /// The resources will start being fetched or buffered as soon as you call
   /// this method.
-  Future<void> setSourceAsset(String path) async {
+  Future<void> setSourceAsset(String path, {bool withPrefix = true}) async {
     _source = AssetSource(path);
-    final url = await audioCache.load(path);
+    final url = await audioCache.load(path, withPrefix: withPrefix);
     await creatingCompleter.future;
     await _completePrepared(
       () => _platform.setSourceUrl(playerId, url.path, isLocal: true),
