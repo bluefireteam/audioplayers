@@ -99,8 +99,8 @@ class AudioContextConfig {
       usageType: respectSilence
           ? AndroidUsageType.notificationRingtone
           : (route == AudioContextConfigRoute.earpiece
-          ? AndroidUsageType.voiceCommunication
-          : AndroidUsageType.media),
+              ? AndroidUsageType.voiceCommunication
+              : AndroidUsageType.media),
       audioFocus: duckAudio
           ? AndroidAudioFocus.gainTransientMayDuck
           : AndroidAudioFocus.gain,
@@ -116,10 +116,10 @@ class AudioContextConfig {
         category: respectSilence
             ? AVAudioSessionCategory.ambient
             : (route == AudioContextConfigRoute.speaker
-            ? AVAudioSessionCategory.playAndRecord
-            : (route == AudioContextConfigRoute.earpiece
-            ? AVAudioSessionCategory.playAndRecord
-            : AVAudioSessionCategory.playback)),
+                ? AVAudioSessionCategory.playAndRecord
+                : (route == AudioContextConfigRoute.earpiece
+                    ? AVAudioSessionCategory.playAndRecord
+                    : AVAudioSessionCategory.playback)),
         options: {
           if (duckAudio) AVAudioSessionOptions.duckOthers,
           if (route == AudioContextConfigRoute.speaker)
@@ -130,14 +130,19 @@ class AudioContextConfig {
       // Please create a custom [AudioContextIOS] if the generic flags cannot
       // represent your needs.
       throw AssertionError(
-          'Invalid AudioContextConfig on iOS platform: ['
-              'route: $route, '
-              'duckAudio: $duckAudio, '
-              'respectSilence: $respectSilence, '
-              'stayAwake: $stayAwake]. \n'
-              'Details: ${e.message}'
-      );
+          'Invalid AudioContextConfig on iOS platform: ${toString()}\n'
+          'Details: ${e.message}');
     }
+  }
+
+  @override
+  String toString() {
+    return 'AudioContextConfig('
+        'route: $route, '
+        'duckAudio: $duckAudio, '
+        'respectSilence: $respectSilence, '
+        'stayAwake: $stayAwake'
+        ')';
   }
 }
 
