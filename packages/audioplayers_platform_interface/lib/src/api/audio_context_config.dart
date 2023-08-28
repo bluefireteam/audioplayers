@@ -111,28 +111,36 @@ class AudioContextConfig {
     if (defaultTargetPlatform != TargetPlatform.iOS) {
       return null;
     }
-    try {
-      return AudioContextIOS(
-        category: respectSilence
-            ? AVAudioSessionCategory.ambient
-            : (route == AudioContextConfigRoute.speaker
-                ? AVAudioSessionCategory.playAndRecord
-                : (route == AudioContextConfigRoute.earpiece
-                    ? AVAudioSessionCategory.playAndRecord
-                    : AVAudioSessionCategory.playback)),
-        options: {
-          if (duckAudio) AVAudioSessionOptions.duckOthers,
-          if (route == AudioContextConfigRoute.speaker)
-            AVAudioSessionOptions.defaultToSpeaker,
-        },
-      );
-    } on AssertionError catch (e) {
-      // Please create a custom [AudioContextIOS] if the generic flags cannot
-      // represent your needs.
-      throw AssertionError(
-          'Invalid AudioContextConfig on iOS platform: ${toString()}\n'
-          'Details: ${e.message}');
-    }
+    validateIOS();
+    return AudioContextIOS(
+      category: respectSilence
+          ? AVAudioSessionCategory.ambient
+          : (route == AudioContextConfigRoute.speaker
+              ? AVAudioSessionCategory.playAndRecord
+              : (route == AudioContextConfigRoute.earpiece
+                  ? AVAudioSessionCategory.playAndRecord
+                  : AVAudioSessionCategory.playback)),
+      options: {
+        if (duckAudio) AVAudioSessionOptions.duckOthers,
+        if (route == AudioContextConfigRoute.speaker)
+          AVAudioSessionOptions.defaultToSpeaker,
+      },
+    );
+  }
+
+  void validateIOS() {
+    const invalidMsg =
+        'Invalid AudioContextConfig: On iOS it is not possible to set';
+    const tip = 'Please create a custom [AudioContextIOS] if the generic flags '
+        'cannot represent your needs.';
+    assert(
+      !(duckAudio && respectSilence),
+      '$invalidMsg `respectSilence` and `duckAudio`. $tip',
+    );
+    assert(
+      !(respectSilence && route == AudioContextConfigRoute.speaker),
+      '$invalidMsg `respectSilence` and route `speaker`. $tip',
+    );
   }
 
   @override

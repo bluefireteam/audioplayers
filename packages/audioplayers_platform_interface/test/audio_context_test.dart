@@ -29,7 +29,7 @@ void main() {
     );
   });
 
-  test('Compare AudioContextConfig with AudioContext', () async {
+  test('Check AudioContextConfig assertions', () async {
     debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
     const boolValues = {true, false};
     const routeValues = AudioContextConfigRoute.values;
@@ -49,10 +49,16 @@ void main() {
               config.build();
               throwsAssertion.add(false);
             } on AssertionError catch (e) {
-              // if(e.startsWith('...')) {}
-              throwsAssertion.add(true);
-              print('#########');
-              print(e);
+              if (e.message
+                  .toString()
+                  .startsWith('Invalid AudioContextConfig')) {
+                throwsAssertion.add(true);
+              } else {
+                fail(
+                  'Assertion of $config does not match the expected '
+                  'description. See: $e',
+                );
+              }
             }
           }
         }
@@ -86,7 +92,7 @@ void main() {
         false,
         false,
         false,
-        false
+        false,
       ],
     );
   });
