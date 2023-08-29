@@ -7,7 +7,25 @@ on:
 jobs:
   call-build-example:
     uses: ./.github/workflows/build-example.yml
+    with:
+      upload_pages_artifact: true
   
   call-test:
     needs: call-build-example
     uses: ./.github/workflows/test.yml
+    
+  deploy-github-pages:
+    needs: 
+      - call-build-example
+      #- call-test
+    permissions:
+      pages: write
+      id-token: write   # to verify the deployment originates from an appropriate source
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2 # or the latest "vX.X.X" version tag for this action
