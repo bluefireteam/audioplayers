@@ -323,7 +323,14 @@ class WrappedPlayer internal constructor(
             MediaPlayer.MEDIA_ERROR_TIMED_OUT -> "MEDIA_ERROR_TIMED_OUT"
             else -> "MEDIA_ERROR_UNKNOWN {extra:$extra}"
         }
-        handleError(whatMsg, extraMsg, null)
+        if(extraMsg == "MEDIA_ERROR_SYSTEM") {
+            handleError("AndroidAudioError",
+                "Failed to set source. For troubleshooting, see: " +
+                "https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md.",
+                "$whatMsg, $extraMsg")
+        } else {
+            handleError("AndroidAudioError", whatMsg, extraMsg)
+        }
         return false
     }
 
