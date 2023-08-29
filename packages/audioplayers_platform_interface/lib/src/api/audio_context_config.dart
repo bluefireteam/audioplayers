@@ -107,10 +107,11 @@ class AudioContextConfig {
     );
   }
 
-  AudioContextIOS buildIOS() {
-    if (defaultTargetPlatform == TargetPlatform.iOS) {
-      validateIOS();
+  AudioContextIOS? buildIOS() {
+    if (defaultTargetPlatform != TargetPlatform.iOS) {
+      return null;
     }
+    validateIOS();
     return AudioContextIOS(
       category: respectSilence
           ? AVAudioSessionCategory.ambient
@@ -128,12 +129,28 @@ class AudioContextConfig {
   }
 
   void validateIOS() {
-    // Please create a custom [AudioContextIOS] if the generic flags cannot
-    // represent your needs.
-    if (respectSilence && route == AudioContextConfigRoute.speaker) {
-      throw 'On iOS it is impossible to set both `respectSilence` and route '
-          '`speaker`';
-    }
+    const invalidMsg =
+        'Invalid AudioContextConfig: On iOS it is not possible to set';
+    const tip = 'Please create a custom [AudioContextIOS] if the generic flags '
+        'cannot represent your needs.';
+    assert(
+      !(duckAudio && respectSilence),
+      '$invalidMsg `respectSilence` and `duckAudio`. $tip',
+    );
+    assert(
+      !(respectSilence && route == AudioContextConfigRoute.speaker),
+      '$invalidMsg `respectSilence` and route `speaker`. $tip',
+    );
+  }
+
+  @override
+  String toString() {
+    return 'AudioContextConfig('
+        'route: $route, '
+        'duckAudio: $duckAudio, '
+        'respectSilence: $respectSilence, '
+        'stayAwake: $stayAwake'
+        ')';
   }
 }
 
