@@ -227,8 +227,8 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
         },
         completerError: {
           player.eventHandler.onError(
-            code: "DarwinAudioError", message: "AVPlayerItem.Status.failed on setSourceUrl",
-            details: nil)
+            code: "DarwinAudioError", message: "Setting source failed. For troubleshoting, see https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md.",
+            details: "AVPlayerItem.Status.failed on setSourceUrl")
         })
       result(1)
       return
