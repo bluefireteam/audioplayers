@@ -17,7 +17,7 @@ jobs:
   deploy-github-pages:
     needs: 
       - call-build-example
-      #- call-test
+      - call-test
     permissions:
       pages: write
       id-token: write   # to verify the deployment originates from an appropriate source
