@@ -5,11 +5,14 @@ import android.os.Handler
 import android.os.Looper
 import com.google.android.exoplayer2.C.TIME_UNSET
 import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.PlaybackException
 import com.google.android.exoplayer2.Player.*
 import com.google.android.exoplayer2.audio.AudioAttributes
 import xyz.luan.audioplayers.AudioContextAndroid
+import xyz.luan.audioplayers.source.BytesSource
 import xyz.luan.audioplayers.source.Source
+import xyz.luan.audioplayers.source.UrlSource
 
 class ExoPlayerWrapper(
     private val wrappedPlayer: WrappedPlayer,
@@ -132,7 +135,12 @@ class ExoPlayerWrapper(
 
     override fun setSource(source: Source) {
         println("Exo Set source")
-        source.setForExoPlayer(player)
+        if (source is UrlSource) {
+            player.setMediaItem(MediaItem.fromUri(source.url))
+        } else if (source is BytesSource) {
+            TODO("Not yet implemented")
+            
+        }
     }
 
     override fun prepare() {

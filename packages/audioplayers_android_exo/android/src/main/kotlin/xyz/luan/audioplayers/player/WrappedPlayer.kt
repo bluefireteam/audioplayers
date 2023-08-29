@@ -6,9 +6,6 @@ import android.media.MediaPlayer
 import xyz.luan.audioplayers.AudioContextAndroid
 import xyz.luan.audioplayers.AudioplayersPlugin
 import xyz.luan.audioplayers.EventHandler
-import xyz.luan.audioplayers.PlayerMode
-import xyz.luan.audioplayers.PlayerMode.LOW_LATENCY
-import xyz.luan.audioplayers.PlayerMode.MEDIA_PLAYER
 import xyz.luan.audioplayers.ReleaseMode
 import xyz.luan.audioplayers.source.Source
 import kotlin.math.min
@@ -20,7 +17,6 @@ class WrappedPlayer internal constructor(
     private val ref: AudioplayersPlugin,
     val eventHandler: EventHandler,
     var context: AudioContextAndroid,
-    private val soundPoolManager: SoundPoolManager,
 ) {
     private var player: Player? = null
 
@@ -85,22 +81,6 @@ class WrappedPlayer internal constructor(
 
     val isLooping: Boolean
         get() = releaseMode == ReleaseMode.LOOP
-
-    var playerMode: PlayerMode = MEDIA_PLAYER
-        set(value) {
-            if (field != value) {
-                field = value
-
-                // if the player exists, we need to re-create it from scratch;
-                // this will probably cause music to pause for a second
-                player?.let {
-                    shouldSeekTo = maybeGetCurrentPosition()
-                    prepared = false
-                    it.release()
-                }
-                initPlayer()
-            }
-        }
 
     var released = true
 
@@ -348,10 +328,7 @@ class WrappedPlayer internal constructor(
      * Create new player
      */
     private fun createPlayer(): Player {
-        return when (playerMode) {
-            MEDIA_PLAYER -> ExoPlayerWrapper(this, ref.getApplicationContext())
-            LOW_LATENCY -> SoundPoolPlayer(this, soundPoolManager)
-        }
+        return ExoPlayerWrapper(this, ref.getApplicationContext())
     }
 
     /**
@@ -362,7 +339,6 @@ class WrappedPlayer internal constructor(
         // Need to set player before calling prepare, as onPrepared may is called before player is assigned
         this.player = player
         source?.let {
-            player.setSource(it)
             player.configAndPrepare()
         }
     }

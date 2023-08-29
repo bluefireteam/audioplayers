@@ -15,7 +15,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import xyz.luan.audioplayers.player.SoundPoolManager
 import xyz.luan.audioplayers.player.WrappedPlayer
 import xyz.luan.audioplayers.source.BytesSource
 import xyz.luan.audioplayers.source.UrlSource
@@ -34,7 +33,6 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
     private lateinit var globalEvents: EventHandler
     private lateinit var context: Context
     private lateinit var binaryMessenger: BinaryMessenger
-    private lateinit var soundPoolManager: SoundPoolManager
 
     private val players = ConcurrentHashMap<String, WrappedPlayer>()
     private val handler = Handler(Looper.getMainLooper())
@@ -45,7 +43,6 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
     override fun onAttachedToEngine(binding: FlutterPluginBinding) {
         context = binding.applicationContext
         binaryMessenger = binding.binaryMessenger
-        soundPoolManager = SoundPoolManager(this)
         methods = MethodChannel(binding.binaryMessenger, "xyz.luan/audioplayers")
         methods.setMethodCallHandler { call, response -> safeCall(call, response, ::methodHandler) }
         globalMethods = MethodChannel(binding.binaryMessenger, "xyz.luan/audioplayers.global")
@@ -61,7 +58,6 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
         players.values.forEach { it.dispose() }
         players.clear()
         mainScope.cancel()
-        soundPoolManager.dispose()
         globalEvents.dispose()
     }
 
@@ -113,7 +109,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
         val playerId = call.argument<String>("playerId") ?: return
         if (call.method == "create") {
             val eventHandler = EventHandler(EventChannel(binaryMessenger, "xyz.luan/audioplayers/events/$playerId"))
-            players[playerId] = WrappedPlayer(this, eventHandler, defaultAudioContext.copy(), soundPoolManager)
+            players[playerId] = WrappedPlayer(this, eventHandler, defaultAudioContext.copy())
             response.success(1)
             return
         }
@@ -185,7 +181,13 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
 
                 "setPlayerMode" -> {
                     val playerMode = call.enumArgument<PlayerMode>("playerMode") ?: error("playerMode is required")
-                    player.playerMode = playerMode
+                    if(playerMode == PlayerMode.LOW_LATENCY) {
+                        player.handleError(
+                            "AndroidAudioError",
+                            "PlayerMode LowLatency is not supported for Exoplayer",
+                            null,
+                        )
+                    }
                 }
 
                 "setAudioContext" -> {
