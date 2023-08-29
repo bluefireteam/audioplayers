@@ -17,7 +17,7 @@
 ---
 
 <a title="Sources" href="https://github.com/bluefireteam/audioplayers/blob/main/packages/audioplayers/example/lib/tabs/sources.dart"><img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot_src.png" width="25%"/></a><a title="Controls" href="https://github.com/bluefireteam/audioplayers/blob/main/packages/audioplayers/example/lib/tabs/controls.dart"><img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot_ctrl.png" width="25%"/></a><a title="Streams" href="https://github.com/bluefireteam/audioplayers/blob/main/packages/audioplayers/example/lib/tabs/streams.dart"><img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot_stream.png" width="25%"/></a><a title="Audio Context" href="https://github.com/bluefireteam/audioplayers/blob/main/packages/audioplayers/example/lib/tabs/audio_context.dart"><img src="https://raw.githubusercontent.com/bluefireteam/audioplayers/main/images/screenshot_ctx.png" width="25%"/></a>
-<span align="center"><i>Screenshots of the <a href="https://bluefireteam.github.io/audioplayers/">example app</a>.</i></span>
+<p align="center"><i>Screenshots of the <a href="https://bluefireteam.github.io/audioplayers/">example app</a>.</i></p>
 
 **Note**: all the docs are kept up to date to reflect the content of the current newest release. If you are looking for older information and guidance, please checkout the [tag](https://github.com/bluefireteam/audioplayers/tags) related to the version that you are looking for.
 
