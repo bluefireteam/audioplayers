@@ -89,6 +89,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          # Full git history needed for `super-linter`
+          fetch-depth: 0
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ inputs.flutter_version }}
@@ -100,7 +103,7 @@ jobs:
       - run: melos run test
 
       - name: Lint Code Base
-        uses: super-linter/super-linter@v5
+        uses: super-linter/super-linter/slim@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_ALL_CODEBASE: false
