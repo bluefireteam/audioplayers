@@ -40,6 +40,7 @@ class _ExampleAppState extends State<_ExampleApp> {
   @override
   void initState() {
     super.initState();
+    AudioLogger.logLevel = AudioLogLevel.info;
     audioPlayers.asMap().forEach((index, player) {
       streams.add(
         player.onPlayerStateChanged.listen(

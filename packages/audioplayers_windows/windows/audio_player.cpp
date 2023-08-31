@@ -47,6 +47,7 @@ void AudioPlayer::SetSourceUrl(std::string url) {
   if (_url != url) {
     _url = url;
     _isInitialized = false;
+    OnLog("Set url: " + url);
 
     try {
       // Create a source resolver to create an IMFMediaSource for the content
@@ -116,6 +117,7 @@ void AudioPlayer::OnMediaStateChange(
 
 void AudioPlayer::OnPrepared(bool isPrepared) {
   if (this->_eventHandler) {
+    OnLog("On Prepared");
     this->_eventHandler->Success(std::make_unique<flutter::EncodableValue>(
         flutter::EncodableMap({{flutter::EncodableValue("event"),
                                 flutter::EncodableValue("audio.onPrepared")},
@@ -125,6 +127,7 @@ void AudioPlayer::OnPrepared(bool isPrepared) {
 }
 
 void AudioPlayer::OnPlaybackEnded() {
+  OnLog("Playback Ended");
   SeekTo(0);
   if (GetLooping()) {
     Play();
@@ -168,6 +171,7 @@ void AudioPlayer::OnDurationUpdate() {
 
 void AudioPlayer::OnSeekCompleted() {
   if (this->_eventHandler) {
+    OnLog("OnSeekCompleted");
     this->_eventHandler->Success(
         std::make_unique<flutter::EncodableValue>(flutter::EncodableMap(
             {{flutter::EncodableValue("event"),
@@ -195,6 +199,7 @@ void AudioPlayer::SendInitialized() {
 }
 
 void AudioPlayer::ReleaseMediaSource() {
+    OnLog("ReleaseMediaSource");
   if (_isInitialized) {
     m_mediaEngineWrapper->Pause();
   }
@@ -203,6 +208,7 @@ void AudioPlayer::ReleaseMediaSource() {
 }
 
 void AudioPlayer::Dispose() {
+    OnLog("Dispose");
   ReleaseMediaSource();
   m_mediaEngineWrapper->Shutdown();
   _methodChannel = nullptr;
@@ -210,6 +216,7 @@ void AudioPlayer::Dispose() {
 }
 
 void AudioPlayer::SetLooping(bool isLooping) {
+    OnLog("SetLooping: " + (isLooping ? "true" : "false"));
   m_mediaEngineWrapper->SetLooping(isLooping);
 }
 
@@ -218,6 +225,7 @@ bool AudioPlayer::GetLooping() {
 }
 
 void AudioPlayer::SetVolume(double volume) {
+    OnLog("SetVolume: " + std::to_string(volume));
   if (volume > 1) {
     volume = 1;
   } else if (volume < 0) {
@@ -227,23 +235,28 @@ void AudioPlayer::SetVolume(double volume) {
 }
 
 void AudioPlayer::SetPlaybackSpeed(double playbackSpeed) {
+    OnLog("SetPlaybackSpeed: " + std::to_string(playbackSpeed));
   m_mediaEngineWrapper->SetPlaybackRate(playbackSpeed);
 }
 
 void AudioPlayer::SetBalance(double balance) {
+    OnLog("SetBalance: " + std::to_string(balance));
   m_mediaEngineWrapper->SetBalance(balance);
 }
 
 void AudioPlayer::Play() {
+    OnLog("Start Playing from");
   m_mediaEngineWrapper->StartPlayingFrom(m_mediaEngineWrapper->GetMediaTime());
   OnDurationUpdate();
 }
 
 void AudioPlayer::Pause() {
+    OnLog("Pause");
   m_mediaEngineWrapper->Pause();
 }
 
 void AudioPlayer::Resume() {
+    OnLog("Resume");
   m_mediaEngineWrapper->Resume();
   OnDurationUpdate();
 }
@@ -260,5 +273,6 @@ double AudioPlayer::GetDuration() {
 }
 
 void AudioPlayer::SeekTo(double seek) {
+    OnLog("Seek to: " + std::to_string(seek));
   m_mediaEngineWrapper->SeekTo(seek);
 }
