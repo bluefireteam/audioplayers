@@ -6,7 +6,7 @@ import 'package:audioplayers_example/utils.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
+import 'package:http/http.dart' as http;
 
 const useLocalServer = bool.fromEnvironment('USE_LOCAL_SERVER');
 
@@ -20,7 +20,9 @@ final mp3Url2 = '$host/files/audio/nasa_on_a_mission.mp3';
 final m3u8StreamUrl = useLocalServer
     ? '$host/files/live_streams/nasa_power_of_the_rovers.m3u8'
     : 'https://a.files.bbci.co.uk/media/live/manifesto/audio/simulcast/hls/nonuk/sbr_low/ak/bbc_radio_one.m3u8';
-const mpgaStreamUrl = 'https://timesradio.wireless.radio/stream';
+final mpgaStreamUrl = useLocalServer
+    ? '$host/stream/mpeg'
+    : 'https://timesradio.wireless.radio/stream';
 
 const wavAsset = 'laser.wav';
 const mp3Asset = 'nasa_on_a_mission.mp3';
@@ -89,7 +91,7 @@ class _SourcesTabState extends State<SourcesTab>
     Future<void> Function(Source) fun, {
     required String url,
   }) async {
-    final bytes = await readBytes(Uri.parse(url));
+    final bytes = await http.readBytes(Uri.parse(url));
     await fun(BytesSource(bytes));
   }
 
@@ -120,7 +122,7 @@ class _SourcesTabState extends State<SourcesTab>
         ),
         _createSourceTile(
           setSourceKey: const Key('setSource-url-remote-mp3-1'),
-          title: 'Remote URL MP3 1',
+          title: 'Remote URL MP3 1 (VBR)',
           subtitle: 'ambient_c_motion.mp3',
           source: UrlSource(mp3Url1),
         ),

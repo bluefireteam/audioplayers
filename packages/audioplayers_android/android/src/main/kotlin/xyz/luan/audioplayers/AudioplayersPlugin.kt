@@ -1,6 +1,5 @@
 package xyz.luan.audioplayers
 
-
 import android.content.Context
 import android.media.AudioManager
 import android.os.Build
@@ -56,6 +55,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
 
     override fun onDetachedFromEngine(binding: FlutterPluginBinding) {
         stopUpdates()
+        handler.removeCallbacksAndMessages(null)
         updateRunnable = null
         players.values.forEach { it.dispose() }
         players.clear()
@@ -158,12 +158,12 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
                 }
 
                 "getDuration" -> {
-                    response.success(player.getDuration() ?: 0)
+                    response.success(player.getDuration())
                     return
                 }
 
                 "getCurrentPosition" -> {
-                    response.success(player.getCurrentPosition() ?: 0)
+                    response.success(player.getCurrentPosition())
                     return
                 }
 
@@ -231,7 +231,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
         handler.post {
             player.eventHandler.success(
                 "audio.onDuration",
-                hashMapOf("value" to (player.getDuration() ?: 0))
+                hashMapOf("value" to (player.getDuration() ?: 0)),
             )
         }
     }
@@ -264,7 +264,8 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
         handler.post {
             player.eventHandler.success("audio.onSeekComplete")
             player.eventHandler.success(
-                "audio.onCurrentPosition", hashMapOf("value" to (player.getCurrentPosition() ?: 0))
+                "audio.onCurrentPosition",
+                hashMapOf("value" to (player.getCurrentPosition() ?: 0)),
             )
         }
     }
@@ -274,7 +275,7 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
     }
 
     override fun stopUpdates() {
-        handler.removeCallbacksAndMessages(null)
+        updateRunnable?.let { handler.removeCallbacks(it) }
     }
 
     private class UpdateRunnable(
@@ -335,7 +336,7 @@ private fun MethodCall.audioContext(): AudioContextAndroid {
         stayAwake = argument<Boolean>("stayAwake") ?: error("stayAwake is required"),
         contentType = argument<Int>("contentType") ?: error("contentType is required"),
         usageType = argument<Int>("usageType") ?: error("usageType is required"),
-        audioFocus = argument<Int>("audioFocus"),
+        audioFocus = argument<Int>("audioFocus") ?: error("audioFocus is required"),
         audioMode = argument<Int>("audioMode") ?: error("audioMode is required"),
     )
 }

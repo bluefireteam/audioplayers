@@ -38,6 +38,15 @@ scripts:
     packageFilters:
       ignore: "*_example"
 
+  pub-outdated:
+    run: melos exec dart pub outdated
+    description: Run `dart pub outdated` for all packages.
+
+  pub-upgrade:
+    # May fails until https://github.com/dart-lang/pub/pull/3920 is released
+    run: melos exec dart pub upgrade --major-versions
+    description: Run `dart pub upgrade --major-versions` for all packages.
+
   test:select:
     run: melos exec flutter test
     packageFilters:

@@ -34,6 +34,42 @@ You should only need to run this command once.
 
 > You do not need to run `flutter pub get` once bootstrap has been completed.
 
+### Current Development
+
+If you want to use the most recent changes in your own project add following dependencies to your `pubspec.yaml` or `pubspec_overrrides.yaml`:
+
+```yaml
+dependency_overrides:
+  audioplayers:
+    git:
+      url: https://github.com/bluefireteam/audioplayers.git
+      path: 'packages/audioplayers'
+  audioplayers_platform_interface:
+    git:
+      url: https://github.com/bluefireteam/audioplayers.git
+      path: 'packages/audioplayers_platform_interface'
+  audioplayers_web:
+    git:
+      url: https://github.com/bluefireteam/audioplayers.git
+      path: 'packages/audioplayers_web'
+  audioplayers_linux:
+    git:
+      url: https://github.com/bluefireteam/audioplayers.git
+      path: 'packages/audioplayers_linux'
+  audioplayers_android:
+    git:
+      url: https://github.com/bluefireteam/audioplayers.git
+      path: 'packages/audioplayers_android'
+  audioplayers_darwin:
+    git:
+      url: https://github.com/bluefireteam/audioplayers.git
+      path: 'packages/audioplayers_darwin'
+  audioplayers_windows:
+    git:
+      url: https://github.com/bluefireteam/audioplayers.git
+      path: 'packages/audioplayers_windows'
+```
+
 ## Old Issues/PRs
 
 We have many existing open issues and a few open PRs that were created before this doc was created. We will try to respect their ignorance of this file's existence by doing our best effort to answer/address/fix/merge them as we normally would up to this point (i.e. as time permits). 
@@ -100,7 +136,11 @@ Once your feature got approved to start developing, feel free to send your PRs! 
 
  * Start your PR title with a [conventional commit](https://www.conventionalcommits.org) type (feat:, fix: etc).
  * Your build must pass. Please make sure everything is green!
- * Follow guidelines. For the Dart side, follow [Flame's official style guide](https://github.com/flame-engine/flame/blob/main/doc/development/style_guide.md). We don't have a code analyzer for the native side (yet!), but please follow the code around you to make it properly formatted and linted. There is nothing worse than badly formatted code!
+ * Follow guidelines. For the Dart side, follow [Flame's official style guide](https://github.com/flame-engine/flame/blob/main/doc/development/style_guide.md). 
+   We also provide code linting and formatting for the native side, where we take the [Flutter's formatting](https://github.com/flutter/packages/blob/main/script/tool/lib/src/format_command.dart) as reference:
+   * C/C++: [Chromium coding style](https://chromium.googlesource.com/chromium/src/+/refs/heads/main/styleguide/c++/c++.md) via [clang-format](https://clang.llvm.org/docs/ClangFormatStyleOptions.html), available for [CLion](https://www.jetbrains.com/help/clion/clangformat-as-alternative-formatter.html) and [VSCode](https://code.visualstudio.com/docs/cpp/cpp-ide#_code-formatting)
+   * Kotlin: [Kotlin style guide](https://developer.android.com/kotlin/style-guide) via [ktlint](https://github.com/pinterest/ktlint) and [EditorConfig](https://editorconfig.org/), available for [IntelliJ](https://www.jetbrains.com/help/idea/editorconfig.html) and [VSCode](https://marketplace.visualstudio.com/items?itemName=EditorConfig.EditorConfig)
+   * Swift: [Google Swift Style Guide](https://google.github.io/swift/) via [swift-format](https://github.com/apple/swift-format), available for [VSCode](https://marketplace.visualstudio.com/items?itemName=vknabel.vscode-apple-swift-format) or CLI with [native installation](https://github.com/apple/swift-format#getting-swift-format) or [Docker](https://github.com/mtgto/docker-swift-format/tree/main)
  * Write clean, beautiful and easy to understand code, with comments if necessary and docs if applicable.
  * Update our README/getting started/feature parity table/any other docs accordingly to your change, making it clear which platforms are supported.
  * Try to support all platforms where it makes sense. This is a hard thing to ask, and we understand and we will merge PRs that only work on one platform as well. But if you have the time, please help us with feature parity.

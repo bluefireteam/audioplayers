@@ -19,7 +19,7 @@ class FocusManager(
         get() = player.audioManager
 
     fun maybeRequestAudioFocus(andThen: () -> Unit) {
-        if (context.audioFocus == null) {
+        if (context.audioFocus == AudioManager.AUDIOFOCUS_NONE) {
             andThen()
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             newRequestAudioFocus(andThen)
@@ -30,7 +30,7 @@ class FocusManager(
     }
 
     fun handleStop() {
-        if (context.audioFocus != null) {
+        if (context.audioFocus != AudioManager.AUDIOFOCUS_NONE) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 audioFocusRequest?.let { audioManager.abandonAudioFocusRequest(it) }
             } else {
@@ -42,7 +42,7 @@ class FocusManager(
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun newRequestAudioFocus(andThen: () -> Unit) {
-        val audioFocus = context.audioFocus ?: return andThen()
+        val audioFocus = context.audioFocus
 
         val audioFocusRequest = AudioFocusRequest.Builder(audioFocus)
             .setAudioAttributes(context.buildAttributes())
@@ -56,7 +56,7 @@ class FocusManager(
 
     @Deprecated("Use requestAudioFocus instead")
     private fun oldRequestAudioFocus(andThen: () -> Unit) {
-        val audioFocus = context.audioFocus ?: return andThen()
+        val audioFocus = context.audioFocus
         audioFocusChangeListener = AudioManager.OnAudioFocusChangeListener { handleFocusResult(it, andThen) }
         @Suppress("DEPRECATION")
         val result = audioManager.requestAudioFocus(

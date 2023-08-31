@@ -2,9 +2,10 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../platform_features.dart';
-import '../source_test_data.dart';
-import '../test_utils.dart';
+import '../../platform_features.dart';
+import '../../test_utils.dart';
+import '../app_source_test_data.dart';
+import '../app_test_utils.dart';
 import 'properties.dart';
 import 'source_tab.dart';
 
@@ -52,7 +53,7 @@ Future<void> testControlsTab(
 
     if (isImmediateDurationSupported) {
       await tester.testPosition(
-        Duration(seconds: audioSourceTestData.duration.inSeconds ~/ 2),
+        Duration(seconds: audioSourceTestData.duration!.inSeconds ~/ 2),
         matcher: greaterThanOrEqualTo,
       );
     }
@@ -65,6 +66,7 @@ Future<void> testControlsTab(
     await tester.stop();
   }
 
+  // Test all features in low latency mode:
   final isBytesSource = audioSourceTestData.sourceKey.contains('bytes');
   if (features.hasLowLatency &&
       !audioSourceTestData.isLiveStream &&
@@ -96,8 +98,8 @@ Future<void> testControlsTab(
     await tester.pumpAndSettle();
   }
 
-  if (audioSourceTestData.duration < const Duration(seconds: 2) &&
-      !audioSourceTestData.isLiveStream) {
+  if (!audioSourceTestData.isLiveStream &&
+      audioSourceTestData.duration! < const Duration(seconds: 2)) {
     if (features.hasReleaseModeLoop) {
       await tester.testReleaseMode(ReleaseMode.loop);
       await tester.pump(const Duration(seconds: 3));
@@ -149,7 +151,6 @@ extension ControlsWidgetTester on WidgetTester {
     printWithTimeOnFailure('Test Volume: $volume');
     await scrollToAndTap(Key('control-volume-$volume'));
     await resume();
-    // TODO(Gustl22): get volume from native implementation
     await pump(stopDuration);
     await stop();
   }
@@ -161,7 +162,6 @@ extension ControlsWidgetTester on WidgetTester {
     printWithTimeOnFailure('Test Balance: $balance');
     await scrollToAndTap(Key('control-balance-$balance'));
     await resume();
-    // TODO(novikov): get balance from native implementation
     await pump(stopDuration);
     await stop();
   }
@@ -173,7 +173,6 @@ extension ControlsWidgetTester on WidgetTester {
     printWithTimeOnFailure('Test Rate: $rate');
     await scrollToAndTap(Key('control-rate-$rate'));
     await resume();
-    // TODO(Gustl22): get rate from native implementation
     await pump(stopDuration);
     await stop();
   }
@@ -223,6 +222,5 @@ extension ControlsWidgetTester on WidgetTester {
     if (isResume) {
       await resume();
     }
-    // TODO(Gustl22): get release mode from native implementation
   }
 }

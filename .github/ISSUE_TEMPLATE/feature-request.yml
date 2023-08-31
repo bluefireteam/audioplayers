@@ -28,7 +28,7 @@ body:
         What API changes that are necessary? Are there any breaking changes expected?
       placeholder: Tell us, how to solve the problem?
     validations:
-      required: false
+      required: true
   - type: textarea
     id: code-example
     attributes:

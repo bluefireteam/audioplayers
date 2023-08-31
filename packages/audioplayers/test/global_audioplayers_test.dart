@@ -27,27 +27,29 @@ void main() {
       globalPlatform.clear();
     });
 
+    /// Note that the [AudioContextIOS.category] has to be
+    /// [AVAudioSessionCategory.playback] to default the audio to the receiver
+    /// (e.g. built-in speakers or BT-device, if connected).
+    /// If using [AVAudioSessionCategory.playAndRecord] the audio will come from
+    /// the earpiece unless [AVAudioSessionOptions.defaultToSpeaker] is used.
     test('set AudioContext', () async {
-      await globalScope.setAudioContext(const AudioContext());
+      await globalScope.setAudioContext(AudioContext());
       final call = globalPlatform.popLastCall();
       expect(call.method, 'setGlobalAudioContext');
       expect(
         call.value,
-        const AudioContext(
-          android: AudioContextAndroid(
-            isSpeakerphoneOn: true,
+        AudioContext(
+          android: const AudioContextAndroid(
+            isSpeakerphoneOn: false,
             audioMode: AndroidAudioMode.normal,
-            stayAwake: true,
+            stayAwake: false,
             contentType: AndroidContentType.music,
             usageType: AndroidUsageType.media,
             audioFocus: AndroidAudioFocus.gain,
           ),
           iOS: AudioContextIOS(
             category: AVAudioSessionCategory.playback,
-            options: [
-              AVAudioSessionOptions.mixWithOthers,
-              AVAudioSessionOptions.defaultToSpeaker
-            ],
+            options: const {},
           ),
         ),
       );

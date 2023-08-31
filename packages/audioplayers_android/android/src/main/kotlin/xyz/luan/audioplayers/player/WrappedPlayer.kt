@@ -3,11 +3,15 @@ package xyz.luan.audioplayers.player
 import android.content.Context
 import android.media.AudioManager
 import android.media.MediaPlayer
-import kotlin.math.min
-import xyz.luan.audioplayers.*
+import xyz.luan.audioplayers.AudioContextAndroid
+import xyz.luan.audioplayers.AudioplayersPlugin
+import xyz.luan.audioplayers.EventHandler
+import xyz.luan.audioplayers.PlayerMode
 import xyz.luan.audioplayers.PlayerMode.LOW_LATENCY
 import xyz.luan.audioplayers.PlayerMode.MEDIA_PLAYER
+import xyz.luan.audioplayers.ReleaseMode
 import xyz.luan.audioplayers.source.Source
+import kotlin.math.min
 
 // For some reason this cannot be accessed from MediaPlayer.MEDIA_ERROR_SYSTEM
 private const val MEDIA_ERROR_SYSTEM = -2147483648
@@ -137,7 +141,9 @@ class WrappedPlayer internal constructor(
         if (context == audioContext) {
             return
         }
-        if (context.audioFocus != null && audioContext.audioFocus == null) {
+        if (context.audioFocus != AudioManager.AUDIOFOCUS_NONE &&
+            audioContext.audioFocus == AudioManager.AUDIOFOCUS_NONE
+        ) {
             focusManager.handleStop()
         }
         this.context = audioContext.copy()

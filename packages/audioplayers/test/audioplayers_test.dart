@@ -92,6 +92,29 @@ void main() {
       await player.pause();
       expect(platform.popLastCall().method, 'pause');
     });
+
+    test('set #volume, #balance, #playbackRate, #playerMode, #releaseMode',
+        () async {
+      await player.setVolume(0.1);
+      expect(player.volume, 0.1);
+      expect(platform.popLastCall().method, 'setVolume');
+
+      await player.setBalance(0.2);
+      expect(player.balance, 0.2);
+      expect(platform.popLastCall().method, 'setBalance');
+
+      await player.setPlaybackRate(0.3);
+      expect(player.playbackRate, 0.3);
+      expect(platform.popLastCall().method, 'setPlaybackRate');
+
+      await player.setPlayerMode(PlayerMode.lowLatency);
+      expect(player.mode, PlayerMode.lowLatency);
+      expect(platform.popLastCall().method, 'setPlayerMode');
+
+      await player.setReleaseMode(ReleaseMode.loop);
+      expect(player.releaseMode, ReleaseMode.loop);
+      expect(platform.popLastCall().method, 'setReleaseMode');
+    });
   });
 
   group('AudioPlayers Events', () {
