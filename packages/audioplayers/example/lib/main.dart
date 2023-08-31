@@ -42,10 +42,6 @@ class _ExampleAppState extends State<_ExampleApp> {
   void initState() {
     super.initState();
     AudioLogger.logLevel = AudioLogLevel.info;
-    AudioPlayer.global.onLog.listen(
-      print,
-      onError: (e, [o]) => print(e),
-    );
     audioPlayers.asMap().forEach((index, player) {
       // if(index == 0) {
       //   final timer = Timer.periodic(const Duration(milliseconds: 250),
@@ -80,12 +76,6 @@ class _ExampleAppState extends State<_ExampleApp> {
             'Seek complete!',
             textKey: Key('toast-seek-complete-$index'),
           ),
-        ),
-      );
-      streams.add(
-        player.onLog.listen(
-          print,
-          onError: (e, [o]) => print(e),
         ),
       );
     });
