@@ -43,6 +43,11 @@ on:
         required: false
         default: true
         type: boolean
+      upload_pages_artifact:
+        description: 'Upload build artifact for GH pages'
+        required: false
+        default: false
+        type: boolean
   workflow_call:
     inputs:
       flutter_version:
@@ -73,6 +78,10 @@ on:
         required: false
         default: true
         type: boolean
+      upload_pages_artifact:
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   web:
@@ -90,6 +99,11 @@ jobs:
       - name: Example app - Build Web app
         working-directory: ./packages/audioplayers/example
         run: flutter build web
+      - name: Upload pages artifact
+        if: inputs.upload_pages_artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: ./packages/audioplayers/example/build/web
 
   android:
     runs-on: ubuntu-latest
