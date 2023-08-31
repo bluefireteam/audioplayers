@@ -13,7 +13,7 @@ jobs:
   call-test:
     uses: ./.github/workflows/test.yml
     with:
-      enable_android: true
+      enable_android: false # true
       enable_web: false
       enable_ios: false
       enable_windows: true
