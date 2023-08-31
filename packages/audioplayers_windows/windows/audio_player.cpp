@@ -47,6 +47,7 @@ void AudioPlayer::SetSourceUrl(std::string url) {
   if (_url != url) {
     _url = url;
     _isInitialized = false;
+    OnLog("Set url: " + url);
 
     try {
       // Create a source resolver to create an IMFMediaSource for the content
@@ -116,6 +117,7 @@ void AudioPlayer::OnMediaStateChange(
 
 void AudioPlayer::OnPrepared(bool isPrepared) {
   if (this->_eventHandler) {
+    OnLog("On Prepared");
     this->_eventHandler->Success(std::make_unique<flutter::EncodableValue>(
         flutter::EncodableMap({{flutter::EncodableValue("event"),
                                 flutter::EncodableValue("audio.onPrepared")},
@@ -125,6 +127,7 @@ void AudioPlayer::OnPrepared(bool isPrepared) {
 }
 
 void AudioPlayer::OnPlaybackEnded() {
+  OnLog("Playback Ended");
   SeekTo(0);
   if (GetLooping()) {
     Play();
@@ -244,6 +247,7 @@ void AudioPlayer::Pause() {
 }
 
 void AudioPlayer::Resume() {
+    OnLog("Resume");
   m_mediaEngineWrapper->Resume();
   OnDurationUpdate();
 }
