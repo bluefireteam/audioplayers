@@ -24,6 +24,8 @@ This package will be automatically included in your app when you do, so you do n
 
 ## Setup for Linux
 
+> Note: If flutter was installed via snap, you might encounter build errors. Check out how to [install the flutter sdk manually](https://docs.flutter.dev/get-started/install/linux#install-flutter-manually).
+
 ### Debian
 
 #### Dev Dependencies
