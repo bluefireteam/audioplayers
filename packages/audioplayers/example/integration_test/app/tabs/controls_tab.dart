@@ -59,7 +59,8 @@ Future<void> testControlsTab(
     }
     await tester.tap(find.byKey(const Key('controlsTab')));
     await tester.pumpAndSettle();
-
+    
+    print('Test seek');
     await tester.pump(const Duration(seconds: 1));
     await tester.testSeek('1.0');
     await tester.pump(const Duration(seconds: 1));
@@ -101,9 +102,11 @@ Future<void> testControlsTab(
   if (!audioSourceTestData.isLiveStream &&
       audioSourceTestData.duration! < const Duration(seconds: 2)) {
     if (features.hasReleaseModeLoop) {
+      print('Test release mode loop');
       await tester.testReleaseMode(ReleaseMode.loop);
       await tester.pump(const Duration(seconds: 3));
       await tester.stop();
+      print('Test release mode stop');
       await tester.testReleaseMode(ReleaseMode.stop, isResume: false);
       await tester.pumpAndSettle();
     }
