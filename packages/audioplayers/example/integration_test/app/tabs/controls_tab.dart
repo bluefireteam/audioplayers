@@ -48,18 +48,16 @@ Future<void> testControlsTab(
 
     // Linux cannot complete seek if duration is not present.
     await tester.testSeek('0.5', isResume: false);
-    await tester.tap(find.byKey(const Key('streamsTab')));
-    await tester.pumpAndSettle();
+    await tester.doInStreamsTab((tester) async {
+      if (isImmediateDurationSupported) {
+        await tester.testPosition(
+          Duration(seconds: audioSourceTestData.duration!.inSeconds ~/ 2),
+          matcher: (Object? value) =>
+              greaterThanOrEqualTo(value ?? Duration.zero),
+        );
+      }
+    });
 
-    if (isImmediateDurationSupported) {
-      await tester.testPosition(
-        Duration(seconds: audioSourceTestData.duration!.inSeconds ~/ 2),
-        matcher: greaterThanOrEqualTo,
-      );
-    }
-    await tester.tap(find.byKey(const Key('controlsTab')));
-    await tester.pumpAndSettle();
-    
     print('Test seek');
     await tester.pump(const Duration(seconds: 1));
     await tester.testSeek('1.0');
@@ -106,6 +104,13 @@ Future<void> testControlsTab(
       await tester.testReleaseMode(ReleaseMode.loop);
       await tester.pump(const Duration(seconds: 3));
       await tester.stop();
+      await tester.doInStreamsTab((tester) async {
+        await tester.testPosition(
+          Duration.zero,
+          matcher: (Duration? position) =>
+              greaterThan(position ?? Duration.zero),
+        );
+      });
       print('Test release mode stop');
       await tester.testReleaseMode(ReleaseMode.stop, isResume: false);
       await tester.pumpAndSettle();
@@ -116,6 +121,9 @@ Future<void> testControlsTab(
       await tester.pump(const Duration(seconds: 3));
       // No need to call stop, as it should be released by now
       // TODO(Gustl22): test if source was released
+      await tester.doInStreamsTab((tester) async {
+        await tester.testPosition(null);
+      });
 
       // Reinitialize source
       await tester.tap(find.byKey(const Key('sourcesTab')));
@@ -225,5 +233,17 @@ extension ControlsWidgetTester on WidgetTester {
     if (isResume) {
       await resume();
     }
+  }
+
+  Future<void> doInStreamsTab(
+    Future<void> Function(WidgetTester tester) foo,
+  ) async {
+    await tap(find.byKey(const Key('streamsTab')));
+    await pumpAndSettle();
+
+    await foo(this);
+
+    await tap(find.byKey(const Key('controlsTab')));
+    await pumpAndSettle();
   }
 }

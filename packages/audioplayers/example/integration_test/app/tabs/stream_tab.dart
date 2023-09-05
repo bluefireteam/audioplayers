@@ -51,7 +51,7 @@ Future<void> testStreamsTab(
     if (features.hasPositionEvent) {
       await tester.testPosition(
         Duration.zero,
-        matcher: greaterThan,
+        matcher: (Duration? position) => greaterThan(position ?? Duration.zero),
         timeout: timeout,
       );
       await tester.testOnPosition(
