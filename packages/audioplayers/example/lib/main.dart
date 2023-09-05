@@ -15,6 +15,7 @@ const defaultPlayerCount = 1;
 
 typedef OnError = void Function(Exception exception);
 
+/// The app is deployed at: https://bluefireteam.github.io/audioplayers/
 void main() {
   runApp(const MaterialApp(home: _ExampleApp()));
 }
