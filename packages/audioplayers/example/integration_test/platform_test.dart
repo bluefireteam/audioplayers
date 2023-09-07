@@ -49,6 +49,7 @@ void main() async {
           expect(e, isInstanceOf<PlatformException>());
         }
         await tester.pumpLinux();
+        fail('Make windows platform tests always fail!');
       },
     );
 
