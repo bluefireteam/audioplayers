@@ -103,7 +103,6 @@ Future<void> testControlsTab(
       print('Test release mode loop');
       await tester.testReleaseMode(ReleaseMode.loop);
       await tester.pump(const Duration(seconds: 3));
-      await tester.stop();
       await tester.doInStreamsTab((tester) async {
         await tester.testPosition(
           Duration.zero,
@@ -111,6 +110,7 @@ Future<void> testControlsTab(
               greaterThan(position ?? Duration.zero),
         );
       });
+      await tester.stop();
       print('Test release mode stop');
       await tester.testReleaseMode(ReleaseMode.stop, isResume: false);
       await tester.pumpAndSettle();
@@ -239,11 +239,11 @@ extension ControlsWidgetTester on WidgetTester {
     Future<void> Function(WidgetTester tester) foo,
   ) async {
     await tap(find.byKey(const Key('streamsTab')));
-    await pumpAndSettle();
+    await pump();
 
     await foo(this);
 
     await tap(find.byKey(const Key('controlsTab')));
-    await pumpAndSettle();
+    await pump();
   }
 }
