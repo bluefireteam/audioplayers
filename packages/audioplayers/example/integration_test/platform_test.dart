@@ -366,10 +366,9 @@ void main() async {
             Duration? position;
             final onPositionSub = eventStream.where(
               (event) {
-                final position = event.position;
                 return event.eventType == AudioEventType.position &&
-                    position != null &&
-                    position > Duration.zero;
+                    event.position != null &&
+                    event.position! > Duration.zero;
               },
             ).listen(
               (event) => position = event.position,
@@ -385,7 +384,9 @@ void main() async {
           },
           // FIXME(gustl22): Android provides no position for samples shorter
           //  than 0.5 seconds.
-          skip: isAndroid && td.duration! < const Duration(seconds: 1),
+          skip: isAndroid &&
+              !td.isLiveStream &&
+              td.duration! < const Duration(seconds: 1),
         );
       }
     }
