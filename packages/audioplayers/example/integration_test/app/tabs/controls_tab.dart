@@ -58,7 +58,6 @@ Future<void> testControlsTab(
       }
     });
 
-    print('Test seek');
     await tester.pump(const Duration(seconds: 1));
     await tester.testSeek('1.0');
     await tester.pump(const Duration(seconds: 1));
@@ -100,9 +99,9 @@ Future<void> testControlsTab(
   if (!audioSourceTestData.isLiveStream &&
       audioSourceTestData.duration! < const Duration(seconds: 2)) {
     if (features.hasReleaseModeLoop) {
-      print('Test release mode loop');
       await tester.testReleaseMode(ReleaseMode.loop);
       await tester.pump(const Duration(seconds: 3));
+      // Check if sound has started playing.
       await tester.doInStreamsTab((tester) async {
         await tester.testPosition(
           Duration.zero,
@@ -111,7 +110,6 @@ Future<void> testControlsTab(
         );
       });
       await tester.stop();
-      print('Test release mode stop');
       await tester.testReleaseMode(ReleaseMode.stop, isResume: false);
       await tester.pumpAndSettle();
     }
@@ -119,8 +117,8 @@ Future<void> testControlsTab(
     if (features.hasReleaseModeRelease) {
       await tester.testReleaseMode(ReleaseMode.release);
       await tester.pump(const Duration(seconds: 3));
-      // No need to call stop, as it should be released by now
-      // TODO(Gustl22): test if source was released
+      // No need to call stop, as it should be released by now.
+      // Ensure source was released by checking `position == null`.
       await tester.doInStreamsTab((tester) async {
         await tester.testPosition(null);
       });

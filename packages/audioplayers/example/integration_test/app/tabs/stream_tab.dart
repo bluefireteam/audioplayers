@@ -13,7 +13,6 @@ Future<void> testStreamsTab(
   AppSourceTestData audioSourceTestData,
   PlatformFeatures features,
 ) async {
-  print('Test streams tab');
   printWithTimeOnFailure('Test Streams Tab');
   await tester.tap(find.byKey(const Key('streamsTab')));
   await tester.pumpAndSettle();

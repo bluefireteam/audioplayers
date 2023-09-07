@@ -11,7 +11,7 @@ import 'package:audioplayers_example/tabs/streams.dart';
 import 'package:audioplayers_example/utils.dart';
 import 'package:flutter/material.dart';
 
-const defaultPlayerCount = 1;
+const defaultPlayerCount = 4;
 
 typedef OnError = void Function(Exception exception);
 
@@ -37,18 +37,10 @@ class _ExampleAppState extends State<_ExampleApp> {
   AudioPlayer get selectedAudioPlayer => audioPlayers[selectedPlayerIdx];
   List<StreamSubscription> streams = [];
 
-  // List<Timer> timers = [];
-
   @override
   void initState() {
     super.initState();
-    AudioLogger.logLevel = AudioLogLevel.info;
     audioPlayers.asMap().forEach((index, player) {
-      // if(index == 0) {
-      //   final timer = Timer.periodic(const Duration(milliseconds: 250),
-      //           (Timer t) async => print("Player: $index, ${await player.getCurrentPosition()}, ${player.state}"));
-      //   timers.add(timer);
-      // }
       streams.add(
         player.onPlayerStateChanged.listen(
           (it) {
@@ -85,7 +77,6 @@ class _ExampleAppState extends State<_ExampleApp> {
   @override
   void dispose() {
     streams.forEach((it) => it.cancel());
-    // timers.forEach((element) => element.cancel());
     super.dispose();
   }
 
