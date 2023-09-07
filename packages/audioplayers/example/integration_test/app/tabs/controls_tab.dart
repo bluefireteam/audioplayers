@@ -1,5 +1,5 @@
 import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../platform_features.dart';
@@ -98,7 +98,13 @@ Future<void> testControlsTab(
 
   if (!audioSourceTestData.isLiveStream &&
       audioSourceTestData.duration! < const Duration(seconds: 2)) {
-    if (features.hasReleaseModeLoop) {
+    final isAndroid =
+        !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+    // FIXME(gustl22): Android provides no position for samples shorter
+    //  than 0.5 seconds.
+    if (features.hasReleaseModeLoop &&
+        !(isAndroid &&
+            audioSourceTestData.duration! < const Duration(seconds: 1))) {
       await tester.testReleaseMode(ReleaseMode.loop);
       await tester.pump(const Duration(seconds: 3));
       // Check if sound has started playing.

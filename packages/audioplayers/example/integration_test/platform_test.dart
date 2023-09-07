@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
@@ -16,8 +15,8 @@ import 'test_utils.dart';
 void main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   final features = PlatformFeatures.instance();
-  final isLinux = !kIsWeb && Platform.isLinux;
-  final isAndroid = !kIsWeb && Platform.isAndroid;
+  final isLinux = !kIsWeb && defaultTargetPlatform == TargetPlatform.linux;
+  final isAndroid = !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
   final audioTestDataList = await getAudioTestDataList();
 
   group('Platform method channel', () {
