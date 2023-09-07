@@ -364,16 +364,16 @@ void main() async {
 
             final eventStream = platform.getEventStream(playerId);
             Duration? position;
-            final onPositionSub = eventStream
-                .where(
-                  (event) =>
-                      event.eventType == AudioEventType.position &&
-                      event.position != null &&
-                      event.position! > Duration.zero,
-                )
-                .listen(
-                  (event) => position = event.position,
-                );
+            final onPositionSub = eventStream.where(
+              (event) {
+                final position = event.position;
+                return event.eventType == AudioEventType.position &&
+                    position != null &&
+                    position > Duration.zero;
+              },
+            ).listen(
+              (event) => position = event.position,
+            );
 
             await platform.resume(playerId);
             await tester.pumpAndSettle(const Duration(seconds: 1));
