@@ -32,8 +32,8 @@ extension PropertiesWidgetTester on WidgetTester {
   }
 
   Future<void> testPosition(
-    Duration position, {
-    Matcher Function(Duration) matcher = equals,
+    Duration? position, {
+    Matcher Function(Duration?) matcher = equals,
     Duration timeout = const Duration(seconds: 4),
   }) async {
     printWithTimeOnFailure('Test Position: $position');
