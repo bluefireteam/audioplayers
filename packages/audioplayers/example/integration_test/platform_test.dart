@@ -17,6 +17,7 @@ void main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   final features = PlatformFeatures.instance();
   final isLinux = !kIsWeb && Platform.isLinux;
+  final isAndroid = !kIsWeb && Platform.isAndroid;
   final audioTestDataList = await getAudioTestDataList();
 
   group('Platform method channel', () {
@@ -352,30 +353,41 @@ void main() async {
     }
 
     for (final td in audioTestDataList) {
-      if (features.hasPositionEvent &&
-          (td.isLiveStream || td.duration! > const Duration(seconds: 2))) {
-        testWidgets('#positionEvent ${td.source}', (tester) async {
-          await tester.prepareSource(
-            playerId: playerId,
-            platform: platform,
-            testData: td,
-          );
+      if (features.hasPositionEvent) {
+        testWidgets(
+          '#positionEvent ${td.source}',
+          (tester) async {
+            await tester.prepareSource(
+              playerId: playerId,
+              platform: platform,
+              testData: td,
+            );
 
-          final eventStream = platform.getEventStream(playerId);
-          Duration? position;
-          final onPositionSub = eventStream
-              .where((event) => event.eventType == AudioEventType.position)
-              .listen(
-                (event) => position = event.position,
-              );
+            final eventStream = platform.getEventStream(playerId);
+            Duration? position;
+            final onPositionSub = eventStream
+                .where(
+                  (event) =>
+                      event.eventType == AudioEventType.position &&
+                      event.position != null &&
+                      event.position! > Duration.zero,
+                )
+                .listen(
+                  (event) => position = event.position,
+                );
 
-          await platform.resume(playerId);
-          await tester.pumpAndSettle(const Duration(seconds: 1));
-          expect(position, greaterThan(Duration.zero));
-          await platform.stop(playerId);
-          await onPositionSub.cancel();
-          await tester.pumpLinux();
-        });
+            await platform.resume(playerId);
+            await tester.pumpAndSettle(const Duration(seconds: 1));
+            expect(position, isNotNull);
+            expect(position, greaterThan(Duration.zero));
+            await platform.stop(playerId);
+            await onPositionSub.cancel();
+            await tester.pumpLinux();
+          },
+          // FIXME(gustl22): Android provides no position for samples shorter
+          //  than 0.5 seconds.
+          skip: isAndroid && td.duration! < const Duration(seconds: 1),
+        );
       }
     }
 
