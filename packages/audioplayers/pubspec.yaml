@@ -34,7 +34,7 @@ dependencies:
   meta: ^1.7.0
   path_provider: ^2.0.12
   synchronized: ^3.0.0
-  uuid: ^3.0.7
+  uuid: '>=3.0.7 <5.0.0'
 
 dev_dependencies:
   dartdoc: ^6.1.5
