@@ -1,12 +1,14 @@
 import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:audioplayers_example/components/btn.dart';
 import 'package:audioplayers_example/components/drop_down.dart';
 import 'package:audioplayers_example/components/tab_content.dart';
 import 'package:audioplayers_example/utils.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 
 const useLocalServer = bool.fromEnvironment('USE_LOCAL_SERVER');
@@ -194,7 +196,7 @@ class _SourcesTabState extends State<SourcesTab>
       children: [
         TabContent(
           children: sourceWidgets
-              .map((element) => Column(children: [element, const Divider()]))
+              .expand((element) => [element, const Divider()])
               .toList(),
         ),
         Padding(
@@ -291,29 +293,77 @@ class _SourceDialog extends StatefulWidget {
 }
 
 class _SourceDialogState extends State<_SourceDialog> {
-  String sourceName = 'UrlSource';
+  Type sourceType = UrlSource;
   String path = '';
 
-  Widget _buildSourceValue() {
-    switch (sourceName) {
-      case 'AssetSource':
-        return const TextField(
-          decoration: InputDecoration(hintText: 'myFile.wav'),
+  int selectedAsset = 0;
+  final List<String> assetsList = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+    AssetManifest.loadFromAssetBundle(rootBundle).then((assetManifest) {
+      setState(() {
+        assetsList.addAll(
+          assetManifest.listAssets().map((e) => e.replaceFirst('assets/', '')),
         );
-      case 'DeviceFileSource':
-        return IconButton(
-            onPressed: () async {
-              final result = await FilePicker.platform.pickFiles();
-              final path = result?.files.single.path;
-              if (path != null) {
-                this.path = path;
-              }
-            },
-            icon: const Icon(Icons.upload_file));
+      });
+    });
+  }
+
+  Widget _buildSourceValue() {
+    switch (sourceType) {
+      case AssetSource:
+        return Row(
+          children: [
+            const Text('Asset path'),
+            const SizedBox(width: 16),
+            Expanded(
+              child: CustomDropDown<int>(
+                options: assetsList.asMap(),
+                selected: selectedAsset,
+                onChange: (value) => setState(() {
+                  selectedAsset = value ?? 0;
+                  path = assetsList[selectedAsset];
+                }),
+              ),
+            ),
+          ],
+        );
+      case BytesSource:
+      case DeviceFileSource:
+        return Row(
+          children: [
+            const Text('Device File path'),
+            const SizedBox(width: 16),
+            Expanded(child: Text(path)),
+            IconButton(
+              onPressed: () async {
+                final result = await FilePicker.platform.pickFiles();
+                final path = result?.files.single.path;
+                if (path != null) {
+                  setState(() {
+                    this.path = path;
+                  });
+                }
+              },
+              icon: const Icon(Icons.upload_file),
+            ),
+          ],
+        );
       default:
-        return const TextField(
-          decoration:
-              InputDecoration(hintText: 'https://example.com/myFile.wav'),
+        return const Row(
+          children: [
+            Text('URL'),
+            SizedBox(width: 16),
+            Expanded(
+              child: TextField(
+                decoration:
+                    InputDecoration(hintText: 'https://example.com/myFile.wav'),
+              ),
+            ),
+          ],
         );
     }
   }
@@ -323,36 +373,52 @@ class _SourceDialogState extends State<_SourceDialog> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        LabeledDropDown<String>(
+        LabeledDropDown<Type>(
           label: 'Source type',
-          options: {
-            (AssetSource).toString(): 'Asset',
-            (DeviceFileSource).toString(): 'Device File',
-            (UrlSource).toString(): 'Url',
-            // (BytesSource).toString(): 'Byte array',
+          options: const {
+            AssetSource: 'Asset',
+            DeviceFileSource: 'Device File',
+            UrlSource: 'Url',
+            BytesSource: 'Byte array',
           },
-          selected: 'UrlSource',
-          onChange: (String? value) {
+          selected: sourceType,
+          onChange: (Type? value) {
             setState(() {
               if (value != null) {
-                sourceName = value;
+                sourceType = value;
               }
             });
           },
         ),
-        _buildSourceValue(),
-        ElevatedButton(
-            onPressed: () {
-              switch (sourceName) {
-                case 'AssetSource':
-                  widget.onAdd(AssetSource(path), path);
-                case 'DeviceFileSource':
-                  widget.onAdd(DeviceFileSource(path), path);
-                default:
-                  widget.onAdd(UrlSource(path), path);
-              }
-            },
-            child: const Text('Add')),
+        ListTile(title: _buildSourceValue()),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Btn(
+              onPressed: () async {
+                switch (sourceType) {
+                  case BytesSource:
+                    widget.onAdd(
+                      BytesSource(await AudioCache.instance.loadAsBytes(path)),
+                      path,
+                    );
+                  case AssetSource:
+                    widget.onAdd(AssetSource(path), path);
+                  case DeviceFileSource:
+                    widget.onAdd(DeviceFileSource(path), path);
+                  default:
+                    widget.onAdd(UrlSource(path), path);
+                }
+                Navigator.of(context).pop();
+              },
+              txt: 'Add',
+            ),
+            TextButton(
+              onPressed: Navigator.of(context).pop,
+              child: const Text('Cancel'),
+            ),
+          ],
+        ),
       ],
     );
   }
