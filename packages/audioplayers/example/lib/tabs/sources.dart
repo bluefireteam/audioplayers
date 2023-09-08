@@ -353,14 +353,16 @@ class _SourceDialogState extends State<_SourceDialog> {
           ],
         );
       default:
-        return const Row(
+        return Row(
           children: [
-            Text('URL'),
-            SizedBox(width: 16),
+            const Text('URL'),
+            const SizedBox(width: 16),
             Expanded(
               child: TextField(
-                decoration:
-                    InputDecoration(hintText: 'https://example.com/myFile.wav'),
+                decoration: const InputDecoration(
+                  hintText: 'https://example.com/myFile.wav',
+                ),
+                onChanged: (String? url) => path = url ?? '',
               ),
             ),
           ],
@@ -399,7 +401,7 @@ class _SourceDialogState extends State<_SourceDialog> {
                 switch (sourceType) {
                   case BytesSource:
                     widget.onAdd(
-                      BytesSource(await AudioCache.instance.loadAsBytes(path)),
+                      BytesSource(await File(path).readAsBytes()),
                       path,
                     );
                   case AssetSource:
