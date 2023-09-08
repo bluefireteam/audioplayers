@@ -204,19 +204,21 @@ class _SourcesTabState extends State<SourcesTab>
           child: FloatingActionButton(
             child: const Icon(Icons.add),
             onPressed: () {
-              dialog(_SourceDialog(
-                onAdd: (Source source, String path) {
-                  setState(() {
-                    sourceWidgets.add(
-                      _createSourceTile(
-                        title: source.runtimeType.toString(),
-                        subtitle: path,
-                        source: source,
-                      ),
-                    );
-                  });
-                },
-              ));
+              dialog(
+                _SourceDialog(
+                  onAdd: (Source source, String path) {
+                    setState(() {
+                      sourceWidgets.add(
+                        _createSourceTile(
+                          title: source.runtimeType.toString(),
+                          subtitle: path,
+                          source: source,
+                        ),
+                      );
+                    });
+                  },
+                ),
+              );
             },
           ),
         ),
@@ -286,7 +288,7 @@ class _SourceTile extends StatelessWidget {
 class _SourceDialog extends StatefulWidget {
   final void Function(Source source, String path) onAdd;
 
-  const _SourceDialog({required this.onAdd, super.key});
+  const _SourceDialog({required this.onAdd});
 
   @override
   State<_SourceDialog> createState() => _SourceDialogState();

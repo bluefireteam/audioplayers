@@ -195,7 +195,6 @@ class _SeekDialog extends StatelessWidget {
     required this.seekPercent,
     required this.value,
     required this.setValue,
-    super.key,
   });
 
   @override
