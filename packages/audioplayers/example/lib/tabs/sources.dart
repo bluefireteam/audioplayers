@@ -296,8 +296,7 @@ class _SourceDialogState extends State<_SourceDialog> {
   Type sourceType = UrlSource;
   String path = '';
 
-  int selectedAsset = 0;
-  final List<String> assetsList = [];
+  final Map<String, String> assetsList = {'': 'Nothing selected'};
 
   @override
   void initState() {
@@ -306,7 +305,12 @@ class _SourceDialogState extends State<_SourceDialog> {
     AssetManifest.loadFromAssetBundle(rootBundle).then((assetManifest) {
       setState(() {
         assetsList.addAll(
-          assetManifest.listAssets().map((e) => e.replaceFirst('assets/', '')),
+          assetManifest
+              .listAssets()
+              .map((e) => e.replaceFirst('assets/', ''))
+              .toList()
+              .asMap()
+              .map((key, value) => MapEntry(value, value)),
         );
       });
     });
@@ -320,12 +324,11 @@ class _SourceDialogState extends State<_SourceDialog> {
             const Text('Asset path'),
             const SizedBox(width: 16),
             Expanded(
-              child: CustomDropDown<int>(
-                options: assetsList.asMap(),
-                selected: selectedAsset,
+              child: CustomDropDown<String>(
+                options: assetsList,
+                selected: path,
                 onChange: (value) => setState(() {
-                  selectedAsset = value ?? 0;
-                  path = assetsList[selectedAsset];
+                  path = value ?? '';
                 }),
               ),
             ),
