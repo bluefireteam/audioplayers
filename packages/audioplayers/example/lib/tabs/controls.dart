@@ -159,7 +159,7 @@ class _ControlsTabState extends State<ControlsTab>
               txt: 'Custom',
               onPressed: () async {
                 dialog(
-                  SeekDialog(
+                  _SeekDialog(
                     value: modalInputSeek,
                     setValue: (it) => setState(() => modalInputSeek = it),
                     seekDuration: () => _seekDuration(
@@ -184,18 +184,17 @@ class _ControlsTabState extends State<ControlsTab>
   bool get wantKeepAlive => true;
 }
 
-class SeekDialog extends StatelessWidget {
+class _SeekDialog extends StatelessWidget {
   final VoidCallback seekDuration;
   final VoidCallback seekPercent;
   final void Function(String val) setValue;
   final String value;
 
-  const SeekDialog({
+  const _SeekDialog({
     required this.seekDuration,
     required this.seekPercent,
     required this.value,
     required this.setValue,
-    super.key,
   });
 
   @override
@@ -209,7 +208,7 @@ class SeekDialog extends StatelessWidget {
           onChange: setValue,
         ),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Btn(
               txt: 'millis',
@@ -232,9 +231,9 @@ class SeekDialog extends StatelessWidget {
                 seekPercent();
               },
             ),
-            Btn(
-              txt: 'Cancel',
+            TextButton(
               onPressed: Navigator.of(context).pop,
+              child: const Text('Cancel'),
             ),
           ],
         ),
