@@ -341,7 +341,7 @@ class _SourceDialogState extends State<_SourceDialog> {
             const Text('Device File path'),
             const SizedBox(width: 16),
             Expanded(child: Text(path)),
-            IconButton(
+            TextButton.icon(
               onPressed: () async {
                 final result = await FilePicker.platform.pickFiles();
                 final path = result?.files.single.path;
@@ -351,7 +351,8 @@ class _SourceDialogState extends State<_SourceDialog> {
                   });
                 }
               },
-              icon: const Icon(Icons.upload_file),
+              icon: const Icon(Icons.file_open),
+              label: const Text('Browse'),
             ),
           ],
         );
