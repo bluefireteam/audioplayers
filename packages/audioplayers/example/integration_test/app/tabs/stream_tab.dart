@@ -23,10 +23,7 @@ Future<void> testStreamsTab(
     await tester.testPosition(Duration.zero);
   }
 
-  final isImmediateDurationSupported =
-      features.hasMp3Duration || !audioSourceTestData.sourceKey.contains('mp3');
-
-  if (features.hasDurationEvent && isImmediateDurationSupported) {
+  if (features.hasDurationEvent && !audioSourceTestData.isVBR) {
     // Display duration before playing
     await tester.testDuration(audioSourceTestData.duration);
   }
@@ -41,7 +38,7 @@ Future<void> testStreamsTab(
   // Cannot test more precisely as it is dependent on pollInterval
   // and updateInterval of native implementation.
   if (audioSourceTestData.isLiveStream ||
-      audioSourceTestData.duration > const Duration(seconds: 2)) {
+      audioSourceTestData.duration! > const Duration(seconds: 2)) {
     // Test player state: playing
     if (features.hasPlayerStateEvent) {
       // Only test, if there's enough time to be able to check playing state.
@@ -53,7 +50,7 @@ Future<void> testStreamsTab(
     if (features.hasPositionEvent) {
       await tester.testPosition(
         Duration.zero,
-        matcher: greaterThan,
+        matcher: (Duration? position) => greaterThan(position ?? Duration.zero),
         timeout: timeout,
       );
       await tester.testOnPosition(
@@ -66,7 +63,10 @@ Future<void> testStreamsTab(
 
   if (features.hasDurationEvent && !audioSourceTestData.isLiveStream) {
     // Test if onDurationText is set.
-    await tester.testOnDuration(audioSourceTestData.duration, timeout: timeout);
+    await tester.testOnDuration(
+      audioSourceTestData.duration!,
+      timeout: timeout,
+    );
   }
 
   const sampleDuration = Duration(seconds: 3);
@@ -75,10 +75,10 @@ Future<void> testStreamsTab(
   // Test player states: pause, stop, completed
   if (features.hasPlayerStateEvent) {
     if (!audioSourceTestData.isLiveStream) {
-      if (audioSourceTestData.duration < const Duration(seconds: 2)) {
+      if (audioSourceTestData.duration! < const Duration(seconds: 2)) {
         await tester.testPlayerState(PlayerState.completed, timeout: timeout);
         await tester.testOnPlayerState(PlayerState.completed, timeout: timeout);
-      } else if (audioSourceTestData.duration > const Duration(seconds: 5)) {
+      } else if (audioSourceTestData.duration! > const Duration(seconds: 5)) {
         await tester.scrollToAndTap(const Key('pause_button'));
         await tester.pumpAndSettle();
         await tester.testPlayerState(PlayerState.paused);
@@ -105,7 +105,7 @@ Future<void> testStreamsTab(
     await tester.testDuration(audioSourceTestData.duration);
     if (!audioSourceTestData.isLiveStream) {
       await tester.testOnDuration(
-        audioSourceTestData.duration,
+        audioSourceTestData.duration!,
         timeout: timeout,
       );
     }

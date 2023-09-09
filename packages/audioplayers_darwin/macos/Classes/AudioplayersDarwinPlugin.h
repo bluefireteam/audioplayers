@@ -1,4 +1,4 @@
 #import <FlutterMacOS/FlutterMacOS.h>
 
-@interface AudioplayersDarwinPlugin : NSObject<FlutterPlugin>
+@interface AudioplayersDarwinPlugin : NSObject <FlutterPlugin>
 @end

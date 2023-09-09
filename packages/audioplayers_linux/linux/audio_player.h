@@ -5,6 +5,7 @@
 #include <future>
 #include <map>
 #include <memory>
+#include <optional>
 #include <sstream>
 #include <string>
 
@@ -20,86 +21,94 @@ extern "C" {
 }
 
 class AudioPlayer {
-   public:
-    AudioPlayer(std::string playerId, FlMethodChannel *methodChannel,
-                FlEventChannel *eventChannel);
+ public:
+  AudioPlayer(std::string playerId,
+              FlMethodChannel* methodChannel,
+              FlEventChannel* eventChannel);
 
-    int64_t GetPosition();
+  std::optional<int64_t> GetPosition();
 
-    int64_t GetDuration();
+  std::optional<int64_t> GetDuration();
 
-    bool GetLooping();
+  bool GetLooping();
 
-    void Play();
+  void Play();
 
-    void Pause();
+  void Pause();
 
-    void Resume();
+  void Resume();
 
-    void Dispose();
+  void Dispose();
 
-    void SetBalance(float balance);
+  void SetBalance(float balance);
 
-    void SetLooping(bool isLooping);
+  void SetLooping(bool isLooping);
 
-    void SetVolume(double volume);
+  void SetVolume(double volume);
 
-    void SetPlaybackRate(double rate);
+  void SetPlaybackRate(double rate);
 
-    void SetPosition(int64_t position);
+  void SetPosition(int64_t position);
 
-    void SetSourceUrl(std::string url);
+  void SetSourceUrl(std::string url);
 
-    void OnError(const gchar *code, const gchar *message, FlValue *details,
-                 GError **error);
+  void ReleaseMediaSource();
 
-    void OnLog(const gchar *message);
+  void OnError(const gchar* code,
+               const gchar* message,
+               FlValue* details,
+               GError** error);
 
-    virtual ~AudioPlayer();
+  void OnLog(const gchar* message);
 
-   private:
-    // Gst members
-    GstElement *playbin = nullptr;
-    GstElement *source = nullptr;
-    GstElement *panorama = nullptr;
-    GstElement *audiobin = nullptr;
-    GstElement *audiosink = nullptr;
-    GstPad *panoramaSinkPad = nullptr;
-    GstBus *bus = nullptr;
+  virtual ~AudioPlayer();
 
-    bool _isInitialized = false;
-    bool _isPlaying = false;
-    bool _isLooping = false;
-    bool _isSeekCompleted = true;
-    double _playbackRate = 1.0;
-    guint _refreshId;
+ private:
+  // Gst members
+  GstElement* playbin = nullptr;
+  GstElement* source = nullptr;
+  GstElement* panorama = nullptr;
+  GstElement* audiobin = nullptr;
+  GstElement* audiosink = nullptr;
+  GstPad* panoramaSinkPad = nullptr;
+  GstBus* bus = nullptr;
 
-    std::string _url{};
-    std::string _playerId;
-    FlEventChannel *_eventChannel;
+  bool _isInitialized = false;
+  bool _isPlaying = false;
+  bool _isLooping = false;
+  bool _isSeekCompleted = true;
+  double _playbackRate = 1.0;
+  guint _refreshId;
 
-    static void SourceSetup(GstElement *playbin, GstElement *source,
-                            GstElement **p_src);
+  std::string _url{};
+  std::string _playerId;
+  FlEventChannel* _eventChannel;
 
-    static gboolean OnBusMessage(GstBus *bus, GstMessage *message,
-                                 AudioPlayer *data);
+  static void SourceSetup(GstElement* playbin,
+                          GstElement* source,
+                          GstElement** p_src);
 
-    static gboolean OnRefresh(AudioPlayer *data);
+  static gboolean OnBusMessage(GstBus* bus,
+                               GstMessage* message,
+                               AudioPlayer* data);
 
-    void SetPlayback(int64_t seekTo, double rate);
+  static gboolean OnRefresh(AudioPlayer* data);
 
-    void OnMediaError(GError *error, gchar *debug);
+  void SetPlayback(int64_t seekTo, double rate);
 
-    void OnMediaStateChange(GstObject *src, GstState *old_state,
-                            GstState *new_state);
+  void OnMediaError(GError* error, gchar* debug);
 
-    void OnPositionUpdate();
+  void OnMediaStateChange(GstObject* src,
+                          GstState* old_state,
+                          GstState* new_state);
 
-    void OnDurationUpdate();
+  void OnPositionUpdate();
 
-    void OnSeekCompleted();
+  void OnDurationUpdate();
 
-    void OnPlaybackEnded();
+  void OnSeekCompleted();
 
-    void OnPrepared(bool isPrepared);
+  void OnPlaybackEnded();
+
+  void OnPrepared(bool isPrepared);
 };

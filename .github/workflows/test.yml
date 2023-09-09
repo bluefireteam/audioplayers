@@ -5,10 +5,11 @@ on:
       flutter_version:
         description: 'Flutter Version'
         required: false
-        default: '3.7.x'
+        default: 'any'
         type: choice
         options:
           - 'any'
+          - '3.13.x'
           - '3.10.x'
           - '3.7.x'
           - '3.3.x'
@@ -51,7 +52,7 @@ on:
     inputs:
       flutter_version:
         required: false
-        default: '3.10.2'
+        default: '3.13.0'
         type: string
       fatal_warnings:
         required: false
@@ -89,6 +90,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          # Full git history needed for `super-linter`
+          fetch-depth: 0
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ inputs.flutter_version }}
@@ -98,6 +102,22 @@ jobs:
       - run: melos run format-check
       - run: melos run analyze -- ${{ inputs.fatal_warnings && '--fatal-infos' || '--no-fatal-warnings --no-fatal-infos' }}
       - run: melos run test
+
+      - name: Lint Code Base
+        uses: super-linter/super-linter/slim@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VALIDATE_ALL_CODEBASE: false
+          DEFAULT_BRANCH: main
+          VALIDATE_KOTLIN_ANDROID: true
+          VALIDATE_CLANG_FORMAT: true
+      - name: Lint Swift
+        # TODO: check if swift-format can be integrated in super-linter, as soon as Alpine is supported
+        # https://github.com/apple/swift-docker/issues/231
+        # https://github.com/super-linter/super-linter/pull/4568
+        run: |
+          docker run --rm --workdir=/work --volume=$PWD:/work mtgto/swift-format:5.8 \
+           lint --parallel --strict --recursive packages/audioplayers_darwin
 
   web:
     runs-on: ubuntu-latest
@@ -158,9 +178,8 @@ jobs:
           java-version: '17'
       - uses: subosito/flutter-action@v2
         with:
-          # TODO: use `inputs.flutter_version` and change to `stable`, when flutter/flutter#125657 has been released.
-          flutter-version: '3.13.0-0.1.pre'
-          channel: 'beta'
+          flutter-version: ${{ inputs.flutter_version }}
+          channel: 'stable'
       - uses: bluefireteam/melos-action@main
 
       - name: Download Android emulator image
@@ -250,7 +269,7 @@ jobs:
   windows:
     runs-on: windows-latest
     timeout-minutes: 30
-    if: false # FIXME(gustl22): Revert to "inputs.enable_windows" when virtual audio device can be installed (#1573)
+    if: inputs.enable_windows
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
@@ -258,22 +277,32 @@ jobs:
           flutter-version: ${{ inputs.flutter_version }}
           channel: 'stable'
       - uses: bluefireteam/melos-action@main
-      
       - name: Start audio server
         run: net start audiosrv
-      - name: Install virtual audio device
-        shell: powershell
+      - name: Disable time sync with Hyper-V & setting system date time (#1573)
+        # TODO(gustl22): Remove workaround of setting the time when virtual audio device certificate is valid again (#1573)
         run: |
-          Invoke-WebRequest https://github.com/duncanthrax/scream/releases/download/3.9/Scream3.9.zip -OutFile Scream3.9.zip
-          Expand-Archive -Path Scream3.9.zip -DestinationPath Scream
-          Import-Certificate -FilePath Scream\Install\driver\x64\Scream.cat -CertStoreLocation Cert:\LocalMachine\TrustedPublisher 
+          Set-Service -Name vmictimesync -Status stopped -StartupType disabled
+          Set-ItemProperty HKLM:\SYSTEM\CurrentControlSet\services\W32Time\Parameters -Name 'Type' -Value 'NoSync'
+          net stop w32time; Set-Date (Get-Date "2023-07-04 12:00:00")
+      - name: Install virtual audio device
+        timeout-minutes: 1
+        run: |
+          Invoke-WebRequest https://github.com/duncanthrax/scream/releases/download/4.0/Scream4.0.zip -OutFile Scream.zip
+          Expand-Archive -Path Scream.zip -DestinationPath Scream
+          Import-Certificate -FilePath Scream\Install\driver\x64\Scream.cat -CertStoreLocation Cert:\LocalMachine\TrustedPublisher
           Scream\Install\helpers\devcon-x64.exe install Scream\Install\driver\x64\Scream.inf *Scream
+      - name: Resetting system date time (#1573)
+        run: |
+          Set-Service -Name vmictimesync -Status running -StartupType automatic
+          Set-ItemProperty HKLM:\SYSTEM\CurrentControlSet\services\W32Time\Parameters -Name 'Type' -Value 'NTP'
+          net start w32time; w32tm /resync /force; $currentDate = Get-Date; Write-Host "Current System Date: $currentDate";
       - name: Run Flutter integration tests
-        shell: powershell
         working-directory: ./packages/audioplayers/example
+        shell: bash # Needed in order to fail fast, see: https://github.com/actions/runner-images/issues/6668
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         run: |
-          Start-Process -NoNewWindow -WorkingDirectory "server" dart -ArgumentList "run", "bin/server.dart"
+          ( cd server; dart run bin/server.dart ) &
           flutter test -d windows integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
           flutter test -d windows integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
           flutter test -d windows integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
@@ -286,9 +315,8 @@ jobs:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
         with:
-          # TODO: use `inputs.flutter_version` and change to `stable`, when flutter/flutter#129534 has been released.
-          flutter-version: '3.13.0-0.1.pre'
-          channel: 'beta'
+          flutter-version: ${{ inputs.flutter_version }}
+          channel: 'stable'
       - uses: bluefireteam/melos-action@main
       - name: Install Flutter requirements for Linux
         run: |
@@ -303,10 +331,11 @@ jobs:
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
+        # TODO(gustl22): Linux tests are flaky with LIVE_MODE=false
         run: |
           export DISPLAY=:99
           sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
-          ( cd server; dart run bin/server.dart ) &
+          ( cd server; LIVE_MODE=true dart run bin/server.dart ) &
           flutter test -d linux integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
           flutter test -d linux integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
           flutter test -d linux integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true

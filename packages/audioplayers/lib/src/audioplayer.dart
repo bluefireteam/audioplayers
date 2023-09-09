@@ -308,7 +308,7 @@ class AudioPlayer {
         }
       },
       onError: (Object e, [StackTrace? stackTrace]) {
-        if (preparedCompleter.isCompleted == false) {
+        if (!preparedCompleter.isCompleted) {
           preparedCompleter.completeError(e, stackTrace);
         }
       },

@@ -11,7 +11,7 @@ import java.net.URL
 data class UrlSource(
     val url: String,
     val isLocal: Boolean,
-): Source {
+) : Source {
     override fun setForMediaPlayer(mediaPlayer: MediaPlayer) {
         mediaPlayer.setDataSource(url)
     }
@@ -20,7 +20,7 @@ data class UrlSource(
         soundPoolPlayer.setUrlSource(this)
     }
 
-    fun getAudioPathForSoundPool(): String? {
+    fun getAudioPathForSoundPool(): String {
         if (isLocal) {
             return url.removePrefix("file://")
         }

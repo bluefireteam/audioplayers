@@ -30,20 +30,20 @@ void main() {
   }
 
   group('Global Method Channel', () {
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(
-      const MethodChannel('xyz.luan/audioplayers.global'),
-      (MethodCall methodCall) async {
-        methodCalls.add(methodCall);
-        return 1;
-      },
-    );
-
-    setUp(clear);
+    setUp(() {
+      clear();
+      createNativeMethodHandler(
+        channel: 'xyz.luan/audioplayers.global',
+        handler: (MethodCall methodCall) async {
+          methodCalls.add(methodCall);
+          return null;
+        },
+      );
+    });
 
     test('set AudioContext for Windows', () async {
       debugDefaultTargetPlatformOverride = TargetPlatform.windows;
-      await platform.setGlobalAudioContext(const AudioContext());
+      await platform.setGlobalAudioContext(AudioContext());
       final call = popLastCall();
       expect(call.method, 'setAudioContext');
       expect(call.args, <String, dynamic>{});
@@ -51,7 +51,7 @@ void main() {
 
     test('set AudioContext for macOS', () async {
       debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
-      await platform.setGlobalAudioContext(const AudioContext());
+      await platform.setGlobalAudioContext(AudioContext());
       final call = popLastCall();
       expect(call.method, 'setAudioContext');
       expect(call.args, <String, dynamic>{});
@@ -59,7 +59,7 @@ void main() {
 
     test('set AudioContext for Linux', () async {
       debugDefaultTargetPlatformOverride = TargetPlatform.linux;
-      await platform.setGlobalAudioContext(const AudioContext());
+      await platform.setGlobalAudioContext(AudioContext());
       final call = popLastCall();
       expect(call.method, 'setAudioContext');
       expect(call.args, <String, dynamic>{});
@@ -67,7 +67,7 @@ void main() {
 
     test('set AudioContext for Android', () async {
       debugDefaultTargetPlatformOverride = TargetPlatform.android;
-      await platform.setGlobalAudioContext(const AudioContext());
+      await platform.setGlobalAudioContext(AudioContext());
       final call = popLastCall();
       expect(call.method, 'setAudioContext');
       expect(call.args, {
@@ -82,7 +82,7 @@ void main() {
 
     test('set AudioContext for iOS', () async {
       debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
-      await platform.setGlobalAudioContext(const AudioContext());
+      await platform.setGlobalAudioContext(AudioContext());
       final call = popLastCall();
       expect(call.method, 'setAudioContext');
       expect(call.args, {'category': 'playback', 'options': []});

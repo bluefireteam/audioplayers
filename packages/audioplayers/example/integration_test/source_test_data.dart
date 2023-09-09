@@ -1,19 +1,22 @@
 /// Data of a ui test source.
 abstract class SourceTestData {
-  Duration duration;
+  Duration? duration;
 
-  bool isLiveStream;
+  bool get isLiveStream => duration == null;
+
+  /// Whether this source has variable bitrate
+  bool isVBR;
 
   SourceTestData({
     required this.duration,
-    this.isLiveStream = false,
+    this.isVBR = false,
   });
 
   @override
   String toString() {
     return 'SourceTestData('
         'duration: $duration, '
-        'isLiveStream: $isLiveStream'
+        'isVBR: $isVBR'
         ')';
   }
 }
