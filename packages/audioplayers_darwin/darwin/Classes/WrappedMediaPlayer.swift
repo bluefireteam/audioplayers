@@ -51,20 +51,20 @@ class WrappedMediaPlayer {
   ) {
     let playbackStatus = player?.currentItem?.status
 
-        if self.url != url || playbackStatus == .failed || playbackStatus == nil {
-            reset()
-            self.url = url
-            let playerItem = createPlayerItem(url, isLocal)
-            setUpPlayerItemStatusObservation(playerItem, completer, completerError)
-            let player = updatePlayer(playerItem) ?? createPlayer(playerItem)
-            setUpPositionObserver(player)
-            setUpSoundCompletedObserver(player, playerItem)
-        } else {
-            if playbackStatus == .readyToPlay {
-                completer?()
-            }
-        }
+    if self.url != url || playbackStatus == .failed || playbackStatus == nil {
+      reset()
+      self.url = url
+      let playerItem = createPlayerItem(url, isLocal)
+      setUpPlayerItemStatusObservation(playerItem, completer, completerError)
+      let player = updatePlayer(playerItem) ?? createPlayer(playerItem)
+      setUpPositionObserver(player)
+      setUpSoundCompletedObserver(player, playerItem)
+    } else {
+      if playbackStatus == .readyToPlay {
+        completer?()
+      }
     }
+  }
 
   func getDuration() -> Int? {
     guard let duration = getDurationCMTime() else {
@@ -160,39 +160,41 @@ class WrappedMediaPlayer {
     return playerItem
   }
 
-    private func createPlayer( _ playerItem: AVPlayerItem) -> AVPlayer {
-        let player = AVPlayer.init(playerItem: playerItem)
-        configParameters(player: player)
-        self.player = player
-        return player
+  private func createPlayer(_ playerItem: AVPlayerItem) -> AVPlayer {
+    let player = AVPlayer.init(playerItem: playerItem)
+    configParameters(player: player)
+    self.player = player
+    return player
+  }
+
+  private func updatePlayer(_ playerItem: AVPlayerItem) -> AVPlayer? {
+    if let player = self.player {
+      player.replaceCurrentItem(with: playerItem)
     }
 
-    private func updatePlayer( _ playerItem: AVPlayerItem) -> AVPlayer? {
-        if let player = self.player {
-            player.replaceCurrentItem(with: playerItem)
-        }
+    return self.player
+  }
 
-        return self.player
+  private func setUpPlayerItemStatusObservation(
+    _ playerItem: AVPlayerItem, _ completer: Completer?, _ completerError: CompleterError?
+  ) {
+    playerItemStatusObservation = playerItem.observe(\AVPlayerItem.status) { (playerItem, change) in
+      let status = playerItem.status
+      self.eventHandler.onLog(message: "player status: \(status), change: \(change)")
+
+      switch playerItem.status {
+      case .readyToPlay:
+        self.updateDuration()
+        completer?()
+      case .failed:
+        self.eventHandler.onLog(message: "error: \(String(describing: playerItem.error))")
+        self.reset()
+        completerError?()
+      default:
+        break
+      }
     }
-
-    private func setUpPlayerItemStatusObservation(_ playerItem: AVPlayerItem, _ completer: Completer?, _ completerError: CompleterError?) {
-        playerItemStatusObservation = playerItem.observe(\AVPlayerItem.status) { (playerItem, change) in
-            let status = playerItem.status
-            self.eventHandler.onLog(message: "player status: \(status), change: \(change)")
-
-            switch playerItem.status {
-            case .readyToPlay:
-                self.updateDuration()
-                completer?()
-            case .failed:
-                self.eventHandler.onLog(message: "error: \(String(describing: playerItem.error))")
-                self.reset()
-                completerError?()
-            default:
-                break
-            }
-        }
-    }
+  }
 
   private func setUpPositionObserver(_ player: AVPlayer) {
     let interval = toCMTime(millis: 200)
