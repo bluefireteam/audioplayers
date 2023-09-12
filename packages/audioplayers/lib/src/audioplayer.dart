@@ -125,7 +125,7 @@ class AudioPlayer {
 
   Stream<bool> get _onPrepared => eventStream
       .where((event) => event.eventType == AudioEventType.prepared)
-      .map((event) => event.isPrepared!);
+      .map((event) => event.isPrepared ?? false);
 
   /// Stream of log events.
   Stream<String> get onLog => eventStream
