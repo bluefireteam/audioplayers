@@ -33,13 +33,13 @@ void main() {
     /// If using [AVAudioSessionCategory.playAndRecord] the audio will come from
     /// the earpiece unless [AVAudioSessionOptions.defaultToSpeaker] is used.
     test('set AudioContext', () async {
-      await globalScope.setAudioContext(AudioContext());
+      await globalScope.setAudioContext(const AudioContext());
       final call = globalPlatform.popLastCall();
       expect(call.method, 'setGlobalAudioContext');
       expect(
         call.value,
-        AudioContext(
-          android: const AudioContextAndroid(
+        const AudioContext(
+          android: AudioContextAndroid(
             isSpeakerphoneOn: false,
             audioMode: AndroidAudioMode.normal,
             stayAwake: false,
@@ -49,7 +49,7 @@ void main() {
           ),
           iOS: AudioContextIOS(
             category: AVAudioSessionCategory.playback,
-            options: const {},
+            options: [],
           ),
         ),
       );
