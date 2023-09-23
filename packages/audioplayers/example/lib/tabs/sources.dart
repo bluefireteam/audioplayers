@@ -1,12 +1,15 @@
 import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:audioplayers_example/components/btn.dart';
+import 'package:audioplayers_example/components/drop_down.dart';
 import 'package:audioplayers_example/components/tab_content.dart';
 import 'package:audioplayers_example/utils.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
+import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 
 const useLocalServer = bool.fromEnvironment('USE_LOCAL_SERVER');
 
@@ -20,7 +23,9 @@ final mp3Url2 = '$host/files/audio/nasa_on_a_mission.mp3';
 final m3u8StreamUrl = useLocalServer
     ? '$host/files/live_streams/nasa_power_of_the_rovers.m3u8'
     : 'https://a.files.bbci.co.uk/media/live/manifesto/audio/simulcast/hls/nonuk/sbr_low/ak/bbc_radio_one.m3u8';
-const mpgaStreamUrl = 'https://timesradio.wireless.radio/stream';
+final mpgaStreamUrl = useLocalServer
+    ? '$host/stream/mpeg'
+    : 'https://timesradio.wireless.radio/stream';
 
 const wavAsset = 'laser.wav';
 const mp3Asset = 'nasa_on_a_mission.mp3';
@@ -42,6 +47,8 @@ class _SourcesTabState extends State<SourcesTab>
     with AutomaticKeepAliveClientMixin<SourcesTab> {
   AudioPlayer get player => widget.player;
 
+  final List<Widget> sourceWidgets = [];
+
   Future<void> _setSource(Source source) async {
     await player.setSource(source);
     toast(
@@ -59,6 +66,13 @@ class _SourcesTabState extends State<SourcesTab>
     );
   }
 
+  Future<void> _removeSourceWidget(Widget sourceWidget) async {
+    setState(() {
+      sourceWidgets.remove(sourceWidget);
+    });
+    toast('Source removed.');
+  }
+
   Widget _createSourceTile({
     required String title,
     required String subtitle,
@@ -70,6 +84,7 @@ class _SourcesTabState extends State<SourcesTab>
       _SourceTile(
         setSource: () => _setSource(source),
         play: () => _play(source),
+        removeSource: _removeSourceWidget,
         title: title,
         subtitle: subtitle,
         setSourceKey: setSourceKey,
@@ -89,23 +104,15 @@ class _SourcesTabState extends State<SourcesTab>
     Future<void> Function(Source) fun, {
     required String url,
   }) async {
-    final bytes = await readBytes(Uri.parse(url));
+    final bytes = await http.readBytes(Uri.parse(url));
     await fun(BytesSource(bytes));
   }
 
-  Future<void> _setSourceFilePicker(Future<void> Function(Source) fun) async {
-    final result = await FilePicker.platform.pickFiles();
-    final path = result?.files.single.path;
-    if (path != null) {
-      _setSource(DeviceFileSource(path));
-    }
-  }
-
   @override
-  Widget build(BuildContext context) {
-    super.build(context);
-    return TabContent(
-      children: [
+  void initState() {
+    super.initState();
+    sourceWidgets.addAll(
+      [
         _createSourceTile(
           setSourceKey: const Key('setSource-url-remote-wav-1'),
           title: 'Remote URL WAV 1',
@@ -120,7 +127,7 @@ class _SourcesTabState extends State<SourcesTab>
         ),
         _createSourceTile(
           setSourceKey: const Key('setSource-url-remote-mp3-1'),
-          title: 'Remote URL MP3 1',
+          title: 'Remote URL MP3 1 (VBR)',
           subtitle: 'ambient_c_motion.mp3',
           source: UrlSource(mp3Url1),
         ),
@@ -158,6 +165,7 @@ class _SourcesTabState extends State<SourcesTab>
           setSource: () => _setSourceBytesAsset(_setSource, asset: wavAsset),
           setSourceKey: const Key('setSource-bytes-local'),
           play: () => _setSourceBytesAsset(_play, asset: wavAsset),
+          removeSource: _removeSourceWidget,
           title: 'Bytes - Local',
           subtitle: 'laser.wav',
         ),
@@ -165,16 +173,9 @@ class _SourcesTabState extends State<SourcesTab>
           setSource: () => _setSourceBytesRemote(_setSource, url: mp3Url1),
           setSourceKey: const Key('setSource-bytes-remote'),
           play: () => _setSourceBytesRemote(_play, url: mp3Url1),
+          removeSource: _removeSourceWidget,
           title: 'Bytes - Remote',
           subtitle: 'ambient.mp3',
-        ),
-        _SourceTile(
-          setSource: () => _setSourceFilePicker(_setSource),
-          setSourceKey: const Key('setSource-url-local'),
-          play: () => _setSourceFilePicker(_play),
-          title: 'Device File',
-          subtitle: 'Pick local file from device',
-          buttonColor: Colors.green,
         ),
         _createSourceTile(
           setSourceKey: const Key('setSource-asset-invalid'),
@@ -188,12 +189,51 @@ class _SourcesTabState extends State<SourcesTab>
   }
 
   @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return Stack(
+      alignment: Alignment.bottomCenter,
+      children: [
+        TabContent(
+          children: sourceWidgets
+              .expand((element) => [element, const Divider()])
+              .toList(),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: FloatingActionButton(
+            child: const Icon(Icons.add),
+            onPressed: () {
+              dialog(
+                _SourceDialog(
+                  onAdd: (Source source, String path) {
+                    setState(() {
+                      sourceWidgets.add(
+                        _createSourceTile(
+                          title: source.runtimeType.toString(),
+                          subtitle: path,
+                          source: source,
+                        ),
+                      );
+                    });
+                  },
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
   bool get wantKeepAlive => true;
 }
 
 class _SourceTile extends StatelessWidget {
   final void Function() setSource;
   final void Function() play;
+  final void Function(Widget sourceWidget) removeSource;
   final String title;
   final String? subtitle;
   final Key? setSourceKey;
@@ -203,6 +243,7 @@ class _SourceTile extends StatelessWidget {
   const _SourceTile({
     required this.setSource,
     required this.play,
+    required this.removeSource,
     required this.title,
     this.subtitle,
     this.setSourceKey,
@@ -232,8 +273,161 @@ class _SourceTile extends StatelessWidget {
             icon: const Icon(Icons.play_arrow),
             color: buttonColor ?? Theme.of(context).primaryColor,
           ),
+          IconButton(
+            tooltip: 'Remove',
+            onPressed: () => removeSource(this),
+            icon: const Icon(Icons.delete),
+            color: buttonColor ?? Theme.of(context).primaryColor,
+          ),
         ],
       ),
+    );
+  }
+}
+
+class _SourceDialog extends StatefulWidget {
+  final void Function(Source source, String path) onAdd;
+
+  const _SourceDialog({required this.onAdd});
+
+  @override
+  State<_SourceDialog> createState() => _SourceDialogState();
+}
+
+class _SourceDialogState extends State<_SourceDialog> {
+  Type sourceType = UrlSource;
+  String path = '';
+
+  final Map<String, String> assetsList = {'': 'Nothing selected'};
+
+  @override
+  void initState() {
+    super.initState();
+
+    AssetManifest.loadFromAssetBundle(rootBundle).then((assetManifest) {
+      setState(() {
+        assetsList.addAll(
+          assetManifest
+              .listAssets()
+              .map((e) => e.replaceFirst('assets/', ''))
+              .toList()
+              .asMap()
+              .map((key, value) => MapEntry(value, value)),
+        );
+      });
+    });
+  }
+
+  Widget _buildSourceValue() {
+    switch (sourceType) {
+      case AssetSource:
+        return Row(
+          children: [
+            const Text('Asset path'),
+            const SizedBox(width: 16),
+            Expanded(
+              child: CustomDropDown<String>(
+                options: assetsList,
+                selected: path,
+                onChange: (value) => setState(() {
+                  path = value ?? '';
+                }),
+              ),
+            ),
+          ],
+        );
+      case BytesSource:
+      case DeviceFileSource:
+        return Row(
+          children: [
+            const Text('Device File path'),
+            const SizedBox(width: 16),
+            Expanded(child: Text(path)),
+            TextButton.icon(
+              onPressed: () async {
+                final result = await FilePicker.platform.pickFiles();
+                final path = result?.files.single.path;
+                if (path != null) {
+                  setState(() {
+                    this.path = path;
+                  });
+                }
+              },
+              icon: const Icon(Icons.file_open),
+              label: const Text('Browse'),
+            ),
+          ],
+        );
+      default:
+        return Row(
+          children: [
+            const Text('URL'),
+            const SizedBox(width: 16),
+            Expanded(
+              child: TextField(
+                decoration: const InputDecoration(
+                  hintText: 'https://example.com/myFile.wav',
+                ),
+                onChanged: (String? url) => path = url ?? '',
+              ),
+            ),
+          ],
+        );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        LabeledDropDown<Type>(
+          label: 'Source type',
+          options: const {
+            AssetSource: 'Asset',
+            DeviceFileSource: 'Device File',
+            UrlSource: 'Url',
+            BytesSource: 'Byte array',
+          },
+          selected: sourceType,
+          onChange: (Type? value) {
+            setState(() {
+              if (value != null) {
+                sourceType = value;
+              }
+            });
+          },
+        ),
+        ListTile(title: _buildSourceValue()),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Btn(
+              onPressed: () async {
+                switch (sourceType) {
+                  case BytesSource:
+                    widget.onAdd(
+                      BytesSource(await File(path).readAsBytes()),
+                      path,
+                    );
+                  case AssetSource:
+                    widget.onAdd(AssetSource(path), path);
+                  case DeviceFileSource:
+                    widget.onAdd(DeviceFileSource(path), path);
+                  default:
+                    widget.onAdd(UrlSource(path), path);
+                }
+                Navigator.of(context).pop();
+              },
+              txt: 'Add',
+            ),
+            TextButton(
+              onPressed: Navigator.of(context).pop,
+              child: const Text('Cancel'),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

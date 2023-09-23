@@ -1,5 +1,5 @@
 import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../platform_features.dart';
@@ -19,19 +19,19 @@ Future<void> testControlsTab(
   await tester.pumpAndSettle();
 
   // Sources take some time to get initialized
-  const timeout = Duration(seconds: 8);
+  const stopDuration = Duration(seconds: 5);
 
   if (features.hasVolume) {
-    await tester.testVolume('0.5', timeout: timeout);
-    await tester.testVolume('0.0', timeout: timeout);
-    await tester.testVolume('1.0', timeout: timeout);
+    await tester.testVolume('0.5', stopDuration: stopDuration);
+    await tester.testVolume('0.0', stopDuration: stopDuration);
+    await tester.testVolume('1.0', stopDuration: stopDuration);
     // No tests for volume > 1
   }
 
   if (features.hasBalance) {
-    await tester.testBalance('-1.0', timeout: timeout);
-    await tester.testBalance('1.0', timeout: timeout);
-    await tester.testBalance('0.0', timeout: timeout);
+    await tester.testBalance('-1.0', stopDuration: stopDuration);
+    await tester.testBalance('1.0', stopDuration: stopDuration);
+    await tester.testBalance('0.0', stopDuration: stopDuration);
   }
 
   if (features.hasPlaybackRate && !audioSourceTestData.isLiveStream) {
@@ -48,17 +48,15 @@ Future<void> testControlsTab(
 
     // Linux cannot complete seek if duration is not present.
     await tester.testSeek('0.5', isResume: false);
-    await tester.tap(find.byKey(const Key('streamsTab')));
-    await tester.pumpAndSettle();
-
-    if (isImmediateDurationSupported) {
-      await tester.testPosition(
-        Duration(seconds: audioSourceTestData.duration.inSeconds ~/ 2),
-        matcher: greaterThanOrEqualTo,
-      );
-    }
-    await tester.tap(find.byKey(const Key('controlsTab')));
-    await tester.pumpAndSettle();
+    await tester.doInStreamsTab((tester) async {
+      if (isImmediateDurationSupported) {
+        await tester.testPosition(
+          Duration(seconds: audioSourceTestData.duration!.inSeconds ~/ 2),
+          matcher: (Object? value) =>
+              greaterThanOrEqualTo(value ?? Duration.zero),
+        );
+      }
+    });
 
     await tester.pump(const Duration(seconds: 1));
     await tester.testSeek('1.0');
@@ -66,6 +64,7 @@ Future<void> testControlsTab(
     await tester.stop();
   }
 
+  // Test all features in low latency mode:
   final isBytesSource = audioSourceTestData.sourceKey.contains('bytes');
   if (features.hasLowLatency &&
       !audioSourceTestData.isLiveStream &&
@@ -97,11 +96,25 @@ Future<void> testControlsTab(
     await tester.pumpAndSettle();
   }
 
-  if (audioSourceTestData.duration < const Duration(seconds: 2) &&
-      !audioSourceTestData.isLiveStream) {
-    if (features.hasReleaseModeLoop) {
+  if (!audioSourceTestData.isLiveStream &&
+      audioSourceTestData.duration! < const Duration(seconds: 2)) {
+    final isAndroid =
+        !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+    // FIXME(gustl22): Android provides no position for samples shorter
+    //  than 0.5 seconds.
+    if (features.hasReleaseModeLoop &&
+        !(isAndroid &&
+            audioSourceTestData.duration! < const Duration(seconds: 1))) {
       await tester.testReleaseMode(ReleaseMode.loop);
       await tester.pump(const Duration(seconds: 3));
+      // Check if sound has started playing.
+      await tester.doInStreamsTab((tester) async {
+        await tester.testPosition(
+          Duration.zero,
+          matcher: (Duration? position) =>
+              greaterThan(position ?? Duration.zero),
+        );
+      });
       await tester.stop();
       await tester.testReleaseMode(ReleaseMode.stop, isResume: false);
       await tester.pumpAndSettle();
@@ -110,8 +123,11 @@ Future<void> testControlsTab(
     if (features.hasReleaseModeRelease) {
       await tester.testReleaseMode(ReleaseMode.release);
       await tester.pump(const Duration(seconds: 3));
-      // No need to call stop, as it should be released by now
-      // TODO(Gustl22): test if source was released
+      // No need to call stop, as it should be released by now.
+      // Ensure source was released by checking `position == null`.
+      await tester.doInStreamsTab((tester) async {
+        await tester.testPosition(null);
+      });
 
       // Reinitialize source
       await tester.tap(find.byKey(const Key('sourcesTab')));
@@ -145,37 +161,34 @@ extension ControlsWidgetTester on WidgetTester {
 
   Future<void> testVolume(
     String volume, {
-    Duration timeout = const Duration(seconds: 1),
+    Duration stopDuration = const Duration(seconds: 1),
   }) async {
     printWithTimeOnFailure('Test Volume: $volume');
     await scrollToAndTap(Key('control-volume-$volume'));
     await resume();
-    // TODO(Gustl22): get volume from native implementation
-    await pump(timeout);
+    await pump(stopDuration);
     await stop();
   }
 
   Future<void> testBalance(
     String balance, {
-    Duration timeout = const Duration(seconds: 1),
+    Duration stopDuration = const Duration(seconds: 1),
   }) async {
     printWithTimeOnFailure('Test Balance: $balance');
     await scrollToAndTap(Key('control-balance-$balance'));
     await resume();
-    // TODO(novikov): get balance from native implementation
-    await pump(timeout);
+    await pump(stopDuration);
     await stop();
   }
 
   Future<void> testRate(
     String rate, {
-    Duration timeout = const Duration(seconds: 2),
+    Duration stopDuration = const Duration(seconds: 2),
   }) async {
     printWithTimeOnFailure('Test Rate: $rate');
     await scrollToAndTap(Key('control-rate-$rate'));
     await resume();
-    // TODO(Gustl22): get rate from native implementation
-    await pump(timeout);
+    await pump(stopDuration);
     await stop();
   }
 
@@ -224,6 +237,17 @@ extension ControlsWidgetTester on WidgetTester {
     if (isResume) {
       await resume();
     }
-    // TODO(Gustl22): get release mode from native implementation
+  }
+
+  Future<void> doInStreamsTab(
+    Future<void> Function(WidgetTester tester) foo,
+  ) async {
+    await tap(find.byKey(const Key('streamsTab')));
+    await pump();
+
+    await foo(this);
+
+    await tap(find.byKey(const Key('controlsTab')));
+    await pump();
   }
 }

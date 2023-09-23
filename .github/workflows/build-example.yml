@@ -5,10 +5,11 @@ on:
       flutter_version:
         description: 'Flutter Version'
         required: false
-        default: '3.7.x'
+        default: 'any'
         type: choice
         options:
           - 'any'
+          - '3.13.x'
           - '3.10.x'
           - '3.7.x'
           - '3.3.x'
@@ -43,11 +44,16 @@ on:
         required: false
         default: true
         type: boolean
+      upload_pages_artifact:
+        description: 'Upload build artifact for GH pages'
+        required: false
+        default: false
+        type: boolean
   workflow_call:
     inputs:
       flutter_version:
         required: false
-        default: '3.10.2'
+        default: '3.13.0'
         type: string
       enable_android:
         required: false
@@ -73,6 +79,10 @@ on:
         required: false
         default: true
         type: boolean
+      upload_pages_artifact:
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   web:
@@ -90,6 +100,11 @@ jobs:
       - name: Example app - Build Web app
         working-directory: ./packages/audioplayers/example
         run: flutter build web
+      - name: Upload pages artifact
+        if: inputs.upload_pages_artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: ./packages/audioplayers/example/build/web
 
   android:
     runs-on: ubuntu-latest
@@ -104,9 +119,8 @@ jobs:
           java-version: '17'
       - uses: subosito/flutter-action@v2
         with:
-          # TODO: use `inputs.flutter_version` and change to `stable`, when flutter/flutter#127628 has been released.
-          flutter-version: '3.13.0-0.1.pre'
-          channel: 'beta'
+          flutter-version: ${{ inputs.flutter_version }}
+          channel: 'stable'
       - uses: bluefireteam/melos-action@main
 
       - name: Example App - Build Android APK

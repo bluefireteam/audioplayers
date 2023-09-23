@@ -1,49 +1,49 @@
 import AVKit
 
 extension String {
-    func deletingPrefix(_ prefix: String) -> String {
-        guard self.hasPrefix(prefix) else {
-            return self
-        }
-        return String(self.dropFirst(prefix.count))
+  func deletingPrefix(_ prefix: String) -> String {
+    guard self.hasPrefix(prefix) else {
+      return self
     }
+    return String(self.dropFirst(prefix.count))
+  }
 }
 
 func toCMTime(millis: Int) -> CMTime {
-    return toCMTime(millis: Float(millis))
+  return toCMTime(millis: Float(millis))
 }
 
 func toCMTime(millis: Double) -> CMTime {
-    return toCMTime(millis: Float(millis))
+  return toCMTime(millis: Float(millis))
 }
 
 func toCMTime(millis: Float) -> CMTime {
-    return CMTimeMakeWithSeconds(Float64(millis) / 1000, preferredTimescale: Int32(NSEC_PER_SEC))
+  return CMTimeMakeWithSeconds(Float64(millis) / 1000, preferredTimescale: Int32(NSEC_PER_SEC))
 }
 
 func fromCMTime(time: CMTime) -> Int {
-    guard CMTIME_IS_NUMERIC(time) else {
-        return 0
-    }
-    let seconds: Float64 = CMTimeGetSeconds(time)
-    let milliseconds: Int = Int(seconds * 1000)
-    return milliseconds
+  guard CMTIME_IS_NUMERIC(time) else {
+    return 0
+  }
+  let seconds: Float64 = CMTimeGetSeconds(time)
+  let milliseconds: Int = Int(seconds * 1000)
+  return milliseconds
 }
 
 class TimeObserver {
-    let player: AVPlayer
-    let observer: Any
+  let player: AVPlayer
+  let observer: Any
 
-    init(
-            player: AVPlayer,
-            observer: Any
-    ) {
-        self.player = player
-        self.observer = observer
-    }
+  init(
+    player: AVPlayer,
+    observer: Any
+  ) {
+    self.player = player
+    self.observer = observer
+  }
 }
 
 enum AudioPlayerError: Error {
-    case error(String)
-    case warning(String)
+  case error(String)
+  case warning(String)
 }
