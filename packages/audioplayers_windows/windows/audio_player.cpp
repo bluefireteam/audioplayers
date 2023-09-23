@@ -6,6 +6,7 @@
 #include <flutter/event_stream_handler_functions.h>
 #include <flutter/plugin_registrar_windows.h>
 #include <flutter/standard_method_codec.h>
+#include <shlwapi.h> // for SHCreateMemStream
 #include <shobjidl.h>
 #include <windows.h>
 
@@ -44,7 +45,6 @@ AudioPlayer::AudioPlayer(
 
 void AudioPlayer::SetSourceBytes(std::vector<uint8_t> bytes) {
     size_t size = bytes.size();
-    // TODO(dogukangul): support .wav files 
 
     try {
         winrt::com_ptr<IMFSourceResolver> sourceResolver;
@@ -57,19 +57,17 @@ void AudioPlayer::SetSourceBytes(std::vector<uint8_t> bytes) {
 
         winrt::com_ptr<IMFMediaSource> mediaSource;
 
+        IStream* pstm = SHCreateMemStream(bytes.data(), static_cast<unsigned int>( size ));
         IMFByteStream *stream = NULL;
-        MFCreateTempFile(MF_ACCESSMODE_READWRITE, MF_OPENMODE_DELETE_IF_EXIST, MF_FILEFLAGS_NONE, &stream);
-        ULONG writeBytes = 0;
-        stream->Write(bytes.data(), (ULONG)size, &writeBytes);
-        stream->SetCurrentPosition(0);
+        MFCreateMFByteStreamOnStream(pstm, &stream);
 
-        sourceResolver->CreateObjectFromByteStream(stream, nullptr, 
+        sourceResolver->CreateObjectFromByteStream(stream, nullptr,
                                                 sourceResolutionFlags, nullptr,
                                                 &objectType, reinterpret_cast<IUnknown**>(mediaSource.put_void()));
         m_mediaEngineWrapper->SetMediaSource(mediaSource.get());
     } catch (...) {
         // Forward errors to event stream, as this is called asynchronously
-        this->OnError("WindowsAudioError", "Error settig bytes", nullptr);
+        this->OnError("WindowsAudioError", "Error setting bytes", nullptr);
     }
 }
 
