@@ -81,6 +81,7 @@ void AudioPlayer::SetSourceUrl(std::string url) {
 }
 
 void AudioPlayer::SetSourceBytes(std::vector<uint8_t> bytes) {
+  _url.clear();
   size_t size = bytes.size();
 
   try {
@@ -229,6 +230,7 @@ void AudioPlayer::ReleaseMediaSource() {
     m_mediaEngineWrapper->Pause();
   }
   m_mediaEngineWrapper->ReleaseMediaSource();
+  _url.clear();
   _isInitialized = false;
 }
 
