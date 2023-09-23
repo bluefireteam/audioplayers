@@ -18,7 +18,8 @@ class WrappedMediaPlayer {
   private var volume: Double
   private var url: String?
 
-  private var observers: [TimeObserver]
+  private var positionObserver: TimeObserver
+  private var completionObserver: TimeObserver?
   private var playerItemStatusObservation: NSKeyValueObservation?
 
   init(
@@ -33,8 +34,9 @@ class WrappedMediaPlayer {
     self.reference = reference
     self.eventHandler = eventHandler
     self.player = player ?? AVPlayer.init()
-    self.observers = []
+    self.completionObserver = nil
     self.playerItemStatusObservation = nil
+    setUpPositionObserver(player)
 
     self.isPlaying = false
     self.playbackRate = playbackRate
@@ -57,10 +59,8 @@ class WrappedMediaPlayer {
       let playerItem = createPlayerItem(url, isLocal)
       // Need to observe item status immediately after creating:
       setUpPlayerItemStatusObservation(playerItem, completer, completerError)
-      let player = updatePlayer(playerItem)
-      setUpPositionObserver(player)
-      setUpSoundCompletedObserver(player, playerItem)
-      self.player = player
+      player.replaceCurrentItem(with: playerItem)
+      setUpSoundCompletedObserver(self.player, playerItem)
     } else {
       if playbackStatus == .readyToPlay {
         completer?()
@@ -142,6 +142,9 @@ class WrappedMediaPlayer {
 
   func dispose(completer: Completer? = nil) {
     release {
+      if let pObserver = positionObserver {
+        NotificationCenter.default.removeObserver(pObserver.observer)
+      }
       completer?()
     }
   }
@@ -160,14 +163,6 @@ class WrappedMediaPlayer {
     let playerItem = AVPlayerItem.init(url: parsedUrl)
     playerItem.audioTimePitchAlgorithm = AVAudioTimePitchAlgorithm.timeDomain
     return playerItem
-  }
-
-  private func updatePlayer(_ playerItem: AVPlayerItem) -> AVPlayer? {
-    if let player = self.player {
-      player.replaceCurrentItem(with: playerItem)
-    }
-
-    return self.player
   }
 
   private func setUpPlayerItemStatusObservation(
@@ -196,7 +191,7 @@ class WrappedMediaPlayer {
       [weak self] time in
       self?.onTimeInterval(time: time)
     }
-    self.observers.append(TimeObserver(player: player, observer: observer))
+    self.positionObserver = TimeObserver(player: player, observer: observer)
   }
 
   private func setUpSoundCompletedObserver(_ player: AVPlayer, _ playerItem: AVPlayerItem) {
@@ -208,7 +203,7 @@ class WrappedMediaPlayer {
       [weak self] (notification) in
       self?.onSoundComplete()
     }
-    self.observers.append(TimeObserver(player: player, observer: observer))
+    self.completionObserver = TimeObserver(player: player, observer: observer)
   }
 
   private func configParameters(player: AVPlayer) {
@@ -221,10 +216,10 @@ class WrappedMediaPlayer {
   private func reset() {
     playerItemStatusObservation?.invalidate()
     playerItemStatusObservation = nil
-    for observer in observers {
-      NotificationCenter.default.removeObserver(observer.observer)
+    if let cObserver = completionObserver {
+      NotificationCenter.default.removeObserver(cObserver.observer)
+      completionObserver = nil
     }
-    observers = []
     player?.replaceCurrentItem(with: nil)
   }
 
