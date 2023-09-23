@@ -187,7 +187,6 @@ class WrappedMediaPlayer {
         self.updateDuration()
         completer?()
       case .failed:
-        self.eventHandler.onLog(message: "error: \(String(describing: playerItem.error))")
         self.reset()
         completerError?()
       default:
