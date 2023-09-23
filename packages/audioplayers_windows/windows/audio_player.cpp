@@ -81,6 +81,7 @@ void AudioPlayer::SetSourceUrl(std::string url) {
 }
 
 void AudioPlayer::SetSourceBytes(std::vector<uint8_t> bytes) {
+  _isInitialized = false;
   _url.clear();
   size_t size = bytes.size();
 
