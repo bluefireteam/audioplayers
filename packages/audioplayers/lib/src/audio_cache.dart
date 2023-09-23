@@ -125,7 +125,8 @@ class AudioCache {
       throw 'This method cannot be used on web!';
     }
     final uri = await load(fileName);
-    return fileSystem.file(uri.toFilePath(windows: false));
+    return fileSystem.file(uri.toFilePath(
+        windows: defaultTargetPlatform == TargetPlatform.windows));
   }
 
   /// Loads a single [fileName] to the cache but returns it as a list of bytes.
