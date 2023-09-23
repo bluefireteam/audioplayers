@@ -13,7 +13,7 @@ class WrappedMediaPlayer {
   var looping: Bool
 
   private var reference: SwiftAudioplayersDarwinPlugin
-  private var player: AVPlayer?
+  private var player: AVPlayer
   private var playbackRate: Double
   private var volume: Double
   private var url: String?
@@ -32,7 +32,7 @@ class WrappedMediaPlayer {
   ) {
     self.reference = reference
     self.eventHandler = eventHandler
-    self.player = player
+    self.player = player ?? AVPlayer.init()
     self.observers = []
     self.playerItemStatusObservation = nil
 
@@ -55,10 +55,12 @@ class WrappedMediaPlayer {
       reset()
       self.url = url
       let playerItem = createPlayerItem(url, isLocal)
+      // Need to observe item status immediately after creating:
       setUpPlayerItemStatusObservation(playerItem, completer, completerError)
-      let player = updatePlayer(playerItem) ?? createPlayer(playerItem)
+      let player = updatePlayer(playerItem)
       setUpPositionObserver(player)
       setUpSoundCompletedObserver(player, playerItem)
+      self.player = player
     } else {
       if playbackStatus == .readyToPlay {
         completer?()
@@ -158,13 +160,6 @@ class WrappedMediaPlayer {
     let playerItem = AVPlayerItem.init(url: parsedUrl)
     playerItem.audioTimePitchAlgorithm = AVAudioTimePitchAlgorithm.timeDomain
     return playerItem
-  }
-
-  private func createPlayer(_ playerItem: AVPlayerItem) -> AVPlayer {
-    let player = AVPlayer.init(playerItem: playerItem)
-    configParameters(player: player)
-    self.player = player
-    return player
   }
 
   private func updatePlayer(_ playerItem: AVPlayerItem) -> AVPlayer? {
