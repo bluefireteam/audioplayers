@@ -179,13 +179,13 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
 
     std::thread(&AudioPlayer::SetSourceUrl, player, url).detach();
   } else if (method_call.method_name().compare("setSourceBytes") == 0) {
-    auto data = GetArgument<std::vector<uint8_t>>("bytes", args, std::vector<uint8_t>{});
-    
+    auto data = GetArgument<std::vector<uint8_t>>("bytes", args,
+                                                  std::vector<uint8_t>{});
+
     if (data.empty()) {
-        result->Error(
-            "WindowsAudioError", "Null bytes received on setSourceBytes",
-            nullptr);
-        return;
+      result->Error("WindowsAudioError",
+                    "Null bytes received on setSourceBytes", nullptr);
+      return;
     }
 
     std::thread(&AudioPlayer::SetSourceBytes, player, data).detach();
