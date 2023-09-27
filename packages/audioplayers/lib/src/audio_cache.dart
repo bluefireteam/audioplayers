@@ -120,8 +120,10 @@ class AudioCache {
   ///
   /// Returns a decoded [String] to access that file.
   Future<String> loadPath(String fileName) async {
-    // iOS needs a decoded url for local files.
-    return Uri.decodeFull((await load(fileName)).path);
+    final encodedPath = (await load(fileName)).path;
+    // Web needs an url encoded path.
+    // Darwin needs a decoded path for local files.
+    return kIsWeb ? encodedPath : Uri.decodeFull(encodedPath);
   }
 
   /// Loads a single [fileName] to the cache but returns it as a File.
