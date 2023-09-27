@@ -151,10 +151,19 @@ class WrappedPlayer {
     );
     _playerErrorSubscription = p.onError.listen(
       (_) {
+        final errMsg = p.error?.message ?? '';
+        String platformMsg;
+        if (errMsg.startsWith('DEMUXER_ERROR_COULD_NOT_OPEN')) {
+          platformMsg = 'Failed to set source. For troubleshooting, see '
+              'https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md';
+        } else {
+          platformMsg = 'Unknown web error. See details.';
+        }
         eventStreamController.addError(
           PlatformException(
-            code: p.error?.code.toString() ?? 'WebAudioError',
-            message: p.error?.message,
+            code: 'WebAudioError',
+            message: platformMsg,
+            details: '$errMsg (Code: ${p.error?.code})',
           ),
         );
       },
