@@ -60,7 +60,9 @@ void main() async {
       await tester.pumpLinux();
       await player.dispose();
     },
-    skip: isIOS || isMacOS, // Darwin does not support files without extension
+    // Darwin does not support files without extension unless its specified
+    // #803, https://stackoverflow.com/a/54087143/5164462
+    skip: isIOS || isMacOS,
   );
 
   group('play multiple sources', () {
