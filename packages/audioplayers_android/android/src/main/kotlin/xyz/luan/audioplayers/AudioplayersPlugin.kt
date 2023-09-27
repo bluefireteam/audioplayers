@@ -19,6 +19,7 @@ import xyz.luan.audioplayers.player.SoundPoolManager
 import xyz.luan.audioplayers.player.WrappedPlayer
 import xyz.luan.audioplayers.source.BytesSource
 import xyz.luan.audioplayers.source.UrlSource
+import java.io.FileNotFoundException
 import java.lang.ref.WeakReference
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
@@ -122,7 +123,17 @@ class AudioplayersPlugin : FlutterPlugin, IUpdateCallback {
                 "setSourceUrl" -> {
                     val url = call.argument<String>("url") ?: error("url is required")
                     val isLocal = call.argument<Boolean>("isLocal") ?: false
-                    player.source = UrlSource(url, isLocal)
+                    try {
+                        player.source = UrlSource(url, isLocal)
+                    } catch (e: FileNotFoundException) {
+                        response.error(
+                            "AndroidAudioError",
+                            "Failed to set source. For troubleshooting, see: " +
+                                "https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md",
+                            e,
+                        )
+                        return
+                    }
                 }
 
                 "setSourceBytes" -> {
