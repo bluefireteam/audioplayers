@@ -12,6 +12,7 @@ void main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   final features = PlatformFeatures.instance();
   final isAndroid = !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+  final isIOS = !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
   final audioTestDataList = await getAudioTestDataList();
 
   testWidgets('test asset source with special char',
@@ -42,6 +43,24 @@ void main() async {
     await tester.pumpLinux();
     await player.dispose();
   });
+
+  testWidgets(
+    'test url source with no extension',
+    (WidgetTester tester) async {
+      final player = AudioPlayer();
+
+      await tester.pumpLinux();
+      await player.play(noExtensionAssetTestData.source);
+      await tester.pumpAndSettle();
+      // Sources take some time to get initialized
+      await tester.pump(const Duration(seconds: 8));
+      await player.stop();
+
+      await tester.pumpLinux();
+      await player.dispose();
+    },
+    skip: isIOS, // iOS does not support files without extension
+  );
 
   group('play multiple sources', () {
     testWidgets(

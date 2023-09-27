@@ -67,6 +67,11 @@ final specialCharAssetTestData = LibSourceTestData(
   duration: const Duration(milliseconds: 451),
 );
 
+final noExtensionAssetTestData = LibSourceTestData(
+  source: AssetSource(noExtensionAsset),
+  duration: const Duration(milliseconds: 451),
+);
+
 final nonExistentUrlTestData = LibSourceTestData(
   source: UrlSource('non_existent.txt'),
   duration: null,

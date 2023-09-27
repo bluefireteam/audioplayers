@@ -32,6 +32,7 @@ const wavAsset = 'laser.wav';
 const mp3Asset = 'nasa_on_a_mission.mp3';
 const invalidAsset = 'invalid.txt';
 const specialCharAsset = 'coins_non_ascii_и.wav';
+const noExtensionAsset = 'coins_no_extension';
 
 class SourcesTab extends StatefulWidget {
   final AudioPlayer player;

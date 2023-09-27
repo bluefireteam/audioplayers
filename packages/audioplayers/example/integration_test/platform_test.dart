@@ -36,7 +36,7 @@ void main() async {
     testWidgets(
       'Throw PlatformException, when loading invalid file',
       (tester) async {
-        // try {
+        try {
           // Throws PlatformException via MethodChannel:
           await tester.prepareSource(
             playerId: playerId,
@@ -44,10 +44,9 @@ void main() async {
             testData: invalidAssetTestData,
           );
           fail('PlatformException not thrown');
-        // } on PlatformException catch (e) {
-        //   expect(e.message, startsWith('Failed to set source.'));
-        //   print(e);
-        // }
+        } on PlatformException catch (e) {
+          expect(e.message, startsWith('Failed to set source.'));
+        }
         await tester.pumpLinux();
       },
     );
@@ -55,7 +54,7 @@ void main() async {
     testWidgets(
       'Throw PlatformException, when loading non existent file',
       (tester) async {
-        // try {
+        try {
           // Throws PlatformException via MethodChannel:
           await tester.prepareSource(
             playerId: playerId,
@@ -64,10 +63,9 @@ void main() async {
           );
           fail('PlatformException not thrown');
           // ignore: avoid_catches_without_on_clauses
-        // } on PlatformException catch (e) {
-        //   expect(e.message, startsWith('Failed to set source.'));
-        //   print(e);
-        // }
+        } on PlatformException catch (e) {
+          expect(e.message, startsWith('Failed to set source.'));
+        }
         await tester.pumpLinux();
       },
     );
