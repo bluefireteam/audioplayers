@@ -1,4 +1,5 @@
 import 'package:audioplayers/audioplayers.dart';
+import 'package:audioplayers_example/tabs/sources.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -30,6 +31,26 @@ void main() async {
     await tester.pumpLinux();
     await player.dispose();
   });
+
+  testWidgets(
+    'test device file source with special char',
+    (WidgetTester tester) async {
+      final player = AudioPlayer();
+
+      await tester.pumpLinux();
+      final path = await player.audioCache.loadPath(specialCharAsset);
+      expect(path, isNot(contains('%'))); // Ensure path is not URL encoded
+      await player.play(DeviceFileSource(path));
+      await tester.pumpAndSettle();
+      // Sources take some time to get initialized
+      await tester.pump(const Duration(seconds: 8));
+      await player.stop();
+
+      await tester.pumpLinux();
+      await player.dispose();
+    },
+    skip: kIsWeb,
+  );
 
   testWidgets('test url source with special char', (WidgetTester tester) async {
     final player = AudioPlayer();
