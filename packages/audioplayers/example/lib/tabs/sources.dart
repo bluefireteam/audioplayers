@@ -18,6 +18,7 @@ final host = useLocalServer ? 'http://$localhost:8080' : 'https://luan.xyz';
 
 final wavUrl1 = '$host/files/audio/coins.wav';
 final wavUrl2 = '$host/files/audio/laser.wav';
+final wavUrl3 = '$host/files/audio/coins_non_ascii_и.wav';
 final mp3Url1 = '$host/files/audio/ambient_c_motion.mp3';
 final mp3Url2 = '$host/files/audio/nasa_on_a_mission.mp3';
 final m3u8StreamUrl = useLocalServer
@@ -30,6 +31,7 @@ final mpgaStreamUrl = useLocalServer
 const wavAsset = 'laser.wav';
 const mp3Asset = 'nasa_on_a_mission.mp3';
 const invalidAsset = 'invalid.txt';
+const specialCharAsset = 'coins_non_ascii_и.wav';
 
 class SourcesTab extends StatefulWidget {
   final AudioPlayer player;

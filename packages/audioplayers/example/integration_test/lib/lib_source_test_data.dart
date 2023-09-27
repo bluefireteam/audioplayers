@@ -31,6 +31,11 @@ final wavUrl1TestData = LibSourceTestData(
   duration: const Duration(milliseconds: 451),
 );
 
+final specialCharUrlTestData = LibSourceTestData(
+  source: UrlSource(wavUrl3),
+  duration: const Duration(milliseconds: 451),
+);
+
 final mp3Url1TestData = LibSourceTestData(
   source: UrlSource(mp3Url1),
   duration: const Duration(minutes: 3, seconds: 30, milliseconds: 77),
@@ -55,6 +60,11 @@ final wavAssetTestData = LibSourceTestData(
 final invalidAssetTestData = LibSourceTestData(
   source: AssetSource(invalidAsset),
   duration: null,
+);
+
+final specialCharAssetTestData = LibSourceTestData(
+  source: AssetSource(specialCharAsset),
+  duration: const Duration(milliseconds: 451),
 );
 
 final nonExistentUrlTestData = LibSourceTestData(

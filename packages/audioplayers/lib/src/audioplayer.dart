@@ -349,10 +349,10 @@ class AudioPlayer {
   /// this method.
   Future<void> setSourceAsset(String path) async {
     _source = AssetSource(path);
-    final url = await audioCache.load(path);
+    final cachePath = await audioCache.loadPath(path);
     await creatingCompleter.future;
     await _completePrepared(
-      () => _platform.setSourceUrl(playerId, url.path, isLocal: true),
+      () => _platform.setSourceUrl(playerId, cachePath, isLocal: true),
     );
   }
 

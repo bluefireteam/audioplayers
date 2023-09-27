@@ -540,8 +540,8 @@ extension on WidgetTester {
     if (source is UrlSource) {
       await platform.setSourceUrl(playerId, source.url);
     } else if (source is AssetSource) {
-      final url = await AudioCache.instance.load(source.path);
-      await platform.setSourceUrl(playerId, url.path, isLocal: true);
+      final cachePath = await AudioCache.instance.loadPath(source.path);
+      await platform.setSourceUrl(playerId, cachePath, isLocal: true);
     } else if (source is BytesSource) {
       await platform.setSourceBytes(playerId, source.bytes);
     }

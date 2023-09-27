@@ -14,6 +14,35 @@ void main() async {
   final isAndroid = !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
   final audioTestDataList = await getAudioTestDataList();
 
+  testWidgets('test asset source with special char',
+      (WidgetTester tester) async {
+    final player = AudioPlayer();
+
+    await tester.pumpLinux();
+    await player.play(specialCharAssetTestData.source);
+    await tester.pumpAndSettle();
+    // Sources take some time to get initialized
+    await tester.pump(const Duration(seconds: 8));
+    await player.stop();
+
+    await tester.pumpLinux();
+    await player.dispose();
+  });
+
+  testWidgets('test url source with special char', (WidgetTester tester) async {
+    final player = AudioPlayer();
+
+    await tester.pumpLinux();
+    await player.play(specialCharUrlTestData.source);
+    await tester.pumpAndSettle();
+    // Sources take some time to get initialized
+    await tester.pump(const Duration(seconds: 8));
+    await player.stop();
+
+    await tester.pumpLinux();
+    await player.dispose();
+  });
+
   group('play multiple sources', () {
     testWidgets(
       'play multiple sources simultaneously',

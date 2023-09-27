@@ -108,12 +108,20 @@ class AudioCache {
 
   /// Loads a single [fileName] to the cache.
   ///
-  /// Also returns a [Future] to access that file.
+  /// Returns a [Uri] to access that file.
   Future<Uri> load(String fileName) async {
     if (!loadedFiles.containsKey(fileName)) {
       loadedFiles[fileName] = await fetchToMemory(fileName);
     }
     return loadedFiles[fileName]!;
+  }
+
+  /// Loads a single [fileName] to the cache.
+  ///
+  /// Returns a decoded [String] to access that file.
+  Future<String> loadPath(String fileName) async {
+    // iOS needs a decoded url for local files.
+    return Uri.decodeFull((await load(fileName)).path);
   }
 
   /// Loads a single [fileName] to the cache but returns it as a File.
