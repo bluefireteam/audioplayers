@@ -1,6 +1,8 @@
 //ignore_for_file: avoid_redundant_argument_values
 
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
+import 'package:audioplayers_platform_interface/src/api/audio_context_config.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -24,6 +26,74 @@ void main() {
           options: const {},
         ),
       ),
+    );
+  });
+
+  test('Check AudioContextConfig assertions', () async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+    const boolValues = {true, false};
+    const routeValues = AudioContextConfigRoute.values;
+
+    final throwsAssertion = [];
+    for (final isDuckAudio in boolValues) {
+      for (final isRespectSilence in boolValues) {
+        for (final isStayAwake in boolValues) {
+          for (final route in routeValues) {
+            final config = AudioContextConfig(
+              duckAudio: isDuckAudio,
+              respectSilence: isRespectSilence,
+              stayAwake: isStayAwake,
+              route: route,
+            );
+            try {
+              config.build();
+              throwsAssertion.add(false);
+            } on AssertionError catch (e) {
+              if (e.message
+                  .toString()
+                  .startsWith('Invalid AudioContextConfig')) {
+                throwsAssertion.add(true);
+              } else {
+                fail(
+                  'Assertion of $config does not match the expected '
+                  'description. See: $e',
+                );
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Ensure assertions keep thrown on the correct cases.
+    expect(
+      throwsAssertion,
+      const [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+      ],
     );
   });
 
