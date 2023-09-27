@@ -326,7 +326,7 @@ class WrappedPlayer internal constructor(
         if(extraMsg == "MEDIA_ERROR_SYSTEM") {
             handleError("AndroidAudioError",
                 "Failed to set source. For troubleshooting, see: " +
-                "https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md.",
+                "https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md",
                 "$whatMsg, $extraMsg")
         } else {
             handleError("AndroidAudioError", whatMsg, extraMsg)

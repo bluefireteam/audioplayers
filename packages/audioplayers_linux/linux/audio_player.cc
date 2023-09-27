@@ -1,6 +1,7 @@
 #include "audio_player.h"
-
 #include <flutter_linux/flutter_linux.h>
+#define STR_LINK_TROUBLESHOOTING \
+  "https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md"
 
 AudioPlayer::AudioPlayer(std::string playerId,
                          FlMethodChannel* methodChannel,
@@ -155,18 +156,17 @@ gboolean AudioPlayer::OnRefresh(AudioPlayer* data) {
 
 void AudioPlayer::OnMediaError(GError* error, gchar* debug) {
   if (this->_eventChannel) {
-    gchar* code;
-    gchar* message;
-    FlValue* details;
-    if(code == 4) {
-        code = "LinuxAudioError"
-        message = "Failed to set source. For troubleshooting, see: "
-                  "https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md.";
-        details = fl_value_new_string(error->message);
+    gchar const* code = "LinuxAudioError";
+    gchar const* message;
+    auto detailsStr = std::string(error->message) +
+                      " (Code: " + std::to_string(error->code) + ")";
+    FlValue* details = fl_value_new_string(detailsStr.c_str());
+    if (error->code == 4) {
+      message =
+          "Failed to set source. For troubleshooting, "
+          "see: " STR_LINK_TROUBLESHOOTING;
     } else {
-        code = std::to_string(error->code).c_str();
-        message = error->message;
-        details = nullptr;
+      message = "Unknown MediaError";
     }
     this->OnError(code, message, details, &error);
   }
@@ -197,21 +197,20 @@ void AudioPlayer::OnMediaStateChange(GstObject* src,
   }
 
   if (src == GST_OBJECT(playbin)) {
-    if (*new_state == GST_STATE_READY) {                        
+    if (*new_state == GST_STATE_READY) {
       // Need to set to pause state, in order to make player functional
       GstStateChangeReturn ret =
           gst_element_set_state(playbin, GST_STATE_PAUSED);
       if (ret == GST_STATE_CHANGE_FAILURE) {
-        gchar* errorDescription = "Unable to set the pipeline from GST_STATE_READY to "
-                                  "GST_STATE_PAUSED.";
+        gchar const* errorDescription =
+            "Unable to set the pipeline from GST_STATE_READY to "
+            "GST_STATE_PAUSED.";
         if (this->_isInitialized) {
-          this->OnError("LinuxAudioError",
-                        errorDescription,
-                        nullptr, nullptr);
+          this->OnError("LinuxAudioError", errorDescription, nullptr, nullptr);
         } else {
           this->OnError("LinuxAudioError",
-                        "Failed to set source. For troubleshooting, see: "
-                        "https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md.",
+                        "Failed to set source. For troubleshooting, "
+                        "see: " STR_LINK_TROUBLESHOOTING,
                         fl_value_new_string(errorDescription), nullptr);
         }
       }
