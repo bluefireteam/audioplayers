@@ -87,9 +87,9 @@ There is a required configuration to enable audio do be playing on the backgroun
 
 Or on XCode you can add it as a capability; more details [here](https://developer.apple.com/documentation/avfoundation/media_assets_playback_and_editing/creating_a_basic_video_player_ios_and_tvos/enabling_background_audio).
 
-### [iOS] Urls or Paths without a file extension
+### [iOS, macOS] Urls or Paths without a file extension
 
-The player of iOS (`AVPlayer`) only accepts to play files with an extension (like `.mp3` or `.wav`). Make sure these are available (see #803).
+The player of iOS and macOS (`AVPlayer` on Darwin) only accepts to play files with an extension (like `.mp3` or `.wav`). Make sure these are available (see #803).
 
 ### Gapless Looping
 

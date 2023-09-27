@@ -13,6 +13,7 @@ void main() async {
   final features = PlatformFeatures.instance();
   final isAndroid = !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
   final isIOS = !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
+  final isMacOS = !kIsWeb && defaultTargetPlatform == TargetPlatform.macOS;
   final audioTestDataList = await getAudioTestDataList();
 
   testWidgets('test asset source with special char',
@@ -59,7 +60,7 @@ void main() async {
       await tester.pumpLinux();
       await player.dispose();
     },
-    skip: isIOS, // iOS does not support files without extension
+    skip: isIOS || isMacOS, // Darwin does not support files without extension
   );
 
   group('play multiple sources', () {
