@@ -59,9 +59,14 @@ class WrappedMediaPlayer {
       self.url = url
       let playerItem = createPlayerItem(url, isLocal)
       // Need to observe item status immediately after creating:
-      setUpPlayerItemStatusObservation(playerItem, completer, completerError)
-      player.replaceCurrentItem(with: playerItem)
-      setUpSoundCompletedObserver(self.player, playerItem)
+      setUpPlayerItemStatusObservation(
+        playerItem,
+        completer: {
+          player.replaceCurrentItem(with: playerItem)
+          setUpSoundCompletedObserver(self.player, playerItem)
+          completer?()
+        },
+        completerError)
     } else {
       if playbackStatus == .readyToPlay {
         completer?()
