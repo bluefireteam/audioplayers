@@ -70,17 +70,20 @@ void AudioPlayer::SetSourceUrl(std::string url) {
           &objectType, reinterpret_cast<IUnknown**>(mediaSource.put_void())));
 
       m_mediaEngineWrapper->SetMediaSource(mediaSource.get());
-    } catch(const std::exception &ex) {    
+    } catch (const std::exception& ex) {
       this->OnError("WindowsAudioError",
                     "Failed to set source. For troubleshooting, see: "
-                    "https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md",
+                    "https://github.com/bluefireteam/audioplayers/blob/main/"
+                    "troubleshooting.md",
                     flutter::EncodableValue(ex.what()));
     } catch (...) {
       // Forward errors to event stream, as this is called asynchronously
       this->OnError("WindowsAudioError",
                     "Failed to set source. For troubleshooting, see: "
-                    "https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md",
-                    flutter::EncodableValue("Unknown Error setting url to '" + url + "'."));
+                    "https://github.com/bluefireteam/audioplayers/blob/main/"
+                    "troubleshooting.md",
+                    flutter::EncodableValue("Unknown Error setting url to '" +
+                                            url + "'."));
     }
   } else {
     OnPrepared(true);
