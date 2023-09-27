@@ -323,6 +323,12 @@ class AudioPlayer {
   /// The resources will start being fetched or buffered as soon as you call
   /// this method.
   Future<void> setSourceUrl(String url) async {
+    // Encode url to avoid unexpected failures.
+    try {
+      // Try decoding first to avoid encoding twice:
+      url = Uri.decodeFull(url);
+    } on ArgumentError catch (_) {}
+    url = Uri.encodeFull(url);
     _source = UrlSource(url);
     await creatingCompleter.future;
     await _completePrepared(
