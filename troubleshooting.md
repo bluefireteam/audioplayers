@@ -89,7 +89,7 @@ Or on XCode you can add it as a capability; more details [here](https://develope
 
 ### [iOS, macOS] Urls or Paths without a file extension
 
-At the moment player of iOS and macOS (`AVPlayer` on Darwin) only accepts to play files with an extension (like `.mp3` or `.wav`). Make sure these are available or help us fix the issue #803.
+At the moment, the player of iOS and macOS (`AVPlayer` on Darwin) only accepts to play files with an extension (like `.mp3` or `.wav`). Make sure these are available or help us fix the issue #803.
 
 ### Gapless Looping
 
