@@ -1,6 +1,13 @@
+# Troubleshooting
+
 This file describes some common pitfalls and how to solve them. Please always refer to this before opening an issue.
 
-## Supported Formats / Encodings
+Also, you can compare your app with our [example code](https://github.com/bluefireteam/audioplayers/tree/main/packages/audioplayers/example) or try to reproduce your issue there.
+For that check out our [Contributing Guide](https://github.com/bluefireteam/audioplayers/blob/main/contributing.md), if you want to debug the app locally.
+
+## Runtime Issues
+
+### Supported Formats / Encodings
 
 Not all formats are supported by all platforms. Essentially `audioplayers` is just centralized interface that communicate with native audio players on each platform. We are not parsing the bytes of your song. Each platform has its own native support. Please do not open issues regarding encoding/file format compatibility unless it is an AudioPlayers specific issue.
 
@@ -13,7 +20,9 @@ You can check a list of supported formats below:
 - [Windows](https://learn.microsoft.com/en-us/windows/win32/medfound/supported-media-formats-in-media-foundation)
 - Linux: List of defined [audio types](https://gstreamer.freedesktop.org/documentation/plugin-development/advanced/media-types.html?gi-language=c#table-of-audio-types) and their according [Plugins](https://gstreamer.freedesktop.org/documentation/plugins_doc.html?gi-language=c)
 
-## Unsafe HTTP when playing remote URLs
+### Issues with remote URLs
+
+#### Unsafe HTTP
 
 It is very common for mobile platforms to forbid non-HTTPS traffic due to it's lack of encryption and severe security deficiency. However, there are ways to bypass this protection.
 
@@ -43,17 +52,61 @@ On Android, add `android:usesCleartextTraffic="true"` to your `AndroidManifest.x
 </manifest>
 ```
 
-## Asset not found when playing local assets
+### [Web] CORS Policy
 
-Flutter requires that assets are specified on your `pubspec.yaml` file, under `flutter > assets`; check [this](https://github.com/luanpotter/bgug/blob/master/pubspec.yaml#L89) for an example.
+To be able to play your own resources on Web you need to make sure your server has CORS support enabled or [temporarily disable](https://stackoverflow.com/a/74783428/5164462) the security feature in your browser.
 
-**Note**: when playing local assets, by default every instance of AudioPlayers uses a [shared global instance of AudioCache](https://github.com/bluefireteam/audioplayers/blob/main/packages/audioplayers/lib/src/audioplayer.dart#L24), that will have a [default prefix "/assets"](https://github.com/bluefireteam/audioplayers/blob/main/packages/audioplayers/lib/src/audio_cache.dart#L41) configured, as per Flutter conventions. However you can easily changing that by specifying your own instance of AudioCache with any other (or no) prefix.
+#### Audio Streams
 
-## Other errors when playing remote URLs
+One of the know reasons for streams not playing is that the stream is being gziped by the server, as described [here](https://github.com/bluefireteam/audioplayers/issues/183).
 
-The remote URL must be accessible and not be a redirect. If it's not an audio file, it does a redirect, it requires some headers, cookies or authentication, it will not work. Please bundle the file on the app or host it somewhere that properly provides the file. If you are having issues with playing audio from an URL, please first download the file and try running it locally. If the issue persists, then open the issue, including the file so we can test. Otherwise, it's an issue with your URL, not audioplayers.
+#### Redirections, Authentication & Local Confirmation
 
-## Build issues
+The remote URL must be accessible and not be a redirect. If it's not an audio file, it does a redirect, it requires some headers, cookies or authentication, it will not work.
+Please bundle the file on the app or host it somewhere that properly provides the file.
+If you are having issues with playing audio from an URL, please first download the file and try running it locally.
+If the issue persists, then open the issue, including the file so we can test. Otherwise, it's an issue with your URL, not audioplayers.
+
+### Issues with local Assets and AudioCache
+
+Flutter requires that assets are specified on your `pubspec.yaml` file, under `flutter > assets`; check [this](https://github.com/bluefireteam/audioplayers/blob/main/packages/audioplayers/example/pubspec.yaml#L29) for an example.
+
+**Note**: when playing local assets, by default every instance of AudioPlayers uses a [shared global instance of AudioCache](https://github.com/bluefireteam/audioplayers/blob/main/packages/audioplayers/lib/src/audioplayer.dart#L24), that will have a [default prefix "/assets"](https://github.com/bluefireteam/audioplayers/blob/main/packages/audioplayers/lib/src/audio_cache.dart#L41) configured, as per Flutter conventions.
+However you can easily change that by specifying your own instance of AudioCache with any other (or no) prefix.
+
+### [iOS] Background Audio
+
+There is a required configuration to enable audio do be playing on the background; add the following lines to your `info.plist`:
+
+ ```
+  <key>UIBackgroundModes</key>
+  <array>
+  	<string>audio</string>
+  </array>
+```
+
+Or on XCode you can add it as a capability; more details [here](https://developer.apple.com/documentation/avfoundation/media_assets_playback_and_editing/creating_a_basic_video_player_ios_and_tvos/enabling_background_audio).
+
+### [iOS, macOS] Urls or Paths without a file extension
+
+At the moment, the player of iOS and macOS (`AVPlayer` on Darwin) only accepts to play files with an extension (like `.mp3` or `.wav`). Make sure these are available or help us fix the issue #803.
+
+### Gapless Looping
+
+Depending on the file format and platform, when audioplayers uses the native implementation of the "looping" feature, there will be gaps between plays, which might not be noticeable for non-continuous SFX but will definitely be noticeable for looping songs.
+
+TODO(luan): break down alternatives here, low latency mode, audio pool, gapless_audioplayer, ocarina, etc.
+
+### [macOS] Outgoing Connections
+
+By default, macOS apps don't allow outgoing connections; so playing audio files/streams from the internet won't work. To fix this, add the following to the `.entitlements` files for your app:
+
+```xml
+<key>com.apple.security.network.client</key>
+<true/>
+```
+
+## Build Issues
 
 **Warning**: If you are having any sort of build issues, you must read this first.
 
@@ -80,35 +133,3 @@ Some platforms need additional requirements to be fulfilled:
 
 * [Linux](packages/audioplayers_linux/README.md#setup-for-linux) (`audioplayers_linux`).
 * [Windows](packages/audioplayers_windows/README.md#setup-for-windows) (`audioplayers_windows`).
-
-## [iOS] Background Audio
-
-There is a required configuration to enable audio do be playing on the background; add the following lines to your `info.plist`:
-
- ```
-  <key>UIBackgroundModes</key>
-  <array>
-  	<string>audio</string>
-  </array>
-```
-
-Or on XCode you can add it as a capability; more details [here](https://developer.apple.com/documentation/avfoundation/media_assets_playback_and_editing/creating_a_basic_video_player_ios_and_tvos/enabling_background_audio).
-
-## Audio Stream Issues
-
-One of the know reasons for streams not playing is that the stream is being gziped by the server, as described [here](https://github.com/bluefireteam/audioplayers/issues/183).
-
-## Gapless Looping
-
-Depending on the file format and platform, when audioplayers uses the native implementation of the "looping" feature, there will be gaps between plays, which might not be noticeable for non-continuous SFX but will definitely be noticeable for looping songs.
-
-TODO(luan): break down alternatives here, low latency mode, audio pool, gapless_audioplayer, ocarina, etc
-
-## [macOS] Outgoing Connections
-
-By default, macOS apps don't allow outgoing connections; so playing audio files/streams from the internet won't work. To fix this, add the following to the `.entitlements` files for your app:
-
-```xml
-<key>com.apple.security.network.client</key>
-<true/>
-```

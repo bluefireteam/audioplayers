@@ -57,11 +57,19 @@ class WrappedMediaPlayer {
     if self.url != url || playbackStatus == .failed || playbackStatus == nil {
       reset()
       self.url = url
-      let playerItem = createPlayerItem(url, isLocal)
-      // Need to observe item status immediately after creating:
-      setUpPlayerItemStatusObservation(playerItem, completer, completerError)
-      player.replaceCurrentItem(with: playerItem)
-      setUpSoundCompletedObserver(self.player, playerItem)
+      do {
+        let playerItem = try createPlayerItem(url, isLocal)
+        // Need to observe item status immediately after creating:
+        setUpPlayerItemStatusObservation(
+          playerItem,
+          completer: completer,
+          completerError: completerError)
+        // Replacing the player item triggers completion in setUpPlayerItemStatusObservation
+        self.player.replaceCurrentItem(with: playerItem)
+        self.setUpSoundCompletedObserver(self.player, playerItem)
+      } catch {
+        completerError?()
+      }
     } else {
       if playbackStatus == .readyToPlay {
         completer?()
@@ -154,16 +162,22 @@ class WrappedMediaPlayer {
     return player.currentItem?.currentTime()
   }
 
-  private func createPlayerItem(_ url: String, _ isLocal: Bool) -> AVPlayerItem {
-    let parsedUrl =
-      isLocal ? URL.init(fileURLWithPath: url.deletingPrefix("file://")) : URL.init(string: url)!
-    let playerItem = AVPlayerItem.init(url: parsedUrl)
-    playerItem.audioTimePitchAlgorithm = AVAudioTimePitchAlgorithm.timeDomain
-    return playerItem
+  private func createPlayerItem(_ url: String, _ isLocal: Bool) throws -> AVPlayerItem {
+    let tmpParsedUrl =
+      isLocal ? URL.init(fileURLWithPath: url.deletingPrefix("file://")) : URL.init(string: url)
+    if let parsedUrl = tmpParsedUrl {
+      let playerItem = AVPlayerItem.init(url: parsedUrl)
+      playerItem.audioTimePitchAlgorithm = AVAudioTimePitchAlgorithm.timeDomain
+      return playerItem
+    } else {
+      throw AudioPlayerError.error("Url not valid: \(url)")
+    }
   }
 
   private func setUpPlayerItemStatusObservation(
-    _ playerItem: AVPlayerItem, _ completer: Completer?, _ completerError: CompleterError?
+    _ playerItem: AVPlayerItem,
+    completer: Completer? = nil,
+    completerError: CompleterError? = nil
   ) {
     playerItemStatusObservation = playerItem.observe(\AVPlayerItem.status) { (playerItem, change) in
       let status = playerItem.status
