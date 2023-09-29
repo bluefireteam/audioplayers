@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:audioplayers/src/uri_ext.dart';
 import 'package:file/file.dart';
 import 'package:file/local.dart';
 import 'package:flutter/foundation.dart';
@@ -21,7 +22,7 @@ import 'package:path_provider/path_provider.dart';
 /// For most normal uses, the static instance is used. But if you want to
 /// control multiple caches, you can create your own instances.
 class AudioCache {
-  /// A globlally accessible instance used by default by all players.
+  /// A globally accessible instance used by default by all players.
   static AudioCache instance = AudioCache();
 
   @visibleForTesting
@@ -102,18 +103,33 @@ class AudioCache {
       return tryAbsolute!;
     }
 
-    // local asset
-    return Uri.parse('assets/$prefix$fileName');
+    // Relative Asset path
+    // URL-encode twice, see:
+    // https://github.com/flutter/engine/blob/2d39e672c95efc6c539d9b48b2cccc65df290cc4/lib/web_ui/lib/ui_web/src/ui_web/asset_manager.dart#L61
+    // Parsing an already encoded string to an Uri does not encode it a second
+    // time, so we have to do it manually:
+    final encoded = UriCoder.encodeOnce(fileName);
+    return Uri.parse(Uri.encodeFull('assets/$prefix$encoded'));
   }
 
   /// Loads a single [fileName] to the cache.
   ///
-  /// Also returns a [Future] to access that file.
+  /// Returns a [Uri] to access that file.
   Future<Uri> load(String fileName) async {
     if (!loadedFiles.containsKey(fileName)) {
       loadedFiles[fileName] = await fetchToMemory(fileName);
     }
     return loadedFiles[fileName]!;
+  }
+
+  /// Loads a single [fileName] to the cache.
+  ///
+  /// Returns a decoded [String] to access that file.
+  Future<String> loadPath(String fileName) async {
+    final encodedPath = (await load(fileName)).path;
+    // Web needs an url double-encoded path.
+    // Darwin needs a decoded path for local files.
+    return kIsWeb ? encodedPath : Uri.decodeFull(encodedPath);
   }
 
   /// Loads a single [fileName] to the cache but returns it as a File.
@@ -125,8 +141,9 @@ class AudioCache {
       throw 'This method cannot be used on web!';
     }
     final uri = await load(fileName);
-    return fileSystem.file(uri.toFilePath(
-        windows: defaultTargetPlatform == TargetPlatform.windows));
+    return fileSystem.file(
+      uri.toFilePath(windows: defaultTargetPlatform == TargetPlatform.windows),
+    );
   }
 
   /// Loads a single [fileName] to the cache but returns it as a list of bytes.

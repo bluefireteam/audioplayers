@@ -12,6 +12,8 @@
 
 #include "audioplayers_helpers.h"
 
+#define STR_LINK_TROUBLESHOOTING \
+  "https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md"
 #undef GetCurrentTime
 
 using namespace winrt;
@@ -70,10 +72,18 @@ void AudioPlayer::SetSourceUrl(std::string url) {
           &objectType, reinterpret_cast<IUnknown**>(mediaSource.put_void())));
 
       m_mediaEngineWrapper->SetMediaSource(mediaSource.get());
+    } catch (const std::exception& ex) {
+      this->OnError("WindowsAudioError",
+                    "Failed to set source. For troubleshooting, "
+                    "see: " STR_LINK_TROUBLESHOOTING,
+                    flutter::EncodableValue(ex.what()));
     } catch (...) {
       // Forward errors to event stream, as this is called asynchronously
-      this->OnError("WindowsAudioError", "Error setting url to '" + url + "'.",
-                    nullptr);
+      this->OnError("WindowsAudioError",
+                    "Failed to set source. For troubleshooting, "
+                    "see: " STR_LINK_TROUBLESHOOTING,
+                    flutter::EncodableValue("Unknown Error setting url to '" +
+                                            url + "'."));
     }
   } else {
     OnPrepared(true);

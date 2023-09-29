@@ -44,9 +44,8 @@ void main() async {
             testData: invalidAssetTestData,
           );
           fail('PlatformException not thrown');
-          // ignore: avoid_catches_without_on_clauses
-        } catch (e) {
-          expect(e, isInstanceOf<PlatformException>());
+        } on PlatformException catch (e) {
+          expect(e.message, startsWith('Failed to set source.'));
         }
         await tester.pumpLinux();
       },
@@ -64,8 +63,8 @@ void main() async {
           );
           fail('PlatformException not thrown');
           // ignore: avoid_catches_without_on_clauses
-        } catch (e) {
-          expect(e, isInstanceOf<PlatformException>());
+        } on PlatformException catch (e) {
+          expect(e.message, startsWith('Failed to set source.'));
         }
         await tester.pumpLinux();
       },
@@ -539,8 +538,8 @@ extension on WidgetTester {
     if (source is UrlSource) {
       await platform.setSourceUrl(playerId, source.url);
     } else if (source is AssetSource) {
-      final url = await AudioCache.instance.load(source.path);
-      await platform.setSourceUrl(playerId, url.path, isLocal: true);
+      final cachePath = await AudioCache.instance.loadPath(source.path);
+      await platform.setSourceUrl(playerId, cachePath, isLocal: true);
     } else if (source is BytesSource) {
       await platform.setSourceBytes(playerId, source.bytes);
     }
