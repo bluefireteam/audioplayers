@@ -158,15 +158,17 @@ void AudioPlayer::OnMediaError(GError* error, gchar* debug) {
   if (this->_eventChannel) {
     gchar const* code = "LinuxAudioError";
     gchar const* message;
-    auto detailsStr = std::string(error->message) +
-                      " (Code: " + std::to_string(error->code) + ")";
+    auto detailsStr = std::string(error->message) + " (Domain: " +
+                      std::string(g_quark_to_string(error->domain)) +
+                      ", Code: " + std::to_string(error->code) + ")";
     FlValue* details = fl_value_new_string(detailsStr.c_str());
-    if (error->code == 4) {
+    // https://gstreamer.freedesktop.org/documentation/gstreamer/gsterror.html#enumerations
+    if (error->domain == GST_STREAM_ERROR) {
       message =
           "Failed to set source. For troubleshooting, "
           "see: " STR_LINK_TROUBLESHOOTING;
     } else {
-      message = "Unknown MediaError";
+      message = "Unknown GstGError. See details.";
     }
     this->OnError(code, message, details, &error);
   }
