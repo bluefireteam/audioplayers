@@ -1,6 +1,5 @@
-import 'dart:io';
-
 import 'package:audioplayers/audioplayers.dart';
+import 'package:audioplayers_example/tabs/sources.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -13,8 +12,79 @@ import 'test_utils.dart';
 void main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   final features = PlatformFeatures.instance();
-  final isAndroid = !kIsWeb && Platform.isAndroid;
+  final isAndroid = !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+  final isIOS = !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
+  final isMacOS = !kIsWeb && defaultTargetPlatform == TargetPlatform.macOS;
   final audioTestDataList = await getAudioTestDataList();
+
+  testWidgets('test asset source with special char',
+      (WidgetTester tester) async {
+    final player = AudioPlayer();
+
+    await tester.pumpLinux();
+    await player.play(specialCharAssetTestData.source);
+    await tester.pumpAndSettle();
+    // Sources take some time to get initialized
+    await tester.pump(const Duration(seconds: 8));
+    await player.stop();
+
+    await tester.pumpLinux();
+    await player.dispose();
+  });
+
+  testWidgets(
+    'test device file source with special char',
+    (WidgetTester tester) async {
+      final player = AudioPlayer();
+
+      await tester.pumpLinux();
+      final path = await player.audioCache.loadPath(specialCharAsset);
+      expect(path, isNot(contains('%'))); // Ensure path is not URL encoded
+      await player.play(DeviceFileSource(path));
+      await tester.pumpAndSettle();
+      // Sources take some time to get initialized
+      await tester.pump(const Duration(seconds: 8));
+      await player.stop();
+
+      await tester.pumpLinux();
+      await player.dispose();
+    },
+    skip: kIsWeb,
+  );
+
+  testWidgets('test url source with special char', (WidgetTester tester) async {
+    final player = AudioPlayer();
+
+    await tester.pumpLinux();
+    await player.play(specialCharUrlTestData.source);
+    await tester.pumpAndSettle();
+    // Sources take some time to get initialized
+    await tester.pump(const Duration(seconds: 8));
+    await player.stop();
+
+    await tester.pumpLinux();
+    await player.dispose();
+  });
+
+  testWidgets(
+    'test url source with no extension',
+    (WidgetTester tester) async {
+      final player = AudioPlayer();
+
+      await tester.pumpLinux();
+      await player.play(noExtensionAssetTestData.source);
+      await tester.pumpAndSettle();
+      // Sources take some time to get initialized
+      await tester.pump(const Duration(seconds: 8));
+      await player.stop();
+
+      await tester.pumpLinux();
+      await player.dispose();
+    },
+    // Darwin does not support files without extension unless its specified
+    // #803, https://stackoverflow.com/a/54087143/5164462
+    skip: isIOS || isMacOS,
+  );
 
   group('play multiple sources', () {
     testWidgets(

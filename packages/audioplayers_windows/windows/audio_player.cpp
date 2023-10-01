@@ -6,11 +6,14 @@
 #include <flutter/event_stream_handler_functions.h>
 #include <flutter/plugin_registrar_windows.h>
 #include <flutter/standard_method_codec.h>
+#include <shlwapi.h>  // for SHCreateMemStream
 #include <shobjidl.h>
 #include <windows.h>
 
 #include "audioplayers_helpers.h"
 
+#define STR_LINK_TROUBLESHOOTING \
+  "https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md"
 #undef GetCurrentTime
 
 using namespace winrt;
@@ -42,6 +45,8 @@ AudioPlayer::AudioPlayer(
   m_mediaEngineWrapper->Initialize();
 }
 
+AudioPlayer::~AudioPlayer() {}
+
 // This method should be called asynchronously, to avoid freezing UI
 void AudioPlayer::SetSourceUrl(std::string url) {
   if (_url != url) {
@@ -67,17 +72,54 @@ void AudioPlayer::SetSourceUrl(std::string url) {
           &objectType, reinterpret_cast<IUnknown**>(mediaSource.put_void())));
 
       m_mediaEngineWrapper->SetMediaSource(mediaSource.get());
+    } catch (const std::exception& ex) {
+      this->OnError("WindowsAudioError",
+                    "Failed to set source. For troubleshooting, "
+                    "see: " STR_LINK_TROUBLESHOOTING,
+                    flutter::EncodableValue(ex.what()));
     } catch (...) {
       // Forward errors to event stream, as this is called asynchronously
-      this->OnError("WindowsAudioError", "Error setting url to '" + url + "'.",
-                    nullptr);
+      this->OnError("WindowsAudioError",
+                    "Failed to set source. For troubleshooting, "
+                    "see: " STR_LINK_TROUBLESHOOTING,
+                    flutter::EncodableValue("Unknown Error setting url to '" +
+                                            url + "'."));
     }
   } else {
     OnPrepared(true);
   }
 }
 
-AudioPlayer::~AudioPlayer() {}
+void AudioPlayer::SetSourceBytes(std::vector<uint8_t> bytes) {
+  _isInitialized = false;
+  _url.clear();
+  size_t size = bytes.size();
+
+  try {
+    winrt::com_ptr<IMFSourceResolver> sourceResolver;
+    THROW_IF_FAILED(MFCreateSourceResolver(sourceResolver.put()));
+    constexpr uint32_t sourceResolutionFlags =
+        MF_RESOLUTION_MEDIASOURCE |
+        MF_RESOLUTION_CONTENT_DOES_NOT_HAVE_TO_MATCH_EXTENSION_OR_MIME_TYPE |
+        MF_RESOLUTION_READ;
+    MF_OBJECT_TYPE objectType = {};
+
+    winrt::com_ptr<IMFMediaSource> mediaSource;
+
+    IStream* pstm =
+        SHCreateMemStream(bytes.data(), static_cast<unsigned int>(size));
+    IMFByteStream* stream = NULL;
+    MFCreateMFByteStreamOnStream(pstm, &stream);
+
+    sourceResolver->CreateObjectFromByteStream(
+        stream, nullptr, sourceResolutionFlags, nullptr, &objectType,
+        reinterpret_cast<IUnknown**>(mediaSource.put_void()));
+    m_mediaEngineWrapper->SetMediaSource(mediaSource.get());
+  } catch (...) {
+    // Forward errors to event stream, as this is called asynchronously
+    this->OnError("WindowsAudioError", "Error setting bytes", nullptr);
+  }
+}
 
 void AudioPlayer::OnMediaError(MF_MEDIA_ENGINE_ERR error, HRESULT hr) {
   LOG_HR_MSG(hr, "MediaEngine error (%d)", error);
@@ -199,6 +241,7 @@ void AudioPlayer::ReleaseMediaSource() {
     m_mediaEngineWrapper->Pause();
   }
   m_mediaEngineWrapper->ReleaseMediaSource();
+  _url.clear();
   _isInitialized = false;
 }
 

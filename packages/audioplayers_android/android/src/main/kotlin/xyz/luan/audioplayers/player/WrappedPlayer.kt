@@ -307,9 +307,6 @@ class WrappedPlayer internal constructor(
     }
 
     fun onError(what: Int, extra: Int): Boolean {
-        // When an error occurs, reset player to not [prepared].
-        // Then no functions will be called, which end up in an illegal player state.
-        prepared = false
         val whatMsg = if (what == MediaPlayer.MEDIA_ERROR_SERVER_DIED) {
             "MEDIA_ERROR_SERVER_DIED"
         } else {
@@ -323,7 +320,19 @@ class WrappedPlayer internal constructor(
             MediaPlayer.MEDIA_ERROR_TIMED_OUT -> "MEDIA_ERROR_TIMED_OUT"
             else -> "MEDIA_ERROR_UNKNOWN {extra:$extra}"
         }
-        handleError(whatMsg, extraMsg, null)
+        if (!prepared && extraMsg == "MEDIA_ERROR_SYSTEM") {
+            handleError(
+                "AndroidAudioError",
+                "Failed to set source. For troubleshooting, see: " +
+                    "https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md",
+                "$whatMsg, $extraMsg",
+            )
+        } else {
+            // When an error occurs, reset player to not [prepared].
+            // Then no functions will be called, which end up in an illegal player state.
+            prepared = false
+            handleError("AndroidAudioError", whatMsg, extraMsg)
+        }
         return false
     }
 

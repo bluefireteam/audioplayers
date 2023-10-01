@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:audioplayers/src/uri_ext.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
 import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
@@ -325,8 +326,13 @@ class AudioPlayer {
   Future<void> setSourceUrl(String url) async {
     _source = UrlSource(url);
     await creatingCompleter.future;
+    // Encode remote url to avoid unexpected failures.
     await _completePrepared(
-      () => _platform.setSourceUrl(playerId, url, isLocal: false),
+      () => _platform.setSourceUrl(
+        playerId,
+        UriCoder.encodeOnce(url),
+        isLocal: false,
+      ),
     );
   }
 
@@ -349,10 +355,10 @@ class AudioPlayer {
   /// this method.
   Future<void> setSourceAsset(String path) async {
     _source = AssetSource(path);
-    final url = await audioCache.load(path);
+    final cachePath = await audioCache.loadPath(path);
     await creatingCompleter.future;
     await _completePrepared(
-      () => _platform.setSourceUrl(playerId, url.path, isLocal: true),
+      () => _platform.setSourceUrl(playerId, cachePath, isLocal: true),
     );
   }
 

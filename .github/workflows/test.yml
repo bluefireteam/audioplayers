@@ -299,9 +299,10 @@ jobs:
           net start w32time; w32tm /resync /force; $currentDate = Get-Date; Write-Host "Current System Date: $currentDate";
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
+        shell: bash # Needed in order to fail fast, see: https://github.com/actions/runner-images/issues/6668
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         run: |
-          Start-Process -NoNewWindow -WorkingDirectory "server" dart -ArgumentList "run", "bin/server.dart"
+          ( cd server; dart run bin/server.dart ) &
           flutter test -d windows integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
           flutter test -d windows integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
           flutter test -d windows integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
