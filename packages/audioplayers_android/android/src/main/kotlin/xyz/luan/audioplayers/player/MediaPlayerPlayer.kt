@@ -43,7 +43,9 @@ class MediaPlayerPlayer(
     override fun setRate(rate: Float) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             mediaPlayer.playbackParams = mediaPlayer.playbackParams.setSpeed(rate)
-        } else if (rate != 1.0f) {
+        } else if (rate == 1.0f) {
+            mediaPlayer.start()
+        } else {
             error("Changing the playback rate is only available for Android M/23+ or using LOW_LATENCY mode.")
         }
     }
@@ -58,7 +60,8 @@ class MediaPlayerPlayer(
     }
 
     override fun start() {
-        mediaPlayer.start()
+        // Setting playback rate instead of mediaPlayer.start().
+        setRate(wrappedPlayer.rate)
     }
 
     override fun pause() {

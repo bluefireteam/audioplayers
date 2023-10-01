@@ -67,7 +67,9 @@ class WrappedPlayer internal constructor(
         set(value) {
             if (field != value) {
                 field = value
-                player?.setRate(value)
+                if (playing) {
+                    player?.setRate(value)
+                }
             }
         }
 
@@ -364,7 +366,6 @@ class WrappedPlayer internal constructor(
     }
 
     private fun Player.configAndPrepare() {
-        setRate(rate)
         setVolumeAndBalance(volume, balance)
         setLooping(isLooping)
         prepare()
