@@ -114,10 +114,10 @@ class WrappedMediaPlayer {
 
   func setPlaybackRate(playbackRate: Double) {
     self.playbackRate = playbackRate
-    //if isPlaying {
+    if isPlaying {
       // Setting the rate causes the player to resume playing. So setting it only, when already playing.
       player.rate = Float(playbackRate)
-    //}
+    }
   }
 
   func seek(time: CMTime, completer: Completer? = nil) {
