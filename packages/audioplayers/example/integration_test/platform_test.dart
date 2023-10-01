@@ -181,6 +181,18 @@ void main() async {
       }
     }
 
+    testWidgets('Avoid resume on setting playbackRate (#468)', (tester) async {
+      await tester.prepareSource(
+        playerId: playerId,
+        platform: platform,
+        testData: mp3Url1TestData,
+      );
+      await platform.setPlaybackRate(playerId, 2.0);
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+      expect(await platform.getCurrentPosition(playerId), 0);
+      await tester.pumpLinux();
+    });
+
     for (final td in audioTestDataList) {
       if (features.hasSeek && !td.isLiveStream) {
         testWidgets('#seek with millisecond precision ${td.source}',
