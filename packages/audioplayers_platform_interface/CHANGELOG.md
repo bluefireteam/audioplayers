@@ -1,3 +1,14 @@
+## 6.1.0
+
+> Note: This release has breaking changes.
+
+ - **FIX**: Return null for duration and position, if not available ([#1606](https://github.com/bluefireteam/audioplayers/issues/1606)). ([2a79644a](https://github.com/bluefireteam/audioplayers/commit/2a79644a2064ccc5d8e9a31aaf888b0b60ee321d))
+ - **FEAT**(ios): Improved AudioContextConfig assertions, fix example ([#1619](https://github.com/bluefireteam/audioplayers/issues/1619))". ([710528cd](https://github.com/bluefireteam/audioplayers/commit/710528cda2af097e50938ecdd6f7c91c2ef8f54a))
+ - **FEAT**(ios): Improved AudioContextConfig assertions, fix example ([#1619](https://github.com/bluefireteam/audioplayers/issues/1619)). ([df342c52](https://github.com/bluefireteam/audioplayers/commit/df342c529b0b13abd0515c5dc762987293ebc4c1))
+ - **FEAT**: create, dispose & reuse event stream ([#1609](https://github.com/bluefireteam/audioplayers/issues/1609)). ([efbabf5c](https://github.com/bluefireteam/audioplayers/commit/efbabf5cb30de0013fe3b67cb7206de602f1dc84))
+ - **BREAKING** **FEAT**(ios): Improve AudioContextIOS ([#1591](https://github.com/bluefireteam/audioplayers/issues/1591))". ([215fec88](https://github.com/bluefireteam/audioplayers/commit/215fec88741d83a8d7d77641b2d4a5923ffb6b34))
+ - **BREAKING** **FEAT**(ios): Improve AudioContextIOS ([#1591](https://github.com/bluefireteam/audioplayers/issues/1591)). ([25fbec05](https://github.com/bluefireteam/audioplayers/commit/25fbec051a4f521f73c473cdad20f88c7907d7b1))
+
 ## 6.0.0
 
 > Note: This release has breaking changes.

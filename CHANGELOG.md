@@ -3,6 +3,96 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2023-10-02
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - [`audioplayers` - `v5.2.0`](#audioplayers---v520)
+ - [`audioplayers_linux` - `v3.1.0`](#audioplayers_linux---v310)
+ - [`audioplayers_platform_interface` - `v6.1.0`](#audioplayers_platform_interface---v610)
+
+Packages with other changes:
+
+ - [`audioplayers_android` - `v4.0.2`](#audioplayers_android---v402)
+ - [`audioplayers_darwin` - `v5.0.2`](#audioplayers_darwin---v502)
+ - [`audioplayers_web` - `v4.1.0`](#audioplayers_web---v410)
+ - [`audioplayers_windows` - `v3.1.0`](#audioplayers_windows---v310)
+
+---
+
+#### `audioplayers` - `v5.2.0`
+
+ - **REFACTOR**: Lint Swift ([#1613](https://github.com/bluefireteam/audioplayers/issues/1613)). ([737aa94f](https://github.com/bluefireteam/audioplayers/commit/737aa94f7edb076d622c34e498b90f17c9959e9c))
+ - **REFACTOR**: Lint Kotlin, C and C++ code ([#1610](https://github.com/bluefireteam/audioplayers/issues/1610)). ([05394668](https://github.com/bluefireteam/audioplayers/commit/0539466850aaa49a0bde9448939c6c3d536dd6e2))
+ - **FIX**: Cancel `onPreparedSubscription` on error ([#1660](https://github.com/bluefireteam/audioplayers/issues/1660)). ([c11dbf30](https://github.com/bluefireteam/audioplayers/commit/c11dbf3094457799a3b89fd6f0b386799b2f943c))
+ - **FIX**: Set playback rate only when playing ([#1658](https://github.com/bluefireteam/audioplayers/issues/1658)). ([d73c7d5c](https://github.com/bluefireteam/audioplayers/commit/d73c7d5c2ef13e8eff2c438b96ade6e2483a2014))
+ - **FIX**: Improve Error handling for Unsupported Sources ([#1625](https://github.com/bluefireteam/audioplayers/issues/1625)). ([a4d84422](https://github.com/bluefireteam/audioplayers/commit/a4d84422f1421755b05aa7eff38b4d2ed0cf7482))
+ - **FIX**: Return null for duration and position, if not available ([#1606](https://github.com/bluefireteam/audioplayers/issues/1606)). ([2a79644a](https://github.com/bluefireteam/audioplayers/commit/2a79644a2064ccc5d8e9a31aaf888b0b60ee321d))
+ - **FEAT**(ios): Improved AudioContextConfig assertions, fix example ([#1619](https://github.com/bluefireteam/audioplayers/issues/1619))". ([710528cd](https://github.com/bluefireteam/audioplayers/commit/710528cda2af097e50938ecdd6f7c91c2ef8f54a))
+ - **FEAT**(windows): Support for BytesSource on Windows ([#1601](https://github.com/bluefireteam/audioplayers/issues/1601)). ([a9e14710](https://github.com/bluefireteam/audioplayers/commit/a9e147107aa31072d4bcc69a02b2ee287d4b366b))
+ - **FEAT**: Allow adding custom media sources to example ([#1637](https://github.com/bluefireteam/audioplayers/issues/1637)). ([1eabe619](https://github.com/bluefireteam/audioplayers/commit/1eabe61957caf969f132ce6fad7b99208887466b))
+ - **FEAT**(ios): Improved AudioContextConfig assertions, fix example ([#1619](https://github.com/bluefireteam/audioplayers/issues/1619)). ([df342c52](https://github.com/bluefireteam/audioplayers/commit/df342c529b0b13abd0515c5dc762987293ebc4c1))
+ - **DOCS**: Deploy live example app to GH pages ([#1623](https://github.com/bluefireteam/audioplayers/issues/1623)). ([fe81f3b1](https://github.com/bluefireteam/audioplayers/commit/fe81f3b1e600fe005febbe7cd3da02735a3de004))
+ - **BREAKING** **REFACTOR**: Remove deprecated methods ([#1583](https://github.com/bluefireteam/audioplayers/issues/1583))". ([9939b7e3](https://github.com/bluefireteam/audioplayers/commit/9939b7e3cb12195bb42df2a67b6b482677a91236))
+ - **BREAKING** **REFACTOR**: Remove deprecated methods ([#1583](https://github.com/bluefireteam/audioplayers/issues/1583)). ([8d0cbeda](https://github.com/bluefireteam/audioplayers/commit/8d0cbeda6babea69b1753340f9cec3d246d7e29a))
+ - **BREAKING** **FEAT**(ios): Improve AudioContextIOS ([#1591](https://github.com/bluefireteam/audioplayers/issues/1591))". ([215fec88](https://github.com/bluefireteam/audioplayers/commit/215fec88741d83a8d7d77641b2d4a5923ffb6b34))
+ - **BREAKING** **FEAT**(ios): Improve AudioContextIOS ([#1591](https://github.com/bluefireteam/audioplayers/issues/1591)). ([25fbec05](https://github.com/bluefireteam/audioplayers/commit/25fbec051a4f521f73c473cdad20f88c7907d7b1))
+ - **BREAKING** **CHORE**: Upgrade to Flutter 3.13.0 ([#1612](https://github.com/bluefireteam/audioplayers/issues/1612))". ([2369ba80](https://github.com/bluefireteam/audioplayers/commit/2369ba805a958ebd2218d0515606f8fa46be9f43))
+ - **BREAKING** **CHORE**: Upgrade to Flutter 3.13.0 ([#1612](https://github.com/bluefireteam/audioplayers/issues/1612)). ([1a3de1ac](https://github.com/bluefireteam/audioplayers/commit/1a3de1acd5a8b90b6d9c0d0f2a7141723c277c24))
+
+#### `audioplayers_linux` - `v3.1.0`
+
+ - **REFACTOR**: Lint Kotlin, C and C++ code ([#1610](https://github.com/bluefireteam/audioplayers/issues/1610)). ([05394668](https://github.com/bluefireteam/audioplayers/commit/0539466850aaa49a0bde9448939c6c3d536dd6e2))
+ - **FIX**: Improve Error handling for Unsupported Sources ([#1625](https://github.com/bluefireteam/audioplayers/issues/1625)). ([a4d84422](https://github.com/bluefireteam/audioplayers/commit/a4d84422f1421755b05aa7eff38b4d2ed0cf7482))
+ - **FIX**: Return null for duration and position, if not available ([#1606](https://github.com/bluefireteam/audioplayers/issues/1606)). ([2a79644a](https://github.com/bluefireteam/audioplayers/commit/2a79644a2064ccc5d8e9a31aaf888b0b60ee321d))
+ - **FEAT**: Release source for Web, Linux, Windows ([#1517](https://github.com/bluefireteam/audioplayers/issues/1517)). ([09496dcb](https://github.com/bluefireteam/audioplayers/commit/09496dcbf478af330e37be833184439b43b5ac44))
+ - **DOCS**: Manual Flutter installation on Linux setup ([#1631](https://github.com/bluefireteam/audioplayers/issues/1631)). ([9086e75a](https://github.com/bluefireteam/audioplayers/commit/9086e75a9503bdb84f372b5e09a4b225d3fae5f6))
+ - **BREAKING** **CHORE**: Upgrade to Flutter 3.13.0 ([#1612](https://github.com/bluefireteam/audioplayers/issues/1612))". ([2369ba80](https://github.com/bluefireteam/audioplayers/commit/2369ba805a958ebd2218d0515606f8fa46be9f43))
+ - **BREAKING** **CHORE**: Upgrade to Flutter 3.13.0 ([#1612](https://github.com/bluefireteam/audioplayers/issues/1612)). ([1a3de1ac](https://github.com/bluefireteam/audioplayers/commit/1a3de1acd5a8b90b6d9c0d0f2a7141723c277c24))
+
+#### `audioplayers_platform_interface` - `v6.1.0`
+
+ - **FIX**: Return null for duration and position, if not available ([#1606](https://github.com/bluefireteam/audioplayers/issues/1606)). ([2a79644a](https://github.com/bluefireteam/audioplayers/commit/2a79644a2064ccc5d8e9a31aaf888b0b60ee321d))
+ - **FEAT**(ios): Improved AudioContextConfig assertions, fix example ([#1619](https://github.com/bluefireteam/audioplayers/issues/1619))". ([710528cd](https://github.com/bluefireteam/audioplayers/commit/710528cda2af097e50938ecdd6f7c91c2ef8f54a))
+ - **FEAT**(ios): Improved AudioContextConfig assertions, fix example ([#1619](https://github.com/bluefireteam/audioplayers/issues/1619)). ([df342c52](https://github.com/bluefireteam/audioplayers/commit/df342c529b0b13abd0515c5dc762987293ebc4c1))
+ - **FEAT**: create, dispose & reuse event stream ([#1609](https://github.com/bluefireteam/audioplayers/issues/1609)). ([efbabf5c](https://github.com/bluefireteam/audioplayers/commit/efbabf5cb30de0013fe3b67cb7206de602f1dc84))
+ - **BREAKING** **FEAT**(ios): Improve AudioContextIOS ([#1591](https://github.com/bluefireteam/audioplayers/issues/1591))". ([215fec88](https://github.com/bluefireteam/audioplayers/commit/215fec88741d83a8d7d77641b2d4a5923ffb6b34))
+ - **BREAKING** **FEAT**(ios): Improve AudioContextIOS ([#1591](https://github.com/bluefireteam/audioplayers/issues/1591)). ([25fbec05](https://github.com/bluefireteam/audioplayers/commit/25fbec051a4f521f73c473cdad20f88c7907d7b1))
+
+#### `audioplayers_android` - `v4.0.2`
+
+ - **REFACTOR**: Lint Kotlin, C and C++ code ([#1610](https://github.com/bluefireteam/audioplayers/issues/1610)). ([05394668](https://github.com/bluefireteam/audioplayers/commit/0539466850aaa49a0bde9448939c6c3d536dd6e2))
+ - **FIX**: Set playback rate only when playing ([#1658](https://github.com/bluefireteam/audioplayers/issues/1658)). ([d73c7d5c](https://github.com/bluefireteam/audioplayers/commit/d73c7d5c2ef13e8eff2c438b96ade6e2483a2014))
+ - **FIX**: Improve Error handling for Unsupported Sources ([#1625](https://github.com/bluefireteam/audioplayers/issues/1625)). ([a4d84422](https://github.com/bluefireteam/audioplayers/commit/a4d84422f1421755b05aa7eff38b4d2ed0cf7482))
+ - **FIX**: Return null for duration and position, if not available ([#1606](https://github.com/bluefireteam/audioplayers/issues/1606)). ([2a79644a](https://github.com/bluefireteam/audioplayers/commit/2a79644a2064ccc5d8e9a31aaf888b0b60ee321d))
+
+#### `audioplayers_darwin` - `v5.0.2`
+
+ - **REFACTOR**: Lint Swift ([#1613](https://github.com/bluefireteam/audioplayers/issues/1613)). ([737aa94f](https://github.com/bluefireteam/audioplayers/commit/737aa94f7edb076d622c34e498b90f17c9959e9c))
+ - **REFACTOR**: Lint Kotlin, C and C++ code ([#1610](https://github.com/bluefireteam/audioplayers/issues/1610)). ([05394668](https://github.com/bluefireteam/audioplayers/commit/0539466850aaa49a0bde9448939c6c3d536dd6e2))
+ - **FIX**: Set playback rate only when playing ([#1658](https://github.com/bluefireteam/audioplayers/issues/1658)). ([d73c7d5c](https://github.com/bluefireteam/audioplayers/commit/d73c7d5c2ef13e8eff2c438b96ade6e2483a2014))
+ - **FIX**: Improve Error handling for Unsupported Sources ([#1625](https://github.com/bluefireteam/audioplayers/issues/1625)). ([a4d84422](https://github.com/bluefireteam/audioplayers/commit/a4d84422f1421755b05aa7eff38b4d2ed0cf7482))
+ - **FIX**(darwin): Start observing `AVPlayerItem.status` before being assigned to `AVPlayer` ([#1549](https://github.com/bluefireteam/audioplayers/issues/1549)). ([8c3a2138](https://github.com/bluefireteam/audioplayers/commit/8c3a213841c063d4a45bdb96e339ac338c7c8758))
+ - **FIX**: Return null for duration and position, if not available ([#1606](https://github.com/bluefireteam/audioplayers/issues/1606)). ([2a79644a](https://github.com/bluefireteam/audioplayers/commit/2a79644a2064ccc5d8e9a31aaf888b0b60ee321d))
+
+#### `audioplayers_web` - `v4.1.0`
+
+ - **FIX**: Improve Error handling for Unsupported Sources ([#1625](https://github.com/bluefireteam/audioplayers/issues/1625)). ([a4d84422](https://github.com/bluefireteam/audioplayers/commit/a4d84422f1421755b05aa7eff38b4d2ed0cf7482))
+ - **FEAT**: Release source for Web, Linux, Windows ([#1517](https://github.com/bluefireteam/audioplayers/issues/1517)). ([09496dcb](https://github.com/bluefireteam/audioplayers/commit/09496dcbf478af330e37be833184439b43b5ac44))
+
+#### `audioplayers_windows` - `v3.1.0`
+
+ - **REFACTOR**: Lint Kotlin, C and C++ code ([#1610](https://github.com/bluefireteam/audioplayers/issues/1610)). ([05394668](https://github.com/bluefireteam/audioplayers/commit/0539466850aaa49a0bde9448939c6c3d536dd6e2))
+ - **FIX**: Improve Error handling for Unsupported Sources ([#1625](https://github.com/bluefireteam/audioplayers/issues/1625)). ([a4d84422](https://github.com/bluefireteam/audioplayers/commit/a4d84422f1421755b05aa7eff38b4d2ed0cf7482))
+ - **FIX**: Return null for duration and position, if not available ([#1606](https://github.com/bluefireteam/audioplayers/issues/1606)). ([2a79644a](https://github.com/bluefireteam/audioplayers/commit/2a79644a2064ccc5d8e9a31aaf888b0b60ee321d))
+ - **FEAT**(windows): Support for BytesSource on Windows ([#1601](https://github.com/bluefireteam/audioplayers/issues/1601)). ([a9e14710](https://github.com/bluefireteam/audioplayers/commit/a9e147107aa31072d4bcc69a02b2ee287d4b366b))
+ - **FEAT**: Release source for Web, Linux, Windows ([#1517](https://github.com/bluefireteam/audioplayers/issues/1517)). ([09496dcb](https://github.com/bluefireteam/audioplayers/commit/09496dcbf478af330e37be833184439b43b5ac44))
+
+
 ## 2023-08-09
 
 ### Changes
