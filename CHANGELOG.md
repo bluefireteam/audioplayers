@@ -9,16 +9,13 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ---
 
-Packages with breaking changes:
-
- - [`audioplayers` - `v5.2.0`](#audioplayers---v520)
- - [`audioplayers_linux` - `v3.1.0`](#audioplayers_linux---v310)
- - [`audioplayers_platform_interface` - `v6.1.0`](#audioplayers_platform_interface---v610)
-
 Packages with other changes:
 
+ - [`audioplayers` - `v5.2.0`](#audioplayers---v520)
  - [`audioplayers_android` - `v4.0.2`](#audioplayers_android---v402)
  - [`audioplayers_darwin` - `v5.0.2`](#audioplayers_darwin---v502)
+ - [`audioplayers_linux` - `v3.1.0`](#audioplayers_linux---v310)
+ - [`audioplayers_platform_interface` - `v6.1.0`](#audioplayers_platform_interface---v610)
  - [`audioplayers_web` - `v4.1.0`](#audioplayers_web---v410)
  - [`audioplayers_windows` - `v3.1.0`](#audioplayers_windows---v310)
 
