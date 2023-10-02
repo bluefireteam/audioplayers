@@ -29,7 +29,6 @@ Packages with other changes:
  - **FIX**: Set playback rate only when playing ([#1658](https://github.com/bluefireteam/audioplayers/issues/1658)). ([d73c7d5c](https://github.com/bluefireteam/audioplayers/commit/d73c7d5c2ef13e8eff2c438b96ade6e2483a2014))
  - **FIX**: Improve Error handling for Unsupported Sources ([#1625](https://github.com/bluefireteam/audioplayers/issues/1625)). ([a4d84422](https://github.com/bluefireteam/audioplayers/commit/a4d84422f1421755b05aa7eff38b4d2ed0cf7482))
  - **FIX**: Return null for duration and position, if not available ([#1606](https://github.com/bluefireteam/audioplayers/issues/1606)). ([2a79644a](https://github.com/bluefireteam/audioplayers/commit/2a79644a2064ccc5d8e9a31aaf888b0b60ee321d))
- - **FEAT**(ios): Improved AudioContextConfig assertions, fix example ([#1619](https://github.com/bluefireteam/audioplayers/issues/1619))". ([710528cd](https://github.com/bluefireteam/audioplayers/commit/710528cda2af097e50938ecdd6f7c91c2ef8f54a))
  - **FEAT**(windows): Support for BytesSource on Windows ([#1601](https://github.com/bluefireteam/audioplayers/issues/1601)). ([a9e14710](https://github.com/bluefireteam/audioplayers/commit/a9e147107aa31072d4bcc69a02b2ee287d4b366b))
  - **FEAT**: Allow adding custom media sources to example ([#1637](https://github.com/bluefireteam/audioplayers/issues/1637)). ([1eabe619](https://github.com/bluefireteam/audioplayers/commit/1eabe61957caf969f132ce6fad7b99208887466b))
  - **DOCS**: Deploy live example app to GH pages ([#1623](https://github.com/bluefireteam/audioplayers/issues/1623)). ([fe81f3b1](https://github.com/bluefireteam/audioplayers/commit/fe81f3b1e600fe005febbe7cd3da02735a3de004))
@@ -45,8 +44,6 @@ Packages with other changes:
 #### `audioplayers_platform_interface` - `v6.1.0`
 
  - **FIX**: Return null for duration and position, if not available ([#1606](https://github.com/bluefireteam/audioplayers/issues/1606)). ([2a79644a](https://github.com/bluefireteam/audioplayers/commit/2a79644a2064ccc5d8e9a31aaf888b0b60ee321d))
- - **FEAT**(ios): Improved AudioContextConfig assertions, fix example ([#1619](https://github.com/bluefireteam/audioplayers/issues/1619))". ([710528cd](https://github.com/bluefireteam/audioplayers/commit/710528cda2af097e50938ecdd6f7c91c2ef8f54a))
- - **FEAT**(ios): Improved AudioContextConfig assertions, fix example ([#1619](https://github.com/bluefireteam/audioplayers/issues/1619)). ([df342c52](https://github.com/bluefireteam/audioplayers/commit/df342c529b0b13abd0515c5dc762987293ebc4c1))
  - **FEAT**: create, dispose & reuse event stream ([#1609](https://github.com/bluefireteam/audioplayers/issues/1609)). ([efbabf5c](https://github.com/bluefireteam/audioplayers/commit/efbabf5cb30de0013fe3b67cb7206de602f1dc84))
 
 #### `audioplayers_android` - `v4.0.2`
