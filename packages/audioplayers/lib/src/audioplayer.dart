@@ -302,21 +302,23 @@ class AudioPlayer {
 
   Future<void> _completePrepared(Future<void> Function() fun) async {
     final preparedCompleter = Completer<void>();
-    final onPreparedSubscription = _onPrepared.listen(
-      (isPrepared) {
+    late StreamSubscription<bool> onPreparedSubscription;
+    onPreparedSubscription = _onPrepared.listen(
+      (isPrepared) async {
         if (isPrepared) {
           preparedCompleter.complete();
+          await onPreparedSubscription.cancel();
         }
       },
-      onError: (Object e, [StackTrace? stackTrace]) {
+      onError: (Object e, [StackTrace? stackTrace]) async {
         if (!preparedCompleter.isCompleted) {
           preparedCompleter.completeError(e, stackTrace);
+          await onPreparedSubscription.cancel();
         }
       },
     );
     await fun();
     await preparedCompleter.future.timeout(const Duration(seconds: 30));
-    onPreparedSubscription.cancel();
   }
 
   /// Sets the URL to a remote link.
