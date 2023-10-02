@@ -7,8 +7,6 @@
  - **FIX**: Return null for duration and position, if not available ([#1606](https://github.com/bluefireteam/audioplayers/issues/1606)). ([2a79644a](https://github.com/bluefireteam/audioplayers/commit/2a79644a2064ccc5d8e9a31aaf888b0b60ee321d))
  - **FEAT**: Release source for Web, Linux, Windows ([#1517](https://github.com/bluefireteam/audioplayers/issues/1517)). ([09496dcb](https://github.com/bluefireteam/audioplayers/commit/09496dcbf478af330e37be833184439b43b5ac44))
  - **DOCS**: Manual Flutter installation on Linux setup ([#1631](https://github.com/bluefireteam/audioplayers/issues/1631)). ([9086e75a](https://github.com/bluefireteam/audioplayers/commit/9086e75a9503bdb84f372b5e09a4b225d3fae5f6))
- - **BREAKING** **CHORE**: Upgrade to Flutter 3.13.0 ([#1612](https://github.com/bluefireteam/audioplayers/issues/1612))". ([2369ba80](https://github.com/bluefireteam/audioplayers/commit/2369ba805a958ebd2218d0515606f8fa46be9f43))
- - **BREAKING** **CHORE**: Upgrade to Flutter 3.13.0 ([#1612](https://github.com/bluefireteam/audioplayers/issues/1612)). ([1a3de1ac](https://github.com/bluefireteam/audioplayers/commit/1a3de1acd5a8b90b6d9c0d0f2a7141723c277c24))
 
 ## 3.0.0
 

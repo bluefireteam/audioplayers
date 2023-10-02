@@ -35,14 +35,7 @@ Packages with other changes:
  - **FEAT**(ios): Improved AudioContextConfig assertions, fix example ([#1619](https://github.com/bluefireteam/audioplayers/issues/1619))". ([710528cd](https://github.com/bluefireteam/audioplayers/commit/710528cda2af097e50938ecdd6f7c91c2ef8f54a))
  - **FEAT**(windows): Support for BytesSource on Windows ([#1601](https://github.com/bluefireteam/audioplayers/issues/1601)). ([a9e14710](https://github.com/bluefireteam/audioplayers/commit/a9e147107aa31072d4bcc69a02b2ee287d4b366b))
  - **FEAT**: Allow adding custom media sources to example ([#1637](https://github.com/bluefireteam/audioplayers/issues/1637)). ([1eabe619](https://github.com/bluefireteam/audioplayers/commit/1eabe61957caf969f132ce6fad7b99208887466b))
- - **FEAT**(ios): Improved AudioContextConfig assertions, fix example ([#1619](https://github.com/bluefireteam/audioplayers/issues/1619)). ([df342c52](https://github.com/bluefireteam/audioplayers/commit/df342c529b0b13abd0515c5dc762987293ebc4c1))
  - **DOCS**: Deploy live example app to GH pages ([#1623](https://github.com/bluefireteam/audioplayers/issues/1623)). ([fe81f3b1](https://github.com/bluefireteam/audioplayers/commit/fe81f3b1e600fe005febbe7cd3da02735a3de004))
- - **BREAKING** **REFACTOR**: Remove deprecated methods ([#1583](https://github.com/bluefireteam/audioplayers/issues/1583))". ([9939b7e3](https://github.com/bluefireteam/audioplayers/commit/9939b7e3cb12195bb42df2a67b6b482677a91236))
- - **BREAKING** **REFACTOR**: Remove deprecated methods ([#1583](https://github.com/bluefireteam/audioplayers/issues/1583)). ([8d0cbeda](https://github.com/bluefireteam/audioplayers/commit/8d0cbeda6babea69b1753340f9cec3d246d7e29a))
- - **BREAKING** **FEAT**(ios): Improve AudioContextIOS ([#1591](https://github.com/bluefireteam/audioplayers/issues/1591))". ([215fec88](https://github.com/bluefireteam/audioplayers/commit/215fec88741d83a8d7d77641b2d4a5923ffb6b34))
- - **BREAKING** **FEAT**(ios): Improve AudioContextIOS ([#1591](https://github.com/bluefireteam/audioplayers/issues/1591)). ([25fbec05](https://github.com/bluefireteam/audioplayers/commit/25fbec051a4f521f73c473cdad20f88c7907d7b1))
- - **BREAKING** **CHORE**: Upgrade to Flutter 3.13.0 ([#1612](https://github.com/bluefireteam/audioplayers/issues/1612))". ([2369ba80](https://github.com/bluefireteam/audioplayers/commit/2369ba805a958ebd2218d0515606f8fa46be9f43))
- - **BREAKING** **CHORE**: Upgrade to Flutter 3.13.0 ([#1612](https://github.com/bluefireteam/audioplayers/issues/1612)). ([1a3de1ac](https://github.com/bluefireteam/audioplayers/commit/1a3de1acd5a8b90b6d9c0d0f2a7141723c277c24))
 
 #### `audioplayers_linux` - `v3.1.0`
 
@@ -51,8 +44,6 @@ Packages with other changes:
  - **FIX**: Return null for duration and position, if not available ([#1606](https://github.com/bluefireteam/audioplayers/issues/1606)). ([2a79644a](https://github.com/bluefireteam/audioplayers/commit/2a79644a2064ccc5d8e9a31aaf888b0b60ee321d))
  - **FEAT**: Release source for Web, Linux, Windows ([#1517](https://github.com/bluefireteam/audioplayers/issues/1517)). ([09496dcb](https://github.com/bluefireteam/audioplayers/commit/09496dcbf478af330e37be833184439b43b5ac44))
  - **DOCS**: Manual Flutter installation on Linux setup ([#1631](https://github.com/bluefireteam/audioplayers/issues/1631)). ([9086e75a](https://github.com/bluefireteam/audioplayers/commit/9086e75a9503bdb84f372b5e09a4b225d3fae5f6))
- - **BREAKING** **CHORE**: Upgrade to Flutter 3.13.0 ([#1612](https://github.com/bluefireteam/audioplayers/issues/1612))". ([2369ba80](https://github.com/bluefireteam/audioplayers/commit/2369ba805a958ebd2218d0515606f8fa46be9f43))
- - **BREAKING** **CHORE**: Upgrade to Flutter 3.13.0 ([#1612](https://github.com/bluefireteam/audioplayers/issues/1612)). ([1a3de1ac](https://github.com/bluefireteam/audioplayers/commit/1a3de1acd5a8b90b6d9c0d0f2a7141723c277c24))
 
 #### `audioplayers_platform_interface` - `v6.1.0`
 
@@ -60,8 +51,6 @@ Packages with other changes:
  - **FEAT**(ios): Improved AudioContextConfig assertions, fix example ([#1619](https://github.com/bluefireteam/audioplayers/issues/1619))". ([710528cd](https://github.com/bluefireteam/audioplayers/commit/710528cda2af097e50938ecdd6f7c91c2ef8f54a))
  - **FEAT**(ios): Improved AudioContextConfig assertions, fix example ([#1619](https://github.com/bluefireteam/audioplayers/issues/1619)). ([df342c52](https://github.com/bluefireteam/audioplayers/commit/df342c529b0b13abd0515c5dc762987293ebc4c1))
  - **FEAT**: create, dispose & reuse event stream ([#1609](https://github.com/bluefireteam/audioplayers/issues/1609)). ([efbabf5c](https://github.com/bluefireteam/audioplayers/commit/efbabf5cb30de0013fe3b67cb7206de602f1dc84))
- - **BREAKING** **FEAT**(ios): Improve AudioContextIOS ([#1591](https://github.com/bluefireteam/audioplayers/issues/1591))". ([215fec88](https://github.com/bluefireteam/audioplayers/commit/215fec88741d83a8d7d77641b2d4a5923ffb6b34))
- - **BREAKING** **FEAT**(ios): Improve AudioContextIOS ([#1591](https://github.com/bluefireteam/audioplayers/issues/1591)). ([25fbec05](https://github.com/bluefireteam/audioplayers/commit/25fbec051a4f521f73c473cdad20f88c7907d7b1))
 
 #### `audioplayers_android` - `v4.0.2`
 
