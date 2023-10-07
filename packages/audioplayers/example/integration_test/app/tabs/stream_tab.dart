@@ -33,7 +33,7 @@ Future<void> testStreamsTab(
 
   await tester.pumpAndSettle();
   await tester.scrollToAndTap(const Key('play_button'));
-  await tester.pumpAndSettle();
+  await tester.pump();
 
   // Cannot test more precisely as it is dependent on pollInterval
   // and updateInterval of native implementation.
@@ -122,13 +122,6 @@ extension StreamWidgetTester on WidgetTester {
   // Linux: millisecond
   // Web: millisecond
   // Darwin: millisecond
-
-  // Update interval for position:
-  // Android: ~200ms
-  // Windows: ~250ms
-  // Linux: ~250ms
-  // Web: ~250ms
-  // Darwin: ~200ms
 
   Future<void> stopStream() async {
     final st = StackTrace.current.toString();

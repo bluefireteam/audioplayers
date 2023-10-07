@@ -12,4 +12,5 @@ export 'src/audio_logger.dart';
 export 'src/audio_pool.dart';
 export 'src/audioplayer.dart';
 export 'src/global_audio_scope.dart';
+export 'src/position_updater.dart';
 export 'src/source.dart';

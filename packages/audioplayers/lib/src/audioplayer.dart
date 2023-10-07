@@ -69,12 +69,16 @@ class AudioPlayer {
     _playerState = state;
   }
 
+  PositionUpdater? _positionUpdater;
+
   /// Completer to wait until the native player and its event stream are
   /// created.
   @visibleForTesting
   final creatingCompleter = Completer<void>();
 
   late final StreamSubscription _onPlayerCompleteStreamSubscription;
+
+  late final StreamSubscription _onSeekCompleteStreamSubscription;
 
   late final StreamSubscription _onLogStreamSubscription;
 
@@ -97,9 +101,8 @@ class AudioPlayer {
   /// position of the playback if the status is [PlayerState.playing].
   ///
   /// You can use it on a progress bar, for instance.
-  Stream<Duration> get onPositionChanged => eventStream
-      .where((event) => event.eventType == AudioEventType.position)
-      .map((event) => event.position!);
+  Stream<Duration> get onPositionChanged =>
+      _positionUpdater?.positionStream ?? const Stream.empty();
 
   /// Stream of changes on audio duration.
   ///
@@ -143,17 +146,24 @@ class AudioPlayer {
       ),
     );
     _onPlayerCompleteStreamSubscription = onPlayerComplete.listen(
-      (_) {
+      (_) async {
         state = PlayerState.completed;
         if (releaseMode == ReleaseMode.release) {
           _source = null;
         }
+        await _positionUpdater?.stopAndUpdate();
       },
       onError: (Object _, [StackTrace? __]) {
         /* Errors are already handled via log stream */
       },
     );
+    _onSeekCompleteStreamSubscription = onSeekComplete.listen((event) async {
+      await _positionUpdater?.update();
+    });
     _create();
+    positionUpdater = FramePositionUpdater(
+      getPosition: getCurrentPosition,
+    );
   }
 
   Future<void> _create() async {
@@ -193,7 +203,7 @@ class AudioPlayer {
       await seek(position);
     }
     await setSource(source);
-    return resume();
+    await resume();
   }
 
   Future<void> setAudioContext(AudioContext ctx) async {
@@ -215,6 +225,7 @@ class AudioPlayer {
     await creatingCompleter.future;
     await _platform.pause(playerId);
     state = PlayerState.paused;
+    await _positionUpdater?.stopAndUpdate();
   }
 
   /// Stops the audio that is currently playing.
@@ -225,6 +236,7 @@ class AudioPlayer {
     await creatingCompleter.future;
     await _platform.stop(playerId);
     state = PlayerState.stopped;
+    await _positionUpdater?.stopAndUpdate();
   }
 
   /// Resumes the audio that has been paused or stopped.
@@ -232,6 +244,7 @@ class AudioPlayer {
     await creatingCompleter.future;
     await _platform.resume(playerId);
     state = PlayerState.playing;
+    _positionUpdater?.start();
   }
 
   /// Releases the resources associated with this media player.
@@ -301,6 +314,7 @@ class AudioPlayer {
   }
 
   Future<void> _completePrepared(Future<void> Function() fun) async {
+    await creatingCompleter.future;
     final preparedCompleter = Completer<void>();
     late StreamSubscription<bool> onPreparedSubscription;
     onPreparedSubscription = _onPrepared.listen(
@@ -319,6 +333,9 @@ class AudioPlayer {
     );
     await fun();
     await preparedCompleter.future.timeout(const Duration(seconds: 30));
+
+    // Share position once after finished loading
+    await _positionUpdater?.update();
   }
 
   /// Sets the URL to a remote link.
@@ -327,7 +344,6 @@ class AudioPlayer {
   /// this method.
   Future<void> setSourceUrl(String url) async {
     _source = UrlSource(url);
-    await creatingCompleter.future;
     // Encode remote url to avoid unexpected failures.
     await _completePrepared(
       () => _platform.setSourceUrl(
@@ -344,7 +360,6 @@ class AudioPlayer {
   /// this method.
   Future<void> setSourceDeviceFile(String path) async {
     _source = DeviceFileSource(path);
-    await creatingCompleter.future;
     await _completePrepared(
       () => _platform.setSourceUrl(playerId, path, isLocal: true),
     );
@@ -358,7 +373,6 @@ class AudioPlayer {
   Future<void> setSourceAsset(String path) async {
     _source = AssetSource(path);
     final cachePath = await audioCache.loadPath(path);
-    await creatingCompleter.future;
     await _completePrepared(
       () => _platform.setSourceUrl(playerId, cachePath, isLocal: true),
     );
@@ -366,10 +380,18 @@ class AudioPlayer {
 
   Future<void> setSourceBytes(Uint8List bytes) async {
     _source = BytesSource(bytes);
-    await creatingCompleter.future;
     await _completePrepared(
       () => _platform.setSourceBytes(playerId, bytes),
     );
+  }
+
+  /// Set the PositionUpdater to control how often the position stream will be
+  /// updated. You can use the [FramePositionUpdater], the
+  /// [TimerPositionUpdater] or write your own implementation of the
+  /// [PositionUpdater].
+  set positionUpdater(PositionUpdater? positionUpdater) {
+    _positionUpdater?.dispose(); // No need to wait for dispose
+    _positionUpdater = positionUpdater;
   }
 
   /// Get audio duration after setting url.
@@ -407,8 +429,10 @@ class AudioPlayer {
     state = PlayerState.disposed;
 
     final futures = <Future>[
+      if (_positionUpdater != null) _positionUpdater!.dispose(),
       if (!_playerStateController.isClosed) _playerStateController.close(),
       _onPlayerCompleteStreamSubscription.cancel(),
+      _onSeekCompleteStreamSubscription.cancel(),
       _onLogStreamSubscription.cancel(),
       _eventStreamSubscription.cancel(),
       _eventStreamController.close(),

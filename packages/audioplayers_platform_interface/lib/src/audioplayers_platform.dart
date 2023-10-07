@@ -242,14 +242,6 @@ mixin EventChannelAudioplayersPlatform
                   ? Duration(milliseconds: millis)
                   : Duration.zero,
             );
-          case 'audio.onCurrentPosition':
-            final millis = map.getInt('value');
-            return AudioEvent(
-              eventType: AudioEventType.position,
-              position: millis != null
-                  ? Duration(milliseconds: millis)
-                  : Duration.zero,
-            );
           case 'audio.onComplete':
             return const AudioEvent(eventType: AudioEventType.complete);
           case 'audio.onSeekComplete':

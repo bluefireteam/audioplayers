@@ -32,10 +32,6 @@ class MediaPlayerPlayer(
         return mediaPlayer.currentPosition
     }
 
-    override fun isActuallyPlaying(): Boolean {
-        return mediaPlayer.isPlaying
-    }
-
     override fun setVolume(leftVolume: Float, rightVolume: Float) {
         mediaPlayer.setVolume(leftVolume, rightVolume)
     }

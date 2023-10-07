@@ -16,7 +16,6 @@ void main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   final features = PlatformFeatures.instance();
   final isLinux = !kIsWeb && defaultTargetPlatform == TargetPlatform.linux;
-  final isAndroid = !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
   final audioTestDataList = await getAudioTestDataList();
 
   group('Platform method channel', () {
@@ -358,46 +357,6 @@ void main() async {
           // WAV on Linux (only platform tests, may be a race condition).
           skip: isLinux && td.isVBR ||
               isLinux && td.duration! < const Duration(seconds: 5),
-        );
-      }
-    }
-
-    for (final td in audioTestDataList) {
-      if (features.hasPositionEvent) {
-        testWidgets(
-          '#positionEvent ${td.source}',
-          (tester) async {
-            await tester.prepareSource(
-              playerId: playerId,
-              platform: platform,
-              testData: td,
-            );
-
-            final eventStream = platform.getEventStream(playerId);
-            Duration? position;
-            final onPositionSub = eventStream.where(
-              (event) {
-                return event.eventType == AudioEventType.position &&
-                    event.position != null &&
-                    event.position! > Duration.zero;
-              },
-            ).listen(
-              (event) => position = event.position,
-            );
-
-            await platform.resume(playerId);
-            await tester.pumpAndSettle(const Duration(seconds: 1));
-            expect(position, isNotNull);
-            expect(position, greaterThan(Duration.zero));
-            await platform.stop(playerId);
-            await onPositionSub.cancel();
-            await tester.pumpLinux();
-          },
-          // FIXME(gustl22): Android provides no position for samples shorter
-          //  than 0.5 seconds.
-          skip: isAndroid &&
-              !td.isLiveStream &&
-              td.duration! < const Duration(seconds: 1),
         );
       }
     }

@@ -10,6 +10,9 @@ class FakeCall {
   final Object? value;
 
   FakeCall({required this.id, required this.method, this.value});
+
+  @override
+  String toString() => 'FakeCall(id: $id, method: $method, value: $value)';
 }
 
 class FakeAudioplayersPlatform extends AudioplayersPlatformInterface {

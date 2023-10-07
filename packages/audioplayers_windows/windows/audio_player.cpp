@@ -33,14 +33,13 @@ AudioPlayer::AudioPlayer(
   auto onBufferingStateChanged =
       std::bind(&AudioPlayer::OnMediaStateChange, this, std::placeholders::_1);
   auto onPlaybackEndedCB = std::bind(&AudioPlayer::OnPlaybackEnded, this);
-  auto onTimeUpdateCB = std::bind(&AudioPlayer::OnTimeUpdate, this);
   auto onSeekCompletedCB = std::bind(&AudioPlayer::OnSeekCompleted, this);
   auto onLoadedCB = std::bind(&AudioPlayer::SendInitialized, this);
 
   // Create and initialize the MediaEngineWrapper which manages media playback
   m_mediaEngineWrapper = winrt::make_self<media::MediaEngineWrapper>(
       onLoadedCB, onError, onBufferingStateChanged, onPlaybackEndedCB,
-      onTimeUpdateCB, onSeekCompletedCB);
+      onSeekCompletedCB);
 
   m_mediaEngineWrapper->Initialize();
 }
@@ -180,20 +179,6 @@ void AudioPlayer::OnPlaybackEnded() {
   }
 }
 
-void AudioPlayer::OnTimeUpdate() {
-  if (this->_eventHandler) {
-    auto position = m_mediaEngineWrapper->GetMediaTime();
-    this->_eventHandler->Success(
-        std::make_unique<flutter::EncodableValue>(flutter::EncodableMap(
-            {{flutter::EncodableValue("event"),
-              flutter::EncodableValue("audio.onCurrentPosition")},
-             {flutter::EncodableValue("value"),
-              isnan(position)
-                  ? flutter::EncodableValue(std::monostate{})
-                  : flutter::EncodableValue(ConvertSecondsToMs(position))}})));
-  }
-}
-
 void AudioPlayer::OnDurationUpdate() {
   auto duration = m_mediaEngineWrapper->GetDuration();
   if (this->_eventHandler) {
@@ -232,7 +217,6 @@ void AudioPlayer::SendInitialized() {
     this->_isInitialized = true;
     OnPrepared(true);
     OnDurationUpdate();
-    OnTimeUpdate();
   }
 }
 

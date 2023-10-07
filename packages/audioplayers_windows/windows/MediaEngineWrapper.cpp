@@ -35,20 +35,17 @@ class MediaEngineCallbackHelper
       MediaEngineWrapper::ErrorCB errorCB,
       MediaEngineWrapper::BufferingStateChangeCB bufferingStateChangeCB,
       std::function<void()> playbackEndedCB,
-      std::function<void()> timeUpdateCB,
       std::function<void()> seekCompletedCB)
       : m_onLoadedCB(onLoadedCB),
         m_errorCB(errorCB),
         m_bufferingStateChangeCB(bufferingStateChangeCB),
         m_playbackEndedCB(playbackEndedCB),
-        m_timeUpdateCB(timeUpdateCB),
         m_seekCompletedCB(seekCompletedCB) {
     // Ensure that callbacks are valid
     THROW_HR_IF(E_INVALIDARG, !m_onLoadedCB);
     THROW_HR_IF(E_INVALIDARG, !m_errorCB);
     THROW_HR_IF(E_INVALIDARG, !m_bufferingStateChangeCB);
     THROW_HR_IF(E_INVALIDARG, !m_playbackEndedCB);
-    THROW_HR_IF(E_INVALIDARG, !m_timeUpdateCB);
     THROW_HR_IF(E_INVALIDARG, !m_seekCompletedCB);
   }
   virtual ~MediaEngineCallbackHelper() = default;
@@ -60,7 +57,6 @@ class MediaEngineCallbackHelper
     m_errorCB = nullptr;
     m_bufferingStateChangeCB = nullptr;
     m_playbackEndedCB = nullptr;
-    m_timeUpdateCB = nullptr;
     m_seekCompletedCB = nullptr;
   }
 
@@ -89,9 +85,6 @@ class MediaEngineCallbackHelper
       case MF_MEDIA_ENGINE_EVENT_ENDED:
         m_playbackEndedCB();
         break;
-      case MF_MEDIA_ENGINE_EVENT_TIMEUPDATE:
-        m_timeUpdateCB();
-        break;
       case MF_MEDIA_ENGINE_EVENT_SEEKED:
         m_seekCompletedCB();
         break;
@@ -109,7 +102,6 @@ class MediaEngineCallbackHelper
   MediaEngineWrapper::ErrorCB m_errorCB;
   MediaEngineWrapper::BufferingStateChangeCB m_bufferingStateChangeCB;
   std::function<void()> m_playbackEndedCB;
-  std::function<void()> m_timeUpdateCB;
   std::function<void()> m_seekCompletedCB;
   bool m_detached = false;
 };
@@ -292,8 +284,7 @@ void MediaEngineWrapper::CreateMediaEngine() {
       [&]() { this->OnLoaded(); },
       [&](MF_MEDIA_ENGINE_ERR error, HRESULT hr) { this->OnError(error, hr); },
       [&](BufferingState state) { this->OnBufferingStateChange(state); },
-      [&]() { this->OnPlaybackEnded(); }, [&]() { this->OnTimeUpdate(); },
-      [&]() { this->OnSeekCompleted(); });
+      [&]() { this->OnPlaybackEnded(); }, [&]() { this->OnSeekCompleted(); });
   THROW_IF_FAILED(creationAttributes->SetUnknown(MF_MEDIA_ENGINE_CALLBACK,
                                                  m_callbackHelper.get()));
   THROW_IF_FAILED(
@@ -357,12 +348,6 @@ void MediaEngineWrapper::OnBufferingStateChange(BufferingState state) {
 void MediaEngineWrapper::OnPlaybackEnded() {
   if (m_playbackEndedCB) {
     m_playbackEndedCB();
-  }
-}
-
-void MediaEngineWrapper::OnTimeUpdate() {
-  if (m_timeUpdateCB) {
-    m_timeUpdateCB();
   }
 }
 

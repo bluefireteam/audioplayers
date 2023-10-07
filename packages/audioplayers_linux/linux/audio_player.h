@@ -78,7 +78,6 @@ class AudioPlayer {
   bool _isLooping = false;
   bool _isSeekCompleted = true;
   double _playbackRate = 1.0;
-  guint _refreshId;
 
   std::string _url{};
   std::string _playerId;
@@ -92,8 +91,6 @@ class AudioPlayer {
                                GstMessage* message,
                                AudioPlayer* data);
 
-  static gboolean OnRefresh(AudioPlayer* data);
-
   void SetPlayback(int64_t seekTo, double rate);
 
   void OnMediaError(GError* error, gchar* debug);
@@ -101,8 +98,6 @@ class AudioPlayer {
   void OnMediaStateChange(GstObject* src,
                           GstState* old_state,
                           GstState* new_state);
-
-  void OnPositionUpdate();
 
   void OnDurationUpdate();
 

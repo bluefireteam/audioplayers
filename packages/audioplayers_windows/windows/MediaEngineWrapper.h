@@ -23,13 +23,11 @@ class MediaEngineWrapper
                      ErrorCB errorCB,
                      BufferingStateChangeCB bufferingStateChangeCB,
                      std::function<void()> playbackEndedCB,
-                     std::function<void()> timeUpdateCB,
                      std::function<void()> seekCompletedCB)
       : m_initializedCB(initializedCB),
         m_errorCB(errorCB),
         m_bufferingStateChangeCB(bufferingStateChangeCB),
         m_playbackEndedCB(playbackEndedCB),
-        m_timeUpdateCB(timeUpdateCB),
         m_seekCompletedCB(seekCompletedCB) {}
   ~MediaEngineWrapper() {}
 
@@ -69,7 +67,6 @@ class MediaEngineWrapper
   ErrorCB m_errorCB;
   BufferingStateChangeCB m_bufferingStateChangeCB;
   std::function<void()> m_playbackEndedCB;
-  std::function<void()> m_timeUpdateCB;
   std::function<void()> m_seekCompletedCB;
   MFPlatformRef m_platformRef;
   winrt::com_ptr<IMFMediaEngine> m_mediaEngine;
@@ -80,7 +77,6 @@ class MediaEngineWrapper
   void OnError(MF_MEDIA_ENGINE_ERR error, HRESULT hr);
   void OnBufferingStateChange(BufferingState state);
   void OnPlaybackEnded();
-  void OnTimeUpdate();
   void OnSeekCompleted();
 };
 

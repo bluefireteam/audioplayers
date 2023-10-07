@@ -123,7 +123,7 @@ $lastFailureMsg''',
         scrollable: find.byType(Scrollable).first,
       );
     }
-    await pumpAndSettle();
+    await pump();
   }
 }
 

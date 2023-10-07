@@ -182,10 +182,6 @@ class WrappedPlayer internal constructor(
         return if (prepared) player?.getCurrentPosition() else null
     }
 
-    fun isActuallyPlaying(): Boolean {
-        return playing && prepared && player?.isActuallyPlaying() == true
-    }
-
     val applicationContext: Context
         get() = ref.getApplicationContext()
 
@@ -207,7 +203,6 @@ class WrappedPlayer internal constructor(
                 initPlayer()
             } else if (prepared) {
                 currentPlayer.start()
-                ref.handleIsPlaying()
             }
         }
     }
@@ -277,7 +272,6 @@ class WrappedPlayer internal constructor(
         ref.handleDuration(this)
         if (playing) {
             player?.start()
-            ref.handleIsPlaying()
         }
         if (shouldSeekTo >= 0 && player?.isLiveStream() != true) {
             player?.seekTo(shouldSeekTo)
