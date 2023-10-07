@@ -132,11 +132,6 @@ void main() async {
               expect(positions.last, Duration.zero);
             }
           },
-          // FIXME(gustl22): Android provides no position for samples shorter
-          //  than 0.5 seconds.
-          skip: isAndroid &&
-              !td.isLiveStream &&
-              td.duration! < const Duration(seconds: 1),
         );
       }
     }
