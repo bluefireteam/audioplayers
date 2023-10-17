@@ -52,8 +52,13 @@ final mpgaUrlTestData = LibSourceTestData(
   duration: null,
 );
 
-final wavAssetTestData = LibSourceTestData(
-  source: AssetSource(wavAsset),
+final wavAsset1TestData = LibSourceTestData(
+  source: AssetSource(wavAsset1),
+  duration: const Duration(milliseconds: 451),
+);
+
+final wavAsset2TestData = LibSourceTestData(
+  source: AssetSource(wavAsset2),
   duration: const Duration(seconds: 1, milliseconds: 068),
 );
 
@@ -95,7 +100,7 @@ Future<List<LibSourceTestData>> getAudioTestDataList() async {
     if (_features.hasUrlSource && _features.hasPlaylistSourceType)
       m3u8UrlTestData,
     if (_features.hasUrlSource) mpgaUrlTestData,
-    if (_features.hasAssetSource) wavAssetTestData,
+    if (_features.hasAssetSource) wavAsset2TestData,
     /*if (_features.hasAssetSource)
       LibSourceTestData(
         source: AssetSource(mp3Asset),
@@ -103,7 +108,7 @@ Future<List<LibSourceTestData>> getAudioTestDataList() async {
       ),*/
     if (_features.hasBytesSource)
       LibSourceTestData(
-        source: BytesSource(await AudioCache.instance.loadAsBytes(wavAsset)),
+        source: BytesSource(await AudioCache.instance.loadAsBytes(wavAsset2)),
         duration: const Duration(seconds: 1, milliseconds: 068),
       ),
     /*if (_features.hasBytesSource)
