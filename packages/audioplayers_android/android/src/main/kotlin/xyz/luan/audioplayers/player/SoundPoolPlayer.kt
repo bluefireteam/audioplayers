@@ -122,7 +122,7 @@ class SoundPoolPlayer(
                     urlPlayers.add(this)
                 }
             }
-            field = value;
+            field = value
         }
 
     override fun setVolume(leftVolume: Float, rightVolume: Float) {
