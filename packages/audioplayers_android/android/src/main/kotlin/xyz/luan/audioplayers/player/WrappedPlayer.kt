@@ -27,7 +27,6 @@ class WrappedPlayer internal constructor(
     var source: Source? = null
         set(value) {
             if (field != value) {
-                field = value
                 if (value != null) {
                     val player = getOrCreatePlayer()
                     player.setSource(value)
@@ -38,6 +37,7 @@ class WrappedPlayer internal constructor(
                     playing = false
                     player?.release()
                 }
+                field = value
             } else {
                 ref.handlePrepared(this, true)
             }
