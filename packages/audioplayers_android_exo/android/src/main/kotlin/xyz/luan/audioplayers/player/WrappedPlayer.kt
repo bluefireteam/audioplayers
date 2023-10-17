@@ -162,12 +162,6 @@ class WrappedPlayer internal constructor(
         return if (prepared) player?.getCurrentPosition() else null
     }
 
-    fun isActuallyPlaying(): Boolean {
-        println("Playing: $playing")
-        println("Prepared: $prepared")
-        return playing && prepared && player?.isActuallyPlaying() == true
-    }
-
     val applicationContext: Context
         get() = ref.getApplicationContext()
 
@@ -189,7 +183,6 @@ class WrappedPlayer internal constructor(
                 initPlayer()
             } else if (prepared) {
                 currentPlayer.start()
-                ref.handleIsPlaying()
             }
         }
     }
@@ -259,7 +252,6 @@ class WrappedPlayer internal constructor(
         ref.handleDuration(this)
         if (playing) {
             player?.start()
-            ref.handleIsPlaying()
         }
         if (shouldSeekTo >= 0 && player?.isLiveStream() != true) {
             player?.seekTo(shouldSeekTo)
@@ -339,6 +331,7 @@ class WrappedPlayer internal constructor(
         // Need to set player before calling prepare, as onPrepared may is called before player is assigned
         this.player = player
         source?.let {
+            player.setSource(it)
             player.configAndPrepare()
         }
     }

@@ -61,11 +61,6 @@ class ExoPlayerWrapper(
         return player.currentPosition.toInt()
     }
 
-    override fun isActuallyPlaying(): Boolean {
-        println("Exo isPlaying")
-        return player.isPlaying
-    }
-
     override fun isLiveStream(): Boolean {
         println("Is LiveStream: ${player.isCurrentMediaItemLive}")
         return false
