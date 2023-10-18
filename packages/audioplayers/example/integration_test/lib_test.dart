@@ -245,4 +245,40 @@ void main() async {
       skip: !features.hasRespectSilence || !features.hasLowLatency,
     );
   });
+
+  group(
+    'Android only:',
+    () {
+      /// The test is auditory only!
+      /// It will succeed even if the wrong source is played.
+      testWidgets('Released wrong source on LOW_LATENCY (#1672)',
+          (WidgetTester tester) async {
+        var player = AudioPlayer()
+          ..setPlayerMode(PlayerMode.lowLatency)
+          ..setReleaseMode(ReleaseMode.stop);
+
+        await player.play(wavAsset1TestData.source);
+        await tester.pump(const Duration(seconds: 1));
+        await player.stop();
+
+        await player.play(wavAsset2TestData.source);
+        await tester.pump(const Duration(seconds: 1));
+        await player.stop();
+
+        player = AudioPlayer()
+          ..setPlayerMode(PlayerMode.lowLatency)
+          ..setReleaseMode(ReleaseMode.stop);
+
+        // This should play the new source, not the old one:
+        await player.play(wavAsset1TestData.source);
+        await tester.pump(const Duration(seconds: 1));
+        await player.stop();
+
+        await player.play(wavAsset2TestData.source);
+        await tester.pump(const Duration(seconds: 1));
+        await player.stop();
+      });
+    },
+    skip: !isAndroid,
+  );
 }
