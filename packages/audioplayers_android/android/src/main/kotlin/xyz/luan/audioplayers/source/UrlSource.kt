@@ -17,7 +17,8 @@ data class UrlSource(
     }
 
     override fun setForSoundPool(soundPoolPlayer: SoundPoolPlayer) {
-        soundPoolPlayer.setUrlSource(this)
+        soundPoolPlayer.release()
+        soundPoolPlayer.urlSource = this
     }
 
     fun getAudioPathForSoundPool(): String {

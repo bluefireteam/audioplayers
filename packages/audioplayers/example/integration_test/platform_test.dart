@@ -336,7 +336,7 @@ void main() async {
               testData: td,
             );
 
-            if (td.source == wavAssetTestData.source) {
+            if (td.source == wavAsset2TestData.source) {
               await tester.pumpLinux();
             }
 
