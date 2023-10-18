@@ -4,6 +4,9 @@ publish_to: none
 
 dependencies:
   audioplayers: ^5.2.0
+#  audioplayers_web: ^4.1.0
+#  audioplayers_android: ^4.0.2
+  audioplayers_android_exo: ^0.0.1
   collection: ^1.16.0
   file_picker: ^5.0.1
   flutter:
