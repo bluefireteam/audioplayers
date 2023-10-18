@@ -126,7 +126,8 @@ class SoundPoolPlayer(
                                 soundId = intSoundId
 
                                 wrappedPlayer.handleLog(
-                                    "time to call load() for $value: ${System.currentTimeMillis() - start} player=$this",
+                                    "time to call load() for $value: " +
+                                        "${System.currentTimeMillis() - start} player=$this",
                                 )
                             }
                         }
