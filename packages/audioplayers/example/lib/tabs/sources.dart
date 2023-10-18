@@ -28,7 +28,8 @@ final mpgaStreamUrl = useLocalServer
     ? '$host/stream/mpeg'
     : 'https://timesradio.wireless.radio/stream';
 
-const wavAsset = 'laser.wav';
+const wavAsset1 = 'coins.wav';
+const wavAsset2 = 'laser.wav';
 const mp3Asset = 'nasa_on_a_mission.mp3';
 const invalidAsset = 'invalid.txt';
 const specialCharAsset = 'coins_non_ascii_и.wav';
@@ -154,20 +155,20 @@ class _SourcesTabState extends State<SourcesTab>
         ),
         _createSourceTile(
           setSourceKey: const Key('setSource-asset-wav'),
-          title: 'Asset 1',
+          title: 'Asset WAV',
           subtitle: 'laser.wav',
-          source: AssetSource(wavAsset),
+          source: AssetSource(wavAsset2),
         ),
         _createSourceTile(
           setSourceKey: const Key('setSource-asset-mp3'),
-          title: 'Asset 2',
+          title: 'Asset MP3',
           subtitle: 'nasa.mp3',
           source: AssetSource(mp3Asset),
         ),
         _SourceTile(
-          setSource: () => _setSourceBytesAsset(_setSource, asset: wavAsset),
+          setSource: () => _setSourceBytesAsset(_setSource, asset: wavAsset2),
           setSourceKey: const Key('setSource-bytes-local'),
-          play: () => _setSourceBytesAsset(_play, asset: wavAsset),
+          play: () => _setSourceBytesAsset(_play, asset: wavAsset2),
           removeSource: _removeSourceWidget,
           title: 'Bytes - Local',
           subtitle: 'laser.wav',

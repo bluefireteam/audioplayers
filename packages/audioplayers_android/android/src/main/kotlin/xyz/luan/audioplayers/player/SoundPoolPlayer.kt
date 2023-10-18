@@ -41,9 +41,6 @@ class SoundPoolPlayer(
 
     private var soundPoolWrapper: SoundPoolWrapper
 
-    val urlSource: UrlSource?
-        get() = wrappedPlayer.source as? UrlSource
-
     private val soundPool: SoundPool
         get() = soundPoolWrapper.soundPool
 
@@ -77,6 +74,7 @@ class SoundPoolPlayer(
                 playersForSoundId.remove(this)
             }
             this.soundId = null
+            this.urlSource = null
         }
     }
 
@@ -92,39 +90,40 @@ class SoundPoolPlayer(
         source.setForSoundPool(this)
     }
 
-    fun setUrlSource(urlSource: UrlSource) {
-        if (soundId != null) {
-            release()
-        }
-        synchronized(soundPoolWrapper.urlToPlayers) {
-            val urlPlayers = soundPoolWrapper.urlToPlayers.getOrPut(urlSource) { mutableListOf() }
-            val originalPlayer = urlPlayers.firstOrNull()
+    var urlSource: UrlSource? = null
+        set(value) {
+            if (value != null) {
+                synchronized(soundPoolWrapper.urlToPlayers) {
+                    val urlPlayers = soundPoolWrapper.urlToPlayers.getOrPut(value) { mutableListOf() }
+                    val originalPlayer = urlPlayers.firstOrNull()
 
-            if (originalPlayer != null) {
-                // Sound has already been loaded - reuse the soundId.
-                val prepared = originalPlayer.wrappedPlayer.prepared
-                wrappedPlayer.prepared = prepared
-                soundId = originalPlayer.soundId
-                wrappedPlayer.handleLog("Reusing soundId $soundId for $urlSource is prepared=$prepared $this")
-            } else {
-                // First one for this URL - load it.
-                val start = System.currentTimeMillis()
+                    if (originalPlayer != null) {
+                        // Sound has already been loaded - reuse the soundId.
+                        val prepared = originalPlayer.wrappedPlayer.prepared
+                        wrappedPlayer.prepared = prepared
+                        soundId = originalPlayer.soundId
+                        wrappedPlayer.handleLog("Reusing soundId $soundId for $value is prepared=$prepared $this")
+                    } else {
+                        // First one for this URL - load it.
+                        val start = System.currentTimeMillis()
 
-                wrappedPlayer.prepared = false
-                wrappedPlayer.handleLog("Fetching actual URL for $urlSource")
-                val actualUrl = urlSource.getAudioPathForSoundPool()
-                wrappedPlayer.handleLog("Now loading $actualUrl")
-                val intSoundId = soundPool.load(actualUrl, 1)
-                soundPoolWrapper.soundIdToPlayer[intSoundId] = this
-                soundId = intSoundId
+                        wrappedPlayer.prepared = false
+                        wrappedPlayer.handleLog("Fetching actual URL for $value")
+                        val actualUrl = value.getAudioPathForSoundPool()
+                        wrappedPlayer.handleLog("Now loading $actualUrl")
+                        val intSoundId = soundPool.load(actualUrl, 1)
+                        soundPoolWrapper.soundIdToPlayer[intSoundId] = this
+                        soundId = intSoundId
 
-                wrappedPlayer.handleLog(
-                    "time to call load() for $urlSource: ${System.currentTimeMillis() - start} player=$this",
-                )
+                        wrappedPlayer.handleLog(
+                            "time to call load() for $value: ${System.currentTimeMillis() - start} player=$this",
+                        )
+                    }
+                    urlPlayers.add(this)
+                }
             }
-            urlPlayers.add(this)
+            field = value
         }
-    }
 
     override fun setVolume(leftVolume: Float, rightVolume: Float) {
         streamId?.let { soundPool.setVolume(it, leftVolume, rightVolume) }
