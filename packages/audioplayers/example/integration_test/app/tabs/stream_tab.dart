@@ -18,7 +18,7 @@ Future<void> testStreamsTab(
   await tester.pumpAndSettle();
 
   // Stream position is tracked as soon as source is loaded
-  if (features.hasPositionEvent && !audioSourceTestData.isLiveStream) {
+  if (!audioSourceTestData.isLiveStream) {
     // Display position before playing
     await tester.testPosition(Duration.zero);
   }
@@ -47,18 +47,16 @@ Future<void> testStreamsTab(
     }
 
     // Test if onPositionText is set.
-    if (features.hasPositionEvent) {
-      await tester.testPosition(
-        Duration.zero,
-        matcher: (Duration? position) => greaterThan(position ?? Duration.zero),
-        timeout: timeout,
-      );
-      await tester.testOnPosition(
-        Duration.zero,
-        matcher: greaterThan,
-        timeout: timeout,
-      );
-    }
+    await tester.testPosition(
+      Duration.zero,
+      matcher: (Duration? position) => greaterThan(position ?? Duration.zero),
+      timeout: timeout,
+    );
+    await tester.testOnPosition(
+      Duration.zero,
+      matcher: greaterThan,
+      timeout: timeout,
+    );
   }
 
   if (features.hasDurationEvent && !audioSourceTestData.isLiveStream) {
@@ -110,7 +108,7 @@ Future<void> testStreamsTab(
       );
     }
   }
-  if (features.hasPositionEvent && !audioSourceTestData.isLiveStream) {
+  if (!audioSourceTestData.isLiveStream) {
     await tester.testPosition(Duration.zero);
   }
 }

@@ -88,57 +88,69 @@ void main() async {
     setUp(() async {
       player = AudioPlayer(
         playerId: 'somePlayerId',
-        // These test should also work with:
-        // positionUpdateInterval: const Duration(milliseconds: 100)
       );
     });
 
+    void testPositionUpdater(
+      LibSourceTestData td, {
+      bool useTimerPositionUpdater = false,
+    }) {
+      testWidgets(
+        '#positionEvent ${td.source}',
+        (tester) async {
+          await tester.pumpLinux();
+
+          if (useTimerPositionUpdater) {
+            player.positionUpdater = TimerPositionUpdater(
+              getPosition: player.getCurrentPosition,
+              interval: const Duration(milliseconds: 100),
+            );
+          }
+          final futurePositions = player.onPositionChanged.toList();
+
+          await player.setReleaseMode(ReleaseMode.stop);
+          await player.setSource(td.source);
+          await player.resume();
+          await tester.pumpGlobalFrames(const Duration(seconds: 5));
+
+          if (!td.isLiveStream && td.duration! < const Duration(seconds: 2)) {
+            expect(player.state, PlayerState.completed);
+          } else {
+            if (td.isLiveStream || td.duration! > const Duration(seconds: 10)) {
+              expect(player.state, PlayerState.playing);
+            } else {
+              // Don't know for sure, if has yet completed or is still playing
+            }
+            await player.stop();
+            expect(player.state, PlayerState.stopped);
+          }
+          await tester.pumpLinux();
+          await player.dispose();
+          final positions = await futurePositions;
+          printOnFailure('Positions: $positions');
+          expect(positions, isNot(contains(null)));
+          expect(positions, contains(greaterThan(Duration.zero)));
+          if (td.isLiveStream) {
+            // TODO(gustl22): Live streams may have zero or null as initial
+            //  position. This should be consistent across all platforms.
+          } else {
+            expect(positions.first, Duration.zero);
+            expect(positions.last, Duration.zero);
+          }
+        },
+        // FIXME(gustl22): Android provides no position for samples shorter
+        //  than 0.5 seconds.
+        skip: isAndroid &&
+            !td.isLiveStream &&
+            td.duration! < const Duration(seconds: 1),
+      );
+    }
+
+    /// Test at least one source with [TimerPositionUpdater].
+    testPositionUpdater(mp3Url1TestData, useTimerPositionUpdater: true);
+
     for (final td in audioTestDataList) {
-      if (features.hasPositionEvent) {
-        testWidgets(
-          '#positionEvent ${td.source}',
-          (tester) async {
-            await tester.pumpLinux();
-            final futurePositions = player.onPositionChanged.toList();
-
-            await player.setReleaseMode(ReleaseMode.stop);
-            await player.setSource(td.source);
-            await player.resume();
-            await tester.pumpGlobalFrames(const Duration(seconds: 5));
-
-            if (!td.isLiveStream && td.duration! < const Duration(seconds: 2)) {
-              expect(player.state, PlayerState.completed);
-            } else {
-              if (td.isLiveStream ||
-                  td.duration! > const Duration(seconds: 10)) {
-                expect(player.state, PlayerState.playing);
-              } else {
-                // Don't know for sure, if has yet completed or is still playing
-              }
-              await player.stop();
-              expect(player.state, PlayerState.stopped);
-            }
-            await tester.pumpLinux();
-            await player.dispose();
-            final positions = await futurePositions;
-            printOnFailure('Positions: $positions');
-            expect(positions, isNot(contains(null)));
-            expect(positions, contains(greaterThan(Duration.zero)));
-            if (td.isLiveStream) {
-              // TODO(gustl22): Live streams may have zero or null as initial
-              //  position. This should be consistent across all platforms.
-            } else {
-              expect(positions.first, Duration.zero);
-              expect(positions.last, Duration.zero);
-            }
-          },
-          // FIXME(gustl22): Android provides no position for samples shorter
-          //  than 0.5 seconds.
-          skip: isAndroid &&
-              !td.isLiveStream &&
-              td.duration! < const Duration(seconds: 1),
-        );
-      }
+      testPositionUpdater(td);
     }
   });
 

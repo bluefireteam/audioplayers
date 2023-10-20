@@ -92,7 +92,6 @@ class PlatformFeatures {
   final bool hasPlayingRoute; // Not yet tested
 
   final bool hasDurationEvent;
-  final bool hasPositionEvent;
   final bool hasPlayerStateEvent;
   final bool hasErrorEvent; // Not yet tested
 
@@ -116,7 +115,6 @@ class PlatformFeatures {
     this.hasRecordingActive = true,
     this.hasPlayingRoute = true,
     this.hasDurationEvent = true,
-    this.hasPositionEvent = true,
     this.hasPlayerStateEvent = true,
     this.hasErrorEvent = true,
   });
