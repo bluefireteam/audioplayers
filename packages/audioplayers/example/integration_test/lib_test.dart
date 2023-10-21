@@ -95,8 +95,11 @@ void main() async {
       LibSourceTestData td, {
       bool useTimerPositionUpdater = false,
     }) {
+      final positionUpdaterName = useTimerPositionUpdater
+          ? 'TimerPositionUpdater'
+          : 'FramePositionUpdater';
       testWidgets(
-        '#positionEvent ${td.source}',
+        '#positionEvent with $positionUpdaterName: ${td.source}',
         (tester) async {
           await tester.pumpLinux();
 
