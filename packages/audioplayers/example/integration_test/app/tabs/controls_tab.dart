@@ -148,7 +148,7 @@ Future<void> testControlsTab(
 extension ControlsWidgetTester on WidgetTester {
   Future<void> resume() async {
     await scrollToAndTap(const Key('control-resume'));
-    await pumpAndSettle();
+    await pump();
   }
 
   Future<void> stop() async {
@@ -156,7 +156,7 @@ extension ControlsWidgetTester on WidgetTester {
 
     await scrollToAndTap(const Key('control-stop'));
     await waitOneshot(const Key('toast-player-stopped-0'), stackTrace: st);
-    await pumpAndSettle();
+    await pump();
   }
 
   Future<void> testVolume(

@@ -17,6 +17,8 @@ void main() {
     required String playerId,
   }) async {
     final player = AudioPlayer(playerId: playerId);
+    // Avoid unpredictable position updates
+    player.positionUpdater = null;
     expect(player.source, null);
     await player.creatingCompleter.future;
     expect(platform.popCall().method, 'create');
@@ -51,8 +53,7 @@ void main() {
       final call1 = platform.popCall();
       expect(call1.method, 'setSourceUrl');
       expect(call1.value, 'internet.com/file.mp3');
-      final call2 = platform.popLastCall();
-      expect(call2.method, 'resume');
+      expect(platform.popLastCall().method, 'resume');
     });
 
     test('multiple players', () async {
@@ -63,8 +64,7 @@ void main() {
       expect(call1.id, 'p1');
       expect(call1.method, 'setSourceUrl');
       expect(call1.value, 'internet.com/file.mp3');
-      final call2 = platform.popLastCall();
-      expect(call2.method, 'resume');
+      expect(platform.popLastCall().method, 'resume');
 
       platform.clear();
       await player.play(UrlSource('internet.com/file.mp3'));
@@ -130,10 +130,6 @@ void main() {
         const AudioEvent(
           eventType: AudioEventType.duration,
           duration: Duration(milliseconds: 98765),
-        ),
-        const AudioEvent(
-          eventType: AudioEventType.position,
-          position: Duration(milliseconds: 8765),
         ),
         const AudioEvent(
           eventType: AudioEventType.log,

@@ -18,7 +18,6 @@ class WrappedMediaPlayer {
   private var volume: Double
   private var url: String?
 
-  private var positionObserver: TimeObserver!
   private var completionObserver: TimeObserver?
   private var playerItemStatusObservation: NSKeyValueObservation?
 
@@ -42,8 +41,6 @@ class WrappedMediaPlayer {
     self.volume = volume
     self.looping = looping
     self.url = url
-
-    self.setUpPositionObserver(player)
   }
 
   func setSourceUrl(
@@ -152,7 +149,6 @@ class WrappedMediaPlayer {
 
   func dispose(completer: Completer? = nil) {
     release {
-      NotificationCenter.default.removeObserver(self.positionObserver.observer)
       completer?()
     }
   }
@@ -197,15 +193,6 @@ class WrappedMediaPlayer {
         break
       }
     }
-  }
-
-  private func setUpPositionObserver(_ player: AVPlayer) {
-    let interval = toCMTime(millis: 200)
-    let observer = player.addPeriodicTimeObserver(forInterval: interval, queue: nil) {
-      [weak self] time in
-      self?.onTimeInterval(time: time)
-    }
-    self.positionObserver = TimeObserver(player: player, observer: observer)
   }
 
   private func setUpSoundCompletedObserver(_ player: AVPlayer, _ playerItem: AVPlayerItem) {
@@ -262,10 +249,5 @@ class WrappedMediaPlayer {
 
     reference.controlAudioSession()
     eventHandler.onComplete()
-  }
-
-  private func onTimeInterval(time: CMTime) {
-    let millis = fromCMTime(time: time)
-    eventHandler.onCurrentPosition(millis: millis)
   }
 }

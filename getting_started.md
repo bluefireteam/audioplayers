@@ -333,3 +333,15 @@ If you want to specify the playerId, you can do so when creating the playing:
 ```
 
 Two players with the same id will point to the same media player on the native side.
+
+### PositionUpdater
+
+By default, the position stream is updated on every new frame. You can change this behavior to e.g. update on a certain
+interval with the `TimerPositionUpdater` or implement your own `PositionUpdater`:
+
+```dart
+  player.positionUpdater = TimerPositionUpdater(
+    interval: const Duration(milliseconds: 100),
+    getPosition: player.getCurrentPosition,
+  );
+```

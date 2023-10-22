@@ -43,9 +43,6 @@ AudioPlayer::AudioPlayer(std::string playerId,
 
   // Watch bus messages for one time events
   gst_bus_add_watch(bus, (GstBusFunc)AudioPlayer::OnBusMessage, this);
-
-  // Refresh continuously to emit reoccurring events
-  _refreshId = g_timeout_add(250, (GSourceFunc)AudioPlayer::OnRefresh, this);
 }
 
 AudioPlayer::~AudioPlayer() {}
@@ -138,22 +135,6 @@ gboolean AudioPlayer::OnBusMessage(GstBus* bus,
   return TRUE;
 };
 
-// Compare with refresh_ui in
-// https://gstreamer.freedesktop.org/documentation/tutorials/basic/toolkit-integration.html?gi-language=c#walkthrough
-gboolean AudioPlayer::OnRefresh(AudioPlayer* data) {
-  if (data->playbin == nullptr) {
-    return FALSE;
-  }
-  // We do not want to update anything unless we are in PLAYING state
-  GstState playbinState;
-  gst_element_get_state(data->playbin, &playbinState, NULL,
-                        GST_CLOCK_TIME_NONE);
-  if (playbinState == GST_STATE_PLAYING) {
-    data->OnPositionUpdate();
-  }
-  return TRUE;
-}
-
 void AudioPlayer::OnMediaError(GError* error, gchar* debug) {
   if (this->_eventChannel) {
     gchar const* code = "LinuxAudioError";
@@ -221,7 +202,6 @@ void AudioPlayer::OnMediaStateChange(GstObject* src,
       }
     } else if (*old_state == GST_STATE_PAUSED &&
                *new_state == GST_STATE_PLAYING) {
-      OnPositionUpdate();
       OnDurationUpdate();
     } else if (*new_state >= GST_STATE_PAUSED) {
       if (!this->_isInitialized) {
@@ -246,17 +226,6 @@ void AudioPlayer::OnPrepared(bool isPrepared) {
   }
 }
 
-void AudioPlayer::OnPositionUpdate() {
-  if (this->_eventChannel) {
-    g_autoptr(FlValue) map = fl_value_new_map();
-    fl_value_set_string(map, "event",
-                        fl_value_new_string("audio.onCurrentPosition"));
-    fl_value_set_string(map, "value",
-                        fl_value_new_int(GetPosition().value_or(0)));
-    fl_event_channel_send(this->_eventChannel, map, nullptr, nullptr);
-  }
-}
-
 void AudioPlayer::OnDurationUpdate() {
   if (this->_eventChannel) {
     g_autoptr(FlValue) map = fl_value_new_map();
@@ -269,7 +238,6 @@ void AudioPlayer::OnDurationUpdate() {
 
 void AudioPlayer::OnSeekCompleted() {
   if (this->_eventChannel) {
-    OnPositionUpdate();
     g_autoptr(FlValue) map = fl_value_new_map();
     fl_value_set_string(map, "event",
                         fl_value_new_string("audio.onSeekComplete"));
@@ -439,7 +407,6 @@ void AudioPlayer::Pause() {
   }
   GstStateChangeReturn ret = gst_element_set_state(playbin, GST_STATE_PAUSED);
   if (ret == GST_STATE_CHANGE_SUCCESS) {
-    OnPositionUpdate();  // Update to exact position when pausing
   } else if (ret == GST_STATE_CHANGE_FAILURE) {
     throw "Unable to set the pipeline to GST_STATE_PAUSED.";
   }
@@ -454,9 +421,7 @@ void AudioPlayer::Resume() {
   }
   GstStateChangeReturn ret = gst_element_set_state(playbin, GST_STATE_PLAYING);
   if (ret == GST_STATE_CHANGE_SUCCESS) {
-    // Update position and duration when start playing, as no event is emitted
-    // elsewhere
-    OnPositionUpdate();
+    // Update duration when start playing, as no event is emitted elsewhere
     OnDurationUpdate();
   } else if (ret == GST_STATE_CHANGE_FAILURE) {
     throw "Unable to set the pipeline to GST_STATE_PLAYING.";
@@ -467,8 +432,6 @@ void AudioPlayer::Dispose() {
   if (!playbin)
     throw "Player was already disposed (Dispose)";
   ReleaseMediaSource();
-
-  g_source_remove(_refreshId);
 
   if (bus) {
     gst_bus_remove_watch(bus);

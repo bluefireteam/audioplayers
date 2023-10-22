@@ -18,7 +18,7 @@ Future<void> testStreamsTab(
   await tester.pumpAndSettle();
 
   // Stream position is tracked as soon as source is loaded
-  if (features.hasPositionEvent && !audioSourceTestData.isLiveStream) {
+  if (!audioSourceTestData.isLiveStream) {
     // Display position before playing
     await tester.testPosition(Duration.zero);
   }
@@ -33,7 +33,7 @@ Future<void> testStreamsTab(
 
   await tester.pumpAndSettle();
   await tester.scrollToAndTap(const Key('play_button'));
-  await tester.pumpAndSettle();
+  await tester.pump();
 
   // Cannot test more precisely as it is dependent on pollInterval
   // and updateInterval of native implementation.
@@ -47,18 +47,16 @@ Future<void> testStreamsTab(
     }
 
     // Test if onPositionText is set.
-    if (features.hasPositionEvent) {
-      await tester.testPosition(
-        Duration.zero,
-        matcher: (Duration? position) => greaterThan(position ?? Duration.zero),
-        timeout: timeout,
-      );
-      await tester.testOnPosition(
-        Duration.zero,
-        matcher: greaterThan,
-        timeout: timeout,
-      );
-    }
+    await tester.testPosition(
+      Duration.zero,
+      matcher: (Duration? position) => greaterThan(position ?? Duration.zero),
+      timeout: timeout,
+    );
+    await tester.testOnPosition(
+      Duration.zero,
+      matcher: greaterThan,
+      timeout: timeout,
+    );
   }
 
   if (features.hasDurationEvent && !audioSourceTestData.isLiveStream) {
@@ -110,7 +108,7 @@ Future<void> testStreamsTab(
       );
     }
   }
-  if (features.hasPositionEvent && !audioSourceTestData.isLiveStream) {
+  if (!audioSourceTestData.isLiveStream) {
     await tester.testPosition(Duration.zero);
   }
 }
@@ -122,13 +120,6 @@ extension StreamWidgetTester on WidgetTester {
   // Linux: millisecond
   // Web: millisecond
   // Darwin: millisecond
-
-  // Update interval for position:
-  // Android: ~200ms
-  // Windows: ~250ms
-  // Linux: ~250ms
-  // Web: ~250ms
-  // Darwin: ~200ms
 
   Future<void> stopStream() async {
     final st = StackTrace.current.toString();

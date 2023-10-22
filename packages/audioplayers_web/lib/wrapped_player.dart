@@ -19,7 +19,6 @@ class WrappedPlayer {
 
   AudioElement? player;
   StereoPannerNode? _stereoPanner;
-  StreamSubscription? _playerTimeUpdateSubscription;
   StreamSubscription? _playerEndedSubscription;
   StreamSubscription? _playerLoadedDataSubscription;
   StreamSubscription? _playerPlaySubscription;
@@ -117,17 +116,6 @@ class WrappedPlayer {
       },
       onError: eventStreamController.addError,
     );
-    _playerTimeUpdateSubscription = p.onTimeUpdate.listen(
-      (_) {
-        eventStreamController.add(
-          AudioEvent(
-            eventType: AudioEventType.position,
-            position: p.currentTime.fromSecondsToDuration(),
-          ),
-        );
-      },
-      onError: eventStreamController.addError,
-    );
     _playerSeekedSubscription = p.onSeeked.listen(
       (_) {
         eventStreamController.add(
@@ -188,8 +176,6 @@ class WrappedPlayer {
 
     _playerLoadedDataSubscription?.cancel();
     _playerLoadedDataSubscription = null;
-    _playerTimeUpdateSubscription?.cancel();
-    _playerTimeUpdateSubscription = null;
     _playerEndedSubscription?.cancel();
     _playerEndedSubscription = null;
     _playerSeekedSubscription?.cancel();

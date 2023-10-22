@@ -408,12 +408,6 @@ class AudioPlayersStreamHandler: NSObject, FlutterStreamHandler {
     }
   }
 
-  func onCurrentPosition(millis: Int) {
-    if let eventSink = self.sink {
-      eventSink(["event": "audio.onCurrentPosition", "value": millis] as [String: Any])
-    }
-  }
-
   func onDuration(millis: Int) {
     if let eventSink = self.sink {
       eventSink(["event": "audio.onDuration", "value": millis] as [String: Any])

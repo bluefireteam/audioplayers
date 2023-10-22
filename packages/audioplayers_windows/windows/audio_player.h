@@ -108,8 +108,6 @@ class AudioPlayer {
 
   void OnDurationUpdate();
 
-  void OnTimeUpdate();
-
   void OnSeekCompleted();
 
   void OnPrepared(bool isPrepared);
