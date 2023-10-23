@@ -1,10 +1,12 @@
 extension UriCoder on Uri {
   static String encodeOnce(String uri) {
-    var tmpUri = uri;
     try {
-      // Try decoding first to avoid encoding twice:
-      tmpUri = Uri.decodeFull(tmpUri);
+      // If decoded differs, the uri was already encoded.
+      final decodedUri = Uri.decodeFull(uri);
+      if (decodedUri != uri) {
+        return uri;
+      }
     } on ArgumentError catch (_) {}
-    return Uri.encodeFull(tmpUri);
+    return Uri.encodeFull(uri);
   }
 }
