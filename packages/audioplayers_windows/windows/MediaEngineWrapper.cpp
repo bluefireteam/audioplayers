@@ -309,15 +309,18 @@ void MediaEngineWrapper::CreateMediaEngine() {
 }
 
 void MediaEngineWrapper::SetMediaSource(IMFMediaSource* mediaSource) {
-  winrt::com_ptr<IUnknown> sourceUnknown;
-  THROW_IF_FAILED(
-      mediaSource->QueryInterface(IID_PPV_ARGS(sourceUnknown.put())));
-  m_mediaEngineExtension->SetMediaSource(sourceUnknown.get());
+  RunSyncInMTA([&]() {
+    auto lock = m_lock.lock();
+    winrt::com_ptr<IUnknown> sourceUnknown;
+    THROW_IF_FAILED(
+        mediaSource->QueryInterface(IID_PPV_ARGS(sourceUnknown.put())));
+    m_mediaEngineExtension->SetMediaSource(sourceUnknown.get());
 
-  winrt::com_ptr<IMFMediaEngineEx> mediaEngineEx =
-      m_mediaEngine.as<IMFMediaEngineEx>();
-  wil::unique_bstr source = wil::make_bstr(L"customSrc");
-  THROW_IF_FAILED(mediaEngineEx->SetSource(source.get()));
+    winrt::com_ptr<IMFMediaEngineEx> mediaEngineEx =
+        m_mediaEngine.as<IMFMediaEngineEx>();
+    wil::unique_bstr source = wil::make_bstr(L"customSrc");
+    THROW_IF_FAILED(mediaEngineEx->SetSource(source.get()));
+  });
 }
 
 void MediaEngineWrapper::ReleaseMediaSource() {

@@ -18,6 +18,9 @@
 #include "audio_player.h"
 #include "audioplayers_helpers.h"
 
+#define STR_LINK_TROUBLESHOOTING \
+  "https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md"
+
 namespace {
 
 using namespace flutter;
@@ -177,7 +180,22 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
       return;
     }
 
-    std::thread(&AudioPlayer::SetSourceUrl, player, url).detach();
+    try {
+      player->SetSourceUrl(url);
+    } catch (const std::exception& ex) {
+      result->Error("WindowsAudioError",
+                  "Failed to set source. For troubleshooting, "
+                  "see: " STR_LINK_TROUBLESHOOTING,
+                  flutter::EncodableValue(ex.what()));
+      return;
+    } catch (...) {
+      result->Error("WindowsAudioError",
+                  "Failed to set source. For troubleshooting, "
+                  "see: " STR_LINK_TROUBLESHOOTING,
+                  flutter::EncodableValue("Unknown Error setting url to '" +
+                                          url + "'."));
+      return;
+    }
   } else if (method_call.method_name().compare("setSourceBytes") == 0) {
     auto data = GetArgument<std::vector<uint8_t>>("bytes", args,
                                                   std::vector<uint8_t>{});
@@ -188,7 +206,21 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
       return;
     }
 
-    std::thread(&AudioPlayer::SetSourceBytes, player, data).detach();
+    try {
+      player->SetSourceBytes(data);
+    } catch (const std::exception& ex) {
+      result->Error("WindowsAudioError",
+                    "Failed to set source. For troubleshooting, "
+                    "see: " STR_LINK_TROUBLESHOOTING,
+                    flutter::EncodableValue(ex.what()));
+      return;
+    } catch (...) {
+      result->Error("WindowsAudioError",
+                    "Failed to set source. For troubleshooting, "
+                    "see: " STR_LINK_TROUBLESHOOTING,
+                    nullptr);
+      return;
+    }
   } else if (method_call.method_name().compare("getDuration") == 0) {
     auto duration = player->GetDuration();
     result->Success(isnan(duration)
