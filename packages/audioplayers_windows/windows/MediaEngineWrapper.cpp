@@ -331,8 +331,8 @@ void MediaEngineWrapper::ReleaseMediaSource() {
 // Callback methods
 
 void MediaEngineWrapper::OnLoaded() {
-  if (m_initializedCB) {
-    m_initializedCB();
+  if (m_onLoadedCB) {
+    m_onLoadedCB();
   }
 }
 
