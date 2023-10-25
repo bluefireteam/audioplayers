@@ -24,7 +24,7 @@ class MediaEngineWrapper
                      BufferingStateChangeCB bufferingStateChangeCB,
                      std::function<void()> playbackEndedCB,
                      std::function<void()> seekCompletedCB)
-      : m_initializedCB(initializedCB),
+      : m_onLoadedCB(initializedCB),
         m_errorCB(errorCB),
         m_bufferingStateChangeCB(bufferingStateChangeCB),
         m_playbackEndedCB(playbackEndedCB),
@@ -63,7 +63,7 @@ class MediaEngineWrapper
 
  private:
   wil::critical_section m_lock;
-  std::function<void()> m_initializedCB;
+  std::function<void()> m_onLoadedCB;
   ErrorCB m_errorCB;
   BufferingStateChangeCB m_bufferingStateChangeCB;
   std::function<void()> m_playbackEndedCB;
