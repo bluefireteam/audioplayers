@@ -187,6 +187,9 @@ class AudioPlayer {
     Duration? position,
     PlayerMode? mode,
   }) async {
+
+    await setSource(source);
+
     if (mode != null) {
       await setPlayerMode(mode);
     }
@@ -202,7 +205,7 @@ class AudioPlayer {
     if (position != null) {
       await seek(position);
     }
-    await setSource(source);
+
     await resume();
   }
 
