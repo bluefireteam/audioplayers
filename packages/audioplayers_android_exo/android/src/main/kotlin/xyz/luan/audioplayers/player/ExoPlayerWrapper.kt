@@ -1,8 +1,6 @@
 package xyz.luan.audioplayers.player
 
 import android.content.Context
-import android.os.Handler
-import android.os.Looper
 import com.google.android.exoplayer2.C.TIME_UNSET
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
@@ -20,25 +18,18 @@ class ExoPlayerWrapper(
 ) : Player {
 
     class ExoPlayerListener(private val wrappedPlayer: WrappedPlayer) : com.google.android.exoplayer2.Player.Listener {
-
-        private val handler = Handler(Looper.getMainLooper())
         override fun onPlayerError(error: PlaybackException) {
-            handler.post {
-                println("ExoError")
-                wrappedPlayer.handleError(
-                    errorCode = error.errorCodeName,
-                    errorMessage = error.message,
-                    errorDetails = error.stackTraceToString(),
-                )
-            }
+            wrappedPlayer.handleError(
+                errorCode = error.errorCodeName,
+                errorMessage = error.message,
+                errorDetails = error.stackTraceToString(),
+            )
         }
 
         override fun onPlaybackStateChanged(playbackState: Int) {
-            handler.post {
-                println("ExoPlaybackChanged $playbackState")
-                when (playbackState) {
-                    STATE_ENDED -> wrappedPlayer.onCompletion()
-                }
+            println("ExoPlaybackChanged $playbackState")
+            when (playbackState) {
+                STATE_ENDED -> wrappedPlayer.onCompletion()
             }
         }
     }
