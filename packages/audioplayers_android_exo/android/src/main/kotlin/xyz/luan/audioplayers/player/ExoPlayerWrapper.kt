@@ -1,12 +1,12 @@
 package xyz.luan.audioplayers.player
 
 import android.content.Context
-import com.google.android.exoplayer2.C.TIME_UNSET
+import androidx.media3.common.C.TIME_UNSET
 import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.PlaybackException
-import com.google.android.exoplayer2.Player.*
-import com.google.android.exoplayer2.audio.AudioAttributes
+import androidx.media3.common.MediaItem
+import androidx.media3.common.PlaybackException
+import androidx.media3.common.Player.*
+import androidx.media3.common.AudioAttributes
 import xyz.luan.audioplayers.AudioContextAndroid
 import xyz.luan.audioplayers.source.BytesSource
 import xyz.luan.audioplayers.source.Source
@@ -17,7 +17,7 @@ class ExoPlayerWrapper(
     private val appContext: Context,
 ) : Player {
 
-    class ExoPlayerListener(private val wrappedPlayer: WrappedPlayer) : com.google.android.exoplayer2.Player.Listener {
+    class ExoPlayerListener(private val wrappedPlayer: WrappedPlayer) : androidx.media3.common.Player.Listener {
         override fun onPlayerError(error: PlaybackException) {
             wrappedPlayer.handleError(
                 errorCode = error.errorCodeName,
@@ -35,7 +35,7 @@ class ExoPlayerWrapper(
     }
 
     var player = ExoPlayer.Builder(appContext).build().apply {
-//        val playerView = StyledPlayerControlView(appContext)
+//        val playerView = PlayerControlView(appContext)
 //        playerView.player = this
 //        experimentalSetOffloadSchedulingEnabled(true);
 //        setAudioSessionId();
