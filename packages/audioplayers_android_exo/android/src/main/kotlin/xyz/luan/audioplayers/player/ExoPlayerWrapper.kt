@@ -15,7 +15,7 @@ import xyz.luan.audioplayers.source.UrlSource
 class ExoPlayerWrapper(
     private val wrappedPlayer: WrappedPlayer,
     private val appContext: Context,
-) : Player {
+) : PlayerWrapper {
 
     class ExoPlayerListener(private val wrappedPlayer: WrappedPlayer) : androidx.media3.common.Player.Listener {
         override fun onPlayerError(error: PlaybackException) {
@@ -45,7 +45,7 @@ class ExoPlayerWrapper(
         }
     }
 
-    var player = ExoPlayer.Builder(appContext).build().apply {
+    var player: ExoPlayer = ExoPlayer.Builder(appContext).build().apply {
 //        val playerView = PlayerControlView(appContext)
 //        playerView.player = this
 //        experimentalSetOffloadSchedulingEnabled(true);
@@ -133,8 +133,8 @@ class ExoPlayerWrapper(
         if (source is UrlSource) {
             player.setMediaItem(MediaItem.fromUri(source.url))
         } else if (source is BytesSource) {
-            TODO("Not yet implemented")
-
+            //TODO("Not yet implemented")
+            //player.setMediaSource(ByteArrayDataSource(source.data))
         }
     }
 

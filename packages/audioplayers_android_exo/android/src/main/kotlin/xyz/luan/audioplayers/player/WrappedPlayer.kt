@@ -14,7 +14,7 @@ class WrappedPlayer internal constructor(
     val eventHandler: EventHandler,
     var context: AudioContextAndroid,
 ) {
-    private var player: Player? = null
+    private var player: PlayerWrapper? = null
 
     init {
         createPlayer().also {
@@ -258,17 +258,17 @@ class WrappedPlayer internal constructor(
     /**
      * Create new player
      */
-    private fun createPlayer(): Player {
+    private fun createPlayer(): PlayerWrapper {
         return ExoPlayerWrapper(this, ref.getApplicationContext())
     }
 
-    private fun Player.configAndPrepare() {
+    private fun PlayerWrapper.configAndPrepare() {
         setVolumeAndBalance(volume, balance)
         setLooping(isLooping)
         prepare()
     }
 
-    private fun Player.setVolumeAndBalance(volume: Float, balance: Float) {
+    private fun PlayerWrapper.setVolumeAndBalance(volume: Float, balance: Float) {
         val leftVolume = min(1f, 1f - balance) * volume
         val rightVolume = min(1f, 1f + balance) * volume
         setVolume(leftVolume, rightVolume)
