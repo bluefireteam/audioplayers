@@ -2,16 +2,12 @@ package xyz.luan.audioplayers.player
 
 import android.content.Context
 import android.media.AudioManager
-import android.media.MediaPlayer
 import xyz.luan.audioplayers.AudioContextAndroid
 import xyz.luan.audioplayers.AudioplayersPlugin
 import xyz.luan.audioplayers.EventHandler
 import xyz.luan.audioplayers.ReleaseMode
 import xyz.luan.audioplayers.source.Source
 import kotlin.math.min
-
-// For some reason this cannot be accessed from MediaPlayer.MEDIA_ERROR_SYSTEM
-private const val MEDIA_ERROR_SYSTEM = -2147483648
 
 class WrappedPlayer internal constructor(
     private val ref: AudioplayersPlugin,
@@ -20,14 +16,19 @@ class WrappedPlayer internal constructor(
 ) {
     private var player: Player? = null
 
+    init {
+        createPlayer().also {
+            player = it
+            released = false
+        }
+    }
     var source: Source? = null
         set(value) {
             if (field != value) {
                 field = value
                 if (value != null) {
-                    val player = getOrCreatePlayer()
-                    player.setSource(value)
-                    player.configAndPrepare()
+                    player?.setSource(value)
+                    player?.configAndPrepare()
                 } else {
                     released = true
                     prepared = false
@@ -97,28 +98,6 @@ class WrappedPlayer internal constructor(
 
     private val focusManager = FocusManager(this)
 
-    private fun maybeGetCurrentPosition(): Int {
-        // for Sound Pool, we can't get current position, so we just start over
-        return runCatching { player?.getCurrentPosition().takeUnless { it == 0 } }.getOrNull() ?: -1
-    }
-
-    private fun getOrCreatePlayer(): Player {
-        val currentPlayer = player
-        return if (released || currentPlayer == null) {
-            createPlayer().also {
-                player = it
-                released = false
-            }
-        } else if (prepared) {
-            currentPlayer.also {
-                it.reset()
-                prepared = false
-            }
-        } else {
-            currentPlayer
-        }
-    }
-
     fun updateAudioContext(audioContext: AudioContextAndroid) {
         if (context == audioContext) {
             return
@@ -177,12 +156,9 @@ class WrappedPlayer internal constructor(
 
     private fun actuallyPlay() {
         if (!playing && !released) {
-            val currentPlayer = player
             playing = true
-            if (currentPlayer == null) {
-                initPlayer()
-            } else if (prepared) {
-                currentPlayer.start()
+            if (prepared) {
+                player?.start()
             }
         }
     }
@@ -195,14 +171,16 @@ class WrappedPlayer internal constructor(
         if (releaseMode != ReleaseMode.RELEASE) {
             pause()
             if (prepared) {
-                if (player?.isLiveStream() == true) {
-                    player?.stop()
-                    prepared = false
-                    player?.prepare()
-                } else {
-                    // MediaPlayer does not allow to call player.seekTo after calling player.stop
-                    seek(0)
-                }
+                player?.stop()
+//                seek(0)
+//                if (player?.isLiveStream() == true) {
+//                    player?.stop()
+//                    prepared = false
+//                    player?.prepare()
+//                } else {
+//                    // MediaPlayer does not allow to call player.seekTo after calling player.stop
+//                    seek(0)
+//                }
             }
         } else {
             release()
@@ -221,7 +199,6 @@ class WrappedPlayer internal constructor(
         // Setting source to null will reset released, prepared and playing
         // and also calls player.release()
         source = null
-        player = null
     }
 
     fun pause() {
@@ -282,36 +259,6 @@ class WrappedPlayer internal constructor(
         ref.handleError(this, errorCode, errorMessage, errorDetails)
     }
 
-    fun onError(what: Int, extra: Int): Boolean {
-        val whatMsg = if (what == MediaPlayer.MEDIA_ERROR_SERVER_DIED) {
-            "MEDIA_ERROR_SERVER_DIED"
-        } else {
-            "MEDIA_ERROR_UNKNOWN {what:$what}"
-        }
-        val extraMsg = when (extra) {
-            MEDIA_ERROR_SYSTEM -> "MEDIA_ERROR_SYSTEM"
-            MediaPlayer.MEDIA_ERROR_IO -> "MEDIA_ERROR_IO"
-            MediaPlayer.MEDIA_ERROR_MALFORMED -> "MEDIA_ERROR_MALFORMED"
-            MediaPlayer.MEDIA_ERROR_UNSUPPORTED -> "MEDIA_ERROR_UNSUPPORTED"
-            MediaPlayer.MEDIA_ERROR_TIMED_OUT -> "MEDIA_ERROR_TIMED_OUT"
-            else -> "MEDIA_ERROR_UNKNOWN {extra:$extra}"
-        }
-        if (!prepared && extraMsg == "MEDIA_ERROR_SYSTEM") {
-            handleError(
-                "AndroidAudioError",
-                "Failed to set source. For troubleshooting, see: " +
-                    "https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md",
-                "$whatMsg, $extraMsg",
-            )
-        } else {
-            // When an error occurs, reset player to not [prepared].
-            // Then no functions will be called, which end up in an illegal player state.
-            prepared = false
-            handleError("AndroidAudioError", whatMsg, extraMsg)
-        }
-        return false
-    }
-
     /**
      * Internal logic. Private methods
      */
@@ -321,19 +268,6 @@ class WrappedPlayer internal constructor(
      */
     private fun createPlayer(): Player {
         return ExoPlayerWrapper(this, ref.getApplicationContext())
-    }
-
-    /**
-     * Create new player, assign and configure source
-     */
-    private fun initPlayer() {
-        val player = createPlayer()
-        // Need to set player before calling prepare, as onPrepared may is called before player is assigned
-        this.player = player
-        source?.let {
-            player.setSource(it)
-            player.configAndPrepare()
-        }
     }
 
     private fun Player.configAndPrepare() {
@@ -350,6 +284,7 @@ class WrappedPlayer internal constructor(
 
     fun dispose() {
         release()
+        player = null
         eventHandler.dispose()
     }
 }

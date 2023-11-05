@@ -19,6 +19,14 @@ class ExoPlayerWrapper(
 
     class ExoPlayerListener(private val wrappedPlayer: WrappedPlayer) : androidx.media3.common.Player.Listener {
         override fun onPlayerError(error: PlaybackException) {
+//            if (!prepared && extraMsg == "MEDIA_ERROR_SYSTEM") {
+//                handleError(
+//                    "AndroidAudioError",
+//                    "Failed to set source. For troubleshooting, see: " +
+//                        "https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md",
+//                    "$whatMsg, $extraMsg",
+//                )
+//            }
             wrappedPlayer.handleError(
                 errorCode = error.errorCodeName,
                 errorMessage = error.message,
@@ -87,6 +95,7 @@ class ExoPlayerWrapper(
 
     override fun setVolume(leftVolume: Float, rightVolume: Float) {
         println("Exo Volume")
+        // TODO: set volume individually
         player.volume = (leftVolume + rightVolume) / 2
     }
 
