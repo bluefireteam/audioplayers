@@ -35,8 +35,10 @@ class ExoPlayerWrapper(
         }
 
         override fun onPlaybackStateChanged(playbackState: Int) {
-            println("ExoPlaybackChanged $playbackState")
             when (playbackState) {
+                //STATE_IDLE -> "ExoPlayer.STATE_IDLE      -"
+                STATE_BUFFERING -> wrappedPlayer.onBuffering(0)
+                STATE_READY -> wrappedPlayer.onPrepared()
                 STATE_ENDED -> wrappedPlayer.onCompletion()
             }
         }
@@ -59,13 +61,13 @@ class ExoPlayerWrapper(
         return player.currentPosition.toInt()
     }
 
-    override fun isLiveStream(): Boolean {
-        println("Is LiveStream: ${player.isCurrentMediaItemLive}")
-        return player.isCurrentMediaItemLive
-
-        // TODO(Gustl22): check if the right flag
+//    override fun isLiveStream(): Boolean {
+//        println("Is LiveStream: ${player.isCurrentMediaItemLive}")
 //        return player.isCurrentMediaItemLive
-    }
+//
+//        // TODO(Gustl22): check if the right flag
+////        return player.isCurrentMediaItemLive
+//    }
 
     override fun start() {
         println("Exo Start")
@@ -90,6 +92,12 @@ class ExoPlayerWrapper(
 
     override fun release() {
         println("Exo Release")
+        player.stop()
+        player.clearMediaItems()
+    }
+
+    override fun dispose() {
+        release()
         player.release()
     }
 
@@ -139,15 +147,7 @@ class ExoPlayerWrapper(
 
     override fun prepare() {
         println("Exo Prepare")
-        
         player.prepare()
-        wrappedPlayer.onPrepared()
-    }
-
-    override fun reset() {
-        println("Exo Reset")
-        player.stop()
-        player.clearMediaItems()
     }
 
 }

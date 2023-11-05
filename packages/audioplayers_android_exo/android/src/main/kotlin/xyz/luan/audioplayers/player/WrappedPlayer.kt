@@ -19,19 +19,19 @@ class WrappedPlayer internal constructor(
     init {
         createPlayer().also {
             player = it
-            released = false
         }
     }
     var source: Source? = null
         set(value) {
             if (field != value) {
                 field = value
+                prepared = false
                 if (value != null) {
+                    released = false
                     player?.setSource(value)
                     player?.configAndPrepare()
                 } else {
                     released = true
-                    prepared = false
                     playing = false
                     player?.release()
                 }
@@ -150,16 +150,17 @@ class WrappedPlayer internal constructor(
     /**
      * Playback handling methods
      */
-    fun play() {
-        focusManager.maybeRequestAudioFocus(andThen = ::actuallyPlay)
+    fun resume() {
+        if (!playing && !released) {
+            playing = true
+            focusManager.maybeRequestAudioFocus(andThen = ::actuallyPlay)
+        }
     }
 
     private fun actuallyPlay() {
-        if (!playing && !released) {
-            playing = true
-            if (prepared) {
-                player?.start()
-            }
+        if (prepared) {
+            println("Player start")
+            player?.start()
         }
     }
 
@@ -213,7 +214,7 @@ class WrappedPlayer internal constructor(
     // seek operations cannot be called until after
     // the player is ready.
     fun seek(position: Int) {
-        shouldSeekTo = if (prepared && player?.isLiveStream() != true) {
+        shouldSeekTo = if (prepared /*&& player?.isLiveStream() != true*/) {
             player?.seekTo(position)
             -1
         } else {
@@ -230,7 +231,7 @@ class WrappedPlayer internal constructor(
         if (playing) {
             player?.start()
         }
-        if (shouldSeekTo >= 0 && player?.isLiveStream() != true) {
+        if (shouldSeekTo >= 0 /*&& player?.isLiveStream() != true*/) {
             player?.seekTo(shouldSeekTo)
         }
     }
@@ -284,6 +285,7 @@ class WrappedPlayer internal constructor(
 
     fun dispose() {
         release()
+        player?.dispose()
         player = null
         eventHandler.dispose()
     }

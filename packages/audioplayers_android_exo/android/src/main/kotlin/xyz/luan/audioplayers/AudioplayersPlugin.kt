@@ -120,7 +120,7 @@ class AudioplayersPlugin : FlutterPlugin {
                     player.source = BytesSource(bytes)
                 }
 
-                "resume" -> player.play()
+                "resume" -> player.resume()
                 "pause" -> player.pause()
                 "stop" -> player.stop()
                 "release" -> player.release()
