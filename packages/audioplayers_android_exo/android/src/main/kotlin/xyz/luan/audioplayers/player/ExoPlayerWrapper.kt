@@ -1,6 +1,7 @@
 package xyz.luan.audioplayers.player
 
 import android.content.Context
+import android.net.Uri
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C.TIME_UNSET
 import androidx.media3.common.MediaItem
@@ -123,8 +124,7 @@ class ExoPlayerWrapper(
 
     override fun updateContext(context: AudioContextAndroid) {
         println("Exo Update context")
-        val builder =
-            AudioAttributes.Builder()
+        val builder = AudioAttributes.Builder()
         builder.setContentType(context.contentType)
         builder.setUsage(context.usageType)
 
@@ -143,8 +143,9 @@ class ExoPlayerWrapper(
         } else if (source is BytesSource) {
             val byteArrayDataSource = ByteArrayDataSource(source.data);
             val factory = DataSource.Factory { byteArrayDataSource; }
-            val mediaSource: MediaSource = ProgressiveMediaSource.Factory(factory)
-                .createMediaSource(MediaItem.EMPTY)
+            val mediaSource: MediaSource = ProgressiveMediaSource.Factory(factory).createMediaSource(
+                MediaItem.fromUri(Uri.EMPTY),
+            )
             player.setMediaSource(mediaSource)
         }
     }
