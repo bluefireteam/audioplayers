@@ -19,7 +19,7 @@ import xyz.luan.audioplayers.source.UrlSource
 
 class ExoPlayerWrapper(
     private val wrappedPlayer: WrappedPlayer,
-    private val appContext: Context,
+    appContext: Context,
 ) : PlayerWrapper {
 
     class ExoPlayerListener(private val wrappedPlayer: WrappedPlayer) : androidx.media3.common.Player.Listener {
