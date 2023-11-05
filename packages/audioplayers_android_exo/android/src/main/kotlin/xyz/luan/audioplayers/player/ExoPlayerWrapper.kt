@@ -51,10 +51,6 @@ class ExoPlayerWrapper(
     }
 
     private var player: ExoPlayer = ExoPlayer.Builder(appContext).build().apply {
-//        val playerView = PlayerControlView(appContext)
-//        playerView.player = this
-//        experimentalSetOffloadSchedulingEnabled(true);
-//        setAudioSessionId();
         addListener(ExoPlayerListener(wrappedPlayer))
     }
 
