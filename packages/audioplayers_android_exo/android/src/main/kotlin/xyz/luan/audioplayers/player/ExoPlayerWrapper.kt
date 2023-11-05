@@ -2,11 +2,11 @@ package xyz.luan.audioplayers.player
 
 import android.content.Context
 import androidx.media3.common.C.TIME_UNSET
-import com.google.android.exoplayer2.ExoPlayer
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player.*
 import androidx.media3.common.AudioAttributes
+import androidx.media3.exoplayer.ExoPlayer
 import xyz.luan.audioplayers.AudioContextAndroid
 import xyz.luan.audioplayers.source.BytesSource
 import xyz.luan.audioplayers.source.Source
