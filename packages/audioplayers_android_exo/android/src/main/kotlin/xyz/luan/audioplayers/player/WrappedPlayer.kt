@@ -173,15 +173,6 @@ class WrappedPlayer internal constructor(
             pause()
             if (prepared) {
                 player?.stop()
-//                seek(0)
-//                if (player?.isLiveStream() == true) {
-//                    player?.stop()
-//                    prepared = false
-//                    player?.prepare()
-//                } else {
-//                    // MediaPlayer does not allow to call player.seekTo after calling player.stop
-//                    seek(0)
-//                }
             }
         } else {
             release()
@@ -214,7 +205,7 @@ class WrappedPlayer internal constructor(
     // seek operations cannot be called until after
     // the player is ready.
     fun seek(position: Int) {
-        shouldSeekTo = if (prepared /*&& player?.isLiveStream() != true*/) {
+        shouldSeekTo = if (prepared) {
             player?.seekTo(position)
             -1
         } else {
@@ -231,7 +222,7 @@ class WrappedPlayer internal constructor(
         if (playing) {
             player?.start()
         }
-        if (shouldSeekTo >= 0 /*&& player?.isLiveStream() != true*/) {
+        if (shouldSeekTo >= 0) {
             player?.seekTo(shouldSeekTo)
         }
     }

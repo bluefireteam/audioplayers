@@ -19,14 +19,15 @@ class ExoPlayerWrapper(
 
     class ExoPlayerListener(private val wrappedPlayer: WrappedPlayer) : androidx.media3.common.Player.Listener {
         override fun onPlayerError(error: PlaybackException) {
-//            if (!prepared && extraMsg == "MEDIA_ERROR_SYSTEM") {
-//                handleError(
-//                    "AndroidAudioError",
-//                    "Failed to set source. For troubleshooting, see: " +
-//                        "https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md",
-//                    "$whatMsg, $extraMsg",
-//                )
-//            }
+            if (error.errorCode == PlaybackException.ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED) {
+                wrappedPlayer.handleError(
+                    errorCode = "AndroidAudioError",
+                    errorMessage = "Failed to set source. For troubleshooting, see: " +
+                        "https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md",
+                    errorDetails = "${error.errorCodeName}\n${error.message}\n${error.stackTraceToString()}",
+                )
+                return
+            }
             wrappedPlayer.handleError(
                 errorCode = error.errorCodeName,
                 errorMessage = error.message,
@@ -60,14 +61,6 @@ class ExoPlayerWrapper(
     override fun getCurrentPosition(): Int {
         return player.currentPosition.toInt()
     }
-
-//    override fun isLiveStream(): Boolean {
-//        println("Is LiveStream: ${player.isCurrentMediaItemLive}")
-//        return player.isCurrentMediaItemLive
-//
-//        // TODO(Gustl22): check if the right flag
-////        return player.isCurrentMediaItemLive
-//    }
 
     override fun start() {
         println("Exo Start")
@@ -141,7 +134,7 @@ class ExoPlayerWrapper(
             player.setMediaItem(MediaItem.fromUri(source.url))
         } else if (source is BytesSource) {
             TODO("Not yet implemented")
-            
+
         }
     }
 
