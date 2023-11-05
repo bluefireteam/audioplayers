@@ -42,7 +42,7 @@ class ExoPlayerWrapper(
         override fun onPlaybackStateChanged(playbackState: Int) {
             when (playbackState) {
                 Player.STATE_IDLE -> {
-                    TODO()
+                    // TODO()
                 }
 
                 Player.STATE_BUFFERING -> wrappedPlayer.onBuffering(0)
