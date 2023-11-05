@@ -1,12 +1,16 @@
 package xyz.luan.audioplayers.player
 
 import android.content.Context
+import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C.TIME_UNSET
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
-import androidx.media3.common.Player.*
-import androidx.media3.common.AudioAttributes
+import androidx.media3.common.Player
+import androidx.media3.datasource.ByteArrayDataSource
+import androidx.media3.datasource.DataSource
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.MediaSource
+import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import xyz.luan.audioplayers.AudioContextAndroid
 import xyz.luan.audioplayers.source.BytesSource
 import xyz.luan.audioplayers.source.Source
@@ -37,15 +41,18 @@ class ExoPlayerWrapper(
 
         override fun onPlaybackStateChanged(playbackState: Int) {
             when (playbackState) {
-                //STATE_IDLE -> "ExoPlayer.STATE_IDLE      -"
-                STATE_BUFFERING -> wrappedPlayer.onBuffering(0)
-                STATE_READY -> wrappedPlayer.onPrepared()
-                STATE_ENDED -> wrappedPlayer.onCompletion()
+                Player.STATE_IDLE -> {
+                    TODO()
+                }
+
+                Player.STATE_BUFFERING -> wrappedPlayer.onBuffering(0)
+                Player.STATE_READY -> wrappedPlayer.onPrepared()
+                Player.STATE_ENDED -> wrappedPlayer.onCompletion()
             }
         }
     }
 
-    var player: ExoPlayer = ExoPlayer.Builder(appContext).build().apply {
+    private var player: ExoPlayer = ExoPlayer.Builder(appContext).build().apply {
 //        val playerView = PlayerControlView(appContext)
 //        playerView.player = this
 //        experimentalSetOffloadSchedulingEnabled(true);
@@ -108,9 +115,9 @@ class ExoPlayerWrapper(
     override fun setLooping(looping: Boolean) {
         println("Exo Looping")
         player.repeatMode = if (looping) {
-            REPEAT_MODE_ONE
+            Player.REPEAT_MODE_ONE
         } else {
-            REPEAT_MODE_OFF
+            Player.REPEAT_MODE_OFF
         }
     }
 
@@ -128,13 +135,17 @@ class ExoPlayerWrapper(
 
     }
 
+    @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
     override fun setSource(source: Source) {
         println("Exo Set source")
         if (source is UrlSource) {
             player.setMediaItem(MediaItem.fromUri(source.url))
         } else if (source is BytesSource) {
-            //TODO("Not yet implemented")
-            //player.setMediaSource(ByteArrayDataSource(source.data))
+            val byteArrayDataSource = ByteArrayDataSource(source.data);
+            val factory = DataSource.Factory { byteArrayDataSource; }
+            val mediaSource: MediaSource = ProgressiveMediaSource.Factory(factory)
+                .createMediaSource(MediaItem.EMPTY)
+            player.setMediaSource(mediaSource)
         }
     }
 
