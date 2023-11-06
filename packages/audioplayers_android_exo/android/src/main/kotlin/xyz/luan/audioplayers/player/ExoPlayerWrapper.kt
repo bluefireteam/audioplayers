@@ -57,21 +57,15 @@ class ExoPlayerWrapper(
 
     private var player: ExoPlayer
 
+    @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
+    private var channelMixingAudioProcessor = ChannelMixingAudioProcessor()
+
     init {
         player = createPlayer(appContext)
     }
 
     @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
     private fun createPlayer(appContext: Context): ExoPlayer {
-        val channelMixingAudioProcessor = ChannelMixingAudioProcessor()
-        channelMixingAudioProcessor.putChannelMixingMatrix(
-            ChannelMixingMatrix(
-                2,
-                2,
-                floatArrayOf(leftVolume, 0f, 0f, rightVolume),
-            ),
-        )
-
         val renderersFactory = object : DefaultRenderersFactory(appContext) {
             override fun buildAudioSink(
                 context: Context,
@@ -79,8 +73,10 @@ class ExoPlayerWrapper(
                 enableAudioTrackPlaybackParams: Boolean,
                 enableOffload: Boolean,
             ): AudioSink {
-                return DefaultAudioSink.Builder(appContext).setAudioProcessors(arrayOf(channelMixingAudioProcessor))
-                    .build()
+                val audioSink =
+                    DefaultAudioSink.Builder(appContext).setAudioProcessors(arrayOf(channelMixingAudioProcessor))
+                        .build()
+                return audioSink
             }
         }
 
@@ -88,9 +84,6 @@ class ExoPlayerWrapper(
             addListener(ExoPlayerListener(wrappedPlayer))
         }
     }
-
-    private var leftVolume = 1f
-    private var rightVolume = 1f
 
     override fun getDuration(): Int? {
         println("Exo getDuration")
@@ -133,35 +126,16 @@ class ExoPlayerWrapper(
         player.release()
     }
 
+    @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
     override fun setVolume(leftVolume: Float, rightVolume: Float) {
-        this.leftVolume = leftVolume
-        this.rightVolume = rightVolume
-//        applyVolume()
+        this.channelMixingAudioProcessor.putChannelMixingMatrix(
+            ChannelMixingMatrix(
+                2,
+                2,
+                floatArrayOf(leftVolume, 0f, 0f, rightVolume),
+            ),
+        )
     }
-
-//    private fun applyVolume() {
-//        if (false && leftVolume == rightVolume) {
-//            player.volume = leftVolume
-//            mediaItem?.let {
-//                player.setMediaItem(it)
-//            }
-//        } else {
-//            player.volume = 1f
-//            if (wrappedPlayer.released) return
-//
-//            mediaItem?.let {
-//                print("leftVolume: $leftVolume")
-//                print("rightVolume: $rightVolume")
-//                
-//                val effects = Effects(listOf(channelMixingAudioProcessor), ImmutableList.of())
-//                val editedMediaItem: EditedMediaItem = EditedMediaItem.Builder(it)
-//                    .setRemoveVideo(true)
-//                    .setEffects(effects)
-//                    .build()
-//                player.setMediaItem(editedMediaItem.)
-//            }
-//        }
-//    }
 
     override fun setRate(rate: Float) {
         println("Exo Rate")
