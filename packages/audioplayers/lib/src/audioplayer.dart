@@ -199,10 +199,12 @@ class AudioPlayer {
     if (ctx != null) {
       await setAudioContext(ctx);
     }
+
+    await setSource(source);
     if (position != null) {
       await seek(position);
     }
-    await setSource(source);
+
     await resume();
   }
 
