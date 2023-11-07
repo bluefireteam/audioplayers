@@ -188,7 +188,7 @@ class AudioPlayer {
     PlayerMode? mode,
   }) async {
 
-    await setSource(source);
+
 
     if (mode != null) {
       await setPlayerMode(mode);
@@ -202,6 +202,8 @@ class AudioPlayer {
     if (ctx != null) {
       await setAudioContext(ctx);
     }
+
+    await setSource(source);
     if (position != null) {
       await seek(position);
     }
