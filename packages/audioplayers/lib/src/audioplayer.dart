@@ -187,9 +187,6 @@ class AudioPlayer {
     Duration? position,
     PlayerMode? mode,
   }) async {
-
-
-
     if (mode != null) {
       await setPlayerMode(mode);
     }
