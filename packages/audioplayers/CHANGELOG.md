@@ -1,3 +1,8 @@
+## 5.2.1
+
+ - **FIX**: Avoid decoding already encoded character in URI ([#1679](https://github.com/bluefireteam/audioplayers/issues/1679)). ([1923205c](https://github.com/bluefireteam/audioplayers/commit/1923205c4cde70e2915e6e6c6afeb2fec27a08e8))
+ - **FIX**(android): Released wrong source in LOW_LATENCY mode ([#1672](https://github.com/bluefireteam/audioplayers/issues/1672)). ([d9c5f693](https://github.com/bluefireteam/audioplayers/commit/d9c5f693cafab21b67b785de6244c3c371344a53))
+
 ## 5.2.0
 
  - **REFACTOR**: Lint Swift ([#1613](https://github.com/bluefireteam/audioplayers/issues/1613)). ([737aa94f](https://github.com/bluefireteam/audioplayers/commit/737aa94f7edb076d622c34e498b90f17c9959e9c))
