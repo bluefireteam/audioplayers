@@ -7,10 +7,6 @@ packages:
   - tutorials/**
 
 command:
-  version:
-    # Only allow versioning to happen on main branch.
-    branch: main
-
   bootstrap:
     # Avoid concurrent pub requests, remove when https://github.com/dart-lang/pub/issues/3404 is fixed
     runPubGetInParallel: false
