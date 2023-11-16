@@ -317,7 +317,14 @@ void main() async {
 
     await tester.pumpLinux();
     final futurePlay = player.play(mp3Url1TestData.source);
+
+    // Player is still in `stopped` state as it isn't playing yet.
+    expect(player.state, PlayerState.stopped);
+    expect(player.desiredState, PlayerState.playing);
+
+    // Execute `pause` before `play` has finished.
     final futurePause = player.pause();
+    expect(player.desiredState, PlayerState.paused);
 
     await futurePlay;
     await futurePause;
