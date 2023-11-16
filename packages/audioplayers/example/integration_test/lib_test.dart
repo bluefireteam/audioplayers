@@ -311,6 +311,23 @@ void main() async {
     );
   });
 
+  testWidgets('Race condition on play and pause (#1687)',
+      (WidgetTester tester) async {
+    final player = AudioPlayer();
+
+    await tester.pumpLinux();
+    final futurePlay = player.play(mp3Url1TestData.source);
+    final futurePause = player.pause();
+
+    await futurePlay;
+    await futurePause;
+
+    expect(player.state, PlayerState.paused);
+
+    await tester.pumpLinux();
+    await player.dispose();
+  });
+
   group(
     'Android only:',
     () {
