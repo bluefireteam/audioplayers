@@ -238,10 +238,6 @@ class AudioPlayer {
   /// has been paused.
   Future<void> pause() async {
     desiredState = PlayerState.paused;
-    await _pause();
-  }
-
-  Future<void> _pause() async {
     await creatingCompleter.future;
     if (desiredState == PlayerState.paused) {
       await _platform.pause(playerId);
@@ -256,10 +252,6 @@ class AudioPlayer {
   /// from the last point.
   Future<void> stop() async {
     desiredState = PlayerState.stopped;
-    await _stop();
-  }
-
-  Future<void> _stop() async {
     await creatingCompleter.future;
     if (desiredState == PlayerState.stopped) {
       await _platform.stop(playerId);
@@ -274,6 +266,7 @@ class AudioPlayer {
     await _resume();
   }
 
+  /// Resume without setting the desired state.
   Future<void> _resume() async {
     await creatingCompleter.future;
     if (desiredState == PlayerState.playing) {
@@ -462,8 +455,7 @@ class AudioPlayer {
     // First stop and release all native resources.
     await release();
 
-    desiredState = PlayerState.disposed;
-    state = PlayerState.disposed;
+    state = desiredState = PlayerState.disposed;
 
     final futures = <Future>[
       if (_positionUpdater != null) _positionUpdater!.dispose(),
