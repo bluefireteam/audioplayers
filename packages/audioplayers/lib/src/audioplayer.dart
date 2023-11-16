@@ -57,6 +57,8 @@ class AudioPlayer {
 
   PlayerState _playerState = PlayerState.stopped;
 
+  PlayerState _desiredState = PlayerState.stopped;
+
   PlayerState get state => _playerState;
 
   set state(PlayerState state) {
@@ -66,7 +68,7 @@ class AudioPlayer {
     if (!_playerStateController.isClosed) {
       _playerStateController.add(state);
     }
-    _playerState = state;
+    _playerState = _desiredState = state;
   }
 
   PositionUpdater? _positionUpdater;
@@ -179,6 +181,10 @@ class AudioPlayer {
     }
   }
 
+  /// Play an audio [source].
+  ///
+  /// To reduce preparation latency, instead consider calling [setSource]
+  /// beforehand and then [resume] separately.
   Future<void> play(
     Source source, {
     double? volume,
@@ -187,6 +193,7 @@ class AudioPlayer {
     Duration? position,
     PlayerMode? mode,
   }) async {
+    _desiredState = PlayerState.playing;
     if (mode != null) {
       await setPlayerMode(mode);
     }
@@ -205,7 +212,7 @@ class AudioPlayer {
       await seek(position);
     }
 
-    await resume();
+    await _resume();
   }
 
   Future<void> setAudioContext(AudioContext ctx) async {
@@ -224,10 +231,17 @@ class AudioPlayer {
   /// If you call [resume] later, the audio will resume from the point that it
   /// has been paused.
   Future<void> pause() async {
+    _desiredState = PlayerState.paused;
+    await _pause();
+  }
+
+  Future<void> _pause() async {
     await creatingCompleter.future;
-    await _platform.pause(playerId);
-    state = PlayerState.paused;
-    await _positionUpdater?.stopAndUpdate();
+    if (_desiredState == PlayerState.paused) {
+      await _platform.pause(playerId);
+      state = PlayerState.paused;
+      await _positionUpdater?.stopAndUpdate();
+    }
   }
 
   /// Stops the audio that is currently playing.
@@ -235,18 +249,32 @@ class AudioPlayer {
   /// The position is going to be reset and you will no longer be able to resume
   /// from the last point.
   Future<void> stop() async {
+    _desiredState = PlayerState.stopped;
+    await _stop();
+  }
+
+  Future<void> _stop() async {
     await creatingCompleter.future;
-    await _platform.stop(playerId);
-    state = PlayerState.stopped;
-    await _positionUpdater?.stopAndUpdate();
+    if (_desiredState == PlayerState.stopped) {
+      await _platform.stop(playerId);
+      state = PlayerState.stopped;
+      await _positionUpdater?.stopAndUpdate();
+    }
   }
 
   /// Resumes the audio that has been paused or stopped.
   Future<void> resume() async {
+    _desiredState = PlayerState.playing;
+    await _resume();
+  }
+
+  Future<void> _resume() async {
     await creatingCompleter.future;
-    await _platform.resume(playerId);
-    state = PlayerState.playing;
-    _positionUpdater?.start();
+    if (_desiredState == PlayerState.playing) {
+      await _platform.resume(playerId);
+      state = PlayerState.playing;
+      _positionUpdater?.start();
+    }
   }
 
   /// Releases the resources associated with this media player.
@@ -256,7 +284,7 @@ class AudioPlayer {
   Future<void> release() async {
     await stop();
     await _platform.release(playerId);
-    state = PlayerState.stopped;
+    // Stop state already set in stop()
     _source = null;
   }
 
@@ -428,6 +456,7 @@ class AudioPlayer {
     // First stop and release all native resources.
     await release();
 
+    _desiredState = PlayerState.disposed;
     state = PlayerState.disposed;
 
     final futures = <Future>[
