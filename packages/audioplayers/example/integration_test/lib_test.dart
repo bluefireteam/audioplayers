@@ -311,6 +311,30 @@ void main() async {
     );
   });
 
+  testWidgets('Race condition on play and pause (#1687)',
+      (WidgetTester tester) async {
+    final player = AudioPlayer();
+
+    await tester.pumpLinux();
+    final futurePlay = player.play(mp3Url1TestData.source);
+
+    // Player is still in `stopped` state as it isn't playing yet.
+    expect(player.state, PlayerState.stopped);
+    expect(player.desiredState, PlayerState.playing);
+
+    // Execute `pause` before `play` has finished.
+    final futurePause = player.pause();
+    expect(player.desiredState, PlayerState.paused);
+
+    await futurePlay;
+    await futurePause;
+
+    expect(player.state, PlayerState.paused);
+
+    await tester.pumpLinux();
+    await player.dispose();
+  });
+
   group(
     'Android only:',
     () {
