@@ -129,6 +129,7 @@ void main() async {
           }
           await tester.pumpLinux();
           await player.dispose();
+          await tester.pumpLinux(); // Needed to receive last position event
           final positions = await futurePositions;
           printOnFailure('Positions: $positions');
           expect(positions, isNot(contains(null)));
