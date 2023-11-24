@@ -69,10 +69,9 @@ If the issue persists, then open the issue, including the file so we can test. O
 
 ### Issues with local Assets and AudioCache
 
-Flutter requires that assets are specified on your `pubspec.yaml` file, under `flutter > assets`; check [this](https://github.com/bluefireteam/audioplayers/blob/main/packages/audioplayers/example/pubspec.yaml#L29) for an example.
+[Flutter requires](https://docs.flutter.dev/ui/assets/assets-and-images) that assets are specified on your `pubspec.yaml` file, under `flutter > assets`; check [this](https://github.com/bluefireteam/audioplayers/blob/main/packages/audioplayers/example/pubspec.yaml#L29) for an example.
 
-**Note**: when playing local assets, by default every instance of AudioPlayers uses a [shared global instance of AudioCache](https://github.com/bluefireteam/audioplayers/blob/main/packages/audioplayers/lib/src/audioplayer.dart#L24), that will have a [default prefix "/assets"](https://github.com/bluefireteam/audioplayers/blob/main/packages/audioplayers/lib/src/audio_cache.dart#L41) configured, as per Flutter conventions.
-However you can easily change that by specifying your own instance of AudioCache with any other (or no) prefix.
+**Note**: Make sure you have set the path to your asset correctly, see the [AudioCache](https://github.com/bluefireteam/audioplayers/blob/main/getting_started.md#audiocache) concept.
 
 ### [iOS] Background Audio
 

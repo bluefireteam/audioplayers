@@ -31,8 +31,9 @@ Each AudioPlayer is created empty and has to be configured with an audio source 
 The source (cf. packages/audioplayers/lib/src/source.dart) is basically what audio you are playing (a song, sound effect, radio stream, etc), and it can have one of 4 types:
 
 1. **UrlSource**: get the audio from a remote URL from the Internet. This can be a direct link to a supported file to be downloaded, or a radio stream.
-1. **DeviceFileSource**: access a file in the user's device, probably selected by a file picker
-1. **AssetSource**: play an asset bundled with your app, normally within the `assets` directory
+1. **DeviceFileSource**: access a file in the user's device, probably selected by a file picker.
+1. **AssetSource**: play an asset bundled with your app, by default within the `assets` directory.
+   To customize the prefix, see [AudioCache](#audiocache).
 1. **BytesSource** (only some platforms): pass in the bytes of your audio directly (read it from anywhere).
 
 In order to set the source on your player instance, call `setSource` with the appropriate source object:
@@ -323,6 +324,32 @@ It actually copies the asset to a temporary folder in the device, where it is th
 It works as a cache because it keeps track of the copied files so that you can replay them without delay.
 
 If desired, you can change the `AudioCache` per player via the `AudioPlayer().audioCache` property or for all players via `AudioCache.instance`.
+
+#### Local Assets
+
+When playing local assets, by default every instance of AudioPlayers uses a [shared global instance of AudioCache](https://pub.dev/documentation/audioplayers/latest/audioplayers/AudioPlayer/audioCache.html), that will have a [default prefix "/assets"](https://pub.dev/documentation/audioplayers/latest/audioplayers/AudioCache/prefix.html) configured, as per Flutter conventions.
+However, you can easily change that by specifying your own instance of AudioCache with any other (or no) prefix.
+
+Default behavior, presuming that your audio is stored in `/assets/audio/my-audio.wav`:
+```dart
+final player = AudioPlayer();
+await player.play(AssetSource('audio/my-audio.wav'));
+```
+
+Remove the asset prefix for all players:
+```dart
+AudioCache.instance = AudioCache(prefix: '')
+final player = AudioPlayer();
+await player.play(AssetSource('assets/audio/my-audio.wav'));
+```
+
+Set a different prefix for only one player (e.g. when using assets from another package):
+```dart
+final player = AudioPlayer();
+player.audioCache = AudioCache(prefix: 'packages/OTHER_PACKAGE/assets/')
+await player.play(AssetSource('other-package-audio.wav'));
+```
+
 
 ### playerId
 
