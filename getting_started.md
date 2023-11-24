@@ -3,7 +3,9 @@
 This tutorial should help you get started with the audioplayers library, covering the basics but guiding you all the way through advanced features.
 You can also play around with our [official example app](https://bluefireteam.github.io/audioplayers/) and [explore the code](https://github.com/bluefireteam/audioplayers/tree/main/packages/audioplayers/example), that showcases every feature the library has to offer.
 
-In order to install this package, add the [latest version](pub.dev/packages/audioplayers) of `audioplayers` to your `pubspec.yaml` file. This packages uses [the Federated Plugin](https://docs.flutter.dev/development/packages-and-plugins/developing-packages) guidelines to support multiple platforms, so it should just work on all supported platforms your app is built for without any extra configuration. You should not need to add the `audioplayers_*` packages directly.
+In order to install this package, add the [latest version](pub.dev/packages/audioplayers) of `audioplayers` to your `pubspec.yaml` file.
+This package uses [the Federated Plugin](https://docs.flutter.dev/development/packages-and-plugins/developing-packages) guidelines to support multiple platforms, so it should just work on all supported platforms your app is built for without any extra configuration.
+You do not need to add the `audioplayers_*` packages directly.
 
 ## Setup Platforms
 
@@ -182,7 +184,7 @@ You can pick one of 3 options:
 1. `.error` (default): show only error messages
 1. `.none`: show no messages at all (not recommended)
 
-**Note**: before opening any issue, always try changing the log level to `.info` to gather any information that my assist you on solving the problem.
+**Note**: before opening any issue, always try changing the log level to `.info` to gather any information that might assist you with solving the problem.
 
 **Note**: despite our best efforts, some native SDK implementations that we use spam a lot of log messages that we currently haven't figured out how to conform to this configuration (specially noticeable on Android). If you would like to contribute with a PR, they are more than welcome!
 
