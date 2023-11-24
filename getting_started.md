@@ -79,7 +79,7 @@ Changes the current position (note: this does not affect the "playing" status).
 Stops the playback but keeps the current position.
 
 ```dart
-  await player.pause(); 
+  await player.pause();
 ```
 
 ### stop
@@ -167,7 +167,11 @@ The Player Mode represents what kind of native SDK is used to playback audio, wh
 1. `.mediaPlayer` (default): for long media files or streams.
 1. `.lowLatency`: for short audio files, since it reduces the impacts on visuals or UI performance.
 
-**Note**: on low latency mode, the player won't fire any duration or position updates. Also, it is not possible to use the seek method to set the audio a specific position.
+**Note**: on low latency mode, these features are NOT available:
+- get duration & duration event
+- get position & position event
+- playback completion event (this means you are responsible for stopping the player, as it will not stop by itself)
+- seeking & seek completion event
 
 Normally you want to use `.mediaPlayer` unless you care about performance and your audios are short (i.e. for sound effects in games).
 
