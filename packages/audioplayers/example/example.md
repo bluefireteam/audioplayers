@@ -1,3 +1,9 @@
+Below example demonstrates a simple player app. 
+
+A complete example showcasing all _audioplayers_ features can be found in our [repository](https://github.com/bluefireteam/audioplayers/tree/main/packages/audioplayers/example).
+Also check out our live [web app](https://bluefireteam.github.io/audioplayers/).
+
+```dart
 import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
@@ -53,7 +59,7 @@ class _SimpleExampleAppState extends State<_SimpleExampleApp> {
   }
 }
 
-// This code is a copy of /lib/components/player_widget.dart.
+// The PlayerWidget is a copy of "/lib/components/player_widget.dart".
 //#region PlayerWidget
 
 class PlayerWidget extends StatefulWidget {
@@ -234,3 +240,4 @@ class _PlayerWidgetState extends State<PlayerWidget> {
 }
 
 //#endregion
+```
