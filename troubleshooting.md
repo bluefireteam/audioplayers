@@ -52,7 +52,7 @@ On Android, add `android:usesCleartextTraffic="true"` to your `AndroidManifest.x
 </manifest>
 ```
 
-### [Web] CORS Policy
+#### [Web] CORS Policy
 
 To be able to play your own resources on Web you need to make sure your server has CORS support enabled or [temporarily disable](https://stackoverflow.com/a/74783428/5164462) the security feature in your browser.
 
