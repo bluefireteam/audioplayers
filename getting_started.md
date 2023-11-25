@@ -170,7 +170,7 @@ The Player Mode represents what kind of native SDK is used to playback audio, wh
 **Note**: on low latency mode, these features are NOT available:
 - get duration & duration event
 - get position & position event
-- playback completion event (this means you are responsible for stopping the player, as it will not stop by itself)
+- playback completion event (this means you are responsible for stopping the player)
 - seeking & seek completion event
 
 Normally you want to use `.mediaPlayer` unless you care about performance and your audios are short (i.e. for sound effects in games).
