@@ -155,10 +155,6 @@ jobs:
           channel: 'stable'
       - uses: bluefireteam/melos-action@main
 
-      - name: setup-cocoapods
-        uses: maxim-lobanov/setup-cocoapods@v1
-        with:
-          podfile-path: ./packages/audioplayers/example/macos/Podfile.lock
       - name: Example app - Build macOS
         working-directory: ./packages/audioplayers/example
         run: flutter build macos --release
