@@ -391,7 +391,7 @@ class _SourceDialogState extends State<_SourceDialog> {
             AssetSource: 'Asset',
             DeviceFileSource: 'Device File',
             UrlSource: 'Url',
-            BytesSource: 'Byte array',
+            BytesSource: 'Byte Array',
           },
           selected: sourceType,
           onChange: (Type? value) {
