@@ -1,9 +1,67 @@
+# Simple audio player app example
+
+A complete example showcasing all _audioplayers_ features can be found in our [repository](https://github.com/bluefireteam/audioplayers/tree/main/packages/audioplayers/example).
+Also check out our live [web app](https://bluefireteam.github.io/audioplayers/).
+
+```dart
 import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 
-// This code is also used in the example.md. Please keep it up to date.
+void main() {
+  runApp(const MaterialApp(home: _SimpleExampleApp()));
+}
+
+class _SimpleExampleApp extends StatefulWidget {
+  const _SimpleExampleApp();
+
+  @override
+  _SimpleExampleAppState createState() => _SimpleExampleAppState();
+}
+
+class _SimpleExampleAppState extends State<_SimpleExampleApp> {
+  late AudioPlayer player = AudioPlayer();
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Create the audio player.
+    player = AudioPlayer();
+
+    // Set the release mode to keep the source after playback has completed.
+    player.setReleaseMode(ReleaseMode.stop);
+
+    // Start the player as soon as the app is displayed.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await player.setSource(AssetSource('ambient_c_motion.mp3'));
+      await player.resume();
+    });
+  }
+
+  @override
+  void dispose() {
+    // Release all sources and dispose the player.
+    player.dispose();
+
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Simple Player'),
+      ),
+      body: PlayerWidget(player: player),
+    );
+  }
+}
+
+// The PlayerWidget is a copy of "/lib/components/player_widget.dart".
+//#region PlayerWidget
+
 class PlayerWidget extends StatefulWidget {
   final AudioPlayer player;
 
@@ -180,3 +238,6 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     });
   }
 }
+
+//#endregion
+```
