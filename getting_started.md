@@ -354,7 +354,6 @@ player.audioCache = AudioCache(prefix: 'packages/OTHER_PACKAGE/assets/')
 await player.play(AssetSource('other-package-audio.wav'));
 ```
 
-
 ### playerId
 
 By default, each time you initialize a new instance of AudioPlayer, a unique playerId is generated and assigned to it using the [uuid package](https://pub.dev/packages/uuid). 

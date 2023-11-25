@@ -4,7 +4,6 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 
 // This code is also used in the example.md. Please keep it up to date.
-
 class PlayerWidget extends StatefulWidget {
   final AudioPlayer player;
 

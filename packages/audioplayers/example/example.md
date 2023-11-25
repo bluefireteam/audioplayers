@@ -1,4 +1,4 @@
-Below example demonstrates a simple player app. 
+# Simple audio player app example
 
 A complete example showcasing all _audioplayers_ features can be found in our [repository](https://github.com/bluefireteam/audioplayers/tree/main/packages/audioplayers/example).
 Also check out our live [web app](https://bluefireteam.github.io/audioplayers/).
