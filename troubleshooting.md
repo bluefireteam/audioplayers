@@ -9,7 +9,10 @@ For that check out our [Contributing Guide](https://github.com/bluefireteam/audi
 
 ### Supported Formats / Encodings
 
-Not all formats are supported by all platforms. Essentially `audioplayers` is just centralized interface that communicate with native audio players on each platform. We are not parsing the bytes of your song. Each platform has its own native support. Please do not open issues regarding encoding/file format compatibility unless it is an AudioPlayers specific issue.
+Not all formats are supported by all platforms.
+Essentially `audioplayers` is just centralized interface that communicate with native audio players on each platform.
+We are not parsing the bytes of your song. Each platform has its own native support.
+**Please do not open issues regarding encoding / audio format compatibility unless it is an AudioPlayers specific issue.**
 
 You can check a list of supported formats below:
 
@@ -20,11 +23,15 @@ You can check a list of supported formats below:
 - [Windows](https://learn.microsoft.com/en-us/windows/win32/medfound/supported-media-formats-in-media-foundation)
 - Linux: List of defined [audio types](https://gstreamer.freedesktop.org/documentation/plugin-development/advanced/media-types.html?gi-language=c#table-of-audio-types) and their according [Plugins](https://gstreamer.freedesktop.org/documentation/plugins_doc.html?gi-language=c)
 
+Also, there is no guarantee that the file extension matches the audio format. 
+A file encoded as Opus (`.ogg`) can easily be renamed to `.mp3`, but that doesn't mean it can be played by the platform's audio player.
+Please verify that the real encoding / audio format is supported by analyzing the audio file (e.g. with [Aconvert](https://www.aconvert.com/analyze.html)).
+
 ### Issues with remote URLs
 
 #### Unsafe HTTP
 
-It is very common for mobile platforms to forbid non-HTTPS traffic due to it's lack of encryption and severe security deficiency. However, there are ways to bypass this protection.
+It is very common for mobile platforms to forbid non-HTTPS traffic due to its lack of encryption and severe security deficiency. However, there are ways to bypass this protection.
 
 On iOS and macOS, edit your `.plist` and add:
 
