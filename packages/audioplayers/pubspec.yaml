@@ -37,7 +37,6 @@ dependencies:
   uuid: '>=3.0.7 <5.0.0'
 
 dev_dependencies:
-  dartdoc: ^6.1.5
   flame_lint: ^1.0.0
   flutter_test:
     sdk: flutter
