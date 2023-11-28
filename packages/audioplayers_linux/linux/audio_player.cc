@@ -412,15 +412,18 @@ void AudioPlayer::Pause() {
 }
 
 void AudioPlayer::Stop() {
-  Pause()
+  Pause();
   if (!_isInitialized) {
     return;
   }
   SetPosition(0);
-  // Block thread to wait for state, as it is not expected to be waited to "seek complete" event on the dart side.
+  // Block thread to wait for state, as it is not expected to be waited to
+  // "seek complete" event on the dart side.
   GstState playbinState;
   gst_element_get_state(playbin, &playbinState, NULL, GST_CLOCK_TIME_NONE);
-  this->OnLog((std::string("Stop finished with state: ") + std::to_string(playbinState)).c_str());
+  this->OnLog(
+      (std::string("Stop finished with state: ") + std::to_string(playbinState))
+          .c_str());
 }
 
 void AudioPlayer::Resume() {
