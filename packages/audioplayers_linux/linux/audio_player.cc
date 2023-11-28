@@ -256,8 +256,7 @@ void AudioPlayer::OnPlaybackEnded() {
   if (GetLooping()) {
     Play();
   } else {
-    Pause();
-    SetPosition(0);
+    Stop();
   }
 }
 
@@ -410,6 +409,18 @@ void AudioPlayer::Pause() {
   } else if (ret == GST_STATE_CHANGE_FAILURE) {
     throw "Unable to set the pipeline to GST_STATE_PAUSED.";
   }
+}
+
+void AudioPlayer::Stop() {
+  Pause()
+  if (!_isInitialized) {
+    return;
+  }
+  SetPosition(0);
+  // Block thread to wait for state, as it is not expected to be waited to "seek complete" event on the dart side.
+  GstState playbinState;
+  gst_element_get_state(playbin, &playbinState, NULL, GST_CLOCK_TIME_NONE);
+  this->OnLog((std::string("Stop finished with state: ") + std::to_string(playbinState)).c_str());
 }
 
 void AudioPlayer::Resume() {
