@@ -22,15 +22,15 @@ scripts:
 
   format:
     run: melos exec dart format . --fix
-    description: Run `flutter format` for all packages.
+    description: Run `dart format` for all packages.
 
   format-check:
     run: melos exec dart format . --set-exit-if-changed
-    description: Run `flutter format` checks for all packages.
+    description: Run `dart format` checks for all packages.
 
   dartdoc:
     run: melos exec dart doc
-    description: Run dartdoc checks for all non-example packages.
+    description: Run `dart doc` for all non-example packages.
     packageFilters:
       ignore: "*_example"
 
