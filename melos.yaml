@@ -29,7 +29,7 @@ scripts:
     description: Run `flutter format` checks for all packages.
 
   dartdoc:
-    run: melos exec flutter pub run dartdoc
+    run: melos exec dart doc
     description: Run dartdoc checks for all non-example packages.
     packageFilters:
       ignore: "*_example"

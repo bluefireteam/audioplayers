@@ -20,7 +20,6 @@ dependencies:
   js: ^0.6.4
 
 dev_dependencies:
-  dartdoc: ^6.1.5
   flame_lint: ^1.0.0
   flutter_test:
     sdk: flutter

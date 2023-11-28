@@ -12,7 +12,6 @@ dependencies:
   plugin_platform_interface: ^2.0.2
 
 dev_dependencies:
-  dartdoc: ^6.1.5
   flame_lint: ^1.0.0
   flutter_test:
     sdk: flutter
