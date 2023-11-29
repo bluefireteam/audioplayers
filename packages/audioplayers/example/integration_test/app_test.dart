@@ -1,4 +1,5 @@
 import 'package:audioplayers_example/main.dart' as app;
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -11,9 +12,9 @@ import 'app/tabs/stream_tab.dart';
 import 'platform_features.dart';
 
 void main() {
-  final features = PlatformFeatures.instance();
-
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  final features = PlatformFeatures.instance();
+  final isAndroid = !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
 
   group('end-to-end test', () {
     testWidgets('verify app is launched', (WidgetTester tester) async {
@@ -28,17 +29,21 @@ void main() {
 
   group('test functionality of sources', () {
     for (final audioSourceTestData in audioTestDataList) {
-      testWidgets('test source $audioSourceTestData',
-          (WidgetTester tester) async {
-        app.main();
-        await tester.pumpAndSettle();
+      testWidgets(
+        'test source $audioSourceTestData',
+        (WidgetTester tester) async {
+          app.main();
+          await tester.pumpAndSettle();
 
-        await testSourcesTab(tester, audioSourceTestData, features);
-        await testControlsTab(tester, audioSourceTestData, features);
-        await testStreamsTab(tester, audioSourceTestData, features);
-        await testContextTab(tester, audioSourceTestData, features);
-        await testLogsTab(tester, audioSourceTestData, features);
-      });
+          await testSourcesTab(tester, audioSourceTestData, features);
+          await testControlsTab(tester, audioSourceTestData, features);
+          await testStreamsTab(tester, audioSourceTestData, features);
+          await testContextTab(tester, audioSourceTestData, features);
+          await testLogsTab(tester, audioSourceTestData, features);
+        },
+        // TODO(1526): Enable flaky test for m3u8 streams on Android
+        //skip: isAndroid && audioSourceTestData.isLiveStream,
+      );
     }
   });
 }
