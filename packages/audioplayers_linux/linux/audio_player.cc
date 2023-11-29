@@ -419,11 +419,11 @@ void AudioPlayer::Stop() {
   SetPosition(0);
   // Block thread to wait for state, as it is not expected to be waited to
   // "seek complete" event on the dart side.
-  GstState playbinState;
-  gst_element_get_state(playbin, &playbinState, NULL, GST_CLOCK_TIME_NONE);
-  this->OnLog(
-      (std::string("Stop finished with state: ") + std::to_string(playbinState))
-          .c_str());
+  GstStateChangeReturn ret =
+      gst_element_get_state(playbin, NULL, NULL, GST_CLOCK_TIME_NONE);
+  if (ret == GST_STATE_CHANGE_FAILURE) {
+    throw "Unable to seek playback to '0' while stopping the player.";
+  }
 }
 
 void AudioPlayer::Resume() {
