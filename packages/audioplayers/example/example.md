@@ -217,10 +217,6 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   }
 
   Future<void> _play() async {
-    final position = _position;
-    if (position != null && position.inMilliseconds > 0) {
-      await player.seek(position);
-    }
     await player.resume();
     setState(() => _playerState = PlayerState.playing);
   }
