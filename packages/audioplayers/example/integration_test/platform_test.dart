@@ -61,7 +61,6 @@ void main() async {
             testData: nonExistentUrlTestData,
           );
           fail('PlatformException not thrown');
-          // ignore: avoid_catches_without_on_clauses
         } on PlatformException catch (e) {
           expect(e.message, startsWith('Failed to set source.'));
         }
@@ -489,18 +488,21 @@ extension on WidgetTester {
   }) async {
     final eventStream = platform.getEventStream(playerId);
     final preparedCompleter = Completer<void>();
-    final onPreparedSub = eventStream
+    late StreamSubscription<bool> onPreparedSub;
+    onPreparedSub = eventStream
         .where((event) => event.eventType == AudioEventType.prepared)
         .map((event) => event.isPrepared!)
         .listen(
-      (isPrepared) {
+      (isPrepared) async {
         if (isPrepared) {
           preparedCompleter.complete();
+          await onPreparedSub.cancel();
         }
       },
-      onError: (Object e, [StackTrace? st]) {
+      onError: (Object e, [StackTrace? st]) async {
         if (!preparedCompleter.isCompleted) {
           preparedCompleter.completeError(e, st);
+          await onPreparedSub.cancel();
         }
       },
     );
@@ -514,7 +516,7 @@ extension on WidgetTester {
     } else if (source is BytesSource) {
       await platform.setSourceBytes(playerId, source.bytes);
     }
+    await pumpLinux(); // Introduced in Flutter 3.16.1
     await preparedCompleter.future.timeout(const Duration(seconds: 30));
-    await onPreparedSub.cancel();
   }
 }
