@@ -85,8 +85,6 @@ class AudioPlayer {
 
   late final StreamSubscription _onPlayerCompleteStreamSubscription;
 
-  late final StreamSubscription _onSeekCompleteStreamSubscription;
-
   late final StreamSubscription _onLogStreamSubscription;
 
   /// Stream controller to be able to get a stream on initialization, before the
@@ -164,9 +162,6 @@ class AudioPlayer {
         /* Errors are already handled via log stream */
       },
     );
-    _onSeekCompleteStreamSubscription = onSeekComplete.listen((event) async {
-      await _positionUpdater?.update();
-    });
     _create();
     positionUpdater = FramePositionUpdater(
       getPosition: getCurrentPosition,
@@ -290,7 +285,24 @@ class AudioPlayer {
   /// Moves the cursor to the desired position.
   Future<void> seek(Duration position) async {
     await creatingCompleter.future;
-    return _platform.seek(playerId, position);
+
+    final seekCompleter = Completer<void>();
+    late StreamSubscription<void> onSeekCompleteSubscription;
+    onSeekCompleteSubscription = onSeekComplete.listen(
+      (_) async {
+        seekCompleter.complete();
+        await onSeekCompleteSubscription.cancel();
+      },
+      onError: (Object e, [StackTrace? stackTrace]) async {
+        if (!seekCompleter.isCompleted) {
+          seekCompleter.completeError(e, stackTrace);
+          await onSeekCompleteSubscription.cancel();
+        }
+      },
+    );
+    await _platform.seek(playerId, position);
+    await seekCompleter.future.timeout(const Duration(seconds: 30));
+    await _positionUpdater?.update();
   }
 
   /// Sets the stereo balance.
@@ -461,7 +473,6 @@ class AudioPlayer {
       if (_positionUpdater != null) _positionUpdater!.dispose(),
       if (!_playerStateController.isClosed) _playerStateController.close(),
       _onPlayerCompleteStreamSubscription.cancel(),
-      _onSeekCompleteStreamSubscription.cancel(),
       _onLogStreamSubscription.cancel(),
       _eventStreamSubscription.cancel(),
       _eventStreamController.close(),
