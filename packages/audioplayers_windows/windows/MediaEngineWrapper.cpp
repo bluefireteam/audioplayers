@@ -67,6 +67,11 @@ class MediaEngineCallbackHelper
     auto lock = m_lock.lock();
     THROW_HR_IF(MF_E_SHUTDOWN, m_detached);
 
+    //MyData* data = new MyData;
+    //data->client_ = "hoser";
+    //// ... etc
+    //PostMessage(main_wnd_handle, WM_YOU_HAVE_DATA, reinterpret_cast<WPARAM>(data), );
+
     switch ((MF_MEDIA_ENGINE_EVENT)eventCode) {
       case MF_MEDIA_ENGINE_EVENT_LOADEDDATA:
         m_onLoadedCB();
