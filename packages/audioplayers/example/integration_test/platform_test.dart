@@ -516,7 +516,7 @@ extension on WidgetTester {
     } else if (source is BytesSource) {
       await platform.setSourceBytes(playerId, source.bytes);
     }
-    await pumpLinux(); // Introduced in Flutter 3.16.1
+    await pumpLinux(); // Introduced in Flutter 3.16.0-0.0.pre (5def6f2)
     await preparedCompleter.future.timeout(const Duration(seconds: 30));
   }
 }
