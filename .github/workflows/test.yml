@@ -11,7 +11,6 @@ on:
           - 'any'
           - '3.16.x'
           - '3.13.x'
-          - '3.10.x'
       fatal_warnings:
         description: 'Treat warnings as fatal'
         required: false

@@ -11,7 +11,6 @@ on:
           - 'any'
           - '3.16.x'
           - '3.13.x'
-          - '3.10.x'
       enable_android:
         description: 'Build Android'
         required: false
