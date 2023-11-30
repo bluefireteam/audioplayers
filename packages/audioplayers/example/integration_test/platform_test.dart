@@ -507,6 +507,7 @@ extension on WidgetTester {
       },
     );
     await pumpLinux();
+    debugPrint("This print statement is only here, so that the test doesn't fail. Also reproducible with 'print' or 'log'");
     final source = testData.source;
     if (source is UrlSource) {
       await platform.setSourceUrl(playerId, source.url);
