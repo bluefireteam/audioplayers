@@ -133,6 +133,10 @@ class AudioContextConfig {
       '$invalidMsg `respectSilence` and `duckOthers`. $tip',
     );
     assert(
+      !(respectSilence && focus == AudioContextConfigFocus.mixWithOthers),
+      '$invalidMsg `respectSilence` and `mixWithOthers`. $tip',
+    );
+    assert(
       !(respectSilence && route == AudioContextConfigRoute.speaker),
       '$invalidMsg `respectSilence` and route `speaker`. $tip',
     );
@@ -194,5 +198,9 @@ enum AudioContextConfigFocus {
 
   /// An option that indicates whether audio from this session mixes with audio
   /// from active sessions in other audio apps.
+  ///
+  /// On Android, it will set the focus [AndroidAudioFocus.none].
+  ///
+  /// On iOS, it will set the focus [AVAudioSessionOptions.mixWithOthers].
   mixWithOthers,
 }
