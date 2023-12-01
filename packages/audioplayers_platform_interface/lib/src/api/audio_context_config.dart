@@ -22,29 +22,19 @@ class AudioContextConfig {
 
   /// This flag determines how your audio interacts with other audio playing on
   /// the device.
-  /// If your audio is playing, and another audio plays on top (like an alarm,
-  /// gps, etc), this determines what happens with your audio.
-  ///
-  /// On Android, this will make an Audio Focus request with
-  /// AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK when your audio starts playing.
-  ///
-  /// On iOS, this will set the option `.duckOthers` option
-  /// (the option `.mixWithOthers` is always set, regardless of these flags).
-  /// Note that, on iOS, this forces the category to be `.playAndRecord`, and
-  /// thus is forbidden when [respectSilence] is set.
-  final bool duckAudio;
+  final AudioContextConfigFocus focus;
 
   /// Whether the "silent" mode of the device should be respected.
   ///
   /// When `false` (the default), audio will be played even if the device is in
   /// silent mode.
-  ///
   /// When `true` and the device is in silent mode, audio will not be played.
   ///
   /// On Android, this will mandate the `USAGE_NOTIFICATION_RINGTONE` usage
   /// type.
   ///
-  /// On iOS, setting this mandates the `.ambient` category, and it will be:
+  /// On iOS, setting this mandates the [AVAudioSessionCategory.ambient]
+  /// category, and it will be:
   ///  * silenced by rings
   ///  * silenced by the Silent switch
   ///  * silenced by screen locking (note: read [stayAwake] for details on
@@ -58,28 +48,28 @@ class AudioContextConfig {
   /// On Android, this sets the player "wake mode" to `PARTIAL_WAKE_LOCK`.
   ///
   /// On iOS, this will happen automatically as long as:
-  ///  * the category is `.playAndRecord` (thus setting this is forbidden when
-  ///    [respectSilence] is set)
+  ///  * the category is [AVAudioSessionCategory.playAndRecord] (thus setting
+  ///    this is forbidden when [respectSilence] is set)
   ///  * the UIBackgroundModes audio key has been added to your app’s
   ///    Info.plist (check our FAQ for more details on that)
   final bool stayAwake;
 
   AudioContextConfig({
     this.route = AudioContextConfigRoute.system,
-    this.duckAudio = false,
+    this.focus = AudioContextConfigFocus.gain,
     this.respectSilence = false,
     this.stayAwake = false,
   });
 
   AudioContextConfig copy({
     AudioContextConfigRoute? route,
-    bool? duckAudio,
+    AudioContextConfigFocus? focus,
     bool? respectSilence,
     bool? stayAwake,
   }) {
     return AudioContextConfig(
       route: route ?? this.route,
-      duckAudio: duckAudio ?? this.duckAudio,
+      focus: focus ?? this.focus,
       respectSilence: respectSilence ?? this.respectSilence,
       stayAwake: stayAwake ?? this.stayAwake,
     );
@@ -101,9 +91,11 @@ class AudioContextConfig {
           : (route == AudioContextConfigRoute.earpiece
               ? AndroidUsageType.voiceCommunication
               : AndroidUsageType.media),
-      audioFocus: duckAudio
-          ? AndroidAudioFocus.gainTransientMayDuck
-          : AndroidAudioFocus.gain,
+      audioFocus: focus == AudioContextConfigFocus.gain
+          ? AndroidAudioFocus.gain
+          : (focus == AudioContextConfigFocus.duckOthers
+              ? AndroidAudioFocus.gainTransientMayDuck
+              : AndroidAudioFocus.none),
     );
   }
 
@@ -121,7 +113,10 @@ class AudioContextConfig {
                   ? AVAudioSessionCategory.playAndRecord
                   : AVAudioSessionCategory.playback)),
       options: {
-        if (duckAudio) AVAudioSessionOptions.duckOthers,
+        if (focus == AudioContextConfigFocus.duckOthers)
+          AVAudioSessionOptions.duckOthers,
+        if (focus == AudioContextConfigFocus.mixWithOthers)
+          AVAudioSessionOptions.mixWithOthers,
         if (route == AudioContextConfigRoute.speaker)
           AVAudioSessionOptions.defaultToSpeaker,
       },
@@ -134,8 +129,8 @@ class AudioContextConfig {
     const tip = 'Please create a custom [AudioContextIOS] if the generic flags '
         'cannot represent your needs.';
     assert(
-      !(duckAudio && respectSilence),
-      '$invalidMsg `respectSilence` and `duckAudio`. $tip',
+      !(respectSilence && focus == AudioContextConfigFocus.duckOthers),
+      '$invalidMsg `respectSilence` and `duckOthers`. $tip',
     );
     assert(
       !(respectSilence && route == AudioContextConfigRoute.speaker),
@@ -147,7 +142,7 @@ class AudioContextConfig {
   String toString() {
     return 'AudioContextConfig('
         'route: $route, '
-        'duckAudio: $duckAudio, '
+        'focus: $focus, '
         'respectSilence: $respectSilence, '
         'stayAwake: $stayAwake'
         ')';
@@ -159,19 +154,45 @@ enum AudioContextConfigRoute {
   /// earpiece, or a bluetooth device.
   system,
 
-  /// On android, it will set `AndroidUsageType.voiceCommunication`.
+  /// On Android, it will set [AndroidUsageType.voiceCommunication].
   ///
-  /// On iOS, it will set `AVAudioSessionCategory.playAndRecord`.
+  /// On iOS, it will set [AVAudioSessionCategory.playAndRecord].
   earpiece,
 
-  /// On android, it will set `audioManager.isSpeakerphoneOn`.
+  /// On Android, it will set [AudioContextAndroid.isSpeakerphoneOn].
   ///
   /// On iOS, it will either:
-  ///
-  /// * set the `.defaultToSpeaker` option OR
+  /// * set the [AVAudioSessionOptions.defaultToSpeaker] option OR
   /// * call `overrideOutputAudioPort(AVAudioSession.PortOverride.speaker)`
-  ///
-  /// Note that, on iOS, this forces the category to be `.playAndRecord`, and
-  /// thus is forbidden when [AudioContextConfig.respectSilence] is set.
+  /// Note that, on iOS, this forces the category to be
+  /// [AVAudioSessionCategory.playAndRecord], and thus is forbidden when
+  /// [AudioContextConfig.respectSilence] is set.
   speaker,
+}
+
+enum AudioContextConfigFocus {
+  /// An option that expresses the fact that your application is
+  /// now the sole source of audio that the user is listening to.
+  ///
+  /// On Android, it will set the focus [AndroidAudioFocus.gain].
+  ///
+  /// On iOS, it will not set any additional [AVAudioSessionOptions].
+  gain,
+
+  /// An option that reduces the volume of other audio sessions while audio from
+  /// this session (like an alarm, gps, etc.) plays on top.
+  ///
+  /// On Android, this will make an Audio Focus request with
+  /// [AndroidAudioFocus.gainTransientMayDuck] when your audio starts playing.
+  ///
+  /// On iOS, this will set the option [AVAudioSessionOptions.duckOthers] option
+  /// (the option [AVAudioSessionOptions.mixWithOthers] is always set,
+  /// regardless of these flags). Note that, on iOS, this forces the category to
+  /// be [AVAudioSessionCategory.playAndRecord], and thus is forbidden when
+  /// [AudioContextConfig.respectSilence] is set.
+  duckOthers,
+
+  /// An option that indicates whether audio from this session mixes with audio
+  /// from active sessions in other audio apps.
+  mixWithOthers,
 }
