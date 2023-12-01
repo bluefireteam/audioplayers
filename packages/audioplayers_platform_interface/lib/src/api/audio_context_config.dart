@@ -158,17 +158,16 @@ enum AudioContextConfigRoute {
   /// earpiece, or a bluetooth device.
   system,
 
-  /// On Android, it will set [AndroidUsageType.voiceCommunication].
+  /// On Android, this will set the usageType
+  /// [AndroidUsageType.voiceCommunication].
   ///
-  /// On iOS, it will set [AVAudioSessionCategory.playAndRecord].
+  /// On iOS, this will set the category [AVAudioSessionCategory.playAndRecord].
   earpiece,
 
-  /// On Android, it will set [AudioContextAndroid.isSpeakerphoneOn].
+  /// On Android, this will set [AudioContextAndroid.isSpeakerphoneOn] to true.
   ///
-  /// On iOS, it will either:
-  /// * set the [AVAudioSessionOptions.defaultToSpeaker] option OR
-  /// * call `overrideOutputAudioPort(AVAudioSession.PortOverride.speaker)`
-  /// Note that, on iOS, this forces the category to be
+  /// On iOS, this will set the option [AVAudioSessionOptions.defaultToSpeaker].
+  /// Note that this forces the category to be
   /// [AVAudioSessionCategory.playAndRecord], and thus is forbidden when
   /// [AudioContextConfig.respectSilence] is set.
   speaker,
@@ -178,9 +177,9 @@ enum AudioContextConfigFocus {
   /// An option that expresses the fact that your application is
   /// now the sole source of audio that the user is listening to.
   ///
-  /// On Android, it will set the focus [AndroidAudioFocus.gain].
+  /// On Android, this will set the focus [AndroidAudioFocus.gain].
   ///
-  /// On iOS, it will not set any additional [AVAudioSessionOptions].
+  /// On iOS, this will not set any additional [AVAudioSessionOptions].
   gain,
 
   /// An option that reduces the volume of other audio sessions while audio from
@@ -189,18 +188,18 @@ enum AudioContextConfigFocus {
   /// On Android, this will make an Audio Focus request with
   /// [AndroidAudioFocus.gainTransientMayDuck] when your audio starts playing.
   ///
-  /// On iOS, this will set the option [AVAudioSessionOptions.duckOthers] option
-  /// (the option [AVAudioSessionOptions.mixWithOthers] is always set,
-  /// regardless of these flags). Note that, on iOS, this forces the category to
-  /// be [AVAudioSessionCategory.playAndRecord], and thus is forbidden when
+  /// On iOS, this will set the option [AVAudioSessionOptions.duckOthers]
+  /// (the option [AVAudioSessionOptions.mixWithOthers] is set implicitly).
+  /// Note that this forces the category to be
+  /// [AVAudioSessionCategory.playAndRecord], and thus is forbidden when
   /// [AudioContextConfig.respectSilence] is set.
   duckOthers,
 
   /// An option that indicates whether audio from this session mixes with audio
   /// from active sessions in other audio apps.
   ///
-  /// On Android, it will set the focus [AndroidAudioFocus.none].
+  /// On Android, this will set the focus [AndroidAudioFocus.none].
   ///
-  /// On iOS, it will set the focus [AVAudioSessionOptions.mixWithOthers].
+  /// On iOS, this will set the option [AVAudioSessionOptions.mixWithOthers].
   mixWithOthers,
 }
