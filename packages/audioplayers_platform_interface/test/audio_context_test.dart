@@ -32,15 +32,16 @@ void main() {
   test('Check AudioContextConfig assertions', () async {
     debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
     const boolValues = {true, false};
+    const focusValues = AudioContextConfigFocus.values;
     const routeValues = AudioContextConfigRoute.values;
 
     final throwsAssertion = [];
-    for (final isDuckAudio in boolValues) {
+    for (final focus in focusValues) {
       for (final isRespectSilence in boolValues) {
         for (final isStayAwake in boolValues) {
           for (final route in routeValues) {
             final config = AudioContextConfig(
-              duckAudio: isDuckAudio,
+              focus: focus,
               respectSilence: isRespectSilence,
               stayAwake: isStayAwake,
               route: route,
@@ -69,6 +70,18 @@ void main() {
     expect(
       throwsAssertion,
       const [
+        false,
+        false,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
         true,
         true,
         true,
@@ -81,11 +94,11 @@ void main() {
         false,
         false,
         false,
-        false,
-        false,
         true,
-        false,
-        false,
+        true,
+        true,
+        true,
+        true,
         true,
         false,
         false,
