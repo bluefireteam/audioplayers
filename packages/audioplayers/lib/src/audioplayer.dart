@@ -354,7 +354,7 @@ class AudioPlayer {
     await source.setOnPlayer(this);
   }
 
-  Future<void> _completePrepared(Future<void> Function() fun) async {
+  Future<void> _completePrepared(Future<void> Function() setSource) async {
     await creatingCompleter.future;
     final preparedCompleter = Completer<void>();
     late StreamSubscription<bool> onPreparedSubscription;
@@ -372,7 +372,9 @@ class AudioPlayer {
         }
       },
     );
-    await fun();
+    // Avoid awaiting `setSource`, as then errors are caught by the Flutter
+    // framework, before it is thrown by the preparedCompleter.future.
+    setSource();
     await preparedCompleter.future.timeout(const Duration(seconds: 30));
 
     // Share position once after finished loading

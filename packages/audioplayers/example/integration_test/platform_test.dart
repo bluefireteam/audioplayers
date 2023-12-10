@@ -507,8 +507,8 @@ extension on WidgetTester {
       },
     );
     final source = testData.source;
-    // Don't await `setSource` as then error is caught by the Flutter framework,
-    // before it is propagated to the preparedCompleter.
+    // Avoid awaiting `setSource`, as then errors are caught by the Flutter
+    // framework, before it is thrown by the preparedCompleter.future.
     if (source is UrlSource) {
       platform.setSourceUrl(playerId, source.url);
     } else if (source is AssetSource) {
@@ -517,6 +517,7 @@ extension on WidgetTester {
     } else if (source is BytesSource) {
       platform.setSourceBytes(playerId, source.bytes);
     }
+    pumpLinux(); // Introduced in Flutter 3.16.0-0.0.pre (5def6f2), DO NOT AWAIT
     await preparedCompleter.future.timeout(const Duration(seconds: 30));
   }
 }
