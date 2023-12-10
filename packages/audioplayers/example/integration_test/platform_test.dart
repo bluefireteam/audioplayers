@@ -511,6 +511,7 @@ extension on WidgetTester {
         }
       },
     );
+    await pumpLinux();
     final source = testData.source;
     // Avoid awaiting `setSource`, as then errors are caught by the Flutter
     // framework, before it is thrown by the preparedCompleter.future.
