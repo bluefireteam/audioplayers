@@ -506,18 +506,17 @@ extension on WidgetTester {
         }
       },
     );
-    await pumpLinux();
-    debugPrint("This print statement is only here, so that the test doesn't fail. Also reproducible with 'print' or 'log'");
     final source = testData.source;
+    // Don't await `setSource` as then error is caught by the Flutter framework,
+    // before it is propagated to the preparedCompleter.
     if (source is UrlSource) {
-      await platform.setSourceUrl(playerId, source.url);
+      platform.setSourceUrl(playerId, source.url);
     } else if (source is AssetSource) {
       final cachePath = await AudioCache.instance.loadPath(source.path);
-      await platform.setSourceUrl(playerId, cachePath, isLocal: true);
+      platform.setSourceUrl(playerId, cachePath, isLocal: true);
     } else if (source is BytesSource) {
-      await platform.setSourceBytes(playerId, source.bytes);
+      platform.setSourceBytes(playerId, source.bytes);
     }
-    await pumpLinux(); // Introduced in Flutter 3.16.0-0.0.pre (5def6f2)
     await preparedCompleter.future.timeout(const Duration(seconds: 30));
   }
 }
