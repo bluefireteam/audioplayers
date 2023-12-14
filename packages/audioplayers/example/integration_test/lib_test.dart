@@ -21,11 +21,13 @@ void main() async {
       (WidgetTester tester) async {
     final player = AudioPlayer();
 
+    await tester.pumpLinux();
     await player.play(specialCharAssetTestData.source);
     // Sources take some time to get initialized
     await tester.pump(const Duration(seconds: 8));
     await player.stop();
 
+    await tester.pumpLinux();
     await player.dispose();
   });
 
@@ -34,6 +36,7 @@ void main() async {
     (WidgetTester tester) async {
       final player = AudioPlayer();
 
+      await tester.pumpLinux();
       final path = await player.audioCache.loadPath(specialCharAsset);
       expect(path, isNot(contains('%'))); // Ensure path is not URL encoded
       await player.play(DeviceFileSource(path));
@@ -41,6 +44,7 @@ void main() async {
       await tester.pump(const Duration(seconds: 8));
       await player.stop();
 
+      await tester.pumpLinux();
       await player.dispose();
     },
     skip: kIsWeb,
@@ -49,11 +53,13 @@ void main() async {
   testWidgets('test url source with special char', (WidgetTester tester) async {
     final player = AudioPlayer();
 
+    await tester.pumpLinux();
     await player.play(specialCharUrlTestData.source);
     // Sources take some time to get initialized
     await tester.pump(const Duration(seconds: 8));
     await player.stop();
 
+    await tester.pumpLinux();
     await player.dispose();
   });
 
@@ -62,11 +68,13 @@ void main() async {
     (WidgetTester tester) async {
       final player = AudioPlayer();
 
+      await tester.pumpLinux();
       await player.play(noExtensionAssetTestData.source);
       // Sources take some time to get initialized
       await tester.pump(const Duration(seconds: 8));
       await player.stop();
 
+      await tester.pumpLinux();
       await player.dispose();
     },
     // Darwin does not support files without extension unless its specified
@@ -93,6 +101,8 @@ void main() async {
       testWidgets(
         '#positionEvent with $positionUpdaterName: ${td.source}',
         (tester) async {
+          await tester.pumpLinux();
+
           if (useTimerPositionUpdater) {
             player.positionUpdater = TimerPositionUpdater(
               getPosition: player.getCurrentPosition,
@@ -117,6 +127,7 @@ void main() async {
             await player.stop();
             expect(player.state, PlayerState.stopped);
           }
+          await tester.pumpLinux();
           await player.dispose();
           final positions = await futurePositions;
           printOnFailure('Positions: $positions');
@@ -155,6 +166,7 @@ void main() async {
 
         // Start all players simultaneously
         final iterator = List<int>.generate(audioTestDataList.length, (i) => i);
+        await tester.pumpLinux();
         await Future.wait<void>(
           iterator.map((i) => players[i].play(audioTestDataList[i].source)),
         );
@@ -169,6 +181,7 @@ void main() async {
             expect(position, greaterThan(Duration.zero));
           }
           await players[i].stop();
+          await tester.pumpLinux();
         }
         await Future.wait(players.map((p) => p.dispose()));
       },
@@ -183,6 +196,7 @@ void main() async {
       final player = AudioPlayer();
 
       for (final td in audioTestDataList) {
+        await tester.pumpLinux();
         await player.play(td.source);
         // Sources take some time to get initialized
         await tester.pump(const Duration(seconds: 8));
@@ -194,6 +208,7 @@ void main() async {
         }
         await player.stop();
       }
+      await tester.pumpLinux();
       await player.dispose();
     });
   });
@@ -220,6 +235,7 @@ void main() async {
         await AudioPlayer.global.setAudioContext(audioContext);
         await player.setAudioContext(audioContext);
 
+        await tester.pumpLinux();
         await player.play(td.source);
         await tester
             .pump((td.duration ?? Duration.zero) + const Duration(seconds: 8));
@@ -237,6 +253,7 @@ void main() async {
         await tester
             .pump((td.duration ?? Duration.zero) + const Duration(seconds: 8));
         expect(player.state, PlayerState.completed);
+        await tester.pumpLinux();
         await player.dispose();
       },
       skip: !features.hasRespectSilence,
@@ -264,6 +281,7 @@ void main() async {
         await AudioPlayer.global.setAudioContext(audioContext);
         await player.setAudioContext(audioContext);
 
+        await tester.pumpLinux();
         await player.setSource(td.source);
         await player.resume();
         await tester
@@ -286,6 +304,7 @@ void main() async {
         expect(player.state, PlayerState.playing);
         await player.stop();
         expect(player.state, PlayerState.stopped);
+        await tester.pumpLinux();
         await player.dispose();
       },
       skip: !features.hasRespectSilence || !features.hasLowLatency,
@@ -296,6 +315,7 @@ void main() async {
       (WidgetTester tester) async {
     final player = AudioPlayer();
 
+    await tester.pumpLinux();
     final futurePlay = player.play(mp3Url1TestData.source);
 
     // Player is still in `stopped` state as it isn't playing yet.
@@ -311,6 +331,7 @@ void main() async {
 
     expect(player.state, PlayerState.paused);
 
+    await tester.pumpLinux();
     await player.dispose();
   });
 
