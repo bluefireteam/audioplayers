@@ -41,7 +41,6 @@ void main() async {
             playerId: playerId,
             platform: platform,
             testData: invalidAssetTestData,
-            throwsError: true,
           );
           fail('PlatformException not thrown');
         } on PlatformException catch (e) {
@@ -60,7 +59,6 @@ void main() async {
             playerId: playerId,
             platform: platform,
             testData: nonExistentUrlTestData,
-            throwsError: true,
           );
           fail('PlatformException not thrown');
         } on PlatformException catch (e) {
@@ -487,9 +485,6 @@ extension on WidgetTester {
     required String playerId,
     required AudioplayersPlatformInterface platform,
     required LibSourceTestData testData,
-    // FIXME(1556): Only needed for Linux, see also
-    // https://github.com/flutter/flutter/issues/139310
-    bool throwsError = false,
   }) async {
     final eventStream = platform.getEventStream(playerId);
     final preparedCompleter = Completer<void>();
@@ -523,9 +518,7 @@ extension on WidgetTester {
     } else if (source is BytesSource) {
       platform.setSourceBytes(playerId, source.bytes);
     }
-    if (!throwsError) {
-      await pumpLinux(); // Introduced in Flutter 3.16.0-0.0.pre (5def6f2)
-    }
+    await pumpLinux(); // Introduced in Flutter 3.16.0-0.0.pre (5def6f2)
     await preparedCompleter.future.timeout(const Duration(seconds: 30));
   }
 }
