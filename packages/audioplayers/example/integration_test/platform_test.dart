@@ -8,7 +8,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
 import 'lib/lib_source_test_data.dart';
-import 'lib/lib_test_utils.dart';
 import 'platform_features.dart';
 import 'test_utils.dart';
 
@@ -41,13 +40,11 @@ void main() async {
             playerId: playerId,
             platform: platform,
             testData: invalidAssetTestData,
-            throwsError: true,
           );
           fail('PlatformException not thrown');
         } on PlatformException catch (e) {
           expect(e.message, startsWith('Failed to set source.'));
         }
-        await tester.pumpLinux();
       },
     );
 
@@ -60,18 +57,15 @@ void main() async {
             playerId: playerId,
             platform: platform,
             testData: nonExistentUrlTestData,
-            throwsError: true,
           );
           fail('PlatformException not thrown');
         } on PlatformException catch (e) {
           expect(e.message, startsWith('Failed to set source.'));
         }
-        await tester.pumpLinux();
       },
     );
 
     testWidgets('#create and #dispose', (tester) async {
-      await tester.pumpAndSettle();
       await platform.dispose(playerId);
 
       try {
@@ -88,7 +82,6 @@ void main() async {
 
       // Create player again, so it can be disposed in tearDown
       await platform.create(playerId);
-      await tester.pumpLinux();
     });
 
     for (final td in audioTestDataList) {
@@ -112,7 +105,6 @@ void main() async {
               deviation: Duration(milliseconds: td.isVBR ? 100 : 1),
             ),
           );
-          await tester.pumpLinux();
         },
         // FIXME(gustl22): cannot determine initial duration for VBR on Linux
         // FIXME(gustl22): determines wrong initial position for m3u8 on Linux
@@ -136,7 +128,6 @@ void main() async {
             await platform.stop(playerId);
           }
           // May check native volume here
-          await tester.pumpLinux();
         });
       }
     }
@@ -156,7 +147,6 @@ void main() async {
             await platform.stop(playerId);
           }
           // May check native balance here
-          await tester.pumpLinux();
         });
       }
     }
@@ -176,7 +166,6 @@ void main() async {
             await platform.stop(playerId);
           }
           // May check native playback rate here
-          await tester.pumpLinux();
         });
       }
     }
@@ -190,7 +179,6 @@ void main() async {
       await platform.setPlaybackRate(playerId, 2.0);
       await tester.pumpAndSettle(const Duration(seconds: 2));
       expect(await platform.getCurrentPosition(playerId), 0);
-      await tester.pumpLinux();
     });
 
     for (final td in audioTestDataList) {
@@ -223,7 +211,6 @@ void main() async {
               deviation: const Duration(milliseconds: 1),
             ),
           );
-          await tester.pumpLinux();
         });
       }
     }
@@ -244,7 +231,6 @@ void main() async {
           await platform.stop(playerId);
 
           // May check number of loops here
-          await tester.pumpLinux();
         });
       }
     }
@@ -269,7 +255,6 @@ void main() async {
           // TODO(Gustl22): test if source was released
           expect(await platform.getDuration(playerId), null);
           expect(await platform.getCurrentPosition(playerId), null);
-          await tester.pumpLinux();
         });
       }
     }
@@ -287,7 +272,6 @@ void main() async {
         // Check if position & duration is zero after play & release
         expect(await platform.getDuration(playerId), null);
         expect(await platform.getCurrentPosition(playerId), null);
-        await tester.pumpLinux();
       });
     }
 
@@ -299,7 +283,6 @@ void main() async {
           testData: wavUrl1TestData,
         );
       }
-      await tester.pumpLinux();
     });
   });
 
@@ -337,10 +320,6 @@ void main() async {
               testData: td,
             );
 
-            if (td.source == wavAsset2TestData.source) {
-              await tester.pumpLinux();
-            }
-
             expect(
               await durationCompleter.future
                   .timeout(const Duration(seconds: 30)),
@@ -351,7 +330,6 @@ void main() async {
               ),
             );
             await onDurationSub.cancel();
-            await tester.pumpLinux();
           },
           // TODO(gustl22): cannot determine duration for VBR on Linux
           // FIXME(gustl22): duration event is not emitted for short duration
@@ -384,7 +362,6 @@ void main() async {
           await tester.pumpAndSettle(const Duration(seconds: 3));
           await completeCompleter.future.timeout(const Duration(seconds: 30));
           onCompleteSub.cancel();
-          await tester.pumpLinux();
         });
       }
     }
@@ -394,7 +371,6 @@ void main() async {
       for (var i = 0; i < 2; i++) {
         final eventSub = eventStream.listen(null);
         await eventSub.cancel();
-        await tester.pumpLinux();
       }
     });
 
@@ -411,7 +387,6 @@ void main() async {
       final log = await logCompleter.future;
       expect(log, 'SomeLog');
       await logSub.cancel();
-      await tester.pumpLinux();
     });
 
     testWidgets('Emit global platform log', (tester) async {
@@ -432,7 +407,6 @@ void main() async {
       // FIXME: cancelling the global event stream leads to
       // MissingPluginException on Android, if dispose app afterwards
       // await eventStreamSub.cancel();
-      await tester.pumpLinux();
     });
 
     testWidgets('Emit platform error', (tester) async {
@@ -453,7 +427,6 @@ void main() async {
       expect(platformException.code, 'SomeErrorCode');
       expect(platformException.message, 'SomeErrorMessage');
       await eventStreamSub.cancel();
-      await tester.pumpLinux();
     });
 
     testWidgets('Emit global platform error', (tester) async {
@@ -477,7 +450,6 @@ void main() async {
       // FIXME: cancelling the global event stream leads to
       // MissingPluginException on Android, if dispose app afterwards
       // await eventStreamSub.cancel();
-      await tester.pumpLinux();
     });
   });
 }
@@ -487,9 +459,6 @@ extension on WidgetTester {
     required String playerId,
     required AudioplayersPlatformInterface platform,
     required LibSourceTestData testData,
-    // FIXME(1556): Only needed for Linux, see also
-    // https://github.com/flutter/flutter/issues/139310
-    bool throwsError = false,
   }) async {
     final eventStream = platform.getEventStream(playerId);
     final preparedCompleter = Completer<void>();
@@ -511,7 +480,6 @@ extension on WidgetTester {
         }
       },
     );
-    await pumpLinux();
     final source = testData.source;
     // Avoid awaiting `setSource`, as then errors are caught by the Flutter
     // framework, before it is thrown by the preparedCompleter.future.
@@ -522,9 +490,6 @@ extension on WidgetTester {
       platform.setSourceUrl(playerId, cachePath, isLocal: true);
     } else if (source is BytesSource) {
       platform.setSourceBytes(playerId, source.bytes);
-    }
-    if (!throwsError) {
-      await pumpLinux(); // Introduced in Flutter 3.16.0-0.0.pre (5def6f2)
     }
     await preparedCompleter.future.timeout(const Duration(seconds: 30));
   }
