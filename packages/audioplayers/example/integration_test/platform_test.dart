@@ -461,35 +461,31 @@ extension on WidgetTester {
     required LibSourceTestData testData,
   }) async {
     final eventStream = platform.getEventStream(playerId);
-    final preparedCompleter = Completer<void>();
-    late StreamSubscription<bool> onPreparedSub;
-    onPreparedSub = eventStream
-        .where((event) => event.eventType == AudioEventType.prepared)
-        .map((event) => event.isPrepared!)
-        .listen(
-      (isPrepared) async {
-        if (isPrepared) {
-          preparedCompleter.complete();
-          await onPreparedSub.cancel();
-        }
-      },
-      onError: (Object e, [StackTrace? st]) async {
-        if (!preparedCompleter.isCompleted) {
-          preparedCompleter.completeError(e, st);
-          await onPreparedSub.cancel();
-        }
-      },
+    final futurePrepared = eventStream.firstWhere(
+      (event) =>
+          event.eventType == AudioEventType.prepared &&
+          (event.isPrepared ?? false),
     );
-    final source = testData.source;
-    // Need to await the setting the source to propagate synchronous errors.
-    if (source is UrlSource) {
-      await platform.setSourceUrl(playerId, source.url);
-    } else if (source is AssetSource) {
-      final cachePath = await AudioCache.instance.loadPath(source.path);
-      await platform.setSourceUrl(playerId, cachePath, isLocal: true);
-    } else if (source is BytesSource) {
-      await platform.setSourceBytes(playerId, source.bytes);
+
+    Future<void> setSource(Source source) async {
+      if (source is UrlSource) {
+        return platform.setSourceUrl(playerId, source.url);
+      } else if (source is AssetSource) {
+        final cachePath = await AudioCache.instance.loadPath(source.path);
+        return platform.setSourceUrl(playerId, cachePath, isLocal: true);
+      } else if (source is BytesSource) {
+        return platform.setSourceBytes(playerId, source.bytes);
+      } else {
+        throw 'Unknown source type: ${source.runtimeType}';
+      }
     }
-    await preparedCompleter.future.timeout(const Duration(seconds: 30));
+
+    // Need to await the setting the source to propagate immediate errors.
+    final futureSetSource = setSource(testData.source);
+
+    // Wait simultaneously to ensure all errors are propagated through the same
+    // future.
+    await Future.wait([futureSetSource, futurePrepared])
+        .timeout(const Duration(seconds: 30));
   }
 }

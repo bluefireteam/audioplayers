@@ -171,6 +171,7 @@ class AudioPlayer {
   Future<void> _create() async {
     try {
       await _platform.create(playerId);
+      // Assign the event stream, now that the platform registered this player.
       _eventStreamSubscription = _platform.getEventStream(playerId).listen(
             _eventStreamController.add,
             onError: _eventStreamController.addError,
@@ -286,22 +287,13 @@ class AudioPlayer {
   Future<void> seek(Duration position) async {
     await creatingCompleter.future;
 
-    final seekCompleter = Completer<void>();
-    late StreamSubscription<void> onSeekCompleteSubscription;
-    onSeekCompleteSubscription = onSeekComplete.listen(
-      (_) async {
-        seekCompleter.complete();
-        await onSeekCompleteSubscription.cancel();
-      },
-      onError: (Object e, [StackTrace? stackTrace]) async {
-        if (!seekCompleter.isCompleted) {
-          seekCompleter.completeError(e, stackTrace);
-          await onSeekCompleteSubscription.cancel();
-        }
-      },
-    );
-    await _platform.seek(playerId, position);
-    await seekCompleter.future.timeout(const Duration(seconds: 30));
+    final futureSeekComplete =
+        onSeekComplete.first.timeout(const Duration(seconds: 30));
+    final futureSeek = _platform.seek(playerId, position);
+    // Wait simultaneously to ensure all errors are propagated through the same
+    // future.
+    await Future.wait([futureSeek, futureSeekComplete]);
+
     await _positionUpdater?.update();
   }
 
@@ -354,27 +346,21 @@ class AudioPlayer {
     await source.setOnPlayer(this);
   }
 
+  /// This method helps waiting for a source to be set until it's prepared.
+  /// This can happen immediately after [setSource] has finished or it needs to
+  /// wait for the [AudioEvent] [AudioEventType.prepared] to arrive.
   Future<void> _completePrepared(Future<void> Function() setSource) async {
     await creatingCompleter.future;
-    final preparedCompleter = Completer<void>();
-    late StreamSubscription<bool> onPreparedSubscription;
-    onPreparedSubscription = _onPrepared.listen(
-      (isPrepared) async {
-        if (isPrepared) {
-          preparedCompleter.complete();
-          await onPreparedSubscription.cancel();
-        }
-      },
-      onError: (Object e, [StackTrace? stackTrace]) async {
-        if (!preparedCompleter.isCompleted) {
-          preparedCompleter.completeError(e, stackTrace);
-          await onPreparedSubscription.cancel();
-        }
-      },
-    );
-    // Need to await the setting the source to propagate synchronous errors.
-    await setSource();
-    await preparedCompleter.future.timeout(const Duration(seconds: 30));
+
+    final futurePrepared = _onPrepared
+        .firstWhere((isPrepared) => isPrepared)
+        .timeout(const Duration(seconds: 30));
+    // Need to await the setting the source to propagate immediate errors.
+    final futureSetSource = setSource();
+
+    // Wait simultaneously to ensure all errors are propagated through the same
+    // future.
+    await Future.wait([futureSetSource, futurePrepared]);
 
     // Share position once after finished loading
     await _positionUpdater?.update();
