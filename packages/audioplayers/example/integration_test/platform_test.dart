@@ -461,11 +461,13 @@ extension on WidgetTester {
     required LibSourceTestData testData,
   }) async {
     final eventStream = platform.getEventStream(playerId);
-    final futurePrepared = eventStream.firstWhere(
-      (event) =>
-          event.eventType == AudioEventType.prepared &&
-          (event.isPrepared ?? false),
-    );
+    final futurePrepared = eventStream
+        .firstWhere(
+          (event) =>
+              event.eventType == AudioEventType.prepared &&
+              (event.isPrepared ?? false),
+        )
+        .timeout(const Duration(seconds: 30));
 
     Future<void> setSource(Source source) async {
       if (source is UrlSource) {
@@ -485,7 +487,6 @@ extension on WidgetTester {
 
     // Wait simultaneously to ensure all errors are propagated through the same
     // future.
-    await Future.wait([futureSetSource, futurePrepared])
-        .timeout(const Duration(seconds: 30));
+    await Future.wait([futureSetSource, futurePrepared]);
   }
 }
