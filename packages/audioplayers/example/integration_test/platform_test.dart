@@ -481,15 +481,14 @@ extension on WidgetTester {
       },
     );
     final source = testData.source;
-    // Avoid awaiting `setSource`, as then errors are caught by the Flutter
-    // framework, before it is thrown by the preparedCompleter.future.
+    // Need to await the setting the source to propagate synchronous errors.
     if (source is UrlSource) {
-      platform.setSourceUrl(playerId, source.url);
+      await platform.setSourceUrl(playerId, source.url);
     } else if (source is AssetSource) {
       final cachePath = await AudioCache.instance.loadPath(source.path);
-      platform.setSourceUrl(playerId, cachePath, isLocal: true);
+      await platform.setSourceUrl(playerId, cachePath, isLocal: true);
     } else if (source is BytesSource) {
-      platform.setSourceBytes(playerId, source.bytes);
+      await platform.setSourceBytes(playerId, source.bytes);
     }
     await preparedCompleter.future.timeout(const Duration(seconds: 30));
   }

@@ -372,9 +372,8 @@ class AudioPlayer {
         }
       },
     );
-    // Avoid awaiting `setSource`, as then errors are caught by the Flutter
-    // framework, before it is thrown by the preparedCompleter.future.
-    setSource();
+    // Need to await the setting the source to propagate synchronous errors.
+    await setSource();
     await preparedCompleter.future.timeout(const Duration(seconds: 30));
 
     // Share position once after finished loading
