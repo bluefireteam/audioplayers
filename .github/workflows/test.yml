@@ -50,7 +50,7 @@ on:
     inputs:
       flutter_version:
         required: false
-        default: '3.16.1'
+        default: '3.16.4'
         type: string
       fatal_warnings:
         required: false
