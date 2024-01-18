@@ -11,6 +11,16 @@ on:
           - 'any'
           - '3.16.x'
           - '3.13.x'
+      flutter_channel:
+        description: 'Flutter Channel'
+        required: false
+        default: 'stable'
+        type: choice
+        options:
+          - 'stable'
+          - 'beta'
+          - 'dev'
+          - 'master'
       fatal_warnings:
         description: 'Treat warnings as fatal'
         required: false
@@ -51,6 +61,10 @@ on:
       flutter_version:
         required: false
         default: '3.16.4'
+        type: string
+      flutter_channel:
+        required: false
+        default: 'stable'
         type: string
       fatal_warnings:
         required: false
@@ -94,7 +108,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ inputs.flutter_version }}
-          channel: 'stable'
+          channel: ${{ inputs.flutter_channel }}
       - uses: bluefireteam/melos-action@main
 
       - run: melos run format-check
@@ -126,7 +140,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ inputs.flutter_version }}
-          channel: 'stable'
+          channel: ${{ inputs.flutter_channel }}
       - uses: bluefireteam/melos-action@main
       - uses: nanasess/setup-chromedriver@v2
 
@@ -177,7 +191,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ inputs.flutter_version }}
-          channel: 'stable'
+          channel: ${{ inputs.flutter_channel }}
       - uses: bluefireteam/melos-action@main
 
       - name: Download Android emulator image
@@ -218,7 +232,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ inputs.flutter_version }}
-          channel: 'stable'
+          channel: ${{ inputs.flutter_channel }}
       - uses: bluefireteam/melos-action@main
 
       - name: List all simulators
@@ -247,7 +261,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ inputs.flutter_version }}
-          channel: 'stable'
+          channel: ${{ inputs.flutter_channel }}
       - uses: bluefireteam/melos-action@main
 
       - name: Run Flutter integration tests
@@ -268,7 +282,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ inputs.flutter_version }}
-          channel: 'stable'
+          channel: ${{ inputs.flutter_channel }}
       - uses: bluefireteam/melos-action@main
       - name: Start audio server
         run: net start audiosrv
@@ -309,7 +323,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ inputs.flutter_version }}
-          channel: 'stable'
+          channel: ${{ inputs.flutter_channel }}
       - uses: bluefireteam/melos-action@main
       - name: Install Flutter requirements for Linux
         run: |
