@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 extension LibWidgetTester on WidgetTester {
@@ -6,12 +5,7 @@ extension LibWidgetTester on WidgetTester {
     Duration? duration,
     EnginePhase phase = EnginePhase.sendSemanticsUpdate,
   ]) async {
-    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.linux) {
-      // FIXME(1556): Pump on Linux doesn't work with GStreamer bus callback
-      await Future.delayed(duration ?? Duration.zero);
-    } else {
-      await pump(duration, phase);
-    }
+    await pump(duration, phase);
   }
 
   /// See [pumpFrames].
