@@ -6,12 +6,12 @@ extension LibWidgetTester on WidgetTester {
     Duration? duration,
     EnginePhase phase = EnginePhase.sendSemanticsUpdate,
   ]) async {
-    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.linux) {
+    // if (!kIsWeb && defaultTargetPlatform == TargetPlatform.linux) {
       // FIXME(1556): Pump on Linux doesn't work with GStreamer bus callback
       await Future.delayed(duration ?? Duration.zero);
-    } else {
-      await pump(duration, phase);
-    }
+    // } else {
+    //   await pump(duration, phase);
+    // }
   }
 
   /// See [pumpFrames].

@@ -60,11 +60,11 @@ on:
     inputs:
       flutter_version:
         required: false
-        default: '3.16.8'
+        default: 'any'
         type: string
       flutter_channel:
         required: false
-        default: 'stable'
+        default: 'master'
         type: string
       fatal_warnings:
         required: false
