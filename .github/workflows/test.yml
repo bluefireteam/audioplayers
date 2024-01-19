@@ -178,7 +178,7 @@ jobs:
            --dart-define USE_LOCAL_SERVER=true
 
   android:
-    runs-on: macos-13
+    runs-on: ubuntu-latest
     timeout-minutes: 90
     if: inputs.enable_android
     steps:
