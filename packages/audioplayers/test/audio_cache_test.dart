@@ -8,7 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 class FakeAudioCache extends AudioCache {
   List<String> called = [];
 
-  FakeAudioCache({super.prefix});
+  FakeAudioCache({super.prefix, super.cacheId});
 
   @override
   Future<Uri> fetchToMemory(String fileName) async {
@@ -54,6 +54,20 @@ void main() {
       expect(cache.loadedFiles.isNotEmpty, isTrue);
       await cache.clear('audio.mp3');
       expect(cache.loadedFiles, <String, Uri>{});
+    });
+
+    test('Use different location for two audio caches', () async {
+      const fileName = 'audio.mp3';
+      final cacheA = FakeAudioCache(cacheId: 'cache-path-A');
+      await cacheA.load(fileName);
+      expect(cacheA.loadedFiles[fileName]?.path, '//cache-path-A/audio.mp3');
+
+      final cacheB = FakeAudioCache(cacheId: 'cache-path-B');
+      await cacheB.load(fileName);
+      expect(cacheB.loadedFiles[fileName]?.path, '//cache-path-B/audio.mp3');
+
+      await cacheA.clearAll();
+      await cacheB.clearAll();
     });
   });
 }

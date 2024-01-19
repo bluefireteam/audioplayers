@@ -7,6 +7,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
+import 'package:uuid/uuid.dart';
+
+const _uuid = Uuid();
 
 /// This class represents a cache for Local Assets to be played.
 ///
@@ -45,7 +48,14 @@ class AudioCache {
   /// crucial).
   String prefix;
 
-  AudioCache({this.prefix = 'assets/'});
+  /// An unique ID generated for this instance of [AudioCache].
+  ///
+  /// This is used to load a file into an unique location in the temporary
+  /// directory.
+  String? cacheId;
+
+  AudioCache({this.prefix = 'assets/', String? cacheId})
+      : cacheId = cacheId ?? _uuid.v4();
 
   /// Clears the cache for the file [fileName].
   ///
@@ -89,7 +99,7 @@ class AudioCache {
     final byteData = await loadAsset('$prefix$fileName');
 
     // create a temporary file on the device to be read by the native side
-    final file = fileSystem.file('${await getTempDir()}/$fileName');
+    final file = fileSystem.file('${await getTempDir()}/$cacheId/$fileName');
     await file.create(recursive: true);
     await file.writeAsBytes(byteData.buffer.asUint8List());
 
