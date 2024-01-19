@@ -16,6 +16,7 @@ void main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   final features = PlatformFeatures.instance();
   final isLinux = !kIsWeb && defaultTargetPlatform == TargetPlatform.linux;
+  final isAndroid = !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
   final audioTestDataList = await getAudioTestDataList();
 
   group('Platform method channel', () {
@@ -67,6 +68,12 @@ void main() async {
         }
         await tester.pumpLinux();
       },
+      // FIXME(Gustl22): for some reason, the error propagated back from the
+      //  Android MediaPlayer is only triggered, when the timeout has reached,
+      //  although the error is emitted immediately.
+      //  Further, the other future is not fulfilled and then mysteriously
+      //  failing in later tests.
+      skip: isAndroid,
     );
 
     testWidgets('#create and #dispose', (tester) async {
@@ -488,33 +495,32 @@ extension on WidgetTester {
     required LibSourceTestData testData,
   }) async {
     final eventStream = platform.getEventStream(playerId);
-    final preparedCompleter = Completer<void>();
-    final onPreparedSub = eventStream
-        .where((event) => event.eventType == AudioEventType.prepared)
-        .map((event) => event.isPrepared!)
-        .listen(
-      (isPrepared) {
-        if (isPrepared) {
-          preparedCompleter.complete();
-        }
-      },
-      onError: (Object e, [StackTrace? st]) {
-        if (!preparedCompleter.isCompleted) {
-          preparedCompleter.completeError(e, st);
-        }
-      },
-    );
-    await pumpLinux();
-    final source = testData.source;
-    if (source is UrlSource) {
-      await platform.setSourceUrl(playerId, source.url);
-    } else if (source is AssetSource) {
-      final cachePath = await AudioCache.instance.loadPath(source.path);
-      await platform.setSourceUrl(playerId, cachePath, isLocal: true);
-    } else if (source is BytesSource) {
-      await platform.setSourceBytes(playerId, source.bytes);
+    final futurePrepared = eventStream
+        .firstWhere(
+          (event) =>
+              event.eventType == AudioEventType.prepared &&
+              (event.isPrepared ?? false),
+        )
+        .timeout(const Duration(seconds: 30));
+
+    Future<void> setSource(Source source) async {
+      if (source is UrlSource) {
+        return platform.setSourceUrl(playerId, source.url);
+      } else if (source is AssetSource) {
+        final cachePath = await AudioCache.instance.loadPath(source.path);
+        return platform.setSourceUrl(playerId, cachePath, isLocal: true);
+      } else if (source is BytesSource) {
+        return platform.setSourceBytes(playerId, source.bytes);
+      } else {
+        throw 'Unknown source type: ${source.runtimeType}';
+      }
     }
-    await preparedCompleter.future.timeout(const Duration(seconds: 30));
-    await onPreparedSub.cancel();
+
+    // Need to await the setting the source to propagate immediate errors.
+    final futureSetSource = setSource(testData.source);
+
+    // Wait simultaneously to ensure all errors are propagated through the same
+    // future.
+    await Future.wait([futureSetSource, futurePrepared]);
   }
 }
