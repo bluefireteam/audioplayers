@@ -18,7 +18,7 @@ class FakeAudioCache extends AudioCache {
 
   @override
   Future<ByteData> loadAsset(String path) async {
-    return ByteData.sublistView((utf8.encode(path)) as Uint8List);
+    return ByteData.sublistView(utf8.encode(path));
   }
 
   @override

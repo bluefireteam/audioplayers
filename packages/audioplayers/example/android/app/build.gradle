@@ -26,7 +26,8 @@ apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
-    compileSdk 33
+    // Allow compatibility with selected Flutter SDK
+    compileSdk flutter.compileSdkVersion
 
     namespace 'xyz.luan.audioplayers.example'
 
