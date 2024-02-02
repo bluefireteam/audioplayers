@@ -79,8 +79,13 @@ class MediaPlayerPlayer(
     }
 
     override fun release() {
-        mediaPlayer.reset()
-        mediaPlayer.release()
+        try {
+            mediaPlayer.reset()
+            mediaPlayer.release()
+        } catch (e: Exception) {
+            wrappedPlayer.handleError("AndroidAudioError", e.message, "This could be caused by calling release twice.")
+            e.printStackTrace()
+        }
     }
 
     override fun seekTo(position: Int) {
@@ -99,7 +104,12 @@ class MediaPlayerPlayer(
     }
 
     override fun reset() {
-        mediaPlayer.reset()
+        try {
+            mediaPlayer.reset()
+        } catch (e: Exception) {
+            wrappedPlayer.handleError("AndroidAudioError", e.message, "This could be caused by calling reset after release.")
+            e.printStackTrace()
+        }
     }
 
     override fun isLiveStream(): Boolean {
