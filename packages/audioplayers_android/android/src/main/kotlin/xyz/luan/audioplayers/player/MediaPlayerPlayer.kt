@@ -25,7 +25,14 @@ class MediaPlayerPlayer(
 
     override fun getDuration(): Int? {
         // media player returns -1 if the duration is unknown
-        return mediaPlayer.duration.takeUnless { it == -1 }
+        if (isReleased) return -1
+        return try {
+            mediaPlayer.duration.takeUnless { it == -1 }
+        } catch (e: Exception) {
+            wrappedPlayer.handleError("AndroidAudioError", e.message, "This could be caused by calling start after release.")
+            e.printStackTrace()
+            -1
+        }
     }
 
     override fun getCurrentPosition(): Int {
@@ -37,6 +44,7 @@ class MediaPlayerPlayer(
     }
 
     override fun setRate(rate: Float) {
+        if (isReleased) return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             try {
                 mediaPlayer.playbackParams = mediaPlayer.playbackParams.setSpeed(rate)
@@ -57,6 +65,7 @@ class MediaPlayerPlayer(
     }
 
     override fun setSource(source: Source) {
+        if (isReleased) return
         reset()
         source.setForMediaPlayer(mediaPlayer)
     }
@@ -71,14 +80,20 @@ class MediaPlayerPlayer(
     }
 
     override fun pause() {
+        if (isReleased) return
         mediaPlayer.pause()
     }
 
     override fun stop() {
+        if (isReleased) return
         mediaPlayer.stop()
     }
 
+    private var isReleased = false
+
     override fun release() {
+        if (isReleased) return
+        isReleased = true
         try {
             mediaPlayer.reset()
             mediaPlayer.release()
@@ -89,6 +104,7 @@ class MediaPlayerPlayer(
     }
 
     override fun seekTo(position: Int) {
+        if (isReleased) return
         mediaPlayer.seekTo(position)
     }
 
@@ -104,6 +120,7 @@ class MediaPlayerPlayer(
     }
 
     override fun reset() {
+        if (isReleased) return
         try {
             mediaPlayer.reset()
         } catch (e: Exception) {
