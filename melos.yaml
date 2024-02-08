@@ -7,10 +7,6 @@ packages:
   - tutorials/**
 
 command:
-  version:
-    # Only allow versioning to happen on main branch.
-    branch: main
-
   bootstrap:
     # Avoid concurrent pub requests, remove when https://github.com/dart-lang/pub/issues/3404 is fixed
     runPubGetInParallel: false
@@ -26,15 +22,15 @@ scripts:
 
   format:
     run: melos exec dart format . --fix
-    description: Run `flutter format` for all packages.
+    description: Run `dart format` for all packages.
 
   format-check:
     run: melos exec dart format . --set-exit-if-changed
-    description: Run `flutter format` checks for all packages.
+    description: Run `dart format` checks for all packages.
 
   dartdoc:
-    run: melos exec flutter pub run dartdoc
-    description: Run dartdoc checks for all non-example packages.
+    run: melos exec dart doc
+    description: Run `dart doc` for all non-example packages.
     packageFilters:
       ignore: "*_example"
 

@@ -9,7 +9,10 @@ For that check out our [Contributing Guide](https://github.com/bluefireteam/audi
 
 ### Supported Formats / Encodings
 
-Not all formats are supported by all platforms. Essentially `audioplayers` is just centralized interface that communicate with native audio players on each platform. We are not parsing the bytes of your song. Each platform has its own native support. Please do not open issues regarding encoding/file format compatibility unless it is an AudioPlayers specific issue.
+Not all formats are supported by all platforms.
+Essentially `audioplayers` is just centralized interface that communicate with native audio players on each platform.
+We are not parsing the bytes of your song. Each platform has its own native support.
+**Please do not open issues regarding encoding / audio format compatibility unless it is an AudioPlayers specific issue.**
 
 You can check a list of supported formats below:
 
@@ -20,11 +23,15 @@ You can check a list of supported formats below:
 - [Windows](https://learn.microsoft.com/en-us/windows/win32/medfound/supported-media-formats-in-media-foundation)
 - Linux: List of defined [audio types](https://gstreamer.freedesktop.org/documentation/plugin-development/advanced/media-types.html?gi-language=c#table-of-audio-types) and their according [Plugins](https://gstreamer.freedesktop.org/documentation/plugins_doc.html?gi-language=c)
 
+Also, there is no guarantee that the file extension matches the audio format. 
+A file encoded as Opus (`.ogg`) can easily be renamed to `.mp3`, but that doesn't mean it can be played by the platform's audio player.
+Please verify that the real encoding / audio format is supported by analyzing the audio file (e.g. with [Aconvert](https://www.aconvert.com/analyze.html)).
+
 ### Issues with remote URLs
 
 #### Unsafe HTTP
 
-It is very common for mobile platforms to forbid non-HTTPS traffic due to it's lack of encryption and severe security deficiency. However, there are ways to bypass this protection.
+It is very common for mobile platforms to forbid non-HTTPS traffic due to its lack of encryption and severe security deficiency. However, there are ways to bypass this protection.
 
 On iOS and macOS, edit your `.plist` and add:
 
@@ -52,7 +59,7 @@ On Android, add `android:usesCleartextTraffic="true"` to your `AndroidManifest.x
 </manifest>
 ```
 
-### [Web] CORS Policy
+#### [Web] CORS Policy
 
 To be able to play your own resources on Web you need to make sure your server has CORS support enabled or [temporarily disable](https://stackoverflow.com/a/74783428/5164462) the security feature in your browser.
 
@@ -69,10 +76,9 @@ If the issue persists, then open the issue, including the file so we can test. O
 
 ### Issues with local Assets and AudioCache
 
-Flutter requires that assets are specified on your `pubspec.yaml` file, under `flutter > assets`; check [this](https://github.com/bluefireteam/audioplayers/blob/main/packages/audioplayers/example/pubspec.yaml#L29) for an example.
+[Flutter requires](https://docs.flutter.dev/ui/assets/assets-and-images) that assets are specified on your `pubspec.yaml` file, under `flutter > assets`; check [this](https://github.com/bluefireteam/audioplayers/blob/main/packages/audioplayers/example/pubspec.yaml#L29) for an example.
 
-**Note**: when playing local assets, by default every instance of AudioPlayers uses a [shared global instance of AudioCache](https://github.com/bluefireteam/audioplayers/blob/main/packages/audioplayers/lib/src/audioplayer.dart#L24), that will have a [default prefix "/assets"](https://github.com/bluefireteam/audioplayers/blob/main/packages/audioplayers/lib/src/audio_cache.dart#L41) configured, as per Flutter conventions.
-However you can easily change that by specifying your own instance of AudioCache with any other (or no) prefix.
+**Note**: Make sure you have set the path to your asset correctly, see the [AudioCache](https://github.com/bluefireteam/audioplayers/blob/main/getting_started.md#audiocache) concept.
 
 ### [iOS] Background Audio
 

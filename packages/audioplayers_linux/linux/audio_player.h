@@ -36,6 +36,8 @@ class AudioPlayer {
 
   void Pause();
 
+  void Stop();
+
   void Resume();
 
   void Dispose();

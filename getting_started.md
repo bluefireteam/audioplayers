@@ -3,7 +3,9 @@
 This tutorial should help you get started with the audioplayers library, covering the basics but guiding you all the way through advanced features.
 You can also play around with our [official example app](https://bluefireteam.github.io/audioplayers/) and [explore the code](https://github.com/bluefireteam/audioplayers/tree/main/packages/audioplayers/example), that showcases every feature the library has to offer.
 
-In order to install this package, add the [latest version](pub.dev/packages/audioplayers) of `audioplayers` to your `pubspec.yaml` file. This packages uses [the Federated Plugin](https://docs.flutter.dev/development/packages-and-plugins/developing-packages) guidelines to support multiple platforms, so it should just work on all supported platforms your app is built for without any extra configuration. You should not need to add the `audioplayers_*` packages directly.
+In order to install this package, add the [latest version](pub.dev/packages/audioplayers) of `audioplayers` to your `pubspec.yaml` file.
+This package uses [the Federated Plugin](https://docs.flutter.dev/development/packages-and-plugins/developing-packages) guidelines to support multiple platforms, so it should just work on all supported platforms your app is built for without any extra configuration.
+You do not need to add the `audioplayers_*` packages directly.
 
 ## Setup Platforms
 
@@ -29,8 +31,9 @@ Each AudioPlayer is created empty and has to be configured with an audio source 
 The source (cf. packages/audioplayers/lib/src/source.dart) is basically what audio you are playing (a song, sound effect, radio stream, etc), and it can have one of 4 types:
 
 1. **UrlSource**: get the audio from a remote URL from the Internet. This can be a direct link to a supported file to be downloaded, or a radio stream.
-1. **DeviceFileSource**: access a file in the user's device, probably selected by a file picker
-1. **AssetSource**: play an asset bundled with your app, normally within the `assets` directory
+1. **DeviceFileSource**: access a file in the user's device, probably selected by a file picker.
+1. **AssetSource**: play an asset bundled with your app, by default within the `assets` directory.
+   To customize the prefix, see [AudioCache](#audiocache).
 1. **BytesSource** (only some platforms): pass in the bytes of your audio directly (read it from anywhere).
 
 In order to set the source on your player instance, call `setSource` with the appropriate source object:
@@ -76,7 +79,7 @@ Changes the current position (note: this does not affect the "playing" status).
 Stops the playback but keeps the current position.
 
 ```dart
-  await player.pause(); 
+  await player.pause();
 ```
 
 ### stop
@@ -164,7 +167,11 @@ The Player Mode represents what kind of native SDK is used to playback audio, wh
 1. `.mediaPlayer` (default): for long media files or streams.
 1. `.lowLatency`: for short audio files, since it reduces the impacts on visuals or UI performance.
 
-**Note**: on low latency mode, the player won't fire any duration or position updates. Also, it is not possible to use the seek method to set the audio a specific position.
+**Note**: on low latency mode, these features are NOT available:
+- get duration & duration event
+- get position & position event
+- playback completion event (this means you are responsible for stopping the player)
+- seeking & seek completion event
 
 Normally you want to use `.mediaPlayer` unless you care about performance and your audios are short (i.e. for sound effects in games).
 
@@ -182,7 +189,7 @@ You can pick one of 3 options:
 1. `.error` (default): show only error messages
 1. `.none`: show no messages at all (not recommended)
 
-**Note**: before opening any issue, always try changing the log level to `.info` to gather any information that my assist you on solving the problem.
+**Note**: before opening any issue, always try changing the log level to `.info` to gather any information that might assist you with solving the problem.
 
 **Note**: despite our best efforts, some native SDK implementations that we use spam a lot of log messages that we currently haven't figured out how to conform to this configuration (specially noticeable on Android). If you would like to contribute with a PR, they are more than welcome!
 
@@ -195,7 +202,7 @@ An Audio Context is a (mostly mobile-specific) set of secondary, platform-specif
 The Audio Context configuration can be set globally for all players via:
 
 ```dart
-  AudioPlayer.global.setGlobalAudioContext(AudioContextConfig(/*...*/).build());
+  AudioPlayer.global.setAudioContext(AudioContextConfig(/*...*/).build());
 ```
 
 To configure a player specific Audio Context (if desired), use:
@@ -321,6 +328,31 @@ It actually copies the asset to a temporary folder in the device, where it is th
 It works as a cache because it keeps track of the copied files so that you can replay them without delay.
 
 If desired, you can change the `AudioCache` per player via the `AudioPlayer().audioCache` property or for all players via `AudioCache.instance`.
+
+#### Local Assets
+
+When playing local assets, by default every instance of AudioPlayers uses a [shared global instance of AudioCache](https://pub.dev/documentation/audioplayers/latest/audioplayers/AudioPlayer/audioCache.html), that will have a [default prefix "/assets"](https://pub.dev/documentation/audioplayers/latest/audioplayers/AudioCache/prefix.html) configured, as per Flutter conventions.
+However, you can easily change that by specifying your own instance of AudioCache with any other (or no) prefix.
+
+Default behavior, presuming that your audio is stored in `/assets/audio/my-audio.wav`:
+```dart
+final player = AudioPlayer();
+await player.play(AssetSource('audio/my-audio.wav'));
+```
+
+Remove the asset prefix for all players:
+```dart
+AudioCache.instance = AudioCache(prefix: '')
+final player = AudioPlayer();
+await player.play(AssetSource('assets/audio/my-audio.wav'));
+```
+
+Set a different prefix for only one player (e.g. when using assets from another package):
+```dart
+final player = AudioPlayer();
+player.audioCache = AudioCache(prefix: 'packages/OTHER_PACKAGE/assets/')
+await player.play(AssetSource('other-package-audio.wav'));
+```
 
 ### playerId
 

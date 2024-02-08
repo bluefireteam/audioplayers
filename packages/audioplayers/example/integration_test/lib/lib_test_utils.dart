@@ -2,10 +2,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 extension LibWidgetTester on WidgetTester {
-  Future<void> pumpLinux() async {
+  Future<void> pumpPlatform([
+    Duration? duration,
+    EnginePhase phase = EnginePhase.sendSemanticsUpdate,
+  ]) async {
     if (!kIsWeb && defaultTargetPlatform == TargetPlatform.linux) {
-      // FIXME(gustl22): Linux needs additional pump (#1556)
-      await pump();
+      // FIXME(1556): Pump on Linux doesn't work with GStreamer bus callback
+      await Future.delayed(duration ?? Duration.zero);
+    } else {
+      await pump(duration, phase);
     }
   }
 

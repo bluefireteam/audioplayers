@@ -144,7 +144,8 @@ void AudioPlayer::OnMediaError(GError* error, gchar* debug) {
                       ", Code: " + std::to_string(error->code) + ")";
     FlValue* details = fl_value_new_string(detailsStr.c_str());
     // https://gstreamer.freedesktop.org/documentation/gstreamer/gsterror.html#enumerations
-    if (error->domain == GST_STREAM_ERROR) {
+    if (error->domain == GST_STREAM_ERROR ||
+        error->domain == GST_RESOURCE_ERROR) {
       message =
           "Failed to set source. For troubleshooting, "
           "see: " STR_LINK_TROUBLESHOOTING;
@@ -185,17 +186,12 @@ void AudioPlayer::OnMediaStateChange(GstObject* src,
       GstStateChangeReturn ret =
           gst_element_set_state(playbin, GST_STATE_PAUSED);
       if (ret == GST_STATE_CHANGE_FAILURE) {
+        // Only use [OnLog] as error is handled via [OnMediaError].
         gchar const* errorDescription =
+            "OnMediaStateChange -> GST_STATE_CHANGE_FAILURE:"
             "Unable to set the pipeline from GST_STATE_READY to "
             "GST_STATE_PAUSED.";
-        if (this->_isInitialized) {
-          this->OnError("LinuxAudioError", errorDescription, nullptr, nullptr);
-        } else {
-          this->OnError("LinuxAudioError",
-                        "Failed to set source. For troubleshooting, "
-                        "see: " STR_LINK_TROUBLESHOOTING,
-                        fl_value_new_string(errorDescription), nullptr);
-        }
+        this->OnLog(errorDescription);
       }
       if (this->_isInitialized) {
         this->_isInitialized = false;
@@ -256,8 +252,7 @@ void AudioPlayer::OnPlaybackEnded() {
   if (GetLooping()) {
     Play();
   } else {
-    Pause();
-    SetPosition(0);
+    Stop();
   }
 }
 
@@ -409,6 +404,21 @@ void AudioPlayer::Pause() {
   if (ret == GST_STATE_CHANGE_SUCCESS) {
   } else if (ret == GST_STATE_CHANGE_FAILURE) {
     throw "Unable to set the pipeline to GST_STATE_PAUSED.";
+  }
+}
+
+void AudioPlayer::Stop() {
+  Pause();
+  if (!_isInitialized) {
+    return;
+  }
+  SetPosition(0);
+  // Block thread to wait for state, as it is not expected to be waited to
+  // "seek complete" event on the dart side.
+  GstStateChangeReturn ret =
+      gst_element_get_state(playbin, NULL, NULL, GST_CLOCK_TIME_NONE);
+  if (ret == GST_STATE_CHANGE_FAILURE) {
+    throw "Unable to seek playback to '0' while stopping the player.";
   }
 }
 

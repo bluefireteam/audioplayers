@@ -55,10 +55,17 @@ class AudioPlayer {
 
   ReleaseMode get releaseMode => _releaseMode;
 
+  /// Auxiliary variable to re-check the volatile player state during async
+  /// operations.
+  @visibleForTesting
+  PlayerState desiredState = PlayerState.stopped;
+
   PlayerState _playerState = PlayerState.stopped;
 
   PlayerState get state => _playerState;
 
+  /// The current playback state.
+  /// It is only set, when the corresponding action succeeds.
   set state(PlayerState state) {
     if (_playerState == PlayerState.disposed) {
       throw Exception('AudioPlayer has been disposed');
@@ -66,7 +73,7 @@ class AudioPlayer {
     if (!_playerStateController.isClosed) {
       _playerStateController.add(state);
     }
-    _playerState = state;
+    _playerState = desiredState = state;
   }
 
   PositionUpdater? _positionUpdater;
@@ -77,8 +84,6 @@ class AudioPlayer {
   final creatingCompleter = Completer<void>();
 
   late final StreamSubscription _onPlayerCompleteStreamSubscription;
-
-  late final StreamSubscription _onSeekCompleteStreamSubscription;
 
   late final StreamSubscription _onLogStreamSubscription;
 
@@ -157,9 +162,6 @@ class AudioPlayer {
         /* Errors are already handled via log stream */
       },
     );
-    _onSeekCompleteStreamSubscription = onSeekComplete.listen((event) async {
-      await _positionUpdater?.update();
-    });
     _create();
     positionUpdater = FramePositionUpdater(
       getPosition: getCurrentPosition,
@@ -169,6 +171,7 @@ class AudioPlayer {
   Future<void> _create() async {
     try {
       await _platform.create(playerId);
+      // Assign the event stream, now that the platform registered this player.
       _eventStreamSubscription = _platform.getEventStream(playerId).listen(
             _eventStreamController.add,
             onError: _eventStreamController.addError,
@@ -179,6 +182,10 @@ class AudioPlayer {
     }
   }
 
+  /// Play an audio [source].
+  ///
+  /// To reduce preparation latency, instead consider calling [setSource]
+  /// beforehand and then [resume] separately.
   Future<void> play(
     Source source, {
     double? volume,
@@ -187,6 +194,8 @@ class AudioPlayer {
     Duration? position,
     PlayerMode? mode,
   }) async {
+    desiredState = PlayerState.playing;
+
     if (mode != null) {
       await setPlayerMode(mode);
     }
@@ -199,11 +208,13 @@ class AudioPlayer {
     if (ctx != null) {
       await setAudioContext(ctx);
     }
+
+    await setSource(source);
     if (position != null) {
       await seek(position);
     }
-    await setSource(source);
-    await resume();
+
+    await _resume();
   }
 
   Future<void> setAudioContext(AudioContext ctx) async {
@@ -222,10 +233,13 @@ class AudioPlayer {
   /// If you call [resume] later, the audio will resume from the point that it
   /// has been paused.
   Future<void> pause() async {
+    desiredState = PlayerState.paused;
     await creatingCompleter.future;
-    await _platform.pause(playerId);
-    state = PlayerState.paused;
-    await _positionUpdater?.stopAndUpdate();
+    if (desiredState == PlayerState.paused) {
+      await _platform.pause(playerId);
+      state = PlayerState.paused;
+      await _positionUpdater?.stopAndUpdate();
+    }
   }
 
   /// Stops the audio that is currently playing.
@@ -233,18 +247,29 @@ class AudioPlayer {
   /// The position is going to be reset and you will no longer be able to resume
   /// from the last point.
   Future<void> stop() async {
+    desiredState = PlayerState.stopped;
     await creatingCompleter.future;
-    await _platform.stop(playerId);
-    state = PlayerState.stopped;
-    await _positionUpdater?.stopAndUpdate();
+    if (desiredState == PlayerState.stopped) {
+      await _platform.stop(playerId);
+      state = PlayerState.stopped;
+      await _positionUpdater?.stopAndUpdate();
+    }
   }
 
   /// Resumes the audio that has been paused or stopped.
   Future<void> resume() async {
+    desiredState = PlayerState.playing;
+    await _resume();
+  }
+
+  /// Resume without setting the desired state.
+  Future<void> _resume() async {
     await creatingCompleter.future;
-    await _platform.resume(playerId);
-    state = PlayerState.playing;
-    _positionUpdater?.start();
+    if (desiredState == PlayerState.playing) {
+      await _platform.resume(playerId);
+      state = PlayerState.playing;
+      _positionUpdater?.start();
+    }
   }
 
   /// Releases the resources associated with this media player.
@@ -254,14 +279,22 @@ class AudioPlayer {
   Future<void> release() async {
     await stop();
     await _platform.release(playerId);
-    state = PlayerState.stopped;
+    // Stop state already set in stop()
     _source = null;
   }
 
   /// Moves the cursor to the desired position.
   Future<void> seek(Duration position) async {
     await creatingCompleter.future;
-    return _platform.seek(playerId, position);
+
+    final futureSeekComplete =
+        onSeekComplete.first.timeout(const Duration(seconds: 30));
+    final futureSeek = _platform.seek(playerId, position);
+    // Wait simultaneously to ensure all errors are propagated through the same
+    // future.
+    await Future.wait([futureSeek, futureSeekComplete]);
+
+    await _positionUpdater?.update();
   }
 
   /// Sets the stereo balance.
@@ -313,26 +346,21 @@ class AudioPlayer {
     await source.setOnPlayer(this);
   }
 
-  Future<void> _completePrepared(Future<void> Function() fun) async {
+  /// This method helps waiting for a source to be set until it's prepared.
+  /// This can happen immediately after [setSource] has finished or it needs to
+  /// wait for the [AudioEvent] [AudioEventType.prepared] to arrive.
+  Future<void> _completePrepared(Future<void> Function() setSource) async {
     await creatingCompleter.future;
-    final preparedCompleter = Completer<void>();
-    late StreamSubscription<bool> onPreparedSubscription;
-    onPreparedSubscription = _onPrepared.listen(
-      (isPrepared) async {
-        if (isPrepared) {
-          preparedCompleter.complete();
-          await onPreparedSubscription.cancel();
-        }
-      },
-      onError: (Object e, [StackTrace? stackTrace]) async {
-        if (!preparedCompleter.isCompleted) {
-          preparedCompleter.completeError(e, stackTrace);
-          await onPreparedSubscription.cancel();
-        }
-      },
-    );
-    await fun();
-    await preparedCompleter.future.timeout(const Duration(seconds: 30));
+
+    final futurePrepared = _onPrepared
+        .firstWhere((isPrepared) => isPrepared)
+        .timeout(const Duration(seconds: 30));
+    // Need to await the setting the source to propagate immediate errors.
+    final futureSetSource = setSource();
+
+    // Wait simultaneously to ensure all errors are propagated through the same
+    // future.
+    await Future.wait([futureSetSource, futurePrepared]);
 
     // Share position once after finished loading
     await _positionUpdater?.update();
@@ -426,13 +454,12 @@ class AudioPlayer {
     // First stop and release all native resources.
     await release();
 
-    state = PlayerState.disposed;
+    state = desiredState = PlayerState.disposed;
 
     final futures = <Future>[
       if (_positionUpdater != null) _positionUpdater!.dispose(),
       if (!_playerStateController.isClosed) _playerStateController.close(),
       _onPlayerCompleteStreamSubscription.cancel(),
-      _onSeekCompleteStreamSubscription.cancel(),
       _onLogStreamSubscription.cancel(),
       _eventStreamSubscription.cancel(),
       _eventStreamController.close(),

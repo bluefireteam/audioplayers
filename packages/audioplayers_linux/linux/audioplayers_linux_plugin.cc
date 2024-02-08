@@ -137,8 +137,7 @@ static void audioplayers_linux_plugin_handle_method_call(
     } else if (strcmp(method, "resume") == 0) {
       player->Resume();
     } else if (strcmp(method, "stop") == 0) {
-      player->Pause();
-      player->SetPosition(0);
+      player->Stop();
     } else if (strcmp(method, "release") == 0) {
       player->ReleaseMediaSource();
     } else if (strcmp(method, "seek") == 0) {

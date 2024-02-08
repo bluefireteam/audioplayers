@@ -123,11 +123,13 @@ class AudioContextTabState extends State<AudioContextTab>
             audioContextConfig.copy(route: v),
           ),
         ),
-        Cbx(
-          'Duck Audio',
-          value: audioContextConfig.duckAudio,
-          ({value}) => updateConfig(
-            audioContextConfig.copy(duckAudio: value),
+        LabeledDropDown<AudioContextConfigFocus>(
+          label: 'Audio Focus',
+          key: const Key('audioFocus'),
+          options: {for (final e in AudioContextConfigFocus.values) e: e.name},
+          selected: audioContextConfig.focus,
+          onChange: (v) => updateConfig(
+            audioContextConfig.copy(focus: v),
           ),
         ),
         Cbx(

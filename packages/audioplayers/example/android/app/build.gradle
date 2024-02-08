@@ -23,9 +23,10 @@ if (flutterVersionName == null) {
 }
 
 android {
+    // Allow compatibility with selected Flutter SDK
+    compileSdk flutter.compileSdkVersion
+
     namespace 'xyz.luan.audioplayers.example'
-    compileSdkVersion flutter.compileSdkVersion
-    ndkVersion flutter.ndkVersion
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
@@ -42,11 +43,10 @@ android {
 
     defaultConfig {
         applicationId "xyz.luan.audioplayers.example"
-        minSdkVersion 21
-        targetSdkVersion 33
+        minSdkVersion flutter.minSdkVersion
+        targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
-        multiDexEnabled true
     }
 
     buildTypes {
