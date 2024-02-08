@@ -2,13 +2,21 @@ package xyz.luan.audioplayers.player
 
 import android.content.Context
 import android.net.Uri
+import android.os.Build
+import android.util.SparseArray
+import androidx.annotation.RequiresApi
 import androidx.media3.common.AudioAttributes
+import androidx.media3.common.C
 import androidx.media3.common.C.TIME_UNSET
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
-import androidx.media3.common.audio.ChannelMixingAudioProcessor
+import androidx.media3.common.audio.AudioProcessor
+import androidx.media3.common.audio.AudioProcessor.UnhandledAudioFormatException
+import androidx.media3.common.audio.BaseAudioProcessor
 import androidx.media3.common.audio.ChannelMixingMatrix
+import androidx.media3.common.util.Assertions
+import androidx.media3.common.util.Util
 import androidx.media3.datasource.ByteArrayDataSource
 import androidx.media3.datasource.DataSource
 import androidx.media3.exoplayer.DefaultRenderersFactory
@@ -21,6 +29,7 @@ import xyz.luan.audioplayers.AudioContextAndroid
 import xyz.luan.audioplayers.source.BytesSource
 import xyz.luan.audioplayers.source.Source
 import xyz.luan.audioplayers.source.UrlSource
+import java.nio.ByteBuffer
 
 class ExoPlayerWrapper(
     private val wrappedPlayer: WrappedPlayer,
@@ -58,7 +67,8 @@ class ExoPlayerWrapper(
     private var player: ExoPlayer
 
     @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
-    private var channelMixingAudioProcessor = ChannelMixingAudioProcessor()
+    private var channelMixingAudioProcessor = AdaptiveChannelMixingAudioProcessor()
+    private lateinit var audioSink: AudioSink
 
     init {
         player = createPlayer(appContext)
@@ -73,7 +83,7 @@ class ExoPlayerWrapper(
                 enableAudioTrackPlaybackParams: Boolean,
                 enableOffload: Boolean,
             ): AudioSink {
-                val audioSink =
+                audioSink =
                     DefaultAudioSink.Builder(appContext).setAudioProcessors(arrayOf(channelMixingAudioProcessor))
                         .build()
                 return audioSink
@@ -135,6 +145,8 @@ class ExoPlayerWrapper(
                 floatArrayOf(leftVolume, 0f, 0f, rightVolume),
             ),
         )
+//        this.audioSink.flush()
+//        this.channelMixingAudioProcessor.flush()
     }
 
     override fun setRate(rate: Float) {
@@ -164,6 +176,7 @@ class ExoPlayerWrapper(
 
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
     override fun setSource(source: Source) {
         println("Exo Set source")
@@ -184,4 +197,79 @@ class ExoPlayerWrapper(
         player.prepare()
     }
 
+}
+
+/**
+ * See Implementation of [androidx.media3.common.audio.ChannelMixingAudioProcessor] for reference.
+ * TODO: apply implementation of https://github.com/androidx/media/issues/797#issuecomment-1843369311
+  */
+@androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
+class AdaptiveChannelMixingAudioProcessor : BaseAudioProcessor() {
+    private val matrixByInputChannelCount: SparseArray<ChannelMixingMatrix?> = SparseArray<ChannelMixingMatrix?>()
+
+    fun putChannelMixingMatrix(matrix: ChannelMixingMatrix) {
+        val inputChannelCount = matrix.inputChannelCount
+        matrixByInputChannelCount.put(inputChannelCount, matrix)
+    }
+
+    @Throws(UnhandledAudioFormatException::class)
+    override fun onConfigure(inputAudioFormat: AudioProcessor.AudioFormat): AudioProcessor.AudioFormat {
+        if (inputAudioFormat.encoding != 2) {
+            throw UnhandledAudioFormatException(inputAudioFormat)
+        } else {
+            val channelMixingMatrix = matrixByInputChannelCount[inputAudioFormat.channelCount]
+            if (channelMixingMatrix == null) {
+                throw UnhandledAudioFormatException("No mixing matrix for input channel count", inputAudioFormat)
+            } else {
+                return if (channelMixingMatrix.isIdentity) AudioProcessor.AudioFormat.NOT_SET else AudioProcessor.AudioFormat(
+                    inputAudioFormat.sampleRate,
+                    channelMixingMatrix.outputChannelCount,
+                    C.ENCODING_PCM_16BIT,
+                )
+            }
+        }
+    }
+
+//    override fun isActive(): Boolean {
+//        return true
+//    }
+
+    override fun queueInput(inputBuffer: ByteBuffer) {
+        val channelMixingMatrix = Assertions.checkStateNotNull(
+            matrixByInputChannelCount[inputAudioFormat.channelCount],
+        )
+        val inputFramesToMix = inputBuffer.remaining() / inputAudioFormat.bytesPerFrame
+        val outputBuffer = this.replaceOutputBuffer(inputFramesToMix * outputAudioFormat.bytesPerFrame)
+        val inputChannelCount = channelMixingMatrix.inputChannelCount
+        val outputChannelCount = channelMixingMatrix.outputChannelCount
+        val outputFrame = FloatArray(outputChannelCount)
+
+        while (inputBuffer.hasRemaining()) {
+            var inputValue: Short
+            var inputChannelIndex = 0
+            while (inputChannelIndex < inputChannelCount) {
+                inputValue = inputBuffer.getShort()
+
+                for (outputChannelIndex in 0 until outputChannelCount) {
+                    outputFrame[outputChannelIndex] += channelMixingMatrix.getMixingCoefficient(
+                        inputChannelIndex,
+                        outputChannelIndex,
+                    ) * inputValue.toFloat()
+                }
+                ++inputChannelIndex
+            }
+
+            inputChannelIndex = 0
+            while (inputChannelIndex < outputChannelCount) {
+                inputValue =
+                    Util.constrainValue(outputFrame[inputChannelIndex], -32768.0f, 32767.0f).toInt().toShort()
+                outputBuffer.put((inputValue.toInt() and 255).toByte())
+                outputBuffer.put((inputValue.toInt() shr 8 and 255).toByte())
+                outputFrame[inputChannelIndex] = 0.0f
+                ++inputChannelIndex
+            }
+        }
+
+        outputBuffer.flip()
+    }
 }

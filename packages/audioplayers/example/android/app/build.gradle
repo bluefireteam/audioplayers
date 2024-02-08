@@ -43,7 +43,7 @@ android {
 
     defaultConfig {
         applicationId "xyz.luan.audioplayers.example"
-        minSdkVersion flutter.minSdkVersion
+        minSdkVersion 21
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
