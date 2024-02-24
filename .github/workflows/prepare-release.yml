@@ -1,0 +1,25 @@
+name: Prepare release
+on:
+  workflow_dispatch:
+
+jobs:
+  call-min-flutter-test:
+    uses: ./.github/workflows/test.yml
+    with:
+      flutter_version: '3.13.0'
+      fatal_warnings: false
+  prepare-release:
+    name: Prepare release
+    needs: call-min-flutter-test
+    permissions:
+      contents: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+      - uses: bluefireteam/melos-action@v3
+        with:
+          run-versioning: true
+          publish-dry-run: true
+          create-pr: true
