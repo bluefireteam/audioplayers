@@ -1,11 +1,12 @@
 name: Prepare release
 on:
   workflow_dispatch:
-    prerelease:
-      description: 'Version as prerelease'
-      required: false
-      default: false
-      type: boolean
+    inputs:
+      prerelease:
+        description: 'Version as prerelease'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   call-min-flutter-test:
