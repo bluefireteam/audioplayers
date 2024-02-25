@@ -106,7 +106,7 @@ jobs:
         with:
           flutter-version: ${{ inputs.flutter_version }}
           channel: ${{ inputs.flutter_channel }}
-      - uses: bluefireteam/melos-action@main
+      - uses: bluefireteam/melos-action@v3
 
       - name: Example app - Build Web app
         working-directory: ./packages/audioplayers/example
@@ -132,7 +132,7 @@ jobs:
         with:
           flutter-version: ${{ inputs.flutter_version }}
           channel: ${{ inputs.flutter_channel }}
-      - uses: bluefireteam/melos-action@main
+      - uses: bluefireteam/melos-action@v3
 
       - name: Example App - Build Android APK
         working-directory: ./packages/audioplayers/example
@@ -148,7 +148,7 @@ jobs:
         with:
           flutter-version: ${{ inputs.flutter_version }}
           channel: ${{ inputs.flutter_channel }}
-      - uses: bluefireteam/melos-action@main
+      - uses: bluefireteam/melos-action@v3
 
       - name: Example app - Build iOS
         working-directory: ./packages/audioplayers/example
@@ -164,7 +164,7 @@ jobs:
         with:
           flutter-version: ${{ inputs.flutter_version }}
           channel: ${{ inputs.flutter_channel }}
-      - uses: bluefireteam/melos-action@main
+      - uses: bluefireteam/melos-action@v3
 
       - name: Example app - Build macOS
         working-directory: ./packages/audioplayers/example
@@ -180,7 +180,7 @@ jobs:
         with:
           flutter-version: ${{ inputs.flutter_version }}
           channel: ${{ inputs.flutter_channel }}
-      - uses: bluefireteam/melos-action@main
+      - uses: bluefireteam/melos-action@v3
 
       - name: Example app - Build Windows app
         working-directory: ./packages/audioplayers/example
@@ -196,7 +196,7 @@ jobs:
         with:
           flutter-version: ${{ inputs.flutter_version }}
           channel: ${{ inputs.flutter_channel }}
-      - uses: bluefireteam/melos-action@main
+      - uses: bluefireteam/melos-action@v3
 
       - name: Install Flutter requirements for Linux
         run: |
