@@ -26,8 +26,8 @@ jobs:
       - uses: subosito/flutter-action@v2
       - name: Remove invalid pub files # TODO(gustl22): remove when fixed: https://github.com/dart-lang/pub/pull/4145
         run: |
-          rm example/assets/coins_non_ascii_и.wav
-          rm example/server/public/files/audio/coins_non_ascii_и.wav
+          git rm --cached example/assets/coins_non_ascii_и.wav
+          git rm --cached example/server/public/files/audio/coins_non_ascii_и.wav
         working-directory: packages/audioplayers
         shell: bash
       - uses: bluefireteam/melos-action@v3
