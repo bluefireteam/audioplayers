@@ -13,8 +13,6 @@ void main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   final features = PlatformFeatures.instance();
   final isAndroid = !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
-  final isIOS = !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
-  final isMacOS = !kIsWeb && defaultTargetPlatform == TargetPlatform.macOS;
   final audioTestDataList = await getAudioTestDataList();
 
   testWidgets('test asset source with special char',
@@ -69,9 +67,6 @@ void main() async {
 
       await player.dispose();
     },
-    // Darwin does not support files without extension unless its specified
-    // #803, https://stackoverflow.com/a/54087143/5164462
-    skip: isIOS || isMacOS,
   );
 
   group('AP events', () {
