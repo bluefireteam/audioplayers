@@ -68,8 +68,6 @@ struct AudioContext {
       return .record
     case "playAndRecord":
       return .playAndRecord
-    case "audioProcessing":
-      return .audioProcessing
     case "multiRoute":
       return .multiRoute
     default:

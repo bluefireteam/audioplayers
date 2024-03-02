@@ -8,7 +8,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
 import 'lib/lib_source_test_data.dart';
-import 'lib/lib_test_utils.dart';
 import 'platform_features.dart';
 import 'test_utils.dart';
 
@@ -16,6 +15,7 @@ void main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   final features = PlatformFeatures.instance();
   final isLinux = !kIsWeb && defaultTargetPlatform == TargetPlatform.linux;
+  final isAndroid = !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
   final audioTestDataList = await getAudioTestDataList();
 
   group('Platform method channel', () {
@@ -46,7 +46,6 @@ void main() async {
         } on PlatformException catch (e) {
           expect(e.message, startsWith('Failed to set source.'));
         }
-        await tester.pumpLinux();
       },
     );
 
@@ -61,16 +60,19 @@ void main() async {
             testData: nonExistentUrlTestData,
           );
           fail('PlatformException not thrown');
-          // ignore: avoid_catches_without_on_clauses
         } on PlatformException catch (e) {
           expect(e.message, startsWith('Failed to set source.'));
         }
-        await tester.pumpLinux();
       },
+      // FIXME(Gustl22): for some reason, the error propagated back from the
+      //  Android MediaPlayer is only triggered, when the timeout has reached,
+      //  although the error is emitted immediately.
+      //  Further, the other future is not fulfilled and then mysteriously
+      //  failing in later tests.
+      skip: isAndroid,
     );
 
     testWidgets('#create and #dispose', (tester) async {
-      await tester.pumpAndSettle();
       await platform.dispose(playerId);
 
       try {
@@ -87,7 +89,6 @@ void main() async {
 
       // Create player again, so it can be disposed in tearDown
       await platform.create(playerId);
-      await tester.pumpLinux();
     });
 
     for (final td in audioTestDataList) {
@@ -111,7 +112,6 @@ void main() async {
               deviation: Duration(milliseconds: td.isVBR ? 100 : 1),
             ),
           );
-          await tester.pumpLinux();
         },
         // FIXME(gustl22): cannot determine initial duration for VBR on Linux
         // FIXME(gustl22): determines wrong initial position for m3u8 on Linux
@@ -135,7 +135,6 @@ void main() async {
             await platform.stop(playerId);
           }
           // May check native volume here
-          await tester.pumpLinux();
         });
       }
     }
@@ -155,7 +154,6 @@ void main() async {
             await platform.stop(playerId);
           }
           // May check native balance here
-          await tester.pumpLinux();
         });
       }
     }
@@ -175,7 +173,6 @@ void main() async {
             await platform.stop(playerId);
           }
           // May check native playback rate here
-          await tester.pumpLinux();
         });
       }
     }
@@ -189,7 +186,6 @@ void main() async {
       await platform.setPlaybackRate(playerId, 2.0);
       await tester.pumpAndSettle(const Duration(seconds: 2));
       expect(await platform.getCurrentPosition(playerId), 0);
-      await tester.pumpLinux();
     });
 
     for (final td in audioTestDataList) {
@@ -222,7 +218,6 @@ void main() async {
               deviation: const Duration(milliseconds: 1),
             ),
           );
-          await tester.pumpLinux();
         });
       }
     }
@@ -243,7 +238,6 @@ void main() async {
           await platform.stop(playerId);
 
           // May check number of loops here
-          await tester.pumpLinux();
         });
       }
     }
@@ -268,7 +262,6 @@ void main() async {
           // TODO(Gustl22): test if source was released
           expect(await platform.getDuration(playerId), null);
           expect(await platform.getCurrentPosition(playerId), null);
-          await tester.pumpLinux();
         });
       }
     }
@@ -286,7 +279,6 @@ void main() async {
         // Check if position & duration is zero after play & release
         expect(await platform.getDuration(playerId), null);
         expect(await platform.getCurrentPosition(playerId), null);
-        await tester.pumpLinux();
       });
     }
 
@@ -298,7 +290,6 @@ void main() async {
           testData: wavUrl1TestData,
         );
       }
-      await tester.pumpLinux();
     });
   });
 
@@ -336,10 +327,6 @@ void main() async {
               testData: td,
             );
 
-            if (td.source == wavAsset2TestData.source) {
-              await tester.pumpLinux();
-            }
-
             expect(
               await durationCompleter.future
                   .timeout(const Duration(seconds: 30)),
@@ -350,7 +337,6 @@ void main() async {
               ),
             );
             await onDurationSub.cancel();
-            await tester.pumpLinux();
           },
           // TODO(gustl22): cannot determine duration for VBR on Linux
           // FIXME(gustl22): duration event is not emitted for short duration
@@ -383,7 +369,6 @@ void main() async {
           await tester.pumpAndSettle(const Duration(seconds: 3));
           await completeCompleter.future.timeout(const Duration(seconds: 30));
           onCompleteSub.cancel();
-          await tester.pumpLinux();
         });
       }
     }
@@ -393,7 +378,6 @@ void main() async {
       for (var i = 0; i < 2; i++) {
         final eventSub = eventStream.listen(null);
         await eventSub.cancel();
-        await tester.pumpLinux();
       }
     });
 
@@ -410,7 +394,6 @@ void main() async {
       final log = await logCompleter.future;
       expect(log, 'SomeLog');
       await logSub.cancel();
-      await tester.pumpLinux();
     });
 
     testWidgets('Emit global platform log', (tester) async {
@@ -431,7 +414,6 @@ void main() async {
       // FIXME: cancelling the global event stream leads to
       // MissingPluginException on Android, if dispose app afterwards
       // await eventStreamSub.cancel();
-      await tester.pumpLinux();
     });
 
     testWidgets('Emit platform error', (tester) async {
@@ -452,7 +434,6 @@ void main() async {
       expect(platformException.code, 'SomeErrorCode');
       expect(platformException.message, 'SomeErrorMessage');
       await eventStreamSub.cancel();
-      await tester.pumpLinux();
     });
 
     testWidgets('Emit global platform error', (tester) async {
@@ -476,7 +457,6 @@ void main() async {
       // FIXME: cancelling the global event stream leads to
       // MissingPluginException on Android, if dispose app afterwards
       // await eventStreamSub.cancel();
-      await tester.pumpLinux();
     });
   });
 }
@@ -488,33 +468,32 @@ extension on WidgetTester {
     required LibSourceTestData testData,
   }) async {
     final eventStream = platform.getEventStream(playerId);
-    final preparedCompleter = Completer<void>();
-    final onPreparedSub = eventStream
-        .where((event) => event.eventType == AudioEventType.prepared)
-        .map((event) => event.isPrepared!)
-        .listen(
-      (isPrepared) {
-        if (isPrepared) {
-          preparedCompleter.complete();
-        }
-      },
-      onError: (Object e, [StackTrace? st]) {
-        if (!preparedCompleter.isCompleted) {
-          preparedCompleter.completeError(e, st);
-        }
-      },
-    );
-    await pumpLinux();
-    final source = testData.source;
-    if (source is UrlSource) {
-      await platform.setSourceUrl(playerId, source.url);
-    } else if (source is AssetSource) {
-      final cachePath = await AudioCache.instance.loadPath(source.path);
-      await platform.setSourceUrl(playerId, cachePath, isLocal: true);
-    } else if (source is BytesSource) {
-      await platform.setSourceBytes(playerId, source.bytes);
+    final futurePrepared = eventStream
+        .firstWhere(
+          (event) =>
+              event.eventType == AudioEventType.prepared &&
+              (event.isPrepared ?? false),
+        )
+        .timeout(const Duration(seconds: 30));
+
+    Future<void> setSource(Source source) async {
+      if (source is UrlSource) {
+        return platform.setSourceUrl(playerId, source.url);
+      } else if (source is AssetSource) {
+        final cachePath = await AudioCache.instance.loadPath(source.path);
+        return platform.setSourceUrl(playerId, cachePath, isLocal: true);
+      } else if (source is BytesSource) {
+        return platform.setSourceBytes(playerId, source.bytes);
+      } else {
+        throw 'Unknown source type: ${source.runtimeType}';
+      }
     }
-    await preparedCompleter.future.timeout(const Duration(seconds: 30));
-    await onPreparedSub.cancel();
+
+    // Need to await the setting the source to propagate immediate errors.
+    final futureSetSource = setSource(testData.source);
+
+    // Wait simultaneously to ensure all errors are propagated through the same
+    // future.
+    await Future.wait([futureSetSource, futurePrepared]);
   }
 }

@@ -9,11 +9,18 @@ on:
         type: choice
         options:
           - 'any'
+          - '3.16.x'
           - '3.13.x'
-          - '3.10.x'
-          - '3.7.x'
-          - '3.3.x'
-          - '3.0.x'
+      flutter_channel:
+        description: 'Flutter Channel'
+        required: false
+        default: 'stable'
+        type: choice
+        options:
+          - 'stable'
+          - 'beta'
+          - 'dev'
+          - 'master'
       enable_android:
         description: 'Build Android'
         required: false
@@ -53,7 +60,11 @@ on:
     inputs:
       flutter_version:
         required: false
-        default: '3.13.0'
+        default: '3.16.8'
+        type: string
+      flutter_channel:
+        required: false
+        default: 'stable'
         type: string
       enable_android:
         required: false
@@ -94,7 +105,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ inputs.flutter_version }}
-          channel: 'stable'
+          channel: ${{ inputs.flutter_channel }}
       - uses: bluefireteam/melos-action@main
 
       - name: Example app - Build Web app
@@ -120,7 +131,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ inputs.flutter_version }}
-          channel: 'stable'
+          channel: ${{ inputs.flutter_channel }}
       - uses: bluefireteam/melos-action@main
 
       - name: Example App - Build Android APK
@@ -136,7 +147,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ inputs.flutter_version }}
-          channel: 'stable'
+          channel: ${{ inputs.flutter_channel }}
       - uses: bluefireteam/melos-action@main
 
       - name: Example app - Build iOS
@@ -152,7 +163,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ inputs.flutter_version }}
-          channel: 'stable'
+          channel: ${{ inputs.flutter_channel }}
       - uses: bluefireteam/melos-action@main
 
       - name: Example app - Build macOS
@@ -168,7 +179,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ inputs.flutter_version }}
-          channel: 'stable'
+          channel: ${{ inputs.flutter_channel }}
       - uses: bluefireteam/melos-action@main
 
       - name: Example app - Build Windows app
@@ -184,7 +195,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ inputs.flutter_version }}
-          channel: 'stable'
+          channel: ${{ inputs.flutter_channel }}
       - uses: bluefireteam/melos-action@main
 
       - name: Install Flutter requirements for Linux
