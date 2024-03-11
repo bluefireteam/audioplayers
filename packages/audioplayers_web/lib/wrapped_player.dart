@@ -67,10 +67,10 @@ class WrappedPlayer {
     }
 
     final p = player = web.HTMLAudioElement();
+    p.src = currentUrl;
     // As the AudioElement is created dynamically via script,
     // features like 'stereo panning' need the CORS header to be enabled.
     // See: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
-    p.src = currentUrl;
     p.crossOrigin = 'anonymous';
     p.loop = shouldLoop();
     p.volume = _currentVolume;
