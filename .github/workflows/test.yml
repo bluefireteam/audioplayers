@@ -9,6 +9,7 @@ on:
         type: choice
         options:
           - 'any'
+          - '3.19.x'
           - '3.16.x'
           - '3.13.x'
       flutter_channel:
