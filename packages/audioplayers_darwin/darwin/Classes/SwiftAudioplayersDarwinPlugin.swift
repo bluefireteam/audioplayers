@@ -211,6 +211,7 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
       return
     } else if method == "setSourceUrl" {
       let url: String? = args["url"] as? String
+      let mimeType: String? = args["mimeType"] as? String
       let isLocal: Bool = (args["isLocal"] as? Bool) ?? false
 
       if url == nil {
@@ -222,6 +223,7 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
 
       player.setSourceUrl(
         url: url!, isLocal: isLocal,
+        mimeType: mimeType,
         completer: {
           player.eventHandler.onPrepared(isPrepared: true)
         },

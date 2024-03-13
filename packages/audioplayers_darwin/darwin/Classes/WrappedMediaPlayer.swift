@@ -46,6 +46,7 @@ class WrappedMediaPlayer {
   func setSourceUrl(
     url: String,
     isLocal: Bool,
+    mimeType: String? = nil,
     completer: Completer? = nil,
     completerError: CompleterError? = nil
   ) {
@@ -161,16 +162,22 @@ class WrappedMediaPlayer {
     return player.currentItem?.currentTime()
   }
 
-  private func createPlayerItem(_ url: String, _ isLocal: Bool) throws -> AVPlayerItem {
-    let tmpParsedUrl =
-      isLocal ? URL.init(fileURLWithPath: url.deletingPrefix("file://")) : URL.init(string: url)
-    if let parsedUrl = tmpParsedUrl {
-      let playerItem = AVPlayerItem.init(url: parsedUrl)
-      playerItem.audioTimePitchAlgorithm = AVAudioTimePitchAlgorithm.timeDomain
-      return playerItem
-    } else {
+  private func createPlayerItem(_ url: String, _ isLocal: Bool, _ mimeType: String? = nil) throws -> AVPlayerItem {
+    guard let parsedUrl = isLocal ? URL(fileURLWithPath: url.deletingPrefix("file://")) : URL(string: url) else {
       throw AudioPlayerError.error("Url not valid: \(url)")
     }
+
+    let playerItem: AVPlayerItem
+
+    if #available(iOS 17, macOS 14.0, *), mimeType != nil {
+      let asset = AVURLAsset(url: parsedUrl, options: [AVURLAssetOverrideMIMETypeKey: mimeType])
+      playerItem = AVPlayerItem(asset: asset)
+    } else {
+      playerItem = AVPlayerItem(url: parsedUrl)
+    }
+
+    playerItem.audioTimePitchAlgorithm = AVAudioTimePitchAlgorithm.timeDomain
+    return playerItem
   }
 
   private func setUpPlayerItemStatusObservation(
