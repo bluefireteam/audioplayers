@@ -230,7 +230,7 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
             code: "DarwinAudioError",
             message: "Failed to set source. For troubleshooting, see "
               + "https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md",
-            details: "AVPlayerItem.Status.failed on setSourceUrl: \(error ?? "Unknown error")")
+            details: "AVPlayerItem.Status.failed on setSourceUrl: \(error)")
         })
       result(1)
       return
