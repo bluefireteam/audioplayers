@@ -373,8 +373,10 @@ class AudioPlayer {
   /// The resources will start being fetched or buffered as soon as you call
   /// this method.
   Future<void> setSourceUrl(String url) async {
-    if (!kIsWeb && url.startsWith('data:')) {
-      // Convert data URI's to bytes, except for web.
+    if (!kIsWeb &&
+        defaultTargetPlatform != TargetPlatform.android &&
+        url.startsWith('data:')) {
+      // Convert data URI's to bytes (native support for web and android).
       final uriData = UriData.fromUri(Uri.parse(url));
       await setSourceBytes(uriData.contentAsBytes());
       return;

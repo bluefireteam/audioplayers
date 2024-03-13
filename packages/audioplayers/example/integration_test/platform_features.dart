@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart';
 /// Specify supported features for a platform.
 class PlatformFeatures {
   static const webPlatformFeatures = PlatformFeatures(
-    hasBytesSource: false,
     hasPlaylistSourceType: false,
     hasLowLatency: false,
     hasReleaseModeRelease: false,
@@ -21,6 +20,7 @@ class PlatformFeatures {
   );
 
   static const iosPlatformFeatures = PlatformFeatures(
+    hasDataUriSource: false,
     hasBytesSource: false,
     hasPlaylistSourceType: false,
     hasReleaseModeRelease: false,
@@ -29,6 +29,7 @@ class PlatformFeatures {
   );
 
   static const macPlatformFeatures = PlatformFeatures(
+    hasDataUriSource: false,
     hasBytesSource: false,
     hasPlaylistSourceType: false,
     hasLowLatency: false,
@@ -43,6 +44,7 @@ class PlatformFeatures {
   );
 
   static const linuxPlatformFeatures = PlatformFeatures(
+    hasDataUriSource: false,
     hasBytesSource: false,
     hasLowLatency: false,
     hasReleaseModeRelease: false,
@@ -58,6 +60,7 @@ class PlatformFeatures {
   );
 
   static const windowsPlatformFeatures = PlatformFeatures(
+    hasDataUriSource: false,
     hasPlaylistSourceType: false,
     hasLowLatency: false,
     hasReleaseModeRelease: false,
@@ -70,6 +73,7 @@ class PlatformFeatures {
   );
 
   final bool hasUrlSource;
+  final bool hasDataUriSource;
   final bool hasAssetSource;
   final bool hasBytesSource;
 
@@ -97,6 +101,7 @@ class PlatformFeatures {
 
   const PlatformFeatures({
     this.hasUrlSource = true,
+    this.hasDataUriSource = true,
     this.hasAssetSource = true,
     this.hasBytesSource = true,
     this.hasPlaylistSourceType = true,

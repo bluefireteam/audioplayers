@@ -69,6 +69,28 @@ void main() async {
     },
   );
 
+  testWidgets('data URI source', (WidgetTester tester) async {
+    final player = AudioPlayer();
+
+    await player.play(mp3DataUriTestData.source);
+    // Sources take some time to get initialized
+    await tester.pumpPlatform(const Duration(seconds: 8));
+    await player.stop();
+
+    await player.dispose();
+  });
+
+  testWidgets('bytes array source', (WidgetTester tester) async {
+    final player = AudioPlayer();
+
+    await player.play((await mp3BytesTestData()).source);
+    // Sources take some time to get initialized
+    await tester.pumpPlatform(const Duration(seconds: 8));
+    await player.stop();
+
+    await player.dispose();
+  });
+
   group('AP events', () {
     late AudioPlayer player;
 
