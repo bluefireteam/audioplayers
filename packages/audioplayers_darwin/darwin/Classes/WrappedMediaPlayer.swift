@@ -5,7 +5,7 @@ private let defaultVolume: Double = 1.0
 private let defaultLooping: Bool = false
 
 typealias Completer = () -> Void
-typealias CompleterError = () -> Void
+typealias CompleterError = (Error?) -> Void
 
 class WrappedMediaPlayer {
   private(set) var eventHandler: AudioPlayersStreamHandler
@@ -65,7 +65,7 @@ class WrappedMediaPlayer {
         self.player.replaceCurrentItem(with: playerItem)
         self.setUpSoundCompletedObserver(self.player, playerItem)
       } catch {
-        completerError?()
+        completerError?(error)
       }
     } else {
       if playbackStatus == .readyToPlay {
