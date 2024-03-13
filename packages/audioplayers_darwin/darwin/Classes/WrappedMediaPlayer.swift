@@ -162,8 +162,14 @@ class WrappedMediaPlayer {
     return player.currentItem?.currentTime()
   }
 
-  private func createPlayerItem(_ url: String, _ isLocal: Bool, _ mimeType: String? = nil) throws -> AVPlayerItem {
-    guard let parsedUrl = isLocal ? URL(fileURLWithPath: url.deletingPrefix("file://")) : URL(string: url) else {
+  private func createPlayerItem(
+    _ url: String,
+    _ isLocal: Bool,
+    _ mimeType: String? = nil
+  ) throws -> AVPlayerItem {
+    guard let parsedUrl = isLocal
+      ? URL(fileURLWithPath: url.deletingPrefix("file://"))
+      : URL(string: url) else {
       throw AudioPlayerError.error("Url not valid: \(url)")
     }
 
