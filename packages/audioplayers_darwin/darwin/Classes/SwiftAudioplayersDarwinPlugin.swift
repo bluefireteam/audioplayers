@@ -225,7 +225,7 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
         completer: {
           player.eventHandler.onPrepared(isPrepared: true)
         },
-        completerError: { (error: Error? = nil) in
+        completerError: { error in
           player.eventHandler.onError(
             code: "DarwinAudioError",
             message: "Failed to set source. For troubleshooting, see "

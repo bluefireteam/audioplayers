@@ -188,7 +188,7 @@ class WrappedMediaPlayer {
         completer?()
       case .failed:
         self.reset()
-        completerError?()
+        completerError?(nil)
       default:
         break
       }
