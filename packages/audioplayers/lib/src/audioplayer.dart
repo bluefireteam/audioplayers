@@ -416,22 +416,22 @@ class AudioPlayer {
   }
 
   Future<void> setSourceBytes(Uint8List bytes) async {
-    if (kIsWeb ||
-        defaultTargetPlatform == TargetPlatform.iOS ||
-        defaultTargetPlatform == TargetPlatform.macOS ||
-        defaultTargetPlatform == TargetPlatform.linux) {
+    if (!kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.iOS ||
+            defaultTargetPlatform == TargetPlatform.macOS ||
+            defaultTargetPlatform == TargetPlatform.linux)) {
+      // Convert to file as workaround
       final tempDir = (await getTemporaryDirectory()).path;
       final file =
           File('$tempDir/${shortHash(bytes.map((b) => b.toRadixString(16)))}');
       await file.writeAsBytes(bytes);
       await setSourceDeviceFile(file.path);
-      return;
+    } else {
+      _source = BytesSource(bytes);
+      await _completePrepared(
+        () => _platform.setSourceBytes(playerId, bytes),
+      );
     }
-
-    _source = BytesSource(bytes);
-    await _completePrepared(
-      () => _platform.setSourceBytes(playerId, bytes),
-    );
   }
 
   /// Set the PositionUpdater to control how often the position stream will be

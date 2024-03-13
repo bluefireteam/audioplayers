@@ -114,9 +114,10 @@ class WebAudioplayersPlatform extends AudioplayersPlatformInterface {
   }
 
   @override
-  Future<void> setSourceBytes(String playerId, Uint8List bytes) {
-    // TODO(luan): implement setSourceBytes for web
-    throw UnimplementedError();
+  Future<void> setSourceBytes(String playerId, Uint8List bytes) async {
+    // Convert to data uri as workaround.
+    final uri = Uri.dataFromBytes(bytes, mimeType: 'audio/mpeg');
+    await getPlayer(playerId).setUrl(uri.toString());
   }
 
   @override
