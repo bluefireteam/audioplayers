@@ -83,7 +83,7 @@ class BytesSource extends Source {
   @override
   final String? mimeType;
 
-  BytesSource(this.bytes, {this.mimeType} );
+  BytesSource(this.bytes, {this.mimeType});
 
   @override
   Future<void> setOnPlayer(AudioPlayer player) {
