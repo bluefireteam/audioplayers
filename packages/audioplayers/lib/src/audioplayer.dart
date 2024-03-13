@@ -383,7 +383,7 @@ class AudioPlayer {
       return;
     }
 
-    _source = UrlSource(url);
+    _source = UrlSource(url, mimeType: mimeType);
     // Encode remote url to avoid unexpected failures.
     await _completePrepared(
       () => _platform.setSourceUrl(
@@ -400,7 +400,7 @@ class AudioPlayer {
   /// The resources will start being fetched or buffered as soon as you call
   /// this method.
   Future<void> setSourceDeviceFile(String path, {String? mimeType}) async {
-    _source = DeviceFileSource(path);
+    _source = DeviceFileSource(path, mimeType: mimeType);
     await _completePrepared(
       () => _platform.setSourceUrl(
         playerId,
@@ -417,7 +417,7 @@ class AudioPlayer {
   /// The resources will start being fetched or buffered as soon as you call
   /// this method.
   Future<void> setSourceAsset(String path, {String? mimeType}) async {
-    _source = AssetSource(path);
+    _source = AssetSource(path, mimeType: mimeType);
     final cachePath = await audioCache.loadPath(path);
     await _completePrepared(
       () => _platform.setSourceUrl(
@@ -444,7 +444,7 @@ class AudioPlayer {
       await file.writeAsBytes(bytes);
       await setSourceDeviceFile(file.path, mimeType: mimeType);
     } else {
-      _source = BytesSource(bytes);
+      _source = BytesSource(bytes, mimeType: mimeType);
       await _completePrepared(
         () => _platform.setSourceBytes(playerId, bytes, mimeType: mimeType),
       );
