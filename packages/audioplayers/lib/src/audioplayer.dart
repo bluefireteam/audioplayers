@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers/src/uri_ext.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:meta/meta.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
 const _uuid = Uuid();
@@ -371,6 +373,13 @@ class AudioPlayer {
   /// The resources will start being fetched or buffered as soon as you call
   /// this method.
   Future<void> setSourceUrl(String url) async {
+    if (!kIsWeb && url.startsWith('data:')) {
+      // Convert data URI's to bytes, except for web.
+      final uriData = UriData.fromUri(Uri.parse(url));
+      await setSourceBytes(uriData.contentAsBytes());
+      return;
+    }
+
     _source = UrlSource(url);
     // Encode remote url to avoid unexpected failures.
     await _completePrepared(
@@ -407,6 +416,18 @@ class AudioPlayer {
   }
 
   Future<void> setSourceBytes(Uint8List bytes) async {
+    if (kIsWeb ||
+        defaultTargetPlatform == TargetPlatform.iOS ||
+        defaultTargetPlatform == TargetPlatform.macOS ||
+        defaultTargetPlatform == TargetPlatform.linux) {
+      final tempDir = (await getTemporaryDirectory()).path;
+      final file =
+          File('$tempDir/${shortHash(bytes.map((b) => b.toRadixString(16)))}');
+      await file.writeAsBytes(bytes);
+      await setSourceDeviceFile(file.path);
+      return;
+    }
+
     _source = BytesSource(bytes);
     await _completePrepared(
       () => _platform.setSourceBytes(playerId, bytes),
