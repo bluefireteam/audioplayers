@@ -161,17 +161,34 @@ class WrappedMediaPlayer {
     return player.currentItem?.currentTime()
   }
 
-  private func createPlayerItem(_ url: String, _ isLocal: Bool) throws -> AVPlayerItem {
-    let tmpParsedUrl =
-      isLocal ? URL.init(fileURLWithPath: url.deletingPrefix("file://")) : URL.init(string: url)
-    if let parsedUrl = tmpParsedUrl {
-      let playerItem = AVPlayerItem.init(url: parsedUrl)
-      playerItem.audioTimePitchAlgorithm = AVAudioTimePitchAlgorithm.timeDomain
-      return playerItem
-    } else {
-      throw AudioPlayerError.error("Url not valid: \(url)")
+    private func createPlayerItem(_ url: String, _ isLocal: Bool) throws -> AVPlayerItem {
+        guard let parsedUrl = isLocal ? URL(fileURLWithPath: url.deletingPrefix("file://")) : URL(string: url) else {
+            throw AudioPlayerError.error("Url not valid: \(url)")
+        }
+
+        let playerItem: AVPlayerItem
+
+        if #available(iOS 17, macOS 14.0, *), parsedUrl.absoluteString.hasPrefix("data:") {
+            let fileType = mimeType(for: parsedUrl)
+            let asset = AVURLAsset(url: parsedUrl, options: [AVURLAssetOverrideMIMETypeKey: fileType])
+            playerItem = AVPlayerItem(asset: asset)
+        } else {
+            playerItem = AVPlayerItem(url: parsedUrl)
+        }
+
+        playerItem.audioTimePitchAlgorithm = AVAudioTimePitchAlgorithm.timeDomain
+        return playerItem
     }
-  }
+
+    private func mimeType(for url: URL) -> String {
+        let components = url.absoluteString.components(separatedBy: ";")
+        if components.count >= 2 {
+            return components[0].replacingOccurrences(of: "data:", with: "")
+        }
+        
+        // Default MIME type if not a data URL
+        return "audio/mpeg"
+    }
 
   private func setUpPlayerItemStatusObservation(
     _ playerItem: AVPlayerItem,
