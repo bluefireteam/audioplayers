@@ -109,14 +109,19 @@ class WebAudioplayersPlatform extends AudioplayersPlatformInterface {
     String playerId,
     String url, {
     bool? isLocal,
+    String? mimeType,
   }) async {
     await getPlayer(playerId).setUrl(url);
   }
 
   @override
-  Future<void> setSourceBytes(String playerId, Uint8List bytes) async {
+  Future<void> setSourceBytes(
+    String playerId,
+    Uint8List bytes, {
+    String? mimeType,
+  }) async {
     // Convert to data uri as workaround.
-    final uri = Uri.dataFromBytes(bytes, mimeType: 'audio/mpeg');
+    final uri = Uri.dataFromBytes(bytes, mimeType: mimeType ?? 'audio/mpeg');
     await getPlayer(playerId).setUrl(uri.toString());
   }
 

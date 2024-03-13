@@ -74,7 +74,7 @@ final specialCharAssetTestData = LibSourceTestData(
 );
 
 final noExtensionAssetTestData = LibSourceTestData(
-  source: AssetSource(noExtensionAsset),
+  source: AssetSource(noExtensionAsset, mimeType: 'audio/wav'),
   duration: const Duration(milliseconds: 451),
 );
 
@@ -94,7 +94,10 @@ final mp3DataUriTestData = LibSourceTestData(
 );
 
 Future<LibSourceTestData> mp3BytesTestData() async => LibSourceTestData(
-      source: BytesSource(await readBytes(Uri.parse(mp3Url1))),
+      source: BytesSource(
+        await readBytes(Uri.parse(mp3Url1)),
+        mimeType: 'audio/mpeg',
+      ),
       duration: const Duration(minutes: 3, seconds: 30, milliseconds: 76),
     );
 
@@ -128,7 +131,10 @@ Future<List<LibSourceTestData>> getAudioTestDataList() async {
     /*if (_features.hasBytesSource)
       // Cache not working for web
       LibSourceTestData(
-        source: BytesSource(await AudioCache.instance.loadAsBytes(wavAsset2)),
+        source: BytesSource(
+          await AudioCache.instance.loadAsBytes(wavAsset2),
+          mimeType: 'audio/wav',
+        ),
         duration: const Duration(seconds: 1, milliseconds: 068),
       ),*/
   ];

@@ -103,17 +103,19 @@ class _SourcesTabState extends State<SourcesTab>
   Future<void> _setSourceBytesAsset(
     Future<void> Function(Source) fun, {
     required String asset,
+    String? mimeType,
   }) async {
     final bytes = await AudioCache.instance.loadAsBytes(asset);
-    await fun(BytesSource(bytes));
+    await fun(BytesSource(bytes, mimeType: mimeType));
   }
 
   Future<void> _setSourceBytesRemote(
     Future<void> Function(Source) fun, {
     required String url,
+    String? mimeType,
   }) async {
     final bytes = await http.readBytes(Uri.parse(url));
-    await fun(BytesSource(bytes));
+    await fun(BytesSource(bytes, mimeType: mimeType));
   }
 
   @override
@@ -182,17 +184,33 @@ class _SourcesTabState extends State<SourcesTab>
           source: AssetSource(mp3Asset),
         ),
         _SourceTile(
-          setSource: () => _setSourceBytesAsset(_setSource, asset: wavAsset2),
+          setSource: () => _setSourceBytesAsset(
+            _setSource,
+            asset: wavAsset2,
+            mimeType: 'audio/wav',
+          ),
           setSourceKey: const Key('setSource-bytes-local'),
-          play: () => _setSourceBytesAsset(_play, asset: wavAsset2),
+          play: () => _setSourceBytesAsset(
+            _play,
+            asset: wavAsset2,
+            mimeType: 'audio/wav',
+          ),
           removeSource: _removeSourceWidget,
           title: 'Bytes - Local',
           subtitle: 'laser.wav',
         ),
         _SourceTile(
-          setSource: () => _setSourceBytesRemote(_setSource, url: mp3Url1),
+          setSource: () => _setSourceBytesRemote(
+            _setSource,
+            url: mp3Url1,
+            mimeType: 'audio/mpeg',
+          ),
           setSourceKey: const Key('setSource-bytes-remote'),
-          play: () => _setSourceBytesRemote(_play, url: mp3Url1),
+          play: () => _setSourceBytesRemote(
+            _play,
+            url: mp3Url1,
+            mimeType: 'audio/mpeg',
+          ),
           removeSource: _removeSourceWidget,
           title: 'Bytes - Remote',
           subtitle: 'ambient.mp3',

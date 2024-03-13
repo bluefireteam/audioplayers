@@ -372,13 +372,14 @@ class AudioPlayer {
   ///
   /// The resources will start being fetched or buffered as soon as you call
   /// this method.
-  Future<void> setSourceUrl(String url) async {
+  Future<void> setSourceUrl(String url, {String? mimeType}) async {
     if (!kIsWeb &&
         defaultTargetPlatform != TargetPlatform.android &&
         url.startsWith('data:')) {
       // Convert data URI's to bytes (native support for web and android).
       final uriData = UriData.fromUri(Uri.parse(url));
-      await setSourceBytes(uriData.contentAsBytes());
+      mimeType ??= url.substring(url.indexOf(':') + 1, url.indexOf(';'));
+      await setSourceBytes(uriData.contentAsBytes(), mimeType: mimeType);
       return;
     }
 
@@ -388,6 +389,7 @@ class AudioPlayer {
       () => _platform.setSourceUrl(
         playerId,
         UriCoder.encodeOnce(url),
+        mimeType: mimeType,
         isLocal: false,
       ),
     );
@@ -397,10 +399,15 @@ class AudioPlayer {
   ///
   /// The resources will start being fetched or buffered as soon as you call
   /// this method.
-  Future<void> setSourceDeviceFile(String path) async {
+  Future<void> setSourceDeviceFile(String path, {String? mimeType}) async {
     _source = DeviceFileSource(path);
     await _completePrepared(
-      () => _platform.setSourceUrl(playerId, path, isLocal: true),
+      () => _platform.setSourceUrl(
+        playerId,
+        path,
+        isLocal: true,
+        mimeType: mimeType,
+      ),
     );
   }
 
@@ -409,29 +416,37 @@ class AudioPlayer {
   ///
   /// The resources will start being fetched or buffered as soon as you call
   /// this method.
-  Future<void> setSourceAsset(String path) async {
+  Future<void> setSourceAsset(String path, {String? mimeType}) async {
     _source = AssetSource(path);
     final cachePath = await audioCache.loadPath(path);
     await _completePrepared(
-      () => _platform.setSourceUrl(playerId, cachePath, isLocal: true),
+      () => _platform.setSourceUrl(
+        playerId,
+        cachePath,
+        mimeType: mimeType,
+        isLocal: true,
+      ),
     );
   }
 
-  Future<void> setSourceBytes(Uint8List bytes) async {
+  Future<void> setSourceBytes(Uint8List bytes, {String? mimeType}) async {
     if (!kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.iOS ||
             defaultTargetPlatform == TargetPlatform.macOS ||
             defaultTargetPlatform == TargetPlatform.linux)) {
       // Convert to file as workaround
       final tempDir = (await getTemporaryDirectory()).path;
-      final file =
-          File('$tempDir/${shortHash(bytes.map((b) => b.toRadixString(16)))}');
+      final bytesHash = Object.hashAll(bytes)
+          .toUnsigned(20)
+          .toRadixString(16)
+          .padLeft(5, '0');
+      final file = File('$tempDir/$bytesHash');
       await file.writeAsBytes(bytes);
-      await setSourceDeviceFile(file.path);
+      await setSourceDeviceFile(file.path, mimeType: mimeType);
     } else {
       _source = BytesSource(bytes);
       await _completePrepared(
-        () => _platform.setSourceBytes(playerId, bytes),
+        () => _platform.setSourceBytes(playerId, bytes, mimeType: mimeType),
       );
     }
   }
