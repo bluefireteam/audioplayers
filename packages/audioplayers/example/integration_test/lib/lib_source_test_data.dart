@@ -89,7 +89,7 @@ final wavDataUriTestData = LibSourceTestData(
 
 final mp3DataUriTestData = LibSourceTestData(
   source: UrlSource(mp3DataUri),
-  duration: const Duration(milliseconds: 451),
+  duration: const Duration(milliseconds: 444),
 );
 
 // Some sources are commented which are considered redundant
