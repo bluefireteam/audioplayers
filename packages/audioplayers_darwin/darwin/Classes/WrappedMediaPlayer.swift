@@ -179,9 +179,16 @@ class WrappedMediaPlayer {
 
     let playerItem: AVPlayerItem
 
-    if #available(iOS 17, macOS 14.0, *), mimeType != nil {
-      let asset = AVURLAsset(url: parsedUrl, options: [AVURLAssetOverrideMIMETypeKey: mimeType!])
-      playerItem = AVPlayerItem(asset: asset)
+    if let unwrappedMimeType = mimeType {
+      if #available(iOS 17, macOS 14.0, *) {
+        let asset = AVURLAsset(
+          url: parsedUrl, options: [AVURLAssetOverrideMIMETypeKey: unwrappedMimeType])
+        playerItem = AVPlayerItem(asset: asset)
+      } else {
+        let asset = AVURLAsset(
+          url: parsedUrl, options: [AVURLAssetOutOfBandMIMETypeKey: unwrappedMimeType])
+        playerItem = AVPlayerItem(asset: asset)
+      }
     } else {
       playerItem = AVPlayerItem(url: parsedUrl)
     }
