@@ -11,6 +11,7 @@ import AVKit
 #endif
 
 let channelName = "xyz.luan/audioplayers"
+
 let globalChannelName = "xyz.luan/audioplayers.global"
 
 public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {

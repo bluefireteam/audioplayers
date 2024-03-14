@@ -1,10 +1,13 @@
 import AVKit
 
 private let defaultPlaybackRate: Double = 1.0
+
 private let defaultVolume: Double = 1.0
+
 private let defaultLooping: Bool = false
 
 typealias Completer = () -> Void
+
 typealias CompleterError = (Error?) -> Void
 
 class WrappedMediaPlayer {
@@ -167,9 +170,10 @@ class WrappedMediaPlayer {
     _ isLocal: Bool,
     _ mimeType: String? = nil
   ) throws -> AVPlayerItem {
-    guard let parsedUrl = isLocal
-      ? URL(fileURLWithPath: url.deletingPrefix("file://"))
-      : URL(string: url) else {
+    guard
+      let parsedUrl = isLocal
+        ? URL(fileURLWithPath: url.deletingPrefix("file://")) : URL(string: url)
+    else {
       throw AudioPlayerError.error("Url not valid: \(url)")
     }
 
