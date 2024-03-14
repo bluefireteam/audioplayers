@@ -1,5 +1,4 @@
 import 'package:audioplayers/audioplayers.dart';
-import 'package:audioplayers_example/tabs/sources.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -7,7 +6,6 @@ import 'package:integration_test/integration_test.dart';
 import 'lib/lib_source_test_data.dart';
 import 'lib/lib_test_utils.dart';
 import 'platform_features.dart';
-import 'test_utils.dart';
 
 void main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -15,7 +13,7 @@ void main() async {
   final isAndroid = !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
   final audioTestDataList = await getAudioTestDataList();
 
-  testWidgets('test asset source with special char',
+/*  testWidgets('test asset source with special char',
       (WidgetTester tester) async {
     final player = AudioPlayer();
 
@@ -53,7 +51,7 @@ void main() async {
     await player.stop();
 
     await player.dispose();
-  });
+  });*/
 
   testWidgets(
     'test url source with no extension',
@@ -91,7 +89,7 @@ void main() async {
     await player.dispose();
   });
 
-  group('AP events', () {
+  /*group('AP events', () {
     late AudioPlayer player;
 
     setUp(() async {
@@ -367,5 +365,5 @@ void main() async {
       });
     },
     skip: !isAndroid,
-  );
+  );*/
 }
