@@ -231,7 +231,7 @@ jobs:
         run: ./gradlew test
 
   ios:
-    runs-on: macos-latest
+    runs-on: macos-14
     timeout-minutes: 60
     if: inputs.enable_ios
     steps:
@@ -260,7 +260,7 @@ jobs:
           flutter test integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
 
   macos:
-    runs-on: macos-13
+    runs-on: macos-14
     timeout-minutes: 30
     if: inputs.enable_macos
     steps:

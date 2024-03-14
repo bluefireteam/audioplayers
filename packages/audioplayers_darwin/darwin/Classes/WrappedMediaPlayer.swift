@@ -171,7 +171,7 @@ class WrappedMediaPlayer {
 
     let playerItem: AVPlayerItem
 
-    if #available(iOS 17, macOS 14.0, *), parsedUrl.absoluteString.hasPrefix("data:") {
+    if #available(iOS 17.0, macOS 14.0, *), parsedUrl.absoluteString.hasPrefix("data:") {
       let fileType = mimeType(for: parsedUrl)
       let asset = AVURLAsset(url: parsedUrl, options: [AVURLAssetOverrideMIMETypeKey: fileType])
       playerItem = AVPlayerItem(asset: asset)
