@@ -186,7 +186,7 @@ class WrappedMediaPlayer {
         playerItem = AVPlayerItem(asset: asset)
       } else {
         let asset = AVURLAsset(
-          url: parsedUrl, options: [AVURLAssetOutOfBandMIMETypeKey: unwrappedMimeType])
+          url: parsedUrl, options: ["AVURLAssetOutOfBandMIMETypeKey": unwrappedMimeType])
         playerItem = AVPlayerItem(asset: asset)
       }
     } else {
