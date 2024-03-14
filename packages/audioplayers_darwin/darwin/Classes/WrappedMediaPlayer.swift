@@ -180,19 +180,9 @@ class WrappedMediaPlayer {
     let playerItem: AVPlayerItem
 
     if #available(iOS 17, macOS 14.0, *), mimeType != nil {
-      self.eventHandler.onError(
-        code: "DarwinAudioError",
-        message: "Available ios 17, macos 14",
-        details: "MimeType: \(mimeType)"
-      )
       let asset = AVURLAsset(url: parsedUrl, options: [AVURLAssetOverrideMIMETypeKey: mimeType!])
       playerItem = AVPlayerItem(asset: asset)
     } else {
-      self.eventHandler.onError(
-        code: "DarwinAudioError",
-        message: "NOT Available ios 17, macos 14",
-        details: "MimeType: \(mimeType)"
-      )
       playerItem = AVPlayerItem(url: parsedUrl)
     }
 
