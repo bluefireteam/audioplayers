@@ -59,7 +59,7 @@ class WrappedMediaPlayer {
       reset()
       self.url = url
       do {
-        let playerItem = try createPlayerItem(url, isLocal)
+        let playerItem = try createPlayerItem(url: url, isLocal: isLocal, mimeType: mimeType)
         // Need to observe item status immediately after creating:
         setUpPlayerItemStatusObservation(
           playerItem,
@@ -166,9 +166,9 @@ class WrappedMediaPlayer {
   }
 
   private func createPlayerItem(
-    _ url: String,
-    _ isLocal: Bool,
-    _ mimeType: String? = nil
+    url: String,
+    isLocal: Bool,
+    mimeType: String? = nil
   ) throws -> AVPlayerItem {
     guard
       let parsedUrl = isLocal
