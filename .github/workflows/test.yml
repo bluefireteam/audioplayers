@@ -244,6 +244,10 @@ jobs:
 
       - name: List all simulators
         run: "xcrun simctl list devices"
+
+      - name: List all runtimes
+        run: "xcrun simctl runtime list"
+        
       - name: Start simulator
         run: |
           UDID=$(xcrun simctl list devices | grep "iPhone" | sed -n 1p | grep -E -o -i "([0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12})")
