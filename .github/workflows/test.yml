@@ -244,7 +244,7 @@ jobs:
 
       - name: Start simulator
         run: |
-          UDID=$(xcrun simctl create "iPhone SE iOS16.4" "iPhone SE (3rd generation)" iOS16.4)
+          UDID=$(xcrun simctl create "iPhone SE iOS16.4" "iPhone SE (3rd generation)" iOS16)
           xcrun simctl list devices
           echo "Using simulator $UDID"
           xcrun simctl boot "${UDID:?No Simulator with this name iPhone found}"
