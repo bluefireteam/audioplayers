@@ -274,11 +274,8 @@ jobs:
 
       - name: List all simulators
         run: |
-          xcodebuild -downloadPlatform iOS
+          UDID=$(xcrun simctl create "iPhone SE iOS16.4" "iPhone SE (3rd generation)" iOS16.4)
           xcrun simctl list devices
-      - name: Start simulator
-        run: |
-          UDID=$(xcrun simctl list devices | grep "iPhone" | sed -n 1p | grep -E -o -i "([0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12})")
           echo "Using simulator $UDID"
           xcrun simctl boot "${UDID:?No Simulator with this name iPhone found}"
 
