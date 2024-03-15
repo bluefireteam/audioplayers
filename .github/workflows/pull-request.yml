@@ -16,4 +16,4 @@ jobs:
       enable_ios: ${{ github.event.pull_request.draft == false }}
       enable_windows: ${{ github.event.pull_request.draft == false }}
       enable_linux: ${{ github.event.pull_request.draft == false }}
-      enable_macos: true
+      enable_macos: ${{ github.event.pull_request.draft == false }}
