@@ -231,7 +231,36 @@ jobs:
         run: ./gradlew test
 
   ios:
-    runs-on: macos-12
+    runs-on: macos-13
+    timeout-minutes: 60
+    if: inputs.enable_ios
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ inputs.flutter_version }}
+          channel: ${{ inputs.flutter_channel }}
+      - uses: bluefireteam/melos-action@main
+
+      - name: Start simulator
+        run: |
+          UDID=$(xcrun simctl create "iPhone SE iOS16.4" "iPhone SE (3rd generation)" iOS16.4)
+          xcrun simctl list devices
+          echo "Using simulator $UDID"
+          xcrun simctl boot "${UDID:?No Simulator with this name iPhone found}"
+
+      - name: Run Flutter integration tests
+        working-directory: ./packages/audioplayers/example
+        # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
+        run: |
+          ( cd server; dart run bin/server.dart ) &
+          flutter test integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
+#          flutter test integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
+#          flutter test integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
+
+  ios-17:
+    #runs-on: macos-latest
+    runs-on: macos-14
     timeout-minutes: 60
     if: inputs.enable_ios
     steps:
@@ -247,35 +276,6 @@ jobs:
       - name: Start simulator
         run: |
           UDID=$(xcrun simctl list devices | grep "iPhone" | sed -n 1p | grep -E -o -i "([0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12})")
-          echo "Using simulator $UDID"
-          xcrun simctl boot "${UDID:?No Simulator with this name iPhone found}"
-
-      - name: Run Flutter integration tests
-        working-directory: ./packages/audioplayers/example
-        # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
-        run: |
-          ( cd server; dart run bin/server.dart ) &
-          flutter test integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
-#          flutter test integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
-#          flutter test integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
-
-  ios-17:
-    #runs-on: macos-latest
-    runs-on: macos-13
-    timeout-minutes: 60
-    if: inputs.enable_ios
-    steps:
-      - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ inputs.flutter_version }}
-          channel: ${{ inputs.flutter_channel }}
-      - uses: bluefireteam/melos-action@main
-
-      - name: List all simulators
-        run: |
-          UDID=$(xcrun simctl create "iPhone SE iOS16.4" "iPhone SE (3rd generation)" iOS16.4)
-          xcrun simctl list devices
           echo "Using simulator $UDID"
           xcrun simctl boot "${UDID:?No Simulator with this name iPhone found}"
 
