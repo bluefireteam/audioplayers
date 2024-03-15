@@ -244,7 +244,7 @@ jobs:
 
       - name: Start simulator
         run: |
-          UDID=$(xcrun simctl create "iPhone SE iOS16.4" "iPhone SE (3rd generation)" iOS16)
+          UDID=$(xcrun simctl create test-se-16-4 com.apple.CoreSimulator.SimDeviceType.iPhone-SE-3rd-generation com.apple.CoreSimulator.SimRuntime.iOS-16-4)
           xcrun simctl list devices
           echo "Using simulator $UDID"
           xcrun simctl boot "${UDID:?No Simulator with this name iPhone found}"
@@ -271,11 +271,10 @@ jobs:
           channel: ${{ inputs.flutter_channel }}
       - uses: bluefireteam/melos-action@main
 
-      - name: List all simulators
-        run: "xcrun simctl list devices"
       - name: Start simulator
         run: |
-          UDID=$(xcrun simctl list devices | grep "iPhone" | sed -n 1p | grep -E -o -i "([0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12})")
+          UDID=$(xcrun simctl create test-se-17-2 com.apple.CoreSimulator.SimDeviceType.iPhone-SE-3rd-generation com.apple.CoreSimulator.SimRuntime.iOS-17-2)
+          xcrun simctl list devices
           echo "Using simulator $UDID"
           xcrun simctl boot "${UDID:?No Simulator with this name iPhone found}"
 
