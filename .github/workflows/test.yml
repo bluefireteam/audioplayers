@@ -231,7 +231,7 @@ jobs:
         run: ./gradlew test
 
   ios:
-    runs-on: macos-latest
+    runs-on: macos-13
     timeout-minutes: 60
     if: inputs.enable_ios
     steps:
