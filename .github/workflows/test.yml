@@ -231,7 +231,7 @@ jobs:
         run: ./gradlew test
 
   ios:
-    runs-on: macos-13
+    runs-on: macos-12
     timeout-minutes: 60
     if: inputs.enable_ios
     steps:
@@ -261,7 +261,7 @@ jobs:
 
   ios-17:
     #runs-on: macos-latest
-    runs-on: macos-14
+    runs-on: macos-13
     timeout-minutes: 60
     if: inputs.enable_ios
     steps:
@@ -273,7 +273,9 @@ jobs:
       - uses: bluefireteam/melos-action@main
 
       - name: List all simulators
-        run: "xcrun simctl list devices"
+        run: |
+          xcodebuild -downloadPlatform iOS
+          xcrun simctl list devices
       - name: Start simulator
         run: |
           UDID=$(xcrun simctl list devices | grep "iPhone" | sed -n 1p | grep -E -o -i "([0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12})")
