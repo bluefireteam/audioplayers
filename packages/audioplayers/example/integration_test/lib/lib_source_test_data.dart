@@ -1,5 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_example/tabs/sources.dart';
+import 'package:http/http.dart';
 
 import '../platform_features.dart';
 import '../source_test_data.dart';
@@ -73,7 +74,7 @@ final specialCharAssetTestData = LibSourceTestData(
 );
 
 final noExtensionAssetTestData = LibSourceTestData(
-  source: AssetSource(noExtensionAsset),
+  source: AssetSource(noExtensionAsset, mimeType: 'audio/wav'),
   duration: const Duration(milliseconds: 451),
 );
 
@@ -81,6 +82,24 @@ final nonExistentUrlTestData = LibSourceTestData(
   source: UrlSource('non_existent.txt'),
   duration: null,
 );
+
+final wavDataUriTestData = LibSourceTestData(
+  source: UrlSource(wavDataUri),
+  duration: const Duration(milliseconds: 451),
+);
+
+final mp3DataUriTestData = LibSourceTestData(
+  source: UrlSource(mp3DataUri),
+  duration: const Duration(milliseconds: 444),
+);
+
+Future<LibSourceTestData> mp3BytesTestData() async => LibSourceTestData(
+      source: BytesSource(
+        await readBytes(Uri.parse(mp3Url1)),
+        mimeType: 'audio/mpeg',
+      ),
+      duration: const Duration(minutes: 3, seconds: 30, milliseconds: 76),
+    );
 
 // Some sources are commented which are considered redundant
 Future<List<LibSourceTestData>> getAudioTestDataList() async {
@@ -100,21 +119,23 @@ Future<List<LibSourceTestData>> getAudioTestDataList() async {
     if (_features.hasUrlSource && _features.hasPlaylistSourceType)
       m3u8UrlTestData,
     if (_features.hasUrlSource) mpgaUrlTestData,
+    if (_features.hasDataUriSource) wavDataUriTestData,
+    // if (_features.hasDataUriSource) mp3DataUriTestData,
     if (_features.hasAssetSource) wavAsset2TestData,
     /*if (_features.hasAssetSource)
       LibSourceTestData(
         source: AssetSource(mp3Asset),
         duration: const Duration(minutes: 1, seconds: 34, milliseconds: 119),
       ),*/
-    if (_features.hasBytesSource)
-      LibSourceTestData(
-        source: BytesSource(await AudioCache.instance.loadAsBytes(wavAsset2)),
-        duration: const Duration(seconds: 1, milliseconds: 068),
-      ),
+    if (_features.hasBytesSource) await mp3BytesTestData(),
     /*if (_features.hasBytesSource)
+      // Cache not working for web
       LibSourceTestData(
-        source: BytesSource(await readBytes(Uri.parse(mp3Url1))),
-        duration: const Duration(minutes: 3, seconds: 30, milliseconds: 76),
+        source: BytesSource(
+          await AudioCache.instance.loadAsBytes(wavAsset2),
+          mimeType: 'audio/wav',
+        ),
+        duration: const Duration(seconds: 1, milliseconds: 068),
       ),*/
   ];
 }

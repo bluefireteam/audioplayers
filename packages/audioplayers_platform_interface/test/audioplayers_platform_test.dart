@@ -48,13 +48,18 @@ void main() {
     });
 
     test('#setSource', () async {
-      await platform.setSourceUrl('p1', 'internet.com/file.mp3');
+      await platform.setSourceUrl(
+        'p1',
+        'internet.com/file.mp3',
+        mimeType: 'audio/wav',
+      );
       final call = popLastCall();
       expect(call.method, 'setSourceUrl');
       expect(call.args, {
         'playerId': 'p1',
         'url': 'internet.com/file.mp3',
         'isLocal': null,
+        'mimeType': 'audio/wav',
       });
     });
 

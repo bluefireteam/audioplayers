@@ -230,8 +230,9 @@ jobs:
         working-directory: ./packages/audioplayers/example/android
         run: ./gradlew test
 
-  ios:
-    runs-on: macos-latest
+  ios-16:
+    # Run lib tests only to ensure compatibility with iOS 16.
+    runs-on: macos-13
     timeout-minutes: 60
     if: inputs.enable_ios
     steps:
@@ -242,27 +243,69 @@ jobs:
           channel: ${{ inputs.flutter_channel }}
       - uses: bluefireteam/melos-action@main
 
-      - name: List all simulators
-        run: "xcrun simctl list devices"
-      - name: Start simulator
+      - name: Run Flutter integration tests
+        working-directory: ./packages/audioplayers/example
         run: |
-          UDID=$(xcrun simctl list devices | grep "iPhone" | sed -n 1p | grep -E -o -i "([0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12})")
+          sudo xcode-select -switch /Applications/Xcode_14.3.1.app/Contents/Developer
+          UDID=$(xcrun simctl create test-se-16-4 com.apple.CoreSimulator.SimDeviceType.iPhone-SE-3rd-generation com.apple.CoreSimulator.SimRuntime.iOS-16-4)
+          xcrun simctl list devices
           echo "Using simulator $UDID"
           xcrun simctl boot "${UDID:?No Simulator with this name iPhone found}"
+          sudo xcode-select -switch /Applications/Xcode_15.2.app/Contents/Developer
+          ( cd server; dart run bin/server.dart ) &
+          flutter test -d $UDID integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
+
+  ios:
+    runs-on: macos-14
+    timeout-minutes: 60
+    if: inputs.enable_ios
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ inputs.flutter_version }}
+          channel: ${{ inputs.flutter_channel }}
+      - uses: bluefireteam/melos-action@main
+
+      - name: Run Flutter integration tests
+        working-directory: ./packages/audioplayers/example
+        # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
+        run: |
+          UDID=$(xcrun simctl create test-se-17-2 com.apple.CoreSimulator.SimDeviceType.iPhone-SE-3rd-generation com.apple.CoreSimulator.SimRuntime.iOS-17-2)
+          xcrun simctl list devices
+          echo "Using simulator $UDID"
+          xcrun simctl boot "${UDID:?No Simulator with this name iPhone found}"
+          ( cd server; dart run bin/server.dart ) &
+          flutter test -d $UDID integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
+          flutter test -d $UDID integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
+          flutter test -d $UDID integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
+
+  macos-13:
+    # TODO: Run lib tests only to ensure compatibility with macOS 13, once tests for macOS 14 succeed.
+    runs-on: macos-13
+    timeout-minutes: 30
+    if: inputs.enable_macos
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ inputs.flutter_version }}
+          channel: ${{ inputs.flutter_channel }}
+      - uses: bluefireteam/melos-action@main
 
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         run: |
           ( cd server; dart run bin/server.dart ) &
-          flutter test integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
-          flutter test integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
-          flutter test integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
+          flutter test -d macos integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
+          flutter test -d macos integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
+          flutter test -d macos integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
 
   macos:
-    runs-on: macos-13
+    runs-on: macos-14
     timeout-minutes: 30
-    if: inputs.enable_macos
+    if: false # TODO: Tests on macOS 14 currently fail.
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2

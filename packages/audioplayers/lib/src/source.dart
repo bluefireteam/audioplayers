@@ -1,11 +1,12 @@
-import 'dart:typed_data';
-
 import 'package:audioplayers/src/audioplayer.dart';
+import 'package:flutter/foundation.dart';
 
 /// A generic representation of a source from where audio can be pulled.
 ///
 /// This can be a remote or local URL, an application asset, or the file bytes.
 abstract class Source {
+  String? get mimeType;
+
   Future<void> setOnPlayer(AudioPlayer player);
 }
 
@@ -14,16 +15,19 @@ abstract class Source {
 class UrlSource extends Source {
   final String url;
 
-  UrlSource(this.url);
+  @override
+  final String? mimeType;
+
+  UrlSource(this.url, {this.mimeType});
 
   @override
   Future<void> setOnPlayer(AudioPlayer player) {
-    return player.setSourceUrl(url);
+    return player.setSourceUrl(url, mimeType: mimeType);
   }
 
   @override
   String toString() {
-    return 'UrlSource(url: $url)';
+    return 'UrlSource(url: $url, mimeType: $mimeType)';
   }
 }
 
@@ -31,16 +35,19 @@ class UrlSource extends Source {
 class DeviceFileSource extends Source {
   final String path;
 
-  DeviceFileSource(this.path);
+  @override
+  final String? mimeType;
+
+  DeviceFileSource(this.path, {this.mimeType});
 
   @override
   Future<void> setOnPlayer(AudioPlayer player) {
-    return player.setSourceDeviceFile(path);
+    return player.setSourceDeviceFile(path, mimeType: mimeType);
   }
 
   @override
   String toString() {
-    return 'DeviceFileSource(path: $path)';
+    return 'DeviceFileSource(path: $path, mimeType: $mimeType)';
   }
 }
 
@@ -51,16 +58,19 @@ class DeviceFileSource extends Source {
 class AssetSource extends Source {
   final String path;
 
-  AssetSource(this.path);
+  @override
+  final String? mimeType;
+
+  AssetSource(this.path, {this.mimeType});
 
   @override
   Future<void> setOnPlayer(AudioPlayer player) {
-    return player.setSourceAsset(path);
+    return player.setSourceAsset(path, mimeType: mimeType);
   }
 
   @override
   String toString() {
-    return 'AssetSource(path: $path)';
+    return 'AssetSource(path: $path, mimeType: $mimeType)';
   }
 }
 
@@ -70,10 +80,20 @@ class AssetSource extends Source {
 class BytesSource extends Source {
   final Uint8List bytes;
 
-  BytesSource(this.bytes);
+  @override
+  final String? mimeType;
+
+  BytesSource(this.bytes, {this.mimeType});
 
   @override
   Future<void> setOnPlayer(AudioPlayer player) {
-    return player.setSourceBytes(bytes);
+    return player.setSourceBytes(bytes, mimeType: mimeType);
+  }
+
+  @override
+  String toString() {
+    final bytesHash =
+        Object.hashAll(bytes).toUnsigned(20).toRadixString(16).padLeft(5, '0');
+    return 'BytesSource(bytes: $bytesHash, mimeType: $mimeType)';
   }
 }
