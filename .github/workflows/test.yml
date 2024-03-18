@@ -293,6 +293,12 @@ jobs:
       - uses: bluefireteam/melos-action@main
       - name: Start audio server
         run: net start audiosrv
+      - name: Download virtual audio device
+        # Download has to be done before setting the system date time.
+        timeout-minutes: 1
+        run: |
+          Invoke-WebRequest https://github.com/duncanthrax/scream/releases/download/4.0/Scream4.0.zip -OutFile Scream.zip
+          Expand-Archive -Path Scream.zip -DestinationPath Scream
       - name: Disable time sync with Hyper-V & setting system date time (#1573)
         # TODO(gustl22): Remove workaround of setting the time when virtual audio device certificate is valid again (#1573)
         run: |
@@ -302,8 +308,6 @@ jobs:
       - name: Install virtual audio device
         timeout-minutes: 1
         run: |
-          Invoke-WebRequest https://github.com/duncanthrax/scream/releases/download/4.0/Scream4.0.zip -OutFile Scream.zip
-          Expand-Archive -Path Scream.zip -DestinationPath Scream
           Import-Certificate -FilePath Scream\Install\driver\x64\Scream.cat -CertStoreLocation Cert:\LocalMachine\TrustedPublisher
           Scream\Install\helpers\devcon-x64.exe install Scream\Install\driver\x64\Scream.inf *Scream
       - name: Resetting system date time (#1573)
