@@ -140,7 +140,7 @@ jobs:
         run: flutter build apk --release
 
   ios:
-    runs-on: macos-latest
+    runs-on: macos-14
     timeout-minutes: 30
     if: inputs.enable_ios
     steps:
@@ -156,7 +156,7 @@ jobs:
         run: flutter build ios --release --no-codesign
 
   macos:
-    runs-on: macos-latest
+    runs-on: macos-14
     timeout-minutes: 30
     if: inputs.enable_macos
     steps:
