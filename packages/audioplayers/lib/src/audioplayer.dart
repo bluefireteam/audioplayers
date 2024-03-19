@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers/src/uri_ext.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:meta/meta.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
 const _uuid = Uuid();
@@ -370,13 +372,24 @@ class AudioPlayer {
   ///
   /// The resources will start being fetched or buffered as soon as you call
   /// this method.
-  Future<void> setSourceUrl(String url) async {
-    _source = UrlSource(url);
+  Future<void> setSourceUrl(String url, {String? mimeType}) async {
+    if (!kIsWeb &&
+        defaultTargetPlatform != TargetPlatform.android &&
+        url.startsWith('data:')) {
+      // Convert data URI's to bytes (native support for web and android).
+      final uriData = UriData.fromUri(Uri.parse(url));
+      mimeType ??= url.substring(url.indexOf(':') + 1, url.indexOf(';'));
+      await setSourceBytes(uriData.contentAsBytes(), mimeType: mimeType);
+      return;
+    }
+
+    _source = UrlSource(url, mimeType: mimeType);
     // Encode remote url to avoid unexpected failures.
     await _completePrepared(
       () => _platform.setSourceUrl(
         playerId,
         UriCoder.encodeOnce(url),
+        mimeType: mimeType,
         isLocal: false,
       ),
     );
@@ -386,10 +399,15 @@ class AudioPlayer {
   ///
   /// The resources will start being fetched or buffered as soon as you call
   /// this method.
-  Future<void> setSourceDeviceFile(String path) async {
-    _source = DeviceFileSource(path);
+  Future<void> setSourceDeviceFile(String path, {String? mimeType}) async {
+    _source = DeviceFileSource(path, mimeType: mimeType);
     await _completePrepared(
-      () => _platform.setSourceUrl(playerId, path, isLocal: true),
+      () => _platform.setSourceUrl(
+        playerId,
+        path,
+        isLocal: true,
+        mimeType: mimeType,
+      ),
     );
   }
 
@@ -398,19 +416,39 @@ class AudioPlayer {
   ///
   /// The resources will start being fetched or buffered as soon as you call
   /// this method.
-  Future<void> setSourceAsset(String path) async {
-    _source = AssetSource(path);
+  Future<void> setSourceAsset(String path, {String? mimeType}) async {
+    _source = AssetSource(path, mimeType: mimeType);
     final cachePath = await audioCache.loadPath(path);
     await _completePrepared(
-      () => _platform.setSourceUrl(playerId, cachePath, isLocal: true),
+      () => _platform.setSourceUrl(
+        playerId,
+        cachePath,
+        mimeType: mimeType,
+        isLocal: true,
+      ),
     );
   }
 
-  Future<void> setSourceBytes(Uint8List bytes) async {
-    _source = BytesSource(bytes);
-    await _completePrepared(
-      () => _platform.setSourceBytes(playerId, bytes),
-    );
+  Future<void> setSourceBytes(Uint8List bytes, {String? mimeType}) async {
+    if (!kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.iOS ||
+            defaultTargetPlatform == TargetPlatform.macOS ||
+            defaultTargetPlatform == TargetPlatform.linux)) {
+      // Convert to file as workaround
+      final tempDir = (await getTemporaryDirectory()).path;
+      final bytesHash = Object.hashAll(bytes)
+          .toUnsigned(20)
+          .toRadixString(16)
+          .padLeft(5, '0');
+      final file = File('$tempDir/$bytesHash');
+      await file.writeAsBytes(bytes);
+      await setSourceDeviceFile(file.path, mimeType: mimeType);
+    } else {
+      _source = BytesSource(bytes, mimeType: mimeType);
+      await _completePrepared(
+        () => _platform.setSourceBytes(playerId, bytes, mimeType: mimeType),
+      );
+    }
   }
 
   /// Set the PositionUpdater to control how often the position stream will be

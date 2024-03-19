@@ -124,7 +124,11 @@ class FakeAudioplayersPlatform extends AudioplayersPlatformInterface {
   }
 
   @override
-  Future<void> setSourceBytes(String playerId, Uint8List bytes) async {
+  Future<void> setSourceBytes(
+    String playerId,
+    Uint8List bytes, {
+    String? mimeType,
+  }) async {
     calls.add(FakeCall(id: playerId, method: 'setSourceBytes', value: bytes));
     eventStreamControllers[playerId]?.add(
       const AudioEvent(eventType: AudioEventType.prepared, isPrepared: true),
@@ -136,6 +140,7 @@ class FakeAudioplayersPlatform extends AudioplayersPlatformInterface {
     String playerId,
     String url, {
     bool? isLocal,
+    String? mimeType,
   }) async {
     calls.add(FakeCall(id: playerId, method: 'setSourceUrl', value: url));
     eventStreamControllers[playerId]?.add(
