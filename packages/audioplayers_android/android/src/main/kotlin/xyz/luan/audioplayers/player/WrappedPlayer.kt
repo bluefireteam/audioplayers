@@ -32,7 +32,7 @@ class WrappedPlayer internal constructor(
                     player.setSource(value)
                     player.configAndPrepare()
                 } else {
-                    initialized = false
+                    released = true
                     prepared = false
                     playing = false
                     player?.release()
@@ -47,7 +47,7 @@ class WrappedPlayer internal constructor(
         set(value) {
             if (field != value) {
                 field = value
-                if (initialized) {
+                if (!released) {
                     player?.setVolumeAndBalance(value, balance)
                 }
             }
@@ -57,7 +57,7 @@ class WrappedPlayer internal constructor(
         set(value) {
             if (field != value) {
                 field = value
-                if (initialized) {
+                if (!released) {
                     player?.setVolumeAndBalance(volume, value)
                 }
             }
@@ -77,7 +77,7 @@ class WrappedPlayer internal constructor(
         set(value) {
             if (field != value) {
                 field = value
-                if (initialized) {
+                if (!released) {
                     player?.setLooping(isLooping)
                 }
             }
@@ -102,7 +102,7 @@ class WrappedPlayer internal constructor(
             }
         }
 
-    var initialized = false
+    var released = true
 
     var prepared: Boolean = false
         set(value) {
@@ -141,10 +141,10 @@ class WrappedPlayer internal constructor(
 
     private fun getOrCreatePlayer(): Player {
         val currentPlayer = player
-        return if (!initialized || currentPlayer == null) {
+        return if (released || currentPlayer == null) {
             createPlayer().also {
                 player = it
-                initialized = true
+                released = false
             }
         } else if (prepared) {
             currentPlayer.also {
@@ -209,7 +209,7 @@ class WrappedPlayer internal constructor(
      * Playback handling methods
      */
     fun play() {
-        if (!playing && initialized) {
+        if (!playing && !released) {
             playing = true
             if (player == null) {
                 initPlayer()
@@ -226,7 +226,7 @@ class WrappedPlayer internal constructor(
 
     fun stop() {
         focusManager.handleStop()
-        if (!initialized) {
+        if (released) {
             return
         }
         if (releaseMode != ReleaseMode.RELEASE) {
@@ -248,14 +248,14 @@ class WrappedPlayer internal constructor(
 
     fun release() {
         focusManager.handleStop()
-        if (!initialized) {
+        if (released) {
             return
         }
         if (playing) {
             player?.stop()
         }
 
-        // Setting source to null will reset initialized, prepared and playing
+        // Setting source to null will reset released, prepared and playing
         // and also calls player.release()
         source = null
         player = null
