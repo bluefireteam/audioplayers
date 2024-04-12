@@ -208,16 +208,24 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
     auto playbackRate = GetArgument<double>("playbackRate", args, 1.0);
     player->SetPlaybackSpeed(playbackRate);
   } else if (method_call.method_name().compare("setReleaseMode") == 0) {
-    auto releaseMode =
+    auto releaseModeStr =
         GetArgument<std::string>("releaseMode", args, std::string());
-    if (releaseMode.empty()) {
+    if (releaseModeStr.empty()) {
       result->Error("WindowsAudioError",
                     "Error calling setReleaseMode, releaseMode cannot be null",
                     nullptr);
       return;
     }
-    auto looping = releaseMode.find("loop") != std::string::npos;
-    player->SetLooping(looping);
+    auto releaseModeIt = releaseModeMap.find(releaseModeStr);
+    if (releaseModeIt != releaseModeMap.end()) {
+      player->SetReleaseMode(releaseModeIt->second);
+    } else {
+      result->Error("WindowsAudioError",
+                    "Error calling setReleaseMode, releaseMode '" +
+                        releaseModeStr + "' not known",
+                    nullptr);
+      return;
+    }
   } else if (method_call.method_name().compare("setPlayerMode") == 0) {
     // windows doesn't have multiple player modes, so this should no-op
   } else if (method_call.method_name().compare("setBalance") == 0) {
