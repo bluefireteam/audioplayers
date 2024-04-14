@@ -186,26 +186,28 @@ static void audioplayers_linux_plugin_handle_method_call(
           flReleaseMode == nullptr
               ? std::string()
               : std::string(fl_value_get_string(flReleaseMode));
-        if (releaseModeStr.empty()) {
-            response = FL_METHOD_RESPONSE(fl_method_error_response_new(
-                    "LinuxAudioError",
-                    "Error calling setReleaseMode, releaseMode cannot be null",
-                    nullptr));
-            fl_method_call_respond(method_call, response, nullptr);
-            return;
-        }
+      if (releaseModeStr.empty()) {
+        response = FL_METHOD_RESPONSE(fl_method_error_response_new(
+            "LinuxAudioError",
+            "Error calling setReleaseMode, releaseMode cannot be null",
+            nullptr));
+        fl_method_call_respond(method_call, response, nullptr);
+        return;
+      }
 
-        auto releaseModeIt = releaseModeMap.find(releaseModeStr);
-        if (releaseModeIt != releaseModeMap.end()) {
-            player->SetReleaseMode(releaseModeIt->second);
-        } else {
-            response = FL_METHOD_RESPONSE(fl_method_error_response_new(
-                    "LinuxAudioError",
-                    ("Error calling setReleaseMode, releaseMode '" + releaseModeStr + "' not known").c_str(),
-                    nullptr));
-            fl_method_call_respond(method_call, response, nullptr);
-            return;
-        }
+      auto releaseModeIt = releaseModeMap.find(releaseModeStr);
+      if (releaseModeIt != releaseModeMap.end()) {
+        player->SetReleaseMode(releaseModeIt->second);
+      } else {
+        response = FL_METHOD_RESPONSE(fl_method_error_response_new(
+            "LinuxAudioError",
+            ("Error calling setReleaseMode, releaseMode '" + releaseModeStr +
+             "' not known")
+                .c_str(),
+            nullptr));
+        fl_method_call_respond(method_call, response, nullptr);
+        return;
+      }
     } else if (strcmp(method, "setPlayerMode") == 0) {
       // TODO check support for low latency mode:
       // https://gstreamer.freedesktop.org/documentation/additional/design/latency.html?gi-language=c
