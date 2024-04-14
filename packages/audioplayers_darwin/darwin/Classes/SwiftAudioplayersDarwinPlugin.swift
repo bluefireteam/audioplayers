@@ -282,7 +282,7 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
             message: "Error calling setReleaseMode, releaseMode cannot be null", details: nil))
         return
       }
-      player.releaseMode = ReleaseMode(rawValue: releaseModeStr.componentsSeparatedByString(".")[0])
+      player.releaseMode = ReleaseMode(rawValue: String(releaseModeStr.split(separator: ".")[1]))!
     } else if method == "setPlayerMode" {
       // no-op for darwin; only one player mode
     } else if method == "setAudioContext" {
