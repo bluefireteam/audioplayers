@@ -250,11 +250,11 @@ void AudioPlayer::OnPlaybackEnded() {
     fl_event_channel_send(this->_eventChannel, map, nullptr, nullptr);
   }
   if (GetReleaseMode() == ReleaseMode::loop) {
-      Play();
+    Play();
   } else if (GetReleaseMode() == ReleaseMode::release) {
-      ReleaseMediaSource();
+    ReleaseMediaSource();
   } else {
-      Stop();
+    Stop();
   }
 }
 
