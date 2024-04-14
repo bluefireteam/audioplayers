@@ -182,11 +182,11 @@ static void audioplayers_linux_plugin_handle_method_call(
       player->SetPlaybackRate(playbackRate);
     } else if (strcmp(method, "setReleaseMode") == 0) {
       auto flReleaseMode = fl_value_lookup_string(args, "releaseMode");
-      std::string releaseMode =
+      std::string releaseModeStr =
           flReleaseMode == nullptr
               ? std::string()
               : std::string(fl_value_get_string(flReleaseMode));
-      if (releaseMode.empty()) {
+      if (releaseModeStr.empty()) {
         response = FL_METHOD_RESPONSE(fl_method_error_response_new(
             "LinuxAudioError",
             "Error calling setReleaseMode, releaseMode cannot be null",
@@ -194,8 +194,20 @@ static void audioplayers_linux_plugin_handle_method_call(
         fl_method_call_respond(method_call, response, nullptr);
         return;
       }
-      auto looping = releaseMode.find("loop") != std::string::npos;
-      player->SetLooping(looping);
+
+      auto releaseModeIt = releaseModeMap.find(releaseModeStr);
+      if (releaseModeIt != releaseModeMap.end()) {
+        player->SetReleaseMode(releaseModeIt->second);
+      } else {
+        response = FL_METHOD_RESPONSE(fl_method_error_response_new(
+            "LinuxAudioError",
+            ("Error calling setReleaseMode, releaseMode '" + releaseModeStr +
+             "' not known")
+                .c_str(),
+            nullptr));
+        fl_method_call_respond(method_call, response, nullptr);
+        return;
+      }
     } else if (strcmp(method, "setPlayerMode") == 0) {
       // TODO check support for low latency mode:
       // https://gstreamer.freedesktop.org/documentation/additional/design/latency.html?gi-language=c

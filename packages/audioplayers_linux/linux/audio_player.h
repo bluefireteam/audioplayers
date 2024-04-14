@@ -20,6 +20,13 @@ extern "C" {
 #include <gst/gst.h>
 }
 
+enum ReleaseMode { stop, release, loop };
+
+static std::unordered_map<std::string, ReleaseMode> const releaseModeMap = {
+    {"ReleaseMode.stop", ReleaseMode::stop},
+    {"ReleaseMode.release", ReleaseMode::release},
+    {"ReleaseMode.loop", ReleaseMode::loop}};
+
 class AudioPlayer {
  public:
   AudioPlayer(std::string playerId,
@@ -30,7 +37,7 @@ class AudioPlayer {
 
   std::optional<int64_t> GetDuration();
 
-  bool GetLooping();
+  ReleaseMode GetReleaseMode();
 
   void Play();
 
@@ -44,7 +51,7 @@ class AudioPlayer {
 
   void SetBalance(float balance);
 
-  void SetLooping(bool isLooping);
+  void SetReleaseMode(ReleaseMode releaseMode);
 
   void SetVolume(double volume);
 
@@ -77,7 +84,7 @@ class AudioPlayer {
 
   bool _isInitialized = false;
   bool _isPlaying = false;
-  bool _isLooping = false;
+  ReleaseMode _releaseMode = ReleaseMode::release;
   bool _isSeekCompleted = true;
   double _playbackRate = 1.0;
 

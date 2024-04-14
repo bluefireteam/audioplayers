@@ -166,9 +166,10 @@ void AudioPlayer::OnPrepared(bool isPrepared) {
 }
 
 void AudioPlayer::OnPlaybackEnded() {
-  SeekTo(0);
-  if (GetLooping()) {
+  if (GetReleaseMode() == ReleaseMode::loop) {
     Play();
+  } else {
+    Stop();
   }
   if (this->_eventHandler) {
     this->_eventHandler->Success(std::make_unique<flutter::EncodableValue>(
@@ -236,12 +237,13 @@ void AudioPlayer::Dispose() {
   _eventHandler = nullptr;
 }
 
-void AudioPlayer::SetLooping(bool isLooping) {
-  m_mediaEngineWrapper->SetLooping(isLooping);
+void AudioPlayer::SetReleaseMode(ReleaseMode releaseMode) {
+  m_mediaEngineWrapper->SetLooping(releaseMode == ReleaseMode::loop);
+  _releaseMode = releaseMode;
 }
 
-bool AudioPlayer::GetLooping() {
-  return m_mediaEngineWrapper->GetLooping();
+ReleaseMode AudioPlayer::GetReleaseMode() {
+  return _releaseMode;
 }
 
 void AudioPlayer::SetVolume(double volume) {
@@ -268,6 +270,15 @@ void AudioPlayer::Play() {
 
 void AudioPlayer::Pause() {
   m_mediaEngineWrapper->Pause();
+}
+
+void AudioPlayer::Stop() {
+  Pause();
+  if (GetReleaseMode() == ReleaseMode::release) {
+    ReleaseMediaSource();
+  } else {
+    SeekTo(0);
+  }
 }
 
 void AudioPlayer::Resume() {
