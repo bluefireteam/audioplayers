@@ -160,8 +160,7 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
   } else if (method_call.method_name().compare("resume") == 0) {
     player->Resume();
   } else if (method_call.method_name().compare("stop") == 0) {
-    player->Pause();
-    player->SeekTo(0);
+    player->Stop();
   } else if (method_call.method_name().compare("release") == 0) {
     player->ReleaseMediaSource();
   } else if (method_call.method_name().compare("seek") == 0) {

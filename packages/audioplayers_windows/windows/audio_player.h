@@ -74,6 +74,8 @@ class AudioPlayer {
 
   void Pause();
 
+  void Stop();
+
   void Resume();
 
   ReleaseMode GetReleaseMode();
