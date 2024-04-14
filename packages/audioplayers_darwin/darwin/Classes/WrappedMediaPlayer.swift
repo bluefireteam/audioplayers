@@ -4,7 +4,7 @@ private let defaultPlaybackRate: Double = 1.0
 
 private let defaultVolume: Double = 1.0
 
-private let defaultReleaseMode: Bool = false
+private let defaultReleaseMode: ReleaseMode = ReleaseMode.release
 
 typealias Completer = () -> Void
 
