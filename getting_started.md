@@ -156,7 +156,7 @@ The release mode is controlling what happens when the playback ends. There are 3
 1. `.loop`: starts over after completion, looping over and over again.
 
 ```dart
-player.setReleaseMode(ReleaseMode.loop);
+  await player.setReleaseMode(ReleaseMode.loop);
 ```
 
 **Note**: you can control exactly what happens when the playback ends using the `onPlayerComplete` stream (see Streams below).
