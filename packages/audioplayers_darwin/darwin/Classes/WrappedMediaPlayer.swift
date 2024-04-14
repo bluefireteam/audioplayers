@@ -19,7 +19,7 @@ enum ReleaseMode: String {
 class WrappedMediaPlayer {
   private(set) var eventHandler: AudioPlayersStreamHandler
   private(set) var isPlaying: Bool
-  var looping: Bool
+  var releaseMode: ReleaseMode
 
   private var reference: SwiftAudioplayersDarwinPlugin
   private var player: AVPlayer
