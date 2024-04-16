@@ -93,6 +93,37 @@ void main() async {
 
     for (final td in audioTestDataList) {
       testWidgets(
+        '#setSource ${td.source}',
+            (tester) async {
+          await tester.prepareSource(
+            playerId: playerId,
+            platform: platform,
+            testData: td,
+          );
+        },
+        // FIXME(gustl22): cannot determine initial duration for VBR on Linux
+        // FIXME(gustl22): determines wrong initial position for m3u8 on Linux
+        skip: isLinux && td.isVBR ||
+            isLinux && td.source == m3u8UrlTestData.source,
+      );
+
+      testWidgets(
+        '#setSource #getPosition ${td.source}',
+            (tester) async {
+          await tester.prepareSource(
+            playerId: playerId,
+            platform: platform,
+            testData: td,
+          );
+          expect(await platform.getCurrentPosition(playerId), 0);
+        },
+        // FIXME(gustl22): cannot determine initial duration for VBR on Linux
+        // FIXME(gustl22): determines wrong initial position for m3u8 on Linux
+        skip: isLinux && td.isVBR ||
+            isLinux && td.source == m3u8UrlTestData.source,
+      );
+
+      testWidgets(
         '#setSource #getPosition and #getDuration ${td.source}',
         (tester) async {
           await tester.prepareSource(
