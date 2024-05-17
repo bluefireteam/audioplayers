@@ -251,7 +251,7 @@ jobs:
           echo "Using simulator $UDID"
           xcrun simctl boot "${UDID:?No Simulator with this name iPhone found}"
           sudo xcode-select -switch /Applications/Xcode_15.2.app/Contents/Developer
-          ( cd server; dart run bin/server.dart ) &
+          ( cd server; LIVE_MODE=true dart run bin/server.dart ) &
           flutter test -d $UDID integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
 
   ios:
@@ -274,7 +274,7 @@ jobs:
           xcrun simctl list devices
           echo "Using simulator $UDID"
           xcrun simctl boot "${UDID:?No Simulator with this name iPhone found}"
-          ( cd server; dart run bin/server.dart ) &
+          ( cd server; LIVE_MODE=true dart run bin/server.dart ) &
           flutter test -d $UDID integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
           flutter test -d $UDID integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
           flutter test -d $UDID integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
@@ -296,7 +296,7 @@ jobs:
         working-directory: ./packages/audioplayers/example
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         run: |
-          ( cd server; dart run bin/server.dart ) &
+          ( cd server; LIVE_MODE=true dart run bin/server.dart ) &
           flutter test -d macos integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
           flutter test -d macos integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
           flutter test -d macos integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
@@ -317,7 +317,7 @@ jobs:
         working-directory: ./packages/audioplayers/example
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         run: |
-          ( cd server; dart run bin/server.dart ) &
+          ( cd server; LIVE_MODE=true dart run bin/server.dart ) &
           flutter test -d macos integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
           flutter test -d macos integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
           flutter test -d macos integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
