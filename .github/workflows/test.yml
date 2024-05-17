@@ -282,7 +282,7 @@ jobs:
   macos-13:
     # TODO: Run lib tests only to ensure compatibility with macOS 13, once tests for macOS 14 succeed.
     runs-on: macos-13
-    timeout-minutes: 30
+    timeout-minutes: 45
     if: inputs.enable_macos
     steps:
       - uses: actions/checkout@v4
@@ -291,6 +291,20 @@ jobs:
           flutter-version: ${{ inputs.flutter_version }}
           channel: ${{ inputs.flutter_channel }}
       - uses: bluefireteam/melos-action@main
+
+#      - run: |
+#          brew install --cask teamviewer
+#      - run: |
+#          sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart \
+#           -activate -configure -access -on \
+#           -clientopts -setvnclegacy -vnclegacy yes -setvncpw -vncpw mypassword \
+#           -allowaccessfor -allusers \
+#           -restart -agent -privs -all
+
+#      - name: Setup tmate session
+#        uses: mxschmitt/action-tmate@v3
+#        with:
+#          limit-access-to-actor: false
 
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
@@ -303,8 +317,8 @@ jobs:
 
   macos:
     runs-on: macos-14
-    timeout-minutes: 30
-    if: false # TODO: Tests on macOS 14 currently fail.
+    timeout-minutes: 45
+    #if: false # TODO: Tests on macOS 14 currently fail.
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
@@ -312,6 +326,11 @@ jobs:
           flutter-version: ${{ inputs.flutter_version }}
           channel: ${{ inputs.flutter_channel }}
       - uses: bluefireteam/melos-action@main
+
+#      - name: Setup tmate session
+#        uses: mxschmitt/action-tmate@v3
+#        with:
+#          limit-access-to-actor: false
 
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
