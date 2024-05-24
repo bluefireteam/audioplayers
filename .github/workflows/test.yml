@@ -254,7 +254,7 @@ jobs:
           ( cd server; LIVE_MODE=true dart run bin/server.dart ) &
           flutter test -d $UDID integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
 
-  ios:
+  ios-17:
     runs-on: macos-14
     timeout-minutes: 60
     if: inputs.enable_ios
@@ -315,7 +315,7 @@ jobs:
           flutter test -d macos integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
           flutter test -d macos integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
 
-  macos:
+  macos-14:
     runs-on: macos-14
     timeout-minutes: 45
     #if: false # TODO: Tests on macOS 14 currently fail.
