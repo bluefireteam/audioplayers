@@ -151,13 +151,13 @@ class _SourcesTabState extends State<SourcesTab>
           setSourceKey: const Key('setSource-url-remote-m3u8'),
           title: 'Remote URL M3U8',
           subtitle: 'BBC stream',
-          source: UrlSource(m3u8StreamUrl),
+          source: UrlSource(m3u8StreamUrl, mimeType: 'application/x-mpegURL'),
         ),
         _createSourceTile(
           setSourceKey: const Key('setSource-url-remote-mpga'),
           title: 'Remote URL MPGA',
           subtitle: 'Times stream',
-          source: UrlSource(mpgaStreamUrl),
+          source: UrlSource(mpgaStreamUrl, mimeType: 'audio/mpeg'),
         ),
         _createSourceTile(
           setSourceKey: const Key('setSource-url-data-wav'),
