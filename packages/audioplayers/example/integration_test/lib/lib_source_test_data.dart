@@ -44,12 +44,12 @@ final mp3Url1TestData = LibSourceTestData(
 );
 
 final m3u8UrlTestData = LibSourceTestData(
-  source: UrlSource(m3u8StreamUrl, mimeType: 'application/x-mpegURL'),
+  source: UrlSource(m3u8StreamUrl),
   duration: null,
 );
 
 final mpgaUrlTestData = LibSourceTestData(
-  source: UrlSource(mpgaStreamUrl, mimeType: 'audio/mpeg'),
+  source: UrlSource(mpgaStreamUrl),
   duration: null,
 );
 
