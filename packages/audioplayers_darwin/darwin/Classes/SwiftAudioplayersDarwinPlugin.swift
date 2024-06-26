@@ -265,6 +265,16 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
       let currentPosition = player.getCurrentPosition()
       result(currentPosition)
       return
+    } else if method == "setAllowsExternalPlayback" {
+      guard let allows = args["allows"] as? Bool else {
+        result(
+          FlutterError(
+            code: "DarwinAudioError", message: "Error calling setAllowsExternalPlayback, allows cannot be null",
+            details: nil))
+        return
+      }
+
+      player.setAllowsExternalPlayback(allows: allows)
     } else if method == "setPlaybackRate" {
       guard let playbackRate = args["playbackRate"] as? Double else {
         result(

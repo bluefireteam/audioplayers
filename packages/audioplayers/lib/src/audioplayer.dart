@@ -47,6 +47,15 @@ class AudioPlayer {
 
   double get playbackRate => _playbackRate;
 
+  bool _allowsExternalPlayback = false;
+
+  /// A Boolean value that indicates whether the player allows switching
+  /// to external playback mode.
+  ///
+  /// Default is [_allowsExternalPlayback] and
+  /// switch by calling [setAllowsExternalPlayback]
+  bool get allowsExternalPlayback => _allowsExternalPlayback;
+
   /// Current mode of the audio player. Can be updated at any time, but is going
   /// to take effect only at the next time you play the audio.
   PlayerMode _mode = PlayerMode.mediaPlayer;
@@ -168,6 +177,7 @@ class AudioPlayer {
     positionUpdater = FramePositionUpdater(
       getPosition: getCurrentPosition,
     );
+    setAllowsExternalPlayback(_allowsExternalPlayback);
   }
 
   Future<void> _create() async {
@@ -228,6 +238,16 @@ class AudioPlayer {
     _mode = mode;
     await creatingCompleter.future;
     return _platform.setPlayerMode(playerId, mode);
+  }
+
+  /// Switching the external playback mode
+  ///
+  /// Available in OS 6.0+ | iPadOS 6.0+ | Mac Catalyst 13.1+ |
+  ///
+  /// macOS 10.11+ | tvOS 9.0+
+  Future<void> setAllowsExternalPlayback(bool allows) async {
+    _allowsExternalPlayback = allows;
+    return _platform.setAllowsExternalPlayback(playerId, allows);
   }
 
   /// Pauses the audio that is currently playing.

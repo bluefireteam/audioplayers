@@ -163,4 +163,9 @@ class FakeAudioplayersPlatform extends AudioplayersPlatformInterface {
     calls.add(FakeCall(id: playerId, method: 'getEventStream'));
     return eventStreamControllers[playerId]!.stream;
   }
+
+  @override
+  Future<void> setAllowsExternalPlayback(String playerId, bool allows) async {
+    calls.add(FakeCall(id: playerId, method: 'setAllowsExternalPlayback'));
+  }
 }
