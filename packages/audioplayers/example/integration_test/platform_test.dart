@@ -478,7 +478,7 @@ extension on WidgetTester {
     final futurePrepared = eventStream
         .firstWhere(
           (event) {
-            print('DEBUG: Get events (type: ${event.eventType}, prepared: ${event.isPrepared}) ${testData.source}');
+            print('DEBUG: ${DateTime.now().toIso8601String()} Get events (type: ${event.eventType}, prepared: ${event.isPrepared}) ${testData.source}');
             return event.eventType == AudioEventType.prepared &&
               (event.isPrepared ?? false);
           },
@@ -486,7 +486,7 @@ extension on WidgetTester {
         .timeout(const Duration(seconds: 30));
 
     Future<void> setSource(Source source) async {
-      print('DEBUG: setSource $source');
+      print('DEBUG: ${DateTime.now().toIso8601String()} setSource $source');
       if (source is UrlSource) {
         await platform.setSourceUrl(playerId, source.url);
       } else if (source is AssetSource) {
@@ -497,15 +497,15 @@ extension on WidgetTester {
       } else {
         throw 'Unknown source type: ${source.runtimeType}';
       }
-      print('DEBUG: setting Source finished $source');
+      print('DEBUG: ${DateTime.now().toIso8601String()} setting Source finished $source');
     }
 
     // Need to await the setting the source to propagate immediate errors.
     final futureSetSource = setSource(testData.source);
-    await pumpPlatform();
 
     // Wait simultaneously to ensure all errors are propagated through the same
     // future.
     await Future.wait([futureSetSource, futurePrepared]);
+    print('DEBUG: ${DateTime.now().toIso8601String()} after future wait');
   }
 }
