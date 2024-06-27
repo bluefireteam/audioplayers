@@ -8,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
 import 'lib/lib_source_test_data.dart';
+import 'lib/lib_test_utils.dart';
 import 'platform_features.dart';
 import 'test_utils.dart';
 
@@ -501,6 +502,7 @@ extension on WidgetTester {
 
     // Need to await the setting the source to propagate immediate errors.
     final futureSetSource = setSource(testData.source);
+    await pumpPlatform();
 
     // Wait simultaneously to ensure all errors are propagated through the same
     // future.
