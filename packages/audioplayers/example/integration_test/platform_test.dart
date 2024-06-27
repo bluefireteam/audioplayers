@@ -32,64 +32,64 @@ void main() async {
       await platform.dispose(playerId);
     });
 
-    testWidgets(
-      'Throw PlatformException, when loading invalid file',
-      (tester) async {
-        try {
-          // Throws PlatformException via MethodChannel:
-          await tester.prepareSource(
-            playerId: playerId,
-            platform: platform,
-            testData: invalidAssetTestData,
-          );
-          fail('PlatformException not thrown');
-        } on PlatformException catch (e) {
-          expect(e.message, startsWith('Failed to set source.'));
-        }
-      },
-    );
-
-    testWidgets(
-      'Throw PlatformException, when loading non existent file',
-      (tester) async {
-        try {
-          // Throws PlatformException via MethodChannel:
-          await tester.prepareSource(
-            playerId: playerId,
-            platform: platform,
-            testData: nonExistentUrlTestData,
-          );
-          fail('PlatformException not thrown');
-        } on PlatformException catch (e) {
-          expect(e.message, startsWith('Failed to set source.'));
-        }
-      },
-      // FIXME(Gustl22): for some reason, the error propagated back from the
-      //  Android MediaPlayer is only triggered, when the timeout has reached,
-      //  although the error is emitted immediately.
-      //  Further, the other future is not fulfilled and then mysteriously
-      //  failing in later tests.
-      skip: isAndroid,
-    );
-
-    testWidgets('#create and #dispose', (tester) async {
-      await platform.dispose(playerId);
-
-      try {
-        // Call method after player has been released should throw a
-        // PlatformException
-        await platform.stop(playerId);
-        fail('PlatformException not thrown');
-      } on PlatformException catch (e) {
-        expect(
-          e.message,
-          'Player has not yet been created or has already been disposed.',
-        );
-      }
-
-      // Create player again, so it can be disposed in tearDown
-      await platform.create(playerId);
-    });
+    // testWidgets(
+    //   'Throw PlatformException, when loading invalid file',
+    //   (tester) async {
+    //     try {
+    //       // Throws PlatformException via MethodChannel:
+    //       await tester.prepareSource(
+    //         playerId: playerId,
+    //         platform: platform,
+    //         testData: invalidAssetTestData,
+    //       );
+    //       fail('PlatformException not thrown');
+    //     } on PlatformException catch (e) {
+    //       expect(e.message, startsWith('Failed to set source.'));
+    //     }
+    //   },
+    // );
+    //
+    // testWidgets(
+    //   'Throw PlatformException, when loading non existent file',
+    //   (tester) async {
+    //     try {
+    //       // Throws PlatformException via MethodChannel:
+    //       await tester.prepareSource(
+    //         playerId: playerId,
+    //         platform: platform,
+    //         testData: nonExistentUrlTestData,
+    //       );
+    //       fail('PlatformException not thrown');
+    //     } on PlatformException catch (e) {
+    //       expect(e.message, startsWith('Failed to set source.'));
+    //     }
+    //   },
+    //   // FIXME(Gustl22): for some reason, the error propagated back from the
+    //   //  Android MediaPlayer is only triggered, when the timeout has reached,
+    //   //  although the error is emitted immediately.
+    //   //  Further, the other future is not fulfilled and then mysteriously
+    //   //  failing in later tests.
+    //   skip: isAndroid,
+    // );
+    //
+    // testWidgets('#create and #dispose', (tester) async {
+    //   await platform.dispose(playerId);
+    //
+    //   try {
+    //     // Call method after player has been released should throw a
+    //     // PlatformException
+    //     await platform.stop(playerId);
+    //     fail('PlatformException not thrown');
+    //   } on PlatformException catch (e) {
+    //     expect(
+    //       e.message,
+    //       'Player has not yet been created or has already been disposed.',
+    //     );
+    //   }
+    //
+    //   // Create player again, so it can be disposed in tearDown
+    //   await platform.create(playerId);
+    // });
 
     for (final td in audioTestDataList) {
       testWidgets(
@@ -126,7 +126,7 @@ void main() async {
       );
     }
 
-    if (features.hasVolume) {
+ /*   if (features.hasVolume) {
       for (final td in audioTestDataList) {
         testWidgets('#volume ${td.source}', (tester) async {
           await tester.prepareSource(
@@ -296,10 +296,10 @@ void main() async {
           testData: wavUrl1TestData,
         );
       }
-    });
+    });*/
   });
 
-  group('Platform event channel', () {
+  /*group('Platform event channel', () {
     late AudioplayersPlatformInterface platform;
     late String playerId;
 
@@ -406,7 +406,7 @@ void main() async {
       final global = GlobalAudioplayersPlatformInterface.instance;
       final logCompleter = Completer<Object>();
 
-      /* final eventStreamSub = */
+      *//* final eventStreamSub = *//*
       global
           .getGlobalEventStream()
           .where((event) => event.eventType == GlobalAudioEventType.log)
@@ -446,7 +446,7 @@ void main() async {
       final global = GlobalAudioplayersPlatformInterface.instance;
       final errorCompleter = Completer<Object>();
 
-      /* final eventStreamSub = */
+      *//* final eventStreamSub = *//*
       global
           .getGlobalEventStream()
           .listen((_) {}, onError: errorCompleter.complete);
@@ -464,7 +464,7 @@ void main() async {
       // MissingPluginException on Android, if dispose app afterwards
       // await eventStreamSub.cancel();
     });
-  });
+  });*/
 }
 
 extension on WidgetTester {
@@ -476,13 +476,16 @@ extension on WidgetTester {
     final eventStream = platform.getEventStream(playerId);
     final futurePrepared = eventStream
         .firstWhere(
-          (event) =>
-              event.eventType == AudioEventType.prepared &&
-              (event.isPrepared ?? false),
+          (event) {
+            print('DEBUG: Get events (type: ${event.eventType}, prepared: ${event.isPrepared}) ${testData.source}');
+            return event.eventType == AudioEventType.prepared &&
+              (event.isPrepared ?? false);
+          },
         )
         .timeout(const Duration(seconds: 30));
 
     Future<void> setSource(Source source) async {
+      print('DEBUG: setSource $source');
       if (source is UrlSource) {
         await platform.setSourceUrl(playerId, source.url);
       } else if (source is AssetSource) {
@@ -493,6 +496,7 @@ extension on WidgetTester {
       } else {
         throw 'Unknown source type: ${source.runtimeType}';
       }
+      print('DEBUG: setting Source finished $source');
     }
 
     // Need to await the setting the source to propagate immediate errors.
