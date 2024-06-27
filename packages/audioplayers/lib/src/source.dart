@@ -75,8 +75,6 @@ class AssetSource extends Source {
 }
 
 /// Source containing the actual bytes of the media to be played.
-///
-/// This is currently only supported for Android (SDK >= 23).
 class BytesSource extends Source {
   final Uint8List bytes;
 

@@ -13,20 +13,8 @@ command:
 
 scripts:
   lint:
-    run: melos run analyze && melos run format
+    run: melos analyze && melos format
     description: Run all static analysis checks.
-
-  analyze:
-    run: melos exec -c 10 flutter analyze
-    description: Run `flutter analyze` for all packages.
-
-  format:
-    run: melos exec dart format . --fix
-    description: Run `dart format` for all packages.
-
-  format-check:
-    run: melos exec dart format . --set-exit-if-changed
-    description: Run `dart format` checks for all packages.
 
   dartdoc:
     run: melos exec dart doc

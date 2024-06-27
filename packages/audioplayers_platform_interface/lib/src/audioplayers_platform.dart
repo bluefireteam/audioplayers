@@ -244,6 +244,7 @@ mixin EventChannelAudioplayersPlatform
       (dynamic event) {
         final map = event as Map<dynamic, dynamic>;
         final eventType = map.getString('event');
+        print('DEBUG: ${DateTime.now().toIso8601String()} EVENT $eventType');
         switch (eventType) {
           case 'audio.onDuration':
             final millis = map.getInt('value');
