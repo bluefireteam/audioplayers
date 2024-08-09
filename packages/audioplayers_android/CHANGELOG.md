@@ -1,3 +1,10 @@
+## 5.0.0
+
+> Note: This release has breaking changes.
+
+ - **BREAKING** **FEAT**: FramePositionUpdater & TimerPositionUpdater ([#1664](https://github.com/bluefireteam/audioplayers/issues/1664)). ([1ea93536](https://github.com/bluefireteam/audioplayers/commit/1ea93536b448fa5d43281cbc0a7b67445fc1a9a8))
+ - **BREAKING** **DEPS**: Update min Flutter to v3.13.0, compatibility with v3.16.8 ([#1715](https://github.com/bluefireteam/audioplayers/issues/1715)). ([e4262f4c](https://github.com/bluefireteam/audioplayers/commit/e4262f4c0d6582c35738ace603583c81bd5a3b4b))
+
 ## 4.0.3
 
  - **FIX**(android): Released wrong source in LOW_LATENCY mode ([#1672](https://github.com/bluefireteam/audioplayers/issues/1672)). ([d9c5f693](https://github.com/bluefireteam/audioplayers/commit/d9c5f693cafab21b67b785de6244c3c371344a53))

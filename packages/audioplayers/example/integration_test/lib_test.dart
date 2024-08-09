@@ -13,8 +13,6 @@ void main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   final features = PlatformFeatures.instance();
   final isAndroid = !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
-  final isIOS = !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
-  final isMacOS = !kIsWeb && defaultTargetPlatform == TargetPlatform.macOS;
   final audioTestDataList = await getAudioTestDataList();
 
   testWidgets('test asset source with special char',
@@ -69,10 +67,29 @@ void main() async {
 
       await player.dispose();
     },
-    // Darwin does not support files without extension unless its specified
-    // #803, https://stackoverflow.com/a/54087143/5164462
-    skip: isIOS || isMacOS,
   );
+
+  testWidgets('data URI source', (WidgetTester tester) async {
+    final player = AudioPlayer();
+
+    await player.play(mp3DataUriTestData.source);
+    // Sources take some time to get initialized
+    await tester.pumpPlatform(const Duration(seconds: 8));
+    await player.stop();
+
+    await player.dispose();
+  });
+
+  testWidgets('bytes array source', (WidgetTester tester) async {
+    final player = AudioPlayer();
+
+    await player.play((await mp3BytesTestData()).source);
+    // Sources take some time to get initialized
+    await tester.pumpPlatform(const Duration(seconds: 8));
+    await player.stop();
+
+    await player.dispose();
+  });
 
   group('AP events', () {
     late AudioPlayer player;

@@ -1,3 +1,12 @@
+## 6.0.0
+
+> Note: This release has breaking changes.
+
+ - **FIX**(ios): 'audioProcessing' deprecated in iOS 10 ([#1756](https://github.com/bluefireteam/audioplayers/issues/1756)). ([81e5ea54](https://github.com/bluefireteam/audioplayers/commit/81e5ea542578f27c558f9a049996ecd8cb95c002))
+ - **FEAT**: Support byte array and data URIs via mimeType ([#1763](https://github.com/bluefireteam/audioplayers/issues/1763)). ([eaf7ce86](https://github.com/bluefireteam/audioplayers/commit/eaf7ce86ad271097365fcf9e3a03fc341629ae47))
+ - **BREAKING** **FEAT**: FramePositionUpdater & TimerPositionUpdater ([#1664](https://github.com/bluefireteam/audioplayers/issues/1664)). ([1ea93536](https://github.com/bluefireteam/audioplayers/commit/1ea93536b448fa5d43281cbc0a7b67445fc1a9a8))
+ - **BREAKING** **DEPS**: Update min Flutter to v3.13.0, compatibility with v3.16.8 ([#1715](https://github.com/bluefireteam/audioplayers/issues/1715)). ([e4262f4c](https://github.com/bluefireteam/audioplayers/commit/e4262f4c0d6582c35738ace603583c81bd5a3b4b))
+
 ## 5.0.2
 
  - **REFACTOR**: Lint Swift ([#1613](https://github.com/bluefireteam/audioplayers/issues/1613)). ([737aa94f](https://github.com/bluefireteam/audioplayers/commit/737aa94f7edb076d622c34e498b90f17c9959e9c))
