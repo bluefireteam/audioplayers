@@ -30,7 +30,7 @@ Future<void> main() async {
       StreamRoute(isLiveMode: liveMode, isRecordMode: recordMode).pipeline,
     );
 
-  final cascade = Cascade().add(publicStaticHandler).add(routeHandler);
+  final cascade = Cascade().add(publicStaticHandler).add(routeHandler.call);
 
   var pipeline = const Pipeline();
   if (isLogRequests) {
