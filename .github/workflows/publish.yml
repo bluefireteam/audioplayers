@@ -12,14 +12,8 @@ jobs:
     runs-on: [ ubuntu-latest ]
     if: contains(github.event.head_commit.message, 'chore(release)')
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
-      - name: Remove invalid pub files # TODO(gustl22): remove when fixed: https://github.com/dart-lang/pub/pull/4145
-        run: |
-          git rm --cached example/assets/coins_non_ascii_и.wav
-          git rm --cached example/server/public/files/audio/coins_non_ascii_и.wav
-        working-directory: packages/audioplayers
-        shell: bash
       - uses: bluefireteam/melos-action@v3
         with:
           publish: true
