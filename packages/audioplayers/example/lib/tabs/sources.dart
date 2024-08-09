@@ -358,7 +358,7 @@ class _SourceDialogState extends State<_SourceDialog> {
 
   Widget _buildSourceValue() {
     switch (sourceType) {
-      case AssetSource:
+      case const (AssetSource):
         return Row(
           children: [
             const Text('Asset path'),
@@ -374,8 +374,8 @@ class _SourceDialogState extends State<_SourceDialog> {
             ),
           ],
         );
-      case BytesSource:
-      case DeviceFileSource:
+      case const (BytesSource):
+      case const (DeviceFileSource):
         return Row(
           children: [
             const Text('Device File path'),
@@ -443,14 +443,14 @@ class _SourceDialogState extends State<_SourceDialog> {
             Btn(
               onPressed: () async {
                 switch (sourceType) {
-                  case BytesSource:
+                  case const (BytesSource):
                     widget.onAdd(
                       BytesSource(await File(path).readAsBytes()),
                       path,
                     );
-                  case AssetSource:
+                  case const (AssetSource):
                     widget.onAdd(AssetSource(path), path);
-                  case DeviceFileSource:
+                  case const (DeviceFileSource):
                     widget.onAdd(DeviceFileSource(path), path);
                   default:
                     widget.onAdd(UrlSource(path), path);

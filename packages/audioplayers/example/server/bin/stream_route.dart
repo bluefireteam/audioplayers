@@ -147,6 +147,6 @@ class StreamRoute {
   }
 
   Handler get pipeline {
-    return const Pipeline().addHandler(router);
+    return const Pipeline().addHandler(router.call);
   }
 }
