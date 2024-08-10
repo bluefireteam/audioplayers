@@ -125,7 +125,10 @@ mixin MethodChannelAudioplayersPlatform
   }
 
   @override
-  Future<void> setAllowsExternalPlayback(String playerId, bool allows) {
+  Future<void> setAllowsExternalPlayback(
+    String playerId, {
+    required bool allows,
+  }) {
     return _call(
       'setAllowsExternalPlayback',
       playerId,

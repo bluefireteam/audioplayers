@@ -177,7 +177,7 @@ class AudioPlayer {
     positionUpdater = FramePositionUpdater(
       getPosition: getCurrentPosition,
     );
-    setAllowsExternalPlayback(_allowsExternalPlayback);
+    setAllowsExternalPlayback(allows: _allowsExternalPlayback);
   }
 
   Future<void> _create() async {
@@ -245,9 +245,9 @@ class AudioPlayer {
   /// Available in OS 6.0+ | iPadOS 6.0+ | Mac Catalyst 13.1+ |
   ///
   /// macOS 10.11+ | tvOS 9.0+
-  Future<void> setAllowsExternalPlayback(bool allows) async {
+  Future<void> setAllowsExternalPlayback({required bool allows}) async {
     _allowsExternalPlayback = allows;
-    return _platform.setAllowsExternalPlayback(playerId, allows);
+    return _platform.setAllowsExternalPlayback(playerId, allows: allows);
   }
 
   /// Pauses the audio that is currently playing.

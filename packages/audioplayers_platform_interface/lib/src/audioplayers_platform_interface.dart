@@ -89,7 +89,10 @@ abstract class MethodChannelAudioplayersPlatformInterface {
   Future<void> setPlaybackRate(String playerId, double playbackRate);
 
   /// Switching the external playback mode
-  Future<void> setAllowsExternalPlayback(String playerId, bool allows);
+  Future<void> setAllowsExternalPlayback(
+    String playerId, {
+    required bool allows,
+  });
 
   /// Configures the player to read the audio from a URL.
   ///
