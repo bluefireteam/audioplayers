@@ -110,42 +110,62 @@ void main() async {
       testWidgets(
         '#positionEvent with $positionUpdaterName: ${td.source}',
         (tester) async {
+          print('Debug 1');
           if (useTimerPositionUpdater) {
             player.positionUpdater = TimerPositionUpdater(
               getPosition: player.getCurrentPosition,
               interval: const Duration(milliseconds: 100),
             );
           }
+          print('Debug 2');
           final futurePositions = player.onPositionChanged.toList();
+          print('Debug 3');
 
           await player.setReleaseMode(ReleaseMode.stop);
+          print('Debug 4');
           await player.setSource(td.source);
+          print('Debug 5');
           await player.resume();
+          print('Debug 6');
           await tester.pumpGlobalFrames(const Duration(seconds: 5));
+          print('Debug 7');
 
           if (!td.isLiveStream && td.duration! < const Duration(seconds: 2)) {
+            print('Debug 8');
             expect(player.state, PlayerState.completed);
           } else {
+            print('Debug 9');
             if (td.isLiveStream || td.duration! > const Duration(seconds: 10)) {
+              print('Debug 10');
               expect(player.state, PlayerState.playing);
             } else {
+              print('Debug 11');
               // Don't know for sure, if has yet completed or is still playing
             }
+            print('Debug 12');
             await player.stop();
+            print('Debug 13');
             expect(player.state, PlayerState.stopped);
           }
+          print('Debug 14');
           await player.dispose();
+          print('Debug 15');
           final positions = await futurePositions;
+          print('Debug 16');
           printOnFailure('Positions: $positions');
+          print('Debug 17');
           expect(positions, isNot(contains(null)));
           expect(positions, contains(greaterThan(Duration.zero)));
           if (td.isLiveStream) {
+            print('Debug 18');
             // TODO(gustl22): Live streams may have zero or null as initial
             //  position. This should be consistent across all platforms.
           } else {
+            print('Debug 19');
             expect(positions.first, Duration.zero);
             expect(positions.last, Duration.zero);
           }
+          print('Debug 20');
         },
         // FIXME(gustl22): Android provides no position for samples shorter
         //  than 0.5 seconds.
