@@ -206,7 +206,7 @@ class WrappedPlayer {
   }
 
   void pause() {
-    _pausedAt = player?.currentTime;
+    _pausedAt = player?.currentTime as double?;
     _isPlaying = false;
     player?.pause();
   }
