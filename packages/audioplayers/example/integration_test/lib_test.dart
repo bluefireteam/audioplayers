@@ -147,11 +147,14 @@ void main() async {
             expect(positions.last, Duration.zero);
           }
         },
-        // FIXME(gustl22): Android provides no position for samples shorter
-        //  than 0.5 seconds.
-        skip: isAndroid &&
-            !td.isLiveStream &&
-            td.duration! < const Duration(seconds: 1),
+        skip:
+            // FIXME(gustl22): [FLAKY] macos 13 fails on live streams.
+            (isMacOS && td.isLiveStream) ||
+                // FIXME(gustl22): Android provides no position for samples
+                //  shorter than 0.5 seconds.
+                (isAndroid &&
+                    !td.isLiveStream &&
+                    td.duration! < const Duration(seconds: 1)),
       );
     }
 
