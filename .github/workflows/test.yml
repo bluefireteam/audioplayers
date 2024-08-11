@@ -299,7 +299,7 @@ jobs:
           ( cd server; dart run bin/server.dart ) &
           flutter test -d macos integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
           flutter test -d macos integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
-        # TODO: Integration tests on macOS 13 currently time out. 
+        # TODO: Integration tests on macOS 13 currently time out.
         #  flutter test -d macos integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
 
   macos-14:
