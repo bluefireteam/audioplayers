@@ -206,6 +206,8 @@ class WrappedPlayer {
   }
 
   void pause() {
+    // TODO(Gustl22): remove ignore, when web >= 1.0.0
+    // ignore: unnecessary_cast
     _pausedAt = player?.currentTime as double?;
     _isPlaying = false;
     player?.pause();
