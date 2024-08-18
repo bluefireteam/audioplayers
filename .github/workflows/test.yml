@@ -109,7 +109,7 @@ jobs:
         with:
           flutter-version: ${{ inputs.flutter_version }}
           channel: ${{ inputs.flutter_channel }}
-      - uses: bluefireteam/melos-action@main
+      - uses: bluefireteam/melos-action@v3
 
       - run: melos format --set-exit-if-changed
       - run: melos analyze ${{ inputs.fatal_warnings && '--fatal-infos' || '--no-fatal-warnings' }}
@@ -141,7 +141,7 @@ jobs:
         with:
           flutter-version: ${{ inputs.flutter_version }}
           channel: ${{ inputs.flutter_channel }}
-      - uses: bluefireteam/melos-action@main
+      - uses: bluefireteam/melos-action@v3
       - uses: nanasess/setup-chromedriver@v2
 
       - name: Run Flutter integration tests
@@ -198,7 +198,7 @@ jobs:
         with:
           flutter-version: ${{ inputs.flutter_version }}
           channel: ${{ inputs.flutter_channel }}
-      - uses: bluefireteam/melos-action@main
+      - uses: bluefireteam/melos-action@v3
 
       - name: Download Android emulator image
         run: |
@@ -240,7 +240,7 @@ jobs:
         with:
           flutter-version: ${{ inputs.flutter_version }}
           channel: ${{ inputs.flutter_channel }}
-      - uses: bluefireteam/melos-action@main
+      - uses: bluefireteam/melos-action@v3
 
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
@@ -312,7 +312,7 @@ jobs:
         with:
           flutter-version: ${{ inputs.flutter_version }}
           channel: ${{ inputs.flutter_channel }}
-      - uses: bluefireteam/melos-action@main
+      - uses: bluefireteam/melos-action@v3
 
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
@@ -333,7 +333,7 @@ jobs:
         with:
           flutter-version: ${{ inputs.flutter_version }}
           channel: ${{ inputs.flutter_channel }}
-      - uses: bluefireteam/melos-action@main
+      - uses: bluefireteam/melos-action@v3
       - name: Start audio server
         run: net start audiosrv
       - name: Download virtual audio device
@@ -378,7 +378,7 @@ jobs:
         with:
           flutter-version: ${{ inputs.flutter_version }}
           channel: ${{ inputs.flutter_channel }}
-      - uses: bluefireteam/melos-action@main
+      - uses: bluefireteam/melos-action@v3
       - name: Install Flutter requirements for Linux
         run: |
           sudo apt-get update

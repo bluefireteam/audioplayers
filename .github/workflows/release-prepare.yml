@@ -1,0 +1,34 @@
+name: Prepare release
+on:
+  workflow_dispatch:
+    inputs:
+      prerelease:
+        description: 'Version as prerelease'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  call-min-flutter-test:
+    uses: ./.github/workflows/test.yml
+    with:
+      flutter_version: '3.22.0'
+      fatal_warnings: false
+  prepare-release:
+    name: Prepare release
+    needs: call-min-flutter-test
+    permissions:
+      contents: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+      - uses: bluefireteam/melos-action@v3
+        with:
+          run-versioning: ${{ inputs.prerelease == false }}
+          run-versioning-prerelease: ${{ inputs.prerelease == true }}
+          publish-dry-run: true
+          create-pr: true
+          git-email: contact@blue-fire.xyz
+          git-name: Bluefireteam
