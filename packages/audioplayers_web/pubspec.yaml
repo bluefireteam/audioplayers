@@ -1,6 +1,6 @@
 name: audioplayers_web
 description: Web implementation of audioplayers, a Flutter plugin to play multiple audio files simultaneously
-version: 5.0.0
+version: 5.0.1
 homepage: https://github.com/bluefireteam/audioplayers
 repository: https://github.com/bluefireteam/audioplayers/tree/master/packages/audioplayers_web
 
@@ -17,7 +17,7 @@ dependencies:
     sdk: flutter
   flutter_web_plugins:
     sdk: flutter
-  web: '>=0.5.1 <2.0.0'
+  web: '>=1.0.0 <2.0.0'
 
 dev_dependencies:
   flame_lint: ^1.0.0
