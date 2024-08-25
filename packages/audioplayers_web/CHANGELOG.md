@@ -1,3 +1,7 @@
+## 5.0.1
+
+ - **DEPS**: Consider web:1.0.0 ([#1828](https://github.com/bluefireteam/audioplayers/pull/1828)). ([9d25e78d](https://github.com/bluefireteam/audioplayers/commit/9d25e78d24a687c90ffa76f034c418d2bbe45251))
+
 ## 5.0.0
 
 > Note: This release has breaking changes.
