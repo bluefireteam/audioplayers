@@ -6,6 +6,7 @@ import 'package:audioplayers/src/uri_ext.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
@@ -380,6 +381,19 @@ class AudioPlayer {
       final uriData = UriData.fromUri(Uri.parse(url));
       mimeType ??= url.substring(url.indexOf(':') + 1, url.indexOf(';'));
       await setSourceBytes(uriData.contentAsBytes(), mimeType: mimeType);
+      return;
+    } else if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
+      final responseAsBytes = (await http.get(Uri.parse(url))).bodyBytes;
+      mimeType ??= url.substring(url.lastIndexOf('.') + 1);
+      final tempDir = (await getTemporaryDirectory()).path;
+
+      final bytesHash =
+          url.hashCode.toUnsigned(20).toRadixString(16).padLeft(5, '0');
+
+      final file = File('$tempDir/$bytesHash.$mimeType');
+
+      await file.writeAsBytes(responseAsBytes);
+      await setSourceDeviceFile(file.path);
       return;
     }
 
