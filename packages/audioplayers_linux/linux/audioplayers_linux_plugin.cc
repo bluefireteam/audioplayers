@@ -180,6 +180,8 @@ static void audioplayers_linux_plugin_handle_method_call(
       double playbackRate =
           flPlaybackRate == nullptr ? 1.0 : fl_value_get_float(flPlaybackRate);
       player->SetPlaybackRate(playbackRate);
+    } else if (strcmp(method, "setAllowsExternalPlayback") == 0) {
+      // no-op: Linux doesn't have external playback, it supports only iOS, macOS
     } else if (strcmp(method, "setReleaseMode") == 0) {
       auto flReleaseMode = fl_value_lookup_string(args, "releaseMode");
       std::string releaseMode =
