@@ -148,11 +148,7 @@ class AudioplayersPlugin : FlutterPlugin {
                     player.rate = rate.toFloat()
                 }
 
-                /* 
-                 * no-op: Android doesn't have external playback, it supports only iOS, macOS
-                 */
                 "setAllowsExternalPlayback" -> {
-                    
                 }
 
                 "getDuration" -> {

@@ -208,7 +208,6 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
     auto playbackRate = GetArgument<double>("playbackRate", args, 1.0);
     player->SetPlaybackSpeed(playbackRate);
   } else if (method_call.method_name().compare("setAllowsExternalPlayback") == 0) {
-    // no-op: Windows doesn't have external playback, it supports only iOS, macOS
   } else if (method_call.method_name().compare("setReleaseMode") == 0) {
     auto releaseMode =
         GetArgument<std::string>("releaseMode", args, std::string());

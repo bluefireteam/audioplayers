@@ -245,6 +245,8 @@ class AudioPlayer {
   /// Available in OS 6.0+ | iPadOS 6.0+ | Mac Catalyst 13.1+ |
   ///
   /// macOS 10.11+ | tvOS 9.0+
+  ///
+  /// Not Available in Android, Linux and Windows
   Future<void> setAllowsExternalPlayback({required bool allows}) async {
     _allowsExternalPlayback = allows;
     return _platform.setAllowsExternalPlayback(playerId, allows: allows);
