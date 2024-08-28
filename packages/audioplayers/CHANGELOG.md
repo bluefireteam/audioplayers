@@ -1,3 +1,7 @@
+## 6.1.0
+
+ - **FEAT**: Upgrade to Flutter v3.22.x ([#1803](https://github.com/bluefireteam/audioplayers/issues/1803)). ([4d669e72](https://github.com/bluefireteam/audioplayers/commit/4d669e723dc5c2399073301ba9333f99bc623669))
+
 ## 6.0.0
 
 > Note: This release has breaking changes.

@@ -3,6 +3,32 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2024-08-26
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`audioplayers_web` - `v5.0.1`](#audioplayers_web---v501)
+ - [`audioplayers` - `v6.1.0`](#audioplayers---v610)
+
+---
+
+#### `audioplayers_web` - `v5.0.1`
+
+ - **DEPS**: Consider web:1.0.0 ([#1828](https://github.com/bluefireteam/audioplayers/pull/1828)). ([9d25e78d](https://github.com/bluefireteam/audioplayers/commit/9d25e78d24a687c90ffa76f034c418d2bbe45251))
+
+#### `audioplayers` - `v6.1.0`
+
+ - **FEAT**: Upgrade to Flutter v3.22.x ([#1803](https://github.com/bluefireteam/audioplayers/issues/1803)). ([4d669e72](https://github.com/bluefireteam/audioplayers/commit/4d669e723dc5c2399073301ba9333f99bc623669))
+
+
 ## 2024-03-19
 
 ### Changes
@@ -85,10 +111,6 @@ Packages with other changes:
  - **BREAKING** **FEAT**: FramePositionUpdater & TimerPositionUpdater ([#1664](https://github.com/bluefireteam/audioplayers/issues/1664)). ([1ea93536](https://github.com/bluefireteam/audioplayers/commit/1ea93536b448fa5d43281cbc0a7b67445fc1a9a8))
  - **BREAKING** **DEPS**: Update min Flutter to v3.13.0, compatibility with v3.16.8 ([#1715](https://github.com/bluefireteam/audioplayers/issues/1715)). ([e4262f4c](https://github.com/bluefireteam/audioplayers/commit/e4262f4c0d6582c35738ace603583c81bd5a3b4b))
 
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
 ## 2023-11-14
 
@@ -116,10 +138,6 @@ Packages with other changes:
 
  - **FIX**(android): Released wrong source in LOW_LATENCY mode ([#1672](https://github.com/bluefireteam/audioplayers/issues/1672)). ([d9c5f693](https://github.com/bluefireteam/audioplayers/commit/d9c5f693cafab21b67b785de6244c3c371344a53))
 
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
 ## 2023-10-02
 
