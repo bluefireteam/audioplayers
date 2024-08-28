@@ -169,6 +169,7 @@ class FakeAudioplayersPlatform extends AudioplayersPlatformInterface {
     String playerId, {
     required bool allows,
   }) async {
-    calls.add(FakeCall(id: playerId, method: 'setAllowsExternalPlayback'));
+    calls.add(FakeCall(
+        id: playerId, method: 'setAllowsExternalPlayback', value: allows));
   }
 }
