@@ -6,7 +6,7 @@ private let defaultVolume: Double = 1.0
 
 private let defaultLooping: Bool = false
 
-private let defaultAllowsExternalPlayback : Bool = false
+private let defaultAllowsExternalPlayback: Bool = false
 
 typealias Completer = () -> Void
 
@@ -128,7 +128,7 @@ class WrappedMediaPlayer {
       player.allowsExternalPlayback = allows
     } else {
       player.allowsExternalPlayback = defaultAllowsExternalPlayback
-    }  
+    }
   }
 
   func seek(time: CMTime, completer: Completer? = nil) {
