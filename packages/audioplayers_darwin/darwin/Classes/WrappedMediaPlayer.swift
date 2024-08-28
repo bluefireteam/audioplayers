@@ -6,7 +6,7 @@ private let defaultVolume: Double = 1.0
 
 private let defaultLooping: Bool = false
 
-private let defaultAllowsExternalPlayback : Bool = false;
+private let defaultAllowsExternalPlayback : Bool = false
 
 typealias Completer = () -> Void
 
@@ -125,9 +125,9 @@ class WrappedMediaPlayer {
 
   func setAllowsExternalPlayback(allows: Bool) {
     if #available(iOS 10.0, macOS 10.12, *) {
-        player.allowsExternalPlayback = allows;
-    }else{
-        player.allowsExternalPlayback = defaultAllowsExternalPlayback;
+      player.allowsExternalPlayback = allows
+    } else {
+      player.allowsExternalPlayback = defaultAllowsExternalPlayback
     }  
   }
 

@@ -269,7 +269,8 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
       guard let allows = args["allows"] as? Bool else {
         result(
           FlutterError(
-            code: "DarwinAudioError", message: "Error calling setAllowsExternalPlayback, allows cannot be null",
+            code: "DarwinAudioError", 
+            message: "Error calling setAllowsExternalPlayback, allows cannot be null",
             details: nil))
         return
       }
