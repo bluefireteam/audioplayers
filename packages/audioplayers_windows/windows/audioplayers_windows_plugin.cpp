@@ -207,9 +207,8 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
   } else if (method_call.method_name().compare("setPlaybackRate") == 0) {
     auto playbackRate = GetArgument<double>("playbackRate", args, 1.0);
     player->SetPlaybackSpeed(playbackRate);
-  } else if (
-    method_call.method_name().compare("setAllowsExternalPlayback") == 0
-  ) {
+  } else if (method_call.method_name().compare("setAllowsExternalPlayback") ==
+             0) {
   } else if (method_call.method_name().compare("setReleaseMode") == 0) {
     auto releaseMode =
         GetArgument<std::string>("releaseMode", args, std::string());
