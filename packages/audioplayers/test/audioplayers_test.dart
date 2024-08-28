@@ -22,6 +22,7 @@ void main() {
     expect(player.source, null);
     await player.creatingCompleter.future;
     expect(platform.popCall().method, 'create');
+    expect(platform.popCall().method, 'setAllowsExternalPlayback');
     expect(platform.popLastCall().method, 'getEventStream');
     return player;
   }
