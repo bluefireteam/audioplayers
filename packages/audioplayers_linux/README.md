@@ -58,4 +58,18 @@ For Arch, simply install gstreamer and its plugins via `pacman`:
 sudo pacman -S gstreamer gst-libav gst-plugins-base gst-plugins-good
 ```
 
+### Fedora/RHEL
+
+[Flutter](https://docs.flutter.dev/get-started/install/linux#linux-setup) dependencies:
+
+```bash
+sudo dnf install clang cmake ninja-build pkg-config
+```
+
+[GStreamer](https://gstreamer.freedesktop.org/documentation/installing/on-linux.html?gi-language=c):
+
+```bash
+sudo dnf install gstreamer1-devel gstreamer1-plugins-base-devel
+```
+
 You can install additional plugins as needed following [the Wiki](https://wiki.archlinux.org/title/GStreamer).
