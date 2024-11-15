@@ -25,7 +25,14 @@ class MediaPlayerPlayer(
 
     override fun getDuration(): Int? {
         // media player returns -1 if the duration is unknown
-        return mediaPlayer.duration.takeUnless { it == -1 }
+        if (isReleased) return -1
+        return try {
+            mediaPlayer.duration.takeUnless { it == -1 }
+        } catch (e: Exception) {
+            wrappedPlayer.handleError("AndroidAudioError", e.message, "This could be caused by calling start after release.")
+            e.printStackTrace()
+            -1
+        }
     }
 
     override fun getCurrentPosition(): Int {
@@ -37,16 +44,28 @@ class MediaPlayerPlayer(
     }
 
     override fun setRate(rate: Float) {
+        if (isReleased) return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            mediaPlayer.playbackParams = mediaPlayer.playbackParams.setSpeed(rate)
+            try {
+                mediaPlayer.playbackParams = mediaPlayer.playbackParams.setSpeed(rate)
+            } catch (e: Exception) {
+                wrappedPlayer.handleError("AndroidAudioError", e.message, "This could be caused by calling start after release.")
+                e.printStackTrace()
+            }
         } else if (rate == 1.0f) {
-            mediaPlayer.start()
+            try {
+                mediaPlayer.start()
+            } catch (e: Exception) {
+                wrappedPlayer.handleError("AndroidAudioError", e.message, "This could be caused by calling start after release.")
+                e.printStackTrace()
+            }
         } else {
             error("Changing the playback rate is only available for Android M/23+ or using LOW_LATENCY mode.")
         }
     }
 
     override fun setSource(source: Source) {
+        if (isReleased) return
         reset()
         source.setForMediaPlayer(mediaPlayer)
     }
@@ -61,19 +80,31 @@ class MediaPlayerPlayer(
     }
 
     override fun pause() {
+        if (isReleased) return
         mediaPlayer.pause()
     }
 
     override fun stop() {
+        if (isReleased) return
         mediaPlayer.stop()
     }
 
+    private var isReleased = false
+
     override fun release() {
-        mediaPlayer.reset()
-        mediaPlayer.release()
+        if (isReleased) return
+        isReleased = true
+        try {
+            mediaPlayer.reset()
+            mediaPlayer.release()
+        } catch (e: Exception) {
+            wrappedPlayer.handleError("AndroidAudioError", e.message, "This could be caused by calling release twice.")
+            e.printStackTrace()
+        }
     }
 
     override fun seekTo(position: Int) {
+        if (isReleased) return
         mediaPlayer.seekTo(position)
     }
 
@@ -89,7 +120,13 @@ class MediaPlayerPlayer(
     }
 
     override fun reset() {
-        mediaPlayer.reset()
+        if (isReleased) return
+        try {
+            mediaPlayer.reset()
+        } catch (e: Exception) {
+            wrappedPlayer.handleError("AndroidAudioError", e.message, "This could be caused by calling reset after release.")
+            e.printStackTrace()
+        }
     }
 
     override fun isLiveStream(): Boolean {

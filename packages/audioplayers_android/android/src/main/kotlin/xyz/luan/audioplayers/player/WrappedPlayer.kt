@@ -237,7 +237,7 @@ class WrappedPlayer internal constructor(
         if (playing) {
             player?.stop()
         }
-
+        playing = false
         // Setting source to null will reset released, prepared and playing
         // and also calls player.release()
         source = null
