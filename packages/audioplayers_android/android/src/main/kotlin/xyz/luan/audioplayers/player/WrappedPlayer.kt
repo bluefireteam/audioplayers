@@ -114,6 +114,7 @@ class WrappedPlayer internal constructor(
 
     var playing = false
     var shouldSeekTo = -1
+    var playBack = false
 
     private val focusManager = FocusManager(this)
 
@@ -192,11 +193,12 @@ class WrappedPlayer internal constructor(
      * Playback handling methods
      */
     fun play() {
+        playBack = true
         focusManager.maybeRequestAudioFocus(andThen = ::actuallyPlay)
     }
 
     private fun actuallyPlay() {
-        if (!playing && !released) {
+        if (!playing && !released && playBack) {
             val currentPlayer = player
             playing = true
             if (currentPlayer == null) {
@@ -209,6 +211,7 @@ class WrappedPlayer internal constructor(
 
     fun stop() {
         focusManager.handleStop()
+        playBack = false
         if (released) {
             return
         }
@@ -230,6 +233,7 @@ class WrappedPlayer internal constructor(
     }
 
     fun release() {
+        playBack = false
         focusManager.handleStop()
         if (released) {
             return
@@ -247,6 +251,7 @@ class WrappedPlayer internal constructor(
     fun pause() {
         if (playing) {
             playing = false
+            playBack = false
             if (prepared) {
                 player?.pause()
             }
