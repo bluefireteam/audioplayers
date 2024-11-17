@@ -44,7 +44,7 @@ class FocusManager(
     private fun newRequestAudioFocus(onGranted: () -> Unit, onLoss: (isTransient: Boolean) -> Unit) {
         val audioFocus = context.audioFocus
 
-        // Listen also for focus changes, e.g. if interrupt playing with a phone call and resume afterward. 
+        // Listen also for focus changes, e.g. if interrupt playing with a phone call and resume afterward.
         val audioFocusRequest = AudioFocusRequest.Builder(audioFocus)
             .setAudioAttributes(context.buildAttributes())
             .setOnAudioFocusChangeListener { handleFocusResult(it, onGranted, onLoss) }
