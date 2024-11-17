@@ -9,8 +9,8 @@ on:
         type: choice
         options:
           - 'any'
+          - '3.24.x'
           - '3.22.x'
-          - '3.19.x'
       flutter_channel:
         description: 'Flutter Channel'
         required: false
@@ -60,7 +60,7 @@ on:
     inputs:
       flutter_version:
         required: false
-        default: '3.22.3'
+        default: '3.24.5'
         type: string
       flutter_channel:
         required: false
@@ -111,24 +111,6 @@ jobs:
       - name: Example app - Build Web app
         working-directory: ./packages/audioplayers/example
         run: flutter build web
-      - name: Upload pages artifact
-        if: inputs.upload_pages_artifact
-        uses: actions/upload-pages-artifact@v2
-        with:
-          path: ./packages/audioplayers/example/build/web
-
-  # TODO(gustl22): Remove, when min supported flutter version is 3.22.x, so can integrate wasm test in the default 'web' build.
-  web-wasm:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    if: inputs.enable_web
-    steps:
-      - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: 3.22.3
-      - uses: bluefireteam/melos-action@main
-
       - name: Example app - Build Web app in WASM
         working-directory: ./packages/audioplayers/example
         run: flutter build web --wasm
