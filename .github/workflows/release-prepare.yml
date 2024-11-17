@@ -9,14 +9,8 @@ on:
         type: boolean
 
 jobs:
-  call-min-flutter-test:
-    uses: ./.github/workflows/test.yml
-    with:
-      flutter_version: '3.22.0'
-      fatal_warnings: false
   prepare-release:
     name: Prepare release
-    needs: call-min-flutter-test
     permissions:
       contents: write
       pull-requests: write
