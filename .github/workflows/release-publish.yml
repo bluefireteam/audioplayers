@@ -1,5 +1,9 @@
 name: Publish packages
 on:
+  # Enable to also publish, when pushing a tag
+  #push:
+  #  tags:
+  #    - '*'
   workflow_dispatch:
 
 jobs:
@@ -11,9 +15,9 @@ jobs:
     runs-on: [ ubuntu-latest ]
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: subosito/flutter-action@v2
       - uses: bluefireteam/melos-action@v3
         with:
           publish: true
-          git-email: contact@blue-fire.xyz
-          git-name: Bluefireteam
