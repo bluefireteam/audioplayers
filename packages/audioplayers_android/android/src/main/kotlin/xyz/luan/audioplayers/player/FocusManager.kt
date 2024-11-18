@@ -18,14 +18,14 @@ class FocusManager(
     private val audioManager: AudioManager
         get() = player.audioManager
 
-    fun maybeRequestAudioFocus(andThen: () -> Unit) {
+    fun maybeRequestAudioFocus(onGranted: () -> Unit, onLoss: (isTransient: Boolean) -> Unit) {
         if (context.audioFocus == AudioManager.AUDIOFOCUS_NONE) {
-            andThen()
+            onGranted()
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            newRequestAudioFocus(andThen)
+            newRequestAudioFocus(onGranted, onLoss)
         } else {
             @Suppress("DEPRECATION")
-            oldRequestAudioFocus(andThen)
+            oldRequestAudioFocus(onGranted, onLoss)
         }
     }
 
@@ -41,35 +41,47 @@ class FocusManager(
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun newRequestAudioFocus(andThen: () -> Unit) {
+    private fun newRequestAudioFocus(onGranted: () -> Unit, onLoss: (isTransient: Boolean) -> Unit) {
         val audioFocus = context.audioFocus
 
+        // Listen also for focus changes, e.g. if interrupt playing with a phone call and resume afterward.
         val audioFocusRequest = AudioFocusRequest.Builder(audioFocus)
             .setAudioAttributes(context.buildAttributes())
-            .setOnAudioFocusChangeListener { handleFocusResult(it, andThen) }
+            .setOnAudioFocusChangeListener { handleFocusResult(it, onGranted, onLoss) }
             .build()
         this.audioFocusRequest = audioFocusRequest
 
         val result = audioManager.requestAudioFocus(audioFocusRequest)
-        handleFocusResult(result, andThen)
+        handleFocusResult(result, onGranted, onLoss)
     }
 
     @Deprecated("Use requestAudioFocus instead")
-    private fun oldRequestAudioFocus(andThen: () -> Unit) {
+    private fun oldRequestAudioFocus(onGranted: () -> Unit, onLoss: (isTransient: Boolean) -> Unit) {
         val audioFocus = context.audioFocus
-        audioFocusChangeListener = AudioManager.OnAudioFocusChangeListener { handleFocusResult(it, andThen) }
+        audioFocusChangeListener = AudioManager.OnAudioFocusChangeListener { handleFocusResult(it, onGranted, onLoss) }
         @Suppress("DEPRECATION")
         val result = audioManager.requestAudioFocus(
             audioFocusChangeListener,
             AudioManager.STREAM_MUSIC,
             audioFocus,
         )
-        handleFocusResult(result, andThen)
+        handleFocusResult(result, onGranted, onLoss)
     }
 
-    private fun handleFocusResult(result: Int, andThen: () -> Unit) {
-        if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-            andThen()
+    private fun handleFocusResult(result: Int, onGranted: () -> Unit, onLoss: (isTransient: Boolean) -> Unit) {
+        when (result) {
+            AudioManager.AUDIOFOCUS_REQUEST_GRANTED -> {
+                onGranted()
+            }
+
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
+                onLoss(true)
+            }
+
+            AudioManager.AUDIOFOCUS_LOSS -> {
+                onLoss(false)
+            }
         }
+        // Keep playing source on `AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK` as sound is ducked.
     }
 }
