@@ -4,16 +4,22 @@ private let defaultPlaybackRate: Double = 1.0
 
 private let defaultVolume: Double = 1.0
 
-private let defaultLooping: Bool = false
+private let defaultReleaseMode: ReleaseMode = ReleaseMode.release
 
 typealias Completer = () -> Void
 
 typealias CompleterError = (Error?) -> Void
 
+enum ReleaseMode: String {
+  case stop
+  case release
+  case loop
+}
+
 class WrappedMediaPlayer {
   private(set) var eventHandler: AudioPlayersStreamHandler
   private(set) var isPlaying: Bool
-  var looping: Bool
+  var releaseMode: ReleaseMode
 
   private var reference: SwiftAudioplayersDarwinPlugin
   private var player: AVPlayer
@@ -30,7 +36,7 @@ class WrappedMediaPlayer {
     player: AVPlayer = AVPlayer.init(),
     playbackRate: Double = defaultPlaybackRate,
     volume: Double = defaultVolume,
-    looping: Bool = defaultLooping,
+    releaseMode: ReleaseMode = defaultReleaseMode,
     url: String? = nil
   ) {
     self.reference = reference
@@ -42,7 +48,7 @@ class WrappedMediaPlayer {
     self.isPlaying = false
     self.playbackRate = playbackRate
     self.volume = volume
-    self.looping = looping
+    self.releaseMode = releaseMode
     self.url = url
   }
 
@@ -141,6 +147,9 @@ class WrappedMediaPlayer {
   func stop(completer: Completer? = nil) {
     pause()
     seek(time: toCMTime(millis: 0), completer: completer)
+    if releaseMode == ReleaseMode.release {
+      release(completer: completer)
+    }
   }
 
   func release(completer: Completer? = nil) {
@@ -264,8 +273,10 @@ class WrappedMediaPlayer {
     }
 
     seek(time: toCMTime(millis: 0)) {
-      if self.looping {
+      if self.releaseMode == ReleaseMode.loop {
         self.resume()
+      } else if self.releaseMode == ReleaseMode.release {
+        self.release()
       } else {
         self.isPlaying = false
       }

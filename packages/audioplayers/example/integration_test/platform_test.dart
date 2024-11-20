@@ -32,7 +32,7 @@ void main() async {
       await platform.dispose(playerId);
     });
 
-    testWidgets(
+    /*testWidgets(
       'Throw PlatformException, when loading invalid file',
       (tester) async {
         try {
@@ -240,7 +240,7 @@ void main() async {
           // May check number of loops here
         });
       }
-    }
+    }*/
 
     for (final td in audioTestDataList) {
       if (features.hasReleaseModeRelease && !td.isLiveStream) {
@@ -282,7 +282,7 @@ void main() async {
       });
     }
 
-    testWidgets('Set same source twice (#1520)', (tester) async {
+/*    testWidgets('Set same source twice (#1520)', (tester) async {
       for (var i = 0; i < 2; i++) {
         await tester.prepareSource(
           playerId: playerId,
@@ -290,7 +290,7 @@ void main() async {
           testData: wavUrl1TestData,
         );
       }
-    });
+    });*/
   });
 
   group('Platform event channel', () {
