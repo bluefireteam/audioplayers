@@ -9,8 +9,8 @@ on:
         type: choice
         options:
           - 'any'
+          - '3.24.x'
           - '3.22.x'
-          - '3.19.x'
       flutter_channel:
         description: 'Flutter Channel'
         required: false
@@ -60,7 +60,7 @@ on:
     inputs:
       flutter_version:
         required: false
-        default: '3.22.3'
+        default: '3.24.5'
         type: string
       flutter_channel:
         required: false
