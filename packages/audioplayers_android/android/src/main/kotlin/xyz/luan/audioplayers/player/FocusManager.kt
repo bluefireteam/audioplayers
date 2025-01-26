@@ -13,11 +13,10 @@ class FocusManager(
     private val context: AudioContextAndroid
         get() = player.context
 
-
     // Listen also for focus changes, e.g. if interrupt playing with a phone call and resume afterward.
     private var audioFocusRequest: AudioFocusRequest? = null
 
-    // Deprecated variant for listenfixing to focus changes
+    // Deprecated variant of listening to focus changes
     private var audioFocusChangeListener: AudioManager.OnAudioFocusChangeListener? = null
 
     init {
