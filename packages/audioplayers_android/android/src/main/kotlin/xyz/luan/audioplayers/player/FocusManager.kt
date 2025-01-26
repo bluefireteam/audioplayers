@@ -8,7 +8,7 @@ import xyz.luan.audioplayers.AudioContextAndroid
 class FocusManager(
     private val player: WrappedPlayer,
     private val onGranted: () -> Unit,
-    private val onLoss: (isTransient: Boolean) -> Unit
+    private val onLoss: (isTransient: Boolean) -> Unit,
 ) {
     private val context: AudioContextAndroid
         get() = player.context
@@ -16,10 +16,10 @@ class FocusManager(
 
     // Listen also for focus changes, e.g. if interrupt playing with a phone call and resume afterward.
     private var audioFocusRequest: AudioFocusRequest? = null
-    
+
     // Deprecated variant for listenfixing to focus changes
     private var audioFocusChangeListener: AudioManager.OnAudioFocusChangeListener? = null
-    
+
     init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             audioFocusRequest = AudioFocusRequest.Builder(context.audioFocus)
