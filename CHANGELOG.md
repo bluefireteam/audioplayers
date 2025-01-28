@@ -3,6 +3,40 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2025-01-28
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`audioplayers_android` - `v5.0.1`](#audioplayers_android---v501)
+ - [`audioplayers_linux` - `v4.0.1`](#audioplayers_linux---v401)
+ - [`audioplayers` - `v6.1.1`](#audioplayers---v611)
+
+Packages with dependency updates only:
+
+> Packages listed below depend on other packages in this workspace that have had changes. Their versions have been incremented to bump the minimum dependency versions of the packages they depend upon in this project.
+
+ - `audioplayers` - `v6.1.1`
+
+---
+
+#### `audioplayers_android` - `v5.0.1`
+
+ - **FIX**: Avoid multiple audioFocusRequest instances for focus changes ([#1869](https://github.com/bluefireteam/audioplayers/issues/1869)). ([040dde9c](https://github.com/bluefireteam/audioplayers/commit/040dde9c2b1d4601a4c4790fa4a43a4cdd4e9a27))
+ - **FIX**(android): Avoid playing after gaining focus in paused state ([#1857](https://github.com/bluefireteam/audioplayers/issues/1857)). ([01726c13](https://github.com/bluefireteam/audioplayers/commit/01726c1362135a4c3595169dcb1adb311f25f683))
+
+#### `audioplayers_linux` - `v4.0.1`
+
+ - **DOCS**: Add Fedora/RHEL Dependency instructions ([#1851](https://github.com/bluefireteam/audioplayers/issues/1851)). ([b401a23c](https://github.com/bluefireteam/audioplayers/commit/b401a23c934c93a78893bb2def011cd10508c33b))
+
+
 ## 2024-08-26
 
 ### Changes
