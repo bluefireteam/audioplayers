@@ -1,3 +1,7 @@
+## 4.0.1
+
+ - **DOCS**: Add Fedora/RHEL Dependency instructions ([#1851](https://github.com/bluefireteam/audioplayers/issues/1851)). ([b401a23c](https://github.com/bluefireteam/audioplayers/commit/b401a23c934c93a78893bb2def011cd10508c33b))
+
 ## 4.0.0
 
 > Note: This release has breaking changes.
