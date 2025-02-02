@@ -32,7 +32,7 @@ void main() async {
       await platform.dispose(playerId);
     });
 
-    /*testWidgets(
+    testWidgets(
       'Throw PlatformException, when loading invalid file',
       (tester) async {
         try {
@@ -240,31 +240,31 @@ void main() async {
           // May check number of loops here
         });
       }
-    }*/
+    }
 
-    // for (final td in audioTestDataList) {
-    //   if (features.hasReleaseModeRelease && !td.isLiveStream) {
-    //     testWidgets('#ReleaseMode.release ${td.source}', (tester) async {
-    //       await tester.prepareSource(
-    //         playerId: playerId,
-    //         platform: platform,
-    //         testData: td,
-    //       );
-    //       await platform.setReleaseMode(playerId, ReleaseMode.release);
-    //       await platform.resume(playerId);
-    //       if (td.duration! < const Duration(seconds: 2)) {
-    //         await tester.pumpAndSettle(const Duration(seconds: 3));
-    //         // No need to call stop, as it should be released by now
-    //       } else {
-    //         await tester.pumpAndSettle(const Duration(seconds: 1));
-    //         await platform.stop(playerId);
-    //       }
-    //       // TODO(Gustl22): test if source was released
-    //       expect(await platform.getDuration(playerId), null);
-    //       expect(await platform.getCurrentPosition(playerId), null);
-    //     });
-    //   }
-    // }
+    for (final td in audioTestDataList) {
+      if (features.hasReleaseModeRelease && !td.isLiveStream) {
+        testWidgets('#ReleaseMode.release ${td.source}', (tester) async {
+          await tester.prepareSource(
+            playerId: playerId,
+            platform: platform,
+            testData: td,
+          );
+          await platform.setReleaseMode(playerId, ReleaseMode.release);
+          await platform.resume(playerId);
+          if (td.duration! < const Duration(seconds: 2)) {
+            await tester.pumpAndSettle(const Duration(seconds: 3));
+            // No need to call stop, as it should be released by now
+          } else {
+            await tester.pumpAndSettle(const Duration(seconds: 1));
+            await platform.stop(playerId);
+          }
+          // TODO(Gustl22): test if source was released
+          expect(await platform.getDuration(playerId), null);
+          expect(await platform.getCurrentPosition(playerId), null);
+        });
+      }
+    }
 
     for (final td in audioTestDataList) {
       testWidgets('#release ${td.source}', (tester) async {
@@ -282,7 +282,7 @@ void main() async {
       });
     }
 
-/*    testWidgets('Set same source twice (#1520)', (tester) async {
+    testWidgets('Set same source twice (#1520)', (tester) async {
       for (var i = 0; i < 2; i++) {
         await tester.prepareSource(
           playerId: playerId,
@@ -290,7 +290,7 @@ void main() async {
           testData: wavUrl1TestData,
         );
       }
-    });*/
+    });
   });
 
   group('Platform event channel', () {
