@@ -216,8 +216,6 @@ void AudioPlayer::OnLog(const std::string& message) {
 void AudioPlayer::SendInitialized() {
   if (!this->_isInitialized) {
     this->_isInitialized = true;
-    // TODO: Checkout if working
-    //OnDurationUpdate();
     OnPrepared(true);
     OnDurationUpdate();
   }

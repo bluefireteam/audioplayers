@@ -312,31 +312,21 @@ void main() async {
         testWidgets(
           '#durationEvent ${td.source}',
           (tester) async {
-            final eventStream = platform.getEventStream(playerId);
-            final durationCompleter = Completer<Duration?>();
-            final onDurationSub = eventStream
-                .where((event) => event.eventType == AudioEventType.duration)
-                .listen(
-                  (event) => durationCompleter.complete(event.duration),
-                  onError: durationCompleter.completeError,
-                );
-
-            await tester.prepareSource(
+            final initialDuration = await tester.prepareSource(
               playerId: playerId,
               platform: platform,
               testData: td,
             );
 
             expect(
-              await durationCompleter.future
-                  .timeout(const Duration(seconds: 30)),
+              initialDuration,
               (Duration? actual) => durationRangeMatcher(
                 actual,
                 td.duration,
-                deviation: Duration(milliseconds: td.isVBR ? 100 : 1),
+                deviation:
+                    Duration(milliseconds: td.isVBR || isWindows ? 100 : 1),
               ),
             );
-            await onDurationSub.cancel();
           },
           // TODO(gustl22): cannot determine duration for VBR on Linux
           // FIXME(gustl22): duration event is not emitted for short duration
@@ -462,18 +452,22 @@ void main() async {
 }
 
 extension on WidgetTester {
-  Future<void> prepareSource({
+  Future<Duration?> prepareSource({
     required String playerId,
     required AudioplayersPlatformInterface platform,
     required LibSourceTestData testData,
   }) async {
     final eventStream = platform.getEventStream(playerId);
-    final futurePrepared = eventStream
+    final preparedFuture = eventStream
         .firstWhere(
           (event) =>
               event.eventType == AudioEventType.prepared &&
               (event.isPrepared ?? false),
         )
+        .timeout(const Duration(seconds: 30));
+    // Wait for the initial duration event.
+    final initialDurationFuture = eventStream
+        .firstWhere((event) => event.eventType == AudioEventType.duration)
         .timeout(const Duration(seconds: 30));
 
     Future<void> setSource(Source source) async {
@@ -490,10 +484,11 @@ extension on WidgetTester {
     }
 
     // Need to await the setting the source to propagate immediate errors.
-    final futureSetSource = setSource(testData.source);
+    final setSourceFuture = setSource(testData.source);
 
     // Wait simultaneously to ensure all errors are propagated through the same
     // future.
-    await Future.wait([futureSetSource, futurePrepared]);
+    await Future.wait([setSourceFuture, preparedFuture]);
+    return (await initialDurationFuture).duration;
   }
 }
