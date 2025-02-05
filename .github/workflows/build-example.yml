@@ -117,7 +117,7 @@ jobs:
         run: flutter build web --base-href "/audioplayers/" --wasm
       - name: Upload pages artifact
         if: inputs.upload_pages_artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v3
         with:
           path: ./packages/audioplayers/example/build/web
 
