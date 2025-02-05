@@ -47,7 +47,7 @@ class FocusManager(
     fun maybeRequestAudioFocus() {
         if (context != player.context) {
             context = player.context
-            updateAudioFocusRequest();
+            updateAudioFocusRequest()
         }
         if (!hasAudioFocusRequest()) {
             onGranted()
