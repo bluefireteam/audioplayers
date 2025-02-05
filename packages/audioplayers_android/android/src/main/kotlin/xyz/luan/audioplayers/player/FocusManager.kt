@@ -10,8 +10,7 @@ class FocusManager(
     private val onGranted: () -> Unit,
     private val onLoss: (isTransient: Boolean) -> Unit,
 ) {
-    private val context: AudioContextAndroid
-        get() = player.context
+    private var context: AudioContextAndroid = player.context
 
     // Listen also for focus changes, e.g. if interrupt playing with a phone call and resume afterward.
     private var audioFocusRequest: AudioFocusRequest? = null
@@ -20,7 +19,19 @@ class FocusManager(
     private var audioFocusChangeListener: AudioManager.OnAudioFocusChangeListener? = null
 
     init {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        updateAudioFocusRequest()
+    }
+
+    private fun hasAudioFocusRequest(): Boolean {
+        return audioFocusRequest != null || audioFocusChangeListener != null
+    }
+
+    private fun updateAudioFocusRequest() {
+        if (context.audioFocus == AudioManager.AUDIOFOCUS_NONE) {
+            // Mix sound with others
+            audioFocusRequest = null
+            audioFocusChangeListener = null
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             audioFocusRequest = AudioFocusRequest.Builder(context.audioFocus)
                 .setAudioAttributes(context.buildAttributes())
                 .setOnAudioFocusChangeListener { handleFocusResult(it) }
@@ -34,7 +45,11 @@ class FocusManager(
         get() = player.audioManager
 
     fun maybeRequestAudioFocus() {
-        if (context.audioFocus == AudioManager.AUDIOFOCUS_NONE) {
+        if (context != player.context) {
+            context = player.context
+            updateAudioFocusRequest();
+        }
+        if (!hasAudioFocusRequest()) {
             onGranted()
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val result = audioManager.requestAudioFocus(audioFocusRequest!!)
@@ -51,7 +66,7 @@ class FocusManager(
     }
 
     fun handleStop() {
-        if (context.audioFocus != AudioManager.AUDIOFOCUS_NONE) {
+        if (hasAudioFocusRequest()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 audioFocusRequest?.let { audioManager.abandonAudioFocusRequest(it) }
             } else {
