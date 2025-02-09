@@ -273,6 +273,11 @@ void main() async {
           platform: platform,
           testData: td,
         );
+        await tester._waitForDurationEvent(
+          playerId: playerId,
+          platform: platform,
+          testData: td,
+        );
         await tester.pump(const Duration(seconds: 1));
         await platform.release(playerId);
         // TODO(Gustl22): test if source was released
@@ -312,15 +317,6 @@ void main() async {
         testWidgets(
           '#durationEvent ${td.source}',
           (tester) async {
-            final eventStream = platform.getEventStream(playerId);
-            final durationCompleter = Completer<Duration?>();
-            final onDurationSub = eventStream
-                .where((event) => event.eventType == AudioEventType.duration)
-                .listen(
-                  (event) => durationCompleter.complete(event.duration),
-                  onError: durationCompleter.completeError,
-                );
-
             await tester.prepareSource(
               playerId: playerId,
               platform: platform,
@@ -328,7 +324,11 @@ void main() async {
             );
 
             expect(
-              await durationCompleter.future
+              await tester
+                  .getDurationFromEvent(
+                    playerId: playerId,
+                    platform: platform,
+                  )
                   .timeout(const Duration(seconds: 30)),
               (Duration? actual) => durationRangeMatcher(
                 actual,
@@ -337,7 +337,6 @@ void main() async {
                     Duration(milliseconds: td.isVBR || isWindows ? 100 : 1),
               ),
             );
-            await onDurationSub.cancel();
           },
           // TODO(gustl22): cannot determine duration for VBR on Linux
           // FIXME(gustl22): duration event is not emitted for short duration
@@ -357,19 +356,20 @@ void main() async {
             testData: td,
           );
 
+          await tester._waitForDurationEvent(
+            playerId: playerId,
+            platform: platform,
+            testData: td,
+          );
+
           final eventStream = platform.getEventStream(playerId);
-          final completeCompleter = Completer<void>();
-          final onCompleteSub = eventStream
-              .where((event) => event.eventType == AudioEventType.complete)
-              .listen(
-                completeCompleter.complete,
-                onError: completeCompleter.completeError,
-              );
+          final completeFuture = eventStream.firstWhere(
+            (event) => event.eventType == AudioEventType.complete,
+          );
 
           await platform.resume(playerId);
           await tester.pumpAndSettle(const Duration(seconds: 3));
-          await completeCompleter.future.timeout(const Duration(seconds: 30));
-          await onCompleteSub.cancel();
+          await completeFuture.timeout(const Duration(seconds: 30));
         });
       }
     }
@@ -383,18 +383,14 @@ void main() async {
     });
 
     testWidgets('Emit platform log', (tester) async {
-      final logCompleter = Completer<String>();
-      final logSub = platform
+      final logFuture = platform
           .getEventStream(playerId)
-          .where((event) => event.eventType == AudioEventType.log)
-          .map((event) => event.logMessage)
-          .listen(logCompleter.complete, onError: logCompleter.completeError);
+          .firstWhere((event) => event.eventType == AudioEventType.log)
+          .then((event) => event.logMessage);
 
       await platform.emitLog(playerId, 'SomeLog');
 
-      final log = await logCompleter.future;
-      expect(log, 'SomeLog');
-      await logSub.cancel();
+      expect(await logFuture, 'SomeLog');
     });
 
     testWidgets('Emit global platform log', (tester) async {
@@ -496,5 +492,34 @@ extension on WidgetTester {
     // Wait simultaneously to ensure all errors are propagated through the same
     // future.
     await Future.wait([setSourceFuture, preparedFuture]);
+  }
+
+  Future<Duration?> getDurationFromEvent({
+    required String playerId,
+    required AudioplayersPlatformInterface platform,
+  }) async {
+    final eventStream = platform.getEventStream(playerId);
+    final durationFuture = eventStream
+        .firstWhere(
+          (event) => event.eventType == AudioEventType.duration,
+        )
+        .then((event) => event.duration);
+    return durationFuture;
+  }
+
+  Future<void> _waitForDurationEvent({
+    required String playerId,
+    required AudioplayersPlatformInterface platform,
+    required LibSourceTestData testData,
+  }) async {
+    if (testData.duration != null) {
+      // Need to wait for the duration event,
+      // otherwise it gets fired/received after the test has ended,
+      // and therefore then ends up being received in the next test.
+      await getDurationFromEvent(
+        playerId: playerId,
+        platform: platform,
+      );
+    }
   }
 }
