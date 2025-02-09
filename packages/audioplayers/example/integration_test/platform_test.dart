@@ -369,7 +369,7 @@ void main() async {
           await platform.resume(playerId);
           await tester.pumpAndSettle(const Duration(seconds: 3));
           await completeCompleter.future.timeout(const Duration(seconds: 30));
-          onCompleteSub.cancel();
+          await onCompleteSub.cancel();
         });
       }
     }
