@@ -11,6 +11,8 @@ import 'lib/lib_source_test_data.dart';
 import 'platform_features.dart';
 import 'test_utils.dart';
 
+const _defaultTimeout = Duration(seconds: 30);
+
 void main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   final features = PlatformFeatures.instance();
@@ -207,7 +209,7 @@ void main() async {
                 onError: seekCompleter.completeError,
               );
           await platform.seek(playerId, const Duration(milliseconds: 22));
-          await seekCompleter.future.timeout(const Duration(seconds: 30));
+          await seekCompleter.future.timeout(_defaultTimeout);
           await onSeekSub.cancel();
           final positionMs = await platform.getCurrentPosition(playerId);
           expect(
@@ -325,7 +327,7 @@ void main() async {
                     playerId: playerId,
                     platform: platform,
                   )
-                  .timeout(const Duration(seconds: 30)),
+                  .timeout(_defaultTimeout),
               (Duration? actual) => durationRangeMatcher(
                 actual,
                 td.duration,
@@ -359,7 +361,7 @@ void main() async {
 
           await platform.resume(playerId);
           await tester.pumpAndSettle(const Duration(seconds: 3));
-          await completeFuture.timeout(const Duration(seconds: 30));
+          await completeFuture.timeout(_defaultTimeout);
         });
       }
     }
@@ -462,7 +464,7 @@ extension on WidgetTester {
               event.eventType == AudioEventType.prepared &&
               (event.isPrepared ?? false),
         )
-        .timeout(const Duration(seconds: 30));
+        .timeout(_defaultTimeout);
 
     Future<void> setSource(Source source) async {
       if (source is UrlSource) {
