@@ -217,8 +217,9 @@ class WrappedMediaPlayer {
 
       switch playerItem.status {
       case .readyToPlay:
-        self.updateDuration()
         completer?()
+        // Needs to be called after preparation callback.
+        self.updateDuration()
       case .failed:
         self.reset()
         completerError?(nil)

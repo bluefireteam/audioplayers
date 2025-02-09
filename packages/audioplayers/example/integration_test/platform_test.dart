@@ -273,11 +273,6 @@ void main() async {
           platform: platform,
           testData: td,
         );
-        await tester._waitForDurationEvent(
-          playerId: playerId,
-          platform: platform,
-          testData: td,
-        );
         await tester.pump(const Duration(seconds: 1));
         await platform.release(playerId);
         // TODO(Gustl22): test if source was released
@@ -321,6 +316,7 @@ void main() async {
               playerId: playerId,
               platform: platform,
               testData: td,
+              waitForDurationEvent: false,
             );
 
             expect(
@@ -351,12 +347,6 @@ void main() async {
       if (!td.isLiveStream && td.duration! < const Duration(seconds: 2)) {
         testWidgets('#completeEvent ${td.source}', (tester) async {
           await tester.prepareSource(
-            playerId: playerId,
-            platform: platform,
-            testData: td,
-          );
-
-          await tester._waitForDurationEvent(
             playerId: playerId,
             platform: platform,
             testData: td,
@@ -463,6 +453,7 @@ extension on WidgetTester {
     required String playerId,
     required AudioplayersPlatformInterface platform,
     required LibSourceTestData testData,
+    bool waitForDurationEvent = true,
   }) async {
     final eventStream = platform.getEventStream(playerId);
     final preparedFuture = eventStream
@@ -492,6 +483,15 @@ extension on WidgetTester {
     // Wait simultaneously to ensure all errors are propagated through the same
     // future.
     await Future.wait([setSourceFuture, preparedFuture]);
+    if (waitForDurationEvent && testData.duration != null) {
+      // Need to wait for the duration event,
+      // otherwise it gets fired/received after the test has ended,
+      // and therefore then ends up being received in the next test.
+      await getDurationFromEvent(
+        playerId: playerId,
+        platform: platform,
+      );
+    }
   }
 
   Future<Duration?> getDurationFromEvent({
@@ -505,21 +505,5 @@ extension on WidgetTester {
         )
         .then((event) => event.duration);
     return durationFuture;
-  }
-
-  Future<void> _waitForDurationEvent({
-    required String playerId,
-    required AudioplayersPlatformInterface platform,
-    required LibSourceTestData testData,
-  }) async {
-    if (testData.duration != null) {
-      // Need to wait for the duration event,
-      // otherwise it gets fired/received after the test has ended,
-      // and therefore then ends up being received in the next test.
-      await getDurationFromEvent(
-        playerId: playerId,
-        platform: platform,
-      );
-    }
   }
 }
