@@ -275,14 +275,16 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
       }
       player.setPlaybackRate(playbackRate: playbackRate)
     } else if method == "setReleaseMode" {
-      guard let releaseModeStr = args["releaseMode"] as? String else {
+      guard let releaseMode = args["releaseMode"] as? String else {
         result(
           FlutterError(
             code: "DarwinAudioError",
             message: "Error calling setReleaseMode, releaseMode cannot be null", details: nil))
         return
       }
-      player.releaseMode = ReleaseMode(rawValue: String(releaseModeStr.split(separator: ".")[1]))!
+      // Note: there is no "release" on iOS; hence we only care if it's looping or not
+      let looping = releaseMode.hasSuffix("loop")
+      player.looping = looping
     } else if method == "setPlayerMode" {
       // no-op for darwin; only one player mode
     } else if method == "setAudioContext" {

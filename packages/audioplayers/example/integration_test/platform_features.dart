@@ -22,6 +22,7 @@ class PlatformFeatures {
     hasDataUriSource: false,
     hasBytesSource: false,
     hasPlaylistSourceType: false,
+    hasReleaseModeRelease: false,
     hasLowLatency: false,
     hasBalance: false,
   );
@@ -31,6 +32,7 @@ class PlatformFeatures {
     hasBytesSource: false,
     hasPlaylistSourceType: false,
     hasLowLatency: false,
+    hasReleaseModeRelease: false,
     hasForceSpeaker: false,
     hasDuckAudio: false,
     hasRespectSilence: false,
