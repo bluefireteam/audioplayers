@@ -290,6 +290,9 @@ void main() async {
           playerId: playerId,
           platform: platform,
           testData: wavUrl1TestData,
+          // We don't expect the duration event is emitted again,
+          // if the same source is set twice
+          waitForDurationEvent: i == 0,
         );
       }
     });
