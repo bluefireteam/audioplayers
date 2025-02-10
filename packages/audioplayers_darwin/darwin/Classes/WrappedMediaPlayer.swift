@@ -153,11 +153,16 @@ class WrappedMediaPlayer {
   }
 
   func release(completer: Completer? = nil) {
-    stop {
-      self.reset()
-      self.url = nil
-      completer?()
+    if self.isPlaying {
+      // Avoid loop of stop and release
+      stop {
+        self.reset()
+        completer?()
+      }
+      return
     }
+    self.reset()
+    completer?()
   }
 
   func dispose(completer: Completer? = nil) {
@@ -256,6 +261,7 @@ class WrappedMediaPlayer {
       completionObserver = nil
     }
     player.replaceCurrentItem(with: nil)
+    self.url = nil
   }
 
   private func updateDuration() {
