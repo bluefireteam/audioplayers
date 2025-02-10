@@ -9,15 +9,30 @@ import 'package:integration_test/integration_test.dart';
 
 import 'lib/lib_source_test_data.dart';
 import 'platform_features.dart';
+import 'source_test_data.dart';
 import 'test_utils.dart';
 
 const _defaultTimeout = Duration(seconds: 30);
 
+final isLinux = !kIsWeb && defaultTargetPlatform == TargetPlatform.linux;
+final isAndroid = !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+
+bool canDetermineDuration(SourceTestData td) {
+  // TODO(gustl22): cannot determine duration for VBR on Linux
+  // FIXME(gustl22): duration event is not emitted for short duration
+  // WAV on Linux (only platform tests, may be a race condition).
+  if (td.duration == null) {
+    return true;
+  }
+  if (isLinux) {
+    return !(td.isVBR || td.duration! < const Duration(seconds: 5));
+  }
+  return true;
+}
+
 void main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   final features = PlatformFeatures.instance();
-  final isLinux = !kIsWeb && defaultTargetPlatform == TargetPlatform.linux;
-  final isAndroid = !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
   final audioTestDataList = await getAudioTestDataList();
 
   group('Platform method channel', () {
@@ -115,9 +130,8 @@ void main() async {
             ),
           );
         },
-        // FIXME(gustl22): cannot determine initial duration for VBR on Linux
         // FIXME(gustl22): determines wrong initial position for m3u8 on Linux
-        skip: isLinux && td.isVBR ||
+        skip: !canDetermineDuration(td) ||
             isLinux && td.source == m3u8UrlTestData.source,
       );
     }
@@ -339,11 +353,7 @@ void main() async {
               ),
             );
           },
-          // TODO(gustl22): cannot determine duration for VBR on Linux
-          // FIXME(gustl22): duration event is not emitted for short duration
-          // WAV on Linux (only platform tests, may be a race condition).
-          skip: isLinux && td.isVBR ||
-              isLinux && td.duration! < const Duration(seconds: 5),
+          skip: !canDetermineDuration(td),
         );
       }
     }
@@ -488,7 +498,9 @@ extension on WidgetTester {
     // Wait simultaneously to ensure all errors are propagated through the same
     // future.
     await Future.wait([setSourceFuture, preparedFuture]);
-    if (waitForDurationEvent && testData.duration != null) {
+    if (waitForDurationEvent &&
+        testData.duration != null &&
+        canDetermineDuration(testData)) {
       // Need to wait for the duration event,
       // otherwise it gets fired/received after the test has ended,
       // and therefore then ends up being received in the next test.
@@ -509,6 +521,6 @@ extension on WidgetTester {
           (event) => event.eventType == AudioEventType.duration,
         )
         .then((event) => event.duration);
-    return durationFuture;
+    return durationFuture.timeout(_defaultTimeout);
   }
 }
