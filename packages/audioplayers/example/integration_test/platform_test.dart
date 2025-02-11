@@ -52,16 +52,20 @@ void main() async {
     testWidgets(
       'Throw PlatformException, when loading invalid file',
       (tester) async {
-        try {
-          // Throws PlatformException via MethodChannel:
-          await tester.prepareSource(
+        // Throws PlatformException instead of returning prepared event.
+        await tester.expectSettingSourceFailure(
+          future: tester.prepareSource(
             playerId: playerId,
             platform: platform,
             testData: invalidAssetTestData,
-          );
-          fail('PlatformException not thrown');
-        } on PlatformException catch (e) {
-          expect(e.message, startsWith('Failed to set source.'));
+          ),
+        );
+
+        if (isLinux) {
+          // Linux throws a second failure event for invalid files. If not
+          // caught, it then would be randomly is thrown in the following tests.
+          final nextEvent = platform.getEventStream(playerId).first;
+          await tester.expectSettingSourceFailure(future: nextEvent);
         }
       },
     );
@@ -69,17 +73,14 @@ void main() async {
     testWidgets(
       'Throw PlatformException, when loading non existent file',
       (tester) async {
-        try {
-          // Throws PlatformException via MethodChannel:
-          await tester.prepareSource(
+        // Throws PlatformException instead of returning prepared event.
+        await tester.expectSettingSourceFailure(
+          future: tester.prepareSource(
             playerId: playerId,
             platform: platform,
             testData: nonExistentUrlTestData,
-          );
-          fail('PlatformException not thrown');
-        } on PlatformException catch (e) {
-          expect(e.message, startsWith('Failed to set source.'));
-        }
+          ),
+        );
       },
       // FIXME(Gustl22): for some reason, the error propagated back from the
       //  Android MediaPlayer is only triggered, when the timeout has reached,
@@ -522,5 +523,16 @@ extension on WidgetTester {
         )
         .then((event) => event.duration);
     return durationFuture.timeout(_defaultTimeout);
+  }
+
+  Future<void> expectSettingSourceFailure({
+    required Future<void> future,
+  }) async {
+    try {
+      await future;
+      fail('PlatformException not thrown');
+    } on PlatformException catch (e) {
+      expect(e.message, startsWith('Failed to set source.'));
+    }
   }
 }
