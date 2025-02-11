@@ -62,8 +62,8 @@ void main() async {
         );
 
         if (isLinux) {
-          // Linux throws a second failure event for invalid files. If not
-          // caught, it then would be randomly is thrown in the following tests.
+          // Linux throws a second failure event for invalid files.
+          // If not caught, it would be randomly thrown in the following tests.
           final nextEvent = platform.getEventStream(playerId).first;
           await tester.expectSettingSourceFailure(future: nextEvent);
         }
