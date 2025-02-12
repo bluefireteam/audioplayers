@@ -1,3 +1,35 @@
+## 6.1.2
+
+ - Update a dependency to the latest release.
+
+## 6.1.1
+
+ - Update a dependency to the latest release.
+
+## 6.1.0
+
+ - **FEAT**: Upgrade to Flutter v3.22.x ([#1803](https://github.com/bluefireteam/audioplayers/issues/1803)). ([4d669e72](https://github.com/bluefireteam/audioplayers/commit/4d669e723dc5c2399073301ba9333f99bc623669))
+
+## 6.0.0
+
+> Note: This release has breaking changes.
+
+ - **FIX**: Use unique tmp location for each AudioCache ([#1724](https://github.com/bluefireteam/audioplayers/issues/1724)). ([2333cb7f](https://github.com/bluefireteam/audioplayers/commit/2333cb7f5a9fcd84bdd477120d1f53f346c3b10d))
+ - **FIX**: Race condition when playing/pausing audio ([#1705](https://github.com/bluefireteam/audioplayers/issues/1705)). ([463b2a11](https://github.com/bluefireteam/audioplayers/commit/463b2a1149105a25f81d708533d13cc2dd277d6b))
+ - **FIX**: Seek not applied in `play` method ([#1695](https://github.com/bluefireteam/audioplayers/issues/1695)). ([f6138fef](https://github.com/bluefireteam/audioplayers/commit/f6138fef97ccd5b78b44dbe85f7d41e16b3662f6))
+ - **FIX**: Propagate Stream Errors through the same Future ([#1732](https://github.com/bluefireteam/audioplayers/issues/1732)). ([00d041df](https://github.com/bluefireteam/audioplayers/commit/00d041df11c26fd96f480782f2787f857c77daa0))
+ - **FIX**: Wait for seek to complete ([#1712](https://github.com/bluefireteam/audioplayers/issues/1712)). ([fd33b1d0](https://github.com/bluefireteam/audioplayers/commit/fd33b1d073280797cdd88fb6324cc1906bfd5957))
+ - **FEAT**: Support byte array and data URIs via mimeType ([#1763](https://github.com/bluefireteam/audioplayers/issues/1763)). ([eaf7ce86](https://github.com/bluefireteam/audioplayers/commit/eaf7ce86ad271097365fcf9e3a03fc341629ae47))
+ - **FEAT**(ios): Improved AudioContextConfig assertions, fix example ([#1619](https://github.com/bluefireteam/audioplayers/issues/1619)). ([df342c52](https://github.com/bluefireteam/audioplayers/commit/df342c529b0b13abd0515c5dc762987293ebc4c1))
+ - **FEAT**(web): Support compilation to Wasm ([#1766](https://github.com/bluefireteam/audioplayers/issues/1766)). ([1b1a0cf9](https://github.com/bluefireteam/audioplayers/commit/1b1a0cf92e950bc520598426d3f073c3bd5a6a28))
+ - **DOCS**: Improve Docs ([#1710](https://github.com/bluefireteam/audioplayers/issues/1710)). ([4208463a](https://github.com/bluefireteam/audioplayers/commit/4208463a4110ed117eebe28e170872817712ff53))
+ - **BREAKING** **REFACTOR**: Remove deprecated methods ([#1583](https://github.com/bluefireteam/audioplayers/issues/1583)). ([8d0cbeda](https://github.com/bluefireteam/audioplayers/commit/8d0cbeda6babea69b1753340f9cec3d246d7e29a))
+ - **BREAKING** **FEAT**: FramePositionUpdater & TimerPositionUpdater ([#1664](https://github.com/bluefireteam/audioplayers/issues/1664)). ([1ea93536](https://github.com/bluefireteam/audioplayers/commit/1ea93536b448fa5d43281cbc0a7b67445fc1a9a8))
+ - **BREAKING** **FEAT**: Extend `AudioContextConfig.duckAudio` to `AudioContextConfig.focus` ([#1720](https://github.com/bluefireteam/audioplayers/issues/1720)). ([87f3cb7e](https://github.com/bluefireteam/audioplayers/commit/87f3cb7e47e2103d2079a3dfe6aebe80c8a76c3d))
+ - **BREAKING** **FEAT**(ios): Improve AudioContextIOS ([#1591](https://github.com/bluefireteam/audioplayers/issues/1591)). ([25fbec05](https://github.com/bluefireteam/audioplayers/commit/25fbec051a4f521f73c473cdad20f88c7907d7b1))
+ - **BREAKING** **DEPS**: Update min Flutter to v3.13.0, compatibility with v3.16.8 ([#1715](https://github.com/bluefireteam/audioplayers/issues/1715)). ([e4262f4c](https://github.com/bluefireteam/audioplayers/commit/e4262f4c0d6582c35738ace603583c81bd5a3b4b))
+ - **BREAKING** **CHORE**: Upgrade to Flutter 3.13.0 ([#1612](https://github.com/bluefireteam/audioplayers/issues/1612)). ([1a3de1ac](https://github.com/bluefireteam/audioplayers/commit/1a3de1acd5a8b90b6d9c0d0f2a7141723c277c24))
+
 ## 5.2.1
 
  - **FIX**: Avoid decoding already encoded character in URI ([#1679](https://github.com/bluefireteam/audioplayers/issues/1679)). ([1923205c](https://github.com/bluefireteam/audioplayers/commit/1923205c4cde70e2915e6e6c6afeb2fec27a08e8))

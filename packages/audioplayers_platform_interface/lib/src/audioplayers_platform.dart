@@ -136,24 +136,35 @@ mixin MethodChannelAudioplayersPlatform
   }
 
   @override
-  Future<void> setSourceBytes(String playerId, Uint8List bytes) {
+  Future<void> setSourceBytes(
+    String playerId,
+    Uint8List bytes, {
+    String? mimeType,
+  }) {
     return _call(
       'setSourceBytes',
       playerId,
       <String, dynamic>{
         'bytes': bytes,
+        'mimeType': mimeType,
       },
     );
   }
 
   @override
-  Future<void> setSourceUrl(String playerId, String url, {bool? isLocal}) {
+  Future<void> setSourceUrl(
+    String playerId,
+    String url, {
+    bool? isLocal,
+    String? mimeType,
+  }) {
     return _call(
       'setSourceUrl',
       playerId,
       <String, dynamic>{
         'url': url,
         'isLocal': isLocal,
+        'mimeType': mimeType,
       },
     );
   }

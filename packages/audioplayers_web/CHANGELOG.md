@@ -1,3 +1,16 @@
+## 5.0.1
+
+ - **DEPS**: Consider web:1.0.0 ([#1828](https://github.com/bluefireteam/audioplayers/pull/1828)). ([9d25e78d](https://github.com/bluefireteam/audioplayers/commit/9d25e78d24a687c90ffa76f034c418d2bbe45251))
+
+## 5.0.0
+
+> Note: This release has breaking changes.
+
+ - **FEAT**: Support byte array and data URIs via mimeType ([#1763](https://github.com/bluefireteam/audioplayers/issues/1763)). ([eaf7ce86](https://github.com/bluefireteam/audioplayers/commit/eaf7ce86ad271097365fcf9e3a03fc341629ae47))
+ - **FEAT**(web): Support compilation to Wasm ([#1766](https://github.com/bluefireteam/audioplayers/issues/1766)). ([1b1a0cf9](https://github.com/bluefireteam/audioplayers/commit/1b1a0cf92e950bc520598426d3f073c3bd5a6a28))
+ - **BREAKING** **FEAT**: FramePositionUpdater & TimerPositionUpdater ([#1664](https://github.com/bluefireteam/audioplayers/issues/1664)). ([1ea93536](https://github.com/bluefireteam/audioplayers/commit/1ea93536b448fa5d43281cbc0a7b67445fc1a9a8))
+ - **BREAKING** **DEPS**: Update min Flutter to v3.13.0, compatibility with v3.16.8 ([#1715](https://github.com/bluefireteam/audioplayers/issues/1715)). ([e4262f4c](https://github.com/bluefireteam/audioplayers/commit/e4262f4c0d6582c35738ace603583c81bd5a3b4b))
+
 ## 4.1.0
 
  - **FIX**: Improve Error handling for Unsupported Sources ([#1625](https://github.com/bluefireteam/audioplayers/issues/1625)). ([a4d84422](https://github.com/bluefireteam/audioplayers/commit/a4d84422f1421755b05aa7eff38b4d2ed0cf7482))

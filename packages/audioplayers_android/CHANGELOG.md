@@ -1,3 +1,19 @@
+## 5.0.2
+
+ - **FIX**: Change audioFocus dynamically ([#1877](https://github.com/bluefireteam/audioplayers/issues/1877)). ([14f16d9d](https://github.com/bluefireteam/audioplayers/commit/14f16d9dfc52e2eca989e0cc6a27decb8e96af83))
+
+## 5.0.1
+
+ - **FIX**: Avoid multiple audioFocusRequest instances for focus changes ([#1869](https://github.com/bluefireteam/audioplayers/issues/1869)). ([040dde9c](https://github.com/bluefireteam/audioplayers/commit/040dde9c2b1d4601a4c4790fa4a43a4cdd4e9a27))
+ - **FIX**(android): Avoid playing after gaining focus in paused state ([#1857](https://github.com/bluefireteam/audioplayers/issues/1857)). ([01726c13](https://github.com/bluefireteam/audioplayers/commit/01726c1362135a4c3595169dcb1adb311f25f683))
+
+## 5.0.0
+
+> Note: This release has breaking changes.
+
+ - **BREAKING** **FEAT**: FramePositionUpdater & TimerPositionUpdater ([#1664](https://github.com/bluefireteam/audioplayers/issues/1664)). ([1ea93536](https://github.com/bluefireteam/audioplayers/commit/1ea93536b448fa5d43281cbc0a7b67445fc1a9a8))
+ - **BREAKING** **DEPS**: Update min Flutter to v3.13.0, compatibility with v3.16.8 ([#1715](https://github.com/bluefireteam/audioplayers/issues/1715)). ([e4262f4c](https://github.com/bluefireteam/audioplayers/commit/e4262f4c0d6582c35738ace603583c81bd5a3b4b))
+
 ## 4.0.3
 
  - **FIX**(android): Released wrong source in LOW_LATENCY mode ([#1672](https://github.com/bluefireteam/audioplayers/issues/1672)). ([d9c5f693](https://github.com/bluefireteam/audioplayers/commit/d9c5f693cafab21b67b785de6244c3c371344a53))

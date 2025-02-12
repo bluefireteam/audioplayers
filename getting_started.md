@@ -155,6 +155,10 @@ The release mode is controlling what happens when the playback ends. There are 3
 1. `.release` (default): releases all resources associated with this player, equivalent to calling the `release` method.
 1. `.loop`: starts over after completion, looping over and over again.
 
+```dart
+  await player.setReleaseMode(ReleaseMode.loop);
+```
+
 **Note**: you can control exactly what happens when the playback ends using the `onPlayerComplete` stream (see Streams below).
 
 **Note**: there are caveats when looping audio without gaps. Depending on the file format and platform, when audioplayers uses the native implementation of the "looping" feature, there will be gaps between plays, which might not be noticeable for non-continuous SFX but will definitely be noticeable for looping songs. Please check out the Gapless Loop section on our [Troubleshooting Guide](https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md) for more details.

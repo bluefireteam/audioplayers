@@ -4,6 +4,7 @@ import 'package:audioplayers_example/components/drop_down.dart';
 import 'package:audioplayers_example/components/tab_content.dart';
 import 'package:audioplayers_example/components/tabs.dart';
 import 'package:audioplayers_example/utils.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class AudioContextTab extends StatefulWidget {
@@ -30,6 +31,9 @@ class AudioContextTabState extends State<AudioContextTab>
   /// Set config for each platform individually
   AudioContext audioContext = AudioContext();
 
+  bool isLocal = true;
+  bool isGlobal = false;
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -39,20 +43,36 @@ class AudioContextTabState extends State<AudioContextTab>
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
+            ToggleButtons(
+              isSelected: [isGlobal, isLocal],
+              onPressed: (index) {
+                if (index == 0) {
+                  setState(() {
+                    isGlobal = !isGlobal;
+                  });
+                } else if (index == 1) {
+                  setState(() {
+                    isLocal = !isLocal;
+                  });
+                }
+              },
+              borderRadius: const BorderRadius.all(Radius.circular(8)),
+              selectedBorderColor: Theme.of(context).primaryColor,
+              children: const [
+                Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Text('Global'),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Text('Local'),
+                ),
+              ],
+            ),
             ElevatedButton.icon(
               icon: const Icon(Icons.undo),
               label: const Text('Reset'),
               onPressed: () => updateConfig(AudioContextConfig()),
-            ),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.public),
-              label: const Text('Global'),
-              onPressed: () => _global.setAudioContext(audioContext),
-            ),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.looks_one),
-              label: const Text('Local'),
-              onPressed: () => player.setAudioContext(audioContext),
             ),
           ],
         ),
@@ -65,16 +85,18 @@ class AudioContextTabState extends State<AudioContextTab>
                 label: 'Generic Flags',
                 content: _genericTab(),
               ),
-              TabData(
-                key: 'contextTab-android',
-                label: 'Android',
-                content: _androidTab(),
-              ),
-              TabData(
-                key: 'contextTab-ios',
-                label: 'iOS',
-                content: _iosTab(),
-              ),
+              if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android)
+                TabData(
+                  key: 'contextTab-android',
+                  label: 'Android',
+                  content: _androidTab(),
+                ),
+              if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS)
+                TabData(
+                  key: 'contextTab-ios',
+                  label: 'iOS',
+                  content: _iosTab(),
+                ),
             ],
           ),
         ),
@@ -88,6 +110,7 @@ class AudioContextTabState extends State<AudioContextTab>
       setState(() {
         audioContextConfig = newConfig;
         audioContext = context;
+        _applyAudioContext(audioContext);
       });
     } on AssertionError catch (e) {
       toast(e.message.toString());
@@ -97,6 +120,7 @@ class AudioContextTabState extends State<AudioContextTab>
   void updateAudioContextAndroid(AudioContextAndroid contextAndroid) {
     setState(() {
       audioContext = audioContext.copy(android: contextAndroid);
+      _applyAudioContext(audioContext);
     });
   }
 
@@ -105,9 +129,19 @@ class AudioContextTabState extends State<AudioContextTab>
       final context = buildContextIOS();
       setState(() {
         audioContext = audioContext.copy(iOS: context);
+        _applyAudioContext(audioContext);
       });
     } on AssertionError catch (e) {
       toast(e.message.toString());
+    }
+  }
+
+  void _applyAudioContext(AudioContext context) {
+    if (isGlobal) {
+      _global.setAudioContext(context);
+    }
+    if (isLocal) {
+      player.setAudioContext(context);
     }
   }
 

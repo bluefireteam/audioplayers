@@ -115,7 +115,24 @@ class WrappedPlayer internal constructor(
     var playing = false
     var shouldSeekTo = -1
 
-    private val focusManager = FocusManager(this)
+    private val focusManager = FocusManager(
+        this,
+        onGranted = {
+            // Check if in playing state, as the focus can also be gained e.g. after a phone call, even if not playing.
+            if (playing) {
+                player?.start()
+            }
+        },
+        onLoss = { isTransient ->
+            if (isTransient) {
+                // Do not check or set playing state, as the state should be recovered after granting focus again.
+                player?.pause()
+            } else {
+                // Audio focus won't be recovered
+                pause()
+            }
+        },
+    )
 
     private fun maybeGetCurrentPosition(): Int {
         // for Sound Pool, we can't get current position, so we just start over
@@ -192,19 +209,19 @@ class WrappedPlayer internal constructor(
      * Playback handling methods
      */
     fun play() {
-        focusManager.maybeRequestAudioFocus(andThen = ::actuallyPlay)
-    }
-
-    private fun actuallyPlay() {
         if (!playing && !released) {
-            val currentPlayer = player
             playing = true
-            if (currentPlayer == null) {
+            if (player == null) {
                 initPlayer()
             } else if (prepared) {
-                currentPlayer.start()
+                requestFocusAndStart()
             }
         }
+    }
+
+    // Try to get audio focus and then start.
+    private fun requestFocusAndStart() {
+        focusManager.maybeRequestAudioFocus()
     }
 
     fun stop() {
@@ -271,7 +288,7 @@ class WrappedPlayer internal constructor(
         prepared = true
         ref.handleDuration(this)
         if (playing) {
-            player?.start()
+            requestFocusAndStart()
         }
         if (shouldSeekTo >= 0 && player?.isLiveStream() != true) {
             player?.seekTo(shouldSeekTo)

@@ -96,13 +96,15 @@ abstract class MethodChannelAudioplayersPlatformInterface {
     String playerId,
     String url, {
     bool? isLocal,
+    String? mimeType,
   });
 
   /// Configures the play to read the audio from a byte array.
   Future<void> setSourceBytes(
     String playerId,
-    Uint8List bytes,
-  );
+    Uint8List bytes, {
+    String? mimeType,
+  });
 
   Future<void> setAudioContext(
     String playerId,

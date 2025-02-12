@@ -11,6 +11,7 @@ import AVKit
 #endif
 
 let channelName = "xyz.luan/audioplayers"
+
 let globalChannelName = "xyz.luan/audioplayers.global"
 
 public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
@@ -211,6 +212,7 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
       return
     } else if method == "setSourceUrl" {
       let url: String? = args["url"] as? String
+      let mimeType: String? = args["mimeType"] as? String
       let isLocal: Bool = (args["isLocal"] as? Bool) ?? false
 
       if url == nil {
@@ -222,15 +224,17 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
 
       player.setSourceUrl(
         url: url!, isLocal: isLocal,
+        mimeType: mimeType,
         completer: {
           player.eventHandler.onPrepared(isPrepared: true)
         },
-        completerError: {
+        completerError: { error in
+          let errorStr: String = error != nil ? "\(error!)" : "Unknown error"
           player.eventHandler.onError(
             code: "DarwinAudioError",
             message: "Failed to set source. For troubleshooting, see "
               + "https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md",
-            details: "AVPlayerItem.Status.failed on setSourceUrl")
+            details: "AVPlayerItem.Status.failed on setSourceUrl: \(errorStr)")
         })
       result(1)
       return
@@ -271,16 +275,14 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
       }
       player.setPlaybackRate(playbackRate: playbackRate)
     } else if method == "setReleaseMode" {
-      guard let releaseMode = args["releaseMode"] as? String else {
+      guard let releaseModeStr = args["releaseMode"] as? String else {
         result(
           FlutterError(
             code: "DarwinAudioError",
             message: "Error calling setReleaseMode, releaseMode cannot be null", details: nil))
         return
       }
-      // Note: there is no "release" on iOS; hence we only care if it's looping or not
-      let looping = releaseMode.hasSuffix("loop")
-      player.looping = looping
+      player.releaseMode = ReleaseMode(rawValue: String(releaseModeStr.split(separator: ".")[1]))!
     } else if method == "setPlayerMode" {
       // no-op for darwin; only one player mode
     } else if method == "setAudioContext" {
