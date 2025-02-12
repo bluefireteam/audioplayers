@@ -354,15 +354,15 @@ class AudioPlayer {
   Future<void> _completePrepared(Future<void> Function() setSource) async {
     await creatingCompleter.future;
 
-    final futurePrepared = _onPrepared
+    final preparedFuture = _onPrepared
         .firstWhere((isPrepared) => isPrepared)
         .timeout(const Duration(seconds: 30));
     // Need to await the setting the source to propagate immediate errors.
-    final futureSetSource = setSource();
+    final setSourceFuture = setSource();
 
     // Wait simultaneously to ensure all errors are propagated through the same
     // future.
-    await Future.wait([futureSetSource, futurePrepared]);
+    await Future.wait([setSourceFuture, preparedFuture]);
 
     // Share position once after finished loading
     await _positionUpdater?.update();

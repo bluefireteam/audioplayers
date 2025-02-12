@@ -45,6 +45,13 @@
 
 using namespace winrt;
 
+enum ReleaseMode { stop, release, loop };
+
+static std::unordered_map<std::string, ReleaseMode> const releaseModeMap = {
+    {"ReleaseMode.stop", ReleaseMode::stop},
+    {"ReleaseMode.release", ReleaseMode::release},
+    {"ReleaseMode.loop", ReleaseMode::loop}};
+
 class AudioPlayer {
  public:
   AudioPlayer(std::string playerId,
@@ -55,7 +62,7 @@ class AudioPlayer {
 
   void ReleaseMediaSource();
 
-  void SetLooping(bool isLooping);
+  void SetReleaseMode(ReleaseMode releaseMode);
 
   void SetVolume(double volume);
 
@@ -67,9 +74,11 @@ class AudioPlayer {
 
   void Pause();
 
+  void Stop();
+
   void Resume();
 
-  bool GetLooping();
+  ReleaseMode GetReleaseMode();
 
   double GetPosition();
 
@@ -95,6 +104,7 @@ class AudioPlayer {
   winrt::com_ptr<media::MediaEngineWrapper> m_mediaEngineWrapper;
 
   bool _isInitialized = false;
+  ReleaseMode _releaseMode = ReleaseMode::release;
   std::string _url{};
 
   void SendInitialized();

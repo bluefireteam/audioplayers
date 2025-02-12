@@ -38,7 +38,7 @@ Note: LLM means Low Latency Mode.
         <tr><td>low latency mode</td><td>SDK >=21</td><td>no</td><td>no</td><td>no</td><td>no</td><td>no</td></tr>
         <tr><td colspan="7"><strong>Audio Control Commands</strong></td></tr>
         <tr><td>resume / pause / stop</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr>
-        <tr><td>release</td><td>yes</td><td>yes (no mode)</td><td>yes (no mode)</td><td>yes (no mode)</td><td>yes (no mode)</td><td>yes (no mode)</td></tr>
+        <tr><td>release</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr>
         <tr><td>loop</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr>
         <tr><td>volume</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr>
         <tr><td>seek</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr>

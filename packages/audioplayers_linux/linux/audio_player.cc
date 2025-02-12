@@ -249,7 +249,7 @@ void AudioPlayer::OnPlaybackEnded() {
     fl_value_set_string(map, "value", fl_value_new_bool(true));
     fl_event_channel_send(this->_eventChannel, map, nullptr, nullptr);
   }
-  if (GetLooping()) {
+  if (GetReleaseMode() == ReleaseMode::loop) {
     Play();
   } else {
     Stop();
@@ -280,12 +280,12 @@ void AudioPlayer::SetBalance(float balance) {
   g_object_set(G_OBJECT(panorama), "panorama", balance, NULL);
 }
 
-void AudioPlayer::SetLooping(bool isLooping) {
-  _isLooping = isLooping;
+void AudioPlayer::SetReleaseMode(ReleaseMode releaseMode) {
+  _releaseMode = releaseMode;
 }
 
-bool AudioPlayer::GetLooping() {
-  return _isLooping;
+ReleaseMode AudioPlayer::GetReleaseMode() {
+  return _releaseMode;
 }
 
 void AudioPlayer::SetVolume(double volume) {
@@ -412,13 +412,18 @@ void AudioPlayer::Stop() {
   if (!_isInitialized) {
     return;
   }
-  SetPosition(0);
-  // Block thread to wait for state, as it is not expected to be waited to
-  // "seek complete" event on the dart side.
-  GstStateChangeReturn ret =
-      gst_element_get_state(playbin, NULL, NULL, GST_CLOCK_TIME_NONE);
-  if (ret == GST_STATE_CHANGE_FAILURE) {
-    throw "Unable to seek playback to '0' while stopping the player.";
+
+  if (GetReleaseMode() == ReleaseMode::release) {
+    ReleaseMediaSource();
+  } else {
+    SetPosition(0);
+    // Block thread to wait for state, as it is not expected to be waited to
+    // "seek complete" event on the dart side.
+    GstStateChangeReturn ret =
+        gst_element_get_state(playbin, NULL, NULL, GST_CLOCK_TIME_NONE);
+    if (ret == GST_STATE_CHANGE_FAILURE) {
+      throw "Unable to seek playback to '0' while stopping the player.";
+    }
   }
 }
 
