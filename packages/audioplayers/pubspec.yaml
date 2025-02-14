@@ -22,7 +22,9 @@ flutter:
 
 dependencies:
   audioplayers_android:
-    path: ../../packages/audioplayers_android
+    git:
+      url: https://github.com/huypanha/audioplayers.git
+      path: packages/audioplayers_android
   audioplayers_darwin: ^6.0.0
   audioplayers_linux: ^4.0.1
   audioplayers_platform_interface: ^7.0.0
