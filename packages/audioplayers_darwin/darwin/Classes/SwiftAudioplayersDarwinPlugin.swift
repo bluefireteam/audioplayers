@@ -97,6 +97,9 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
 
     // global handlers (no playerId)
     if method == "setAudioContext" {
+#if os(macOS)
+      globalEvents.onLog(message: "Setting AudioContext is not supported on macOS")
+#else
       do {
         guard let context = try AudioContext.parse(args: args) else {
           result(
@@ -108,14 +111,13 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
         globalContext = context
 
         try globalContext.apply()
-      } catch AudioPlayerError.warning(let warnMsg) {
-        globalEvents.onLog(message: warnMsg)
       } catch {
         result(
           FlutterError(
             code: "DarwinAudioError", message: "Error configuring global audio session: \(error)",
             details: nil))
       }
+#endif
     } else if method == "emitLog" {
       guard let message = args["message"] as? String else {
         result(
@@ -286,6 +288,9 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
     } else if method == "setPlayerMode" {
       // no-op for darwin; only one player mode
     } else if method == "setAudioContext" {
+#if os(macOS)
+      player.eventHandler.onLog(message: "Setting AudioContext is not supported on macOS")
+#else
       player.eventHandler.onLog(
         message:
           "iOS does not allow for player-specific audio contexts; `setAudioContext` will set the global audio context instead (like `global.setAudioContext`)."
@@ -301,14 +306,13 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
         globalContext = context
 
         try globalContext.apply()
-      } catch AudioPlayerError.warning(let warnMsg) {
-        globalEvents.onLog(message: warnMsg)
       } catch {
         result(
           FlutterError(
             code: "DarwinAudioError", message: "Error configuring audio session: \(error)",
             details: nil))
       }
+#endif
     } else if method == "emitLog" {
       guard let message = args["message"] as? String else {
         result(
