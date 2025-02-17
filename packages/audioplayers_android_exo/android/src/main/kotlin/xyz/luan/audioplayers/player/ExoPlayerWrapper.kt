@@ -15,8 +15,6 @@ import androidx.media3.common.audio.AudioProcessor
 import androidx.media3.common.audio.AudioProcessor.UnhandledAudioFormatException
 import androidx.media3.common.audio.BaseAudioProcessor
 import androidx.media3.common.audio.ChannelMixingMatrix
-import androidx.media3.common.util.Assertions
-import androidx.media3.common.util.Util
 import androidx.media3.datasource.ByteArrayDataSource
 import androidx.media3.datasource.DataSource
 import androidx.media3.exoplayer.DefaultRenderersFactory
@@ -96,7 +94,6 @@ class ExoPlayerWrapper(
     }
 
     override fun getDuration(): Int? {
-        println("Exo getDuration")
         return (player.duration.takeUnless { it == TIME_UNSET })?.toInt()
     }
 
@@ -105,28 +102,23 @@ class ExoPlayerWrapper(
     }
 
     override fun start() {
-        println("Exo Start")
         player.play()
     }
 
     override fun pause() {
-        println("Exo Pause")
         player.pause()
     }
 
     override fun stop() {
-        println("Exo Stop")
         player.stop()
     }
 
     override fun seekTo(position: Int) {
-        println("Exo Seek to")
         player.seekTo(position.toLong())
         wrappedPlayer.onSeekComplete()
     }
 
     override fun release() {
-        println("Exo Release")
         player.stop()
         player.clearMediaItems()
     }
@@ -139,23 +131,15 @@ class ExoPlayerWrapper(
     @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
     override fun setVolume(leftVolume: Float, rightVolume: Float) {
         this.channelMixingAudioProcessor.putChannelMixingMatrix(
-            ChannelMixingMatrix(
-                2,
-                2,
-                floatArrayOf(leftVolume, 0f, 0f, rightVolume),
-            ),
+            ChannelMixingMatrix(2, 2, floatArrayOf(leftVolume, 0f, 0f, rightVolume)),
         )
-//        this.audioSink.flush()
-//        this.channelMixingAudioProcessor.flush()
     }
 
     override fun setRate(rate: Float) {
-        println("Exo Rate")
         player.setPlaybackSpeed(rate)
     }
 
     override fun setLooping(looping: Boolean) {
-        println("Exo Looping")
         player.repeatMode = if (looping) {
             Player.REPEAT_MODE_ONE
         } else {
@@ -164,7 +148,6 @@ class ExoPlayerWrapper(
     }
 
     override fun updateContext(context: AudioContextAndroid) {
-        println("Exo Update context")
         val builder = AudioAttributes.Builder()
         builder.setContentType(context.contentType)
         builder.setUsage(context.usageType)
@@ -179,7 +162,6 @@ class ExoPlayerWrapper(
     @RequiresApi(Build.VERSION_CODES.M)
     @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
     override fun setSource(source: Source) {
-        println("Exo Set source")
         if (source is UrlSource) {
             player.setMediaItem(MediaItem.fromUri(source.url))
         } else if (source is BytesSource) {
@@ -193,7 +175,6 @@ class ExoPlayerWrapper(
     }
 
     override fun prepare() {
-        println("Exo Prepare")
         player.prepare()
     }
 
@@ -201,45 +182,39 @@ class ExoPlayerWrapper(
 
 /**
  * See Implementation of [androidx.media3.common.audio.ChannelMixingAudioProcessor] for reference.
- * TODO: apply implementation of https://github.com/androidx/media/issues/797#issuecomment-1843369311
-  */
+ * See: https://github.com/androidx/media/blob/8ea49025aaf14c7e7d953df8ca2f08a76d9d4275/libraries/common/src/main/java/androidx/media3/common/audio/ChannelMixingAudioProcessor.java
+ */
 @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 class AdaptiveChannelMixingAudioProcessor : BaseAudioProcessor() {
     private val matrixByInputChannelCount: SparseArray<ChannelMixingMatrix?> = SparseArray<ChannelMixingMatrix?>()
 
     fun putChannelMixingMatrix(matrix: ChannelMixingMatrix) {
-        val inputChannelCount = matrix.inputChannelCount
-        matrixByInputChannelCount.put(inputChannelCount, matrix)
+        matrixByInputChannelCount.put(matrix.inputChannelCount, matrix)
     }
 
     @Throws(UnhandledAudioFormatException::class)
     override fun onConfigure(inputAudioFormat: AudioProcessor.AudioFormat): AudioProcessor.AudioFormat {
-        if (inputAudioFormat.encoding != 2) {
+        if (inputAudioFormat.encoding != C.ENCODING_PCM_16BIT) {
             throw UnhandledAudioFormatException(inputAudioFormat)
         } else {
-            val channelMixingMatrix = matrixByInputChannelCount[inputAudioFormat.channelCount]
-            if (channelMixingMatrix == null) {
-                throw UnhandledAudioFormatException("No mixing matrix for input channel count", inputAudioFormat)
-            } else {
-                return if (channelMixingMatrix.isIdentity) AudioProcessor.AudioFormat.NOT_SET else AudioProcessor.AudioFormat(
-                    inputAudioFormat.sampleRate,
-                    channelMixingMatrix.outputChannelCount,
-                    C.ENCODING_PCM_16BIT,
-                )
-            }
+            // We keep the same format; we're not altering the channel count.
+            return inputAudioFormat
         }
     }
 
-//    override fun isActive(): Boolean {
-//        return true
-//    }
-
     override fun queueInput(inputBuffer: ByteBuffer) {
-        val channelMixingMatrix = Assertions.checkStateNotNull(
-            matrixByInputChannelCount[inputAudioFormat.channelCount],
-        )
-        val inputFramesToMix = inputBuffer.remaining() / inputAudioFormat.bytesPerFrame
-        val outputBuffer = this.replaceOutputBuffer(inputFramesToMix * outputAudioFormat.bytesPerFrame)
+        val channelMixingMatrix = matrixByInputChannelCount[inputAudioFormat.channelCount]
+        if (channelMixingMatrix == null || channelMixingMatrix.isIdentity) {
+            // No need to transform, if balance is equalized.
+            val outputBuffer = this.replaceOutputBuffer(inputBuffer.remaining())
+            if (inputBuffer.hasRemaining()) {
+                outputBuffer.put(inputBuffer)
+            }
+            outputBuffer.flip()
+            return
+        }
+
+        val outputBuffer = this.replaceOutputBuffer(inputBuffer.remaining())
         val inputChannelCount = channelMixingMatrix.inputChannelCount
         val outputChannelCount = channelMixingMatrix.outputChannelCount
         val outputFrame = FloatArray(outputChannelCount)
@@ -262,14 +237,13 @@ class AdaptiveChannelMixingAudioProcessor : BaseAudioProcessor() {
             inputChannelIndex = 0
             while (inputChannelIndex < outputChannelCount) {
                 inputValue =
-                    Util.constrainValue(outputFrame[inputChannelIndex], -32768.0f, 32767.0f).toInt().toShort()
+                    outputFrame[inputChannelIndex].toInt().coerceIn(-32768, 32767).toShort()
                 outputBuffer.put((inputValue.toInt() and 255).toByte())
                 outputBuffer.put((inputValue.toInt() shr 8 and 255).toByte())
                 outputFrame[inputChannelIndex] = 0.0f
                 ++inputChannelIndex
             }
         }
-
         outputBuffer.flip()
     }
 }
