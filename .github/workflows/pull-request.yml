@@ -8,18 +8,17 @@ on:
       - ready_for_review
 
 jobs:
-  # Disable min flutter tests until version differs from latest supported version.
-#  call-min-flutter-test:
-#    uses: ./.github/workflows/test.yml
-#    with:
-#      flutter_version: '3.27.4'
-#      fatal_warnings: false
-#      enable_android: ${{ github.event.pull_request.draft == false }}
-#      enable_web: ${{ github.event.pull_request.draft == false }}
-#      enable_ios: ${{ github.event.pull_request.draft == false }}
-#      enable_windows: ${{ github.event.pull_request.draft == false }}
-#      enable_linux: ${{ github.event.pull_request.draft == false }}
-#      enable_macos: ${{ github.event.pull_request.draft == false }}
+  call-min-flutter-test:
+    uses: ./.github/workflows/test.yml
+    with:
+      flutter_version: '3.27.4'
+      fatal_warnings: false
+      enable_android: ${{ github.event.pull_request.draft == false }}
+      enable_web: ${{ github.event.pull_request.draft == false }}
+      enable_ios: ${{ github.event.pull_request.draft == false }}
+      enable_windows: ${{ github.event.pull_request.draft == false }}
+      enable_linux: ${{ github.event.pull_request.draft == false }}
+      enable_macos: ${{ github.event.pull_request.draft == false }}
   call-test:
     uses: ./.github/workflows/test.yml
     with:
