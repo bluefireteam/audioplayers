@@ -8,7 +8,7 @@ dependencies:
   collection: ^1.19.1
   flutter:
     sdk: flutter
-  meta: ^1.16.0
+  meta: ^1.15.0
   plugin_platform_interface: ^2.1.8
 
 dev_dependencies:
