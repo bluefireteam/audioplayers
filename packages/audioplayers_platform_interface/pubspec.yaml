@@ -5,14 +5,14 @@ homepage: https://github.com/bluefireteam/audioplayers
 repository: https://github.com/bluefireteam/audioplayers/tree/master/packages/audioplayers_platform_interface
 
 dependencies:
-  collection: ^1.19.0
+  collection: ^1.17.1
   flutter:
     sdk: flutter
-  meta: ^1.15.0
-  plugin_platform_interface: ^2.1.8
+  meta: ^1.7.0
+  plugin_platform_interface: ^2.0.2
 
 dev_dependencies:
-  flame_lint: ^1.2.2
+  flame_lint: ^1.0.0
   flutter_test:
     sdk: flutter
 

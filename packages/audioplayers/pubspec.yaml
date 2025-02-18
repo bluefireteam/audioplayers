@@ -31,13 +31,13 @@ dependencies:
   flutter:
     sdk: flutter
   http: '>=0.13.1 <2.0.0'
-  meta: ^1.15.0
-  path_provider: ^2.1.5
-  synchronized: ^3.3.0+3
+  meta: ^1.7.0
+  path_provider: ^2.0.12
+  synchronized: ^3.0.0
   uuid: '>=3.0.7 <5.0.0'
 
 dev_dependencies:
-  flame_lint: ^1.2.2
+  flame_lint: ^1.0.0
   flutter_test:
     sdk: flutter
 
