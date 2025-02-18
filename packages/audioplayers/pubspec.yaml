@@ -33,7 +33,7 @@ dependencies:
   http: '>=0.13.1 <2.0.0'
   meta: ^1.15.0
   path_provider: ^2.1.5
-  synchronized: ^3.3.1
+  synchronized: ^3.3.0+3
   uuid: '>=3.0.7 <5.0.0'
 
 dev_dependencies:
