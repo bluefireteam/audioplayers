@@ -24,6 +24,9 @@ class AudioPool {
   /// Instance of [AudioCache] to be used by all players.
   final AudioCache audioCache;
 
+  /// Platform specific configuration.
+  final AudioContext? audioContext;
+
   /// The source of the sound for this pool.
   final Source source;
 
@@ -44,6 +47,7 @@ class AudioPool {
     required this.minPlayers,
     required this.maxPlayers,
     required this.source,
+    required this.audioContext,
     AudioCache? audioCache,
   }) : audioCache = audioCache ?? AudioCache.instance;
 
@@ -52,6 +56,7 @@ class AudioPool {
     required Source source,
     required int maxPlayers,
     AudioCache? audioCache,
+    AudioContext? audioContext,
     int minPlayers = 1,
   }) async {
     final instance = AudioPool._(
@@ -59,6 +64,7 @@ class AudioPool {
       audioCache: audioCache,
       maxPlayers: maxPlayers,
       minPlayers: minPlayers,
+      audioContext: audioContext,
     );
 
     final players = await Future.wait(
@@ -119,6 +125,9 @@ class AudioPool {
 
   Future<AudioPlayer> _createNewAudioPlayer() async {
     final player = AudioPlayer()..audioCache = audioCache;
+    if (audioContext != null) {
+      await player.setAudioContext(audioContext!);
+    }
     await player.setSource(source);
     await player.setReleaseMode(ReleaseMode.stop);
     return player;
