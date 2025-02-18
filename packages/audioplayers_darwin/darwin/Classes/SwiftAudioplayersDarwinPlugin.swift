@@ -105,7 +105,8 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
             result(
               FlutterError(
                 code: "DarwinAudioError",
-                message: "Error calling setAudioContext, context could not be parsed", details: nil))
+                message: "Error calling setAudioContext, context could not be parsed",
+                details: nil))
             return
           }
           globalContext = context
@@ -300,7 +301,8 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
             result(
               FlutterError(
                 code: "DarwinAudioError",
-                message: "Error calling setAudioContext, context could not be parsed", details: nil))
+                message: "Error calling setAudioContext, context could not be parsed",
+                details: nil))
             return
           }
           globalContext = context
