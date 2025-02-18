@@ -211,6 +211,8 @@ static void audioplayers_linux_plugin_handle_method_call(
     } else if (strcmp(method, "setPlayerMode") == 0) {
       // TODO check support for low latency mode:
       // https://gstreamer.freedesktop.org/documentation/additional/design/latency.html?gi-language=c
+    } else if (strcmp(method, "setAudioContext") == 0) {
+      player->OnLog("Setting AudioContext is not supported on Linux");
     } else if (strcmp(method, "setBalance") == 0) {
       auto flBalance = fl_value_lookup_string(args, "balance");
       double balance =
