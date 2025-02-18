@@ -1,3 +1,7 @@
+## 5.0.3
+
+ - **FIX**: Raise Android SDK versions ([#1885](https://github.com/bluefireteam/audioplayers/issues/1885)). ([7230bc84](https://github.com/bluefireteam/audioplayers/commit/7230bc84d9dfb0cccfbe5bacb971ef3698495176))
+
 ## 5.0.2
 
  - **FIX**: Change audioFocus dynamically ([#1877](https://github.com/bluefireteam/audioplayers/issues/1877)). ([14f16d9d](https://github.com/bluefireteam/audioplayers/commit/14f16d9dfc52e2eca989e0cc6a27decb8e96af83))
