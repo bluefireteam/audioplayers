@@ -29,7 +29,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'de.mannodermaus.android-junit5'
 
 android {
-    compileSdk 33
+    compileSdk 35
 
     // Conditional for compatibility with AGP <4.2.
     if (project.android.hasProperty('namespace')) {
@@ -50,7 +50,7 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 19
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
