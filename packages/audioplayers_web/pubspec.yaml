@@ -20,7 +20,7 @@ dependencies:
   web: '>=0.5.1 <2.0.0'
 
 dev_dependencies:
-  flame_lint: ^1.0.0
+  flame_lint: ^1.2.2
   flutter_test:
     sdk: flutter
 
