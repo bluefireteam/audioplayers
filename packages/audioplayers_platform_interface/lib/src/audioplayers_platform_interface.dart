@@ -88,6 +88,12 @@ abstract class MethodChannelAudioplayersPlatformInterface {
   /// Android SDK version should be 23 or higher
   Future<void> setPlaybackRate(String playerId, double playbackRate);
 
+  /// Switching the external playback mode
+  Future<void> setAllowsExternalPlayback(
+    String playerId, {
+    required bool allows,
+  });
+
   /// Configures the player to read the audio from a URL.
   ///
   /// The resources will start being fetched or buffered as soon as you call

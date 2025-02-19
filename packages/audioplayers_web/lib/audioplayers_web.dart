@@ -100,6 +100,14 @@ class WebAudioplayersPlatform extends AudioplayersPlatformInterface {
   }
 
   @override
+  Future<void> setAllowsExternalPlayback(
+    String playerId, {
+    required bool allows,
+  }) async {
+    // no-op: web doesn't have external playback, it supports only iOS, macOS
+  }
+
+  @override
   Future<void> setReleaseMode(String playerId, ReleaseMode releaseMode) async {
     getPlayer(playerId).releaseMode = releaseMode;
   }
