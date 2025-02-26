@@ -332,6 +332,14 @@ void main() async {
         testWidgets(
           '#durationEvent ${td.source}',
           (tester) async {
+            // Wait for duration before event is emitted.
+            final durationFuture = tester
+                .getDurationFromEvent(
+                  playerId: playerId,
+                  platform: platform,
+                )
+                .timeout(_defaultTimeout);
+
             await tester.prepareSource(
               playerId: playerId,
               platform: platform,
@@ -340,12 +348,7 @@ void main() async {
             );
 
             expect(
-              await tester
-                  .getDurationFromEvent(
-                    playerId: playerId,
-                    platform: platform,
-                  )
-                  .timeout(_defaultTimeout),
+              await durationFuture,
               (Duration? actual) => durationRangeMatcher(
                 actual,
                 td.duration,
