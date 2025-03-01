@@ -79,7 +79,6 @@ class ExoPlayerWrapper(
                 context: Context,
                 enableFloatOutput: Boolean,
                 enableAudioTrackPlaybackParams: Boolean,
-                enableOffload: Boolean,
             ): AudioSink {
                 audioSink =
                     DefaultAudioSink.Builder(appContext).setAudioProcessors(arrayOf(channelMixingAudioProcessor))
