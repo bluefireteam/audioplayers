@@ -227,6 +227,8 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
     }
   } else if (method_call.method_name().compare("setPlayerMode") == 0) {
     // windows doesn't have multiple player modes, so this should no-op
+  } else if (method_call.method_name().compare("setAudioContext") == 0) {
+    player->OnLog("Setting AudioContext is not supported on Windows");
   } else if (method_call.method_name().compare("setBalance") == 0) {
     auto balance = GetArgument<double>("balance", args, 0.0);
     player->SetBalance(balance);

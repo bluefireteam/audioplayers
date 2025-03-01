@@ -1,3 +1,9 @@
+## 6.2.0
+
+ - **FIX**: No-op on single player setAudioContext in desktop platforms ([#1888](https://github.com/bluefireteam/audioplayers/issues/1888)). ([50d7a8b8](https://github.com/bluefireteam/audioplayers/commit/50d7a8b89f47e3ef29e98cf2b74a582f78783d5e))
+ - **FEAT**: Support setting AudioContext in AudioPool ([#1890](https://github.com/bluefireteam/audioplayers/issues/1890)). ([2968c88b](https://github.com/bluefireteam/audioplayers/commit/2968c88b4e1492a29d4cd0e5f7735f159f995c1a))
+ - **FEAT**: ReleaseMode.release for ios, macos, windows, web, linux ([#1790](https://github.com/bluefireteam/audioplayers/issues/1790)). ([4ffc4029](https://github.com/bluefireteam/audioplayers/commit/4ffc4029d846d7c391c457b829c372c1763b7b50))
+
 ## 6.1.2
 
  - Update a dependency to the latest release.

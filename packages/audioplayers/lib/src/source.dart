@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:audioplayers/src/audioplayer.dart';
 import 'package:flutter/foundation.dart';
 
@@ -27,7 +29,8 @@ class UrlSource extends Source {
 
   @override
   String toString() {
-    return 'UrlSource(url: $url, mimeType: $mimeType)';
+    return 'UrlSource(url: ${url.substring(0, min(500, url.length))},'
+        ' mimeType: $mimeType)';
   }
 }
 

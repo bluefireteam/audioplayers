@@ -332,6 +332,14 @@ void main() async {
         testWidgets(
           '#durationEvent ${td.source}',
           (tester) async {
+            // Wait for duration before event is emitted.
+            final durationFuture = tester
+                .getDurationFromEvent(
+                  playerId: playerId,
+                  platform: platform,
+                )
+                .timeout(_defaultTimeout);
+
             await tester.prepareSource(
               playerId: playerId,
               platform: platform,
@@ -340,12 +348,7 @@ void main() async {
             );
 
             expect(
-              await tester
-                  .getDurationFromEvent(
-                    playerId: playerId,
-                    platform: platform,
-                  )
-                  .timeout(_defaultTimeout),
+              await durationFuture,
               (Duration? actual) => durationRangeMatcher(
                 actual,
                 td.duration,
@@ -471,6 +474,22 @@ extension on WidgetTester {
     required LibSourceTestData testData,
     bool waitForDurationEvent = true,
   }) async {
+    final Future<void>? durationFuture;
+
+    if (waitForDurationEvent &&
+        testData.duration != null &&
+        canDetermineDuration(testData)) {
+      // Need to wait for the duration event,
+      // otherwise it gets fired/received after the test has ended,
+      // and therefore then ends up being received in the next test.
+      durationFuture = getDurationFromEvent(
+        playerId: playerId,
+        platform: platform,
+      );
+    } else {
+      durationFuture = null;
+    }
+
     final eventStream = platform.getEventStream(playerId);
     final preparedFuture = eventStream
         .firstWhere(
@@ -499,16 +518,8 @@ extension on WidgetTester {
     // Wait simultaneously to ensure all errors are propagated through the same
     // future.
     await Future.wait([setSourceFuture, preparedFuture]);
-    if (waitForDurationEvent &&
-        testData.duration != null &&
-        canDetermineDuration(testData)) {
-      // Need to wait for the duration event,
-      // otherwise it gets fired/received after the test has ended,
-      // and therefore then ends up being received in the next test.
-      await getDurationFromEvent(
-        playerId: playerId,
-        platform: platform,
-      );
+    if (durationFuture != null) {
+      await durationFuture;
     }
   }
 
