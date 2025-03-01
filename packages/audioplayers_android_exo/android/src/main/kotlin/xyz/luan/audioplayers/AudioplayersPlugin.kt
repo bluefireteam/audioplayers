@@ -161,7 +161,7 @@ class AudioplayersPlugin : FlutterPlugin {
 
                 "setPlayerMode" -> {
                     val playerMode = call.enumArgument<PlayerMode>("playerMode") ?: error("playerMode is required")
-                    if(playerMode == PlayerMode.LOW_LATENCY) {
+                    if (playerMode == PlayerMode.LOW_LATENCY) {
                         player.handleError(
                             "AndroidAudioError",
                             "PlayerMode LowLatency is not supported for Exoplayer",
