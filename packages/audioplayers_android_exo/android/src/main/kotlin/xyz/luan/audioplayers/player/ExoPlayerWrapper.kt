@@ -156,7 +156,6 @@ class ExoPlayerWrapper(
             builder.build(),
             false,
         )
-
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -165,7 +164,7 @@ class ExoPlayerWrapper(
         if (source is UrlSource) {
             player.setMediaItem(MediaItem.fromUri(source.url))
         } else if (source is BytesSource) {
-            val byteArrayDataSource = ByteArrayDataSource(source.data);
+            val byteArrayDataSource = ByteArrayDataSource(source.data)
             val factory = DataSource.Factory { byteArrayDataSource; }
             val mediaSource: MediaSource = ProgressiveMediaSource.Factory(factory).createMediaSource(
                 MediaItem.fromUri(Uri.EMPTY),
@@ -177,7 +176,6 @@ class ExoPlayerWrapper(
     override fun prepare() {
         player.prepare()
     }
-
 }
 
 /**
