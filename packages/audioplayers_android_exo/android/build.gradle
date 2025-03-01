@@ -29,7 +29,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'de.mannodermaus.android-junit5'
 
 android {
-    compileSdk 33
+    compileSdk 35
 
     // Conditional for compatibility with AGP <4.2.
     if (project.android.hasProperty('namespace')) {
@@ -50,7 +50,7 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 19
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -69,9 +69,9 @@ allprojects {
 
 dependencies {
     implementation "androidx.core:core-ktx:1.9.0" // Do not pump unless dropping support for AGP7
-    implementation 'androidx.media3:media3-exoplayer:1.1.1'
-    implementation "androidx.media3:media3-exoplayer-dash:1.1.1"
-    implementation 'androidx.media3:media3-transformer:1.1.1'
+    implementation 'androidx.media3:media3-exoplayer:1.5.1'
+    implementation "androidx.media3:media3-exoplayer-dash:1.5.1"
+    implementation 'androidx.media3:media3-transformer:1.5.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
