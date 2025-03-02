@@ -23,15 +23,17 @@ echo "ANDROID_CMDLINE_TOOLS=$ANDROID_CMDLINE_TOOLS" >> "$GITHUB_ENV"
 echo "ANDROID_CMDLINE_TOOLS: $ANDROID_CMDLINE_TOOLS"
 
 # Install the Android system image and create AVD
+AVD_IMAGE="system-images;android-$ANDROID_SDK_VERSION;$ANDROID_SYSTEM_IMAGE_SOURCE;$ANDROID_ABI"
+echo "Create AVD with Image: $AVD_IMAGE"
 mkdir -p "$ANDROID_AVD_HOME"
-echo "y" | "$ANDROID_CMDLINE_TOOLS"/sdkmanager --install "system-images;android-$ANDROID_SDK_VERSION;$ANDROID_SYSTEM_IMAGE_SOURCE;$ANDROID_ABI"
-echo "no" | "$ANDROID_CMDLINE_TOOLS"/avdmanager create avd --force --name emu --device "Nexus 5X" -k "system-images;android-$ANDROID_SDK_VERSION;$ANDROID_SYSTEM_IMAGE_SOURCE;$ANDROID_ABI"
+echo "y" | "$ANDROID_CMDLINE_TOOLS"/sdkmanager --install "$AVD_IMAGE"
+echo "no" | "$ANDROID_CMDLINE_TOOLS"/avdmanager create avd --force --name emu --device "Nexus 5X" -k "$AVD_IMAGE"
 
-# List available AVDs
+echo "List available AVDs"
 "$ANDROID_HOME"/emulator/emulator -list-avds
 
-# Install platform tools
-"$ANDROID_CMDLINE_TOOLS"/sdkmanager "platform-tools" "platforms;android-35"
+echo "Install platform tools"
+"$ANDROID_CMDLINE_TOOLS"/sdkmanager "platform-tools"
 
 # Start Emulator
 echo "Starting emulator"
