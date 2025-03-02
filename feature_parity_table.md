@@ -4,9 +4,28 @@ Not every feature is available on every platform yet. Use this table to keep tra
 
 If you would like to assist us implement a missing feature, please browse the [issue tracker](https://github.com/bluefireteam/audioplayers/issues) and reach out to us on our [Discord](https://discord.gg/pxrBmy4) server so we can coordinate efforts.
 
-## Note on Android Support
+## Note on Android
 
-Giving support to old Android devices is very hard, on this plugin we set the minSdk as 16, but we only ensure support >= 23 as that is the minimum version that the team has devices available to test changes and new features.
+### Media3 ExoPlayer
+
+We are going to switch from the internal [Android MediaPlayer](https://developer.android.com/reference/android/media/MediaPlayer) to the recommended [Media3 ExoPlayer](https://developer.android.com/media/media3).
+We still endorse the old media player until we are sure, the Media3 implementation fulfills all the needs.
+
+You already can try the Media3 implementation by adding `audioplayers_android_exo` to your apps `pubspec.yaml`.
+This [overrides](https://docs.flutter.dev/packages-and-plugins/developing-packages#non-endorsed-federated-plugin) our endorsed Android plugin implementation `audioplayers_android`:
+
+```yaml
+dependencies:
+  # ...
+  audioplayers: any
+  audioplayers_android_exo: any
+```
+
+For more, see the [audioplayers_android_exo](https://github.com/bluefireteam/audioplayers/blob/main/packages/audioplayers_android_exo/README.md) package.
+
+### Support for old SDKs
+
+Giving support to old Android devices is very hard, on this plugin we set the minSdk as 19, but we only ensure support >= 23 as that is the minimum version that the team has devices available to test changes and new features.
 
 This mean that, audioplayers should work on older devices, but we can't give any guarantees, we will not be able to look after issues regarding API < 23. But we would gladly take any pull requests from the community that fixes or improve support on those old versions.
 
@@ -35,7 +54,7 @@ Note: LLM means Low Latency Mode.
         <tr><td colspan="7"><strong>Audio Config</strong></td></tr>
         <tr><td>set url</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr>
         <tr><td>audio cache (pre-load)</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr>
-        <tr><td>low latency mode</td><td>SDK >=21</td><td>no</td><td>no</td><td>no</td><td>no</td><td>no</td></tr>
+        <tr><td>low latency mode</td><td>SDK >=21 (except `audioplayers_android_exo`) </td><td>no</td><td>no</td><td>no</td><td>no</td><td>no</td></tr>
         <tr><td colspan="7"><strong>Audio Control Commands</strong></td></tr>
         <tr><td>resume / pause / stop</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr>
         <tr><td>release</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr>

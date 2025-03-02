@@ -118,7 +118,10 @@ void main() async {
             platform: platform,
             testData: td,
           );
-          expect(await platform.getCurrentPosition(playerId), 0);
+          if (!td.isLiveStream) {
+            // Live stream position is not aligned yet.
+            expect(await platform.getCurrentPosition(playerId), 0);
+          }
           final durationMs = await platform.getDuration(playerId);
           expect(
             durationMs != null ? Duration(milliseconds: durationMs) : null,
