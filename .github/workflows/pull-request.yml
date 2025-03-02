@@ -13,7 +13,7 @@ jobs:
     with:
       flutter_version: '3.27.4'
       fatal_warnings: false
-      enable_android: ${{ github.event.pull_request.draft == false }}
+      enable_android: true
       enable_web: ${{ github.event.pull_request.draft == false }}
       enable_ios: ${{ github.event.pull_request.draft == false }}
       enable_windows: ${{ github.event.pull_request.draft == false }}
@@ -22,7 +22,7 @@ jobs:
   call-test:
     uses: ./.github/workflows/test.yml
     with:
-      enable_android: ${{ github.event.pull_request.draft == false }}
+      enable_android: true
       enable_web: ${{ github.event.pull_request.draft == false }}
       enable_ios: ${{ github.event.pull_request.draft == false }}
       enable_windows: ${{ github.event.pull_request.draft == false }}
