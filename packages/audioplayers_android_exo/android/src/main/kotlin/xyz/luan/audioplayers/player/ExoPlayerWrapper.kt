@@ -112,7 +112,8 @@ class ExoPlayerWrapper(
     }
 
     override fun stop() {
-        player.stop()
+        player.pause()
+        player.seekTo(0)
     }
 
     override fun seekTo(position: Int) {
