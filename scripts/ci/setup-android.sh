@@ -17,16 +17,21 @@ echo "Setting up Android environment for API level $ANDROID_SDK_VERSION"
 export ANDROID_AVD_HOME="$HOME/.android/avd"
 echo "ANDROID_AVD_HOME=$ANDROID_AVD_HOME" >> "$GITHUB_ENV"
 echo "ANDROID_AVD_HOME: $ANDROID_AVD_HOME"
+mkdir -p "$ANDROID_AVD_HOME"
 
 export ANDROID_CMDLINE_TOOLS="$ANDROID_HOME/cmdline-tools/latest/bin"
 echo "ANDROID_CMDLINE_TOOLS=$ANDROID_CMDLINE_TOOLS" >> "$GITHUB_ENV"
 echo "ANDROID_CMDLINE_TOOLS: $ANDROID_CMDLINE_TOOLS"
 
-# Install the Android system image and create AVD
+echo "Install Android Emulator"
+"$ANDROID_CMDLINE_TOOLS"/sdkmanager --install "emulator"
+
 AVD_IMAGE="system-images;android-$ANDROID_SDK_VERSION;$ANDROID_SYSTEM_IMAGE_SOURCE;$ANDROID_ABI"
-echo "Create AVD with Image: $AVD_IMAGE"
-mkdir -p "$ANDROID_AVD_HOME"
+
+echo "Install Android System Image: $AVD_IMAGE"
 echo "y" | "$ANDROID_CMDLINE_TOOLS"/sdkmanager --install "$AVD_IMAGE"
+
+echo "Create AVD with Image: $AVD_IMAGE"
 echo "no" | "$ANDROID_CMDLINE_TOOLS"/avdmanager create avd --force --name emu --device "Nexus 5X" -k "$AVD_IMAGE"
 
 echo "List available AVDs"
