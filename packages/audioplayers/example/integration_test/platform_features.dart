@@ -1,5 +1,10 @@
 import 'package:flutter/foundation.dart';
 
+const testFeatureBytesSource = bool.fromEnvironment(
+  'TEST_FEATURE_BYTES_SOURCE',
+  defaultValue: true,
+);
+
 /// Specify supported features for a platform.
 class PlatformFeatures {
   static const webPlatformFeatures = PlatformFeatures(
@@ -16,6 +21,8 @@ class PlatformFeatures {
 
   static const androidPlatformFeatures = PlatformFeatures(
     hasRecordingActive: false,
+    // ignore: avoid_redundant_argument_values
+    hasBytesSource: testFeatureBytesSource,
   );
 
   static const iosPlatformFeatures = PlatformFeatures(
