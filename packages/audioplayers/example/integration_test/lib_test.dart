@@ -80,16 +80,20 @@ void main() async {
     await player.dispose();
   });
 
-  testWidgets('bytes array source', (WidgetTester tester) async {
-    final player = AudioPlayer();
+  testWidgets(
+    'bytes array source',
+    (WidgetTester tester) async {
+      final player = AudioPlayer();
 
-    await player.play((await mp3BytesTestData()).source);
-    // Sources take some time to get initialized
-    await tester.pumpPlatform(const Duration(seconds: 8));
-    await player.stop();
+      await player.play((await mp3BytesTestData()).source);
+      // Sources take some time to get initialized
+      await tester.pumpPlatform(const Duration(seconds: 8));
+      await player.stop();
 
-    await player.dispose();
-  });
+      await player.dispose();
+    },
+    skip: !features.hasBytesSource,
+  );
 
   group('AP events', () {
     late AudioPlayer player;
