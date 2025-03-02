@@ -191,6 +191,7 @@ jobs:
           channel: ${{ inputs.flutter_channel }}
       - uses: bluefireteam/melos-action@v3
       - name: Setup Android Emulator
+        timeout-minutes: 10
         run: bash ./scripts/ci/setup-android.sh 21 default
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
@@ -213,6 +214,7 @@ jobs:
           channel: ${{ inputs.flutter_channel }}
       - uses: bluefireteam/melos-action@v3
       - name: Setup Android Emulator
+        timeout-minutes: 10
         run: bash ./scripts/ci/setup-android.sh 35
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
