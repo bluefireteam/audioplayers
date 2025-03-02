@@ -191,7 +191,7 @@ jobs:
           channel: ${{ inputs.flutter_channel }}
       - uses: bluefireteam/melos-action@v3
       - name: Setup Android Emulator
-        run: bash scripts/ci/setup-android.sh 21 default
+        run: ./scripts/ci/setup-android.sh 21 default
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
@@ -213,7 +213,7 @@ jobs:
           channel: ${{ inputs.flutter_channel }}
       - uses: bluefireteam/melos-action@v3
       - name: Setup Android Emulator
-        run: scripts/ci/setup-android.sh 35
+        run: ./scripts/ci/setup-android.sh 35
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
