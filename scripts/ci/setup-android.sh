@@ -3,7 +3,7 @@ set -e
 
 ANDROID_SDK_VERSION=${1:-35} # Default to 30 if no version is provided
 
-# Enable KVM permissions
+echo "Enable KVM permissions"
 # see: https://github.com/actions/runner-images/discussions/7191
 echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
 sudo udevadm control --reload-rules
