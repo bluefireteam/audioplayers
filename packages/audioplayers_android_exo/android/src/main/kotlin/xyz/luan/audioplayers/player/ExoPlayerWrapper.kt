@@ -93,6 +93,9 @@ class ExoPlayerWrapper(
     }
 
     override fun getDuration(): Int? {
+        if (player.isCurrentMediaItemLive) {
+            return null
+        }
         return (player.duration.takeUnless { it == TIME_UNSET })?.toInt()
     }
 
