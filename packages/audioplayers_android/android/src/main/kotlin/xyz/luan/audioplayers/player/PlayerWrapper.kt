@@ -12,7 +12,6 @@ interface PlayerWrapper {
     fun pause()
     fun stop()
     fun seekTo(position: Int)
-    fun release()
 
     fun setVolume(leftVolume: Float, rightVolume: Float)
     fun setRate(rate: Float)
@@ -21,5 +20,6 @@ interface PlayerWrapper {
     fun setSource(source: Source)
 
     fun prepare()
+    fun release()
     fun reset()
 }
