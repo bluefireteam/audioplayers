@@ -3,7 +3,6 @@ package xyz.luan.audioplayers.source
 import android.media.MediaPlayer
 import android.os.Build
 import androidx.annotation.RequiresApi
-import xyz.luan.audioplayers.ByteDataSource
 import xyz.luan.audioplayers.player.SoundPoolPlayer
 
 @RequiresApi(Build.VERSION_CODES.M)
