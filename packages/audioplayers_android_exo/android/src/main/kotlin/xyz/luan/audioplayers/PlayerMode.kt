@@ -1,5 +1,1 @@
-package xyz.luan.audioplayers
-
-enum class PlayerMode {
-    MEDIA_PLAYER, LOW_LATENCY
-}
+../../../../../../../../audioplayers_android/android/src/main/kotlin/xyz/luan/audioplayers/PlayerMode.kt
