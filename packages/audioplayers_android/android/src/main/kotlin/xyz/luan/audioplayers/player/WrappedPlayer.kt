@@ -22,7 +22,7 @@ class WrappedPlayer internal constructor(
     var context: AudioContextAndroid,
     private val soundPoolManager: SoundPoolManager,
 ) {
-    private var player: Player? = null
+    private var player: PlayerWrapper? = null
 
     var source: Source? = null
         set(value) {
@@ -139,7 +139,7 @@ class WrappedPlayer internal constructor(
         return runCatching { player?.getCurrentPosition().takeUnless { it == 0 } }.getOrNull() ?: -1
     }
 
-    private fun getOrCreatePlayer(): Player {
+    private fun getOrCreatePlayer(): PlayerWrapper {
         val currentPlayer = player
         return if (released || currentPlayer == null) {
             createPlayer().also {
@@ -356,9 +356,9 @@ class WrappedPlayer internal constructor(
     /**
      * Create new player
      */
-    private fun createPlayer(): Player {
+    private fun createPlayer(): PlayerWrapper {
         return when (playerMode) {
-            MEDIA_PLAYER -> MediaPlayerPlayer(this)
+            MEDIA_PLAYER -> MediaPlayerWrapper(this)
             LOW_LATENCY -> SoundPoolPlayer(this, soundPoolManager)
         }
     }
@@ -376,13 +376,13 @@ class WrappedPlayer internal constructor(
         }
     }
 
-    private fun Player.configAndPrepare() {
+    private fun PlayerWrapper.configAndPrepare() {
         setVolumeAndBalance(volume, balance)
         setLooping(isLooping)
         prepare()
     }
 
-    private fun Player.setVolumeAndBalance(volume: Float, balance: Float) {
+    private fun PlayerWrapper.setVolumeAndBalance(volume: Float, balance: Float) {
         val leftVolume = min(1f, 1f - balance) * volume
         val rightVolume = min(1f, 1f + balance) * volume
         setVolume(leftVolume, rightVolume)

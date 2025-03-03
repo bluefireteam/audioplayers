@@ -20,7 +20,7 @@ private const val MAX_STREAMS = 32
 class SoundPoolPlayer(
     val wrappedPlayer: WrappedPlayer,
     private val soundPoolManager: SoundPoolManager,
-) : Player {
+) : PlayerWrapper {
     private val mainScope = CoroutineScope(Dispatchers.Main)
 
     /** The id of the sound of source which will be played */

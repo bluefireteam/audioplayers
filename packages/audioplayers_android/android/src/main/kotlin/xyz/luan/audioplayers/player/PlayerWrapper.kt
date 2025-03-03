@@ -3,7 +3,7 @@ package xyz.luan.audioplayers.player
 import xyz.luan.audioplayers.AudioContextAndroid
 import xyz.luan.audioplayers.source.Source
 
-interface Player {
+interface PlayerWrapper {
     fun getDuration(): Int?
     fun getCurrentPosition(): Int?
     fun isLiveStream(): Boolean
