@@ -3,14 +3,14 @@ package xyz.luan.audioplayers.source
 import android.media.MediaPlayer
 import android.os.Build
 import androidx.annotation.RequiresApi
-import xyz.luan.audioplayers.ByteDataSource
+import xyz.luan.audioplayers.BytesSource
 import xyz.luan.audioplayers.player.SoundPoolPlayer
 
 @RequiresApi(Build.VERSION_CODES.M)
 data class BytesSource(
-    val dataSource: ByteDataSource,
+    val dataSource: BytesSource,
 ) : Source {
-    constructor(bytes: ByteArray) : this(ByteDataSource(bytes))
+    constructor(bytes: ByteArray) : this(BytesSource(bytes))
 
     override fun setForMediaPlayer(mediaPlayer: MediaPlayer) {
         mediaPlayer.setDataSource(dataSource)

@@ -5,7 +5,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 
 @RequiresApi(Build.VERSION_CODES.M)
-class ByteDataSource(
+class BytesSource(
     private val data: ByteArray,
 ) : MediaDataSource() {
     @Synchronized
