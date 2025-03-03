@@ -225,7 +225,7 @@ jobs:
       - uses: bluefireteam/melos-action@v3
       - name: Setup Android Emulator
         timeout-minutes: 10
-        run: bash ./scripts/ci/setup-android.sh 35
+        run: bash ./scripts/ci/setup-android.sh 30
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
