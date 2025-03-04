@@ -6,9 +6,9 @@ import android.os.PowerManager
 import xyz.luan.audioplayers.AudioContextAndroid
 import xyz.luan.audioplayers.source.Source
 
-class MediaPlayerPlayer(
+class MediaPlayerWrapper(
     private val wrappedPlayer: WrappedPlayer,
-) : Player {
+) : PlayerWrapper {
     private val mediaPlayer = createMediaPlayer(wrappedPlayer)
 
     private fun createMediaPlayer(wrappedPlayer: WrappedPlayer): MediaPlayer {

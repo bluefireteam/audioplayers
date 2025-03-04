@@ -10,6 +10,11 @@ const testFeaturePlaybackRate = bool.fromEnvironment(
   defaultValue: true,
 );
 
+const testFeatureLowLatency = bool.fromEnvironment(
+  'TEST_FEATURE_LOW_LATENCY',
+  defaultValue: true,
+);
+
 /// Specify supported features for a platform.
 class PlatformFeatures {
   static const webPlatformFeatures = PlatformFeatures(
@@ -30,6 +35,8 @@ class PlatformFeatures {
     hasBytesSource: testFeatureBytesSource,
     // ignore: avoid_redundant_argument_values
     hasPlaybackRate: testFeaturePlaybackRate,
+    // ignore: avoid_redundant_argument_values
+    hasLowLatency: testFeatureLowLatency,
   );
 
   static const iosPlatformFeatures = PlatformFeatures(

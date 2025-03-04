@@ -398,6 +398,6 @@ void main() async {
         await player.stop();
       });
     },
-    skip: !isAndroid,
+    skip: !features.hasLowLatency,
   );
 }

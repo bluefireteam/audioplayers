@@ -1,4 +1,4 @@
-package xyz.luan.audioplayers
+package xyz.luan.audioplayers.source
 
 import android.media.MediaDataSource
 import android.os.Build
