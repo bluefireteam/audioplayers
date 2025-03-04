@@ -58,6 +58,12 @@ on:
         required: false
         default: true
         type: boolean
+      enable_min_version:
+        description: 'Test Platform min version'
+        required: false
+        default: false
+        type: boolean
+
   workflow_call:
     inputs:
       flutter_version:
@@ -95,6 +101,10 @@ on:
       enable_macos:
         required: false
         default: true
+        type: boolean
+      enable_min_version:
+        required: false
+        default: false
         type: boolean
 
 jobs:
@@ -179,45 +189,43 @@ jobs:
            --web-browser-flag="--disable-web-security" \
            --dart-define USE_LOCAL_SERVER=true
 
-  android:
+  android-min:
     runs-on: ubuntu-latest
     timeout-minutes: 90
-    if: inputs.enable_android
+    if: inputs.enable_min_version && inputs.enable_android
     steps:
-      - name: Set env vars
-        run: |
-          echo "ANDROID_AVD_HOME=$HOME/.android/avd" >> $GITHUB_ENV
-          echo "ANDROID_CMDLINE_TOOLS=$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_ENV
-          echo "ANDROID_CMDLINE_TOOLS: $ANDROID_CMDLINE_TOOLS"
-          echo "ANDROID_AVD_HOME: $ANDROID_AVD_HOME"
       - uses: actions/checkout@v4
-      - name: Enable KVM group perms
-        # see: https://github.com/actions/runner-images/discussions/7191
-        run: |
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-          sudo udevadm control --reload-rules
-          sudo udevadm trigger --name-match=kvm
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ inputs.flutter_version }}
           channel: ${{ inputs.flutter_channel }}
       - uses: bluefireteam/melos-action@v3
-
-      - name: Download Android emulator image
-        run: |
-          mkdir -p $ANDROID_AVD_HOME
-          echo "y" | $ANDROID_CMDLINE_TOOLS/sdkmanager --install "system-images;android-30;aosp_atd;x86_64"
-          echo "no" | $ANDROID_CMDLINE_TOOLS/avdmanager create avd --force --name emu --device "Nexus 5X" -k "system-images;android-30;aosp_atd;x86_64"
-      - run: $ANDROID_HOME/emulator/emulator -list-avds
-      - name: Start Android emulator
+      - name: Setup Android Emulator
         timeout-minutes: 10
+        run: bash ./scripts/ci/setup-android.sh 21 default
+      - name: Run Flutter integration tests
+        working-directory: ./packages/audioplayers/example
+        # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         run: |
-          echo "Starting emulator"
-          $ANDROID_CMDLINE_TOOLS/sdkmanager "platform-tools" "platforms;android-30"
-          nohup $ANDROID_HOME/emulator/emulator -avd emu -no-audio -no-snapshot -no-window &
-          $ANDROID_HOME/platform-tools/adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed | tr -d '\r') ]]; do sleep 1; done; input keyevent 82'
-          $ANDROID_HOME/platform-tools/adb devices
-          echo "Emulator started"
+          ( cd server; dart run bin/server.dart ) &
+          flutter test integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true --dart-define TEST_FEATURE_LOW_LATENCY=false --dart-define TEST_FEATURE_BYTES_SOURCE=false --dart-define TEST_FEATURE_PLAYBACK_RATE=false
+          flutter test integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true --dart-define TEST_FEATURE_LOW_LATENCY=false --dart-define TEST_FEATURE_BYTES_SOURCE=false --dart-define TEST_FEATURE_PLAYBACK_RATE=false
+          flutter test integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true --dart-define TEST_FEATURE_LOW_LATENCY=false --dart-define TEST_FEATURE_BYTES_SOURCE=false --dart-define TEST_FEATURE_PLAYBACK_RATE=false
+
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    if: inputs.enable_android
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ inputs.flutter_version }}
+          channel: ${{ inputs.flutter_channel }}
+      - uses: bluefireteam/melos-action@v3
+      - name: Setup Android Emulator
+        timeout-minutes: 10
+        run: bash ./scripts/ci/setup-android.sh 30
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
@@ -226,16 +234,15 @@ jobs:
           flutter test integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true --dart-define TEST_FEATURE_LOW_LATENCY=false
           flutter test integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true --dart-define TEST_FEATURE_LOW_LATENCY=false
           flutter test integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true --dart-define TEST_FEATURE_LOW_LATENCY=false
-
       - name: Run Android unit tests
         working-directory: ./packages/audioplayers/example/android
         run: ./gradlew test
 
-  ios-16:
+  ios-min:
     # Run lib tests only to ensure compatibility with iOS 16.
     runs-on: macos-13
     timeout-minutes: 60
-    if: inputs.enable_ios
+    if: inputs.enable_min_version && inputs.enable_ios
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
@@ -256,7 +263,7 @@ jobs:
           ( cd server; dart run bin/server.dart ) &
           flutter test -d $UDID integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
 
-  ios-17:
+  ios:
     runs-on: macos-14
     timeout-minutes: 60
     if: inputs.enable_ios
@@ -281,11 +288,11 @@ jobs:
           flutter test -d $UDID integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
           flutter test -d $UDID integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
 
-  macos-13:
+  macos-min:
     # TODO: Run lib tests only to ensure compatibility with macOS 13, once tests for macOS 14 succeed.
     runs-on: macos-13
     timeout-minutes: 30
-    if: inputs.enable_macos
+    if: inputs.enable_min_version && inputs.enable_macos
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
@@ -303,7 +310,7 @@ jobs:
           flutter test -d macos integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
           flutter test -d macos integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
 
-  macos-14:
+  macos:
     runs-on: macos-14
     timeout-minutes: 30
     if: inputs.enable_macos

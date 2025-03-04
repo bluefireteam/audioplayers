@@ -1,5 +1,15 @@
 import 'package:flutter/foundation.dart';
 
+const testFeatureBytesSource = bool.fromEnvironment(
+  'TEST_FEATURE_BYTES_SOURCE',
+  defaultValue: true,
+);
+
+const testFeaturePlaybackRate = bool.fromEnvironment(
+  'TEST_FEATURE_PLAYBACK_RATE',
+  defaultValue: true,
+);
+
 const testFeatureLowLatency = bool.fromEnvironment(
   'TEST_FEATURE_LOW_LATENCY',
   defaultValue: true,
@@ -21,6 +31,10 @@ class PlatformFeatures {
 
   static const androidPlatformFeatures = PlatformFeatures(
     hasRecordingActive: false,
+    // ignore: avoid_redundant_argument_values
+    hasBytesSource: testFeatureBytesSource,
+    // ignore: avoid_redundant_argument_values
+    hasPlaybackRate: testFeaturePlaybackRate,
     // ignore: avoid_redundant_argument_values
     hasLowLatency: testFeatureLowLatency,
   );
