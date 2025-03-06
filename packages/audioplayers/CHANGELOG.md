@@ -1,6 +1,8 @@
 ## 6.3.0
 
  - **FEAT**(android): ExoPlayer for Android ([#1691](https://github.com/bluefireteam/audioplayers/issues/1691)). ([a91c5b18](https://github.com/bluefireteam/audioplayers/commit/a91c5b185054986a2390d41593b5ee502ef96bdd))
+   You can enable the non-endorsed plugin implementation based on ExoPlayer (Media3) by calling: `flutter pub add audioplayers_android_exo` in your app package folder.
+   For more, see: https://github.com/bluefireteam/audioplayers/blob/main/feature_parity_table.md#media3-exoplayer
  - **FEAT**: Raise to Flutter 3.29.0 ([#1891](https://github.com/bluefireteam/audioplayers/issues/1891)). ([26bd6d22](https://github.com/bluefireteam/audioplayers/commit/26bd6d228deacf7cb3454f2d1b972585cd8bb6ea))
  - **DOCS**: Fix status badge ([#1899](https://github.com/bluefireteam/audioplayers/issues/1899)). ([a0c6c4fa](https://github.com/bluefireteam/audioplayers/commit/a0c6c4fabff19e943dced1070c1be3541668dce9))
 
