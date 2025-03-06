@@ -1,3 +1,7 @@
+## 4.1.1
+
+ - **DOCS**: Fix status badge ([#1899](https://github.com/bluefireteam/audioplayers/issues/1899)). ([a0c6c4fa](https://github.com/bluefireteam/audioplayers/commit/a0c6c4fabff19e943dced1070c1be3541668dce9))
+
 ## 4.1.0
 
  - **FIX**: No-op on single player setAudioContext in desktop platforms ([#1888](https://github.com/bluefireteam/audioplayers/issues/1888)). ([50d7a8b8](https://github.com/bluefireteam/audioplayers/commit/50d7a8b89f47e3ef29e98cf2b74a582f78783d5e))
