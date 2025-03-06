@@ -1,3 +1,7 @@
+## 5.0.2
+
+ - **DOCS**: Fix status badge ([#1899](https://github.com/bluefireteam/audioplayers/issues/1899)). ([a0c6c4fa](https://github.com/bluefireteam/audioplayers/commit/a0c6c4fabff19e943dced1070c1be3541668dce9))
+
 ## 5.0.1
 
  - **DEPS**: Consider web:1.0.0 ([#1828](https://github.com/bluefireteam/audioplayers/pull/1828)). ([9d25e78d](https://github.com/bluefireteam/audioplayers/commit/9d25e78d24a687c90ffa76f034c418d2bbe45251))
