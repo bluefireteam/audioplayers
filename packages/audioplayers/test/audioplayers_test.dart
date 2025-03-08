@@ -3,9 +3,13 @@ import 'package:audioplayers_platform_interface/audioplayers_platform_interface.
 import 'package:flutter_test/flutter_test.dart';
 
 import 'fake_audioplayers_platform.dart';
+import 'fake_global_audioplayers_platform.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  final globalPlatform = FakeGlobalAudioplayersPlatform();
+  GlobalAudioplayersPlatformInterface.instance = globalPlatform;
 
   late FakeAudioplayersPlatform platform;
   setUp(() {

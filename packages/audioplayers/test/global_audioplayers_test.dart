@@ -34,7 +34,9 @@ void main() {
     /// the earpiece unless [AVAudioSessionOptions.defaultToSpeaker] is used.
     test('set AudioContext', () async {
       await globalScope.setAudioContext(AudioContext());
-      final call = globalPlatform.popLastCall();
+      var call = globalPlatform.popCall();
+      expect(call.method, 'init');
+      call = globalPlatform.popLastCall();
       expect(call.method, 'setGlobalAudioContext');
       expect(
         call.value,

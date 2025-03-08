@@ -96,7 +96,9 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
     }
 
     // global handlers (no playerId)
-    if method == "setAudioContext" {
+    if method == "init" {
+      dispose()
+    } else if method == "setAudioContext" {
       #if os(macOS)
         globalEvents.onLog(message: "Setting AudioContext is not supported on macOS")
       #else

@@ -18,6 +18,11 @@ mixin MethodChannelGlobalAudioplayersPlatform
       MethodChannel('xyz.luan/audioplayers.global');
 
   @override
+  Future<void> init() {
+    return _globalMethodChannel.call('init');
+  }
+
+  @override
   Future<void> setGlobalAudioContext(AudioContext ctx) {
     return _globalMethodChannel.call(
       'setAudioContext',
