@@ -110,7 +110,12 @@ void AudioplayersWindowsPlugin::HandleGlobalMethodCall(
     std::unique_ptr<MethodResult<EncodableValue>> result) {
   auto args = method_call.arguments();
 
-  if (method_call.method_name().compare("setAudioContext") == 0) {
+  if (method_call.method_name().compare("init") == 0) {
+    for (const auto& entry : audioPlayers) {
+      entry.second->Dispose();
+    }
+    audioPlayers.clear();
+  } else if (method_call.method_name().compare("setAudioContext") == 0) {
     this->OnGlobalLog("Setting AudioContext is not supported on Windows");
   } else if (method_call.method_name().compare("emitLog") == 0) {
     auto message = GetArgument<std::string>("message", args, std::string());
