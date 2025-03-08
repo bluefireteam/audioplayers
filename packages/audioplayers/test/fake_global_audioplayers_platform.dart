@@ -31,6 +31,11 @@ class FakeGlobalAudioplayersPlatform
   }
 
   @override
+  Future<void> init() async {
+    calls.add(FakeGlobalCall(method: 'init'));
+  }
+
+  @override
   Future<void> setGlobalAudioContext(AudioContext ctx) async {
     calls.add(FakeGlobalCall(method: 'setGlobalAudioContext', value: ctx));
   }
