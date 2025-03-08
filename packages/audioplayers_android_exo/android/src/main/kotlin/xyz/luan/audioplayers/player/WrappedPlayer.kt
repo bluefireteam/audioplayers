@@ -96,7 +96,7 @@ class WrappedPlayer internal constructor(
     var playing = false
     var shouldSeekTo = -1
 
-    private val focusManager = FocusManager(
+    private val focusManager = FocusManager.create(
         this,
         onGranted = {
             // Check if in playing state, as the focus can also be gained e.g. after a phone call, even if not playing.

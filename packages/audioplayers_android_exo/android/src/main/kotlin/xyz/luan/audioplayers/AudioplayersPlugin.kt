@@ -50,7 +50,7 @@ class AudioplayersPlugin : FlutterPlugin {
     ) {
         try {
             handler(call, response)
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             response.error("Unexpected AndroidAudioError", e.message, e)
         }
     }
