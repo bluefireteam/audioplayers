@@ -97,12 +97,14 @@ private class LegacyFocusManager(
 
     override fun handleStop() {
         if (hasAudioFocusRequest()) {
-            @Suppress("DEPRECATION") audioManager.abandonAudioFocus(audioFocusChangeListener)
+            @Suppress("DEPRECATION")
+            audioManager.abandonAudioFocus(audioFocusChangeListener)
         }
     }
 
     override fun requestAudioFocus() {
-        @Suppress("DEPRECATION") val result = audioManager.requestAudioFocus(
+        @Suppress("DEPRECATION")
+        val result = audioManager.requestAudioFocus(
             audioFocusChangeListener,
             AudioManager.STREAM_MUSIC,
             context.audioFocus,
