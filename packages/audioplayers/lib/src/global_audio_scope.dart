@@ -7,7 +7,7 @@ GlobalAudioplayersPlatformInterface? _lastGlobalAudioplayersPlatform;
 
 /// Handle global audio scope like calls and events concerning all AudioPlayers.
 class GlobalAudioScope {
-  final _initCompleter = Completer<void>();
+  Completer<void>? _initCompleter;
 
   GlobalAudioplayersPlatformInterface get _platform =>
       GlobalAudioplayersPlatformInterface.instance;
@@ -34,14 +34,15 @@ class GlobalAudioScope {
       // This will clear all open players on the platform when a full restart is
       // performed.
       _lastGlobalAudioplayersPlatform = _platform;
+      _initCompleter = Completer<void>();
       try {
         await _platform.init();
-        _initCompleter.complete();
+        _initCompleter?.complete();
       } on Exception catch (e, stackTrace) {
-        _initCompleter.completeError(e, stackTrace);
+        _initCompleter?.completeError(e, stackTrace);
       }
     }
-    await _initCompleter.future;
+    await _initCompleter?.future;
   }
 
   Future<void> setAudioContext(AudioContext ctx) async {
