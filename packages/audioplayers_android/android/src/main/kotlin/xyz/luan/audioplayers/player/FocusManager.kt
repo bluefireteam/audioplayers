@@ -6,7 +6,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import xyz.luan.audioplayers.AudioContextAndroid
 
-abstract class AbstractFocusManager {
+abstract class FocusManager {
     abstract val player: WrappedPlayer
     abstract val onGranted: () -> Unit
     abstract val onLoss: (isTransient: Boolean) -> Unit
@@ -17,9 +17,9 @@ abstract class AbstractFocusManager {
             player: WrappedPlayer,
             onGranted: () -> Unit,
             onLoss: (isTransient: Boolean) -> Unit,
-        ): AbstractFocusManager {
+        ): FocusManager {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                FocusManager(player, onGranted, onLoss)
+                ModernFocusManager(player, onGranted, onLoss)
             } else {
                 LegacyFocusManager(player, onGranted, onLoss)
             }
@@ -72,7 +72,7 @@ private class LegacyFocusManager(
     override val player: WrappedPlayer,
     override val onGranted: () -> Unit,
     override val onLoss: (isTransient: Boolean) -> Unit,
-) : AbstractFocusManager() {
+) : FocusManager() {
     override var context: AudioContextAndroid = player.context
 
     // Deprecated variant of listening to focus changes
@@ -112,11 +112,11 @@ private class LegacyFocusManager(
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-private class FocusManager(
+private class ModernFocusManager(
     override val player: WrappedPlayer,
     override val onGranted: () -> Unit,
     override val onLoss: (isTransient: Boolean) -> Unit,
-) : AbstractFocusManager() {
+) : FocusManager() {
     override var context: AudioContextAndroid = player.context
 
     // Listen also for focus changes, e.g. if interrupt playing with a phone call and resume afterward.
