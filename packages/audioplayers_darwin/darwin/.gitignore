@@ -2,6 +2,8 @@
 .vagrant/
 .sconsign.dblite
 .svn/
+.build/
+.swiftpm/
 
 .DS_Store
 *.swp
