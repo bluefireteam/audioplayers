@@ -1,6 +1,6 @@
 name: audioplayers_android_exo
 description: Android implementation of audioplayers, a Flutter plugin to play multiple audio files simultaneously
-version: 0.1.1
+version: 0.1.2
 homepage: https://github.com/bluefireteam/audioplayers
 repository: https://github.com/bluefireteam/audioplayers/tree/master/packages/audioplayers_android_exo
 
@@ -13,7 +13,7 @@ flutter:
         pluginClass: AudioplayersPlugin
 
 dependencies:
-  audioplayers_platform_interface: ^7.0.1
+  audioplayers_platform_interface: ^7.1.0
   flutter:
     sdk: flutter
 
