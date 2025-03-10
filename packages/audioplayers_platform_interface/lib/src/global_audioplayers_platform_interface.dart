@@ -12,6 +12,12 @@ abstract class GlobalAudioplayersPlatformInterface
 }
 
 abstract class MethodChannelGlobalAudioplayersPlatformInterface {
+  /// Initializes the platform interface and disposes all existing players.
+  ///
+  /// This method is called when the plugin is first initialized
+  /// and on every full restart.
+  Future<void> init();
+
   Future<void> setGlobalAudioContext(AudioContext ctx);
 
   @visibleForTesting

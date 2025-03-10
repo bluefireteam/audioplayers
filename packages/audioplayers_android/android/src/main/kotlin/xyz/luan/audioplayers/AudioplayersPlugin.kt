@@ -61,6 +61,11 @@ class AudioplayersPlugin : FlutterPlugin {
 
     private fun globalMethodHandler(call: MethodCall, response: MethodChannel.Result) {
         when (call.method) {
+            "init" -> {
+                players.values.forEach { it.dispose() }
+                players.clear()
+            }
+
             "setAudioContext" -> {
                 val audioManager = getAudioManager()
                 audioManager.mode = defaultAudioContext.audioMode
