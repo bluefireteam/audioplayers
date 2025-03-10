@@ -1,4 +1,5 @@
 import AVKit
+import audioplayers_darwin_common
 
 private let defaultPlaybackRate: Double = 1.0
 
@@ -21,7 +22,7 @@ class WrappedMediaPlayer {
   private(set) var isPlaying: Bool
   var releaseMode: ReleaseMode
 
-  private var reference: SwiftAudioplayersDarwinPlugin
+  private var reference: AudioplayersDarwinPlugin
   private var player: AVPlayer
   private var playbackRate: Double
   private var volume: Double
@@ -31,7 +32,7 @@ class WrappedMediaPlayer {
   private var playerItemStatusObservation: NSKeyValueObservation?
 
   init(
-    reference: SwiftAudioplayersDarwinPlugin,
+    reference: AudioplayersDarwinPlugin,
     eventHandler: AudioPlayersStreamHandler,
     player: AVPlayer = AVPlayer.init(),
     playbackRate: Double = defaultPlaybackRate,

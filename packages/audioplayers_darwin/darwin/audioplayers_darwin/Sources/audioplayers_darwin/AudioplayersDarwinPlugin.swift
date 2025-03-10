@@ -5,16 +5,18 @@ import AVKit
   import Flutter
   import UIKit
   import MediaPlayer
+  import audioplayers_darwin_ios
 #else
   import FlutterMacOS
   import AVFAudio
+  import audioplayers_darwin_macos
 #endif
 
 let channelName = "xyz.luan/audioplayers"
 
 let globalChannelName = "xyz.luan/audioplayers.global"
 
-public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
+public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
   var registrar: FlutterPluginRegistrar
   var binaryMessenger: FlutterBinaryMessenger
   var methods: FlutterMethodChannel
@@ -64,7 +66,7 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
     let globalEvents = FlutterEventChannel(
       name: globalChannelName + "/events", binaryMessenger: binaryMessenger)
 
-    let instance = SwiftAudioplayersDarwinPlugin(
+    let instance = AudioplayersDarwinPlugin(
       registrar: registrar,
       binaryMessenger: binaryMessenger,
       methodChannel: methods,

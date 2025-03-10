@@ -1,10 +1,11 @@
 import MediaPlayer
+import audioplayers_darwin_common
 
-struct AudioContext {
+public struct AudioContext {
   let category: AVAudioSession.Category
   let options: [AVAudioSession.CategoryOptions]
 
-  init() {
+  public init() {
     self.category = .playback
     self.options = []
   }
@@ -17,14 +18,14 @@ struct AudioContext {
     self.options = options
   }
 
-  func activateAudioSession(
+  public func activateAudioSession(
     active: Bool
   ) throws {
     let session = AVAudioSession.sharedInstance()
     try session.setActive(active)
   }
 
-  func apply() throws {
+  public func apply() throws {
     let session = AVAudioSession.sharedInstance()
     let combinedOptions = options.reduce(AVAudioSession.CategoryOptions()) {
       [$0, $1]
@@ -32,7 +33,7 @@ struct AudioContext {
     try session.setCategory(category, options: combinedOptions)
   }
 
-  static func parse(args: [String: Any]) throws -> AudioContext? {
+  public static func parse(args: [String: Any]) throws -> AudioContext? {
     guard let categoryString = args["category"] as! String? else {
       throw AudioPlayerError.error("Null value received for category")
     }
