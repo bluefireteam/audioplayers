@@ -3,6 +3,64 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2025-03-10
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`audioplayers` - `v6.4.0`](#audioplayers---v640)
+ - [`audioplayers_android` - `v5.2.0`](#audioplayers_android---v520)
+ - [`audioplayers_android_exo` - `v0.1.2`](#audioplayers_android_exo---v012)
+ - [`audioplayers_darwin` - `v6.2.0`](#audioplayers_darwin---v620)
+ - [`audioplayers_linux` - `v4.2.0`](#audioplayers_linux---v420)
+ - [`audioplayers_platform_interface` - `v7.1.0`](#audioplayers_platform_interface---v710)
+ - [`audioplayers_web` - `v5.1.0`](#audioplayers_web---v510)
+ - [`audioplayers_windows` - `v4.2.0`](#audioplayers_windows---v420)
+
+---
+
+#### `audioplayers` - `v6.4.0`
+
+ - **FEAT**: Dispose players on Hot restart (closes [#1120](https://github.com/bluefireteam/audioplayers/issues/1120)) ([#1905](https://github.com/bluefireteam/audioplayers/issues/1905)). ([92bcb19e](https://github.com/bluefireteam/audioplayers/commit/92bcb19e10c462cb749e1209c5e066efc5581728))
+
+#### `audioplayers_android` - `v5.2.0`
+
+ - **FIX**: Make FocusManager compatible with Android API <= 25 (closes [#1895](https://github.com/bluefireteam/audioplayers/issues/1895)) ([#1904](https://github.com/bluefireteam/audioplayers/issues/1904)). ([41238d48](https://github.com/bluefireteam/audioplayers/commit/41238d4837fb5c59b8aaf2e7e8087268a160ebe7))
+ - **FEAT**: Dispose players on Hot restart (closes [#1120](https://github.com/bluefireteam/audioplayers/issues/1120)) ([#1905](https://github.com/bluefireteam/audioplayers/issues/1905)). ([92bcb19e](https://github.com/bluefireteam/audioplayers/commit/92bcb19e10c462cb749e1209c5e066efc5581728))
+
+#### `audioplayers_android_exo` - `v0.1.2`
+
+ - **FIX**: Make FocusManager compatible with Android API <= 25 (closes [#1895](https://github.com/bluefireteam/audioplayers/issues/1895)) ([#1904](https://github.com/bluefireteam/audioplayers/issues/1904)). ([41238d48](https://github.com/bluefireteam/audioplayers/commit/41238d4837fb5c59b8aaf2e7e8087268a160ebe7))
+ - **FEAT**: Dispose players on Hot restart (closes [#1120](https://github.com/bluefireteam/audioplayers/issues/1120)) ([#1905](https://github.com/bluefireteam/audioplayers/issues/1905)). ([92bcb19e](https://github.com/bluefireteam/audioplayers/commit/92bcb19e10c462cb749e1209c5e066efc5581728))
+
+#### `audioplayers_darwin` - `v6.2.0`
+
+ - **FEAT**: Dispose players on Hot restart (closes [#1120](https://github.com/bluefireteam/audioplayers/issues/1120)) ([#1905](https://github.com/bluefireteam/audioplayers/issues/1905)). ([92bcb19e](https://github.com/bluefireteam/audioplayers/commit/92bcb19e10c462cb749e1209c5e066efc5581728))
+
+#### `audioplayers_linux` - `v4.2.0`
+
+ - **FEAT**: Dispose players on Hot restart (closes [#1120](https://github.com/bluefireteam/audioplayers/issues/1120)) ([#1905](https://github.com/bluefireteam/audioplayers/issues/1905)). ([92bcb19e](https://github.com/bluefireteam/audioplayers/commit/92bcb19e10c462cb749e1209c5e066efc5581728))
+
+#### `audioplayers_platform_interface` - `v7.1.0`
+
+ - **FEAT**: Dispose players on Hot restart (closes [#1120](https://github.com/bluefireteam/audioplayers/issues/1120)) ([#1905](https://github.com/bluefireteam/audioplayers/issues/1905)). ([92bcb19e](https://github.com/bluefireteam/audioplayers/commit/92bcb19e10c462cb749e1209c5e066efc5581728))
+
+#### `audioplayers_web` - `v5.1.0`
+
+ - **FEAT**: Dispose players on Hot restart (closes [#1120](https://github.com/bluefireteam/audioplayers/issues/1120)) ([#1905](https://github.com/bluefireteam/audioplayers/issues/1905)). ([92bcb19e](https://github.com/bluefireteam/audioplayers/commit/92bcb19e10c462cb749e1209c5e066efc5581728))
+
+#### `audioplayers_windows` - `v4.2.0`
+
+ - **FEAT**: Dispose players on Hot restart (closes [#1120](https://github.com/bluefireteam/audioplayers/issues/1120)) ([#1905](https://github.com/bluefireteam/audioplayers/issues/1905)). ([92bcb19e](https://github.com/bluefireteam/audioplayers/commit/92bcb19e10c462cb749e1209c5e066efc5581728))
+
+
 ## 2025-03-06
 
 ### Changes
