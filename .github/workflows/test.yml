@@ -223,7 +223,7 @@ jobs:
           flutter-version: ${{ inputs.flutter_version }}
           channel: ${{ inputs.flutter_channel }}
       - name: Override endorsed plugin with audioplayers_android_exo
-        run: flutter pub add 'audioplayers_android_exo:{"path":"../../audioplayers_android_exo"}'
+        run: dart pub add "audioplayers_android_exo:{path: ../../audioplayers_android_exo}"
         working-directory: ./packages/audioplayers/example
       - uses: bluefireteam/melos-action@v3
       - name: Setup Android Emulator
