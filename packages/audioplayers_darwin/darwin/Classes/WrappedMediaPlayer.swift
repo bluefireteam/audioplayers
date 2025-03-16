@@ -6,6 +6,8 @@ private let defaultVolume: Double = 1.0
 
 private let defaultReleaseMode: ReleaseMode = ReleaseMode.release
 
+private let defaultAllowsExternalPlayback: Bool = false
+
 typealias Completer = () -> Void
 
 typealias CompleterError = (Error?) -> Void
@@ -124,6 +126,14 @@ class WrappedMediaPlayer {
     if isPlaying {
       // Setting the rate causes the player to resume playing. So setting it only, when already playing.
       player.rate = Float(playbackRate)
+    }
+  }
+
+  func setAllowsExternalPlayback(allows: Bool) {
+    if #available(iOS 10.0, macOS 10.12, *) {
+      player.allowsExternalPlayback = allows
+    } else {
+      player.allowsExternalPlayback = defaultAllowsExternalPlayback
     }
   }
 
