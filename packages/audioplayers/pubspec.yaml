@@ -1,8 +1,8 @@
-name: audioplayers
+name: openhiit_audioplayers
 description: A Flutter plugin to play multiple audio files simultaneously
-version: 6.4.0
-homepage: https://github.com/bluefireteam/audioplayers
-repository: https://github.com/bluefireteam/audioplayers/tree/master/packages/audioplayers
+version: 1.0.0
+homepage: https://github.com/a-mabe/openhiit_audioplayers
+repository: https://github.com/a-mabe/openhiit_audioplayers/tree/master/packages/audioplayers
 
 flutter:
   plugin:
@@ -10,7 +10,7 @@ flutter:
       android:
         default_package: audioplayers_android
       ios:
-        default_package: audioplayers_darwin
+        default_package: openhiit_audioplayers_darwin
       linux:
         default_package: audioplayers_linux
       macos:
@@ -22,7 +22,7 @@ flutter:
 
 dependencies:
   audioplayers_android: ^5.2.0
-  audioplayers_darwin: ^6.2.0
+  openhiit_audioplayers_darwin: ^1.0.0
   audioplayers_linux: ^4.2.0
   audioplayers_platform_interface: ^7.1.0
   audioplayers_web: ^5.1.0

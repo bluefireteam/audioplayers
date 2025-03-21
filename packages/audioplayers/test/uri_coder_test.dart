@@ -1,4 +1,4 @@
-import 'package:audioplayers/src/uri_ext.dart';
+import 'package:openhiit_audioplayers/src/uri_ext.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

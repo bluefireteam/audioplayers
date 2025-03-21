@@ -1,5 +1,5 @@
 name: audioplayers
-repository: https://github.com/bluefireteam/audioplayers
+repository: https://github.com/a-mabe/openhiit_audioplayers
 
 packages:
   - packages/**

@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:audioplayers/src/audio_logger.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
+import 'package:openhiit_audioplayers/src/audio_logger.dart';
 
 GlobalAudioplayersPlatformInterface? _lastGlobalAudioplayersPlatform;
 

@@ -1,4 +1,4 @@
-import 'package:audioplayers/audioplayers.dart';
+import 'package:openhiit_audioplayers/audioplayers.dart';
 
 class AudioLogger {
   static AudioLogLevel logLevel = AudioLogLevel.error;
