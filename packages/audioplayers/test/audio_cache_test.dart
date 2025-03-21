@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import 'package:file/memory.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:openhiit_audioplayers/audioplayers.dart';
+import 'package:openhiit_audioplayers/openhiit_audioplayers.dart';
 
 class FakeAudioCache extends AudioCache {
   List<String> called = [];

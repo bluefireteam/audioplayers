@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:openhiit_audioplayers/audioplayers.dart';
+import 'package:openhiit_audioplayers/openhiit_audioplayers.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

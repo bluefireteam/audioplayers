@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:openhiit_audioplayers/audioplayers.dart';
-import 'package:openhiit_audioplayers/src/uri_ext.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:openhiit_audioplayers/openhiit_audioplayers.dart';
+import 'package:openhiit_audioplayers/src/uri_ext.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 

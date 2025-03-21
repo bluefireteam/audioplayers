@@ -1,5 +1,5 @@
 //ignore_for_file: avoid_redundant_argument_values
-import 'package:openhiit_audioplayers/audioplayers.dart';
+import 'package:openhiit_audioplayers/openhiit_audioplayers.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
 import 'package:flutter_test/flutter_test.dart';
 
