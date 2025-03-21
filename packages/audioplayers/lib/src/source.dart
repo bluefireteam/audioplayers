@@ -1,7 +1,7 @@
 import 'dart:math';
 
-import 'package:audioplayers/src/audioplayer.dart';
 import 'package:flutter/foundation.dart';
+import 'package:openhiit_audioplayers/src/audioplayer.dart';
 
 /// A generic representation of a source from where audio can be pulled.
 ///

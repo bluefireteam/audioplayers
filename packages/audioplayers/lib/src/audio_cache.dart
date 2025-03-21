@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:audioplayers/src/uri_ext.dart';
+import 'package:openhiit_audioplayers/src/uri_ext.dart';
 import 'package:file/file.dart';
 import 'package:file/local.dart';
 import 'package:flutter/foundation.dart';
