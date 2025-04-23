@@ -57,6 +57,10 @@ class AudioPlayer {
 
   ReleaseMode get releaseMode => _releaseMode;
 
+  Duration _preparationTimeout = const Duration(seconds: 30);
+
+  Duration get preparationTimeout => _preparationTimeout;
+
   /// Auxiliary variable to re-check the volatile player state during async
   /// operations.
   @visibleForTesting
@@ -287,11 +291,13 @@ class AudioPlayer {
   }
 
   /// Moves the cursor to the desired position.
-  Future<void> seek(Duration position) async {
+  Future<void> seek(
+    Duration position, {
+    Duration timeout = const Duration(seconds: 30),
+  }) async {
     await creatingCompleter.future;
 
-    final futureSeekComplete =
-        onSeekComplete.first.timeout(const Duration(seconds: 30));
+    final futureSeekComplete = onSeekComplete.first.timeout(timeout);
     final futureSeek = _platform.seek(playerId, position);
     // Wait simultaneously to ensure all errors are propagated through the same
     // future.
@@ -330,6 +336,11 @@ class AudioPlayer {
     return _platform.setReleaseMode(playerId, releaseMode);
   }
 
+  /// Sets the preparation timeout for the audio player.
+  Future<void> setPreparationTimeout(Duration timeout) async {
+    _preparationTimeout = timeout;
+  }
+
   /// Sets the playback rate - call this after first calling play() or resume().
   ///
   /// iOS and macOS have limits between 0.5 and 2x
@@ -357,7 +368,7 @@ class AudioPlayer {
 
     final preparedFuture = _onPrepared
         .firstWhere((isPrepared) => isPrepared)
-        .timeout(const Duration(seconds: 30));
+        .timeout(_preparationTimeout);
     // Need to await the setting the source to propagate immediate errors.
     final setSourceFuture = setSource();
 
