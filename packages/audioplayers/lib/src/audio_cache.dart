@@ -127,8 +127,9 @@ class AudioCache {
   /// Returns a [Uri] to access that file.
   Future<Uri> load(String fileName) async {
     if (!loadedFiles.containsKey(fileName) ||
-        // the file can be removed from the cache, this can happen automatically when the storage is almost full
-        (!kIsWeb && !fileSystem.file(loadedFiles[fileName]!).existsSync())) {
+        // the file can be removed from the cache, this
+        // can happen automatically when the storage is almost full
+        (!kIsWeb && !fileSystem.file(loadedFiles[fileName]).existsSync())) {
       loadedFiles[fileName] = await fetchToMemory(fileName);
     }
     return loadedFiles[fileName]!;
