@@ -80,6 +80,9 @@ If the issue persists, then open the issue, including the file so we can test. O
 
 **Note**: Make sure you have set the path to your asset correctly, see the [AudioCache](https://github.com/bluefireteam/audioplayers/blob/main/getting_started.md#audiocache) concept.
 
+### [iOS] Regarding the exception: "DarwinAudioError, AVPlayerItem.Status.failed on setSourceUrl, Failed to set source. Unknown Error."
+This occurs when loading audio from multiple locations on a fresh install using the default AudioCache instance. Make sure all of your audio loaders reference the same new AudioCache instance with a custom prefix. It's also helpful to clear anything inside of your app's `Library/Caches` directory related to audio every time you boot up your app to avoid cache bloat.
+
 ### [iOS] Background Audio
 
 There is a required configuration to enable audio do be playing on the background; add the following lines to your `info.plist`:
