@@ -1,4 +1,5 @@
 name: audioplayers_example
+resolution: workspace
 description: Demonstrates how to use the audioplayers plugin.
 publish_to: none
 
@@ -29,5 +30,5 @@ flutter:
     - assets/
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
-  flutter: '>=3.13.0'
+  sdk: ^3.6.0
+  flutter: ^3.27.0

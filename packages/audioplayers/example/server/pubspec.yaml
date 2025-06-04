@@ -1,8 +1,9 @@
 name: audioplayers_test_server
+resolution: workspace
 publish_to: none
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: ^3.6.0
 
 dependencies:
   async: ^2.11.0
