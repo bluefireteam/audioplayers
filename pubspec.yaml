@@ -31,16 +31,6 @@ melos:
         flame_lint: ^1.0.0
 
   scripts:
-    lint:
-      run: melos analyze && melos format
-      description: Run all static analysis checks.
-
-    dartdoc:
-      run: melos exec dart doc
-      description: Run `dart doc` for all non-example packages.
-      packageFilters:
-        ignore: "*_example"
-
     pub-outdated:
       run: melos exec dart pub outdated
       description: Run `dart pub outdated` for all packages.
