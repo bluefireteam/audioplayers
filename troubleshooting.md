@@ -93,6 +93,10 @@ There is a required configuration to enable audio do be playing on the backgroun
 
 Or on XCode you can add it as a capability; more details [here](https://developer.apple.com/documentation/avfoundation/media_assets_playback_and_editing/creating_a_basic_video_player_ios_and_tvos/enabling_background_audio).
 
+### [iOS] Simulataneous AVPlayer Instantiation Limits
+
+While Apple does not provide a hard number on these limits, there seems to be a device-dependent upper limit of how many AVPlayers can be instantiated at one time. The package will output "PlatformException(DarwinAudioError, AVPlayerItem.Status.failed on setSourceUrl: Unknown error, null)" when this occurs.
+
 ### [iOS, macOS] Urls or Paths without a file extension
 
 At the moment, the player of iOS and macOS (`AVPlayer` on Darwin) only accepts to play files with an extension (like `.mp3` or `.wav`). Make sure these are available or help us fix the issue #803.
