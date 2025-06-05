@@ -1,4 +1,5 @@
 name: audioplayers_example
+resolution: workspace
 description: Demonstrates how to use the audioplayers plugin.
 publish_to: none
 
@@ -16,7 +17,7 @@ dev_dependencies:
   # Integration tests for audioplayers_platform_interface are handled 
   # in this package to avoid maintaining multiple example apps:
   audioplayers_platform_interface: ^7.1.0
-  flame_lint: ^1.0.0
+  flame_lint: 1.3.0
   flutter_test:
     sdk: flutter
   integration_test:
@@ -29,5 +30,5 @@ flutter:
     - assets/
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
-  flutter: '>=3.13.0'
+  sdk: ^3.6.0
+  flutter: ^3.27.0

@@ -9,10 +9,9 @@ on:
         type: choice
         options:
           - 'any'
+          - '3.32.x'
           - '3.29.x'
           - '3.27.x'
-          - '3.24.x'
-          - '3.22.x'
       flutter_channel:
         description: 'Flutter Channel'
         required: false
@@ -124,7 +123,7 @@ jobs:
       - uses: bluefireteam/melos-action@v3
 
       - run: melos format --set-exit-if-changed
-      - run: melos analyze ${{ inputs.fatal_warnings && '--fatal-infos' || '--no-fatal-warnings' }}
+      - run: flutter analyze ${{ inputs.fatal_warnings && '--fatal-infos' || '--no-fatal-warnings' }}
       - run: melos run test
 
       - name: Lint Code Base

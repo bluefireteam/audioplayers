@@ -1,7 +1,50 @@
 name: audioplayers_workspace
+repository: https://github.com/bluefireteam/audioplayers
+workspace:
+  - packages/audioplayers
+  - packages/audioplayers/example
+  - packages/audioplayers/example/server
+  - packages/audioplayers_android
+  - packages/audioplayers_android_exo
+  - packages/audioplayers_darwin
+  - packages/audioplayers_linux
+  - packages/audioplayers_platform_interface
+  - packages/audioplayers_web
+  - packages/audioplayers_windows
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: ^3.6.0
 
 dev_dependencies:
-  melos: ^6.0.0
+  melos: ^7.0.0-dev.8
+
+melos:
+  command:
+    bootstrap:
+      # Avoid concurrent pub requests, remove when https://github.com/dart-lang/pub/issues/3404 is fixed
+      runPubGetInParallel: false
+
+      environment:
+        sdk: ^3.6.0
+        flutter: ^3.27.0
+      dev_dependencies:
+        flame_lint: 1.3.0
+
+  scripts:
+    pub-outdated:
+      run: melos exec dart pub outdated
+      description: Run `dart pub outdated` for all packages.
+
+    pub-upgrade:
+      run: melos exec dart pub upgrade --major-versions
+      description: Run `dart pub upgrade --major-versions` for all packages.
+
+    test:select:
+      run: melos exec flutter test
+      packageFilters:
+        dirExists: test
+      description: Run `flutter test` for selected packages.
+
+    test:
+      run: melos run test:select --no-select
+      description: Run all Flutter tests in this project.
