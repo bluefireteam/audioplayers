@@ -11,8 +11,10 @@ flutter:
     platforms:
       ios:
         pluginClass: AudioplayersDarwinPlugin
+        sharedDarwinSource: true
       macos:
         pluginClass: AudioplayersDarwinPlugin
+        sharedDarwinSource: true
 
 dependencies:
   audioplayers_platform_interface: ^7.1.0
