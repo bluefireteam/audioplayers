@@ -153,6 +153,9 @@ class AudioplayersPlugin : FlutterPlugin {
                     player.rate = rate.toFloat()
                 }
 
+                "setAllowsExternalPlayback" -> {
+                }
+
                 "getDuration" -> {
                     response.success(player.getDuration())
                     return
