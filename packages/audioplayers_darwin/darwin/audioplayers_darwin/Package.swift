@@ -41,14 +41,14 @@ let package = Package(
     .target(
       name: "audioplayers_darwin_ios",
       dependencies: [
-        .target(name: "audioplayers_darwin_common"),
+        .target(name: "audioplayers_darwin_common")
       ],
       path: "Sources/audioplayers_darwin_ios"
     ),
     .target(
       name: "audioplayers_darwin_macos",
       dependencies: [
-        .target(name: "audioplayers_darwin_common"),
+        .target(name: "audioplayers_darwin_common")
       ],
       path: "Sources/audioplayers_darwin_macos"
     ),
