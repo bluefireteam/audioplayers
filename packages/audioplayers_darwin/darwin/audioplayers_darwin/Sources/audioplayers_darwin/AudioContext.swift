@@ -119,9 +119,6 @@ import MediaPlayer
 #else
   // no-op impl of AudioContext for macos
   struct AudioContext {
-    init() {
-    }
-
     func activateAudioSession(active: Bool) throws {
     }
 
