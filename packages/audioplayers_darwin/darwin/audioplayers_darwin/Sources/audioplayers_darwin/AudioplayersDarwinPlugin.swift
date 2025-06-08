@@ -5,11 +5,9 @@ import AVKit
   import Flutter
   import UIKit
   import MediaPlayer
-  import audioplayers_darwin_ios
 #else
   import FlutterMacOS
   import AVFAudio
-  import audioplayers_darwin_macos
 #endif
 
 let channelName = "xyz.luan/audioplayers"
@@ -101,9 +99,7 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
     if method == "init" {
       dispose()
     } else if method == "setAudioContext" {
-      #if os(macOS)
-        globalEvents.onLog(message: "Setting AudioContext is not supported on macOS")
-      #else
+      #if os(iOS)
         do {
           guard let context = try AudioContext.parse(args: args) else {
             result(
@@ -122,6 +118,8 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
               code: "DarwinAudioError", message: "Error configuring global audio session: \(error)",
               details: nil))
         }
+      #else
+        globalEvents.onLog(message: "Setting AudioContext is not supported on this platform")
       #endif
     } else if method == "emitLog" {
       guard let message = args["message"] as? String else {
@@ -293,9 +291,7 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
     } else if method == "setPlayerMode" {
       // no-op for darwin; only one player mode
     } else if method == "setAudioContext" {
-      #if os(macOS)
-        player.eventHandler.onLog(message: "Setting AudioContext is not supported on macOS")
-      #else
+      #if os(iOS)
         player.eventHandler.onLog(
           message:
             "iOS does not allow for player-specific audio contexts; `setAudioContext` will set the global audio context instead (like `global.setAudioContext`)."
@@ -318,6 +314,8 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
               code: "DarwinAudioError", message: "Error configuring audio session: \(error)",
               details: nil))
         }
+      #else
+        player.eventHandler.onLog(message: "Setting AudioContext is not supported on this platform")
       #endif
     } else if method == "emitLog" {
       guard let message = args["message"] as? String else {

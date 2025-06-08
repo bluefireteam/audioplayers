@@ -16,11 +16,7 @@ let package = Package(
   targets: [
     .target(
       name: "audioplayers_darwin",
-      dependencies: [
-        .target(name: "audioplayers_darwin_common"),
-        .target(name: "audioplayers_darwin_ios", condition: .when(platforms: [.iOS])),
-        .target(name: "audioplayers_darwin_macos", condition: .when(platforms: [.macOS])),
-      ],
+      dependencies: [],
       resources: [
         // TODO: If your plugin requires a privacy manifest
         // (e.g. if it uses any required reason APIs), update the PrivacyInfo.xcprivacy file
@@ -33,24 +29,6 @@ let package = Package(
         // the following instructions to add them:
         // https://developer.apple.com/documentation/xcode/bundling-resources-with-a-swift-package
       ]
-    ),
-    .target(
-      name: "audioplayers_darwin_common",
-      path: "Sources/audioplayers_darwin_common"
-    ),
-    .target(
-      name: "audioplayers_darwin_ios",
-      dependencies: [
-        .target(name: "audioplayers_darwin_common")
-      ],
-      path: "Sources/audioplayers_darwin_ios"
-    ),
-    .target(
-      name: "audioplayers_darwin_macos",
-      dependencies: [
-        .target(name: "audioplayers_darwin_common")
-      ],
-      path: "Sources/audioplayers_darwin_macos"
-    ),
+    )
   ]
 )

@@ -1,4 +1,4 @@
-public enum AudioPlayerError: Error {
+enum AudioPlayerError: Error {
   case error(String)
   case warning(String)
 }

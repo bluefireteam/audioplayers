@@ -12,12 +12,7 @@ Pod::Spec.new do |s|
   s.author           = { 'Blue Fire' => 'contact@blue-fire.xyz' }
   s.source           = { :path => '.' }
   s.documentation_url = 'https://pub.dev/packages/audioplayers'
-  s.source_files = [
-    'audioplayers_darwin/Sources/audioplayers_darwin/**/*.swift',
-    'audioplayers_darwin/Sources/audioplayers_darwin_common/**/*.swift',
-  ]
-  s.ios.source_files = 'audioplayers_darwin/Sources/audioplayers_darwin_ios/**/*.swift'
-  s.osx.source_files = 'audioplayers_darwin/Sources/audioplayers_darwin_macos/**/*.swift'
+  s.source_files = 'audioplayers_darwin/Sources/audioplayers_darwin/**/*.swift'
   s.ios.dependency 'Flutter'
   s.osx.dependency 'FlutterMacOS'
   s.ios.deployment_target = '12.0'
