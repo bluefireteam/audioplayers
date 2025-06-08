@@ -299,6 +299,7 @@ jobs:
         with:
           flutter-version: ${{ inputs.flutter_version }}
           channel: ${{ inputs.flutter_channel }}
+      - run: flutter config --enable-swift-package-manager
       - uses: bluefireteam/melos-action@main
 
       - name: Run Flutter integration tests
@@ -313,6 +314,24 @@ jobs:
           flutter test -d $UDID integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
           flutter test -d $UDID integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
           flutter test -d $UDID integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
+
+  # Remove as soon as support for cocoapods is removed at Flutter
+  ios-pods:
+    runs-on: macos-14
+    timeout-minutes: 30
+    if: inputs.enable_ios
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ inputs.flutter_version }}
+          channel: ${{ inputs.flutter_channel }}
+      - run: flutter config --no-enable-swift-package-manager
+      - uses: bluefireteam/melos-action@v3
+
+      - name: Example app - Build iOS
+        working-directory: ./packages/audioplayers/example
+        run: flutter build ios --release --no-codesign
 
   macos-min:
     # TODO: Run lib tests only to ensure compatibility with macOS 13, once tests for macOS 14 succeed.
@@ -346,6 +365,7 @@ jobs:
         with:
           flutter-version: ${{ inputs.flutter_version }}
           channel: ${{ inputs.flutter_channel }}
+      - run: flutter config --enable-swift-package-manager
       - uses: bluefireteam/melos-action@v3
 
       - name: Run Flutter integration tests
@@ -356,6 +376,24 @@ jobs:
           flutter test -d macos integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
           flutter test -d macos integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
           flutter test -d macos integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
+
+  # Remove as soon as support for cocoapods is removed at Flutter
+  macos-pods:
+    runs-on: macos-14
+    timeout-minutes: 30
+    if: inputs.enable_macos
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ inputs.flutter_version }}
+          channel: ${{ inputs.flutter_channel }}
+      - run: flutter config --no-enable-swift-package-manager
+      - uses: bluefireteam/melos-action@v3
+
+      - name: Example app - Build macOS
+        working-directory: ./packages/audioplayers/example
+        run: flutter build macos --release
 
   windows:
     runs-on: windows-latest
