@@ -3,6 +3,9 @@ import audioplayers_darwin_common
 
 // no-op impl of AudioContext for macos
 public struct AudioContext {
+  public init() {
+  }
+
   public func activateAudioSession(active: Bool) throws {
   }
 
