@@ -19,6 +19,9 @@ const _uuid = Uuid();
 /// hooks for handlers and callbacks.
 class AudioPlayer {
   static final global = GlobalAudioScope();
+  static const preparationTimeout = Duration(seconds: 30);
+  static const seekingTimeout = Duration(seconds: 30);
+
   final _platform = AudioplayersPlatformInterface.instance;
 
   /// This is the [AudioCache] instance used by this player.
@@ -56,10 +59,6 @@ class AudioPlayer {
   ReleaseMode _releaseMode = ReleaseMode.release;
 
   ReleaseMode get releaseMode => _releaseMode;
-
-  Duration _preparationTimeout = const Duration(seconds: 30);
-
-  Duration get preparationTimeout => _preparationTimeout;
 
   /// Auxiliary variable to re-check the volatile player state during async
   /// operations.
@@ -291,13 +290,11 @@ class AudioPlayer {
   }
 
   /// Moves the cursor to the desired position.
-  Future<void> seek(
-    Duration position, {
-    Duration timeout = const Duration(seconds: 30),
-  }) async {
+  Future<void> seek(Duration position) async {
     await creatingCompleter.future;
 
-    final futureSeekComplete = onSeekComplete.first.timeout(timeout);
+    final futureSeekComplete =
+        onSeekComplete.first.timeout(AudioPlayer.seekingTimeout);
     final futureSeek = _platform.seek(playerId, position);
     // Wait simultaneously to ensure all errors are propagated through the same
     // future.
@@ -336,11 +333,6 @@ class AudioPlayer {
     return _platform.setReleaseMode(playerId, releaseMode);
   }
 
-  /// Sets the preparation timeout for the audio player.
-  Future<void> setPreparationTimeout(Duration timeout) async {
-    _preparationTimeout = timeout;
-  }
-
   /// Sets the playback rate - call this after first calling play() or resume().
   ///
   /// iOS and macOS have limits between 0.5 and 2x
@@ -368,7 +360,7 @@ class AudioPlayer {
 
     final preparedFuture = _onPrepared
         .firstWhere((isPrepared) => isPrepared)
-        .timeout(_preparationTimeout);
+        .timeout(AudioPlayer.preparationTimeout);
     // Need to await the setting the source to propagate immediate errors.
     final setSourceFuture = setSource();
 
