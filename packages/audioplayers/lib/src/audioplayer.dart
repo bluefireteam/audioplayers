@@ -19,8 +19,8 @@ const _uuid = Uuid();
 /// hooks for handlers and callbacks.
 class AudioPlayer {
   static final global = GlobalAudioScope();
-  static const preparationTimeout = Duration(seconds: 30);
-  static const seekingTimeout = Duration(seconds: 30);
+  static Duration preparationTimeout = const Duration(seconds: 30);
+  static Duration seekingTimeout = const Duration(seconds: 30);
 
   final _platform = AudioplayersPlatformInterface.instance;
 
