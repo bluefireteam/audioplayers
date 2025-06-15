@@ -1,3 +1,7 @@
+## 5.2.1
+
+ - **FIX**: Migrate to Melos v7 and Pub Workspaces ([#1929](https://github.com/bluefireteam/audioplayers/issues/1929)). ([9d0bfe0b](https://github.com/bluefireteam/audioplayers/commit/9d0bfe0be5cba0ce4fb3a75912b41117a8996bfe))
+
 ## 5.2.0
 
  - **FIX**: Make FocusManager compatible with Android API <= 25 (closes [#1895](https://github.com/bluefireteam/audioplayers/issues/1895)) ([#1904](https://github.com/bluefireteam/audioplayers/issues/1904)). ([41238d48](https://github.com/bluefireteam/audioplayers/commit/41238d4837fb5c59b8aaf2e7e8087268a160ebe7))

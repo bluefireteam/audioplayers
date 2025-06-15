@@ -1,7 +1,7 @@
 name: audioplayers_platform_interface
 resolution: workspace
 description: The platform interface for audioplayers, a Flutter plugin to play multiple audio files simultaneously
-version: 7.1.0
+version: 7.1.1
 homepage: https://github.com/bluefireteam/audioplayers
 repository: https://github.com/bluefireteam/audioplayers/tree/master/packages/audioplayers_platform_interface
 
