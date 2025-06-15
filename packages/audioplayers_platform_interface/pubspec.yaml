@@ -13,7 +13,7 @@ dependencies:
   plugin_platform_interface: ^2.0.2
 
 dev_dependencies:
-  flame_lint: 1.3.0
+  flame_lint: ^1.3.0
   flutter_test:
     sdk: flutter
 
