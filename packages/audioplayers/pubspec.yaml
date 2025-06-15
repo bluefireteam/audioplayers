@@ -38,13 +38,13 @@ dependencies:
   uuid: '>=3.0.7 <5.0.0'
 
 dev_dependencies:
-  flame_lint: 1.3.0
+  flame_lint: ^1.3.0
   flutter_test:
     sdk: flutter
 
 environment:
   sdk: ^3.6.0
-  flutter: ^3.27.0
+  flutter: '>=3.27.0'
 
 topics:
   - audio
