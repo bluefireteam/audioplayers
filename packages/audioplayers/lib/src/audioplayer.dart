@@ -19,6 +19,9 @@ const _uuid = Uuid();
 /// hooks for handlers and callbacks.
 class AudioPlayer {
   static final global = GlobalAudioScope();
+  static Duration preparationTimeout = const Duration(seconds: 30);
+  static Duration seekingTimeout = const Duration(seconds: 30);
+
   final _platform = AudioplayersPlatformInterface.instance;
 
   /// This is the [AudioCache] instance used by this player.
@@ -291,7 +294,7 @@ class AudioPlayer {
     await creatingCompleter.future;
 
     final futureSeekComplete =
-        onSeekComplete.first.timeout(const Duration(seconds: 30));
+        onSeekComplete.first.timeout(AudioPlayer.seekingTimeout);
     final futureSeek = _platform.seek(playerId, position);
     // Wait simultaneously to ensure all errors are propagated through the same
     // future.
@@ -357,7 +360,7 @@ class AudioPlayer {
 
     final preparedFuture = _onPrepared
         .firstWhere((isPrepared) => isPrepared)
-        .timeout(const Duration(seconds: 30));
+        .timeout(AudioPlayer.preparationTimeout);
     // Need to await the setting the source to propagate immediate errors.
     final setSourceFuture = setSource();
 
