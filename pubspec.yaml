@@ -1,4 +1,4 @@
-name: audioplayers_workspace
+name: audioplayers
 repository: https://github.com/bluefireteam/audioplayers
 workspace:
   - packages/audioplayers
