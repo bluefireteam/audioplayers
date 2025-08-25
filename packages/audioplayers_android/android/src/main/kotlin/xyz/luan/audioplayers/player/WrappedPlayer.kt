@@ -14,6 +14,7 @@ import xyz.luan.audioplayers.ReleaseMode
 import xyz.luan.audioplayers.source.Source
 import kotlin.math.min
 
+// For some reason this cannot be accessed from MediaPlayer.MEDIA_ERROR_SYSTEM
 private const val MEDIA_ERROR_SYSTEM = -2147483648
 
 class WrappedPlayer internal constructor(
@@ -23,7 +24,6 @@ class WrappedPlayer internal constructor(
     private val soundPoolManager: SoundPoolManager,
 ) {
     private var player: PlayerWrapper? = null
-    private val plugin = WeakReference(plugin)
 
     var source: Source? = null
         set(value) {
