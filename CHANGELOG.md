@@ -3,6 +3,65 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2025-06-15
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`audioplayers` - `v6.5.0`](#audioplayers---v650)
+ - [`audioplayers_android` - `v5.2.1`](#audioplayers_android---v521)
+ - [`audioplayers_android_exo` - `v0.1.2+1`](#audioplayers_android_exo---v0121)
+ - [`audioplayers_darwin` - `v6.3.0`](#audioplayers_darwin---v630)
+ - [`audioplayers_linux` - `v4.2.1`](#audioplayers_linux---v421)
+ - [`audioplayers_platform_interface` - `v7.1.1`](#audioplayers_platform_interface---v711)
+ - [`audioplayers_web` - `v5.1.1`](#audioplayers_web---v511)
+ - [`audioplayers_windows` - `v4.2.1`](#audioplayers_windows---v421)
+
+---
+
+#### `audioplayers` - `v6.5.0`
+
+ - **FIX**: Migrate to Melos v7 and Pub Workspaces ([#1929](https://github.com/bluefireteam/audioplayers/issues/1929)). ([9d0bfe0b](https://github.com/bluefireteam/audioplayers/commit/9d0bfe0be5cba0ce4fb3a75912b41117a8996bfe))
+ - **FEAT**: Customizable preparation and seeking timeout ([#1921](https://github.com/bluefireteam/audioplayers/issues/1921)). ([d5a63f8b](https://github.com/bluefireteam/audioplayers/commit/d5a63f8b206554f6a6719653c5ce9b92b8d096b9))
+ - **FEAT**: Support for Swift Package Manager ([#1908](https://github.com/bluefireteam/audioplayers/issues/1908)). ([e8f86e7b](https://github.com/bluefireteam/audioplayers/commit/e8f86e7bf80ddb8b0955d35c53f08cbf5f2d141b))
+
+#### `audioplayers_android` - `v5.2.1`
+
+ - **FIX**: Migrate to Melos v7 and Pub Workspaces ([#1929](https://github.com/bluefireteam/audioplayers/issues/1929)). ([9d0bfe0b](https://github.com/bluefireteam/audioplayers/commit/9d0bfe0be5cba0ce4fb3a75912b41117a8996bfe))
+
+#### `audioplayers_android_exo` - `v0.1.2+1`
+
+ - **FIX**: Migrate to Melos v7 and Pub Workspaces ([#1929](https://github.com/bluefireteam/audioplayers/issues/1929)). ([9d0bfe0b](https://github.com/bluefireteam/audioplayers/commit/9d0bfe0be5cba0ce4fb3a75912b41117a8996bfe))
+
+#### `audioplayers_darwin` - `v6.3.0`
+
+ - **FIX**: Migrate to Melos v7 and Pub Workspaces ([#1929](https://github.com/bluefireteam/audioplayers/issues/1929)). ([9d0bfe0b](https://github.com/bluefireteam/audioplayers/commit/9d0bfe0be5cba0ce4fb3a75912b41117a8996bfe))
+ - **FEAT**: Support for Swift Package Manager ([#1908](https://github.com/bluefireteam/audioplayers/issues/1908)). ([e8f86e7b](https://github.com/bluefireteam/audioplayers/commit/e8f86e7bf80ddb8b0955d35c53f08cbf5f2d141b))
+
+#### `audioplayers_linux` - `v4.2.1`
+
+ - **FIX**: Migrate to Melos v7 and Pub Workspaces ([#1929](https://github.com/bluefireteam/audioplayers/issues/1929)). ([9d0bfe0b](https://github.com/bluefireteam/audioplayers/commit/9d0bfe0be5cba0ce4fb3a75912b41117a8996bfe))
+
+#### `audioplayers_platform_interface` - `v7.1.1`
+
+ - **FIX**: Migrate to Melos v7 and Pub Workspaces ([#1929](https://github.com/bluefireteam/audioplayers/issues/1929)). ([9d0bfe0b](https://github.com/bluefireteam/audioplayers/commit/9d0bfe0be5cba0ce4fb3a75912b41117a8996bfe))
+
+#### `audioplayers_web` - `v5.1.1`
+
+ - **FIX**: Migrate to Melos v7 and Pub Workspaces ([#1929](https://github.com/bluefireteam/audioplayers/issues/1929)). ([9d0bfe0b](https://github.com/bluefireteam/audioplayers/commit/9d0bfe0be5cba0ce4fb3a75912b41117a8996bfe))
+
+#### `audioplayers_windows` - `v4.2.1`
+
+ - **FIX**: Migrate to Melos v7 and Pub Workspaces ([#1929](https://github.com/bluefireteam/audioplayers/issues/1929)). ([9d0bfe0b](https://github.com/bluefireteam/audioplayers/commit/9d0bfe0be5cba0ce4fb3a75912b41117a8996bfe))
+
+
 ## 2025-03-10
 
 ### Changes
