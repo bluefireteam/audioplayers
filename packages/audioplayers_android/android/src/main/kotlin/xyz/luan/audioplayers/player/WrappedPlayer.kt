@@ -1,5 +1,6 @@
 package xyz.luan.audioplayers.player
 
+import java.lang.ref.WeakReference
 import android.content.Context
 import android.media.AudioManager
 import android.media.MediaPlayer
@@ -17,7 +18,7 @@ import kotlin.math.min
 private const val MEDIA_ERROR_SYSTEM = -2147483648
 
 class WrappedPlayer internal constructor(
-    private val ref: AudioplayersPlugin,
+    plugin: AudioplayersPlugin,
     val eventHandler: EventHandler,
     var context: AudioContextAndroid,
     private val soundPoolManager: SoundPoolManager,
@@ -39,7 +40,7 @@ class WrappedPlayer internal constructor(
                 }
                 field = value
             } else {
-                ref.handlePrepared(this, true)
+                plugin.get()?.handlePrepared(this, true)
             }
         }
 
@@ -104,11 +105,13 @@ class WrappedPlayer internal constructor(
 
     var released = true
 
+    var isDisposed = false
+
     var prepared: Boolean = false
         set(value) {
             if (field != value) {
                 field = value
-                ref.handlePrepared(this, value)
+                plugin.get()?.handlePrepared(this, value)
             }
         }
 
@@ -200,10 +203,12 @@ class WrappedPlayer internal constructor(
     }
 
     val applicationContext: Context
-        get() = ref.getApplicationContext()
+        get() = plugin.get()?.getApplicationContext()
+            ?: error("Plugin reference lost in applicationContext")
 
     val audioManager: AudioManager
-        get() = ref.getAudioManager()
+        get() = plugin.get()?.getAudioManager()
+            ?: error("Plugin reference lost in audioManager")
 
     /**
      * Playback handling methods
@@ -286,7 +291,7 @@ class WrappedPlayer internal constructor(
      */
     fun onPrepared() {
         prepared = true
-        ref.handleDuration(this)
+        plugin.get()?.handleDuration(this)
         if (playing) {
             requestFocusAndStart()
         }
@@ -299,7 +304,7 @@ class WrappedPlayer internal constructor(
         if (releaseMode != ReleaseMode.LOOP) {
             stop()
         }
-        ref.handleComplete(this)
+        plugin.get()?.handleComplete(this)
     }
 
     @Suppress("UNUSED_PARAMETER")
@@ -308,15 +313,15 @@ class WrappedPlayer internal constructor(
     }
 
     fun onSeekComplete() {
-        ref.handleSeekComplete(this)
+        plugin.get()?.handleSeekComplete(this)
     }
 
     fun handleLog(message: String) {
-        ref.handleLog(this, message)
+        plugin.get()?.handleLog(this, message)
     }
 
     fun handleError(errorCode: String?, errorMessage: String?, errorDetails: Any?) {
-        ref.handleError(this, errorCode, errorMessage, errorDetails)
+        plugin.get()?.handleError(this, errorCode, errorMessage, errorDetails)
     }
 
     fun onError(what: Int, extra: Int): Boolean {
@@ -389,6 +394,8 @@ class WrappedPlayer internal constructor(
     }
 
     fun dispose() {
+        if (isDisposed) return
+        isDisposed = true
         release()
         eventHandler.dispose()
     }
