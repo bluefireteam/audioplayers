@@ -25,7 +25,7 @@ melos:
         sdk: ^3.6.0
         flutter: '>=3.27.0'
       dev_dependencies:
-        flame_lint: ^1.4.2
+        flame_lint: ^1.4.1
 
   scripts:
     pub-outdated:
