@@ -21,14 +21,11 @@ dev_dependencies:
 melos:
   command:
     bootstrap:
-      # Avoid concurrent pub requests, remove when https://github.com/dart-lang/pub/issues/3404 is fixed
-      runPubGetInParallel: false
-
       environment:
         sdk: ^3.6.0
         flutter: '>=3.27.0'
       dev_dependencies:
-        flame_lint: ^1.3.0
+        flame_lint: ^1.4.2
 
   scripts:
     pub-outdated:
