@@ -14,7 +14,7 @@ let channelName = "xyz.luan/audioplayers"
 
 let globalChannelName = "xyz.luan/audioplayers.global"
 
-public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
+public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
   var registrar: FlutterPluginRegistrar
   var binaryMessenger: FlutterBinaryMessenger
   var methods: FlutterMethodChannel
@@ -64,7 +64,7 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
     let globalEvents = FlutterEventChannel(
       name: globalChannelName + "/events", binaryMessenger: binaryMessenger)
 
-    let instance = SwiftAudioplayersDarwinPlugin(
+    let instance = AudioplayersDarwinPlugin(
       registrar: registrar,
       binaryMessenger: binaryMessenger,
       methodChannel: methods,
@@ -99,9 +99,7 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
     if method == "init" {
       dispose()
     } else if method == "setAudioContext" {
-      #if os(macOS)
-        globalEvents.onLog(message: "Setting AudioContext is not supported on macOS")
-      #else
+      #if os(iOS)
         do {
           guard let context = try AudioContext.parse(args: args) else {
             result(
@@ -120,6 +118,8 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
               code: "DarwinAudioError", message: "Error configuring global audio session: \(error)",
               details: nil))
         }
+      #else
+        globalEvents.onLog(message: "Setting AudioContext is not supported on this platform")
       #endif
     } else if method == "emitLog" {
       guard let message = args["message"] as? String else {
@@ -291,9 +291,7 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
     } else if method == "setPlayerMode" {
       // no-op for darwin; only one player mode
     } else if method == "setAudioContext" {
-      #if os(macOS)
-        player.eventHandler.onLog(message: "Setting AudioContext is not supported on macOS")
-      #else
+      #if os(iOS)
         player.eventHandler.onLog(
           message:
             "iOS does not allow for player-specific audio contexts; `setAudioContext` will set the global audio context instead (like `global.setAudioContext`)."
@@ -316,6 +314,8 @@ public class SwiftAudioplayersDarwinPlugin: NSObject, FlutterPlugin {
               code: "DarwinAudioError", message: "Error configuring audio session: \(error)",
               details: nil))
         }
+      #else
+        player.eventHandler.onLog(message: "Setting AudioContext is not supported on this platform")
       #endif
     } else if method == "emitLog" {
       guard let message = args["message"] as? String else {
