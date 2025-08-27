@@ -126,10 +126,18 @@ class AudioCache {
   ///
   /// Returns a [Uri] to access that file.
   Future<Uri> load(String fileName) async {
-    if (!loadedFiles.containsKey(fileName) ||
-        // the file can be removed from the cache, this
-        // can happen automatically when the storage is almost full
-        (!kIsWeb && !fileSystem.file(loadedFiles[fileName]).existsSync())) {
+    var needsFetch = !loadedFiles.containsKey(fileName);
+
+    // On Android, verify that the cached file still exists. It can be removed
+    // by the system when the storage is almost full
+    // see https://developer.android.com/training/data-storage/app-specific#internal-remove-cache
+    if (!needsFetch &&
+        defaultTargetPlatform == TargetPlatform.android &&
+        !await fileSystem.file(loadedFiles[fileName]).exists()) {
+      needsFetch = true;
+    }
+
+    if (needsFetch) {
       loadedFiles[fileName] = await fetchToMemory(fileName);
     }
     return loadedFiles[fileName]!;
