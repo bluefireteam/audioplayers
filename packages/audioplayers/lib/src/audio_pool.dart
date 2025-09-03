@@ -67,9 +67,11 @@ class AudioPool {
       audioContext: audioContext,
     );
 
-    final players = await Future.wait(
-      List.generate(minPlayers, (_) => instance._createNewAudioPlayer()),
-    );
+    final players = <AudioPlayer>[];
+
+    for (var i = 0; i < minPlayers; i++) {
+      players.add(await instance._createNewAudioPlayer());
+    }
 
     return instance..availablePlayers.addAll(players);
   }
