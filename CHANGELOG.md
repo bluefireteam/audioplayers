@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2025-09-03
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`audioplayers` - `v6.5.1`](#audioplayers---v651)
+
+---
+
+#### `audioplayers` - `v6.5.1`
+
+ - **FIX**: Initialize audioplayer instances sequentially ([#1941](https://github.com/bluefireteam/audioplayers/issues/1941)). ([663fff2c](https://github.com/bluefireteam/audioplayers/commit/663fff2cb8482c81cb525c9d97bfb7f5d02dfdee))
+
+
 ## 2025-06-15
 
 ### Changes
