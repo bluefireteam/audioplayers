@@ -76,6 +76,7 @@ class WrappedPlayer {
     p.loop = shouldLoop();
     p.volume = _currentVolume;
     p.playbackRate = _currentPlaybackRate;
+    p.defaultPlaybackRate = _currentPlaybackRate;
 
     _setupStreams(p);
 
