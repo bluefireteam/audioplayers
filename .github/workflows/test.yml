@@ -202,7 +202,7 @@ jobs:
       - uses: bluefireteam/melos-action@v3
       - name: Setup Android Emulator
         timeout-minutes: 10
-        run: bash ./scripts/ci/setup-android.sh 21 default
+        run: bash ./scripts/ci/setup-android.sh 24 default
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
@@ -229,7 +229,7 @@ jobs:
       - uses: bluefireteam/melos-action@v3
       - name: Setup Android Emulator
         timeout-minutes: 10
-        run: bash ./scripts/ci/setup-android.sh 30
+        run: bash ./scripts/ci/setup-android.sh 35
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
@@ -252,7 +252,7 @@ jobs:
       - uses: bluefireteam/melos-action@v3
       - name: Setup Android Emulator
         timeout-minutes: 10
-        run: bash ./scripts/ci/setup-android.sh 30
+        run: bash ./scripts/ci/setup-android.sh 35
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
