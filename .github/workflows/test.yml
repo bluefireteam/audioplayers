@@ -405,30 +405,6 @@ jobs:
           flutter-version: ${{ inputs.flutter_version }}
           channel: ${{ inputs.flutter_channel }}
       - uses: bluefireteam/melos-action@v3
-      - name: Start audio server
-        run: net start audiosrv
-      - name: Download virtual audio device
-        # Download has to be done before setting the system date time.
-        timeout-minutes: 1
-        run: |
-          Invoke-WebRequest https://github.com/duncanthrax/scream/releases/download/4.0/Scream4.0.zip -OutFile Scream.zip
-          Expand-Archive -Path Scream.zip -DestinationPath Scream
-      - name: Disable time sync with Hyper-V & setting system date time (#1573)
-        # TODO(gustl22): Remove workaround of setting the time when virtual audio device certificate is valid again (#1573)
-        run: |
-          Set-Service -Name vmictimesync -Status stopped -StartupType disabled
-          Set-ItemProperty HKLM:\SYSTEM\CurrentControlSet\services\W32Time\Parameters -Name 'Type' -Value 'NoSync'
-          net stop w32time; Set-Date (Get-Date "2023-07-04 12:00:00")
-      - name: Install virtual audio device
-        timeout-minutes: 1
-        run: |
-          Import-Certificate -FilePath Scream\Install\driver\x64\Scream.cat -CertStoreLocation Cert:\LocalMachine\TrustedPublisher
-          Scream\Install\helpers\devcon-x64.exe install Scream\Install\driver\x64\Scream.inf *Scream
-      - name: Resetting system date time (#1573)
-        run: |
-          Set-Service -Name vmictimesync -Status running -StartupType automatic
-          Set-ItemProperty HKLM:\SYSTEM\CurrentControlSet\services\W32Time\Parameters -Name 'Type' -Value 'NTP'
-          net start w32time; w32tm /resync /force; $currentDate = Get-Date; Write-Host "Current System Date: $currentDate";
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
         shell: bash # Needed in order to fail fast, see: https://github.com/actions/runner-images/issues/6668
