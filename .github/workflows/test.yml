@@ -263,7 +263,8 @@ jobs:
           flutter test integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
       - name: Run Android unit tests
         working-directory: ./packages/audioplayers/example/android
-        run: ./gradlew test
+        # TODO: Use `./gradlew test`, when https://github.com/flutter/flutter/issues/175621 is fixed.
+        run: ./gradlew testDebugUnitTest
 
   ios-min:
     # Run lib tests only to ensure compatibility with iOS 16.
