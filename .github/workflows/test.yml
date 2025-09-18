@@ -336,7 +336,6 @@ jobs:
         run: flutter build ios --release --no-codesign
 
   macos-min:
-    # TODO: Run lib tests only to ensure compatibility with macOS 13, once tests for macOS 14 succeed.
     runs-on: macos-13
     timeout-minutes: 30
     if: inputs.enable_min_version && inputs.enable_macos
@@ -353,9 +352,7 @@ jobs:
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         run: |
           ( cd server; dart run bin/server.dart ) &
-          flutter test -d macos integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
           flutter test -d macos integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
-          flutter test -d macos integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
 
   macos:
     runs-on: macos-14
