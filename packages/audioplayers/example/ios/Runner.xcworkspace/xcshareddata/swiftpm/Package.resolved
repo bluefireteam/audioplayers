@@ -1,5 +1,4 @@
 {
-  "originHash" : "e1022163c6069e02bac513626e0c5427806561a47fcd073bafcd8e7003958f24",
   "pins" : [
     {
       "identity" : "dkcamera",
@@ -33,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SDWebImage/SDWebImage",
       "state" : {
-        "revision" : "cac9a55a3ae92478a2c95042dcc8d9695d2129ca",
-        "version" : "5.21.0"
+        "revision" : "34cf2423a2c4088d06a3b08655603b5bc3eeeb3a",
+        "version" : "5.21.2"
       }
     },
     {
