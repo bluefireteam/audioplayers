@@ -414,9 +414,6 @@ class AudioPlayersStreamHandler: NSObject, FlutterStreamHandler {
 
   public func onCancel(withArguments arguments: Any?) -> FlutterError? {
     self.sink = nil
-    if (isDisposed) {
-      eventChannel.setStreamHandler(nil)
-    }
     return nil
   }
 
@@ -458,18 +455,16 @@ class AudioPlayersStreamHandler: NSObject, FlutterStreamHandler {
 
   func dispose() {
     if let eventSink = self.sink {
+      onError(code: "DarwinAudioError", message: "Stream was still listened to before disposing. Ensure to cancel all subscriptions before calling dispose.", details: nil)
       eventSink(FlutterEndOfEventStream)
     }
-    isDisposed = true
+    eventChannel.setStreamHandler(nil)
   }
 }
 
 class GlobalAudioPlayersStreamHandler: NSObject, FlutterStreamHandler {
   var eventChannel: FlutterEventChannel
   var sink: FlutterEventSink?
-  // When calling dispose, we must emit a FlutterEndOfEventStream, then wait for onCancel to be called by Flutter, in order to release the stream handler.
-  // Otherwise an error is thrown, that the "cancel" method is not implemented.
-  private var isDisposed = false
 
   init(channel: FlutterEventChannel) {
     self.eventChannel = channel
@@ -486,9 +481,6 @@ class GlobalAudioPlayersStreamHandler: NSObject, FlutterStreamHandler {
 
   public func onCancel(withArguments arguments: Any?) -> FlutterError? {
     self.sink = nil
-    if (isDisposed) {
-      eventChannel.setStreamHandler(nil)
-    }
     return nil
   }
 
@@ -506,8 +498,9 @@ class GlobalAudioPlayersStreamHandler: NSObject, FlutterStreamHandler {
 
   func dispose() {
     if let eventSink = self.sink {
+      onError(code: "DarwinAudioError", message: "Stream was still listened to before disposing. Ensure to cancel all subscriptions before calling dispose.", details: nil)
       eventSink(FlutterEndOfEventStream)
     }
-    isDisposed = true
+    eventChannel.setStreamHandler(nil)
   }
 }
