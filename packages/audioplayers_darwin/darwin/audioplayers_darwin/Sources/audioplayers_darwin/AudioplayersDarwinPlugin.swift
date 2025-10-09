@@ -73,19 +73,19 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
   }
 
   public func detachFromEngine(for registrar: FlutterPluginRegistrar) {
-      async {
-          await dispose()
-      }
+    async {
+      await dispose()
+    }
   }
 
   func dispose() async {
-          for (_, player) in self.players {
-            await player.dispose()
-          }
-          
-          self.globalMethods.setMethodCallHandler(nil)
-          self.globalEvents.dispose()
-          self.players = [:]
+    for (_, player) in self.players {
+      await player.dispose()
+    }
+
+    self.globalMethods.setMethodCallHandler(nil)
+    self.globalEvents.dispose()
+    self.players = [:]
   }
 
   private func handleGlobalMethodCall(call: FlutterMethodCall, result: @escaping FlutterResult) async {
@@ -116,7 +116,7 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
           globalContext = context
 
           try globalContext.apply()
-        } catch {
+        } catch let error {
           result(
             FlutterError(
               code: "DarwinAudioError", message: "Error configuring global audio session: \(error)",
@@ -222,20 +222,20 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
         return
       }
 
-        do {
-            await player.setSourceUrl(
-                url: url!, isLocal: isLocal,
-                mimeType: mimeType,
-            )
-        } catch { error in
-                let errorStr: String = error != nil ? "\(error!)" : "Unknown error"
-                player.eventHandler.onError(
-                    code: "DarwinAudioError",
-                    message: "Failed to set source. For troubleshooting, see "
-                    + "https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md",
-                    details: "AVPlayerItem.Status.failed on setSourceUrl: \(errorStr)")
-            }
-        
+      do {
+        await player.setSourceUrl(
+          url: url!, isLocal: isLocal,
+          mimeType: mimeType,
+        )
+      } catch let error {
+        let errorStr: String = error != nil ? "\(error!)" : "Unknown error"
+        player.eventHandler.onError(
+          code: "DarwinAudioError",
+          message: "Failed to set source. For troubleshooting, see "
+            + "https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md",
+          details: "AVPlayerItem.Status.failed on setSourceUrl: \(errorStr)")
+      }
+
     } else if method == "setSourceBytes" {
       result(
         FlutterError(
@@ -301,7 +301,7 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
           globalContext = context
 
           try globalContext.apply()
-        } catch {
+        } catch let error {
           result(
             FlutterError(
               code: "DarwinAudioError", message: "Error configuring audio session: \(error)",
@@ -374,7 +374,7 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
 
     do {
       try globalContext.activateAudioSession(active: anyIsPlaying)
-    } catch {
+    } catch let error {
       self.globalEvents.onError(
         code: "DarwinAudioError", message: "Error configuring audio session: \(error)", details: nil
       )
