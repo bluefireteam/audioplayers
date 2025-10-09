@@ -88,7 +88,9 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
     self.players = [:]
   }
 
-  private func handleGlobalMethodCall(call: FlutterMethodCall, result: @escaping FlutterResult) async {
+  private func handleGlobalMethodCall(call: FlutterMethodCall, result: @escaping FlutterResult)
+    async
+  {
     let method = call.method
 
     guard let args = call.arguments as? [String: Any] else {
@@ -446,7 +448,11 @@ class AudioPlayersStreamHandler: NSObject, FlutterStreamHandler {
 
   func dispose() {
     if let eventSink = self.sink {
-      onError(code: "DarwinAudioError", message: "Stream was still listened to before disposing. Ensure to cancel all subscriptions before calling dispose.", details: nil)
+      onError(
+        code: "DarwinAudioError",
+        message:
+          "Stream was still listened to before disposing. Ensure to cancel all subscriptions before calling dispose.",
+        details: nil)
       eventSink(FlutterEndOfEventStream)
     }
     eventChannel.setStreamHandler(nil)
@@ -489,7 +495,11 @@ class GlobalAudioPlayersStreamHandler: NSObject, FlutterStreamHandler {
 
   func dispose() {
     if let eventSink = self.sink {
-      onError(code: "DarwinAudioError", message: "Stream was still listened to before disposing. Ensure to cancel all subscriptions before calling dispose.", details: nil)
+      onError(
+        code: "DarwinAudioError",
+        message:
+          "Stream was still listened to before disposing. Ensure to cancel all subscriptions before calling dispose.",
+        details: nil)
       eventSink(FlutterEndOfEventStream)
     }
     eventChannel.setStreamHandler(nil)
