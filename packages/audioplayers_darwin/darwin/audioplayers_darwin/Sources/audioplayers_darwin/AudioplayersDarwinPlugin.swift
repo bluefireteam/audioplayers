@@ -157,7 +157,7 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
     result(1)
   }
 
-  public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+  public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) async {
     let method = call.method
 
     guard let args = call.arguments as? [String: Any] else {
@@ -196,15 +196,9 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
     } else if method == "resume" {
       player.resume()
     } else if method == "stop" {
-      player.stop {
-        result(1)
-      }
-      return
+      await player.stop()
     } else if method == "release" {
-      player.release {
-        result(1)
-      }
-      return
+      await player.release()
     } else if method == "seek" {
       guard let position = args["position"] as? Int else {
         result(
@@ -213,10 +207,7 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
         return
       }
       let time = toCMTime(millis: position)
-      player.seek(time: time) {
-        result(1)
-      }
-      return
+      await player.seek(time: time)
     } else if method == "setSourceUrl" {
       let url: String? = args["url"] as? String
       let mimeType: String? = args["mimeType"] as? String
