@@ -375,13 +375,13 @@ void main() async {
           );
 
           final eventStream = platform.getEventStream(playerId);
-          final completeFuture = eventStream.firstWhere(
-            (event) => event.eventType == AudioEventType.complete,
+          expect(
+            eventStream.map((event) => event.eventType),
+            emitsThrough(AudioEventType.complete),
           );
 
           await platform.resume(playerId);
           await tester.pumpAndSettle(const Duration(seconds: 3));
-          await completeFuture.timeout(_defaultTimeout);
         });
       }
     }
@@ -395,77 +395,90 @@ void main() async {
     });
 
     testWidgets('Emit platform log', (tester) async {
-      final logFuture = platform
-          .getEventStream(playerId)
-          .firstWhere((event) => event.eventType == AudioEventType.log)
-          .then((event) => event.logMessage);
-
+      final eventStream = platform.getEventStream(playerId);
+      expect(
+        eventStream,
+        emitsThrough(
+          const AudioEvent(
+            eventType: AudioEventType.log,
+            logMessage: 'SomeLog',
+          ),
+        ),
+      );
       await platform.emitLog(playerId, 'SomeLog');
-
-      expect(await logFuture, 'SomeLog');
     });
 
     testWidgets('Emit global platform log', (tester) async {
       final global = GlobalAudioplayersPlatformInterface.instance;
-      final logCompleter = Completer<Object>();
 
-      /* final eventStreamSub = */
-      global
-          .getGlobalEventStream()
-          .where((event) => event.eventType == GlobalAudioEventType.log)
-          .map((event) => event.logMessage)
-          .listen(logCompleter.complete, onError: logCompleter.completeError);
+      final globalEventStream = global.getGlobalEventStream();
+      expect(
+        globalEventStream,
+        emitsThrough(
+          const GlobalAudioEvent(
+            eventType: GlobalAudioEventType.log,
+            logMessage: 'SomeGlobalLog',
+          ),
+        ),
+      );
 
       await global.emitGlobalLog('SomeGlobalLog');
-
-      final log = await logCompleter.future;
-      expect(log, 'SomeGlobalLog');
-      // FIXME: cancelling the global event stream leads to
-      // MissingPluginException on Android, if dispose app afterwards
-      // await eventStreamSub.cancel();
     });
 
     testWidgets('Emit platform error', (tester) async {
-      final errorCompleter = Completer<Object>();
-      final eventStreamSub = platform
-          .getEventStream(playerId)
-          .listen((_) {}, onError: errorCompleter.complete);
+      final eventStream = platform.getEventStream(playerId);
+      expect(
+        eventStream,
+        emitsThrough(
+          emitsError(
+            isA<PlatformException>()
+                .having(
+                  (PlatformException e) => e.code,
+                  'code',
+                  'SomeErrorCode',
+                )
+                .having(
+                  (PlatformException e) => e.message,
+                  'message',
+                  'SomeErrorMessage',
+                ),
+          ),
+        ),
+      );
 
       await platform.emitError(
         playerId,
         'SomeErrorCode',
         'SomeErrorMessage',
       );
-
-      final exception = await errorCompleter.future;
-      expect(exception, isInstanceOf<PlatformException>());
-      final platformException = exception as PlatformException;
-      expect(platformException.code, 'SomeErrorCode');
-      expect(platformException.message, 'SomeErrorMessage');
-      await eventStreamSub.cancel();
     });
 
     testWidgets('Emit global platform error', (tester) async {
       final global = GlobalAudioplayersPlatformInterface.instance;
-      final errorCompleter = Completer<Object>();
-
-      /* final eventStreamSub = */
-      global
-          .getGlobalEventStream()
-          .listen((_) {}, onError: errorCompleter.complete);
+      final globalEventStream = global.getGlobalEventStream();
+      expect(
+        globalEventStream,
+        emitsThrough(
+          emitsError(
+            isA<PlatformException>()
+                .having(
+                  (PlatformException e) => e.code,
+                  'code',
+                  'SomeGlobalErrorCode',
+                )
+                .having(
+                  (PlatformException e) => e.message,
+                  'message',
+                  'SomeGlobalErrorMessage',
+                ),
+          ),
+        ),
+      );
 
       await global.emitGlobalError(
         'SomeGlobalErrorCode',
         'SomeGlobalErrorMessage',
       );
-      final exception = await errorCompleter.future;
-      expect(exception, isInstanceOf<PlatformException>());
-      final platformException = exception as PlatformException;
-      expect(platformException.code, 'SomeGlobalErrorCode');
-      expect(platformException.message, 'SomeGlobalErrorMessage');
-      // FIXME: cancelling the global event stream leads to
-      // MissingPluginException on Android, if dispose app afterwards
-      // await eventStreamSub.cancel();
     });
   });
 }
