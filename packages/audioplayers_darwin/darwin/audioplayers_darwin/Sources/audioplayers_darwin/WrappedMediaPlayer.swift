@@ -167,6 +167,7 @@ class WrappedMediaPlayer {
 
   func dispose(completer: Completer? = nil) {
     release {
+      self.eventHandler.dispose()
       completer?()
     }
   }
