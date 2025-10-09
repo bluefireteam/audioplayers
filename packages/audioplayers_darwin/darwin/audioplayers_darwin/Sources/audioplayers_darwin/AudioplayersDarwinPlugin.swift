@@ -394,7 +394,10 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
 class AudioPlayersStreamHandler: NSObject, FlutterStreamHandler {
   var eventChannel: FlutterEventChannel
   var sink: FlutterEventSink?
-      
+  // When calling dispose, we must emit a FlutterEndOfEventStream, then wait for onCancel to be called by Flutter, in order to release the stream handler.
+  // Otherwise an error is thrown, that the "cancel" method is not implemented.
+  private var isDisposed = false
+
   init(channel: FlutterEventChannel) {
     self.eventChannel = channel
     super.init()
@@ -411,6 +414,9 @@ class AudioPlayersStreamHandler: NSObject, FlutterStreamHandler {
 
   public func onCancel(withArguments arguments: Any?) -> FlutterError? {
     self.sink = nil
+    if (isDisposed) {
+      eventChannel.setStreamHandler(nil)
+    }
     return nil
   }
 
@@ -451,15 +457,20 @@ class AudioPlayersStreamHandler: NSObject, FlutterStreamHandler {
   }
 
   func dispose() {
-    self.onCancel(withArguments: nil)
-    eventChannel.setStreamHandler(nil)
+    if let eventSink = self.sink {
+      eventSink(FlutterEndOfEventStream)
+    }
+    isDisposed = true
   }
 }
 
 class GlobalAudioPlayersStreamHandler: NSObject, FlutterStreamHandler {
   var eventChannel: FlutterEventChannel
   var sink: FlutterEventSink?
-    
+  // When calling dispose, we must emit a FlutterEndOfEventStream, then wait for onCancel to be called by Flutter, in order to release the stream handler.
+  // Otherwise an error is thrown, that the "cancel" method is not implemented.
+  private var isDisposed = false
+
   init(channel: FlutterEventChannel) {
     self.eventChannel = channel
     super.init()
@@ -475,6 +486,9 @@ class GlobalAudioPlayersStreamHandler: NSObject, FlutterStreamHandler {
 
   public func onCancel(withArguments arguments: Any?) -> FlutterError? {
     self.sink = nil
+    if (isDisposed) {
+      eventChannel.setStreamHandler(nil)
+    }
     return nil
   }
 
@@ -489,9 +503,11 @@ class GlobalAudioPlayersStreamHandler: NSObject, FlutterStreamHandler {
       eventSink(FlutterError(code: code, message: message, details: details))
     }
   }
-    
+
   func dispose() {
-    self.onCancel(withArguments: nil)
-    eventChannel.setStreamHandler(nil)
+    if let eventSink = self.sink {
+      eventSink(FlutterEndOfEventStream)
+    }
+    isDisposed = true
   }
 }
