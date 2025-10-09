@@ -127,49 +127,38 @@ class WrappedMediaPlayer {
     }
   }
 
-  func seek(time: CMTime, completer: Completer? = nil) {
+  func seek(time: CMTime) async {
     guard let currentItem = player.currentItem else {
-      completer?()
       return
     }
-    currentItem.seek(to: time) {
-      finished in
+    await currentItem.seek(to: time)
       if !self.isPlaying {
         self.player.pause()
       }
       self.eventHandler.onSeekComplete()
-      if finished {
-        completer?()
-      }
-    }
   }
 
-  func stop(completer: Completer? = nil) {
+  func stop() async {
     pause()
-    seek(time: toCMTime(millis: 0), completer: completer)
+    if (getCurrentPosition() ?? 0) != 0 {
+      await seek(time: toCMTime(millis: 0))
+    }
     if releaseMode == ReleaseMode.release {
-      release(completer: completer)
+      await release()
     }
   }
 
-  func release(completer: Completer? = nil) {
+  func release() async {
     if self.isPlaying {
       // Avoid loop of stop and release
-      stop {
-        self.reset()
-        completer?()
-      }
-      return
+      await stop()
     }
     self.reset()
-    completer?()
   }
 
-  func dispose(completer: Completer? = nil) {
-    release {
-      self.eventHandler.dispose()
-      completer?()
-    }
+  func dispose() async {
+    await release
+  self.eventHandler.dispose()
   }
 
   private func getDurationCMTime() -> CMTime? {
@@ -280,17 +269,16 @@ class WrappedMediaPlayer {
       return
     }
 
-    seek(time: toCMTime(millis: 0)) {
+    reference.controlAudioSession()
+    eventHandler.onComplete()
+
+    await seek(time: toCMTime(millis: 0))
       if self.releaseMode == ReleaseMode.loop {
         self.resume()
       } else if self.releaseMode == ReleaseMode.release {
-        self.release()
+        await self.release()
       } else {
         self.isPlaying = false
       }
-    }
-
-    reference.controlAudioSession()
-    eventHandler.onComplete()
   }
 }
