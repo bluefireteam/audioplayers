@@ -73,20 +73,22 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
   }
 
   public func detachFromEngine(for registrar: FlutterPluginRegistrar) {
-    dispose()
+      async {
+          await dispose()
+      }
   }
 
-  func dispose() {
-    for (_, player) in self.players {
-      player.dispose()
-    }
-
-    self.globalMethods.setMethodCallHandler(nil)
-    self.globalEvents.dispose()
-    self.players = [:]
+  func dispose() async {
+          for (_, player) in self.players {
+            await player.dispose()
+          }
+          
+          self.globalMethods.setMethodCallHandler(nil)
+          self.globalEvents.dispose()
+          self.players = [:]
   }
 
-  private func handleGlobalMethodCall(call: FlutterMethodCall, result: @escaping FlutterResult) {
+  private func handleGlobalMethodCall(call: FlutterMethodCall, result: @escaping FlutterResult) async {
     let method = call.method
 
     guard let args = call.arguments as? [String: Any] else {
@@ -99,7 +101,7 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
 
     // global handlers (no playerId)
     if method == "init" {
-      dispose()
+      await dispose()
     } else if method == "setAudioContext" {
       #if os(iOS)
         do {
@@ -220,22 +222,20 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
         return
       }
 
-      player.setSourceUrl(
-        url: url!, isLocal: isLocal,
-        mimeType: mimeType,
-        completer: {
-          player.eventHandler.onPrepared(isPrepared: true)
-        },
-        completerError: { error in
-          let errorStr: String = error != nil ? "\(error!)" : "Unknown error"
-          player.eventHandler.onError(
-            code: "DarwinAudioError",
-            message: "Failed to set source. For troubleshooting, see "
-              + "https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md",
-            details: "AVPlayerItem.Status.failed on setSourceUrl: \(errorStr)")
-        })
-      result(1)
-      return
+        do {
+            await player.setSourceUrl(
+                url: url!, isLocal: isLocal,
+                mimeType: mimeType,
+            )
+        } catch { error in
+                let errorStr: String = error != nil ? "\(error!)" : "Unknown error"
+                player.eventHandler.onError(
+                    code: "DarwinAudioError",
+                    message: "Failed to set source. For troubleshooting, see "
+                    + "https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md",
+                    details: "AVPlayerItem.Status.failed on setSourceUrl: \(errorStr)")
+            }
+        
     } else if method == "setSourceBytes" {
       result(
         FlutterError(

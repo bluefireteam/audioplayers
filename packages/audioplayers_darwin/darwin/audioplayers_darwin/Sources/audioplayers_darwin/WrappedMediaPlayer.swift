@@ -56,30 +56,23 @@ class WrappedMediaPlayer {
     url: String,
     isLocal: Bool,
     mimeType: String? = nil,
-    completer: Completer? = nil,
-    completerError: CompleterError? = nil
-  ) {
+  ) async {
     let playbackStatus = player.currentItem?.status
 
     if self.url != url || playbackStatus == .failed || playbackStatus == nil {
       reset()
       self.url = url
-      do {
         let playerItem = try createPlayerItem(url: url, isLocal: isLocal, mimeType: mimeType)
         // Need to observe item status immediately after creating:
-        setUpPlayerItemStatusObservation(
-          playerItem,
-          completer: completer,
-          completerError: completerError)
+        await setUpPlayerItemStatusObservation(
+          playerItem)
         // Replacing the player item triggers completion in setUpPlayerItemStatusObservation
         self.player.replaceCurrentItem(with: playerItem)
         self.setUpSoundCompletedObserver(self.player, playerItem)
-      } catch {
-        completerError?(error)
-      }
+        eventHandler.onPrepared(isPrepared: true)
     } else {
       if playbackStatus == .readyToPlay {
-        completer?()
+        eventHandler.onPrepared(isPrepared: true)
       }
     }
   }
@@ -157,7 +150,7 @@ class WrappedMediaPlayer {
   }
 
   func dispose() async {
-    await release
+    await release()
   self.eventHandler.dispose()
   }
 
@@ -203,35 +196,35 @@ class WrappedMediaPlayer {
 
   private func setUpPlayerItemStatusObservation(
     _ playerItem: AVPlayerItem,
-    completer: Completer? = nil,
-    completerError: CompleterError? = nil
-  ) {
-    playerItemStatusObservation = playerItem.observe(\AVPlayerItem.status) { (playerItem, change) in
-      let status = playerItem.status
-      self.eventHandler.onLog(message: "player status: \(status), change: \(change)")
+  ) async {
+  await withCheckedContinuation { continuation in
+  playerItemStatusObservation = playerItem.observe(\AVPlayerItem.status) { (playerItem, change) in
+        let status = playerItem.status
+        self.eventHandler.onLog(message: "player status: \(status), change: \(change)")
 
-      switch playerItem.status {
-      case .readyToPlay:
-        completer?()
-        // Needs to be called after preparation callback.
-        self.updateDuration()
-      case .failed:
-        self.reset()
-        completerError?(nil)
-      default:
-        break
+        switch playerItem.status {
+        case .readyToPlay:
+              continuation.resume()
+          // Needs to be called after preparation callback.
+          self.updateDuration()
+        case .failed:
+          self.reset()
+          continuation.resume(throwing:  AudioPlayerError.error("Failed to set playerItem"))
+        default:
+          break
+        }
       }
     }
   }
 
-  private func setUpSoundCompletedObserver(_ player: AVPlayer, _ playerItem: AVPlayerItem) {
+  private func setUpSoundCompletedObserver(_ player: AVPlayer, _ playerItem: AVPlayerItem) async {
     let observer = NotificationCenter.default.addObserver(
       forName: NSNotification.Name.AVPlayerItemDidPlayToEndTime,
       object: playerItem,
       queue: nil
     ) {
       [weak self] (notification) in
-      self?.onSoundComplete()
+      await self?.onSoundComplete()
     }
     self.completionObserver = TimeObserver(player: player, observer: observer)
   }
@@ -264,7 +257,7 @@ class WrappedMediaPlayer {
     }
   }
 
-  private func onSoundComplete() {
+  private func onSoundComplete() async {
     if !isPlaying {
       return
     }
