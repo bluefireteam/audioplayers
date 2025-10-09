@@ -56,23 +56,23 @@ class WrappedMediaPlayer {
     url: String,
     isLocal: Bool,
     mimeType: String? = nil,
-  ) async {
+  ) async throws {
     let playbackStatus = player.currentItem?.status
 
     if self.url != url || playbackStatus == .failed || playbackStatus == nil {
       reset()
       self.url = url
-        let playerItem = try createPlayerItem(url: url, isLocal: isLocal, mimeType: mimeType)
-        // Need to observe item status immediately after creating:
-        await setUpPlayerItemStatusObservation(
-          playerItem)
-        // Replacing the player item triggers completion in setUpPlayerItemStatusObservation
-        self.player.replaceCurrentItem(with: playerItem)
-        self.setUpSoundCompletedObserver(self.player, playerItem)
-        eventHandler.onPrepared(isPrepared: true)
+      let playerItem = try createPlayerItem(url: url, isLocal: isLocal, mimeType: mimeType)
+      // Need to observe item status immediately after creating:
+      try await setUpPlayerItemStatusObservation(
+        playerItem)
+      // Replacing the player item triggers completion in setUpPlayerItemStatusObservation
+      self.player.replaceCurrentItem(with: playerItem)
+      self.setUpSoundCompletedObserver(self.player, playerItem)
+      self.eventHandler.onPrepared(isPrepared: true)
     } else {
       if playbackStatus == .readyToPlay {
-        eventHandler.onPrepared(isPrepared: true)
+        self.eventHandler.onPrepared(isPrepared: true)
       }
     }
   }
@@ -125,10 +125,10 @@ class WrappedMediaPlayer {
       return
     }
     await currentItem.seek(to: time)
-      if !self.isPlaying {
-        self.player.pause()
-      }
-      self.eventHandler.onSeekComplete()
+    if !self.isPlaying {
+      self.player.pause()
+    }
+    self.eventHandler.onSeekComplete()
   }
 
   func stop() async {
@@ -151,7 +151,7 @@ class WrappedMediaPlayer {
 
   func dispose() async {
     await release()
-  self.eventHandler.dispose()
+    self.eventHandler.dispose()
   }
 
   private func getDurationCMTime() -> CMTime? {
@@ -196,35 +196,37 @@ class WrappedMediaPlayer {
 
   private func setUpPlayerItemStatusObservation(
     _ playerItem: AVPlayerItem,
-  ) async {
-  await withCheckedContinuation { continuation in
-  playerItemStatusObservation = playerItem.observe(\AVPlayerItem.status) { (playerItem, change) in
+  ) async throws {
+    try await withCheckedThrowingContinuation { continuation in
+      playerItemStatusObservation = playerItem.observe(\AVPlayerItem.status) {
+        (playerItem, change) in
         let status = playerItem.status
         self.eventHandler.onLog(message: "player status: \(status), change: \(change)")
 
         switch playerItem.status {
         case .readyToPlay:
-              continuation.resume()
+          continuation.resume()
           // Needs to be called after preparation callback.
           self.updateDuration()
         case .failed:
           self.reset()
-          continuation.resume(throwing:  AudioPlayerError.error("Failed to set playerItem"))
+          continuation.resume(throwing: AudioPlayerError.error("Failed to set playerItem"))
         default:
           break
         }
       }
     }
+    playerItemStatusObservation?.invalidate()
   }
 
-  private func setUpSoundCompletedObserver(_ player: AVPlayer, _ playerItem: AVPlayerItem) async {
+  private func setUpSoundCompletedObserver(_ player: AVPlayer, _ playerItem: AVPlayerItem) {
     let observer = NotificationCenter.default.addObserver(
       forName: NSNotification.Name.AVPlayerItemDidPlayToEndTime,
       object: playerItem,
       queue: nil
     ) {
       [weak self] (notification) in
-      await self?.onSoundComplete()
+      Task { await self?.onSoundComplete() }
     }
     self.completionObserver = TimeObserver(player: player, observer: observer)
   }
@@ -266,12 +268,12 @@ class WrappedMediaPlayer {
     eventHandler.onComplete()
 
     await seek(time: toCMTime(millis: 0))
-      if self.releaseMode == ReleaseMode.loop {
-        self.resume()
-      } else if self.releaseMode == ReleaseMode.release {
-        await self.release()
-      } else {
-        self.isPlaying = false
-      }
+    if self.releaseMode == ReleaseMode.loop {
+      self.resume()
+    } else if self.releaseMode == ReleaseMode.release {
+      await self.release()
+    } else {
+      self.isPlaying = false
+    }
   }
 }

@@ -45,7 +45,10 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
 
     super.init()
 
-    self.globalMethods.setMethodCallHandler(self.handleGlobalMethodCall)
+    self.globalMethods.setMethodCallHandler({
+      (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
+      Task { await self.handleGlobalMethodCall(call: call, result: result) }
+    })
   }
 
   public static func register(with registrar: FlutterPluginRegistrar) {
@@ -73,7 +76,7 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
   }
 
   public func detachFromEngine(for registrar: FlutterPluginRegistrar) {
-    async {
+    Task {
       await dispose()
     }
   }
@@ -88,9 +91,7 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
     self.players = [:]
   }
 
-  private func handleGlobalMethodCall(call: FlutterMethodCall, result: @escaping FlutterResult)
-    async
-  {
+  private func handleGlobalMethodCall(call: FlutterMethodCall, result: @escaping FlutterResult) async {
     let method = call.method
 
     guard let args = call.arguments as? [String: Any] else {
@@ -225,17 +226,16 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
       }
 
       do {
-        await player.setSourceUrl(
+        try await player.setSourceUrl(
           url: url!, isLocal: isLocal,
           mimeType: mimeType,
         )
       } catch let error {
-        let errorStr: String = error != nil ? "\(error!)" : "Unknown error"
         player.eventHandler.onError(
           code: "DarwinAudioError",
           message: "Failed to set source. For troubleshooting, see "
             + "https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md",
-          details: "AVPlayerItem.Status.failed on setSourceUrl: \(errorStr)")
+          details: "AVPlayerItem.Status.failed on setSourceUrl: \(error)")
       }
 
     } else if method == "setSourceBytes" {
@@ -338,11 +338,8 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
       }
       player.eventHandler.onError(code: code, message: message, details: nil)
     } else if method == "dispose" {
-      player.dispose {
-        self.players[playerId] = nil
-        result(1)
-      }
-      return
+      await player.dispose()
+      self.players[playerId] = nil
     } else {
       result(FlutterMethodNotImplemented)
       return
