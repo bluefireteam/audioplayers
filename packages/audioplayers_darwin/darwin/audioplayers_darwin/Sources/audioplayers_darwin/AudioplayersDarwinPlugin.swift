@@ -35,7 +35,7 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
     self.binaryMessenger = binaryMessenger
     self.methods = methodChannel
     self.globalMethods = globalMethodChannel
-    self.globalEvents = GlobalAudioPlayersStreamHandler()
+    self.globalEvents = GlobalAudioPlayersStreamHandler(channel: globalEventChannel)
 
     do {
       try globalContext.apply()
@@ -46,7 +46,6 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
     super.init()
 
     self.globalMethods.setMethodCallHandler(self.handleGlobalMethodCall)
-    globalEventChannel.setStreamHandler(self.globalEvents)
   }
 
   public static func register(with registrar: FlutterPluginRegistrar) {
@@ -81,6 +80,9 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
     for (_, player) in self.players {
       player.dispose()
     }
+
+    self.globalMethods.setMethodCallHandler(nil)
+    self.globalEvents.dispose()
     self.players = [:]
   }
 
@@ -361,9 +363,7 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
     let eventChannel = FlutterEventChannel(
       name: channelName + "/events/" + playerId, binaryMessenger: self.binaryMessenger)
 
-    let eventHandler = AudioPlayersStreamHandler()
-
-    eventChannel.setStreamHandler(eventHandler)
+    let eventHandler = AudioPlayersStreamHandler(channel: eventChannel)
 
     let newPlayer = WrappedMediaPlayer(
       reference: self,
@@ -392,7 +392,14 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
 }
 
 class AudioPlayersStreamHandler: NSObject, FlutterStreamHandler {
+  var eventChannel: FlutterEventChannel
   var sink: FlutterEventSink?
+      
+  init(channel: FlutterEventChannel) {
+    self.eventChannel = channel
+    super.init()
+    eventChannel.setStreamHandler(self)
+  }
 
   public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink)
     -> FlutterError?
@@ -403,6 +410,7 @@ class AudioPlayersStreamHandler: NSObject, FlutterStreamHandler {
   }
 
   public func onCancel(withArguments arguments: Any?) -> FlutterError? {
+    self.sink = nil
     return nil
   }
 
@@ -441,10 +449,22 @@ class AudioPlayersStreamHandler: NSObject, FlutterStreamHandler {
       eventSink(FlutterError(code: code, message: message, details: details))
     }
   }
+
+  func dispose() {
+    self.onCancel(withArguments: nil)
+    eventChannel.setStreamHandler(nil)
+  }
 }
 
 class GlobalAudioPlayersStreamHandler: NSObject, FlutterStreamHandler {
+  var eventChannel: FlutterEventChannel
   var sink: FlutterEventSink?
+    
+  init(channel: FlutterEventChannel) {
+    self.eventChannel = channel
+    super.init()
+    eventChannel.setStreamHandler(self)
+  }
 
   public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink)
     -> FlutterError?
@@ -454,6 +474,7 @@ class GlobalAudioPlayersStreamHandler: NSObject, FlutterStreamHandler {
   }
 
   public func onCancel(withArguments arguments: Any?) -> FlutterError? {
+    self.sink = nil
     return nil
   }
 
@@ -467,5 +488,10 @@ class GlobalAudioPlayersStreamHandler: NSObject, FlutterStreamHandler {
     if let eventSink = self.sink {
       eventSink(FlutterError(code: code, message: message, details: details))
     }
+  }
+    
+  func dispose() {
+    self.onCancel(withArguments: nil)
+    eventChannel.setStreamHandler(nil)
   }
 }
