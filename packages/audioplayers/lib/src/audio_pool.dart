@@ -41,6 +41,9 @@ class AudioPool {
   /// returned to the pool.
   final int maxPlayers;
 
+  @visibleForTesting
+  Duration? duration;
+
   final Lock _lock = Lock();
 
   AudioPool._({
@@ -94,10 +97,7 @@ class AudioPool {
   /// Starts playing the audio, returns a function that can stop the audio.
   Future<StopFunction> start({double volume = 1.0}) async {
     return _lock.synchronized(() async {
-      if (availablePlayers.isEmpty) {
-        availablePlayers.add(await _createNewAudioPlayer());
-      }
-      final player = availablePlayers.removeAt(0);
+      final player = await _createNewOrReserveAnAvailablePlayer();
       currentPlayers[player.playerId] = player;
       await player.setVolume(volume);
       await player.resume();
@@ -125,6 +125,34 @@ class AudioPool {
     });
   }
 
+  /// Returns the duration of the audio.
+  ///
+  /// If the duration is requested for the first time it will use the pool to
+  /// get or create a player and get the duration from it. Subsequent calls will
+  /// return the duration immediately.
+  Future<Duration?> getDuration() async {
+    if (duration != null) {
+      return duration;
+    }
+
+    return _lock.synchronized(() async {
+      final player = await _createNewOrReserveAnAvailablePlayer();
+      currentPlayers[player.playerId] = player;
+      duration = await player.getDuration();
+
+      final removedPlayer = currentPlayers.remove(player.playerId);
+      if (removedPlayer != null) {
+        if (availablePlayers.length >= maxPlayers) {
+          await removedPlayer.dispose();
+        } else {
+          availablePlayers.add(removedPlayer);
+        }
+      }
+
+      return duration;
+    });
+  }
+
   Future<AudioPlayer> _createNewAudioPlayer() async {
     final player = AudioPlayer()..audioCache = audioCache;
     if (audioContext != null) {
@@ -133,6 +161,13 @@ class AudioPool {
     await player.setSource(source);
     await player.setReleaseMode(ReleaseMode.stop);
     return player;
+  }
+
+  Future<AudioPlayer> _createNewOrReserveAnAvailablePlayer() async {
+    if (availablePlayers.isEmpty) {
+      return _createNewAudioPlayer();
+    }
+    return availablePlayers.removeAt(0);
   }
 
   /// Disposes the audio pool. Then it cannot be used anymore.
