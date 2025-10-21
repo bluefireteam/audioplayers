@@ -238,6 +238,7 @@ void AudioPlayer::OnLog(const std::string& message) {
 }
 
 void AudioPlayer::SendInitialized() {
+  if (m_mediaFoundationFailed) return;
   if (!this->_isInitialized) {
     this->_isInitialized = true;
     OnPrepared(true);
@@ -246,6 +247,7 @@ void AudioPlayer::SendInitialized() {
 }
 
 void AudioPlayer::ReleaseMediaSource() {
+  if (m_mediaFoundationFailed) return;
   if (_isInitialized) {
     m_mediaEngineWrapper->Pause();
   }
@@ -255,6 +257,7 @@ void AudioPlayer::ReleaseMediaSource() {
 }
 
 void AudioPlayer::Dispose() {
+  if (m_mediaFoundationFailed) return;
   ReleaseMediaSource();
   m_mediaEngineWrapper->Shutdown();
   _methodChannel = nullptr;
@@ -262,6 +265,7 @@ void AudioPlayer::Dispose() {
 }
 
 void AudioPlayer::SetReleaseMode(ReleaseMode releaseMode) {
+  if (m_mediaFoundationFailed) return;
   m_mediaEngineWrapper->SetLooping(releaseMode == ReleaseMode::loop);
   _releaseMode = releaseMode;
 }
@@ -271,6 +275,8 @@ ReleaseMode AudioPlayer::GetReleaseMode() {
 }
 
 void AudioPlayer::SetVolume(double volume) {
+  if (m_mediaFoundationFailed) return;
+
   if (volume > 1) {
     volume = 1;
   } else if (volume < 0) {
@@ -280,23 +286,28 @@ void AudioPlayer::SetVolume(double volume) {
 }
 
 void AudioPlayer::SetPlaybackSpeed(double playbackSpeed) {
+  if (m_mediaFoundationFailed) return;
   m_mediaEngineWrapper->SetPlaybackRate(playbackSpeed);
 }
 
 void AudioPlayer::SetBalance(double balance) {
+  if (m_mediaFoundationFailed) return;
   m_mediaEngineWrapper->SetBalance(balance);
 }
 
 void AudioPlayer::Play() {
+  if (m_mediaFoundationFailed) return;
   m_mediaEngineWrapper->StartPlayingFrom(m_mediaEngineWrapper->GetMediaTime());
   OnDurationUpdate();
 }
 
 void AudioPlayer::Pause() {
+  if (m_mediaFoundationFailed) return;
   m_mediaEngineWrapper->Pause();
 }
 
 void AudioPlayer::Stop() {
+  if (m_mediaFoundationFailed) return;
   Pause();
   if (GetReleaseMode() == ReleaseMode::release) {
     ReleaseMediaSource();
@@ -306,21 +317,24 @@ void AudioPlayer::Stop() {
 }
 
 void AudioPlayer::Resume() {
+  if (m_mediaFoundationFailed) return;
   m_mediaEngineWrapper->Resume();
   OnDurationUpdate();
 }
 
 double AudioPlayer::GetPosition() {
-  if (!_isInitialized) {
+  if (!_isInitialized || m_mediaFoundationFailed) {
     return std::numeric_limits<double>::quiet_NaN();
   }
   return m_mediaEngineWrapper->GetMediaTime();
 }
 
 double AudioPlayer::GetDuration() {
+  if (m_mediaFoundationFailed) return std::numeric_limits<double>::quiet_NaN();
   return m_mediaEngineWrapper->GetDuration();
 }
 
 void AudioPlayer::SeekTo(double seek) {
+  if (m_mediaFoundationFailed) return;
   m_mediaEngineWrapper->SeekTo(seek);
 }
