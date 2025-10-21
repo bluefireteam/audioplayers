@@ -25,6 +25,14 @@ AudioPlayer::AudioPlayer(
     : _playerId(playerId),
       _methodChannel(methodChannel),
       _eventHandler(eventHandler) {
+  HMODULE hMfPlat = LoadLibrary(L"MFPlat.dll");
+  HMODULE hMfReadWrite = LoadLibrary(L"mfreadwrite.dll");
+
+  if (hMfPlat == NULL || hMfReadWrite == NULL) m_mediaFoundationFailed = true;
+  if (hMfPlat) FreeLibrary(hMfPlat);
+  if (hMfReadWrite) FreeLibrary(hMfReadWrite);
+  if (m_mediaFoundationFailed) return;
+
   m_mfPlatform.Startup();
 
   // Callbacks invoked by the media engine wrapper
@@ -48,6 +56,14 @@ AudioPlayer::~AudioPlayer() {}
 
 // This method should be called asynchronously, to avoid freezing UI
 void AudioPlayer::SetSourceUrl(std::string url) {
+  if (m_mediaFoundationFailed) {
+    this->OnError("WindowsAudioError",
+                  "Media Feature Pack not found. Please install it from "
+                  "Windows Settings > Optional Features.",
+                  nullptr);
+    return;
+  }
+
   if (_url != url) {
     _url = url;
     _isInitialized = false;
@@ -90,6 +106,14 @@ void AudioPlayer::SetSourceUrl(std::string url) {
 }
 
 void AudioPlayer::SetSourceBytes(std::vector<uint8_t> bytes) {
+  if (m_mediaFoundationFailed) {
+    this->OnError("WindowsAudioError",
+                  "Media Feature Pack not found. Please install it from "
+                  "Windows Settings > Optional Features.",
+                  nullptr);
+    return;
+  }
+
   _isInitialized = false;
   _url.clear();
   size_t size = bytes.size();
