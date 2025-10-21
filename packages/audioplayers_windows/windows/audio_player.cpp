@@ -10,6 +10,8 @@
 #include <shobjidl.h>
 #include <windows.h>
 
+#include <excpt.h>
+#include <delayimp.h>
 #include "audioplayers_helpers.h"
 
 #define STR_LINK_TROUBLESHOOTING \
@@ -25,31 +27,34 @@ AudioPlayer::AudioPlayer(
     : _playerId(playerId),
       _methodChannel(methodChannel),
       _eventHandler(eventHandler) {
-  HMODULE hMfPlat = LoadLibrary(L"MFPlat.dll");
-  HMODULE hMfReadWrite = LoadLibrary(L"mfreadwrite.dll");
 
-  if (hMfPlat == NULL || hMfReadWrite == NULL) m_mediaFoundationFailed = true;
-  if (hMfPlat) FreeLibrary(hMfPlat);
-  if (hMfReadWrite) FreeLibrary(hMfReadWrite);
-  if (m_mediaFoundationFailed) return;
+  __try {
+      m_mfPlatform.Startup();
 
-  m_mfPlatform.Startup();
+      // Callbacks invoked by the media engine wrapper
+      auto onError = std::bind(&AudioPlayer::OnMediaError, this,
+                               std::placeholders::_1, std::placeholders::_2);
+      auto onBufferingStateChanged =
+          std::bind(&AudioPlayer::OnMediaStateChange, this, std::placeholders::_1);
+      auto onPlaybackEndedCB = std::bind(&AudioPlayer::OnPlaybackEnded, this);
+      auto onSeekCompletedCB = std::bind(&AudioPlayer::OnSeekCompleted, this);
+      auto onLoadedCB = std::bind(&AudioPlayer::SendInitialized, this);
 
-  // Callbacks invoked by the media engine wrapper
-  auto onError = std::bind(&AudioPlayer::OnMediaError, this,
-                           std::placeholders::_1, std::placeholders::_2);
-  auto onBufferingStateChanged =
-      std::bind(&AudioPlayer::OnMediaStateChange, this, std::placeholders::_1);
-  auto onPlaybackEndedCB = std::bind(&AudioPlayer::OnPlaybackEnded, this);
-  auto onSeekCompletedCB = std::bind(&AudioPlayer::OnSeekCompleted, this);
-  auto onLoadedCB = std::bind(&AudioPlayer::SendInitialized, this);
+      // Create and initialize the MediaEngineWrapper which manages media playback
+      m_mediaEngineWrapper = winrt::make_self<media::MediaEngineWrapper>(
+          onLoadedCB, onError, onBufferingStateChanged, onPlaybackEndedCB,
+          onSeekCompletedCB);
 
-  // Create and initialize the MediaEngineWrapper which manages media playback
-  m_mediaEngineWrapper = winrt::make_self<media::MediaEngineWrapper>(
-      onLoadedCB, onError, onBufferingStateChanged, onPlaybackEndedCB,
-      onSeekCompletedCB);
-
-  m_mediaEngineWrapper->Initialize();
+      m_mediaEngineWrapper->Initialize();
+  } __except (EXCEPTION_EXECUTE_HANDLER) {
+      DWORD exceptionCode = GetExceptionCode();
+      if (exceptionCode == VcppException(ERROR_MOD_NOT_FOUND) ||
+          exceptionCode == VcppException(ERROR_PROC_NOT_FOUND)) {
+          m_mediaFoundationFailed = true;
+      } else {
+          throw;
+      }
+  }
 }
 
 AudioPlayer::~AudioPlayer() {}
