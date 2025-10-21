@@ -54,6 +54,7 @@ target_include_directories(${PLUGIN_NAME} INTERFACE
 target_link_libraries(${PLUGIN_NAME} PRIVATE flutter flutter_wrapper_plugin)
 target_link_libraries(${PLUGIN_NAME} PRIVATE shlwapi Mfplat.lib)
 
+target_link_libraries(${PLUGIN_NAME} PRIVATE delayimp.lib)
 target_link_options(${PLUGIN_NAME} PRIVATE "/DELAYLOAD:Mfplat.dll")
 target_link_options(${PLUGIN_NAME} PRIVATE "/DELAYLOAD:mfreadwrite.dll")
 
