@@ -20,6 +20,70 @@
 
 using namespace winrt;
 
+// SEH C-wrapper functions to solve C2712
+HRESULT InitializeMediaFoundation_SEH(media::MediaEngineWrapper* wrapper) {
+  __try {
+    THROW_IF_FAILED(MFStartup(MF_VERSION, MFSTARTUP_FULL));
+    wrapper->Initialize();
+  } __except (EXCEPTION_EXECUTE_HANDLER) {
+    DWORD exceptionCode = GetExceptionCode();
+    if (exceptionCode == 0xC06D007E || exceptionCode == 0xC06D007F) {
+      return exceptionCode;
+    }
+    return E_FAIL;
+  }
+  return S_OK;
+}
+
+HRESULT CreateSourceFromUrl_SEH(std::string url, IMFMediaSource** ppMediaSource) {
+  __try {
+    winrt::com_ptr<IMFSourceResolver> sourceResolver;
+    THROW_IF_FAILED(MFCreateSourceResolver(sourceResolver.put()));
+    constexpr uint32_t sourceResolutionFlags =
+        MF_RESOLUTION_MEDIASOURCE |
+        MF_RESOLUTION_CONTENT_DOES_NOT_HAVE_TO_MATCH_EXTENSION_OR_MIME_TYPE |
+        MF_RESOLUTION_READ;
+    MF_OBJECT_TYPE objectType = {};
+    THROW_IF_FAILED(sourceResolver->CreateObjectFromURL(
+        winrt::to_hstring(url).c_str(), sourceResolutionFlags, nullptr,
+        &objectType, reinterpret_cast<IUnknown**>(ppMediaSource)));
+  } __except (EXCEPTION_EXECUTE_HANDLER) {
+    DWORD exceptionCode = GetExceptionCode();
+    if (exceptionCode == 0xC06D007E || exceptionCode == 0xC06D007F) {
+      return exceptionCode;
+    }
+    return E_FAIL;
+  }
+  return S_OK;
+}
+
+HRESULT CreateSourceFromBytes_SEH(std::vector<uint8_t> bytes,
+                                  IMFMediaSource** ppMediaSource) {
+  __try {
+    winrt::com_ptr<IMFSourceResolver> sourceResolver;
+    THROW_IF_FAILED(MFCreateSourceResolver(sourceResolver.put()));
+    constexpr uint32_t sourceResolutionFlags =
+        MF_RESOLUTION_MEDIASOURCE |
+        MF_RESOLUTION_CONTENT_DOES_NOT_HAVE_TO_MATCH_EXTENSION_OR_MIME_TYPE |
+        MF_RESOLUTION_READ;
+    MF_OBJECT_TYPE objectType = {};
+    IStream* pstm =
+        SHCreateMemStream(bytes.data(), static_cast<unsigned int>(bytes.size()));
+    IMFByteStream* stream = NULL;
+    THROW_IF_FAILED(MFCreateMFByteStreamOnStream(pstm, &stream));
+    sourceResolver->CreateObjectFromByteStream(
+        stream, nullptr, sourceResolutionFlags, nullptr, &objectType,
+        reinterpret_cast<IUnknown**>(ppMediaSource));
+  } __except (EXCEPTION_EXECUTE_HANDLER) {
+    DWORD exceptionCode = GetExceptionCode();
+    if (exceptionCode == 0xC06D007E || exceptionCode == 0xC06D007F) {
+      return exceptionCode;
+    }
+    return E_FAIL;
+  }
+  return S_OK;
+}
+
 AudioPlayer::AudioPlayer(
     std::string playerId,
     flutter::MethodChannel<flutter::EncodableValue>* methodChannel,
@@ -27,32 +91,26 @@ AudioPlayer::AudioPlayer(
     : _playerId(playerId),
       _methodChannel(methodChannel),
       _eventHandler(eventHandler) {
+  // Callbacks invoked by the media engine wrapper
+  auto onError = std::bind(&AudioPlayer::OnMediaError, this,
+                           std::placeholders::_1, std::placeholders::_2);
+  auto onBufferingStateChanged =
+      std::bind(&AudioPlayer::OnMediaStateChange, this, std::placeholders::_1);
+  auto onPlaybackEndedCB = std::bind(&AudioPlayer::OnPlaybackEnded, this);
+  auto onSeekCompletedCB = std::bind(&AudioPlayer::OnSeekCompleted, this);
+  auto onLoadedCB = std::bind(&AudioPlayer::SendInitialized, this);
 
-      // Callbacks invoked by the media engine wrapper
-      auto onError = std::bind(&AudioPlayer::OnMediaError, this,
-                               std::placeholders::_1, std::placeholders::_2);
-      auto onBufferingStateChanged =
-          std::bind(&AudioPlayer::OnMediaStateChange, this, std::placeholders::_1);
-      auto onPlaybackEndedCB = std::bind(&AudioPlayer::OnPlaybackEnded, this);
-      auto onSeekCompletedCB = std::bind(&AudioPlayer::OnSeekCompleted, this);
-      auto onLoadedCB = std::bind(&AudioPlayer::SendInitialized, this);
-    
-      // Create and initialize the MediaEngineWrapper which manages media playback
-      m_mediaEngineWrapper = winrt::make_self<media::MediaEngineWrapper>(
-          onLoadedCB, onError, onBufferingStateChanged, onPlaybackEndedCB,
-          onSeekCompletedCB);
+  // Create and initialize the MediaEngineWrapper which manages media playback
+  m_mediaEngineWrapper = winrt::make_self<media::MediaEngineWrapper>(
+      onLoadedCB, onError, onBufferingStateChanged, onPlaybackEndedCB,
+      onSeekCompletedCB);
 
-  __try {
-      m_mfPlatform.Startup();
-      m_mediaEngineWrapper->Initialize();
-  } __except (EXCEPTION_EXECUTE_HANDLER) {
-      DWORD exceptionCode = GetExceptionCode();
-      if (exceptionCode == 0xC06D007E ||
-          exceptionCode == 0xC06D007F) {
-          m_mediaFoundationFailed = true;
-      } else {
-          throw;
-      }
+  HRESULT hr = InitializeMediaFoundation_SEH(m_mediaEngineWrapper.get());
+  if (FAILED(hr)) {
+    if (hr == 0xC06D007E || hr == 0xC06D007F) {
+      m_mediaFoundationFailed = true;
+    }
+    return;
   }
 }
 
@@ -73,34 +131,22 @@ void AudioPlayer::SetSourceUrl(std::string url) {
     _isInitialized = false;
 
     try {
-      // Create a source resolver to create an IMFMediaSource for the content
-      // URL. This will create an instance of an inbuilt OS media source for
-      // playback. An application can skip this step and instantiate a custom
-      // IMFMediaSource implementation instead.
-      winrt::com_ptr<IMFSourceResolver> sourceResolver;
       winrt::com_ptr<IMFMediaSource> mediaSource;
-      MF_OBJECT_TYPE objectType = {};
 
-      __try {
-        THROW_IF_FAILED(MFCreateSourceResolver(sourceResolver.put()));
-        constexpr uint32_t sourceResolutionFlags =
-          MF_RESOLUTION_MEDIASOURCE |
-          MF_RESOLUTION_CONTENT_DOES_NOT_HAVE_TO_MATCH_EXTENSION_OR_MIME_TYPE |
-          MF_RESOLUTION_READ;
+      HRESULT hr = CreateSourceFromUrl_SEH(url, mediaSource.put());
 
-        THROW_IF_FAILED(sourceResolver->CreateObjectFromURL(
-        winrt::to_hstring(url).c_str(), sourceResolutionFlags, nullptr,
-        &objectType, reinterpret_cast<IUnknown**>(mediaSource.put_void())));
-      } __except (EXCEPTION_EXECUTE_HANDLER) {
-        DWORD exceptionCode = GetExceptionCode();
-        if (exceptionCode == 0xC06D007E || exceptionCode == 0xC06D007F) {
-            m_mediaFoundationFailed = true;
-            this->OnError("WindowsAudioError", "Media Feature Pack not found (delay-load failed).", nullptr);
-            return;
+      if (FAILED(hr)) {
+        if (hr == 0xC06D007E || hr == 0xC06D007F) {
+          m_mediaFoundationFailed = true;
+          this->OnError("WindowsAudioError",
+                        "Media Feature Pack not found (delay-load failed).",
+                        nullptr);
         } else {
-            throw;
+          this->OnError("WindowsAudioError", "Failed to create source from URL.",
+                        nullptr);
         }
-   }
+        return;
+      }
 
       m_mediaEngineWrapper->SetMediaSource(mediaSource.get());
     } catch (const std::exception& ex) {
@@ -135,36 +181,23 @@ void AudioPlayer::SetSourceBytes(std::vector<uint8_t> bytes) {
   size_t size = bytes.size();
 
   try {
-    winrt::com_ptr<IMFSourceResolver> sourceResolver;
     winrt::com_ptr<IMFMediaSource> mediaSource;
-    MF_OBJECT_TYPE objectType = {};
 
-    __try {
-       THROW_IF_FAILED(MFCreateSourceResolver(sourceResolver.put()));
-       constexpr uint32_t sourceResolutionFlags =
-         MF_RESOLUTION_MEDIASOURCE |
-         MF_RESOLUTION_CONTENT_DOES_NOT_HAVE_TO_MATCH_EXTENSION_OR_MIME_TYPE |
-         MF_RESOLUTION_READ;
+    HRESULT hr = CreateSourceFromBytes_SEH(bytes, mediaSource.put());
 
-       IStream* pstm =
-         SHCreateMemStream(bytes.data(), static_cast<unsigned int>(size));
-       IMFByteStream* stream = NULL;
-       THROW_IF_FAILED(MFCreateMFByteStreamOnStream(pstm, &stream));
-
-       sourceResolver->CreateObjectFromByteStream(
-         stream, nullptr, sourceResolutionFlags, nullptr, &objectType,
-         reinterpret_cast<IUnknown**>(mediaSource.put_void()));
-  
-    } __except (EXCEPTION_EXECUTE_HANDLER) {
-        DWORD exceptionCode = GetExceptionCode();
-        if (exceptionCode == 0xC06D007E || exceptionCode == 0xC06D007F) {
-            m_mediaFoundationFailed = true;
-            this->OnError("WindowsAudioError", "Media Feature Pack not found (delay-load failed).", nullptr);
-         return;
-        } else {
-            throw;
-        }
+    if (FAILED(hr)) {
+      if (hr == 0xC06D007E || hr == 0xC06D007F) {
+        m_mediaFoundationFailed = true;
+        this->OnError("WindowsAudioError",
+                      "Media Feature Pack not found (delay-load failed).",
+                      nullptr);
+      } else {
+        this->OnError("WindowsAudioError", "Failed to create source from bytes.",
+                      nullptr);
+      }
+      return;
     }
+
     m_mediaEngineWrapper->SetMediaSource(mediaSource.get());
   } catch (...) {
     // Forward errors to event stream, as this is called asynchronously
@@ -351,14 +384,16 @@ void AudioPlayer::Resume() {
 }
 
 double AudioPlayer::GetPosition() {
-  if (!_isInitialized || m_mediaFoundationFailed) {
+  if (m_mediaFoundationFailed || !_isInitialized) {
     return std::numeric_limits<double>::quiet_NaN();
   }
   return m_mediaEngineWrapper->GetMediaTime();
 }
 
 double AudioPlayer::GetDuration() {
-  if (m_mediaFoundationFailed) return std::numeric_limits<double>::quiet_NaN();
+  if (m_mediaFoundationFailed) {
+    return std::numeric_limits<double>::quiet_NaN();
+  }
   return m_mediaEngineWrapper->GetDuration();
 }
 
