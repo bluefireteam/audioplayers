@@ -45,12 +45,10 @@ AudioPlayer::AudioPlayer(
     m_mfPlatform.Startup();
 
     // Callbacks invoked by the media engine wrapper
-    auto onError =
-        std::bind(&AudioPlayer::OnMediaError, this, std::placeholders::_1,
-                  std::placeholders::_2);
-    auto onBufferingStateChanged =
-        std::bind(&AudioPlayer::OnMediaStateChange, this,
-                  std::placeholders::_1);
+    auto onError = std::bind(&AudioPlayer::OnMediaError, this,
+                             std::placeholders::_1, std::placeholders::_2);
+    auto onBufferingStateChanged = std::bind(&AudioPlayer::OnMediaStateChange,
+                                             this, std::placeholders::_1);
     auto onPlaybackEndedCB = std::bind(&AudioPlayer::OnPlaybackEnded, this);
     auto onSeekCompletedCB = std::bind(&AudioPlayer::OnSeekCompleted, this);
     auto onLoadedCB = std::bind(&AudioPlayer::SendInitialized, this);
