@@ -25,39 +25,46 @@ AudioPlayer::AudioPlayer(
     : _playerId(playerId),
       _methodChannel(methodChannel),
       _eventHandler(eventHandler) {
-    HMODULE hMfplat = LoadLibraryEx(L"Mfplat.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
-    HMODULE hMfreadwrite = LoadLibraryEx(L"mfreadwrite.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
+  HMODULE hMfplat =
+      LoadLibraryEx(L"Mfplat.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
+  HMODULE hMfreadwrite =
+      LoadLibraryEx(L"mfreadwrite.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
 
-     if (!hMfplat || !hMfreadwrite) {
-      m_mediaFoundationFailed = true;
-      if (hMfplat) FreeLibrary(hMfplat);
-      if (hMfreadwrite) FreeLibrary(hMfreadwrite);
-      return;
-    }
-    FreeLibrary(hMfplat);
-    FreeLibrary(hMfreadwrite);
+  if (!hMfplat || !hMfreadwrite) {
+    m_mediaFoundationFailed = true;
+    if (hMfplat)
+      FreeLibrary(hMfplat);
+    if (hMfreadwrite)
+      FreeLibrary(hMfreadwrite);
+    return;
+  }
+  FreeLibrary(hMfplat);
+  FreeLibrary(hMfreadwrite);
 
-    try {
-      m_mfPlatform.Startup();
+  try {
+    m_mfPlatform.Startup();
 
-      // Callbacks invoked by the media engine wrapper
-      auto onError = std::bind(&AudioPlayer::OnMediaError, this,
-                               std::placeholders::_1, std::placeholders::_2);
-      auto onBufferingStateChanged =
-          std::bind(&AudioPlayer::OnMediaStateChange, this, std::placeholders::_1);
-      auto onPlaybackEndedCB = std::bind(&AudioPlayer::OnPlaybackEnded, this);
-      auto onSeekCompletedCB = std::bind(&AudioPlayer::OnSeekCompleted, this);
-      auto onLoadedCB = std::bind(&AudioPlayer::SendInitialized, this);
+    // Callbacks invoked by the media engine wrapper
+    auto onError =
+        std::bind(&AudioPlayer::OnMediaError, this, std::placeholders::_1,
+                  std::placeholders::_2);
+    auto onBufferingStateChanged =
+        std::bind(&AudioPlayer::OnMediaStateChange, this,
+                  std::placeholders::_1);
+    auto onPlaybackEndedCB = std::bind(&AudioPlayer::OnPlaybackEnded, this);
+    auto onSeekCompletedCB = std::bind(&AudioPlayer::OnSeekCompleted, this);
+    auto onLoadedCB = std::bind(&AudioPlayer::SendInitialized, this);
 
-      // Create and initialize the MediaEngineWrapper which manages media playback
-      m_mediaEngineWrapper = winrt::make_self<media::MediaEngineWrapper>(
-          onLoadedCB, onError, onBufferingStateChanged, onPlaybackEndedCB,
-          onSeekCompletedCB);
+    // Create and initialize the MediaEngineWrapper which manages media
+    // playback
+    m_mediaEngineWrapper = winrt::make_self<media::MediaEngineWrapper>(
+        onLoadedCB, onError, onBufferingStateChanged, onPlaybackEndedCB,
+        onSeekCompletedCB);
 
-      m_mediaEngineWrapper->Initialize();
-    } catch (...) {
-      m_mediaFoundationFailed = true;
-    }
+    m_mediaEngineWrapper->Initialize();
+  } catch (...) {
+    m_mediaFoundationFailed = true;
+  }
 }
 
 AudioPlayer::~AudioPlayer() {}
@@ -213,7 +220,8 @@ void AudioPlayer::OnPlaybackEnded() {
 }
 
 void AudioPlayer::OnDurationUpdate() {
-  if (m_mediaFoundationFailed || !m_mediaEngineWrapper) return;
+  if (m_mediaFoundationFailed || !m_mediaEngineWrapper)
+    return;
   auto duration = m_mediaEngineWrapper->GetDuration();
   if (this->_eventHandler) {
     this->_eventHandler->Success(
@@ -247,7 +255,8 @@ void AudioPlayer::OnLog(const std::string& message) {
 }
 
 void AudioPlayer::SendInitialized() {
-  if (m_mediaFoundationFailed || !m_mediaEngineWrapper) return;
+  if (m_mediaFoundationFailed || !m_mediaEngineWrapper)
+    return;
   if (!this->_isInitialized) {
     this->_isInitialized = true;
     OnPrepared(true);
@@ -256,7 +265,8 @@ void AudioPlayer::SendInitialized() {
 }
 
 void AudioPlayer::ReleaseMediaSource() {
-  if (m_mediaFoundationFailed || !m_mediaEngineWrapper) return;
+  if (m_mediaFoundationFailed || !m_mediaEngineWrapper)
+    return;
   if (_isInitialized) {
     m_mediaEngineWrapper->Pause();
   }
@@ -279,7 +289,8 @@ void AudioPlayer::Dispose() {
 }
 
 void AudioPlayer::SetReleaseMode(ReleaseMode releaseMode) {
-  if (m_mediaFoundationFailed || !m_mediaEngineWrapper) return;
+  if (m_mediaFoundationFailed || !m_mediaEngineWrapper)
+    return;
   m_mediaEngineWrapper->SetLooping(releaseMode == ReleaseMode::loop);
   _releaseMode = releaseMode;
 }
@@ -289,7 +300,8 @@ ReleaseMode AudioPlayer::GetReleaseMode() {
 }
 
 void AudioPlayer::SetVolume(double volume) {
-  if (m_mediaFoundationFailed || !m_mediaEngineWrapper) return;
+  if (m_mediaFoundationFailed || !m_mediaEngineWrapper)
+    return;
 
   if (volume > 1) {
     volume = 1;
@@ -300,28 +312,33 @@ void AudioPlayer::SetVolume(double volume) {
 }
 
 void AudioPlayer::SetPlaybackSpeed(double playbackSpeed) {
-  if (m_mediaFoundationFailed || !m_mediaEngineWrapper) return;
+  if (m_mediaFoundationFailed || !m_mediaEngineWrapper)
+    return;
   m_mediaEngineWrapper->SetPlaybackRate(playbackSpeed);
 }
 
 void AudioPlayer::SetBalance(double balance) {
-  if (m_mediaFoundationFailed || !m_mediaEngineWrapper) return;
+  if (m_mediaFoundationFailed || !m_mediaEngineWrapper)
+    return;
   m_mediaEngineWrapper->SetBalance(balance);
 }
 
 void AudioPlayer::Play() {
-  if (m_mediaFoundationFailed || !m_mediaEngineWrapper) return;
+  if (m_mediaFoundationFailed || !m_mediaEngineWrapper)
+    return;
   m_mediaEngineWrapper->StartPlayingFrom(m_mediaEngineWrapper->GetMediaTime());
   OnDurationUpdate();
 }
 
 void AudioPlayer::Pause() {
-  if (m_mediaFoundationFailed || !m_mediaEngineWrapper) return;
+  if (m_mediaFoundationFailed || !m_mediaEngineWrapper)
+    return;
   m_mediaEngineWrapper->Pause();
 }
 
 void AudioPlayer::Stop() {
-  if (m_mediaFoundationFailed || !m_mediaEngineWrapper) return;
+  if (m_mediaFoundationFailed || !m_mediaEngineWrapper)
+    return;
   Pause();
   if (GetReleaseMode() == ReleaseMode::release) {
     ReleaseMediaSource();
@@ -331,7 +348,8 @@ void AudioPlayer::Stop() {
 }
 
 void AudioPlayer::Resume() {
-  if (m_mediaFoundationFailed || !m_mediaEngineWrapper) return;
+  if (m_mediaFoundationFailed || !m_mediaEngineWrapper)
+    return;
   m_mediaEngineWrapper->Resume();
   OnDurationUpdate();
 }
@@ -351,6 +369,7 @@ double AudioPlayer::GetDuration() {
 }
 
 void AudioPlayer::SeekTo(double seek) {
-  if (m_mediaFoundationFailed || !m_mediaEngineWrapper) return;
+  if (m_mediaFoundationFailed || !m_mediaEngineWrapper)
+    return;
   m_mediaEngineWrapper->SeekTo(seek);
 }
