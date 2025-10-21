@@ -28,9 +28,6 @@ AudioPlayer::AudioPlayer(
       _methodChannel(methodChannel),
       _eventHandler(eventHandler) {
 
-  __try {
-      m_mfPlatform.Startup();
-
       // Callbacks invoked by the media engine wrapper
       auto onError = std::bind(&AudioPlayer::OnMediaError, this,
                                std::placeholders::_1, std::placeholders::_2);
@@ -39,17 +36,19 @@ AudioPlayer::AudioPlayer(
       auto onPlaybackEndedCB = std::bind(&AudioPlayer::OnPlaybackEnded, this);
       auto onSeekCompletedCB = std::bind(&AudioPlayer::OnSeekCompleted, this);
       auto onLoadedCB = std::bind(&AudioPlayer::SendInitialized, this);
-
+    
       // Create and initialize the MediaEngineWrapper which manages media playback
       m_mediaEngineWrapper = winrt::make_self<media::MediaEngineWrapper>(
           onLoadedCB, onError, onBufferingStateChanged, onPlaybackEndedCB,
           onSeekCompletedCB);
 
+  __try {
+      m_mfPlatform.Startup();
       m_mediaEngineWrapper->Initialize();
   } __except (EXCEPTION_EXECUTE_HANDLER) {
       DWORD exceptionCode = GetExceptionCode();
-      if (exceptionCode == VcppException(ERROR_MOD_NOT_FOUND) ||
-          exceptionCode == VcppException(ERROR_PROC_NOT_FOUND)) {
+      if (exceptionCode == 0xC06D007E ||
+          exceptionCode == 0xC06D007F) {
           m_mediaFoundationFailed = true;
       } else {
           throw;
@@ -79,17 +78,29 @@ void AudioPlayer::SetSourceUrl(std::string url) {
       // playback. An application can skip this step and instantiate a custom
       // IMFMediaSource implementation instead.
       winrt::com_ptr<IMFSourceResolver> sourceResolver;
-      THROW_IF_FAILED(MFCreateSourceResolver(sourceResolver.put()));
-      constexpr uint32_t sourceResolutionFlags =
+      winrt::com_ptr<IMFMediaSource> mediaSource;
+      MF_OBJECT_TYPE objectType = {};
+
+      __try {
+        THROW_IF_FAILED(MFCreateSourceResolver(sourceResolver.put()));
+        constexpr uint32_t sourceResolutionFlags =
           MF_RESOLUTION_MEDIASOURCE |
           MF_RESOLUTION_CONTENT_DOES_NOT_HAVE_TO_MATCH_EXTENSION_OR_MIME_TYPE |
           MF_RESOLUTION_READ;
-      MF_OBJECT_TYPE objectType = {};
 
-      winrt::com_ptr<IMFMediaSource> mediaSource;
-      THROW_IF_FAILED(sourceResolver->CreateObjectFromURL(
-          winrt::to_hstring(url).c_str(), sourceResolutionFlags, nullptr,
-          &objectType, reinterpret_cast<IUnknown**>(mediaSource.put_void())));
+        THROW_IF_FAILED(sourceResolver->CreateObjectFromURL(
+        winrt::to_hstring(url).c_str(), sourceResolutionFlags, nullptr,
+        &objectType, reinterpret_cast<IUnknown**>(mediaSource.put_void())));
+      } __except (EXCEPTION_EXECUTE_HANDLER) {
+        DWORD exceptionCode = GetExceptionCode();
+        if (exceptionCode == 0xC06D007E || exceptionCode == 0xC06D007F) {
+            m_mediaFoundationFailed = true;
+            this->OnError("WindowsAudioError", "Media Feature Pack not found (delay-load failed).", nullptr);
+            return;
+        } else {
+            throw;
+        }
+   }
 
       m_mediaEngineWrapper->SetMediaSource(mediaSource.get());
     } catch (const std::exception& ex) {
@@ -125,23 +136,35 @@ void AudioPlayer::SetSourceBytes(std::vector<uint8_t> bytes) {
 
   try {
     winrt::com_ptr<IMFSourceResolver> sourceResolver;
-    THROW_IF_FAILED(MFCreateSourceResolver(sourceResolver.put()));
-    constexpr uint32_t sourceResolutionFlags =
-        MF_RESOLUTION_MEDIASOURCE |
-        MF_RESOLUTION_CONTENT_DOES_NOT_HAVE_TO_MATCH_EXTENSION_OR_MIME_TYPE |
-        MF_RESOLUTION_READ;
+    winrt::com_ptr<IMFMediaSource> mediaSource;
     MF_OBJECT_TYPE objectType = {};
 
-    winrt::com_ptr<IMFMediaSource> mediaSource;
+    __try {
+       THROW_IF_FAILED(MFCreateSourceResolver(sourceResolver.put()));
+       constexpr uint32_t sourceResolutionFlags =
+         MF_RESOLUTION_MEDIASOURCE |
+         MF_RESOLUTION_CONTENT_DOES_NOT_HAVE_TO_MATCH_EXTENSION_OR_MIME_TYPE |
+         MF_RESOLUTION_READ;
 
-    IStream* pstm =
-        SHCreateMemStream(bytes.data(), static_cast<unsigned int>(size));
-    IMFByteStream* stream = NULL;
-    MFCreateMFByteStreamOnStream(pstm, &stream);
+       IStream* pstm =
+         SHCreateMemStream(bytes.data(), static_cast<unsigned int>(size));
+       IMFByteStream* stream = NULL;
+       THROW_IF_FAILED(MFCreateMFByteStreamOnStream(pstm, &stream));
 
-    sourceResolver->CreateObjectFromByteStream(
-        stream, nullptr, sourceResolutionFlags, nullptr, &objectType,
-        reinterpret_cast<IUnknown**>(mediaSource.put_void()));
+       sourceResolver->CreateObjectFromByteStream(
+         stream, nullptr, sourceResolutionFlags, nullptr, &objectType,
+         reinterpret_cast<IUnknown**>(mediaSource.put_void()));
+  
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        DWORD exceptionCode = GetExceptionCode();
+        if (exceptionCode == 0xC06D007E || exceptionCode == 0xC06D007F) {
+            m_mediaFoundationFailed = true;
+            this->OnError("WindowsAudioError", "Media Feature Pack not found (delay-load failed).", nullptr);
+         return;
+        } else {
+            throw;
+        }
+    }
     m_mediaEngineWrapper->SetMediaSource(mediaSource.get());
   } catch (...) {
     // Forward errors to event stream, as this is called asynchronously
