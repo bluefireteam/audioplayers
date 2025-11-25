@@ -21,8 +21,9 @@ class AudioplayersPlatform extends AudioplayersPlatformInterface
 
   @override
   Future<void> dispose(String playerId) async {
-    await super.dispose(playerId);
+    // TODO change order?
     disposeEventStream(playerId);
+    await super.dispose(playerId);
   }
 }
 
