@@ -45,10 +45,7 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
 
     super.init()
 
-    self.globalMethods.setMethodCallHandler({
-      (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
-      Task { await self.handleGlobalMethodCall(call: call, result: result) }
-    })
+    self.globalMethods.setMethodCallHandler(handleGlobalMethodCall)
   }
 
   public static func register(with registrar: FlutterPluginRegistrar) {
@@ -76,7 +73,7 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
   }
 
   public func detachFromEngine(for registrar: FlutterPluginRegistrar) {
-    Task {
+    Task { @MainActor in
       await dispose()
     }
   }
@@ -91,7 +88,14 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
     self.players = [:]
   }
 
-  private func handleGlobalMethodCall(call: FlutterMethodCall, result: @escaping FlutterResult) async {
+  private func handleGlobalMethodCall(call: FlutterMethodCall, result: @escaping FlutterResult) {
+    Task { @MainActor in
+      await handleAsyncGlobalMethodCall(call: call, result: result)
+    }
+  }
+
+  @MainActor
+  private func handleAsyncGlobalMethodCall(call: FlutterMethodCall, result: @escaping FlutterResult) async {
     let method = call.method
 
     guard let args = call.arguments as? [String: Any] else {
@@ -162,7 +166,14 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
     result(1)
   }
 
-  public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) async {
+  public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+    Task { @MainActor in
+      await handleAsync(call, result: result)
+    }
+  }
+
+  @MainActor
+  private func handleAsync(_ call: FlutterMethodCall, result: @escaping FlutterResult) async {
     let method = call.method
 
     guard let args = call.arguments as? [String: Any] else {
@@ -349,6 +360,7 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
     result(1)
   }
 
+  @MainActor
   func createPlayer(playerId: String) {
     let eventChannel = FlutterEventChannel(
       name: channelName + "/events/" + playerId, binaryMessenger: self.binaryMessenger)
@@ -366,6 +378,7 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
     return players[playerId]
   }
 
+  @MainActor
   func controlAudioSession() {
     let anyIsPlaying = players.values.contains { player in
       player.isPlaying
@@ -406,52 +419,46 @@ class AudioPlayersStreamHandler: NSObject, FlutterStreamHandler {
     self.sink = nil
     return nil
   }
+  
+  private func sendEvent(_ event: Any?) {
+    if let eventSink = self.sink {
+      DispatchQueue.main.async {
+        eventSink(event)
+      }
+    }
+  }
 
   func onSeekComplete() {
-    if let eventSink = self.sink {
-      eventSink(["event": "audio.onSeekComplete"])
-    }
+    sendEvent(["event": "audio.onSeekComplete"])
   }
 
   func onComplete() {
-    if let eventSink = self.sink {
-      eventSink(["event": "audio.onComplete"])
-    }
+    sendEvent(["event": "audio.onComplete"])
   }
 
   func onDuration(millis: Int) {
-    if let eventSink = self.sink {
-      eventSink(["event": "audio.onDuration", "value": millis] as [String: Any])
-    }
+    sendEvent(["event": "audio.onDuration", "value": millis] as [String: Any])
   }
 
   func onPrepared(isPrepared: Bool) {
-    if let eventSink = self.sink {
-      eventSink(["event": "audio.onPrepared", "value": isPrepared] as [String: Any])
-    }
+    sendEvent(["event": "audio.onPrepared", "value": isPrepared] as [String: Any])
   }
 
   func onLog(message: String) {
-    if let eventSink = self.sink {
-      eventSink(["event": "audio.onLog", "value": message])
-    }
+    sendEvent(["event": "audio.onLog", "value": message])
   }
 
   func onError(code: String, message: String, details: Any?) {
-    if let eventSink = self.sink {
-      eventSink(FlutterError(code: code, message: message, details: details))
-    }
+    sendEvent(FlutterError(code: code, message: message, details: details))
   }
 
   func dispose() {
-    if let eventSink = self.sink {
-      onError(
-        code: "DarwinAudioError",
-        message:
-          "Stream was still listened to before disposing. Ensure to cancel all subscriptions before calling dispose.",
-        details: nil)
-      eventSink(FlutterEndOfEventStream)
-    }
+    onError(
+      code: "DarwinAudioError",
+      message:
+        "Stream was still listened to before disposing. Ensure to cancel all subscriptions before calling dispose.",
+      details: nil)
+    sendEvent(FlutterEndOfEventStream)
     eventChannel.setStreamHandler(nil)
   }
 }
@@ -477,28 +484,30 @@ class GlobalAudioPlayersStreamHandler: NSObject, FlutterStreamHandler {
     self.sink = nil
     return nil
   }
+  
+  private func sendEvent(_ event: Any?) {
+    if let eventSink = self.sink {
+      DispatchQueue.main.async {
+        eventSink(event)
+      }
+    }
+  }
 
   func onLog(message: String) {
-    if let eventSink = self.sink {
-      eventSink(["event": "audio.onLog", "value": message])
-    }
+    sendEvent(["event": "audio.onLog", "value": message])
   }
 
   func onError(code: String, message: String, details: Any?) {
-    if let eventSink = self.sink {
-      eventSink(FlutterError(code: code, message: message, details: details))
-    }
+    sendEvent(FlutterError(code: code, message: message, details: details))
   }
 
   func dispose() {
-    if let eventSink = self.sink {
-      onError(
-        code: "DarwinAudioError",
-        message:
-          "Stream was still listened to before disposing. Ensure to cancel all subscriptions before calling dispose.",
-        details: nil)
-      eventSink(FlutterEndOfEventStream)
-    }
+    onError(
+      code: "DarwinAudioError",
+      message:
+        "Stream was still listened to before disposing. Ensure to cancel all subscriptions before calling dispose.",
+      details: nil)
+    sendEvent(FlutterEndOfEventStream)
     eventChannel.setStreamHandler(nil)
   }
 }
