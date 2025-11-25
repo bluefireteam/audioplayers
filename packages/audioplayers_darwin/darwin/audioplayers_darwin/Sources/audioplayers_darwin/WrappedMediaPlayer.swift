@@ -16,7 +16,7 @@ enum ReleaseMode: String {
   case loop
 }
 
-class WrappedMediaPlayer {
+@MainActor class WrappedMediaPlayer {
   private(set) var eventHandler: AudioPlayersStreamHandler
   private(set) var isPlaying: Bool
   var releaseMode: ReleaseMode
@@ -226,7 +226,7 @@ class WrappedMediaPlayer {
       queue: nil
     ) {
       [weak self] (notification) in
-      Task { await self?.onSoundComplete() }
+      Task { @MainActor in await self?.onSoundComplete() }
     }
     self.completionObserver = TimeObserver(player: player, observer: observer)
   }
