@@ -378,7 +378,6 @@ void main() async {
               [
                 emitsThrough(AudioEventType.complete),
                 emits(AudioEventType.seekComplete),
-                emits(AudioEventType.seekComplete),
               ],
             ),
           );
