@@ -64,10 +64,10 @@ enum ReleaseMode: String {
       self.url = url
       let playerItem = try createPlayerItem(url: url, isLocal: isLocal, mimeType: mimeType)
       // Need to observe item status immediately after creating:
-      try await setUpPlayerItemStatusObservation(
-        playerItem)
-      // Replacing the player item triggers completion in setUpPlayerItemStatusObservation
-      self.player.replaceCurrentItem(with: playerItem)
+      try await setUpPlayerItemStatusObservation(playerItem)
+      // Needs to be called after the preparation has completed.
+      self.updateDuration()
+
       self.setUpSoundCompletedObserver(self.player, playerItem)
       self.eventHandler.onPrepared(isPrepared: true)
     } else {
@@ -204,19 +204,22 @@ enum ReleaseMode: String {
         self.eventHandler.onLog(message: "player status: \(status), change: \(change)")
 
         switch playerItem.status {
-        case .readyToPlay:
-          continuation.resume()
-          // Needs to be called after preparation callback.
-          self.updateDuration()
-        case .failed:
-          self.reset()
-          continuation.resume(throwing: AudioPlayerError.error("Failed to set playerItem"))
-        default:
-          break
+          case .readyToPlay:
+            continuation.resume()
+          case .failed:
+            self.reset()
+            continuation.resume(throwing: AudioPlayerError.error("Failed to set playerItem"))
+          default:
+            // Do not resume continuation yet
+            break
         }
       }
+      // Replacing the player item triggers continuation of the observation.
+      self.player.replaceCurrentItem(with: playerItem)
     }
+
     playerItemStatusObservation?.invalidate()
+    playerItemStatusObservation = nil
   }
 
   private func setUpSoundCompletedObserver(_ player: AVPlayer, _ playerItem: AVPlayerItem) {
