@@ -74,17 +74,16 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
 
   public func detachFromEngine(for registrar: FlutterPluginRegistrar) {
     Task { @MainActor in
-      await dispose()
+      await disposePlayers()
+      self.globalMethods.setMethodCallHandler(nil)
+      self.globalEvents.dispose()
     }
   }
 
-  func dispose() async {
+  private func disposePlayers() async {
     for (_, player) in self.players {
       await player.dispose()
     }
-
-    self.globalMethods.setMethodCallHandler(nil)
-    self.globalEvents.dispose()
     self.players = [:]
   }
 
@@ -108,7 +107,7 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
 
     // global handlers (no playerId)
     if method == "init" {
-      await dispose()
+      await disposePlayers()
     } else if method == "setAudioContext" {
       #if os(iOS)
         do {
