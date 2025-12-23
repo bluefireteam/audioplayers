@@ -1,3 +1,7 @@
+## 6.5.1
+
+ - **FIX**: Initialize audioplayer instances sequentially ([#1941](https://github.com/bluefireteam/audioplayers/issues/1941)). ([663fff2c](https://github.com/bluefireteam/audioplayers/commit/663fff2cb8482c81cb525c9d97bfb7f5d02dfdee))
+
 ## 6.5.0
 
  - **FIX**: Migrate to Melos v7 and Pub Workspaces ([#1929](https://github.com/bluefireteam/audioplayers/issues/1929)). ([9d0bfe0b](https://github.com/bluefireteam/audioplayers/commit/9d0bfe0be5cba0ce4fb3a75912b41117a8996bfe))
