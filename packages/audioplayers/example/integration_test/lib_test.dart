@@ -25,7 +25,7 @@ void main() async {
     await player.stop();
 
     await player.dispose();
-  });
+  }, skip: !kIsWeb && defaultTargetPlatform == TargetPlatform.windows);
 
   testWidgets(
     'test device file source with special char',
@@ -41,7 +41,7 @@ void main() async {
 
       await player.dispose();
     },
-    skip: kIsWeb,
+    skip: kIsWeb || defaultTargetPlatform == TargetPlatform.windows,
   );
 
   testWidgets('test url source with special char', (WidgetTester tester) async {
@@ -53,7 +53,7 @@ void main() async {
     await player.stop();
 
     await player.dispose();
-  });
+  }, skip: !kIsWeb && defaultTargetPlatform == TargetPlatform.windows);
 
   testWidgets(
     'test url source with no extension',

@@ -1,4 +1,4 @@
-#include "include/audioplayers_windows/audioplayers_windows_plugin.h"
+﻿#include "include/audioplayers_windows/audioplayers_windows_plugin.h"
 
 // This must be included before many other Windows headers.
 #include <windows.h>
@@ -17,6 +17,7 @@
 
 #include "audio_player.h"
 #include "audioplayers_helpers.h"
+#include "platform_thread_helper.h"
 
 namespace {
 
@@ -108,6 +109,9 @@ AudioplayersWindowsPlugin::~AudioplayersWindowsPlugin() {}
 void AudioplayersWindowsPlugin::HandleGlobalMethodCall(
     const MethodCall<EncodableValue>& method_call,
     std::unique_ptr<MethodResult<EncodableValue>> result) {
+  // Process pending events from background threads
+  PlatformThreadHelper::GetInstance().ProcessPendingTasks();
+
   auto args = method_call.arguments();
 
   if (method_call.method_name().compare("init") == 0) {
@@ -136,6 +140,9 @@ void AudioplayersWindowsPlugin::HandleGlobalMethodCall(
 void AudioplayersWindowsPlugin::HandleMethodCall(
     const MethodCall<EncodableValue>& method_call,
     std::unique_ptr<MethodResult<EncodableValue>> result) {
+  // IMPORTANT: Process pending events FIRST to deliver async callbacks
+  PlatformThreadHelper::GetInstance().ProcessPendingTasks();
+
   auto args = method_call.arguments();
 
   auto playerId = GetArgument<std::string>("playerId", args, std::string());
@@ -181,7 +188,9 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
       return;
     }
 
-    std::thread(&AudioPlayer::SetSourceUrl, player, url).detach();
+    // SetSourceUrl handles async loading internally via MediaFoundation
+    // Callbacks will fire asynchronously without needing std::thread
+    player->SetSourceUrl(url);
   } else if (method_call.method_name().compare("setSourceBytes") == 0) {
     auto data = GetArgument<std::vector<uint8_t>>("bytes", args,
                                                   std::vector<uint8_t>{});
@@ -192,7 +201,9 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
       return;
     }
 
-    std::thread(&AudioPlayer::SetSourceBytes, player, data).detach();
+    // SetSourceBytes handles async loading internally via MediaFoundation
+    // Callbacks will fire asynchronously without needing std::thread
+    player->SetSourceBytes(data);
   } else if (method_call.method_name().compare("getDuration") == 0) {
     auto duration = player->GetDuration();
     result->Success(isnan(duration)
@@ -251,6 +262,9 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
     result->NotImplemented();
     return;
   }
+
+  // Process events again after the operation completes
+  PlatformThreadHelper::GetInstance().ProcessPendingTasks();
   result->Success();
 }
 
@@ -266,8 +280,11 @@ void AudioplayersWindowsPlugin::CreatePlayer(std::string playerId) {
   eventChannel->SetStreamHandler(std::move(_ptr));
 
   auto player =
-      std::make_unique<AudioPlayer>(playerId, methods.get(), eventHandler);
+      std::make_unique<AudioPlayer>(playerId, methods.get(), std::move(eventChannel), eventHandler);
   audioPlayers.insert(std::make_pair(playerId, std::move(player)));
+  
+  // Process any pending events from MediaEngine initialization
+  PlatformThreadHelper::GetInstance().ProcessPendingTasks();
 }
 
 AudioPlayer* AudioplayersWindowsPlugin::GetPlayer(std::string playerId) {

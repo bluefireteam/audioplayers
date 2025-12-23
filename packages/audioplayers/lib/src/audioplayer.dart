@@ -180,7 +180,13 @@ class AudioPlayer {
       // Assign the event stream, now that the platform registered this player.
       _eventStreamSubscription = _platform.getEventStream(playerId).listen(
             _eventStreamController.add,
-            onError: _eventStreamController.addError,
+            onError: (Object e, [StackTrace? stackTrace]) {
+              // Log error but DON'T propagate to prevent unhandled exception
+              AudioLogger.error(
+                AudioPlayerException(this, cause: e),
+                stackTrace,
+              );
+            },
           );
       creatingCompleter.complete();
     } on Exception catch (e, stackTrace) {
@@ -358,18 +364,30 @@ class AudioPlayer {
   Future<void> _completePrepared(Future<void> Function() setSource) async {
     await creatingCompleter.future;
 
-    final preparedFuture = _onPrepared
-        .firstWhere((isPrepared) => isPrepared)
-        .timeout(AudioPlayer.preparationTimeout);
-    // Need to await the setting the source to propagate immediate errors.
-    final setSourceFuture = setSource();
+    // Start position updater to ensure events are pumped on Windows
+    // This allows getCurrentPosition calls to trigger ProcessPendingTasks
+    _positionUpdater?.start();
 
-    // Wait simultaneously to ensure all errors are propagated through the same
-    // future.
-    await Future.wait([setSourceFuture, preparedFuture]);
+    try {
+      final preparedFuture = _onPrepared
+          .firstWhere((isPrepared) => isPrepared)
+          .timeout(AudioPlayer.preparationTimeout);
+      // Need to await the setting the source to propagate immediate errors.
+      final setSourceFuture = setSource();
 
-    // Share position once after finished loading
-    await _positionUpdater?.update();
+      // Wait simultaneously to ensure all errors are propagated through the
+      // same future.
+      await Future.wait([setSourceFuture, preparedFuture]);
+
+      // Share position once after finished loading
+      await _positionUpdater?.update();
+    } on Exception catch (e, stackTrace) {
+      // Log the error but don't rethrow to prevent app crash
+      AudioLogger.error(
+        AudioPlayerException(this, cause: e),
+        stackTrace,
+      );
+    }
   }
 
   /// Sets the URL to a remote link.

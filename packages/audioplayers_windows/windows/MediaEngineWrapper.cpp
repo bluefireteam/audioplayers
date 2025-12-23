@@ -19,6 +19,7 @@
 #include <Audioclient.h>
 #include "MediaEngineWrapper.h"
 #include "MediaFoundationHelpers.h"
+#include "platform_thread_helper.h"
 #include "audioplayers_helpers.h"
 
 using namespace Microsoft::WRL;
@@ -69,24 +70,54 @@ class MediaEngineCallbackHelper
 
     switch ((MF_MEDIA_ENGINE_EVENT)eventCode) {
       case MF_MEDIA_ENGINE_EVENT_LOADEDDATA:
-        m_onLoadedCB();
+        if (m_onLoadedCB) {
+          auto callback = m_onLoadedCB;
+          PlatformThreadHelper::GetInstance().PostTask([callback]() {
+            callback();
+          });
+        }
         break;
       case MF_MEDIA_ENGINE_EVENT_ERROR:
-        m_errorCB((MF_MEDIA_ENGINE_ERR)param1, (HRESULT)param2);
+        if (m_errorCB) {
+          auto callback = m_errorCB;
+          auto err = (MF_MEDIA_ENGINE_ERR)param1;
+          auto hr = (HRESULT)param2;
+          PlatformThreadHelper::GetInstance().PostTask([callback, err, hr]() {
+            callback(err, hr);
+          });
+        }
         break;
       case MF_MEDIA_ENGINE_EVENT_CANPLAY:
-        m_bufferingStateChangeCB(
-            MediaEngineWrapper::BufferingState::HAVE_ENOUGH);
+        if (m_bufferingStateChangeCB) {
+          auto callback = m_bufferingStateChangeCB;
+          PlatformThreadHelper::GetInstance().PostTask([callback]() {
+            callback(MediaEngineWrapper::BufferingState::HAVE_ENOUGH);
+          });
+        }
         break;
       case MF_MEDIA_ENGINE_EVENT_WAITING:
-        m_bufferingStateChangeCB(
-            MediaEngineWrapper::BufferingState::HAVE_NOTHING);
+        if (m_bufferingStateChangeCB) {
+          auto callback = m_bufferingStateChangeCB;
+          PlatformThreadHelper::GetInstance().PostTask([callback]() {
+            callback(MediaEngineWrapper::BufferingState::HAVE_NOTHING);
+          });
+        }
         break;
       case MF_MEDIA_ENGINE_EVENT_ENDED:
-        m_playbackEndedCB();
+        if (m_playbackEndedCB) {
+          auto callback = m_playbackEndedCB;
+          PlatformThreadHelper::GetInstance().PostTask([callback]() {
+            callback();
+          });
+        }
         break;
       case MF_MEDIA_ENGINE_EVENT_SEEKED:
-        m_seekCompletedCB();
+        if (m_seekCompletedCB) {
+          auto callback = m_seekCompletedCB;
+          PlatformThreadHelper::GetInstance().PostTask([callback]() {
+            callback();
+          });
+        }
         break;
       default:
         break;

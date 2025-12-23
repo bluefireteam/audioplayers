@@ -4,3 +4,11 @@ pubspec.lock
 .dart_tool/
 pubspec_overrides.yaml
 .flutter-plugins-dependencies
+
+# AI Assistants
+CLAUDE.md
+GEMINI.md
+COMMIT_MESSAGE.md
+GIT_COMMIT_MSG.txt
+.claude/
+.gemini/

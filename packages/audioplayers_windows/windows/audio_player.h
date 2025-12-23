@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <flutter/event_channel.h>
 #include <flutter/event_stream_handler.h>
@@ -54,9 +54,12 @@ static std::unordered_map<std::string, ReleaseMode> const releaseModeMap = {
 
 class AudioPlayer {
  public:
-  AudioPlayer(std::string playerId,
-              flutter::MethodChannel<flutter::EncodableValue>* methodChannel,
-              EventStreamHandler<>* eventHandler);
+  AudioPlayer(
+      std::string playerId,
+      flutter::MethodChannel<flutter::EncodableValue>* methodChannel,
+      std::unique_ptr<flutter::EventChannel<flutter::EncodableValue>>
+          eventChannel,
+      EventStreamHandler<>* eventHandler);
 
   void Dispose();
 
@@ -125,6 +128,8 @@ class AudioPlayer {
   std::string _playerId;
 
   flutter::MethodChannel<flutter::EncodableValue>* _methodChannel;
+
+  std::unique_ptr<flutter::EventChannel<flutter::EncodableValue>> _eventChannel;
 
   EventStreamHandler<>* _eventHandler;
 };

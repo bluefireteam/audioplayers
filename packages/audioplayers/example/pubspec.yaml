@@ -6,7 +6,7 @@ publish_to: none
 dependencies:
   audioplayers: ^6.5.1
   collection: ^1.16.0
-  file_picker: ^8.0.3
+  file_picker: ^10.3.8
   flutter:
     sdk: flutter
   http: ^1.0.0
