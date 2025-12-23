@@ -1,4 +1,4 @@
-﻿#include "audio_player.h"
+#include "audio_player.h"
 
 #include <comdef.h>
 #include <flutter/event_channel.h>
@@ -11,7 +11,6 @@
 #include <windows.h>
 
 #include "audioplayers_helpers.h"
-#include "platform_thread_helper.h"
 
 #define STR_LINK_TROUBLESHOOTING \
   "https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md"
@@ -74,17 +73,17 @@ void AudioPlayer::SetSourceUrl(std::string url) {
           &objectType, reinterpret_cast<IUnknown**>(mediaSource.put_void())));
 
       m_mediaEngineWrapper->SetMediaSource(mediaSource.get());
-    } catch (const std::exception& /*ex*/) {
+    } catch (const std::exception& ex) {
       this->OnError("WindowsAudioError",
                     "Failed to set source. For troubleshooting, "
                     "see: " STR_LINK_TROUBLESHOOTING,
-                    flutter::EncodableValue("System error (check logs)"));
+                    flutter::EncodableValue(ex.what()));
     } catch (...) {
       // Forward errors to event stream, as this is called asynchronously
       this->OnError("WindowsAudioError",
                     "Failed to set source. For troubleshooting, "
                     "see: " STR_LINK_TROUBLESHOOTING,
-                    flutter::EncodableValue("Unknown Error setting url to '" +
+                    flutter::EncodableValue("Unknown Error setting url to '" + 
                                             url + "'."));
     }
   } else {
@@ -146,10 +145,7 @@ void AudioPlayer::OnError(const std::string& code,
                           const std::string& message,
                           const flutter::EncodableValue& details) {
   if (this->_eventHandler) {
-    PlatformThreadHelper::GetInstance().PostTask(
-        [eventHandler = this->_eventHandler, code, message, details]() {
-          eventHandler->Error(code, message, details);
-        });
+    this->_eventHandler->Error(code, message, details);
   }
 }
 
@@ -163,14 +159,11 @@ void AudioPlayer::OnMediaStateChange(
 
 void AudioPlayer::OnPrepared(bool isPrepared) {
   if (this->_eventHandler) {
-    PlatformThreadHelper::GetInstance().PostTask(
-        [eventHandler = this->_eventHandler, isPrepared]() {
-          eventHandler->Success(std::make_unique<flutter::EncodableValue>(
-              flutter::EncodableMap({{flutter::EncodableValue("event"),
-                                      flutter::EncodableValue("audio.onPrepared")},
-                                     {flutter::EncodableValue("value"),
-                                      flutter::EncodableValue(isPrepared)}})));
-        });
+    this->_eventHandler->Success(std::make_unique<flutter::EncodableValue>(
+        flutter::EncodableMap({{flutter::EncodableValue("event"),
+                                flutter::EncodableValue("audio.onPrepared")},
+                               {flutter::EncodableValue("value"),
+                                flutter::EncodableValue(isPrepared)}})));
   }
 }
 
@@ -181,58 +174,46 @@ void AudioPlayer::OnPlaybackEnded() {
     Stop();
   }
   if (this->_eventHandler) {
-    PlatformThreadHelper::GetInstance().PostTask([eventHandler =
-                                                      this->_eventHandler]() {
-      eventHandler->Success(std::make_unique<flutter::EncodableValue>(
-          flutter::EncodableMap({{flutter::EncodableValue("event"),
-                                  flutter::EncodableValue("audio.onComplete")},
-                                 {flutter::EncodableValue("value"),
-                                  flutter::EncodableValue(true)}})));
-    });
+    this->_eventHandler->Success(std::make_unique<flutter::EncodableValue>(
+        flutter::EncodableMap({{flutter::EncodableValue("event"),
+                                flutter::EncodableValue("audio.onComplete")},
+                               {flutter::EncodableValue("value"),
+                                flutter::EncodableValue(true)}})));
   }
 }
 
 void AudioPlayer::OnDurationUpdate() {
   auto duration = m_mediaEngineWrapper->GetDuration();
   if (this->_eventHandler) {
-    PlatformThreadHelper::GetInstance().PostTask(
-        [eventHandler = this->_eventHandler, duration]() {
-          eventHandler->Success(std::make_unique<flutter::EncodableValue>(
-              flutter::EncodableMap(
-                  {{flutter::EncodableValue("event"),
-                    flutter::EncodableValue("audio.onDuration")},
-                   {flutter::EncodableValue("value"),
-                    isnan(duration)
-                        ? flutter::EncodableValue(std::monostate{})
-                        : flutter::EncodableValue(
-                              ConvertSecondsToMs(duration))}})));
-        });
+    this->_eventHandler->Success(
+        std::make_unique<flutter::EncodableValue>(flutter::EncodableMap(
+            {{flutter::EncodableValue("event"),
+              flutter::EncodableValue("audio.onDuration")},
+             {flutter::EncodableValue("value"),
+              isnan(duration)
+                  ? flutter::EncodableValue(std::monostate{})
+                  : flutter::EncodableValue(ConvertSecondsToMs(duration))}})));
   }
 }
 
 void AudioPlayer::OnSeekCompleted() {
   if (this->_eventHandler) {
-    PlatformThreadHelper::GetInstance().PostTask([eventHandler =
-                                                      this->_eventHandler]() {
-      eventHandler->Success(std::make_unique<flutter::EncodableValue>(
-          flutter::EncodableMap({{flutter::EncodableValue("event"),
-                                  flutter::EncodableValue("audio.onSeekComplete")},
-                                 {flutter::EncodableValue("value"),
-                                  flutter::EncodableValue(true)}})));
-    });
+    this->_eventHandler->Success(
+        std::make_unique<flutter::EncodableValue>(flutter::EncodableMap(
+            {{flutter::EncodableValue("event"),
+              flutter::EncodableValue("audio.onSeekComplete")},
+             {flutter::EncodableValue("value"),
+              flutter::EncodableValue(true)}})));
   }
 }
 
 void AudioPlayer::OnLog(const std::string& message) {
   if (this->_eventHandler) {
-    PlatformThreadHelper::GetInstance().PostTask(
-        [eventHandler = this->_eventHandler, message]() {
-          eventHandler->Success(std::make_unique<flutter::EncodableValue>(
-              flutter::EncodableMap({{flutter::EncodableValue("event"),
-                                      flutter::EncodableValue("audio.onLog")},
-                                     {flutter::EncodableValue("value"),
-                                      flutter::EncodableValue(message)}})));
-        });
+    this->_eventHandler->Success(std::make_unique<flutter::EncodableValue>(
+        flutter::EncodableMap({{flutter::EncodableValue("event"),
+                                flutter::EncodableValue("audio.onLog")},
+                               {flutter::EncodableValue("value"),
+                                flutter::EncodableValue(message)}})));
   }
 }
 
@@ -323,4 +304,3 @@ double AudioPlayer::GetDuration() {
 void AudioPlayer::SeekTo(double seek) {
   m_mediaEngineWrapper->SeekTo(seek);
 }
-
