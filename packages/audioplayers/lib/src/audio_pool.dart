@@ -21,6 +21,12 @@ class AudioPool {
   @visibleForTesting
   final List<AudioPlayer> availablePlayers = [];
 
+  /// Timers to automatically stop players after the duration of the audio.
+  final Map<String, Timer> _timers = {};
+
+  /// The duration of the audio source.
+  final Duration duration;
+
   /// Instance of [AudioCache] to be used by all players.
   final AudioCache audioCache;
 
@@ -48,6 +54,7 @@ class AudioPool {
     required this.maxPlayers,
     required this.source,
     required this.audioContext,
+    required this.duration,
     AudioCache? audioCache,
   }) : audioCache = audioCache ?? AudioCache.instance;
 
@@ -59,12 +66,31 @@ class AudioPool {
     AudioContext? audioContext,
     int minPlayers = 1,
   }) async {
+    // Create a temporary player to get the duration
+    final tempPlayer = AudioPlayer();
+    if (audioCache != null) {
+      tempPlayer.audioCache = audioCache;
+    }
+    await tempPlayer.setSource(source);
+
+    // Wait for duration to be available
+    final duration = await tempPlayer.getDuration();
+    await tempPlayer.dispose();
+
+    if (duration == null) {
+      throw Exception(
+        'Could not determine duration for source. '
+        'Duration must be available for AudioPool to work properly.',
+      );
+    }
+
     final instance = AudioPool._(
       source: source,
       audioCache: audioCache,
       maxPlayers: maxPlayers,
       minPlayers: minPlayers,
       audioContext: audioContext,
+      duration: duration,
     );
 
     final players = <AudioPlayer>[];
@@ -102,13 +128,12 @@ class AudioPool {
       await player.setVolume(volume);
       await player.resume();
 
-      late StreamSubscription<void> subscription;
-
       Future<void> stop() {
         return _lock.synchronized(() async {
           final removedPlayer = currentPlayers.remove(player.playerId);
           if (removedPlayer != null) {
-            subscription.cancel();
+            final timer = _timers.remove(player.playerId);
+            timer?.cancel();
             await removedPlayer.stop();
             if (availablePlayers.length >= maxPlayers) {
               await removedPlayer.release();
@@ -119,7 +144,8 @@ class AudioPool {
         });
       }
 
-      subscription = player.onPlayerComplete.listen((_) => stop());
+      // Schedule automatic stop based on audio duration
+      _timers[player.playerId] = Timer(duration, stop);
 
       return stop;
     });
@@ -127,6 +153,9 @@ class AudioPool {
 
   Future<AudioPlayer> _createNewAudioPlayer() async {
     final player = AudioPlayer()..audioCache = audioCache;
+
+    await player.setPlayerMode(PlayerMode.lowLatency);
+
     if (audioContext != null) {
       await player.setAudioContext(audioContext!);
     }
@@ -136,6 +165,19 @@ class AudioPool {
   }
 
   /// Disposes the audio pool. Then it cannot be used anymore.
-  Future<void> dispose() =>
-      Future.wait(availablePlayers.map((e) => e.dispose()));
+  Future<void> dispose() async {
+    // Cancel all active timers
+    for (final timer in _timers.values) {
+      timer.cancel();
+    }
+    _timers.clear();
+
+    // Dispose all players
+    await Future.wait([
+      ...currentPlayers.values.map((e) => e.dispose()),
+      ...availablePlayers.map((e) => e.dispose()),
+    ]);
+    currentPlayers.clear();
+    availablePlayers.clear();
+  }
 }
