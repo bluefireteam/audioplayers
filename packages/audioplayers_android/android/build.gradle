@@ -2,7 +2,7 @@ group 'xyz.luan.audioplayers'
 version '1.0-SNAPSHOT'
 
 buildscript {
-    ext.kotlin_version = '2.1.0'
+    ext.kotlin_version = '2.2.21'
     ext.coroutines_version = '1.10.2'
 
     repositories {
