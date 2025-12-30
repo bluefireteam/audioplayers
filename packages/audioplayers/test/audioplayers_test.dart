@@ -72,17 +72,21 @@ void main() {
       final source = UrlSource('https://example.com/audio.mp3');
 
       // Mock expected calls
-      when(() => mockPlatform.setSourceUrl(
-            'p1',
-            any(),
-            isLocal: any(named: 'isLocal'),
-            mimeType: any(named: 'mimeType'),
-          )).thenAnswer((_) async {
+      when(
+        () => mockPlatform.setSourceUrl(
+          'p1',
+          any(),
+          isLocal: any(named: 'isLocal'),
+          mimeType: any(named: 'mimeType'),
+        ),
+      ).thenAnswer((_) async {
         // IMPORTANT: Simulate platform response saying "It's ready!"
-        eventStreamController.add(const AudioEvent(
-          eventType: AudioEventType.prepared,
-          isPrepared: true,
-        ));
+        eventStreamController.add(
+          const AudioEvent(
+            eventType: AudioEventType.prepared,
+            isPrepared: true,
+          ),
+        );
       });
 
       when(() => mockPlatform.resume('p1')).thenAnswer((_) async {});
@@ -91,12 +95,13 @@ void main() {
       await player.play(source);
 
       // Verify
-      verify(() => mockPlatform.setSourceUrl(
-            'p1',
-            any(), // Encoded URL
-            isLocal: false,
-            mimeType: null,
-          )).called(1);
+      verify(
+        () => mockPlatform.setSourceUrl(
+          'p1',
+          any(), // Encoded URL
+          isLocal: false,
+        ),
+      ).called(1);
 
       verify(() => mockPlatform.resume('p1')).called(1);
 
