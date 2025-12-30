@@ -1,7 +1,5 @@
 ﻿#pragma once
-
 #include <flutter/encodable_value.h>
-
 #include <functional>
 #include <mutex>
 #include <queue>
