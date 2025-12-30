@@ -10,10 +10,9 @@ dependencies:
   flutter:
     sdk: flutter
   http: ^1.0.0
-  path_provider: ^2.0.12
-  provider: ^6.0.5
   integration_test:
     sdk: flutter
+  path_provider: ^2.0.12
 
 dev_dependencies:
   # Integration tests for audioplayers_platform_interface are handled 
