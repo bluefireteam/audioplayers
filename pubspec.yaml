@@ -5,7 +5,6 @@ workspace:
   - packages/audioplayers/example
   - packages/audioplayers/example/server
   - packages/audioplayers_android
-  - packages/audioplayers_android/example
   - packages/audioplayers_android_exo
   - packages/audioplayers_darwin
   - packages/audioplayers_linux
