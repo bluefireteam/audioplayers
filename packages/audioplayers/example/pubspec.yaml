@@ -12,6 +12,8 @@ dependencies:
   http: ^1.0.0
   path_provider: ^2.0.12
   provider: ^6.0.5
+  integration_test:
+    sdk: flutter
 
 dev_dependencies:
   # Integration tests for audioplayers_platform_interface are handled 
@@ -19,8 +21,6 @@ dev_dependencies:
   audioplayers_platform_interface: ^7.1.1
   flame_lint: ^1.4.1
   flutter_test:
-    sdk: flutter
-  integration_test:
     sdk: flutter
 
 flutter:
