@@ -1,0 +1,53 @@
+name: Build Check
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  android-build:
+    name: Android Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: '17'
+          
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          
+      - name: Get Dependencies
+        working-directory: packages/audioplayers/example
+        run: flutter pub get
+        
+      - name: Build APK
+        working-directory: packages/audioplayers/example
+        run: flutter build apk --debug
+
+  windows-build:
+    name: Windows Build
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          
+      - name: Enable Windows Support
+        run: flutter config --enable-windows-desktop
+        
+      - name: Get Dependencies
+        working-directory: packages/audioplayers/example
+        run: flutter pub get
+        
+      - name: Build Windows
+        working-directory: packages/audioplayers/example
+        run: flutter build windows --debug
