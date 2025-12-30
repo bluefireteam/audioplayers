@@ -179,15 +179,15 @@ class AudioPlayer {
       await _platform.create(playerId);
       // Assign the event stream, now that the platform registered this player.
       _eventStreamSubscription = _platform.getEventStream(playerId).listen(
-            _eventStreamController.add,
-            onError: (Object e, [StackTrace? stackTrace]) {
-              // Log error but DON'T propagate to prevent unhandled exception
-              AudioLogger.error(
-                AudioPlayerException(this, cause: e),
-                stackTrace,
-              );
-            },
+        _eventStreamController.add,
+        onError: (Object e, [StackTrace? stackTrace]) {
+          // Log error but DON'T propagate to prevent unhandled exception
+          AudioLogger.error(
+            AudioPlayerException(this, cause: e),
+            stackTrace,
           );
+        },
+      );
       creatingCompleter.complete();
     } on Exception catch (e, stackTrace) {
       creatingCompleter.completeError(e, stackTrace);

@@ -7,7 +7,8 @@ abstract class AudioplayersAndroidPlatform extends PlatformInterface {
 
   static final Object _token = Object();
 
-  static AudioplayersAndroidPlatform _instance = MethodChannelAudioplayersAndroid();
+  static AudioplayersAndroidPlatform _instance =
+      MethodChannelAudioplayersAndroid();
 
   /// The default instance of [AudioplayersAndroidPlatform] to use.
   ///

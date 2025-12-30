@@ -106,37 +106,43 @@ static void audioplayers_linux_plugin_handle_method_call(
   const gchar* method = fl_method_call_get_name(method_call);
   FlValue* args = fl_method_call_get_args(method_call);
 
-  auto flPlayerId = fl_value_lookup_string(args, "playerId");
-  if (flPlayerId == nullptr) {
-    response = FL_METHOD_RESPONSE(fl_method_error_response_new(
-        "LinuxAudioError", "Call missing mandatory parameter playerId.",
-        nullptr));
-    fl_method_call_respond(method_call, response, nullptr);
-    return;
-  }
-  auto playerId = std::string(fl_value_get_string(flPlayerId));
-
-  if (strcmp(method, "create") == 0) {
-    audioplayers_linux_plugin_create_player(playerId);
-    response =
-        FL_METHOD_RESPONSE(fl_method_success_response_new(fl_value_new_int(1)));
-    fl_method_call_respond(method_call, response, nullptr);
-    return;
-  }
-
-  auto player = audioplayers_linux_plugin_get_player(playerId);
-  if (!player) {
-    response = FL_METHOD_RESPONSE(fl_method_error_response_new(
-        "LinuxAudioError",
-        "Player has not yet been created or has already been disposed.",
-        nullptr));
-    fl_method_call_respond(method_call, response, nullptr);
-    return;
-  }
-
-  FlValue* result = nullptr;
-
   try {
+    auto flPlayerId = fl_value_lookup_string(args, "playerId");
+    if (flPlayerId == nullptr) {
+      response = FL_METHOD_RESPONSE(fl_method_error_response_new(
+          "LinuxAudioError", "Call missing mandatory parameter playerId.",
+          nullptr));
+      fl_method_call_respond(method_call, response, nullptr);
+      return;
+    }
+    if (fl_value_get_type(flPlayerId) != FL_VALUE_TYPE_STRING) {
+      response = FL_METHOD_RESPONSE(fl_method_error_response_new(
+          "LinuxAudioError", "Parameter playerId must be a string.", nullptr));
+      fl_method_call_respond(method_call, response, nullptr);
+      return;
+    }
+    auto playerId = std::string(fl_value_get_string(flPlayerId));
+
+    if (strcmp(method, "create") == 0) {
+      audioplayers_linux_plugin_create_player(playerId);
+      response = FL_METHOD_RESPONSE(
+          fl_method_success_response_new(fl_value_new_int(1)));
+      fl_method_call_respond(method_call, response, nullptr);
+      return;
+    }
+
+    auto player = audioplayers_linux_plugin_get_player(playerId);
+    if (!player) {
+      response = FL_METHOD_RESPONSE(fl_method_error_response_new(
+          "LinuxAudioError",
+          "Player has not yet been created or has already been disposed.",
+          nullptr));
+      fl_method_call_respond(method_call, response, nullptr);
+      return;
+    }
+
+    FlValue* result = nullptr;
+
     if (strcmp(method, "pause") == 0) {
       player->Pause();
     } else if (strcmp(method, "resume") == 0) {
