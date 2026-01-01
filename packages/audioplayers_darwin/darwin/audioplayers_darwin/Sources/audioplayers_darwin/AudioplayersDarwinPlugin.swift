@@ -238,7 +238,7 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
       do {
         try await player.setSourceUrl(
           url: url!, isLocal: isLocal,
-          mimeType: mimeType,
+          mimeType: mimeType
         )
       } catch let error {
         player.eventHandler.onError(

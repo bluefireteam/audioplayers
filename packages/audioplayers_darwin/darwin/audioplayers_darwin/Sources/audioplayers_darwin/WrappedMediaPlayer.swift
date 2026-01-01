@@ -55,7 +55,7 @@ enum ReleaseMode: String {
   func setSourceUrl(
     url: String,
     isLocal: Bool,
-    mimeType: String? = nil,
+    mimeType: String? = nil
   ) async throws {
     let playbackStatus = player.currentItem?.status
 
@@ -195,7 +195,7 @@ enum ReleaseMode: String {
   }
 
   private func setUpPlayerItemStatusObservation(
-    _ playerItem: AVPlayerItem,
+    _ playerItem: AVPlayerItem
   ) async throws {
     try await withCheckedThrowingContinuation { continuation in
       playerItemStatusObservation = playerItem.observe(\AVPlayerItem.status) {
@@ -228,8 +228,13 @@ enum ReleaseMode: String {
       object: playerItem,
       queue: nil
     ) {
-      [weak self] (notification) in
-      Task { @MainActor in await self?.onSoundComplete() }
+      (notification) in
+      Task { @MainActor [weak self] in
+        guard let self = self else {
+          return
+        }
+        await self.onSoundComplete()
+      }
     }
     self.completionObserver = TimeObserver(player: player, observer: observer)
   }
