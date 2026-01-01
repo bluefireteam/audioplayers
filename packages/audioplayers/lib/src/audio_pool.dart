@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:ffmpeg_kit_flutter_new/ffprobe_kit.dart';
 import 'package:flutter/foundation.dart';
 import 'package:synchronized/synchronized.dart';
 
@@ -47,6 +48,10 @@ class AudioPool {
   /// returned to the pool.
   final int maxPlayers;
 
+  /// Whether the players in this pool use low latency mode.
+  final bool usesLowLatencyMode;
+
+  /// Lock to synchronize access to the pool.
   final Lock _lock = Lock();
 
   AudioPool._({
@@ -55,6 +60,7 @@ class AudioPool {
     required this.source,
     required this.audioContext,
     required this.duration,
+    this.usesLowLatencyMode = true,
     AudioCache? audioCache,
   }) : audioCache = audioCache ?? AudioCache.instance;
 
@@ -65,17 +71,9 @@ class AudioPool {
     AudioCache? audioCache,
     AudioContext? audioContext,
     int minPlayers = 1,
+    bool useLowLatencyMode = true,
   }) async {
-    // Create a temporary player to get the duration
-    final tempPlayer = AudioPlayer();
-    if (audioCache != null) {
-      tempPlayer.audioCache = audioCache;
-    }
-    await tempPlayer.setSource(source);
-
-    // Wait for duration to be available
-    final duration = await tempPlayer.getDuration();
-    await tempPlayer.dispose();
+    final duration = await getDuration(source);
 
     if (duration == null) {
       throw Exception(
@@ -89,6 +87,7 @@ class AudioPool {
       audioCache: audioCache,
       maxPlayers: maxPlayers,
       minPlayers: minPlayers,
+      usesLowLatencyMode: useLowLatencyMode,
       audioContext: audioContext,
       duration: duration,
     );
@@ -108,12 +107,14 @@ class AudioPool {
     required int maxPlayers,
     AudioCache? audioCache,
     int minPlayers = 1,
+    bool useLowLatencyMode = true,
   }) async {
     return create(
       source: AssetSource(path),
       audioCache: audioCache,
       minPlayers: minPlayers,
       maxPlayers: maxPlayers,
+      useLowLatencyMode: useLowLatencyMode,
     );
   }
 
@@ -154,7 +155,9 @@ class AudioPool {
   Future<AudioPlayer> _createNewAudioPlayer() async {
     final player = AudioPlayer()..audioCache = audioCache;
 
-    await player.setPlayerMode(PlayerMode.lowLatency);
+    if (usesLowLatencyMode) {
+      await player.setPlayerMode(PlayerMode.lowLatency);
+    }
 
     if (audioContext != null) {
       await player.setAudioContext(audioContext!);
@@ -179,5 +182,42 @@ class AudioPool {
     ]);
     currentPlayers.clear();
     availablePlayers.clear();
+  }
+
+  /// Use FFprobe to retrieve the [Duration] of the audio source.
+  static Future<Duration?> getDuration(Source source) async {
+    final path = switch (source) {
+      AssetSource() => await AudioCache.instance.loadPath(source.path),
+      UrlSource() => source.url,
+      DeviceFileSource() => source.path,
+      BytesSource() => throw Exception(
+          'Cannot get duration for ByteSource, unsupported source type.',
+        ),
+      _ => throw Exception('Unsupported source type: ${source.runtimeType}'),
+    };
+
+    final session = await FFprobeKit.getMediaInformation(path);
+    try {
+      final information = session.getMediaInformation();
+      if (information == null) {
+        throw Exception('Failed to get media information for $path');
+      }
+
+      final durationString = information.getDuration();
+      if (durationString == null) {
+        throw Exception('Failed to get media duration for $path');
+      }
+
+      final durationInSeconds = double.tryParse(durationString);
+      if (durationInSeconds == null) {
+        throw Exception(
+          'Failed to parse media duration "$durationString" for $path',
+        );
+      }
+
+      return Duration(milliseconds: (durationInSeconds * 1000).ceil());
+    } on Exception catch (e) {
+      throw Exception(e);
+    }
   }
 }
