@@ -268,7 +268,7 @@ jobs:
 
   ios-min:
     # Run lib tests only to ensure compatibility with iOS 16.
-    runs-on: macos-13
+    runs-on: macos-latest
     timeout-minutes: 60
     if: inputs.enable_min_version && inputs.enable_ios
     steps:
@@ -282,17 +282,16 @@ jobs:
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
         run: |
-          sudo xcode-select -switch /Applications/Xcode_14.3.1.app/Contents/Developer
+          xcodes runtimes install "iOS 16.4"
           UDID=$(xcrun simctl create test-se-16-4 com.apple.CoreSimulator.SimDeviceType.iPhone-SE-3rd-generation com.apple.CoreSimulator.SimRuntime.iOS-16-4)
           xcrun simctl list devices
           echo "Using simulator $UDID"
           xcrun simctl boot "${UDID:?No Simulator with this name iPhone found}"
-          sudo xcode-select -switch /Applications/Xcode_15.2.app/Contents/Developer
           ( cd server; dart run bin/server.dart ) &
           flutter test -d $UDID integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
 
   ios:
-    runs-on: macos-14
+    runs-on: macos-26
     timeout-minutes: 60
     if: inputs.enable_ios
     steps:
@@ -308,7 +307,7 @@ jobs:
         working-directory: ./packages/audioplayers/example
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         run: |
-          UDID=$(xcrun simctl create test-se-17-2 com.apple.CoreSimulator.SimDeviceType.iPhone-SE-3rd-generation com.apple.CoreSimulator.SimRuntime.iOS-17-2)
+          UDID=$(xcrun simctl create test-se-26-2 com.apple.CoreSimulator.SimDeviceType.iPhone-SE-3rd-generation com.apple.CoreSimulator.SimRuntime.iOS-26-2)
           xcrun simctl list devices
           echo "Using simulator $UDID"
           xcrun simctl boot "${UDID:?No Simulator with this name iPhone found}"
@@ -319,7 +318,7 @@ jobs:
 
   # Remove as soon as support for cocoapods is removed at Flutter
   ios-pods:
-    runs-on: macos-14
+    runs-on: macos-latest
     timeout-minutes: 30
     if: inputs.enable_ios
     steps:
@@ -336,7 +335,7 @@ jobs:
         run: flutter build ios --release --no-codesign
 
   macos-min:
-    runs-on: macos-13
+    runs-on: macos-14
     timeout-minutes: 30
     if: inputs.enable_min_version && inputs.enable_macos
     steps:
@@ -355,7 +354,7 @@ jobs:
           flutter test -d macos integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
 
   macos:
-    runs-on: macos-14
+    runs-on: macos-latest
     timeout-minutes: 30
     if: inputs.enable_macos
     steps:
@@ -378,7 +377,7 @@ jobs:
 
   # Remove as soon as support for cocoapods is removed at Flutter
   macos-pods:
-    runs-on: macos-14
+    runs-on: macos-latest
     timeout-minutes: 30
     if: inputs.enable_macos
     steps:
