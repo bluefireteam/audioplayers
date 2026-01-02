@@ -94,7 +94,9 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
   }
 
   @MainActor
-  private func handleAsyncGlobalMethodCall(call: FlutterMethodCall, result: @escaping FlutterResult) async {
+  private func handleAsyncGlobalMethodCall(call: FlutterMethodCall, result: @escaping FlutterResult)
+    async
+  {
     let method = call.method
 
     guard let args = call.arguments as? [String: Any] else {
@@ -418,7 +420,7 @@ class AudioPlayersStreamHandler: NSObject, FlutterStreamHandler {
     self.sink = nil
     return nil
   }
-  
+
   private func sendEvent(_ event: Any?) {
     if let eventSink = self.sink {
       DispatchQueue.main.async {
@@ -483,7 +485,7 @@ class GlobalAudioPlayersStreamHandler: NSObject, FlutterStreamHandler {
     self.sink = nil
     return nil
   }
-  
+
   private func sendEvent(_ event: Any?) {
     if let eventSink = self.sink {
       DispatchQueue.main.async {

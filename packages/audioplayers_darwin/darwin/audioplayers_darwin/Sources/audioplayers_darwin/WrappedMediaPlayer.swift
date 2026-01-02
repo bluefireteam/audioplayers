@@ -204,14 +204,14 @@ enum ReleaseMode: String {
         self.eventHandler.onLog(message: "player status: \(status), change: \(change)")
 
         switch playerItem.status {
-          case .readyToPlay:
-            continuation.resume()
-          case .failed:
-            self.reset()
-            continuation.resume(throwing: AudioPlayerError.error("Failed to set playerItem"))
-          default:
-            // Do not resume continuation yet
-            break
+        case .readyToPlay:
+          continuation.resume()
+        case .failed:
+          self.reset()
+          continuation.resume(throwing: AudioPlayerError.error("Failed to set playerItem"))
+        default:
+          // Do not resume continuation yet
+          break
         }
       }
       // Replacing the player item triggers continuation of the observation.
