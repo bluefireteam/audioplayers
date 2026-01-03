@@ -133,11 +133,10 @@ enum ReleaseMode: String {
 
   func stop() async {
     pause()
-    if (getCurrentPosition() ?? 0) != 0 {
-      await seek(time: toCMTime(millis: 0))
-    }
     if releaseMode == ReleaseMode.release {
       await release()
+    } else if (getCurrentPosition() ?? 0) != 0 {
+      await seek(time: toCMTime(millis: 0))
     }
   }
 

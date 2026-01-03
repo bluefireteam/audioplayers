@@ -382,12 +382,7 @@ void main() async {
 
           expect(
             eventStream.map((event) => event.eventType),
-            emitsInOrder(
-              [
-                emitsThrough(AudioEventType.complete),
-                emits(AudioEventType.seekComplete),
-              ],
-            ),
+            emitsThrough(AudioEventType.complete),
           );
 
           await platform.resume(playerId);
