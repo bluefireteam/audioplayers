@@ -142,8 +142,7 @@ enum ReleaseMode: String {
 
   func release() async {
     if self.isPlaying {
-      // Avoid loop of stop and release
-      await stop()
+      pause()
     }
     self.reset()
   }
