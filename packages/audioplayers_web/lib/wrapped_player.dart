@@ -216,7 +216,7 @@ class WrappedPlayer {
   void stop() {
     pause();
     _pausedAt = 0;
-    if(_currentReleaseMode == ReleaseMode.release) {
+    if (_currentReleaseMode == ReleaseMode.release) {
       release();
     } else {
       player?.currentTime = 0;
