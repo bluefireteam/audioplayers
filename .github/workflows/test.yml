@@ -205,10 +205,12 @@ jobs:
         run: bash ./scripts/ci/setup-android.sh 24 default
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
-        # Need to execute tests with concurrency of 1, see: https://github.com/flutter/flutter/issues/101031
+        # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         run: |
           ( cd server; dart run bin/server.dart ) &
-          flutter test integration_test --concurrency=1 --dart-define USE_LOCAL_SERVER=true --dart-define TEST_FEATURE_LOW_LATENCY=false --dart-define TEST_FEATURE_BYTES_SOURCE=false --dart-define TEST_FEATURE_PLAYBACK_RATE=false
+          flutter test integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true --dart-define TEST_FEATURE_LOW_LATENCY=false --dart-define TEST_FEATURE_BYTES_SOURCE=false --dart-define TEST_FEATURE_PLAYBACK_RATE=false
+          flutter test integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true --dart-define TEST_FEATURE_LOW_LATENCY=false --dart-define TEST_FEATURE_BYTES_SOURCE=false --dart-define TEST_FEATURE_PLAYBACK_RATE=false
+          flutter test integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true --dart-define TEST_FEATURE_LOW_LATENCY=false --dart-define TEST_FEATURE_BYTES_SOURCE=false --dart-define TEST_FEATURE_PLAYBACK_RATE=false
 
   android-exo:
     runs-on: ubuntu-latest
@@ -230,10 +232,12 @@ jobs:
         run: bash ./scripts/ci/setup-android.sh 35
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
-        # Need to execute tests with concurrency of 1, see: https://github.com/flutter/flutter/issues/101031
+        # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         run: |
           ( cd server; dart run bin/server.dart ) &
-          flutter test integration_test --concurrency=1 --dart-define USE_LOCAL_SERVER=true --dart-define TEST_FEATURE_LOW_LATENCY=false
+          flutter test integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true --dart-define TEST_FEATURE_LOW_LATENCY=false
+          flutter test integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true --dart-define TEST_FEATURE_LOW_LATENCY=false
+          flutter test integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true --dart-define TEST_FEATURE_LOW_LATENCY=false
 
   android:
     runs-on: ubuntu-latest
@@ -251,10 +255,12 @@ jobs:
         run: bash ./scripts/ci/setup-android.sh 35
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
-        # Need to execute tests with concurrency of 1, see: https://github.com/flutter/flutter/issues/101031
+        # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         run: |
           ( cd server; dart run bin/server.dart ) &
-          flutter test integration_test --concurrency=1 --dart-define USE_LOCAL_SERVER=true
+          flutter test integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
+          flutter test integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
+          flutter test integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
       - name: Run Android unit tests
         working-directory: ./packages/audioplayers/example/android
         # TODO: Use `./gradlew test`, when https://github.com/flutter/flutter/issues/169336 is fixed.
@@ -282,7 +288,7 @@ jobs:
           echo "Using simulator $UDID"
           xcrun simctl boot "${UDID:?No Simulator with this name iPhone found}"
           ( cd server; dart run bin/server.dart ) &
-          flutter test -d $UDID integration_test/lib_test.dart --concurrency=1 --dart-define USE_LOCAL_SERVER=true
+          flutter test -d $UDID integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
 
   ios:
     runs-on: macos-26
@@ -299,14 +305,16 @@ jobs:
 
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
-        # Need to execute tests with concurrency of 1, see: https://github.com/flutter/flutter/issues/101031
+        # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         run: |
           UDID=$(xcrun simctl create test-se-26-2 com.apple.CoreSimulator.SimDeviceType.iPhone-SE-3rd-generation com.apple.CoreSimulator.SimRuntime.iOS-26-2)
           xcrun simctl list devices
           echo "Using simulator $UDID"
           xcrun simctl boot "${UDID:?No Simulator with this name iPhone found}"
           ( cd server; dart run bin/server.dart ) &
-          flutter test -d $UDID integration_test --concurrency=1 --dart-define USE_LOCAL_SERVER=true
+          flutter test -d $UDID integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
+          flutter test -d $UDID integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
+          flutter test -d $UDID integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
 
   # Remove as soon as support for cocoapods is removed at Flutter
   ios-pods:
@@ -340,10 +348,10 @@ jobs:
 
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
-        # Need to execute tests with concurrency of 1, see: https://github.com/flutter/flutter/issues/101031
+        # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         run: |
           ( cd server; dart run bin/server.dart ) &
-          flutter test -d macos integration_test/lib_test.dart --concurrency=1 --dart-define USE_LOCAL_SERVER=true
+          flutter test -d macos integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
 
   macos:
     runs-on: macos-latest
@@ -360,10 +368,12 @@ jobs:
 
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
-        # Need to execute tests with concurrency of 1, see: https://github.com/flutter/flutter/issues/101031
+        # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         run: |
           ( cd server; dart run bin/server.dart ) &
-          flutter test -d macos integration_test --concurrency=1 --dart-define USE_LOCAL_SERVER=true
+          flutter test -d macos integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
+          flutter test -d macos integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
+          flutter test -d macos integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
 
   # Remove as soon as support for cocoapods is removed at Flutter
   macos-pods:
@@ -419,10 +429,12 @@ jobs:
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
         shell: bash # Needed in order to fail fast, see: https://github.com/actions/runner-images/issues/6668
-        # Need to execute tests with concurrency of 1, see: https://github.com/flutter/flutter/issues/101031
+        # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         run: |
           ( cd server; dart run bin/server.dart ) &
-          flutter test -d windows integration_test --concurrency=1 --dart-define USE_LOCAL_SERVER=true
+          flutter test -d windows integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
+          flutter test -d windows integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
+          flutter test -d windows integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
 
   linux:
     runs-on: ubuntu-latest
@@ -447,10 +459,12 @@ jobs:
 
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
-        # Need to execute tests with concurrency of 1, see: https://github.com/flutter/flutter/issues/101031
+        # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         # TODO(gustl22): Linux tests are flaky with LIVE_MODE=false
         run: |
           export DISPLAY=:99
           sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
           ( cd server; LIVE_MODE=true dart run bin/server.dart ) &
-          flutter test -d linux integration_test --concurrency=1 --dart-define USE_LOCAL_SERVER=true
+          flutter test -d linux integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
+          flutter test -d linux integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
+          flutter test -d linux integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
