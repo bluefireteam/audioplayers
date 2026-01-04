@@ -90,7 +90,8 @@ void main() async {
       //  although the error is emitted immediately.
       //  Further, the other future is not fulfilled and then mysteriously
       //  failing in later tests.
-      skip: isAndroid,
+      //  The feature works with audioplayers_android_exo.
+      skip: !testFeatureThrowOnMissingSource,
     );
 
     testWidgets('#create and #dispose', (tester) async {

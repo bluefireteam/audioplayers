@@ -36,7 +36,9 @@ class ExoPlayerWrapper(
 
     class ExoPlayerListener(private val wrappedPlayer: WrappedPlayer) : androidx.media3.common.Player.Listener {
         override fun onPlayerError(error: PlaybackException) {
-            if (error.errorCode == PlaybackException.ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED) {
+            if (error.errorCode == PlaybackException.ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED ||
+                error.errorCode == PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND
+            ) {
                 wrappedPlayer.handleError(
                     errorCode = "AndroidAudioError",
                     errorMessage = "Failed to set source. For troubleshooting, see: " +

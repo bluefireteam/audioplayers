@@ -208,9 +208,9 @@ jobs:
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         run: |
           ( cd server; dart run bin/server.dart ) &
-          flutter test integration_test/platform_test.dart --concurrency=1 --dart-define USE_LOCAL_SERVER=true --dart-define TEST_FEATURE_LOW_LATENCY=false --dart-define TEST_FEATURE_BYTES_SOURCE=false --dart-define TEST_FEATURE_PLAYBACK_RATE=false
-          flutter test integration_test/lib_test.dart --concurrency=1 --dart-define USE_LOCAL_SERVER=true --dart-define TEST_FEATURE_LOW_LATENCY=false --dart-define TEST_FEATURE_BYTES_SOURCE=false --dart-define TEST_FEATURE_PLAYBACK_RATE=false
-          flutter test integration_test/app_test.dart --concurrency=1 --dart-define USE_LOCAL_SERVER=true --dart-define TEST_FEATURE_LOW_LATENCY=false --dart-define TEST_FEATURE_BYTES_SOURCE=false --dart-define TEST_FEATURE_PLAYBACK_RATE=false
+          flutter test integration_test/platform_test.dart --concurrency=1 --dart-define USE_LOCAL_SERVER=true --dart-define TEST_FEATURE_LOW_LATENCY=false --dart-define TEST_FEATURE_BYTES_SOURCE=false --dart-define TEST_FEATURE_PLAYBACK_RATE=false --dart-define TEST_FEATURE_THROW_ON_MISSING_SOURCE=false
+          flutter test integration_test/lib_test.dart --concurrency=1 --dart-define USE_LOCAL_SERVER=true --dart-define TEST_FEATURE_LOW_LATENCY=false --dart-define TEST_FEATURE_BYTES_SOURCE=false --dart-define TEST_FEATURE_PLAYBACK_RATE=false --dart-define TEST_FEATURE_THROW_ON_MISSING_SOURCE=false
+          flutter test integration_test/app_test.dart --concurrency=1 --dart-define USE_LOCAL_SERVER=true --dart-define TEST_FEATURE_LOW_LATENCY=false --dart-define TEST_FEATURE_BYTES_SOURCE=false --dart-define TEST_FEATURE_PLAYBACK_RATE=false --dart-define TEST_FEATURE_THROW_ON_MISSING_SOURCE=false
 
   android-exo:
     runs-on: ubuntu-latest
@@ -258,9 +258,9 @@ jobs:
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         run: |
           ( cd server; dart run bin/server.dart ) &
-          flutter test integration_test/platform_test.dart --concurrency=1 --dart-define USE_LOCAL_SERVER=true
-          flutter test integration_test/lib_test.dart --concurrency=1 --dart-define USE_LOCAL_SERVER=true
-          flutter test integration_test/app_test.dart --concurrency=1 --dart-define USE_LOCAL_SERVER=true
+          flutter test integration_test/platform_test.dart --concurrency=1 --dart-define USE_LOCAL_SERVER=true --dart-define TEST_FEATURE_THROW_ON_MISSING_SOURCE=false
+          flutter test integration_test/lib_test.dart --concurrency=1 --dart-define USE_LOCAL_SERVER=true --dart-define TEST_FEATURE_THROW_ON_MISSING_SOURCE=false
+          flutter test integration_test/app_test.dart --concurrency=1 --dart-define USE_LOCAL_SERVER=true --dart-define TEST_FEATURE_THROW_ON_MISSING_SOURCE=false
       - name: Run Android unit tests
         working-directory: ./packages/audioplayers/example/android
         # TODO: Use `./gradlew test`, when https://github.com/flutter/flutter/issues/169336 is fixed.
