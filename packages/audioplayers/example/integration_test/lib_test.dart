@@ -21,9 +21,9 @@ void main() async {
 
     await player.play(specialCharAssetTestData.source);
     // Sources take some time to get initialized
-    await tester.pumpPlatform(const Duration(seconds: 8));
+    await tester.pump();
     await player.stop();
-
+    await tester.pump();
     await player.dispose();
   });
 
@@ -36,9 +36,9 @@ void main() async {
       expect(path, isNot(contains('%'))); // Ensure path is not URL encoded
       await player.play(DeviceFileSource(path));
       // Sources take some time to get initialized
-      await tester.pumpPlatform(const Duration(seconds: 8));
+      await tester.pump();
       await player.stop();
-
+      await tester.pump();
       await player.dispose();
     },
     skip: kIsWeb,
@@ -49,9 +49,9 @@ void main() async {
 
     await player.play(specialCharUrlTestData.source);
     // Sources take some time to get initialized
-    await tester.pumpPlatform(const Duration(seconds: 8));
+    await tester.pump();
     await player.stop();
-
+    await tester.pump();
     await player.dispose();
   });
 
@@ -62,9 +62,9 @@ void main() async {
 
       await player.play(noExtensionAssetTestData.source);
       // Sources take some time to get initialized
-      await tester.pumpPlatform(const Duration(seconds: 8));
+      await tester.pump();
       await player.stop();
-
+      await tester.pump();
       await player.dispose();
     },
   );
@@ -74,9 +74,9 @@ void main() async {
 
     await player.play(mp3DataUriTestData.source);
     // Sources take some time to get initialized
-    await tester.pumpPlatform(const Duration(seconds: 8));
+    await tester.pump();
     await player.stop();
-
+    await tester.pump();
     await player.dispose();
   });
 
@@ -87,9 +87,9 @@ void main() async {
 
       await player.play((await mp3BytesTestData()).source);
       // Sources take some time to get initialized
-      await tester.pumpPlatform(const Duration(seconds: 8));
+      await tester.pump();
       await player.stop();
-
+      await tester.pump();
       await player.dispose();
     },
     skip: !features.hasBytesSource,
@@ -183,16 +183,22 @@ void main() async {
           iterator.map((i) => players[i].play(audioTestDataList[i].source)),
         );
         // Sources take some time to get initialized
-        await tester.pumpPlatform(const Duration(seconds: 8));
+        await tester.pump();
         for (var i = 0; i < audioTestDataList.length; i++) {
           final td = audioTestDataList[i];
           if (td.isLiveStream || td.duration! > const Duration(seconds: 10)) {
-            final position = await players[i].getCurrentPosition();
             printWithTimeOnFailure('Test position: $td');
-            expect(position, greaterThan(Duration.zero));
+
+            await tester.waitFor(
+              () async => expectLater(
+                (await players[i].getCurrentPosition()) ?? Duration.zero,
+                greaterThan(Duration.zero),
+              ),
+            );
           }
           await players[i].stop();
         }
+        await tester.pump();
         await Future.wait(players.map((p) => p.dispose()));
       },
       // FIXME: Causes media error on Android (see #1333, #1353)
@@ -208,14 +214,19 @@ void main() async {
       for (final td in audioTestDataList) {
         await player.play(td.source);
         // Sources take some time to get initialized
-        await tester.pumpPlatform(const Duration(seconds: 8));
+        await tester.pump();
         if (td.isLiveStream || td.duration! > const Duration(seconds: 10)) {
-          final position = await player.getCurrentPosition();
           printWithTimeOnFailure('Test position: $td');
-          expect(position, greaterThan(Duration.zero));
+          await tester.waitFor(
+            () async => expectLater(
+              (await player.getCurrentPosition()) ?? Duration.zero,
+              greaterThan(Duration.zero),
+            ),
+          );
         }
         await player.stop();
       }
+      await tester.pump();
       await player.dispose();
     });
   });
@@ -243,10 +254,7 @@ void main() async {
         await player.setAudioContext(audioContext);
 
         await player.play(td.source);
-        await tester.pumpPlatform(
-          (td.duration ?? Duration.zero) + const Duration(seconds: 8),
-        );
-        expect(player.state, PlayerState.completed);
+        await expectLater(player.onPlayerComplete.first, completes);
 
         audioContext = AudioContextConfig(
           //ignore: avoid_redundant_argument_values
@@ -257,10 +265,8 @@ void main() async {
         await player.setAudioContext(audioContext);
 
         await player.resume();
-        await tester.pumpPlatform(
-          (td.duration ?? Duration.zero) + const Duration(seconds: 8),
-        );
-        expect(player.state, PlayerState.completed);
+        await expectLater(player.onPlayerComplete.first, completes);
+        await tester.pump();
         await player.dispose();
       },
       skip: !features.hasRespectSilence,
@@ -315,10 +321,10 @@ void main() async {
 
         await player.setSource(td.source);
         await player.resume();
-        await tester.pumpPlatform(
-          (td.duration ?? Duration.zero) + const Duration(seconds: 8),
+        await expectLater(
+          player.onPlayerStateChanged,
+          emitsThrough(PlayerState.playing),
         );
-        expect(player.state, PlayerState.playing);
         await player.stop();
         expect(player.state, PlayerState.stopped);
 
@@ -331,12 +337,13 @@ void main() async {
         await player.setAudioContext(audioContext);
 
         await player.resume();
-        await tester.pumpPlatform(
-          (td.duration ?? Duration.zero) + const Duration(seconds: 8),
+        await expectLater(
+          player.onPlayerStateChanged,
+          emitsThrough(PlayerState.playing),
         );
-        expect(player.state, PlayerState.playing);
         await player.stop();
         expect(player.state, PlayerState.stopped);
+        await tester.pump();
         await player.dispose();
       },
       skip: !features.hasRespectSilence || !features.hasLowLatency,
