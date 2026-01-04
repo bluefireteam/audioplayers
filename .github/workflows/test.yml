@@ -11,8 +11,6 @@ on:
           - 'any'
           - '3.35.x'
           - '3.32.x'
-          - '3.29.x'
-          - '3.27.x'
       flutter_channel:
         description: 'Flutter Channel'
         required: false
