@@ -28,7 +28,6 @@ dependencies:
   audioplayers_platform_interface: ^7.1.1
   audioplayers_web: ^5.1.1
   audioplayers_windows: ^4.2.1
-  ffmpeg_kit_flutter_new: ^4.1.0
   file: '>=6.1.0 <8.0.0'
   flutter:
     sdk: flutter
