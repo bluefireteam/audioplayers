@@ -51,6 +51,16 @@ class WrappedMediaPlayer {
     self.releaseMode = releaseMode
     self.url = url
   }
+  
+  deinit {
+    playerItemStatusObservation?.invalidate()
+    playerItemStatusObservation = nil
+    if let cObserver = completionObserver {
+      NotificationCenter.default.removeObserver(cObserver.observer)
+      completionObserver = nil
+    }
+    player.replaceCurrentItem(with: nil)
+  }
 
   func setSourceUrl(
     url: String,
@@ -132,8 +142,8 @@ class WrappedMediaPlayer {
       completer?()
       return
     }
-    currentItem.seek(to: time) {
-      finished in
+    currentItem.seek(to: time) { [weak self] finished in
+      guard let self = self else { return }
       if !self.isPlaying {
         self.player.pause()
       }
@@ -216,7 +226,9 @@ class WrappedMediaPlayer {
     completer: Completer? = nil,
     completerError: CompleterError? = nil
   ) {
-    playerItemStatusObservation = playerItem.observe(\AVPlayerItem.status) { (playerItem, change) in
+    playerItemStatusObservation = playerItem.observe(\AVPlayerItem.status) { [weak self] (playerItem, change) in
+      guard let self = self else { return }
+
       let status = playerItem.status
       self.eventHandler.onLog(message: "player status: \(status), change: \(change)")
 
@@ -279,7 +291,8 @@ class WrappedMediaPlayer {
       return
     }
 
-    seek(time: toCMTime(millis: 0)) {
+    seek(time: toCMTime(millis: 0)) { [weak self] in
+      guard let self = self else { return }
       if self.releaseMode == ReleaseMode.loop {
         self.resume()
       } else if self.releaseMode == ReleaseMode.release {
