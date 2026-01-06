@@ -1,5 +1,6 @@
 #include "audio_player.h"
 #include <flutter_linux/flutter_linux.h>
+#include <exception>
 #define STR_LINK_TROUBLESHOOTING \
   "https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md"
 
@@ -10,11 +11,20 @@ AudioPlayer::AudioPlayer(std::string playerId,
   // GStreamer lib only needs to be initialized once, but doing it while
   // registering the plugin can be problematic as it likely needs a GUI to be
   // present. Calling it multiple times is fine.
-  gst_init(NULL, NULL);
+  GError* error = nullptr;
+  if (!gst_init_check(nullptr, nullptr, &error)) {
+    std::string errStr = "Failed to initialize GStreamer";
+    if (error) {
+      errStr += ": ";
+      errStr += error->message;
+      g_error_free(error);
+    }
+    throw errStr;
+  }
 
   playbin = gst_element_factory_make("playbin", NULL);
   if (!playbin) {
-    throw "Not all elements could be created.";
+    throw "GStreamer element 'playbin' could not be created. Make sure you have GStreamer and all necessary plugins installed. For troubleshooting, see: " STR_LINK_TROUBLESHOOTING;
   }
 
   // Setup stereo balance controller
@@ -95,40 +105,48 @@ void AudioPlayer::ReleaseMediaSource() {
 gboolean AudioPlayer::OnBusMessage(GstBus* bus,
                                    GstMessage* message,
                                    AudioPlayer* data) {
-  switch (GST_MESSAGE_TYPE(message)) {
-    case GST_MESSAGE_ERROR: {
-      GError* err;
-      gchar* debug;
+  try {
+    switch (GST_MESSAGE_TYPE(message)) {
+      case GST_MESSAGE_ERROR: {
+        GError* err;
+        gchar* debug;
 
-      gst_message_parse_error(message, &err, &debug);
-      data->OnMediaError(err, debug);
-      g_error_free(err);
-      g_free(debug);
-      break;
-    }
-    case GST_MESSAGE_STATE_CHANGED:
-      GstState old_state, new_state;
-
-      gst_message_parse_state_changed(message, &old_state, &new_state, NULL);
-      data->OnMediaStateChange(GST_MESSAGE_SRC(message), &old_state,
-                               &new_state);
-      break;
-    case GST_MESSAGE_EOS:
-      data->OnPlaybackEnded();
-      break;
-    case GST_MESSAGE_DURATION_CHANGED:
-      data->OnDurationUpdate();
-      break;
-    case GST_MESSAGE_ASYNC_DONE:
-      if (!data->_isSeekCompleted) {
-        data->OnSeekCompleted();
-        data->_isSeekCompleted = true;
+        gst_message_parse_error(message, &err, &debug);
+        data->OnMediaError(err, debug);
+        g_error_free(err);
+        g_free(debug);
+        break;
       }
-      break;
-    default:
-      // For more GstMessage types see:
-      // https://gstreamer.freedesktop.org/documentation/gstreamer/gstmessage.html?gi-language=c#enumerations
-      break;
+      case GST_MESSAGE_STATE_CHANGED:
+        GstState old_state, new_state;
+
+        gst_message_parse_state_changed(message, &old_state, &new_state, NULL);
+        data->OnMediaStateChange(GST_MESSAGE_SRC(message), &old_state,
+                                 &new_state);
+        break;
+      case GST_MESSAGE_EOS:
+        data->OnPlaybackEnded();
+        break;
+      case GST_MESSAGE_DURATION_CHANGED:
+        data->OnDurationUpdate();
+        break;
+      case GST_MESSAGE_ASYNC_DONE:
+        if (!data->_isSeekCompleted) {
+          data->OnSeekCompleted();
+          data->_isSeekCompleted = true;
+        }
+        break;
+      default:
+        // For more GstMessage types see:
+        // https://gstreamer.freedesktop.org/documentation/gstreamer/gstmessage.html?gi-language=c#enumerations
+        break;
+    }
+  } catch (const char* error) {
+    data->OnLog(error);
+  } catch (const std::exception& e) {
+    data->OnLog(e.what());
+  } catch (...) {
+    data->OnLog("Unknown error in OnBusMessage");
   }
 
   // Continue watching for messages
@@ -444,8 +462,9 @@ void AudioPlayer::Resume() {
 }
 
 void AudioPlayer::Dispose() {
-  if (!playbin)
-    throw "Player was already disposed (Dispose)";
+  if (!playbin) {
+    return;
+  }
   ReleaseMediaSource();
 
   if (bus) {
