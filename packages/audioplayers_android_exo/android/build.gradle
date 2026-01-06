@@ -2,8 +2,8 @@ group 'xyz.luan.audioplayers'
 version '1.0-SNAPSHOT'
 
 buildscript {
-    ext.kotlin_version = '1.7.10'
-    ext.coroutines_version = '1.6.4'
+    ext.kotlin_version = '2.2.21'
+    ext.coroutines_version = '1.10.2'
 
     repositories {
         google()
@@ -11,9 +11,9 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.3.1'
+        classpath 'com.android.tools.build:gradle:8.13.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "de.mannodermaus.gradle.plugins:android-junit5:1.7.1.1"
+        classpath "de.mannodermaus.gradle.plugins:android-junit5:1.14.0.0"
     }
 }
 
@@ -29,7 +29,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'de.mannodermaus.android-junit5'
 
 android {
-    compileSdk 35
+    compileSdk 36
 
     // Conditional for compatibility with AGP <4.2.
     if (project.android.hasProperty('namespace')) {
@@ -37,12 +37,12 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
     }
 
     sourceSets {
@@ -68,19 +68,19 @@ allprojects {
 }
 
 dependencies {
-    def exoplayer_version = "1.5.1"
+    def exoplayer_version = '1.9.0'
     implementation "androidx.media3:media3-exoplayer:${exoplayer_version}"
     implementation "androidx.media3:media3-exoplayer-hls:${exoplayer_version}"
     implementation "androidx.media3:media3-exoplayer-dash:${exoplayer_version}"
     implementation "androidx.media3:media3-exoplayer-rtsp:${exoplayer_version}"
     implementation "androidx.media3:media3-exoplayer-smoothstreaming:${exoplayer_version}"
 
-    implementation "androidx.core:core-ktx:1.9.0" // Do not pump unless dropping support for AGP7
+    implementation 'androidx.core:core-ktx:1.17.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.0'
-    testImplementation 'org.assertj:assertj-core:3.23.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter:6.0.1'
+    testImplementation 'org.assertj:assertj-core:3.27.6'
 }
 repositories {
     mavenCentral()

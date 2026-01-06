@@ -17,6 +17,7 @@ dependencies:
   audioplayers_platform_interface: ^7.1.1
   flutter:
     sdk: flutter
+  plugin_platform_interface: ^2.1.8
 
 dev_dependencies:
   flame_lint: ^1.4.1
