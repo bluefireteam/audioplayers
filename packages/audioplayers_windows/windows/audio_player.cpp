@@ -21,9 +21,11 @@ using namespace winrt;
 AudioPlayer::AudioPlayer(
     std::string playerId,
     flutter::MethodChannel<flutter::EncodableValue>* methodChannel,
+    std::unique_ptr<flutter::EventChannel<flutter::EncodableValue>> eventChannel,
     EventStreamHandler<>* eventHandler)
     : _playerId(playerId),
       _methodChannel(methodChannel),
+      _eventChannel(std::move(eventChannel)),
       _eventHandler(eventHandler) {
   m_mfPlatform.Startup();
 
@@ -81,7 +83,7 @@ void AudioPlayer::SetSourceUrl(std::string url) {
       this->OnError("WindowsAudioError",
                     "Failed to set source. For troubleshooting, "
                     "see: " STR_LINK_TROUBLESHOOTING,
-                    flutter::EncodableValue("Unknown Error setting url to '" +
+                    flutter::EncodableValue("Unknown Error setting url to '" + 
                                             url + "'."));
     }
   } else {
@@ -206,11 +208,13 @@ void AudioPlayer::OnSeekCompleted() {
 }
 
 void AudioPlayer::OnLog(const std::string& message) {
-  this->_eventHandler->Success(std::make_unique<flutter::EncodableValue>(
-      flutter::EncodableMap({{flutter::EncodableValue("event"),
-                              flutter::EncodableValue("audio.onLog")},
-                             {flutter::EncodableValue("value"),
-                              flutter::EncodableValue(message)}})));
+  if (this->_eventHandler) {
+    this->_eventHandler->Success(std::make_unique<flutter::EncodableValue>(
+        flutter::EncodableMap({{flutter::EncodableValue("event"),
+                                flutter::EncodableValue("audio.onLog")},
+                               {flutter::EncodableValue("value"),
+                                flutter::EncodableValue(message)}})));
+  }
 }
 
 void AudioPlayer::SendInitialized() {

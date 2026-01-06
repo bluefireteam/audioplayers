@@ -1,6 +1,8 @@
 #include <flutter/encodable_value.h>
 #include <flutter/event_channel.h>
 
+#include <functional>
+#include <memory>
 #include <mutex>
 
 using namespace flutter;
@@ -14,16 +16,18 @@ class EventStreamHandler : public StreamHandler<T> {
 
   void Success(std::unique_ptr<T> _data) {
     std::unique_lock<std::mutex> _ul(m_mtx);
-    if (m_sink.get())
-      m_sink.get()->Success(*_data.get());
+    if (m_sink) {
+      m_sink->Success(*_data);
+    }
   }
 
   void Error(const std::string& error_code,
              const std::string& error_message,
              const T& error_details) {
     std::unique_lock<std::mutex> _ul(m_mtx);
-    if (m_sink.get())
-      m_sink.get()->Error(error_code, error_message, error_details);
+    if (m_sink) {
+      m_sink->Error(error_code, error_message, error_details);
+    }
   }
 
  protected:
