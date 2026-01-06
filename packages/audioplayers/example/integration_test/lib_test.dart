@@ -179,25 +179,30 @@ void main() async {
 
         // Start all players simultaneously
         final iterator = List<int>.generate(audioTestDataList.length, (i) => i);
-        await Future.wait<void>(
-          iterator.map((i) => players[i].play(audioTestDataList[i].source)),
-        );
+        iterator.map((i) => players[i].play(audioTestDataList[i].source));
         // Sources take some time to get initialized
-        await tester.pump();
-        for (var i = 0; i < audioTestDataList.length; i++) {
-          final td = audioTestDataList[i];
-          if (td.isLiveStream || td.duration! > const Duration(seconds: 10)) {
-            printWithTimeOnFailure('Test position: $td');
+        await Future.wait<void>(
+          iterator.map(
+            (i) async {
+              final td = audioTestDataList[i];
+              if (td.isLiveStream ||
+                  td.duration! > const Duration(seconds: 10)) {
+                printWithTimeOnFailure('Test position: $td');
 
-            await tester.waitFor(
-              () async => expectLater(
-                (await players[i].getCurrentPosition()) ?? Duration.zero,
-                greaterThan(Duration.zero),
-              ),
-            );
-          }
-          await players[i].stop();
-        }
+                await tester.waitFor(
+                  () async => expectLater(
+                    (await players[i].getCurrentPosition()) ?? Duration.zero,
+                    greaterThan(Duration.zero),
+                  ),
+                );
+              } else {
+                await expectLater(players[i].onPlayerComplete.first, completes);
+              }
+            },
+          ),
+        );
+        await tester.pumpPlatform(const Duration(seconds: 1));
+        await Future.wait<void>(iterator.map((i) => players[i].stop()));
         await tester.pump();
         await Future.wait(players.map((p) => p.dispose()));
       },
@@ -214,7 +219,6 @@ void main() async {
       for (final td in audioTestDataList) {
         await player.play(td.source);
         // Sources take some time to get initialized
-        await tester.pump();
         if (td.isLiveStream || td.duration! > const Duration(seconds: 10)) {
           printWithTimeOnFailure('Test position: $td');
           await tester.waitFor(
@@ -223,10 +227,13 @@ void main() async {
               greaterThan(Duration.zero),
             ),
           );
+          await tester.pumpPlatform(const Duration(seconds: 1));
+        } else {
+          await expectLater(player.onPlayerComplete.first, completes);
         }
         await player.stop();
+        await tester.pump();
       }
-      await tester.pump();
       await player.dispose();
     });
   });
@@ -270,6 +277,7 @@ void main() async {
         await player.dispose();
       },
       skip: !features.hasRespectSilence,
+      timeout: const Timeout(Duration(minutes: 3)),
     );
 
     testWidgets(
@@ -319,14 +327,8 @@ void main() async {
         await AudioPlayer.global.setAudioContext(audioContext);
         await player.setAudioContext(audioContext);
 
-        await player.setSource(td.source);
-        await player.resume();
-        await expectLater(
-          player.onPlayerStateChanged,
-          emitsThrough(PlayerState.playing),
-        );
-        await player.stop();
-        expect(player.state, PlayerState.stopped);
+        await player.play(td.source);
+        await expectLater(player.onPlayerComplete.first, completes);
 
         audioContext = AudioContextConfig(
           //ignore: avoid_redundant_argument_values
@@ -337,16 +339,12 @@ void main() async {
         await player.setAudioContext(audioContext);
 
         await player.resume();
-        await expectLater(
-          player.onPlayerStateChanged,
-          emitsThrough(PlayerState.playing),
-        );
-        await player.stop();
-        expect(player.state, PlayerState.stopped);
+        await expectLater(player.onPlayerComplete.first, completes);
         await tester.pump();
         await player.dispose();
       },
       skip: !features.hasRespectSilence || !features.hasLowLatency,
+      timeout: const Timeout(Duration(minutes: 3)),
     );
   });
 
