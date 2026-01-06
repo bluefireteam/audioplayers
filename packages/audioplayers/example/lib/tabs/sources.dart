@@ -58,20 +58,36 @@ class _SourcesTabState extends State<SourcesTab>
   final List<Widget> sourceWidgets = [];
 
   Future<void> _setSource(Source source) async {
-    await player.setSource(source);
-    toast(
-      'Completed setting source.',
-      textKey: const Key('toast-set-source'),
-    );
+    try {
+      await player.setSource(source);
+      toast(
+        'Completed setting source.',
+        textKey: const Key('toast-set-source'),
+      );
+    } on Exception catch (e, stackTrace) {
+      AudioLogger.error(e, stackTrace);
+      toast(
+        'Error setting source: $e',
+        textKey: const Key('toast-error-set-source'),
+      );
+    }
   }
 
   Future<void> _play(Source source) async {
-    await player.stop();
-    await player.play(source);
-    toast(
-      'Set and playing source.',
-      textKey: const Key('toast-set-play'),
-    );
+    try {
+      await player.stop();
+      await player.play(source);
+      toast(
+        'Set and playing source.',
+        textKey: const Key('toast-set-play'),
+      );
+    } on Exception catch (e, stackTrace) {
+      AudioLogger.error(e, stackTrace);
+      toast(
+        'Error playing source: $e',
+        textKey: const Key('toast-error-play'),
+      );
+    }
   }
 
   Future<void> _removeSourceWidget(Widget sourceWidget) async {
@@ -105,8 +121,16 @@ class _SourcesTabState extends State<SourcesTab>
     required String asset,
     String? mimeType,
   }) async {
-    final bytes = await AudioCache.instance.loadAsBytes(asset);
-    await fun(BytesSource(bytes, mimeType: mimeType));
+    try {
+      final bytes = await AudioCache.instance.loadAsBytes(asset);
+      await fun(BytesSource(bytes, mimeType: mimeType));
+    } on Exception catch (e, stackTrace) {
+      AudioLogger.error(e, stackTrace);
+      toast(
+        'Error loading bytes from asset: $e',
+        textKey: const Key('toast-error-bytes-asset'),
+      );
+    }
   }
 
   Future<void> _setSourceBytesRemote(
@@ -114,8 +138,16 @@ class _SourcesTabState extends State<SourcesTab>
     required String url,
     String? mimeType,
   }) async {
-    final bytes = await http.readBytes(Uri.parse(url));
-    await fun(BytesSource(bytes, mimeType: mimeType));
+    try {
+      final bytes = await http.readBytes(Uri.parse(url));
+      await fun(BytesSource(bytes, mimeType: mimeType));
+    } on Exception catch (e, stackTrace) {
+      AudioLogger.error(e, stackTrace);
+      toast(
+        'Error loading bytes from URL: $e',
+        textKey: const Key('toast-error-bytes-remote'),
+      );
+    }
   }
 
   @override
@@ -269,8 +301,8 @@ class _SourcesTabState extends State<SourcesTab>
 }
 
 class _SourceTile extends StatelessWidget {
-  final void Function() setSource;
-  final void Function() play;
+  final Future<void> Function() setSource;
+  final Future<void> Function() play;
   final void Function(Widget sourceWidget) removeSource;
   final String title;
   final String? subtitle;
@@ -300,14 +332,26 @@ class _SourceTile extends StatelessWidget {
           IconButton(
             tooltip: 'Set Source',
             key: setSourceKey,
-            onPressed: setSource,
+            onPressed: () async {
+              try {
+                await setSource();
+              } on Exception catch (e, stackTrace) {
+                AudioLogger.error(e, stackTrace);
+              }
+            },
             icon: const Icon(Icons.upload_file),
             color: buttonColor ?? Theme.of(context).primaryColor,
           ),
           IconButton(
             key: playKey,
             tooltip: 'Play',
-            onPressed: play,
+            onPressed: () async {
+              try {
+                await play();
+              } on Exception catch (e, stackTrace) {
+                AudioLogger.error(e, stackTrace);
+              }
+            },
             icon: const Icon(Icons.play_arrow),
             color: buttonColor ?? Theme.of(context).primaryColor,
           ),
