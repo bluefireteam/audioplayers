@@ -1,3 +1,6 @@
+@Timeout(Duration(minutes: 3))
+library;
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_example/tabs/sources.dart';
 import 'package:flutter/foundation.dart';
@@ -20,10 +23,7 @@ void main() async {
     final player = AudioPlayer();
 
     await player.play(specialCharAssetTestData.source);
-    // Sources take some time to get initialized
-    await tester.pump();
-    await player.stop();
-    await tester.pump();
+    await expectLater(player.onPlayerComplete.first, completes);
     await player.dispose();
   });
 
@@ -35,10 +35,7 @@ void main() async {
       final path = await player.audioCache.loadPath(specialCharAsset);
       expect(path, isNot(contains('%'))); // Ensure path is not URL encoded
       await player.play(DeviceFileSource(path));
-      // Sources take some time to get initialized
-      await tester.pump();
-      await player.stop();
-      await tester.pump();
+      await expectLater(player.onPlayerComplete.first, completes);
       await player.dispose();
     },
     skip: kIsWeb,
@@ -48,10 +45,7 @@ void main() async {
     final player = AudioPlayer();
 
     await player.play(specialCharUrlTestData.source);
-    // Sources take some time to get initialized
-    await tester.pump();
-    await player.stop();
-    await tester.pump();
+    await expectLater(player.onPlayerComplete.first, completes);
     await player.dispose();
   });
 
@@ -61,10 +55,7 @@ void main() async {
       final player = AudioPlayer();
 
       await player.play(noExtensionAssetTestData.source);
-      // Sources take some time to get initialized
-      await tester.pump();
-      await player.stop();
-      await tester.pump();
+      await expectLater(player.onPlayerComplete.first, completes);
       await player.dispose();
     },
   );
@@ -73,10 +64,7 @@ void main() async {
     final player = AudioPlayer();
 
     await player.play(mp3DataUriTestData.source);
-    // Sources take some time to get initialized
-    await tester.pump();
-    await player.stop();
-    await tester.pump();
+    await expectLater(player.onPlayerComplete.first, completes);
     await player.dispose();
   });
 
@@ -87,9 +75,8 @@ void main() async {
 
       await player.play((await mp3BytesTestData()).source);
       // Sources take some time to get initialized
-      await tester.pump();
+      await tester.pumpPlatform(const Duration(seconds: 8));
       await player.stop();
-      await tester.pump();
       await player.dispose();
     },
     skip: !features.hasBytesSource,
@@ -180,7 +167,6 @@ void main() async {
         // Start all players simultaneously
         final iterator = List<int>.generate(audioTestDataList.length, (i) => i);
         iterator.map((i) => players[i].play(audioTestDataList[i].source));
-        // Sources take some time to get initialized
         await Future.wait<void>(
           iterator.map(
             (i) async {
@@ -188,7 +174,6 @@ void main() async {
               if (td.isLiveStream ||
                   td.duration! > const Duration(seconds: 10)) {
                 printWithTimeOnFailure('Test position: $td');
-
                 await tester.waitFor(
                   () async => expectLater(
                     (await players[i].getCurrentPosition()) ?? Duration.zero,
@@ -201,9 +186,7 @@ void main() async {
             },
           ),
         );
-        await tester.pumpPlatform(const Duration(seconds: 1));
         await Future.wait<void>(iterator.map((i) => players[i].stop()));
-        await tester.pump();
         await Future.wait(players.map((p) => p.dispose()));
       },
       // FIXME: Causes media error on Android (see #1333, #1353)
@@ -217,8 +200,7 @@ void main() async {
       final player = AudioPlayer();
 
       for (final td in audioTestDataList) {
-        await player.play(td.source);
-        // Sources take some time to get initialized
+        player.play(td.source);
         if (td.isLiveStream || td.duration! > const Duration(seconds: 10)) {
           printWithTimeOnFailure('Test position: $td');
           await tester.waitFor(
@@ -227,12 +209,10 @@ void main() async {
               greaterThan(Duration.zero),
             ),
           );
-          await tester.pumpPlatform(const Duration(seconds: 1));
         } else {
           await expectLater(player.onPlayerComplete.first, completes);
         }
         await player.stop();
-        await tester.pump();
       }
       await player.dispose();
     });
@@ -273,11 +253,9 @@ void main() async {
 
         await player.resume();
         await expectLater(player.onPlayerComplete.first, completes);
-        await tester.pump();
         await player.dispose();
       },
       skip: !features.hasRespectSilence,
-      timeout: const Timeout(Duration(minutes: 3)),
     );
 
     testWidgets(
@@ -340,11 +318,9 @@ void main() async {
 
         await player.resume();
         await expectLater(player.onPlayerComplete.first, completes);
-        await tester.pump();
         await player.dispose();
       },
       skip: !features.hasRespectSilence || !features.hasLowLatency,
-      timeout: const Timeout(Duration(minutes: 3)),
     );
   });
 
