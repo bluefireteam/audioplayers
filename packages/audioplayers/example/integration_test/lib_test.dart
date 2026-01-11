@@ -237,11 +237,6 @@ void main() async {
         }
         await player.dispose();
       },
-
-      // FIXME: Causes media error on Android API 24 (min)
-      // PlatformException(AndroidAudioError, MEDIA_ERROR_UNKNOWN {what:1},
-      // MEDIA_ERROR_UNKNOWN {extra:-19}, null)
-      skip: testIsAndroidMediaPlayer,
     );
   });
 
@@ -282,7 +277,11 @@ void main() async {
         await expectLater(player.onPlayerComplete.first, completes);
         await player.dispose();
       },
-      skip: !features.hasRespectSilence,
+
+      // FIXME: Causes media error on Android API 24 (min)
+      // PlatformException(AndroidAudioError, MEDIA_ERROR_UNKNOWN {what:1},
+      // MEDIA_ERROR_UNKNOWN {extra:-19}, null)
+      skip: !features.hasRespectSilence || testIsAndroidMediaPlayer,
     );
 
     testWidgets(
