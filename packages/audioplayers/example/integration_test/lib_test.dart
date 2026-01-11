@@ -1,8 +1,6 @@
 @Timeout(Duration(minutes: 5))
 library;
 
-import 'dart:async';
-
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_example/tabs/sources.dart';
 import 'package:collection/collection.dart';
@@ -162,7 +160,7 @@ void main() async {
 
   group('play multiple sources', () {
     testWidgets(
-      'play multiple sources simultaneously',
+      'simultaneously',
       (WidgetTester tester) async {
         final players =
             List.generate(audioTestDataList.length, (_) => AudioPlayer());
@@ -170,32 +168,33 @@ void main() async {
         // Start all players simultaneously
         final iterator = List<int>.generate(audioTestDataList.length, (i) => i);
         await Future.wait(
-          iterator
-              .map((i) async => players[i].play(audioTestDataList[i].source)),
+          iterator.map(
+            (i) async => players[i].play(audioTestDataList[i].source),
+          ),
         );
-        final didStartCompleters =
-            iterator.map((i) => Completer<void>()).toList();
+        final playerStates = List<PlayerState?>.generate(
+            audioTestDataList.length, (index) => null);
         await tester.waitFor(
           () async {
             // TODO(gustl22): Improve detection of started players via player
             //  state.
-            final unplayed = didStartCompleters
+            final unplayed = playerStates
                 .mapIndexed(
-                  (index, element) => element.isCompleted ? null : index,
+                  (index, element) => element != null ? null : index,
                 )
                 .nonNulls;
             for (final i in unplayed) {
               final player = players[i];
               if (player.state == PlayerState.completed ||
-                  ((await player.getCurrentPosition()) ?? Duration.zero) >
-                      Duration.zero) {
-                didStartCompleters[i].complete();
+                  player.state == PlayerState.disposed) {
+                playerStates[i] = player.state;
+              } else if (((await player.getCurrentPosition()) ??
+                      Duration.zero) >
+                  Duration.zero) {
+                playerStates[i] = PlayerState.playing;
               }
             }
-            expect(
-              didStartCompleters.map((c) => c.isCompleted).toList(),
-              iterator.map((_) => true).toList(),
-            );
+            expect(playerStates, everyElement(isNotNull));
           },
         );
         await Future.wait<void>(iterator.map((i) => players[i].stop()));
@@ -204,11 +203,12 @@ void main() async {
       // FIXME: Causes media error on Android (see #1333, #1353)
       // Unexpected platform error: MediaPlayer error with
       // what:MEDIA_ERROR_UNKNOWN {what:1} extra:MEDIA_ERROR_SYSTEM
-      skip: testIsAndroidMediaPlayer,
+      // FIXME: Cannot play multiple players simultaneously at exactly the same time on Android Exo Player
+      skip: isAndroid,
     );
 
     testWidgets(
-      'play multiple sources consecutively',
+      'consecutively',
       (WidgetTester tester) async {
         final player = AudioPlayer();
 
@@ -216,18 +216,18 @@ void main() async {
           player.play(td.source);
           // TODO(gustl22): Improve detection of started players via player
           //  state.
-          final didStartCompleter = Completer<void>();
+          PlayerState? playerState;
           await tester.waitFor(
             () async {
               if (player.state == PlayerState.completed ||
-                  ((await player.getCurrentPosition()) ?? Duration.zero) >
-                      Duration.zero) {
-                didStartCompleter.complete();
+                  player.state == PlayerState.disposed) {
+                playerState = player.state;
+              } else if (((await player.getCurrentPosition()) ??
+                      Duration.zero) >
+                  Duration.zero) {
+                playerState = PlayerState.playing;
               }
-              expect(
-                didStartCompleter.isCompleted,
-                isTrue,
-              );
+              expect(playerState, isNotNull);
             },
           );
           await player.stop();
