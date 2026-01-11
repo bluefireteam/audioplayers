@@ -204,35 +204,42 @@ void main() async {
       // FIXME: Causes media error on Android (see #1333, #1353)
       // Unexpected platform error: MediaPlayer error with
       // what:MEDIA_ERROR_UNKNOWN {what:1} extra:MEDIA_ERROR_SYSTEM
-      skip: isAndroid,
+      skip: testIsAndroidMediaPlayer,
     );
 
-    testWidgets('play multiple sources consecutively',
-        (WidgetTester tester) async {
-      final player = AudioPlayer();
+    testWidgets(
+      'play multiple sources consecutively',
+      (WidgetTester tester) async {
+        final player = AudioPlayer();
 
-      for (final td in audioTestDataList) {
-        player.play(td.source);
-        // TODO(gustl22): Improve detection of started players via player
-        //  state.
-        final didStartCompleter = Completer<void>();
-        await tester.waitFor(
-          () async {
-            if (player.state == PlayerState.completed ||
-                ((await player.getCurrentPosition()) ?? Duration.zero) >
-                    Duration.zero) {
-              didStartCompleter.complete();
-            }
-            expect(
-              didStartCompleter.isCompleted,
-              isTrue,
-            );
-          },
-        );
-        await player.stop();
-      }
-      await player.dispose();
-    });
+        for (final td in audioTestDataList) {
+          player.play(td.source);
+          // TODO(gustl22): Improve detection of started players via player
+          //  state.
+          final didStartCompleter = Completer<void>();
+          await tester.waitFor(
+            () async {
+              if (player.state == PlayerState.completed ||
+                  ((await player.getCurrentPosition()) ?? Duration.zero) >
+                      Duration.zero) {
+                didStartCompleter.complete();
+              }
+              expect(
+                didStartCompleter.isCompleted,
+                isTrue,
+              );
+            },
+          );
+          await player.stop();
+        }
+        await player.dispose();
+      },
+
+      // FIXME: Causes media error on Android API 24 (min)
+      // PlatformException(AndroidAudioError, MEDIA_ERROR_UNKNOWN {what:1},
+      // MEDIA_ERROR_UNKNOWN {extra:-19}, null)
+      skip: testIsAndroidMediaPlayer,
+    );
   });
 
   group('Audio Context', () {

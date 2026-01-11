@@ -15,9 +15,8 @@ const testFeatureLowLatency = bool.fromEnvironment(
   defaultValue: true,
 );
 
-const testFeatureThrowOnMissingSource = bool.fromEnvironment(
-  'TEST_FEATURE_THROW_ON_MISSING_SOURCE',
-  defaultValue: true,
+const testIsAndroidMediaPlayer = bool.fromEnvironment(
+  'TEST_ANDROID_MEDIAPLAYER',
 );
 
 /// Specify supported features for a platform.

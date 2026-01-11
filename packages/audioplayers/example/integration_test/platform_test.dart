@@ -91,7 +91,7 @@ void main() async {
       //  Further, the other future is not fulfilled and then mysteriously
       //  failing in later tests.
       //  The feature works with audioplayers_android_exo.
-      skip: !testFeatureThrowOnMissingSource,
+      skip: testIsAndroidMediaPlayer,
     );
 
     testWidgets('#create and #dispose', (tester) async {
