@@ -281,7 +281,9 @@ void main() async {
       // FIXME: Causes media error on Android API 24 (min)
       // PlatformException(AndroidAudioError, MEDIA_ERROR_UNKNOWN {what:1},
       // MEDIA_ERROR_UNKNOWN {extra:-19}, null)
-      skip: !features.hasRespectSilence || testIsAndroidMediaPlayer,
+      // FIXME: [FLAKY] Audio Source sometimes does not play the second time on
+      //  Android Exo, despite resume event is triggered.
+      skip: !features.hasRespectSilence || isAndroid,
     );
 
     testWidgets(
