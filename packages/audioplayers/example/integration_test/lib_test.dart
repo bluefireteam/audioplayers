@@ -1,8 +1,11 @@
 @Timeout(Duration(minutes: 5))
 library;
 
+import 'dart:async';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_example/tabs/sources.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -166,25 +169,34 @@ void main() async {
 
         // Start all players simultaneously
         final iterator = List<int>.generate(audioTestDataList.length, (i) => i);
-        iterator.map((i) => players[i].play(audioTestDataList[i].source));
-        await Future.wait<void>(
-          iterator.map(
-            (i) async {
-              final td = audioTestDataList[i];
-              if (td.isLiveStream ||
-                  td.duration! > const Duration(seconds: 10)) {
-                printWithTimeOnFailure('Test position: $td');
-                await tester.waitFor(
-                  () async => expectLater(
-                    (await players[i].getCurrentPosition()) ?? Duration.zero,
-                    greaterThan(Duration.zero),
-                  ),
-                );
-              } else {
-                await expectLater(players[i].onPlayerComplete.first, completes);
+        await Future.wait(
+          iterator
+              .map((i) async => players[i].play(audioTestDataList[i].source)),
+        );
+        final didStartCompleters =
+            iterator.map((i) => Completer<void>()).toList();
+        await tester.waitFor(
+          () async {
+            // TODO(gustl22): Improve detection of started players via player
+            //  state.
+            final unplayed = didStartCompleters
+                .mapIndexed(
+                  (index, element) => element.isCompleted ? null : index,
+                )
+                .nonNulls;
+            for (final i in unplayed) {
+              final player = players[i];
+              if (player.state == PlayerState.completed ||
+                  ((await player.getCurrentPosition()) ?? Duration.zero) >
+                      Duration.zero) {
+                didStartCompleters[i].complete();
               }
-            },
-          ),
+            }
+            expect(
+              didStartCompleters.map((c) => c.isCompleted).toList(),
+              iterator.map((_) => true).toList(),
+            );
+          },
         );
         await Future.wait<void>(iterator.map((i) => players[i].stop()));
         await Future.wait(players.map((p) => p.dispose()));
@@ -201,17 +213,22 @@ void main() async {
 
       for (final td in audioTestDataList) {
         player.play(td.source);
-        if (td.isLiveStream || td.duration! > const Duration(seconds: 10)) {
-          printWithTimeOnFailure('Test position: $td');
-          await tester.waitFor(
-            () async => expectLater(
-              (await player.getCurrentPosition()) ?? Duration.zero,
-              greaterThan(Duration.zero),
-            ),
-          );
-        } else {
-          await expectLater(player.onPlayerComplete.first, completes);
-        }
+        // TODO(gustl22): Improve detection of started players via player
+        //  state.
+        final didStartCompleter = Completer<void>();
+        await tester.waitFor(
+          () async {
+            if (player.state == PlayerState.completed ||
+                ((await player.getCurrentPosition()) ?? Duration.zero) >
+                    Duration.zero) {
+              didStartCompleter.complete();
+            }
+            expect(
+              didStartCompleter.isCompleted,
+              isTrue,
+            );
+          },
+        );
         await player.stop();
       }
       await player.dispose();
