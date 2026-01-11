@@ -173,7 +173,9 @@ void main() async {
           ),
         );
         final playerStates = List<PlayerState?>.generate(
-            audioTestDataList.length, (index) => null);
+          audioTestDataList.length,
+          (index) => null,
+        );
         await tester.waitFor(
           () async {
             // TODO(gustl22): Improve detection of started players via player
@@ -203,7 +205,8 @@ void main() async {
       // FIXME: Causes media error on Android (see #1333, #1353)
       // Unexpected platform error: MediaPlayer error with
       // what:MEDIA_ERROR_UNKNOWN {what:1} extra:MEDIA_ERROR_SYSTEM
-      // FIXME: Cannot play multiple players simultaneously at exactly the same time on Android Exo Player
+      // FIXME: Cannot play multiple players simultaneously at exactly the same
+      //  time on Android Exo Player
       skip: isAndroid,
     );
 
