@@ -15,6 +15,10 @@ const testFeatureLowLatency = bool.fromEnvironment(
   defaultValue: true,
 );
 
+const testIsAndroidMediaPlayer = bool.fromEnvironment(
+  'TEST_ANDROID_MEDIAPLAYER',
+);
+
 /// Specify supported features for a platform.
 class PlatformFeatures {
   static const webPlatformFeatures = PlatformFeatures(

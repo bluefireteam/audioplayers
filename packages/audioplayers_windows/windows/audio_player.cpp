@@ -203,17 +203,17 @@ void AudioPlayer::OnPrepared(bool isPrepared) {
 }
 
 void AudioPlayer::OnPlaybackEnded() {
-  if (GetReleaseMode() == ReleaseMode::loop) {
-    Play();
-  } else {
-    Stop();
-  }
   if (this->_eventHandler) {
     this->_eventHandler->Success(std::make_unique<flutter::EncodableValue>(
         flutter::EncodableMap({{flutter::EncodableValue("event"),
                                 flutter::EncodableValue("audio.onComplete")},
                                {flutter::EncodableValue("value"),
                                 flutter::EncodableValue(true)}})));
+  }
+  if (GetReleaseMode() == ReleaseMode::loop) {
+    Play();
+  } else {
+    Stop();
   }
 }
 
