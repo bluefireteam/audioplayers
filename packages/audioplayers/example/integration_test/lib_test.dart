@@ -334,7 +334,13 @@ void main() async {
         await player.setAudioContext(audioContext);
 
         await player.play(td.source);
-        await expectLater(player.onPlayerComplete.first, completes);
+        // Low latency mode does not emit a complete event
+        await tester.pumpPlatform(
+          (td.duration ?? Duration.zero) + const Duration(seconds: 8),
+        );
+        expect(player.state, PlayerState.playing);
+        await player.stop();
+        expect(player.state, PlayerState.stopped);
 
         audioContext = AudioContextConfig(
           //ignore: avoid_redundant_argument_values
@@ -345,7 +351,14 @@ void main() async {
         await player.setAudioContext(audioContext);
 
         await player.resume();
-        await expectLater(player.onPlayerComplete.first, completes);
+        // Low latency mode does not emit a complete event
+        await tester.pumpPlatform(
+          (td.duration ?? Duration.zero) + const Duration(seconds: 8),
+        );
+        expect(player.state, PlayerState.playing);
+        await player.stop();
+        expect(player.state, PlayerState.stopped);
+
         await player.dispose();
       },
       skip: !features.hasRespectSilence || !features.hasLowLatency,
