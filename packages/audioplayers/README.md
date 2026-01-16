@@ -50,7 +50,9 @@ I prioritize **performance**, **hardware resource optimization**, and **plugin s
 *   **We are all human:** The golden rule here is to acknowledge mistakes. We all learn from our errors, myself included. I hold myself to these exact same standards.
 *   **Facts over Ego:** I never seek to be "right" for the sake of winning an argument. My only goal is technical correctness, backed by facts, sources, and logic.
 
-**Contribution Policy:** If you contribute, **bring your logs and your solutions**. Every contribution—no matter the size—is welcome, and I thank you fully for it. Regarding the **Web** platform: I do not actively maintain it; Web maintainers must handle their part exclusively without affecting native code. You can even propose to organize the project if you wish; I am open to any request.
+**Contribution Policy:** If you contribute, **bring your logs and your solutions**. Every contribution—no matter the size—is welcome, and I thank you fully for it. Regarding the **Web** platform: I do not actively maintain it; Web maintainers must handle their part exclusively without affecting native code.
+
+**Maintenance & Support:** As I am currently the sole maintainer, please excuse any delays in my response times. I am actively looking for contributors who are ready to get involved and help organize the project. If you are interested in a management role, feel free to reach out.
 
 **The Future:** If this robust approach proves its value in production, I intend to propose this fork as a reliable alternative for the Flutter ecosystem. I will do what I can to maintain it, despite being on another project. If I find errors on the 3 platforms I master (**Linux, Windows, and Android**), fixes will be applied immediately. Do not hesitate to open requests if you have any problems; I will do my best to respond.
 
@@ -155,7 +157,8 @@ Je privilégie la **performance**, l'**optimisation des ressources matérielles*
 
 **Politique de Contribution :** Si vous contribuez, **apportez vos logs et vos solutions**. Toute contribution — quelle que soit sa taille — est la bienvenue et je vous en remercie pleinement. 
 Concernant la partie **Web** : je ne maintiens pas activement cette plateforme, les contributeurs Web devront s'occuper exclusivement de leur partie sans impacter le code natif. 
-Pour toute personne impliqué dans ce fork, Vous pouvez même me proposer d'organiser le projet si vous en avez envie, je suis ouvert à toute demande.
+
+**Maintenance & Support :** Étant seul à maintenir ce projet, je vous prie d'excuser mes délais de réponse. Je suis particulièrement ouvert à tout contributeur prêt à s'impliquer sérieusement dans l'organisation et la gestion du projet. Si vous souhaitez aider à la coordination, n'hésitez pas à vous manifester.
 
 **L'Avenir :** Si cette approche robuste prouve sa valeur en production, je compte proposer ce fork comme une alternative fiable pour l'écosystème Flutter. Je ferai ce que je peux pour le maintenir, bien qu'étant sur un autre projet. Si je trouve des erreurs sur les 3 plateformes que je maîtrise (**Linux, Windows et Android**), les correctifs seront apportés dans l'immédiat. N'hésitez pas à ouvrir des demandes si vous avez un quelconque problème, je ferai au mieux pour y répondre.
 
