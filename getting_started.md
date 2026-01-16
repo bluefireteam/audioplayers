@@ -1,7 +1,7 @@
 # Getting Started
 
 This tutorial should help you get started with the audioplayers library, covering the basics but guiding you all the way through advanced features.
-You can also play around with our [official example app](https://bluefireteam.github.io/audioplayers/) and [explore the code](https://github.com/bluefireteam/audioplayers/tree/main/packages/audioplayers/example), that showcases every feature the library has to offer.
+You can also play around with our [official example app](https://Sebastien-VZN.github.io/audioplayers/) and [explore the code](https://github.com/Sebastien-VZN/audioplayers/tree/main/packages/audioplayers/example), that showcases every feature the library has to offer.
 
 In order to install this package, add the [latest version](pub.dev/packages/audioplayers) of `audioplayers` to your `pubspec.yaml` file.
 This package uses [the Federated Plugin](https://docs.flutter.dev/development/packages-and-plugins/developing-packages) guidelines to support multiple platforms, so it should just work on all supported platforms your app is built for without any extra configuration.
@@ -161,7 +161,7 @@ The release mode is controlling what happens when the playback ends. There are 3
 
 **Note**: you can control exactly what happens when the playback ends using the `onPlayerComplete` stream (see Streams below).
 
-**Note**: there are caveats when looping audio without gaps. Depending on the file format and platform, when audioplayers uses the native implementation of the "looping" feature, there will be gaps between plays, which might not be noticeable for non-continuous SFX but will definitely be noticeable for looping songs. Please check out the Gapless Loop section on our [Troubleshooting Guide](https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md) for more details.
+**Note**: there are caveats when looping audio without gaps. Depending on the file format and platform, when audioplayers uses the native implementation of the "looping" feature, there will be gaps between plays, which might not be noticeable for non-continuous SFX but will definitely be noticeable for looping songs. Please check out the Gapless Loop section on our [Troubleshooting Guide](https://github.com/Sebastien-VZN/audioplayers/blob/main/troubleshooting.md) for more details.
 
 
 ### Player Mode

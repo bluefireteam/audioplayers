@@ -2,8 +2,8 @@
 
 This file describes some common pitfalls and how to solve them. Please always refer to this before opening an issue.
 
-Also, you can compare your app with our [example code](https://github.com/bluefireteam/audioplayers/tree/main/packages/audioplayers/example) or try to reproduce your issue there.
-For that check out our [Contributing Guide](https://github.com/bluefireteam/audioplayers/blob/main/contributing.md), if you want to debug the app locally.
+Also, you can compare your app with our [example code](https://github.com/Sebastien-VZN/audioplayers/tree/main/packages/audioplayers/example) or try to reproduce your issue there.
+For that check out our [Contributing Guide](https://github.com/Sebastien-VZN/audioplayers/blob/main/contributing.md), if you want to debug the app locally.
 
 ## Runtime Issues
 
@@ -65,7 +65,7 @@ To be able to play your own resources on Web you need to make sure your server h
 
 #### Audio Streams
 
-One of the know reasons for streams not playing is that the stream is being gziped by the server, as described [here](https://github.com/bluefireteam/audioplayers/issues/183).
+One of the know reasons for streams not playing is that the stream is being gziped by the server, as described [here](https://github.com/Sebastien-VZN/audioplayers/issues/183).
 
 #### Redirections, Authentication & Local Confirmation
 
@@ -76,9 +76,9 @@ If the issue persists, then open the issue, including the file so we can test. O
 
 ### Issues with local Assets and AudioCache
 
-[Flutter requires](https://docs.flutter.dev/ui/assets/assets-and-images) that assets are specified on your `pubspec.yaml` file, under `flutter > assets`; check [this](https://github.com/bluefireteam/audioplayers/blob/main/packages/audioplayers/example/pubspec.yaml#L29) for an example.
+[Flutter requires](https://docs.flutter.dev/ui/assets/assets-and-images) that assets are specified on your `pubspec.yaml` file, under `flutter > assets`; check [this](https://github.com/Sebastien-VZN/audioplayers/blob/main/packages/audioplayers/example/pubspec.yaml#L29) for an example.
 
-**Note**: Make sure you have set the path to your asset correctly, see the [AudioCache](https://github.com/bluefireteam/audioplayers/blob/main/getting_started.md#audiocache) concept.
+**Note**: Make sure you have set the path to your asset correctly, see the [AudioCache](https://github.com/Sebastien-VZN/audioplayers/blob/main/getting_started.md#audiocache) concept.
 
 ### [iOS] Background Audio
 
@@ -120,7 +120,7 @@ By default, macOS apps don't allow outgoing connections; so playing audio files/
 
 **Warning**: If you are having any sort of build issues, you must read this first.
 
-Our [CI](https://github.com/bluefireteam/audioplayers/blob/master/.github/workflows/build.yml) builds our example app using audioplayers for Android, iOS, Linux, macOS, Windows, and web. So if the build is passing, any build errors (from android/ios sdk, gradle, java, kotlin, cocoa pods, swift, flutter, etc) is not a global issue and likely is something on your setup.
+Our [CI](https://github.com/Sebastien-VZN/audioplayers/blob/master/.github/workflows/build.yml) builds our example app using audioplayers for Android, iOS, Linux, macOS, Windows, and web. So if the build is passing, any build errors (from android/ios sdk, gradle, java, kotlin, cocoa pods, swift, flutter, etc) is not a global issue and likely is something on your setup.
 
 Before opening an issue, you **must** try these steps:
 

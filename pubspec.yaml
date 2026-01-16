@@ -1,5 +1,5 @@
 name: audioplayers_workspace
-repository: https://github.com/bluefireteam/audioplayers
+repository: https://github.com/Sebastien-VZN/audioplayers
 workspace:
   - packages/audioplayers
   - packages/audioplayers/example

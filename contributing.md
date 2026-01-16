@@ -42,31 +42,31 @@ If you want to use the most recent changes in your own project add following dep
 dependency_overrides:
   audioplayers:
     git:
-      url: https://github.com/bluefireteam/audioplayers.git
+      url: https://github.com/Sebastien-VZN/audioplayers.git
       path: 'packages/audioplayers'
   audioplayers_platform_interface:
     git:
-      url: https://github.com/bluefireteam/audioplayers.git
+      url: https://github.com/Sebastien-VZN/audioplayers.git
       path: 'packages/audioplayers_platform_interface'
   audioplayers_web:
     git:
-      url: https://github.com/bluefireteam/audioplayers.git
+      url: https://github.com/Sebastien-VZN/audioplayers.git
       path: 'packages/audioplayers_web'
   audioplayers_linux:
     git:
-      url: https://github.com/bluefireteam/audioplayers.git
+      url: https://github.com/Sebastien-VZN/audioplayers.git
       path: 'packages/audioplayers_linux'
   audioplayers_android:
     git:
-      url: https://github.com/bluefireteam/audioplayers.git
+      url: https://github.com/Sebastien-VZN/audioplayers.git
       path: 'packages/audioplayers_android'
   audioplayers_darwin:
     git:
-      url: https://github.com/bluefireteam/audioplayers.git
+      url: https://github.com/Sebastien-VZN/audioplayers.git
       path: 'packages/audioplayers_darwin'
   audioplayers_windows:
     git:
-      url: https://github.com/bluefireteam/audioplayers.git
+      url: https://github.com/Sebastien-VZN/audioplayers.git
       path: 'packages/audioplayers_windows'
 ```
 
@@ -109,8 +109,6 @@ Third, if your question is not there, try to searching for old issues. Even thou
 Lastly, try finding the answer in the source code. We try to keep our code clean and easy to understand, including docs explaining how things work. If our code/docs are not clear on something, this is a great opportunity to help with a PR (see feature requests below).
 
 If you still have a question, then you might have a legit question! However issues are not the way to ask then. The ways in which we accept questions are:
-
- * [Our discord channel](https://discord.gg/ny7eThk): This is [Fire Slime Games](https://fireslime.xyz/) discord server, the people that are also behind Flame/audioplayers. We have a channel on the server dedicated for audioplayers questions. There you will be able to find many people, often knowing much more than we do, eager to help you out (as long as you followed all the steps). This is the quicker way to get help!
 
  * The `flutter-audioplayers` tag on [Stack Overflow](https://stackoverflow.com/questions/tagged/flutter-audioplayers): Feel free to use the [flutter-audioplayers] tag on Stack Overflow to get people from the community to help. This might be a bit more involved than discord but if you make a properly acceptable Stack Overflow question, people will be much more willing to help you with hard problems. Also, you are leaving some documentation for future generations!
 

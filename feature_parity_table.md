@@ -2,7 +2,7 @@
 
 Not every feature is available on every platform yet. Use this table to keep track of our work and progress, and please help out if you want to. :)
 
-If you would like to assist us implement a missing feature, please browse the [issue tracker](https://github.com/bluefireteam/audioplayers/issues) and reach out to us on our [Discord](https://discord.gg/pxrBmy4) server so we can coordinate efforts.
+If you would like to assist us implement a missing feature, please browse the [issue tracker](https://github.com/Sebastien-VZN/audioplayers/issues) and reach out to us so we can coordinate efforts.
 
 ## Note on Android
 
@@ -21,7 +21,7 @@ dependencies:
   audioplayers_android_exo: any
 ```
 
-For more, see the [audioplayers_android_exo](https://github.com/bluefireteam/audioplayers/blob/main/packages/audioplayers_android_exo/README.md) package.
+For more, see the [audioplayers_android_exo](https://github.com/Sebastien-VZN/audioplayers/blob/main/packages/audioplayers_android_exo/README.md) package.
 
 ### Support for old SDKs
 

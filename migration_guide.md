@@ -68,4 +68,4 @@ Also, some files might have been shuffled around (even between packages), but no
 
 For some people, this will be irrelevant. For others, this might be the biggest change. Basically we collected all the random flags and parameters that were related to audio context/session configuration spread through the codebase on different methods, at different stages, into a single, unified configuration object called AudioContext, that can be set globally or per player (only for Android).
 
-For more details, check the Audio Context section on the [Getting Started tutorial](getting_started.md), or the [class documentation itself](https://github.com/bluefireteam/audioplayers/blob/main/packages/audioplayers_platform_interface/lib/api/audio_context_config.dart) (which is very comprehensive).
+For more details, check the Audio Context section on the [Getting Started tutorial](getting_started.md), or the [class documentation itself](https://github.com/Sebastien-VZN/audioplayers/blob/main/packages/audioplayers_platform_interface/lib/api/audio_context_config.dart) (which is very comprehensive).
