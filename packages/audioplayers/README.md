@@ -1,3 +1,39 @@
+# 🛡️ Audioplayers - Hardened Fork
+**⚠️ PHILOSOPHY:** This fork prioritizes **Stability**, **Error Handling**, and **Production Safety** over theoretical purity or web-centric paradigms.
+
+## Why this fork?
+This version exists because the official repository prioritizes crashing applications for "testing purposes" rather than properly handling runtime I/O exceptions.
+
+### This fork is designed for:
+*   **Native Mobile Developers** who understand that I/O operations (Audio, File, Hardware) are inherently unstable and must be handled gracefully.
+*   **Production Applications** where a user crash is never an acceptable outcome.
+*   **Engineers** who value C/C++/Dart system-level robustness over "JavaScript-style" promises.
+
+### The Core Technical Disagreement
+This fork was born following the official repository's refusal to integrate error handlers (`try-catch`) around unstable native calls.
+*   **Original Approach:** Let the application crash on error to "facilitate testing," applying Web (JavaScript) paradigms to native development.
+*   **This Fork's Approach:** I believe that Audio and I/O rely on the OS and hardware (beyond our control). A production app must **never** crash due to an audio initialization failure. Errors must be caught, logged, and handled.
+
+## 🤝 Code of Conduct & Mindset
+I am a very patient maintainer who loves saving time for everyone, provided the discussion remains factual and humble.
+I prioritize **performance**, **hardware resource optimization**, and **plugin stability** above all else.
+
+*   **We are all human:** The golden rule here is to acknowledge mistakes. We all learn from our errors, myself included. I hold myself to these exact same standards.
+*   **Facts over Ego:** I never seek to be "right" for the sake of winning an argument. My only goal is technical correctness, backed by facts, sources, and logic.
+
+**Contribution Policy:** If you contribute, **bring your logs and your solutions**. Every contribution—no matter the size—is welcome, and I thank you fully for it. Regarding the **Web** platform: I do not actively maintain it; Web maintainers must handle their part exclusively without affecting native code. You can even propose to organize the project if you wish; I am open to any request.
+
+**The Future:** If this robust approach proves its value in production, I intend to propose this fork as a reliable alternative for the Flutter ecosystem. I will do what I can to maintain it, despite being on another project. If I find errors on the 3 platforms I master (**Linux, Windows, and Android**), fixes will be applied immediately. Do not hesitate to open requests if you have any problems; I will do my best to respond.
+
+**License & Open Source:** As this project is under the MIT License, the original LICENSE and the core README documentation remain strictly respected and unmodified. The codebase will always remain open and accessible to everyone.
+
+---
+
+fr traduction 
+
+<details>
+<summary>Version Française 🇫🇷</summary>
+
 # 🛡️ Audioplayers - Fork Robuste
 **⚠️ PHILOSOPHIE :** Ce fork privilégie la **Stabilité**, la **Gestion d'Erreurs** et la **Sécurité en Production** par rapport à la pureté théorique ou aux paradigmes centrés sur le Web.
 
@@ -29,37 +65,11 @@ Pour toute personne impliqué dans ce fork, Vous pouvez même me proposer d'orga
 
 **Licence & Open Source :** Ce projet étant sous licence MIT, la LICENSE originale et la documentation README de base restent strictement respectées et non modifiées. La base de code restera toujours ouverte et accessible à tous.
 
+</details>
+
 ---
 
 # 🛡️ Audioplayers - Hardened Fork
-**⚠️ PHILOSOPHY:** This fork prioritizes **Stability**, **Error Handling**, and **Production Safety** over theoretical purity or web-centric paradigms.
-
-## Why this fork?
-This version exists because the official repository prioritizes crashing applications for "testing purposes" rather than properly handling runtime I/O exceptions.
-
-### This fork is designed for:
-*   **Native Mobile Developers** who understand that I/O operations (Audio, File, Hardware) are inherently unstable and must be handled gracefully.
-*   **Production Applications** where a user crash is never an acceptable outcome.
-*   **Engineers** who value C/C++/Dart system-level robustness over "JavaScript-style" promises.
-
-### The Core Technical Disagreement
-This fork was born following the official repository's refusal to integrate error handlers (`try-catch`) around unstable native calls.
-*   **Original Approach:** Let the application crash on error to "facilitate testing," applying Web (JavaScript) paradigms to native development.
-*   **This Fork's Approach:** I believe that Audio and I/O rely on the OS and hardware (beyond our control). A production app must **never** crash due to an audio initialization failure. Errors must be caught, logged, and handled.
-
-## 🤝 Code of Conduct & Mindset
-I am a very patient maintainer who loves saving time for everyone, provided the discussion remains factual and humble.
-I prioritize **performance**, **hardware resource optimization**, and **plugin stability** above all else.
-
-*   **We are all human:** The golden rule here is to acknowledge mistakes. We all learn from our errors, myself included. I hold myself to these exact same standards.
-*   **Facts over Ego:** I never seek to be "right" for the sake of winning an argument. My only goal is technical correctness, backed by facts, sources, and logic.
-
-**Contribution Policy:** If you contribute, **bring your logs and your solutions**. Every contribution—no matter the size—is welcome, and I thank you fully for it. Regarding the **Web** platform: I do not actively maintain it; Web maintainers must handle their part exclusively without affecting native code. You can even propose to organize the project if you wish; I am open to any request.
-
-**The Future:** If this robust approach proves its value in production, I intend to propose this fork as a reliable alternative for the Flutter ecosystem. I will do what I can to maintain it, despite being on another project. If I find errors on the 3 platforms I master (**Linux, Windows, and Android**), fixes will be applied immediately. Do not hesitate to open requests if you have any problems; I will do my best to respond.
-
-**License & Open Source:** As this project is under the MIT License, the original LICENSE and the core README documentation remain strictly respected and unmodified. The codebase will always remain open and accessible to everyone.
-_____________________________________________________________________________
 
 <p align="center">
   <a href="https://pub.dev/packages/audioplayers">
