@@ -196,7 +196,8 @@ enum ReleaseMode: String {
     _ playerItem: AVPlayerItem
   ) async throws {
     try await withCheckedThrowingContinuation { continuation in
-      playerItemStatusObservation = playerItem.observe(\AVPlayerItem.status) {[weak self] (playerItem, change) in
+      playerItemStatusObservation = playerItem.observe(\AVPlayerItem.status) {
+        [weak self] (playerItem, change) in
         guard let self = self else {
           return
         }
