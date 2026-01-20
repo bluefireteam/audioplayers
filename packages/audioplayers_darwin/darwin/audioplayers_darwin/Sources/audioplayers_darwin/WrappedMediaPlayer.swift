@@ -197,11 +197,14 @@ enum ReleaseMode: String {
   ) async throws {
     try await withCheckedThrowingContinuation { continuation in
       playerItemStatusObservation = playerItem.observe(\AVPlayerItem.status) {
-        (playerItem, change) in
+        [weak self] (playerItem, change) in
+        guard let self = self else {
+          return
+        }
         let status = playerItem.status
         self.eventHandler.onLog(message: "player status: \(status), change: \(change)")
 
-        switch playerItem.status {
+        switch status {
         case .readyToPlay:
           continuation.resume()
         case .failed:
