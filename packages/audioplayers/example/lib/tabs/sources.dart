@@ -23,7 +23,7 @@ final mp3Url1 = '$host/files/audio/ambient_c_motion.mp3';
 final mp3Url2 = '$host/files/audio/nasa_on_a_mission.mp3';
 final m3u8StreamUrl = useLocalServer
     ? '$host/files/live_streams/nasa_power_of_the_rovers.m3u8'
-    : 'https://ll-hls-test.cdn-apple.com/llhls4/ll-hls-test-04/multi.m3u8';
+    : 'https://raw.githubusercontent.com/bluefireteam/audioplayers/refs/heads/main/packages/audioplayers/example/server/public/files/live_streams/nasa_power_of_the_rovers.m3u8';
 final mpgaStreamUrl = useLocalServer
     ? '$host/stream/mpeg'
     : 'https://timesradio.wireless.radio/stream';
