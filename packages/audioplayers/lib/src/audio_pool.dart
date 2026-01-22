@@ -42,7 +42,7 @@ class AudioPool {
   final int maxPlayers;
 
   /// Whether the players in this pool use low latency mode.
-  final bool usesLowLatencyMode;
+  final PlayerMode playerMode;
 
   /// Lock to synchronize access to the pool.
   final Lock _lock = Lock();
@@ -52,25 +52,27 @@ class AudioPool {
     required this.maxPlayers,
     required this.source,
     required this.audioContext,
-    this.usesLowLatencyMode = true,
+    this.playerMode = PlayerMode.mediaPlayer,
     AudioCache? audioCache,
   }) : audioCache = audioCache ?? AudioCache.instance;
 
   /// Creates an [AudioPool] instance with the given parameters.
+  /// You will have to manage disposing the players if you choose
+  /// PlayerMode.lowLatency.
   static Future<AudioPool> create({
     required Source source,
     required int maxPlayers,
     AudioCache? audioCache,
     AudioContext? audioContext,
     int minPlayers = 1,
-    bool useLowLatencyMode = true,
+    PlayerMode playerMode = PlayerMode.mediaPlayer,
   }) async {
     final instance = AudioPool._(
       source: source,
       audioCache: audioCache,
       maxPlayers: maxPlayers,
       minPlayers: minPlayers,
-      usesLowLatencyMode: useLowLatencyMode,
+      playerMode: playerMode,
       audioContext: audioContext,
     );
 
@@ -89,18 +91,19 @@ class AudioPool {
     required int maxPlayers,
     AudioCache? audioCache,
     int minPlayers = 1,
-    bool useLowLatencyMode = true,
+    PlayerMode playerMode = PlayerMode.mediaPlayer,
   }) async {
     return create(
       source: AssetSource(path),
       audioCache: audioCache,
       minPlayers: minPlayers,
       maxPlayers: maxPlayers,
-      useLowLatencyMode: useLowLatencyMode,
+      playerMode: playerMode,
     );
   }
 
   /// Starts playing the audio, returns a function that can stop the audio.
+  /// You must dispose the audio player yourself if using PlayerMode.lowLatency.
   Future<StopFunction> start({double volume = 1.0}) async {
     return _lock.synchronized(() async {
       if (availablePlayers.isEmpty) {
@@ -111,13 +114,13 @@ class AudioPool {
       await player.setVolume(volume);
       await player.resume();
 
-      late StreamSubscription<void> subscription;
+      StreamSubscription<void>? subscription;
 
       Future<void> stop() {
         return _lock.synchronized(() async {
           final removedPlayer = currentPlayers.remove(player.playerId);
           if (removedPlayer != null) {
-            subscription.cancel();
+            subscription?.cancel();
             await removedPlayer.stop();
             if (availablePlayers.length >= maxPlayers) {
               await removedPlayer.release();
@@ -128,7 +131,7 @@ class AudioPool {
         });
       }
 
-      if (!usesLowLatencyMode) {
+      if (playerMode == PlayerMode.mediaPlayer) {
         subscription = player.onPlayerComplete.listen((_) => stop());
       }
 
@@ -139,9 +142,7 @@ class AudioPool {
   Future<AudioPlayer> _createNewAudioPlayer() async {
     final player = AudioPlayer()..audioCache = audioCache;
 
-    if (usesLowLatencyMode) {
-      await player.setPlayerMode(PlayerMode.lowLatency);
-    }
+    await player.setPlayerMode(playerMode);
 
     if (audioContext != null) {
       await player.setAudioContext(audioContext!);
