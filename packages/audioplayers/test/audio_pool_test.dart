@@ -79,5 +79,75 @@ void main() {
       expect(pool.availablePlayers.length, 3);
       expect(pool.currentPlayers.isEmpty, isTrue);
     });
+
+    test('gets duration', () async {
+      final pool = await AudioPool.createFromAsset(
+        path: 'audio.mp3',
+        maxPlayers: 3,
+        audioCache: FakeAudioCache(),
+      );
+      final duration = await pool.getDuration();
+      expect(duration, isA<Duration>());
+    });
+
+    test('getDuration adds an available player to the pool', () async {
+      final pool = await AudioPool.createFromAsset(
+        path: 'audio.mp3',
+        maxPlayers: 3,
+        audioCache: FakeAudioCache(),
+      );
+
+      final stop = await pool.start();
+      await Future.wait([
+        pool.getDuration(),
+        stop(),
+      ]);
+
+      expect(pool.availablePlayers.length, 2);
+      expect(pool.currentPlayers.isEmpty, isTrue);
+    });
+
+    test(
+        'Consecutive getDuration returns from cache and does not create player',
+        () async {
+      final pool = await AudioPool.createFromAsset(
+        path: 'audio.mp3',
+        maxPlayers: 3,
+        audioCache: FakeAudioCache(),
+      );
+
+      expect(pool.duration, isNull);
+
+      final durations = await Future.wait([
+        pool.getDuration(),
+        pool.getDuration(),
+      ]);
+
+      final durationFromNewPlayer = durations[0];
+      final durationFromCache = durations[1];
+
+      expect(pool.duration, isNotNull);
+      expect(durationFromNewPlayer, durationFromCache);
+
+      expect(pool.availablePlayers.length, 1);
+      expect(pool.currentPlayers.isEmpty, isTrue);
+    });
+
+    test('getDuration keeps the minPlayers/maxPlayers contract', () async {
+      final pool = await AudioPool.createFromAsset(
+        path: 'audio.mp3',
+        maxPlayers: 3,
+        audioCache: FakeAudioCache(),
+      );
+
+      final stopFunctions =
+          await Future.wait(List.generate(3, (_) => pool.start()));
+
+      await pool.getDuration();
+      await Future.wait(stopFunctions.map((f) => f()));
+
+      expect(pool.availablePlayers.length, 3);
+      expect(pool.currentPlayers.isEmpty, isTrue);
+    });
   });
 }
