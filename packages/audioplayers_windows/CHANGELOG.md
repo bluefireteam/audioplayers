@@ -1,3 +1,7 @@
+## 4.2.2
+
+- **FIX**: Fixed app crash on startup on Windows with missing Media Feature Pack
+
 ## 4.2.1
 
  - **FIX**: Migrate to Melos v7 and Pub Workspaces ([#1929](https://github.com/bluefireteam/audioplayers/issues/1929)). ([9d0bfe0b](https://github.com/bluefireteam/audioplayers/commit/9d0bfe0be5cba0ce4fb3a75912b41117a8996bfe))
