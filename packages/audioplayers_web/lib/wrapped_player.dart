@@ -170,7 +170,7 @@ class WrappedPlayer {
   }
 
   void release() {
-    stop();
+    pause();
     // Release `AudioElement` correctly (#966)
     player?.src = '';
     player?.remove();
@@ -216,7 +216,11 @@ class WrappedPlayer {
   void stop() {
     pause();
     _pausedAt = 0;
-    player?.currentTime = 0;
+    if (_currentReleaseMode == ReleaseMode.release) {
+      release();
+    } else {
+      player?.currentTime = 0;
+    }
   }
 
   void seek(int position) {
