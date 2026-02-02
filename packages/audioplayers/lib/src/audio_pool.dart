@@ -131,7 +131,7 @@ class AudioPool {
         });
       }
 
-      if (playerMode == PlayerMode.mediaPlayer) {
+      if (playerMode != PlayerMode.lowLatency) {
         subscription = player.onPlayerComplete.listen((_) => stop());
       }
 
