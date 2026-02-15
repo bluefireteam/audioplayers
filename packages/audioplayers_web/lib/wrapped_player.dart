@@ -18,6 +18,8 @@ class WrappedPlayer {
   bool _isPlaying = false;
 
   web.HTMLAudioElement? player;
+  web.AudioContext? _audioContext;
+  web.MediaElementAudioSourceNode? _sourceNode;
   web.StereoPannerNode? _stereoPanner;
   StreamSubscription? _playerEndedSubscription;
   StreamSubscription? _playerLoadedDataSubscription;
@@ -79,12 +81,14 @@ class WrappedPlayer {
 
     _setupStreams(p);
 
-    // setup stereo panning
-    final audioContext = web.AudioContext();
-    final source = audioContext.createMediaElementSource(player!);
-    _stereoPanner = audioContext.createStereoPanner();
+    // Reuse or create AudioContext (Safari limits concurrent contexts)
+    _audioContext ??= web.AudioContext();
+
+    final source = _audioContext!.createMediaElementSource(p);
+    _sourceNode = source;
+    _stereoPanner = _audioContext!.createStereoPanner();
     source.connect(_stereoPanner!);
-    _stereoPanner?.connect(audioContext.destination);
+    _stereoPanner?.connect(_audioContext!.destination);
 
     // Preload the source
     p.load();
@@ -171,6 +175,8 @@ class WrappedPlayer {
 
   void release() {
     pause();
+    _sourceNode?.disconnect();
+    _sourceNode = null;
     // Release `AudioElement` correctly (#966)
     player?.src = '';
     player?.remove();
@@ -197,6 +203,12 @@ class WrappedPlayer {
     if (player == null) {
       recreateNode();
     }
+
+    // Safari requires explicit resume after user gesture
+    if (_audioContext != null && _audioContext!.state == 'suspended') {
+      await _audioContext!.resume().toDart;
+    }
+
     player?.currentTime = position;
     await player?.play().toDart;
   }
@@ -240,6 +252,8 @@ class WrappedPlayer {
 
   Future<void> dispose() async {
     release();
+    await _audioContext?.close().toDart;
+    _audioContext = null;
     eventStreamController.close();
   }
 }
