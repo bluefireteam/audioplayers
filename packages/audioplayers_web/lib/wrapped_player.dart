@@ -41,7 +41,7 @@ class WrappedPlayer {
     }
     _currentUrl = url;
 
-    release();
+    await release();
     recreateNode();
     if (_isPlaying) {
       await resume();
@@ -132,11 +132,11 @@ class WrappedPlayer {
       onError: eventStreamController.addError,
     );
     _playerEndedSubscription = p.onEnded.listen(
-      (_) {
+      (_) async {
         if (_currentReleaseMode == ReleaseMode.release) {
-          release();
+          await release();
         } else {
-          stop();
+          await stop();
         }
         eventStreamController.add(
           const AudioEvent(eventType: AudioEventType.complete),
@@ -173,8 +173,12 @@ class WrappedPlayer {
     player?.loop = shouldLoop();
   }
 
-  void release() {
+  Future<void> release() async {
     pause();
+    // Need to reset pausedAt, otherwise resume will start at the old position
+    // after release.
+    _pausedAt = null;
+
     _sourceNode?.disconnect();
     _sourceNode = null;
     // Release `AudioElement` correctly (#966)
@@ -183,15 +187,15 @@ class WrappedPlayer {
     player = null;
     _stereoPanner = null;
 
-    _playerLoadedDataSubscription?.cancel();
+    await _playerLoadedDataSubscription?.cancel();
     _playerLoadedDataSubscription = null;
-    _playerEndedSubscription?.cancel();
+    await _playerEndedSubscription?.cancel();
     _playerEndedSubscription = null;
-    _playerSeekedSubscription?.cancel();
+    await _playerSeekedSubscription?.cancel();
     _playerSeekedSubscription = null;
-    _playerPlaySubscription?.cancel();
+    await _playerPlaySubscription?.cancel();
     _playerPlaySubscription = null;
-    _playerErrorSubscription?.cancel();
+    await _playerErrorSubscription?.cancel();
     _playerErrorSubscription = null;
   }
 
@@ -225,11 +229,11 @@ class WrappedPlayer {
     player?.pause();
   }
 
-  void stop() {
+  Future<void> stop() async {
     pause();
     _pausedAt = 0;
     if (_currentReleaseMode == ReleaseMode.release) {
-      release();
+      await release();
     } else {
       player?.currentTime = 0;
     }
@@ -251,9 +255,9 @@ class WrappedPlayer {
   }
 
   Future<void> dispose() async {
-    release();
+    await release();
     await _audioContext?.close().toDart;
     _audioContext = null;
-    eventStreamController.close();
+    await eventStreamController.close();
   }
 }
