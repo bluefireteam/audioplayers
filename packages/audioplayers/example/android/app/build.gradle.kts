@@ -23,8 +23,7 @@ android {
 
     defaultConfig {
         applicationId = "xyz.luan.audioplayers.example"
-        // TODO: Change back to `minSdk = flutter.minSdkVersion` when min supported Flutter version is 3.35.x.
-        minSdk = 23
+        minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
