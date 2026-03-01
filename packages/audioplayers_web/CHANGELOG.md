@@ -1,3 +1,9 @@
+## 5.2.0
+
+ - **FIX**(web): Reset pausedAt on release ([#1972](https://github.com/bluefireteam/audioplayers/issues/1972)) ([#1973](https://github.com/bluefireteam/audioplayers/issues/1973)). ([09b6bb66](https://github.com/bluefireteam/audioplayers/commit/09b6bb667e250690d0c9ad5db52d2d543ccecf48))
+ - **FIX**: Web safari audio context reuse ([#1972](https://github.com/bluefireteam/audioplayers/issues/1972)). ([bd698bb0](https://github.com/bluefireteam/audioplayers/commit/bd698bb0e985d11bdfe142c9036b7ba387357a8c))
+ - **FEAT**: Async swift code, align release functionality, align Android initialization error ([#1964](https://github.com/bluefireteam/audioplayers/issues/1964)). ([65c8f373](https://github.com/bluefireteam/audioplayers/commit/65c8f37314e7e023814bb77c9474c8a076f288cb))
+
 ## 5.1.1
 
  - **FIX**: Migrate to Melos v7 and Pub Workspaces ([#1929](https://github.com/bluefireteam/audioplayers/issues/1929)). ([9d0bfe0b](https://github.com/bluefireteam/audioplayers/commit/9d0bfe0be5cba0ce4fb3a75912b41117a8996bfe))
