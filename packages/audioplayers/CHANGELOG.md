@@ -1,3 +1,9 @@
+## 6.6.0
+
+ - **PERF**: Option to set PlayerMode for AudioPools ([#1963](https://github.com/bluefireteam/audioplayers/issues/1963)). ([a97caa12](https://github.com/bluefireteam/audioplayers/commit/a97caa12a8fbdbc75ea246d8683c57f406266369))
+ - **FIX**(android): FileNotFoundException after application cache got cleared ([#1922](https://github.com/bluefireteam/audioplayers/issues/1922)). ([0e3bca2b](https://github.com/bluefireteam/audioplayers/commit/0e3bca2ba330268b2839130cf27cd34bea3835ef))
+ - **FEAT**: Async swift code, align release functionality, align Android initialization error ([#1964](https://github.com/bluefireteam/audioplayers/issues/1964)). ([65c8f373](https://github.com/bluefireteam/audioplayers/commit/65c8f37314e7e023814bb77c9474c8a076f288cb))
+
 ## 6.5.1
 
  - **FIX**: Initialize audioplayer instances sequentially ([#1941](https://github.com/bluefireteam/audioplayers/issues/1941)). ([663fff2c](https://github.com/bluefireteam/audioplayers/commit/663fff2cb8482c81cb525c9d97bfb7f5d02dfdee))
