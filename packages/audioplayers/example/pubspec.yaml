@@ -22,6 +22,7 @@ dev_dependencies:
     sdk: flutter
   integration_test:
     sdk: flutter
+  pub_semver: ^2.2.0
 
 flutter:
   uses-material-design: true
