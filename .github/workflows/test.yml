@@ -124,7 +124,8 @@ jobs:
 
       - run: melos format --set-exit-if-changed
       - run: flutter analyze ${{ inputs.fatal_warnings && '--fatal-infos' || '--no-fatal-warnings' }}
-        # Need to reset git stage changes to avoid conflicts on checkout.
+        # Need to reset git staged changes to avoid conflicts on checkout.
+        # This can happen, when execute for multiple Flutter versions, but each generates/migrates different files tied to their version.
       - run: git reset --hard
       - name: Lint Code Base
         uses: super-linter/super-linter/slim@v5
