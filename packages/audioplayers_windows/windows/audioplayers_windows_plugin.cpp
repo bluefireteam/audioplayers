@@ -10,6 +10,7 @@
 #include <flutter/method_channel.h>
 #include <flutter/plugin_registrar_windows.h>
 #include <flutter/standard_method_codec.h>
+#include <flutter/task_runner.h>
 
 #include <map>
 #include <memory>
@@ -48,6 +49,7 @@ class AudioplayersWindowsPlugin : public Plugin {
   std::map<std::string, std::unique_ptr<AudioPlayer>> audioPlayers;
 
   static inline BinaryMessenger* binaryMessenger;
+  static inline flutter::TaskRunner* taskRunner;
   static inline std::unique_ptr<MethodChannel<EncodableValue>> methods{};
   static inline std::unique_ptr<MethodChannel<EncodableValue>> globalMethods{};
   static inline std::unique_ptr<EventStreamHandler<>> globalEvents{};
@@ -70,6 +72,7 @@ class AudioplayersWindowsPlugin : public Plugin {
 // static
 void AudioplayersWindowsPlugin::RegisterWithRegistrar(
     PluginRegistrarWindows* registrar) {
+  taskRunner = registrar->task_runner();
   binaryMessenger = registrar->messenger();
   methods = std::make_unique<MethodChannel<EncodableValue>>(
       binaryMessenger, "xyz.luan/audioplayers",
@@ -92,7 +95,7 @@ void AudioplayersWindowsPlugin::RegisterWithRegistrar(
       [plugin_pointer = plugin.get()](const auto& call, auto result) {
         plugin_pointer->HandleGlobalMethodCall(call, std::move(result));
       });
-  globalEvents = std::make_unique<EventStreamHandler<>>();
+  globalEvents = std::make_unique<EventStreamHandler<>>(taskRunner);
   auto _obj_stm_handle =
       static_cast<StreamHandler<EncodableValue>*>(globalEvents.get());
   std::unique_ptr<StreamHandler<EncodableValue>> _ptr{_obj_stm_handle};
@@ -259,7 +262,7 @@ void AudioplayersWindowsPlugin::CreatePlayer(std::string playerId) {
       binaryMessenger, "xyz.luan/audioplayers/events/" + playerId,
       &StandardMethodCodec::GetInstance());
 
-  auto eventHandler = new EventStreamHandler<>();
+  auto eventHandler = new EventStreamHandler<>(taskRunner);
   auto _obj_stm_handle =
       static_cast<StreamHandler<EncodableValue>*>(eventHandler);
   std::unique_ptr<StreamHandler<EncodableValue>> _ptr{_obj_stm_handle};
