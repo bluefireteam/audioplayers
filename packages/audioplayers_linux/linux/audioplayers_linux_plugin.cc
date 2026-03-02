@@ -12,6 +12,7 @@
 #include <map>
 #include <memory>
 #include <sstream>
+#include <exception>
 
 #include "audio_player.h"
 
@@ -222,7 +223,7 @@ static void audioplayers_linux_plugin_handle_method_call(
     } else if (strcmp(method, "setPlayerMode") == 0) {
       auto flPlayerMode = fl_value_lookup_string(args, "playerMode");
       auto playerMode = flPlayerMode == nullptr ? "unknown" : fl_value_get_string(flPlayerMode);
-      player->OnLog("Setting PlayerMode '" + std::string(playerMode) + "' is not supported on Linux");
+      player->OnLog(("Setting PlayerMode '" + std::string(playerMode) + "' is not supported on Linux").c_str());
     } else if (strcmp(method, "setAudioContext") == 0) {
       player->OnLog("Setting AudioContext is not supported on Linux");
     } else if (strcmp(method, "setBalance") == 0) {
@@ -251,17 +252,13 @@ static void audioplayers_linux_plugin_handle_method_call(
 
     response = FL_METHOD_RESPONSE(fl_method_success_response_new(result));
     fl_method_call_respond(method_call, response, nullptr);
-  } catch (const gchar* error) {
+  } catch (const std::exception& e) {
     response = FL_METHOD_RESPONSE(
-        fl_method_error_response_new("LinuxAudioError", error, nullptr));
+        fl_method_error_response_new("LinuxAudioError", e.what(), nullptr));
     fl_method_call_respond(method_call, response, nullptr);
   } catch (...) {
-    std::exception_ptr p = std::current_exception();
     response = FL_METHOD_RESPONSE(
-        fl_method_error_response_new("LinuxAudioError",
-                                     p ? p.__cxa_exception_type()->name()
-                                       : "Unknown AudioPlayersLinux error",
-                                     nullptr));
+        fl_method_error_response_new("LinuxAudioError", "Unknown AudioPlayersLinux error", nullptr));
     fl_method_call_respond(method_call, response, nullptr);
   }
 }
