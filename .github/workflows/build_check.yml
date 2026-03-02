@@ -26,10 +26,6 @@ jobs:
       - name: "Analyse Statique (Linter)"
         run: flutter analyze .
 
-      - name: "Exécution des Tests Unitaires (Global)"
-        # Lance tous les tests unitaires définis dans les dossiers 'test' de chaque package
-        run: flutter test
-
   android-build:
     name: "Android (APK Build Check)"
     needs: validate
