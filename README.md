@@ -2,28 +2,33 @@
 
 [![Build Check](https://github.com/Sebastien-VZN/audioplayers/actions/workflows/build_check.yml/badge.svg)](https://github.com/Sebastien-VZN/audioplayers/actions/workflows/build_check.yml)
 
-Ce fork de `bluefireteam/audioplayers` a été créé pour transformer un plugin fragmenté et vieillissant en un outil **industriel, stable et performant**. L'objectif est de fournir une base de code saine, débarrassée de l'obsolescence et protégée par une suite de tests rigoureuse.
+This fork of `bluefireteam/audioplayers` was created to transform a fragmented and aging plugin into an **industrial-grade, stable, and high-performance** tool. The goal is to provide a clean codebase, stripped of obsolescence, and protected by a rigorous testing suite.
 
-## 🛠️ Pourquoi ce fork ? (Décisions Techniques)
+## 🛠️ Why this fork? (Technical Decisions)
 
-Le dépôt d'origine souffrait d'une fragmentation excessive et d'une dette technique accumulée. Ce fork apporte les corrections structurelles suivantes :
+The original repository suffered from excessive fragmentation and accumulated technical debt. This fork brings the following structural improvements:
 
-### 1. Modernisation Android (Media3 / ExoPlayer)
-- **Migration Totale :** Passage complet à `androidx.media3:exoplayer`. L'ancienne implémentation basée sur le `MediaPlayer` natif (souvent instable sur les flux distants) a été supprimée.
-- **Unification :** Fusion des packages `audioplayers_android` et `audioplayers_android_exo`. Plus de redondance, une seule base de code Android moderne et performante.
-- **Nettoyage Natif :** Suppression des classes obsolètes (`SoundPoolPlayer`, `MediaPlayerWrapper`, etc.) pour réduire la surface de bugs.
+### 1. Native Desktop Stability (Windows & Linux C/C++)
+- **Robust Error Handling:** Unlike the original codebase, which often tolerated native crashes or "dirty" exits just to bypass test failures, this fork fixes root causes in the C/C++ layer.
+- **Crash Prevention:** Memory management and error propagation in the native Windows (C++) and Linux (C) implementations have been hardened to ensure the host application remains stable even during playback failures.
+- **Production-Ready:** We prioritize system integrity over "green tests." No more segmentation faults or silent crashes on desktop platforms.
 
-### 2. Stratégie de Tests & CI Industrielle
-Contrairement aux tests d'intégration originaux, lents et souvent fragiles, ce fork impose une rigueur de niveau production :
-- **Mocks Professionnels :** Utilisation systématique de `mocktail` pour isoler la logique Dart des dépendances natives. Les tests sont **déterministes** et s'exécutent en moins d'une seconde.
-- **Couverture Critique :** Chaque commande (`play`, `pause`, `stop`, `seek`, `dispose`) et chaque source (`Url`, `Asset`, `Bytes`) est testée unitairement.
-- **CI Béton :** GitHub Actions valide désormais l'analyse statique (Linter strict), le formatage, les tests unitaires et la **compilation réelle** sur toutes les plateformes (Android, iOS, macOS, Windows, Linux, Web) à chaque commit.
+### 2. Android Modernization (Media3 / ExoPlayer)
+- **Full Migration:** Completely switched to `androidx.media3:exoplayer`. The obsolete native `MediaPlayer` implementation (notoriously unstable for remote streams) has been removed.
+- **Unification:** Merged `audioplayers_android` and `audioplayers_android_exo` into a single, modern Android codebase. No more redundancy.
+- **Native Cleanup:** Removed legacy classes like `SoundPoolPlayer` and `MediaPlayerWrapper` to drastically reduce the bug surface.
 
-### 3. Décrassage & Optimisation
-- **Zéro Code Mort :** Suppression massive des abstractions inutiles et du "code juste au cas où" qui compliquait la maintenance.
-- **Linter Strict :** Application de règles de linting rigoureuses pour garantir une base de code uniforme et lisible.
-- **Stabilité de l'API :** Focus sur la fiabilité des fonctions de base plutôt que sur l'ajout effréné de fonctionnalités instables.
+### 3. Professional Testing Strategy (Mocktail)
+While the original integration tests were slow and flaky, this fork implements production-level unit testing:
+- **Functional Mocks:** Systematic use of `mocktail` to isolate Dart logic from native dependencies. Tests are **deterministic** and run in under a second.
+- **Full Coverage:** Core commands (`play`, `pause`, `stop`, `seek`, `dispose`) and all sources (`Url`, `Asset`, `Bytes`) are unit-tested.
+- **Bulletproof CI:** GitHub Actions now validates static analysis (strict Linter), formatting, unit tests, and **actual compilation** for all platforms (Android, iOS, macOS, Windows, Linux, Web) on every commit.
 
-## 🎯 Philosophie
+### 4. Code Health & Optimization
+- **Zero Dead Code:** Massive removal of useless abstractions and "just-in-case" code that hindered maintenance.
+- **Strict Linting:** Enforced rigorous linting rules to ensure a uniform and readable codebase.
+- **API Reliability:** Focus on the reliability of core functions rather than the frantic addition of unstable features.
 
-Ce fork s'adresse aux développeurs qui ne "rigolent pas" avec la stabilité de leurs applications. Ici, on privilégie la **prévisibilité** du comportement et la **vitesse de développement** (via des tests rapides) plutôt que la complexité inutile.
+## 🎯 Philosophy
+
+This fork is for developers who don't "mess around" with app stability. We prioritize **predictability** and **development speed** (through fast, reliable tests) over unnecessary complexity.
