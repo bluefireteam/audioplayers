@@ -26,6 +26,10 @@ jobs:
       - name: "Analyse Statique (Linter)"
         run: flutter analyze .
 
+      - name: "Execution des Tests Unitaires"
+        run: flutter test packages/audioplayers
+
+
   android-build:
     name: "Android (APK Build Check)"
     needs: validate
