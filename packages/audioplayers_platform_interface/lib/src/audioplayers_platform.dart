@@ -190,8 +190,9 @@ mixin EventChannelAudioplayersPlatform
           final millis = map.getInt('value');
           return AudioEvent(
             eventType: AudioEventType.duration,
-            duration:
-                millis != null ? Duration(milliseconds: millis) : Duration.zero,
+            duration: millis != null
+                ? Duration(milliseconds: millis)
+                : Duration.zero,
           );
         case 'audio.onComplete':
           return const AudioEvent(eventType: AudioEventType.complete);

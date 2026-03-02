@@ -14,7 +14,7 @@ class StreamRoute {
   final mpegStreamController = StreamController<List<int>>.broadcast();
 
   StreamRoute({bool isLiveMode = false, bool isRecordMode = false})
-      : assert(!isRecordMode || isLiveMode) {
+    : assert(!isRecordMode || isLiveMode) {
     if (isRecordMode) {
       recordLiveStream();
     }

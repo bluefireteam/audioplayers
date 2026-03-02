@@ -55,7 +55,7 @@ class AudioCache {
   String? cacheId;
 
   AudioCache({this.prefix = 'assets/', String? cacheId})
-      : cacheId = cacheId ?? _uuid.v4();
+    : cacheId = cacheId ?? _uuid.v4();
 
   /// Clears the cache for the file [fileName].
   ///

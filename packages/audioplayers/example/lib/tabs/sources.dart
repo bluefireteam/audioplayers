@@ -95,17 +95,16 @@ class _SourcesTabState extends State<SourcesTab>
     Key? setSourceKey,
     Color? buttonColor,
     Key? playKey,
-  }) =>
-      _SourceTile(
-        setSource: () => _setSource(source),
-        play: () => _play(source),
-        removeSource: _removeSourceWidget,
-        title: title,
-        subtitle: subtitle,
-        setSourceKey: setSourceKey,
-        playKey: playKey,
-        buttonColor: buttonColor,
-      );
+  }) => _SourceTile(
+    setSource: () => _setSource(source),
+    play: () => _play(source),
+    removeSource: _removeSourceWidget,
+    title: title,
+    subtitle: subtitle,
+    setSourceKey: setSourceKey,
+    playKey: playKey,
+    buttonColor: buttonColor,
+  );
 
   Future<void> _setSourceBytesAsset(
     Future<void> Function(Source) fun, {

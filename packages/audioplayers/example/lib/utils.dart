@@ -36,7 +36,7 @@ extension PlayerStateIcon on PlayerState {
     return this == PlayerState.playing
         ? Icons.play_arrow
         : (this == PlayerState.paused
-            ? Icons.pause
-            : (this == PlayerState.stopped ? Icons.stop : Icons.stop_circle));
+              ? Icons.pause
+              : (this == PlayerState.stopped ? Icons.stop : Icons.stop_circle));
   }
 }
