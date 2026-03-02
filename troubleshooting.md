@@ -120,7 +120,7 @@ By default, macOS apps don't allow outgoing connections; so playing audio files/
 
 **Warning**: If you are having any sort of build issues, you must read this first.
 
-Our [CI](https://github.com/Sebastien-VZN/audioplayers/blob/master/.github/workflows/build.yml) builds our example app using audioplayers for Android, iOS, Linux, macOS, Windows, and web. So if the build is passing, any build errors (from android/ios sdk, gradle, java, kotlin, cocoa pods, swift, flutter, etc) is not a global issue and likely is something on your setup.
+Our [CI](https://github.com/Sebastien-VZN/audioplayers/blob/main/.github/workflows/build_check.yml) builds our example app using audioplayers for Android, iOS, Linux, macOS, Windows, and web. So if the build is passing, any build errors (from android/ios sdk, gradle, java, kotlin, cocoa pods, swift, flutter, etc) is not a global issue and likely is something on your setup.
 
 Before opening an issue, you **must** try these steps:
 
@@ -141,5 +141,5 @@ flutter pub get
 
 Some platforms need additional requirements to be fulfilled:
 
-* [Linux](packages/audioplayers_linux/README.md#setup-for-linux) (`audioplayers_linux`).
-* [Windows](packages/audioplayers_windows/README.md#setup-for-windows) (`audioplayers_windows`).
+* [Linux](README.md#linux) (`audioplayers_linux`).
+* [Windows](README.md#windows) (`audioplayers_windows`).

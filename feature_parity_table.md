@@ -8,26 +8,12 @@ If you would like to assist us implement a missing feature, please browse the [i
 
 ### Media3 ExoPlayer
 
-We are going to switch from the internal [Android MediaPlayer](https://developer.android.com/reference/android/media/MediaPlayer) to the recommended [Media3 ExoPlayer](https://developer.android.com/media/media3).
-We still endorse the old media player until we are sure, the Media3 implementation fulfills all the needs.
+This fork has completely switched from the internal [Android MediaPlayer](https://developer.android.com/reference/android/media/MediaPlayer) to the recommended [Media3 ExoPlayer](https://developer.android.com/media/media3). The legacy MediaPlayer implementation has been removed to ensure stability and performance.
 
-You already can try the Media3 implementation by adding `audioplayers_android_exo` to your apps `pubspec.yaml`.
-This [overrides](https://docs.flutter.dev/packages-and-plugins/developing-packages#non-endorsed-federated-plugin) our endorsed Android plugin implementation `audioplayers_android`:
+### Support for Android SDKs
 
-```yaml
-dependencies:
-  # ...
-  audioplayers: any
-  audioplayers_android_exo: any
-```
+This fork requires **Android 8.0 (API 26)** as a minimum. We do not support older versions (4.4 to 7.1) as they lack modern media features and represent obsolete hardware. This allows for a more stable and high-performance implementation using `androidx.media3`.
 
-For more, see the [audioplayers_android_exo](https://github.com/Sebastien-VZN/audioplayers/blob/main/packages/audioplayers_android_exo/README.md) package.
-
-### Support for old SDKs
-
-Giving support to old Android devices is very hard, on this plugin we set the minSdk as 19, but we only ensure support >= 23 as that is the minimum version that the team has devices available to test changes and new features.
-
-This mean that, audioplayers should work on older devices, but we can't give any guarantees, we will not be able to look after issues regarding API < 23. But we would gladly take any pull requests from the community that fixes or improve support on those old versions.
 
 
 ## Main Features

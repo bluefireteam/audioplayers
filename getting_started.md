@@ -11,8 +11,8 @@ You do not need to add the `audioplayers_*` packages directly.
 
 For building and running for certain platforms you need pay attention to additional steps:
 
-* [Linux Setup](packages/audioplayers_linux/README.md#setup-for-linux) (`audioplayers_linux`).
-* [Windows Setup](packages/audioplayers_windows/README.md#setup-for-windows) (`audioplayers_windows`).
+* [Linux Setup](README.md#linux) (`audioplayers_linux`).
+* [Windows Setup](README.md#windows) (`audioplayers_windows`).
 
 ## AudioPlayer
 
