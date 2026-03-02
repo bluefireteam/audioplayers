@@ -135,8 +135,8 @@ class AudioPlayer {
   ///
   /// An event is going to be sent as soon as the audio seek is finished.
   Stream<void> get onSeekComplete => eventStream.where(
-    (event) => event.eventType == AudioEventType.seekComplete,
-  );
+        (event) => event.eventType == AudioEventType.seekComplete,
+      );
 
   Stream<bool> get _onPrepared => eventStream
       .where((event) => event.eventType == AudioEventType.prepared)
@@ -175,18 +175,16 @@ class AudioPlayer {
       await global.ensureInitialized();
       await _platform.create(playerId);
       // Assign the event stream, now that the platform registered this player.
-      _eventStreamSubscription = _platform
-          .getEventStream(playerId)
-          .listen(
-            _eventStreamController.add,
-            onError: (Object e, [StackTrace? stackTrace]) {
-              // Log error but DON'T propagate to prevent unhandled exception
-              AudioLogger.error(
-                AudioPlayerException(this, cause: e),
-                stackTrace,
-              );
-            },
+      _eventStreamSubscription = _platform.getEventStream(playerId).listen(
+        _eventStreamController.add,
+        onError: (Object e, [StackTrace? stackTrace]) {
+          // Log error but DON'T propagate to prevent unhandled exception
+          AudioLogger.error(
+            AudioPlayerException(this, cause: e),
+            stackTrace,
           );
+        },
+      );
       creatingCompleter.complete();
     } on Exception catch (e, stackTrace) {
       creatingCompleter.completeError(e, stackTrace);

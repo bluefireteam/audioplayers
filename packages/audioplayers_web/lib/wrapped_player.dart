@@ -129,8 +129,7 @@ class WrappedPlayer {
     _playerErrorSubscription = p.onError.listen((_) {
       String platformMsg;
       if (p.error != null) {
-        platformMsg =
-            'Failed to set source. For troubleshooting, see '
+        platformMsg = 'Failed to set source. For troubleshooting, see '
             'https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md';
       } else {
         platformMsg = 'Unknown web error. See details.';
@@ -139,8 +138,7 @@ class WrappedPlayer {
         PlatformException(
           code: 'WebAudioError',
           message: platformMsg,
-          details:
-              '${p.error?.runtimeType}: '
+          details: '${p.error?.runtimeType}: '
               '${p.error?.message} (Code: ${p.error?.code})',
         ),
       );
