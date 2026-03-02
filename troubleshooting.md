@@ -101,12 +101,6 @@ While Apple does not provide a hard number on these limits, there seems to be a 
 
 At the moment, the player of iOS and macOS (`AVPlayer` on Darwin) only accepts to play files with an extension (like `.mp3` or `.wav`). Make sure these are available or help us fix the issue #803.
 
-### Gapless Looping
-
-Depending on the file format and platform, when audioplayers uses the native implementation of the "looping" feature, there will be gaps between plays, which might not be noticeable for non-continuous SFX but will definitely be noticeable for looping songs.
-
-TODO(luan): break down alternatives here, low latency mode, audio pool, gapless_audioplayer, ocarina, etc.
-
 ### [macOS] Outgoing Connections
 
 By default, macOS apps don't allow outgoing connections; so playing audio files/streams from the internet won't work. To fix this, add the following to the `.entitlements` files for your app:

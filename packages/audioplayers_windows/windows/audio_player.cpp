@@ -121,21 +121,17 @@ void AudioPlayer::SetSourceBytes(std::vector<uint8_t> bytes) {
 }
 
 void AudioPlayer::OnMediaError(MF_MEDIA_ENGINE_ERR error, HRESULT hr) {
-  LOG_HR_MSG(hr, "MediaEngine error (%d)", error);
-  // TODO(Gustl22): adapt log message to dart error event, check stacktrace.
   if (this->_eventHandler) {
     _com_error err(hr);
-
     std::wstring wstr(err.ErrorMessage());
-
     int size = WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, &wstr[0],
                                    (int)wstr.size(), NULL, 0, NULL, NULL);
     std::string ret = std::string(size, 0);
     WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, &wstr[0],
                         (int)wstr.size(), &ret[0], size, NULL, NULL);
 
-    std::string message = "MediaEngine error";
-    this->OnError(std::to_string(error), message, flutter::EncodableValue(ret));
+    this->OnError("WindowsAudioError", "Playback error", 
+                  flutter::EncodableValue(ret + " (Code: " + std::to_string(error) + ")"));
   }
 }
 
@@ -149,10 +145,8 @@ void AudioPlayer::OnError(const std::string& code,
 
 void AudioPlayer::OnMediaStateChange(
     media::MediaEngineWrapper::BufferingState bufferingState) {
-  if (bufferingState !=
-      media::MediaEngineWrapper::BufferingState::HAVE_NOTHING) {
-    // TODO(Gustl22): add buffering state
-  }
+  // This callback is called when the buffering state of the media engine changes.
+  // It can be used to notify the UI of buffering progress, particularly for network streams.
 }
 
 void AudioPlayer::OnPrepared(bool isPrepared) {
