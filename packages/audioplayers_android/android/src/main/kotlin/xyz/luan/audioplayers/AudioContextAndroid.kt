@@ -8,7 +8,6 @@ import android.media.AudioAttributes.USAGE_MEDIA
 import android.media.AudioAttributes.USAGE_NOTIFICATION_RINGTONE
 import android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION
 import android.media.AudioManager
-import android.media.MediaPlayer
 import android.os.Build
 import androidx.annotation.RequiresApi
 import java.util.*
@@ -30,15 +29,6 @@ data class AudioContextAndroid(
         audioFocus = AudioManager.AUDIOFOCUS_GAIN,
         audioMode = AudioManager.MODE_NORMAL,
     )
-
-    fun setAttributesOnPlayer(player: MediaPlayer) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            player.setAudioAttributes(buildAttributes())
-        } else {
-            @Suppress("DEPRECATION")
-            player.setAudioStreamType(getStreamType())
-        }
-    }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     fun buildAttributes(): AudioAttributes {

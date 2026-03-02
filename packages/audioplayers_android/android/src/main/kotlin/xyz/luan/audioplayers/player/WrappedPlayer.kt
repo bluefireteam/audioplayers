@@ -2,25 +2,17 @@ package xyz.luan.audioplayers.player
 
 import android.content.Context
 import android.media.AudioManager
-import android.media.MediaPlayer
 import xyz.luan.audioplayers.AudioContextAndroid
 import xyz.luan.audioplayers.AudioplayersPlugin
 import xyz.luan.audioplayers.EventHandler
-import xyz.luan.audioplayers.PlayerMode
-import xyz.luan.audioplayers.PlayerMode.LOW_LATENCY
-import xyz.luan.audioplayers.PlayerMode.MEDIA_PLAYER
 import xyz.luan.audioplayers.ReleaseMode
 import xyz.luan.audioplayers.source.Source
 import kotlin.math.min
-
-// For some reason this cannot be accessed from MediaPlayer.MEDIA_ERROR_SYSTEM
-private const val MEDIA_ERROR_SYSTEM = -2147483648
 
 class WrappedPlayer internal constructor(
     private val ref: AudioplayersPlugin,
     val eventHandler: EventHandler,
     var context: AudioContextAndroid,
-    private val soundPoolManager: SoundPoolManager,
 ) {
     private var player: PlayerWrapper? = null
 
@@ -86,22 +78,6 @@ class WrappedPlayer internal constructor(
     val isLooping: Boolean
         get() = releaseMode == ReleaseMode.LOOP
 
-    var playerMode: PlayerMode = MEDIA_PLAYER
-        set(value) {
-            if (field != value) {
-                field = value
-
-                // if the player exists, we need to re-create it from scratch;
-                // this will probably cause music to pause for a second
-                player?.let {
-                    shouldSeekTo = maybeGetCurrentPosition()
-                    prepared = false
-                    it.release()
-                }
-                initPlayer()
-            }
-        }
-
     var released = true
 
     var prepared: Boolean = false
@@ -118,26 +94,18 @@ class WrappedPlayer internal constructor(
     private val focusManager = FocusManager.create(
         this,
         onGranted = {
-            // Check if in playing state, as the focus can also be gained e.g. after a phone call, even if not playing.
             if (playing) {
                 player?.start()
             }
         },
         onLoss = { isTransient ->
             if (isTransient) {
-                // Do not check or set playing state, as the state should be recovered after granting focus again.
                 player?.pause()
             } else {
-                // Audio focus won't be recovered
                 pause()
             }
         },
     )
-
-    private fun maybeGetCurrentPosition(): Int {
-        // for Sound Pool, we can't get current position, so we just start over
-        return runCatching { player?.getCurrentPosition().takeUnless { it == 0 } }.getOrNull() ?: -1
-    }
 
     private fun getOrCreatePlayer(): PlayerWrapper {
         val currentPlayer = player
@@ -167,14 +135,12 @@ class WrappedPlayer internal constructor(
         }
         this.context = audioContext.copy()
 
-        // AudioManager values are set globally
         audioManager.mode = context.audioMode
         audioManager.isSpeakerphoneOn = context.isSpeakerphoneOn
 
         player?.let { p ->
             p.stop()
             prepared = false
-            // Context is only applied, once the player.reset() was called
             p.updateContext(context)
             source?.let {
                 p.setSource(it)
@@ -183,18 +149,10 @@ class WrappedPlayer internal constructor(
         }
     }
 
-    // Getters
-
-    /**
-     * Returns the duration of the media in milliseconds, if available.
-     */
     fun getDuration(): Int? {
         return if (prepared) player?.getDuration() else null
     }
 
-    /**
-     * Returns the current position of the playback in milliseconds, if available.
-     */
     fun getCurrentPosition(): Int? {
         return if (prepared) player?.getCurrentPosition() else null
     }
@@ -205,9 +163,6 @@ class WrappedPlayer internal constructor(
     val audioManager: AudioManager
         get() = ref.getAudioManager()
 
-    /**
-     * Playback handling methods
-     */
     fun play() {
         if (!playing && !released) {
             playing = true
@@ -219,7 +174,6 @@ class WrappedPlayer internal constructor(
         }
     }
 
-    // Try to get audio focus and then start.
     private fun requestFocusAndStart() {
         focusManager.maybeRequestAudioFocus()
     }
@@ -237,7 +191,6 @@ class WrappedPlayer internal constructor(
                     prepared = false
                     player?.prepare()
                 } else {
-                    // MediaPlayer does not allow to call player.seekTo after calling player.stop
                     seek(0)
                 }
             }
@@ -255,8 +208,6 @@ class WrappedPlayer internal constructor(
             player?.stop()
         }
 
-        // Setting source to null will reset released, prepared and playing
-        // and also calls player.release()
         source = null
         player = null
     }
@@ -270,8 +221,6 @@ class WrappedPlayer internal constructor(
         }
     }
 
-    // seek operations cannot be called until after
-    // the player is ready.
     fun seek(position: Int) {
         shouldSeekTo = if (prepared && player?.isLiveStream() != true) {
             player?.seekTo(position)
@@ -281,9 +230,6 @@ class WrappedPlayer internal constructor(
         }
     }
 
-    /**
-     * Player callbacks
-     */
     fun onPrepared() {
         prepared = true
         ref.handleDuration(this)
@@ -302,9 +248,7 @@ class WrappedPlayer internal constructor(
         ref.handleComplete(this)
     }
 
-    @Suppress("UNUSED_PARAMETER")
     fun onBuffering(percent: Int) {
-        // TODO(luan): expose this as a stream
     }
 
     fun onSeekComplete() {
@@ -319,56 +263,12 @@ class WrappedPlayer internal constructor(
         ref.handleError(this, errorCode, errorMessage, errorDetails)
     }
 
-    fun onError(what: Int, extra: Int): Boolean {
-        val whatMsg = if (what == MediaPlayer.MEDIA_ERROR_SERVER_DIED) {
-            "MEDIA_ERROR_SERVER_DIED"
-        } else {
-            "MEDIA_ERROR_UNKNOWN {what:$what}"
-        }
-        val extraMsg = when (extra) {
-            MEDIA_ERROR_SYSTEM -> "MEDIA_ERROR_SYSTEM"
-            MediaPlayer.MEDIA_ERROR_IO -> "MEDIA_ERROR_IO"
-            MediaPlayer.MEDIA_ERROR_MALFORMED -> "MEDIA_ERROR_MALFORMED"
-            MediaPlayer.MEDIA_ERROR_UNSUPPORTED -> "MEDIA_ERROR_UNSUPPORTED"
-            MediaPlayer.MEDIA_ERROR_TIMED_OUT -> "MEDIA_ERROR_TIMED_OUT"
-            else -> "MEDIA_ERROR_UNKNOWN {extra:$extra}"
-        }
-        if (!prepared && extraMsg == "MEDIA_ERROR_SYSTEM") {
-            handleError(
-                "AndroidAudioError",
-                "Failed to set source. For troubleshooting, see: " +
-                    "https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md",
-                "$whatMsg, $extraMsg",
-            )
-        } else {
-            // When an error occurs, reset player to not [prepared].
-            // Then no functions will be called, which end up in an illegal player state.
-            prepared = false
-            handleError("AndroidAudioError", whatMsg, extraMsg)
-        }
-        return false
-    }
-
-    /**
-     * Internal logic. Private methods
-     */
-
-    /**
-     * Create new player
-     */
     private fun createPlayer(): PlayerWrapper {
-        return when (playerMode) {
-            MEDIA_PLAYER -> MediaPlayerWrapper(this)
-            LOW_LATENCY -> SoundPoolPlayer(this, soundPoolManager)
-        }
+        return ExoPlayerWrapper(this, ref.getApplicationContext())
     }
 
-    /**
-     * Create new player, assign and configure source
-     */
     private fun initPlayer() {
         val player = createPlayer()
-        // Need to set player before calling prepare, as onPrepared may is called before player is assigned
         this.player = player
         source?.let {
             player.setSource(it)
@@ -390,6 +290,8 @@ class WrappedPlayer internal constructor(
 
     fun dispose() {
         release()
+        player?.dispose()
+        player = null
         eventHandler.dispose()
     }
 }

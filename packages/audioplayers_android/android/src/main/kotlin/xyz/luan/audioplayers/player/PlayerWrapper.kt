@@ -22,4 +22,5 @@ interface PlayerWrapper {
     fun prepare()
     fun release()
     fun reset()
+    fun dispose()
 }

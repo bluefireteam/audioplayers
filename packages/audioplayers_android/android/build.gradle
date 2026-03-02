@@ -50,7 +50,7 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 19
+        minSdkVersion 23
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -68,6 +68,13 @@ allprojects {
 }
 
 dependencies {
+    def exoplayer_version = '1.9.0'
+    implementation "androidx.media3:media3-exoplayer:${exoplayer_version}"
+    implementation "androidx.media3:media3-exoplayer-hls:${exoplayer_version}"
+    implementation "androidx.media3:media3-exoplayer-dash:${exoplayer_version}"
+    implementation "androidx.media3:media3-exoplayer-rtsp:${exoplayer_version}"
+    implementation "androidx.media3:media3-exoplayer-smoothstreaming:${exoplayer_version}"
+
     implementation 'androidx.core:core-ktx:1.17.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"

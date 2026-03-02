@@ -35,10 +35,10 @@ class ExoPlayerWrapper(
 ) : PlayerWrapper {
 
     class ExoPlayerListener(private val wrappedPlayer: WrappedPlayer) : androidx.media3.common.Player.Listener {
+        override fun onPlayerError(error: PlaybackException) {
             if (error.errorCode == PlaybackException.ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED ||
                 error.errorCode == PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND
             ) {
-            if (error.errorCode == PlaybackException.ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED) {
                 wrappedPlayer.handleError(
                     errorCode = "AndroidAudioError",
                     errorMessage = "Failed to set source. For troubleshooting, see: " +
@@ -56,7 +56,7 @@ class ExoPlayerWrapper(
 
         override fun onPlaybackStateChanged(playbackState: Int) {
             when (playbackState) {
-                Player.STATE_IDLE -> {} // TODO(gustl22): may can use or leave as no-op
+                Player.STATE_IDLE -> {} 
                 Player.STATE_BUFFERING -> wrappedPlayer.onBuffering(0)
                 Player.STATE_READY -> wrappedPlayer.onPrepared()
                 Player.STATE_ENDED -> wrappedPlayer.onCompletion()
@@ -163,6 +163,15 @@ class ExoPlayerWrapper(
         )
     }
 
+    override fun isLiveStream(): Boolean {
+        return player.isCurrentMediaItemLive
+    }
+
+    override fun reset() {
+        player.stop()
+        player.clearMediaItems()
+    }
+
     @RequiresApi(Build.VERSION_CODES.M)
     @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
     override fun setSource(source: Source) {
@@ -184,10 +193,6 @@ class ExoPlayerWrapper(
     }
 }
 
-/**
- * See Implementation of [androidx.media3.common.audio.ChannelMixingAudioProcessor] for reference.
- * See: https://github.com/androidx/media/blob/8ea49025aaf14c7e7d953df8ca2f08a76d9d4275/libraries/common/src/main/java/androidx/media3/common/audio/ChannelMixingAudioProcessor.java
- */
 @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 class AdaptiveChannelMixingAudioProcessor : BaseAudioProcessor() {
     private val matrixByInputChannelCount: SparseArray<ChannelMixingMatrix?> = SparseArray<ChannelMixingMatrix?>()
@@ -201,7 +206,6 @@ class AdaptiveChannelMixingAudioProcessor : BaseAudioProcessor() {
         if (inputAudioFormat.encoding != C.ENCODING_PCM_16BIT) {
             throw UnhandledAudioFormatException(inputAudioFormat)
         } else {
-            // We keep the same format; we're not altering the channel count.
             return inputAudioFormat
         }
     }
@@ -209,7 +213,6 @@ class AdaptiveChannelMixingAudioProcessor : BaseAudioProcessor() {
     override fun queueInput(inputBuffer: ByteBuffer) {
         val channelMixingMatrix = matrixByInputChannelCount[inputAudioFormat.channelCount]
         if (channelMixingMatrix == null || channelMixingMatrix.isIdentity) {
-            // No need to transform, if balance is equalized.
             val outputBuffer = this.replaceOutputBuffer(inputBuffer.remaining())
             if (inputBuffer.hasRemaining()) {
                 outputBuffer.put(inputBuffer)

@@ -9,7 +9,6 @@ import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
-import xyz.luan.audioplayers.player.SoundPoolManager
 import xyz.luan.audioplayers.player.WrappedPlayer
 import xyz.luan.audioplayers.source.BytesSource
 import xyz.luan.audioplayers.source.UrlSource
@@ -24,7 +23,6 @@ class AudioplayersPlugin : FlutterPlugin {
     private lateinit var globalEvents: EventHandler
     private lateinit var context: Context
     private lateinit var binaryMessenger: BinaryMessenger
-    private lateinit var soundPoolManager: SoundPoolManager
 
     private val players = ConcurrentHashMap<String, WrappedPlayer>()
     private var defaultAudioContext = AudioContextAndroid()
@@ -32,7 +30,6 @@ class AudioplayersPlugin : FlutterPlugin {
     override fun onAttachedToEngine(binding: FlutterPluginBinding) {
         context = binding.applicationContext
         binaryMessenger = binding.binaryMessenger
-        soundPoolManager = SoundPoolManager(this)
         methods = MethodChannel(binding.binaryMessenger, "xyz.luan/audioplayers")
         methods.setMethodCallHandler { call, response -> safeCall(call, response, ::methodHandler) }
         globalMethods = MethodChannel(binding.binaryMessenger, "xyz.luan/audioplayers.global")
@@ -43,7 +40,6 @@ class AudioplayersPlugin : FlutterPlugin {
     override fun onDetachedFromEngine(binding: FlutterPluginBinding) {
         players.values.forEach { it.dispose() }
         players.clear()
-        soundPoolManager.dispose()
         globalEvents.dispose()
     }
 
@@ -98,7 +94,7 @@ class AudioplayersPlugin : FlutterPlugin {
         val playerId = call.argument<String>("playerId") ?: return
         if (call.method == "create") {
             val eventHandler = EventHandler(EventChannel(binaryMessenger, "xyz.luan/audioplayers/events/$playerId"))
-            players[playerId] = WrappedPlayer(this, eventHandler, defaultAudioContext.copy(), soundPoolManager)
+            players[playerId] = WrappedPlayer(this, eventHandler, defaultAudioContext.copy())
             response.success(1)
             return
         }
@@ -169,8 +165,7 @@ class AudioplayersPlugin : FlutterPlugin {
                 }
 
                 "setPlayerMode" -> {
-                    val playerMode = call.enumArgument<PlayerMode>("playerMode") ?: error("playerMode is required")
-                    player.playerMode = playerMode
+                    // no-op
                 }
 
                 "setAudioContext" -> {
