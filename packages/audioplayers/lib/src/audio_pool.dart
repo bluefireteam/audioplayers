@@ -120,7 +120,7 @@ class AudioPool {
         return _lock.synchronized(() async {
           final removedPlayer = currentPlayers.remove(player.playerId);
           if (removedPlayer != null) {
-            subscription?.cancel();
+            await subscription?.cancel();
             await removedPlayer.stop();
             if (availablePlayers.length >= maxPlayers) {
               await removedPlayer.release();
@@ -132,7 +132,8 @@ class AudioPool {
       }
 
       if (playerMode != PlayerMode.lowLatency) {
-        subscription = player.onPlayerComplete.listen((_) async => stop());
+        subscription =
+            player.onPlayerComplete.listen((_) async => await stop());
       }
 
       return stop;
