@@ -54,8 +54,7 @@ class AudioCache {
   /// directory.
   String? cacheId;
 
-  AudioCache({this.prefix = 'assets/', String? cacheId})
-      : cacheId = cacheId ?? _uuid.v4();
+  AudioCache({this.prefix = 'assets/', String? cacheId}) : cacheId = cacheId ?? _uuid.v4();
 
   /// Clears the cache for the file [fileName].
   ///
@@ -126,7 +125,17 @@ class AudioCache {
   ///
   /// Returns a [Uri] to access that file.
   Future<Uri> load(String fileName) async {
-    if (!loadedFiles.containsKey(fileName)) {
+    var needsFetch = !loadedFiles.containsKey(fileName);
+
+    // On Android, verify that the cached file still exists. It can be removed
+    // by the system when the storage is almost full
+    // see https://developer.android.com/training/data-storage/app-specific#internal-remove-cache
+    if (!needsFetch && defaultTargetPlatform == TargetPlatform.android 
+    && !await fileSystem.file(loadedFiles[fileName]).exists()) {
+      needsFetch = true;
+    }
+
+    if (needsFetch) {
       loadedFiles[fileName] = await fetchToMemory(fileName);
     }
     return loadedFiles[fileName]!;

@@ -21,7 +21,8 @@ using namespace winrt;
 AudioPlayer::AudioPlayer(
     std::string playerId,
     flutter::MethodChannel<flutter::EncodableValue>* methodChannel,
-    std::unique_ptr<flutter::EventChannel<flutter::EncodableValue>> eventChannel,
+    std::unique_ptr<flutter::EventChannel<flutter::EncodableValue>>
+        eventChannel,
     EventStreamHandler<>* eventHandler)
     : _playerId(playerId),
       _methodChannel(methodChannel),
@@ -83,7 +84,7 @@ void AudioPlayer::SetSourceUrl(std::string url) {
       this->OnError("WindowsAudioError",
                     "Failed to set source. For troubleshooting, "
                     "see: " STR_LINK_TROUBLESHOOTING,
-                    flutter::EncodableValue("Unknown Error setting url to '" + 
+                    flutter::EncodableValue("Unknown Error setting url to '" +
                                             url + "'."));
     }
   } else {
@@ -168,17 +169,18 @@ void AudioPlayer::OnPrepared(bool isPrepared) {
 }
 
 void AudioPlayer::OnPlaybackEnded() {
-  if (GetReleaseMode() == ReleaseMode::loop) {
-    Play();
-  } else {
-    Stop();
-  }
   if (this->_eventHandler) {
     this->_eventHandler->Success(std::make_unique<flutter::EncodableValue>(
         flutter::EncodableMap({{flutter::EncodableValue("event"),
                                 flutter::EncodableValue("audio.onComplete")},
                                {flutter::EncodableValue("value"),
                                 flutter::EncodableValue(true)}})));
+  }
+
+  if (GetReleaseMode() == ReleaseMode::loop) {
+    Play();
+  } else {
+    Stop();
   }
 }
 

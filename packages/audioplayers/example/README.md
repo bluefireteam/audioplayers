@@ -18,7 +18,7 @@ This example bundles a `PlayerWidget` that could be used as a very simple audio 
 
 ## Setup
 
-In order to successfully run the example locally, you have to [set up](https://github.com/bluefireteam/audioplayers/blob/main/contributing.md#environment-setup) your environment with `melos`.
+In order to successfully run the example locally, you have to [set up](../../../contributing.md#environment-setup) your environment.
 
 ## Dart Environment Variables
 

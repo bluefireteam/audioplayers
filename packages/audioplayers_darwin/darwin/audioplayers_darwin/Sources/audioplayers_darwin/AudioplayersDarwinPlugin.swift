@@ -35,7 +35,7 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
     self.binaryMessenger = binaryMessenger
     self.methods = methodChannel
     self.globalMethods = globalMethodChannel
-    self.globalEvents = GlobalAudioPlayersStreamHandler()
+    self.globalEvents = GlobalAudioPlayersStreamHandler(channel: globalEventChannel)
 
     do {
       try globalContext.apply()
@@ -45,8 +45,7 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
 
     super.init()
 
-    self.globalMethods.setMethodCallHandler(self.handleGlobalMethodCall)
-    globalEventChannel.setStreamHandler(self.globalEvents)
+    self.globalMethods.setMethodCallHandler(handleGlobalMethodCall)
   }
 
   public static func register(with registrar: FlutterPluginRegistrar) {
@@ -74,17 +73,33 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
   }
 
   public func detachFromEngine(for registrar: FlutterPluginRegistrar) {
-    dispose()
+    Task { @MainActor [weak self] in
+      guard let self = self else {
+        return
+      }
+      await disposePlayers()
+      self.globalMethods.setMethodCallHandler(nil)
+      self.globalEvents.dispose()
+    }
   }
 
-  func dispose() {
+  private func disposePlayers() async {
     for (_, player) in self.players {
-      player.dispose()
+      await player.dispose()
     }
     self.players = [:]
   }
 
   private func handleGlobalMethodCall(call: FlutterMethodCall, result: @escaping FlutterResult) {
+    Task { @MainActor in
+      await handleAsyncGlobalMethodCall(call: call, result: result)
+    }
+  }
+
+  @MainActor
+  private func handleAsyncGlobalMethodCall(call: FlutterMethodCall, result: @escaping FlutterResult)
+    async
+  {
     let method = call.method
 
     guard let args = call.arguments as? [String: Any] else {
@@ -97,7 +112,7 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
 
     // global handlers (no playerId)
     if method == "init" {
-      dispose()
+      await disposePlayers()
     } else if method == "setAudioContext" {
       #if os(iOS)
         do {
@@ -112,7 +127,7 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
           globalContext = context
 
           try globalContext.apply()
-        } catch {
+        } catch let error {
           result(
             FlutterError(
               code: "DarwinAudioError", message: "Error configuring global audio session: \(error)",
@@ -156,6 +171,13 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+    Task { @MainActor in
+      await handleAsync(call, result: result)
+    }
+  }
+
+  @MainActor
+  private func handleAsync(_ call: FlutterMethodCall, result: @escaping FlutterResult) async {
     let method = call.method
 
     guard let args = call.arguments as? [String: Any] else {
@@ -194,15 +216,9 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
     } else if method == "resume" {
       player.resume()
     } else if method == "stop" {
-      player.stop {
-        result(1)
-      }
-      return
+      await player.stop()
     } else if method == "release" {
-      player.release {
-        result(1)
-      }
-      return
+      await player.release()
     } else if method == "seek" {
       guard let position = args["position"] as? Int else {
         result(
@@ -211,10 +227,7 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
         return
       }
       let time = toCMTime(millis: position)
-      player.seek(time: time) {
-        result(1)
-      }
-      return
+      await player.seek(time: time)
     } else if method == "setSourceUrl" {
       let url: String? = args["url"] as? String
       let mimeType: String? = args["mimeType"] as? String
@@ -227,22 +240,19 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
         return
       }
 
-      player.setSourceUrl(
-        url: url!, isLocal: isLocal,
-        mimeType: mimeType,
-        completer: {
-          player.eventHandler.onPrepared(isPrepared: true)
-        },
-        completerError: { error in
-          let errorStr: String = error != nil ? "\(error!)" : "Unknown error"
-          player.eventHandler.onError(
-            code: "DarwinAudioError",
-            message: "Failed to set source. For troubleshooting, see "
-              + "https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md",
-            details: "AVPlayerItem.Status.failed on setSourceUrl: \(errorStr)")
-        })
-      result(1)
-      return
+      do {
+        try await player.setSourceUrl(
+          url: url!, isLocal: isLocal,
+          mimeType: mimeType
+        )
+      } catch let error {
+        player.eventHandler.onError(
+          code: "DarwinAudioError",
+          message: "Failed to set source. For troubleshooting, see "
+            + "https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md",
+          details: "AVPlayerItem.Status.failed on setSourceUrl: \(error)")
+      }
+
     } else if method == "setSourceBytes" {
       result(
         FlutterError(
@@ -308,7 +318,7 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
           globalContext = context
 
           try globalContext.apply()
-        } catch {
+        } catch let error {
           result(
             FlutterError(
               code: "DarwinAudioError", message: "Error configuring audio session: \(error)",
@@ -343,11 +353,8 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
       }
       player.eventHandler.onError(code: code, message: message, details: nil)
     } else if method == "dispose" {
-      player.dispose {
-        self.players[playerId] = nil
-        result(1)
-      }
-      return
+      await player.dispose()
+      self.players[playerId] = nil
     } else {
       result(FlutterMethodNotImplemented)
       return
@@ -357,13 +364,12 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
     result(1)
   }
 
+  @MainActor
   func createPlayer(playerId: String) {
     let eventChannel = FlutterEventChannel(
       name: channelName + "/events/" + playerId, binaryMessenger: self.binaryMessenger)
 
-    let eventHandler = AudioPlayersStreamHandler()
-
-    eventChannel.setStreamHandler(eventHandler)
+    let eventHandler = AudioPlayersStreamHandler(channel: eventChannel)
 
     let newPlayer = WrappedMediaPlayer(
       reference: self,
@@ -376,6 +382,7 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
     return players[playerId]
   }
 
+  @MainActor
   func controlAudioSession() {
     let anyIsPlaying = players.values.contains { player in
       player.isPlaying
@@ -383,7 +390,7 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
 
     do {
       try globalContext.activateAudioSession(active: anyIsPlaying)
-    } catch {
+    } catch let error {
       self.globalEvents.onError(
         code: "DarwinAudioError", message: "Error configuring audio session: \(error)", details: nil
       )
@@ -392,7 +399,17 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
 }
 
 class AudioPlayersStreamHandler: NSObject, FlutterStreamHandler {
+  var eventChannel: FlutterEventChannel
   var sink: FlutterEventSink?
+  // When calling dispose, we must emit a FlutterEndOfEventStream, then wait for onCancel to be called by Flutter, in order to release the stream handler.
+  // Otherwise an error is thrown, that the "cancel" method is not implemented.
+  private var isDisposed = false
+
+  init(channel: FlutterEventChannel) {
+    self.eventChannel = channel
+    super.init()
+    eventChannel.setStreamHandler(self)
+  }
 
   public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink)
     -> FlutterError?
@@ -403,48 +420,62 @@ class AudioPlayersStreamHandler: NSObject, FlutterStreamHandler {
   }
 
   public func onCancel(withArguments arguments: Any?) -> FlutterError? {
+    self.sink = nil
     return nil
   }
 
-  func onSeekComplete() {
+  private func sendEvent(_ event: Any?) {
     if let eventSink = self.sink {
-      eventSink(["event": "audio.onSeekComplete"])
+      DispatchQueue.main.async {
+        eventSink(event)
+      }
     }
+  }
+
+  func onSeekComplete() {
+    sendEvent(["event": "audio.onSeekComplete"])
   }
 
   func onComplete() {
-    if let eventSink = self.sink {
-      eventSink(["event": "audio.onComplete"])
-    }
+    sendEvent(["event": "audio.onComplete"])
   }
 
   func onDuration(millis: Int) {
-    if let eventSink = self.sink {
-      eventSink(["event": "audio.onDuration", "value": millis] as [String: Any])
-    }
+    sendEvent(["event": "audio.onDuration", "value": millis] as [String: Any])
   }
 
   func onPrepared(isPrepared: Bool) {
-    if let eventSink = self.sink {
-      eventSink(["event": "audio.onPrepared", "value": isPrepared] as [String: Any])
-    }
+    sendEvent(["event": "audio.onPrepared", "value": isPrepared] as [String: Any])
   }
 
   func onLog(message: String) {
-    if let eventSink = self.sink {
-      eventSink(["event": "audio.onLog", "value": message])
-    }
+    sendEvent(["event": "audio.onLog", "value": message])
   }
 
   func onError(code: String, message: String, details: Any?) {
-    if let eventSink = self.sink {
-      eventSink(FlutterError(code: code, message: message, details: details))
-    }
+    sendEvent(FlutterError(code: code, message: message, details: details))
+  }
+
+  func dispose() {
+    onError(
+      code: "DarwinAudioError",
+      message:
+        "Stream was still listened to before disposing. Ensure to cancel all subscriptions before calling dispose.",
+      details: nil)
+    sendEvent(FlutterEndOfEventStream)
+    eventChannel.setStreamHandler(nil)
   }
 }
 
 class GlobalAudioPlayersStreamHandler: NSObject, FlutterStreamHandler {
+  var eventChannel: FlutterEventChannel
   var sink: FlutterEventSink?
+
+  init(channel: FlutterEventChannel) {
+    self.eventChannel = channel
+    super.init()
+    eventChannel.setStreamHandler(self)
+  }
 
   public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink)
     -> FlutterError?
@@ -454,18 +485,33 @@ class GlobalAudioPlayersStreamHandler: NSObject, FlutterStreamHandler {
   }
 
   public func onCancel(withArguments arguments: Any?) -> FlutterError? {
+    self.sink = nil
     return nil
   }
 
-  func onLog(message: String) {
+  private func sendEvent(_ event: Any?) {
     if let eventSink = self.sink {
-      eventSink(["event": "audio.onLog", "value": message])
+      DispatchQueue.main.async {
+        eventSink(event)
+      }
     }
   }
 
+  func onLog(message: String) {
+    sendEvent(["event": "audio.onLog", "value": message])
+  }
+
   func onError(code: String, message: String, details: Any?) {
-    if let eventSink = self.sink {
-      eventSink(FlutterError(code: code, message: message, details: details))
-    }
+    sendEvent(FlutterError(code: code, message: message, details: details))
+  }
+
+  func dispose() {
+    onError(
+      code: "DarwinAudioError",
+      message:
+        "Stream was still listened to before disposing. Ensure to cancel all subscriptions before calling dispose.",
+      details: nil)
+    sendEvent(FlutterEndOfEventStream)
+    eventChannel.setStreamHandler(nil)
   }
 }

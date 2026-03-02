@@ -267,6 +267,7 @@ void AudioPlayer::OnPlaybackEnded() {
     fl_value_set_string(map, "value", fl_value_new_bool(true));
     fl_event_channel_send(this->_eventChannel, map, nullptr, nullptr);
   }
+  
   if (GetReleaseMode() == ReleaseMode::loop) {
     Play();
   } else {
