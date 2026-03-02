@@ -16,12 +16,12 @@ class StreamRoute {
   StreamRoute({bool isLiveMode = false, bool isRecordMode = false})
       : assert(!isRecordMode || isLiveMode) {
     if (isRecordMode) {
-      recordLiveStream();
+      unawaited(recordLiveStream());
     }
     if (isLiveMode) {
-      playLiveStream();
+      unawaited(playLiveStream());
     } else {
-      playLocalStream();
+      unawaited(playLocalStream());
     }
   }
 
@@ -34,11 +34,11 @@ class StreamRoute {
     final mpegSub = mpegStreamController.stream.listen((bytes) async {
       fileBytes.addAll([...int32ToBytes(bytes.length), ...bytes]);
     });
-    Future.delayed(recordingTime).then((value) async {
+    unawaited(Future.delayed(recordingTime).then((value) async {
       print('Recording finished');
       await mpegSub.cancel();
       await recordOutput.writeAsBytes(fileBytes, flush: true);
-    });
+    }));
   }
 
   Uint8List int32ToBytes(int value) =>
@@ -51,7 +51,7 @@ class StreamRoute {
     final client = HttpClient();
     final request = await client.getUrl(Uri.parse(timesRadioUrl));
     final response = await request.close();
-    mpegStreamController.addStream(response);
+    unawaited(mpegStreamController.addStream(response));
   }
 
   Future<void> playLocalStream() async {

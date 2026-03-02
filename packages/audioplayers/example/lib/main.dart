@@ -71,7 +71,9 @@ class _ExampleAppState extends State<_ExampleApp> {
 
   @override
   void dispose() {
-    streams.forEach((it) => it.cancel());
+    for (final it in streams) {
+      it.cancel();
+    }
     super.dispose();
   }
 

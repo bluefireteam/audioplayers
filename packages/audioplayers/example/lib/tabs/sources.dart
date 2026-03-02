@@ -485,7 +485,9 @@ class _SourceDialogState extends State<_SourceDialog> {
                   default:
                     widget.onAdd(UrlSource(path), path);
                 }
-                Navigator.of(context).pop();
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                }
               },
               txt: 'Add',
             ),

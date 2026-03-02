@@ -47,7 +47,9 @@ class _StreamWidgetState extends State<StreamWidget> {
   @override
   void dispose() {
     super.dispose();
-    streams.forEach((it) => it.cancel());
+    for (final it in streams) {
+      it.cancel();
+    }
   }
 
   @override

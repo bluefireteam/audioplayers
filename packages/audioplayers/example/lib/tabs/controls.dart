@@ -36,7 +36,7 @@ class _ControlsTabState extends State<ControlsTab>
       return;
     }
     final position = duration * percent;
-    _seekDuration(position);
+    await _seekDuration(position);
   }
 
   Future<void> _seekDuration(Duration position) async {
