@@ -1,0 +1,10 @@
+# Force les fichiers Dart à utiliser les fins de ligne LF (Linux)
+*.dart text eol=lf
+*.yaml text eol=lf
+*.md text eol=lf
+*.sh text eol=lf
+*.cc text eol=lf
+*.h text eol=lf
+*.cpp text eol=lf
+*.swift text eol=lf
+*.kt text eol=lf
