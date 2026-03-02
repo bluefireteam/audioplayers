@@ -5,7 +5,12 @@
 </p>
 
 <p align="center">
-  <b>Hardened Fork | Fork Robuste v6.6.1</b>
+  <b>Hardened Fork</b>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Version-6.6.2-blueviolet?style=flat-square&logo=github" alt="Version"/>
+  <img src="https://img.shields.io/badge/Release%20Date-2026--02--03-blue?style=flat-square&logo=calendar" alt="Release Date"/>
 </p>
 
 [![Build Check](https://github.com/Sebastien-VZN/audioplayers/actions/workflows/build_check.yml/badge.svg)](https://github.com/Sebastien-VZN/audioplayers/actions/workflows/build_check.yml)
