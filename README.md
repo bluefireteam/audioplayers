@@ -38,9 +38,10 @@ The original repository suffered from excessive fragmentation and accumulated te
 - **Bulletproof CI:** GitHub Actions validates static analysis, formatting, unit tests, and **actual compilation** for all platforms.
 
 ### 4. Code Health & Optimization
+- **Standard & Strict Linting:** Full migration from `flame_lint` to official **`flutter_lints` (v6)** standards. This ensures the codebase follows industrial Flutter best practices without superfluous custom dependencies.
+- **Async Safety:** Proactive fix of numerous asynchronous management issues (`unawaited_futures`, `use_build_context_synchronously`) uncovered by strict static analysis, ensuring more predictable execution.
 - **Zero Dead Code:** Removed useless abstractions and "just-in-case" code.
-- **Strict Linting:** Enforced rigorous linting rules for a uniform codebase.
-- **API Reliability:** Focus on the reliability of core functions.
+- **API Reliability:** Focus on core functions reliability and a clean, focused `CHANGELOG` free of dead links and legacy noise.
 
 ## 🎯 Platform Setup
 
