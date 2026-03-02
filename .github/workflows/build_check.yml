@@ -76,3 +76,42 @@ jobs:
       - name: "Build Windows (Release)"
         working-directory: packages/audioplayers/example
         run: flutter build windows --release
+
+  web-build:
+    name: "Web (Build Check)"
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+      - name: "Build Web (Release)"
+        working-directory: packages/audioplayers/example
+        run: flutter build web --release
+
+  macos-build:
+    name: "macOS (Build Check)"
+    needs: validate
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+      - name: "Build macOS (Release)"
+        working-directory: packages/audioplayers/example
+        run: flutter build macos --release
+
+  ios-build:
+    name: "iOS (Build Check)"
+    needs: validate
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+      - name: "Build iOS (Release)"
+        working-directory: packages/audioplayers/example
+        run: flutter build ios --release --no-codesign
