@@ -42,7 +42,7 @@ class ExoPlayerWrapper(
                 wrappedPlayer.handleError(
                     errorCode = "AndroidAudioError",
                     errorMessage = "Failed to set source. For troubleshooting, see: " +
-                        "https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md",
+                        "",
                     errorDetails = "${error.errorCodeName}\n${error.message}\n${error.stackTraceToString()}",
                 )
                 return

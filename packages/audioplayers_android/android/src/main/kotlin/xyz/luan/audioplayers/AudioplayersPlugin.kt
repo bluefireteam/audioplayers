@@ -110,7 +110,7 @@ class AudioplayersPlugin : FlutterPlugin {
                         response.error(
                             "AndroidAudioError",
                             "Failed to set source. For troubleshooting, see: " +
-                                "https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md",
+                                "",
                             e,
                         )
                         return

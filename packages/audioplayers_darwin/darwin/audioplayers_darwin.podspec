@@ -7,7 +7,7 @@ Pod::Spec.new do |s|
   s.version          = '0.0.1'
   s.summary          = 'Flutter Audioplayers Plugin'
   s.description      = 'Darwin implementation of audioplayers, a Flutter plugin to play multiple audio files simultaneously.'
-  s.homepage         = 'https://github.com/bluefireteam/audioplayers'
+  s.homepage         = 'https://github.com/Sebastien-VZN/audioplayers'
   s.license          = { :type => 'MIT', :file => '../LICENSE' }
   s.author           = { 'Blue Fire' => 'contact@blue-fire.xyz' }
   s.source           = { :path => '.' }

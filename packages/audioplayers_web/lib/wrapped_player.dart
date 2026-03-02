@@ -149,8 +149,7 @@ class WrappedPlayer {
       (_) {
         String platformMsg;
         if (p.error != null) {
-          platformMsg = 'Failed to set source. For troubleshooting, see '
-              'https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md';
+          platformMsg = 'Failed to set source.';
         } else {
           platformMsg = 'Unknown web error. See details.';
         }

@@ -1,7 +1,7 @@
 # Simple audio player app example
 
-A complete example showcasing all _audioplayers_ features can be found in our [repository](https://github.com/bluefireteam/audioplayers/tree/main/packages/audioplayers/example).
-Also check out our live [web app](https://bluefireteam.github.io/audioplayers/).
+A complete example showcasing all _audioplayers_ features can be found in our [repository](https://github.com/Sebastien-VZN/audioplayers/tree/main/packages/audioplayers/example).
+Also check out our live [web app](https://Sebastien-VZN.github.io/audioplayers/).
 
 ```dart
 import 'dart:async';

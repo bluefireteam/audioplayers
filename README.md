@@ -10,7 +10,7 @@
 
 [![Build Check](https://github.com/Sebastien-VZN/audioplayers/actions/workflows/build_check.yml/badge.svg)](https://github.com/Sebastien-VZN/audioplayers/actions/workflows/build_check.yml)
 
-This fork of `bluefireteam/audioplayers` was created to transform a fragmented and aging plugin into an **industrial-grade, stable, and high-performance** tool. The goal is to provide a clean codebase, stripped of obsolescence, and protected by a rigorous testing suite.
+`audioplayers_stable` is an **industrial-grade, stable, and high-performance** audio plugin for Flutter. The goal is to provide a clean codebase, stripped of obsolescence, and protected by a rigorous testing suite.
 
 ## 🛠️ Why this fork? (Technical Decisions)
 

@@ -2,7 +2,7 @@
 #include <flutter_linux/flutter_linux.h>
 #include <exception>
 #define STR_LINK_TROUBLESHOOTING \
-  "https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md"
+  ""
 
 AudioPlayer::AudioPlayer(std::string playerId,
                          FlMethodChannel* methodChannel,
