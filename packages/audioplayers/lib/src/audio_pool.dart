@@ -132,7 +132,7 @@ class AudioPool {
       }
 
       if (playerMode != PlayerMode.lowLatency) {
-        subscription = player.onPlayerComplete.listen((_) => unawaited(stop()));
+        subscription = player.onPlayerComplete.listen((_) async => stop());
       }
 
       return stop;
