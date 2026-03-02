@@ -1,12 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-enum AudioEventType {
-  log,
-  duration,
-  seekComplete,
-  complete,
-  prepared,
-}
+enum AudioEventType { log, duration, seekComplete, complete, prepared }
 
 /// Event emitted from the platform implementation.
 @immutable
@@ -45,12 +39,7 @@ class AudioEvent {
   }
 
   @override
-  int get hashCode => Object.hash(
-        eventType,
-        duration,
-        logMessage,
-        isPrepared,
-      );
+  int get hashCode => Object.hash(eventType, duration, logMessage, isPrepared);
 
   @override
   String toString() {

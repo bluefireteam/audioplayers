@@ -5,12 +5,7 @@ class Cbx extends StatelessWidget {
   final bool value;
   final void Function({required bool? value}) update;
 
-  const Cbx(
-    this.label,
-    this.update, {
-    required this.value,
-    super.key,
-  });
+  const Cbx(this.label, this.update, {required this.value, super.key});
 
   @override
   Widget build(BuildContext context) {

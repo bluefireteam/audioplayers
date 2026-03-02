@@ -22,10 +22,7 @@ class GlobalAudioScope {
 
   GlobalAudioScope() {
     eventStream = _platform.getGlobalEventStream();
-    onLog.listen(
-      AudioLogger.log,
-      onError: AudioLogger.error,
-    );
+    onLog.listen(AudioLogger.log, onError: AudioLogger.error);
   }
 
   /// Ensure the global platform is initialized.

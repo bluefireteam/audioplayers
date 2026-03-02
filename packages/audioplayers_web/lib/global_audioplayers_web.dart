@@ -45,7 +45,8 @@ class WebGlobalAudioplayersPlatform
 
   @override
   Future<void> emitGlobalError(String code, String message) async {
-    _eventStreamController
-        .addError(PlatformException(code: code, message: message));
+    _eventStreamController.addError(
+      PlatformException(code: code, message: message),
+    );
   }
 }

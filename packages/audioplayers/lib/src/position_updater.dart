@@ -4,9 +4,7 @@ import 'package:flutter/scheduler.dart';
 
 abstract class PositionUpdater {
   /// You can use `player.getCurrentPosition` as the [getPosition] parameter.
-  PositionUpdater({
-    required this.getPosition,
-  });
+  PositionUpdater({required this.getPosition});
 
   final Future<Duration?> Function() getPosition;
   final _streamController = StreamController<Duration>.broadcast();
@@ -40,10 +38,7 @@ class TimerPositionUpdater extends PositionUpdater {
   final Duration interval;
 
   /// Position stream will be updated in the according [interval].
-  TimerPositionUpdater({
-    required super.getPosition,
-    required this.interval,
-  });
+  TimerPositionUpdater({required super.getPosition, required this.interval});
 
   @override
   void start() {
@@ -65,9 +60,7 @@ class FramePositionUpdater extends PositionUpdater {
   bool _isRunning = false;
 
   /// Position stream will be updated at every new frame.
-  FramePositionUpdater({
-    required super.getPosition,
-  });
+  FramePositionUpdater({required super.getPosition});
 
   void _tick(Duration? timestamp) {
     if (_isRunning) {

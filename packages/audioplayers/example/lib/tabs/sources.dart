@@ -42,10 +42,7 @@ const mp3DataUri =
 class SourcesTab extends StatefulWidget {
   final AudioPlayer player;
 
-  const SourcesTab({
-    required this.player,
-    super.key,
-  });
+  const SourcesTab({required this.player, super.key});
 
   @override
   State<SourcesTab> createState() => _SourcesTabState();
@@ -77,16 +74,10 @@ class _SourcesTabState extends State<SourcesTab>
     try {
       await player.stop();
       await player.play(source);
-      toast(
-        'Set and playing source.',
-        textKey: const Key('toast-set-play'),
-      );
+      toast('Set and playing source.', textKey: const Key('toast-set-play'));
     } on Exception catch (e, stackTrace) {
       AudioLogger.error(e, stackTrace);
-      toast(
-        'Error playing source: $e',
-        textKey: const Key('toast-error-play'),
-      );
+      toast('Error playing source: $e', textKey: const Key('toast-error-play'));
     }
   }
 
@@ -104,17 +95,16 @@ class _SourcesTabState extends State<SourcesTab>
     Key? setSourceKey,
     Color? buttonColor,
     Key? playKey,
-  }) =>
-      _SourceTile(
-        setSource: () => _setSource(source),
-        play: () => _play(source),
-        removeSource: _removeSourceWidget,
-        title: title,
-        subtitle: subtitle,
-        setSourceKey: setSourceKey,
-        playKey: playKey,
-        buttonColor: buttonColor,
-      );
+  }) => _SourceTile(
+    setSource: () => _setSource(source),
+    play: () => _play(source),
+    removeSource: _removeSourceWidget,
+    title: title,
+    subtitle: subtitle,
+    setSourceKey: setSourceKey,
+    playKey: playKey,
+    buttonColor: buttonColor,
+  );
 
   Future<void> _setSourceBytesAsset(
     Future<void> Function(Source) fun, {
@@ -153,109 +143,104 @@ class _SourcesTabState extends State<SourcesTab>
   @override
   void initState() {
     super.initState();
-    sourceWidgets.addAll(
-      [
-        _createSourceTile(
-          setSourceKey: const Key('setSource-url-remote-wav-1'),
-          title: 'Remote URL WAV 1',
-          subtitle: 'coins.wav',
-          source: UrlSource(wavUrl1),
+    sourceWidgets.addAll([
+      _createSourceTile(
+        setSourceKey: const Key('setSource-url-remote-wav-1'),
+        title: 'Remote URL WAV 1',
+        subtitle: 'coins.wav',
+        source: UrlSource(wavUrl1),
+      ),
+      _createSourceTile(
+        setSourceKey: const Key('setSource-url-remote-wav-2'),
+        title: 'Remote URL WAV 2',
+        subtitle: 'laser.wav',
+        source: UrlSource(wavUrl2),
+      ),
+      _createSourceTile(
+        setSourceKey: const Key('setSource-url-remote-mp3-1'),
+        title: 'Remote URL MP3 1 (VBR)',
+        subtitle: 'ambient_c_motion.mp3',
+        source: UrlSource(mp3Url1),
+      ),
+      _createSourceTile(
+        setSourceKey: const Key('setSource-url-remote-mp3-2'),
+        title: 'Remote URL MP3 2',
+        subtitle: 'nasa_on_a_mission.mp3',
+        source: UrlSource(mp3Url2),
+      ),
+      _createSourceTile(
+        setSourceKey: const Key('setSource-url-remote-m3u8'),
+        title: 'Remote URL M3U8',
+        subtitle: 'HLS Low-Latency Live Stream',
+        source: UrlSource(m3u8StreamUrl),
+      ),
+      _createSourceTile(
+        setSourceKey: const Key('setSource-url-remote-mpga'),
+        title: 'Remote URL MPGA',
+        subtitle: 'Times stream',
+        source: UrlSource(mpgaStreamUrl),
+      ),
+      _createSourceTile(
+        setSourceKey: const Key('setSource-url-data-wav'),
+        title: 'Data URI WAV',
+        subtitle: 'coins.wav',
+        source: UrlSource(wavDataUri),
+      ),
+      _createSourceTile(
+        setSourceKey: const Key('setSource-url-data-mp3'),
+        title: 'Data URI MP3',
+        subtitle: 'coins.mp3',
+        source: UrlSource(mp3DataUri),
+      ),
+      _createSourceTile(
+        setSourceKey: const Key('setSource-asset-wav'),
+        title: 'Asset WAV',
+        subtitle: 'laser.wav',
+        source: AssetSource(wavAsset2),
+      ),
+      _createSourceTile(
+        setSourceKey: const Key('setSource-asset-mp3'),
+        title: 'Asset MP3',
+        subtitle: 'nasa.mp3',
+        source: AssetSource(mp3Asset),
+      ),
+      _SourceTile(
+        setSource: () => _setSourceBytesAsset(
+          _setSource,
+          asset: wavAsset2,
+          mimeType: 'audio/wav',
         ),
-        _createSourceTile(
-          setSourceKey: const Key('setSource-url-remote-wav-2'),
-          title: 'Remote URL WAV 2',
-          subtitle: 'laser.wav',
-          source: UrlSource(wavUrl2),
+        setSourceKey: const Key('setSource-bytes-local'),
+        play: () => _setSourceBytesAsset(
+          _play,
+          asset: wavAsset2,
+          mimeType: 'audio/wav',
         ),
-        _createSourceTile(
-          setSourceKey: const Key('setSource-url-remote-mp3-1'),
-          title: 'Remote URL MP3 1 (VBR)',
-          subtitle: 'ambient_c_motion.mp3',
-          source: UrlSource(mp3Url1),
+        removeSource: _removeSourceWidget,
+        title: 'Bytes - Local',
+        subtitle: 'laser.wav',
+      ),
+      _SourceTile(
+        setSource: () => _setSourceBytesRemote(
+          _setSource,
+          url: mp3Url1,
+          mimeType: 'audio/mpeg',
         ),
-        _createSourceTile(
-          setSourceKey: const Key('setSource-url-remote-mp3-2'),
-          title: 'Remote URL MP3 2',
-          subtitle: 'nasa_on_a_mission.mp3',
-          source: UrlSource(mp3Url2),
-        ),
-        _createSourceTile(
-          setSourceKey: const Key('setSource-url-remote-m3u8'),
-          title: 'Remote URL M3U8',
-          subtitle: 'HLS Low-Latency Live Stream',
-          source: UrlSource(m3u8StreamUrl),
-        ),
-        _createSourceTile(
-          setSourceKey: const Key('setSource-url-remote-mpga'),
-          title: 'Remote URL MPGA',
-          subtitle: 'Times stream',
-          source: UrlSource(mpgaStreamUrl),
-        ),
-        _createSourceTile(
-          setSourceKey: const Key('setSource-url-data-wav'),
-          title: 'Data URI WAV',
-          subtitle: 'coins.wav',
-          source: UrlSource(wavDataUri),
-        ),
-        _createSourceTile(
-          setSourceKey: const Key('setSource-url-data-mp3'),
-          title: 'Data URI MP3',
-          subtitle: 'coins.mp3',
-          source: UrlSource(mp3DataUri),
-        ),
-        _createSourceTile(
-          setSourceKey: const Key('setSource-asset-wav'),
-          title: 'Asset WAV',
-          subtitle: 'laser.wav',
-          source: AssetSource(wavAsset2),
-        ),
-        _createSourceTile(
-          setSourceKey: const Key('setSource-asset-mp3'),
-          title: 'Asset MP3',
-          subtitle: 'nasa.mp3',
-          source: AssetSource(mp3Asset),
-        ),
-        _SourceTile(
-          setSource: () => _setSourceBytesAsset(
-            _setSource,
-            asset: wavAsset2,
-            mimeType: 'audio/wav',
-          ),
-          setSourceKey: const Key('setSource-bytes-local'),
-          play: () => _setSourceBytesAsset(
-            _play,
-            asset: wavAsset2,
-            mimeType: 'audio/wav',
-          ),
-          removeSource: _removeSourceWidget,
-          title: 'Bytes - Local',
-          subtitle: 'laser.wav',
-        ),
-        _SourceTile(
-          setSource: () => _setSourceBytesRemote(
-            _setSource,
-            url: mp3Url1,
-            mimeType: 'audio/mpeg',
-          ),
-          setSourceKey: const Key('setSource-bytes-remote'),
-          play: () => _setSourceBytesRemote(
-            _play,
-            url: mp3Url1,
-            mimeType: 'audio/mpeg',
-          ),
-          removeSource: _removeSourceWidget,
-          title: 'Bytes - Remote',
-          subtitle: 'ambient.mp3',
-        ),
-        _createSourceTile(
-          setSourceKey: const Key('setSource-asset-invalid'),
-          title: 'Invalid Asset',
-          subtitle: 'invalid.txt',
-          source: AssetSource(invalidAsset),
-          buttonColor: Colors.red,
-        ),
-      ],
-    );
+        setSourceKey: const Key('setSource-bytes-remote'),
+        play: () =>
+            _setSourceBytesRemote(_play, url: mp3Url1, mimeType: 'audio/mpeg'),
+        removeSource: _removeSourceWidget,
+        title: 'Bytes - Remote',
+        subtitle: 'ambient.mp3',
+      ),
+      _createSourceTile(
+        setSourceKey: const Key('setSource-asset-invalid'),
+        title: 'Invalid Asset',
+        subtitle: 'invalid.txt',
+        source: AssetSource(invalidAsset),
+        buttonColor: Colors.red,
+      ),
+    ]);
   }
 
   @override

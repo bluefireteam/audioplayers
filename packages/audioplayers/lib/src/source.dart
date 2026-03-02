@@ -93,8 +93,9 @@ class BytesSource extends Source {
 
   @override
   String toString() {
-    final bytesHash =
-        Object.hashAll(bytes).toUnsigned(20).toRadixString(16).padLeft(5, '0');
+    final bytesHash = Object.hashAll(
+      bytes,
+    ).toUnsigned(20).toRadixString(16).padLeft(5, '0');
     return 'BytesSource(bytes: $bytesHash, mimeType: $mimeType)';
   }
 }

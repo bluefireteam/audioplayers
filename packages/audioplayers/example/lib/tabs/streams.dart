@@ -8,10 +8,7 @@ import 'package:flutter/material.dart';
 class StreamsTab extends StatelessWidget {
   final AudioPlayer player;
 
-  const StreamsTab({
-    required this.player,
-    super.key,
-  });
+  const StreamsTab({required this.player, super.key});
 
   @override
   Widget build(BuildContext context) {

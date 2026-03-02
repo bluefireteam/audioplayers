@@ -5,10 +5,7 @@ import 'package:flutter/material.dart';
 class PropertiesWidget extends StatefulWidget {
   final AudioPlayer player;
 
-  const PropertiesWidget({
-    required this.player,
-    super.key,
-  });
+  const PropertiesWidget({required this.player, super.key});
 
   @override
   State<PropertiesWidget> createState() => _PropertiesWidgetState();

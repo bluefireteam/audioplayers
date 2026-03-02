@@ -7,10 +7,7 @@ import 'package:flutter/material.dart';
 class StreamWidget extends StatefulWidget {
   final AudioPlayer player;
 
-  const StreamWidget({
-    required this.player,
-    super.key,
-  });
+  const StreamWidget({required this.player, super.key});
 
   @override
   State<StreamWidget> createState() => _StreamWidgetState();
@@ -31,16 +28,19 @@ class _StreamWidgetState extends State<StreamWidget> {
     streamState = player.state;
     player.getDuration().then((it) => setState(() => streamDuration = it));
     player.getCurrentPosition().then(
-          (it) => setState(() => streamPosition = it),
-        );
+      (it) => setState(() => streamPosition = it),
+    );
 
     streams = <StreamSubscription>[
-      player.onDurationChanged
-          .listen((it) => setState(() => streamDuration = it)),
-      player.onPlayerStateChanged
-          .listen((it) => setState(() => streamState = it)),
-      player.onPositionChanged
-          .listen((it) => setState(() => streamPosition = it)),
+      player.onDurationChanged.listen(
+        (it) => setState(() => streamDuration = it),
+      ),
+      player.onPlayerStateChanged.listen(
+        (it) => setState(() => streamState = it),
+      ),
+      player.onPositionChanged.listen(
+        (it) => setState(() => streamPosition = it),
+      ),
     ];
   }
 

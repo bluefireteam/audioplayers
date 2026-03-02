@@ -106,15 +106,9 @@ abstract class MethodChannelAudioplayersPlatformInterface {
     String? mimeType,
   });
 
-  Future<void> setAudioContext(
-    String playerId,
-    AudioContext audioContext,
-  );
+  Future<void> setAudioContext(String playerId, AudioContext audioContext);
 
-  Future<void> setPlayerMode(
-    String playerId,
-    PlayerMode playerMode,
-  );
+  Future<void> setPlayerMode(String playerId, PlayerMode playerMode);
 
   /// Returns the duration of the media, in milliseconds, if available.
   ///

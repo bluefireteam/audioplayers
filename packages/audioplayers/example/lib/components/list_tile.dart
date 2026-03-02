@@ -15,10 +15,7 @@ class WrappedListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Wrap(
-        alignment: WrapAlignment.end,
-        children: children,
-      ),
+      title: Wrap(alignment: WrapAlignment.end, children: children),
       leading: leading,
       trailing: trailing,
     );

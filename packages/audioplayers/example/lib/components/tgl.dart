@@ -26,10 +26,7 @@ class Tgl extends StatelessWidget {
           .map(
             (entry) => Padding(
               padding: const EdgeInsets.all(8),
-              child: Text(
-                entry.value,
-                key: Key(entry.key),
-              ),
+              child: Text(entry.value, key: Key(entry.key)),
             ),
           )
           .toList(),

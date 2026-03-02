@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 class TabContent extends StatelessWidget {
   final List<Widget> children;
 
-  const TabContent({
-    required this.children,
-    super.key,
-  });
+  const TabContent({required this.children, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,9 +14,7 @@ class TabContent extends StatelessWidget {
           controller: ScrollController(),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Column(
-              children: children,
-            ),
+            child: Column(children: children),
           ),
         ),
       ),

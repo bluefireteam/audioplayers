@@ -10,10 +10,7 @@ import 'package:flutter/material.dart';
 class ControlsTab extends StatefulWidget {
   final AudioPlayer player;
 
-  const ControlsTab({
-    required this.player,
-    super.key,
-  });
+  const ControlsTab({required this.player, super.key});
 
   @override
   State<ControlsTab> createState() => _ControlsTabState();
@@ -43,9 +40,7 @@ class _ControlsTabState extends State<ControlsTab>
   }
 
   Future<void> _seekDuration(Duration position) async {
-    await _update(
-      () => widget.player.seek(position),
-    );
+    await _update(() => widget.player.seek(position));
   }
 
   @override
@@ -137,9 +132,7 @@ class _ControlsTabState extends State<ControlsTab>
               },
               selected: widget.player.releaseMode,
               onChange: (releaseMode) async {
-                await _update(
-                  () => widget.player.setReleaseMode(releaseMode),
-                );
+                await _update(() => widget.player.setReleaseMode(releaseMode));
               },
             ),
           ],
@@ -163,13 +156,10 @@ class _ControlsTabState extends State<ControlsTab>
                     value: modalInputSeek,
                     setValue: (it) => setState(() => modalInputSeek = it),
                     seekDuration: () => _seekDuration(
-                      Duration(
-                        milliseconds: int.parse(modalInputSeek),
-                      ),
+                      Duration(milliseconds: int.parse(modalInputSeek)),
                     ),
-                    seekPercent: () => _seekPercent(
-                      double.parse(modalInputSeek),
-                    ),
+                    seekPercent: () =>
+                        _seekPercent(double.parse(modalInputSeek)),
                   ),
                 );
               },
@@ -203,10 +193,7 @@ class _SeekDialog extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         const Text('Pick a duration and unit to seek'),
-        TxtBox(
-          value: value,
-          onChange: setValue,
-        ),
+        TxtBox(value: value, onChange: setValue),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

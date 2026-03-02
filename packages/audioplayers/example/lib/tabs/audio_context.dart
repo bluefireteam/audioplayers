@@ -10,10 +10,7 @@ import 'package:flutter/material.dart';
 class AudioContextTab extends StatefulWidget {
   final AudioPlayer player;
 
-  const AudioContextTab({
-    required this.player,
-    super.key,
-  });
+  const AudioContextTab({required this.player, super.key});
 
   @override
   AudioContextTabState createState() => AudioContextTabState();
@@ -59,14 +56,8 @@ class AudioContextTabState extends State<AudioContextTab>
               borderRadius: const BorderRadius.all(Radius.circular(8)),
               selectedBorderColor: Theme.of(context).primaryColor,
               children: const [
-                Padding(
-                  padding: EdgeInsets.all(8),
-                  child: Text('Global'),
-                ),
-                Padding(
-                  padding: EdgeInsets.all(8),
-                  child: Text('Local'),
-                ),
+                Padding(padding: EdgeInsets.all(8), child: Text('Global')),
+                Padding(padding: EdgeInsets.all(8), child: Text('Local')),
               ],
             ),
             ElevatedButton.icon(
@@ -153,18 +144,14 @@ class AudioContextTabState extends State<AudioContextTab>
           key: const Key('audioRoute'),
           options: {for (final e in AudioContextConfigRoute.values) e: e.name},
           selected: audioContextConfig.route,
-          onChange: (v) => updateConfig(
-            audioContextConfig.copy(route: v),
-          ),
+          onChange: (v) => updateConfig(audioContextConfig.copy(route: v)),
         ),
         LabeledDropDown<AudioContextConfigFocus>(
           label: 'Audio Focus',
           key: const Key('audioFocus'),
           options: {for (final e in AudioContextConfigFocus.values) e: e.name},
           selected: audioContextConfig.focus,
-          onChange: (v) => updateConfig(
-            audioContextConfig.copy(focus: v),
-          ),
+          onChange: (v) => updateConfig(audioContextConfig.copy(focus: v)),
         ),
         Cbx(
           'Respect Silence',
@@ -239,26 +226,20 @@ class AudioContextTabState extends State<AudioContextTab>
   }
 
   Widget _iosTab() {
-    final iosOptions = AVAudioSessionOptions.values.map(
-      (option) {
-        final options = {...audioContext.iOS.options};
-        return Cbx(
-          option.name,
-          value: options.contains(option),
-          ({value}) {
-            updateAudioContextIOS(() {
-              final iosContext = audioContext.iOS.copy(options: options);
-              if (value ?? false) {
-                options.add(option);
-              } else {
-                options.remove(option);
-              }
-              return iosContext;
-            });
-          },
-        );
-      },
-    ).toList();
+    final iosOptions = AVAudioSessionOptions.values.map((option) {
+      final options = {...audioContext.iOS.options};
+      return Cbx(option.name, value: options.contains(option), ({value}) {
+        updateAudioContextIOS(() {
+          final iosContext = audioContext.iOS.copy(options: options);
+          if (value ?? false) {
+            options.add(option);
+          } else {
+            options.remove(option);
+          }
+          return iosContext;
+        });
+      });
+    }).toList();
     return TabContent(
       children: <Widget>[
         LabeledDropDown<AVAudioSessionCategory>(
@@ -266,9 +247,8 @@ class AudioContextTabState extends State<AudioContextTab>
           label: 'category',
           options: {for (final e in AVAudioSessionCategory.values) e: e.name},
           selected: audioContext.iOS.category,
-          onChange: (v) => updateAudioContextIOS(
-            () => audioContext.iOS.copy(category: v),
-          ),
+          onChange: (v) =>
+              updateAudioContextIOS(() => audioContext.iOS.copy(category: v)),
         ),
         ...iosOptions,
       ],

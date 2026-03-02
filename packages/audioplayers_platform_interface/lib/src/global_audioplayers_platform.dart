@@ -14,8 +14,9 @@ class GlobalAudioplayersPlatform extends GlobalAudioplayersPlatformInterface
 
 mixin MethodChannelGlobalAudioplayersPlatform
     implements MethodChannelGlobalAudioplayersPlatformInterface {
-  static const MethodChannel _globalMethodChannel =
-      MethodChannel('xyz.luan/audioplayers.global');
+  static const MethodChannel _globalMethodChannel = MethodChannel(
+    'xyz.luan/audioplayers.global',
+  );
 
   @override
   Future<void> init() {
@@ -24,38 +25,30 @@ mixin MethodChannelGlobalAudioplayersPlatform
 
   @override
   Future<void> setGlobalAudioContext(AudioContext ctx) {
-    return _globalMethodChannel.call(
-      'setAudioContext',
-      ctx.toJson(),
-    );
+    return _globalMethodChannel.call('setAudioContext', ctx.toJson());
   }
 
   @override
   Future<void> emitGlobalLog(String message) {
-    return _globalMethodChannel.call(
-      'emitLog',
-      <String, dynamic>{
-        'message': message,
-      },
-    );
+    return _globalMethodChannel.call('emitLog', <String, dynamic>{
+      'message': message,
+    });
   }
 
   @override
   Future<void> emitGlobalError(String code, String message) {
-    return _globalMethodChannel.call(
-      'emitError',
-      <String, dynamic>{
-        'code': code,
-        'message': message,
-      },
-    );
+    return _globalMethodChannel.call('emitError', <String, dynamic>{
+      'code': code,
+      'message': message,
+    });
   }
 }
 
 mixin EventChannelGlobalAudioplayersPlatform
     implements EventChannelGlobalAudioplayersPlatformInterface {
-  static const _globalEventChannel =
-      EventChannel('xyz.luan/audioplayers.global/events');
+  static const _globalEventChannel = EventChannel(
+    'xyz.luan/audioplayers.global/events',
+  );
 
   @override
   Stream<GlobalAudioEvent> getGlobalEventStream() {

@@ -76,10 +76,7 @@ class AudioContextConfig {
   }
 
   AudioContext build() {
-    return AudioContext(
-      android: buildAndroid(),
-      iOS: buildIOS(),
-    );
+    return AudioContext(android: buildAndroid(), iOS: buildIOS());
   }
 
   AudioContextAndroid buildAndroid() {
@@ -89,13 +86,13 @@ class AudioContextConfig {
       usageType: respectSilence
           ? AndroidUsageType.notificationRingtone
           : (route == AudioContextConfigRoute.earpiece
-              ? AndroidUsageType.voiceCommunication
-              : AndroidUsageType.media),
+                ? AndroidUsageType.voiceCommunication
+                : AndroidUsageType.media),
       audioFocus: focus == AudioContextConfigFocus.gain
           ? AndroidAudioFocus.gain
           : (focus == AudioContextConfigFocus.duckOthers
-              ? AndroidAudioFocus.gainTransientMayDuck
-              : AndroidAudioFocus.none),
+                ? AndroidAudioFocus.gainTransientMayDuck
+                : AndroidAudioFocus.none),
     );
   }
 
@@ -108,10 +105,10 @@ class AudioContextConfig {
       category: respectSilence
           ? AVAudioSessionCategory.ambient
           : (route == AudioContextConfigRoute.speaker
-              ? AVAudioSessionCategory.playAndRecord
-              : (route == AudioContextConfigRoute.earpiece
-                  ? AVAudioSessionCategory.playAndRecord
-                  : AVAudioSessionCategory.playback)),
+                ? AVAudioSessionCategory.playAndRecord
+                : (route == AudioContextConfigRoute.earpiece
+                      ? AVAudioSessionCategory.playAndRecord
+                      : AVAudioSessionCategory.playback)),
       options: {
         if (focus == AudioContextConfigFocus.duckOthers)
           AVAudioSessionOptions.duckOthers,
@@ -126,7 +123,8 @@ class AudioContextConfig {
   void validateIOS() {
     const invalidMsg =
         'Invalid AudioContextConfig: On iOS it is not possible to set';
-    const tip = 'Please create a custom [AudioContextIOS] if the generic flags '
+    const tip =
+        'Please create a custom [AudioContextIOS] if the generic flags '
         'cannot represent your needs.';
     assert(
       !(respectSilence && focus == AudioContextConfigFocus.duckOthers),

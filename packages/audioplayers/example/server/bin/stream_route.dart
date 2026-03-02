@@ -14,7 +14,7 @@ class StreamRoute {
   final mpegStreamController = StreamController<List<int>>.broadcast();
 
   StreamRoute({bool isLiveMode = false, bool isRecordMode = false})
-      : assert(!isRecordMode || isLiveMode) {
+    : assert(!isRecordMode || isLiveMode) {
     if (isRecordMode) {
       recordLiveStream();
     }
@@ -37,10 +37,7 @@ class StreamRoute {
     Future.delayed(recordingTime).then((value) async {
       print('Recording finished');
       await mpegSub.cancel();
-      await recordOutput.writeAsBytes(
-        fileBytes,
-        flush: true,
-      );
+      await recordOutput.writeAsBytes(fileBytes, flush: true);
     });
   }
 
@@ -118,14 +115,8 @@ class StreamRoute {
       } else {
         final bytes = await file.readAsBytes();
         final fileSize = bytes.length;
-        final head = {
-          'Content-Length': '$fileSize',
-          ...contentType,
-        };
-        final res = Response.ok(
-          bytes.toList(),
-          headers: head,
-        );
+        final head = {'Content-Length': '$fileSize', ...contentType};
+        final res = Response.ok(bytes.toList(), headers: head);
         return res;
       }
     });
@@ -133,14 +124,8 @@ class StreamRoute {
     router.get('/mpeg', (Request request) async {
       const contentType = {'Content-Type': 'audio/mpeg'};
 
-      final head = {
-        'Accept-Ranges': 'bytes',
-        ...contentType,
-      };
-      final res = Response.ok(
-        mpegStreamController.stream,
-        headers: head,
-      );
+      final head = {'Accept-Ranges': 'bytes', ...contentType};
+      final res = Response.ok(mpegStreamController.stream, headers: head);
       return res;
     });
     return router;

@@ -7,10 +7,7 @@ import 'package:flutter/material.dart';
 class PlayerWidget extends StatefulWidget {
   final AudioPlayer player;
 
-  const PlayerWidget({
-    required this.player,
-    super.key,
-  });
+  const PlayerWidget({required this.player, super.key});
 
   @override
   State<StatefulWidget> createState() {
@@ -44,15 +41,15 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     // Use initial values from player
     _playerState = player.state;
     player.getDuration().then(
-          (value) => setState(() {
-            _duration = value;
-          }),
-        );
+      (value) => setState(() {
+        _duration = value;
+      }),
+    );
     player.getCurrentPosition().then(
-          (value) => setState(() {
-            _position = value;
-          }),
-        );
+      (value) => setState(() {
+        _position = value;
+      }),
+    );
     _initStreams();
   }
 
@@ -115,7 +112,8 @@ class _PlayerWidgetState extends State<PlayerWidget> {
             final position = value * duration.inMilliseconds;
             player.seek(Duration(milliseconds: position.round()));
           },
-          value: (_position != null &&
+          value:
+              (_position != null &&
                   _duration != null &&
                   _position!.inMilliseconds > 0 &&
                   _position!.inMilliseconds < _duration!.inMilliseconds)
@@ -126,8 +124,8 @@ class _PlayerWidgetState extends State<PlayerWidget> {
           _position != null
               ? '$_positionText / $_durationText'
               : _duration != null
-                  ? _durationText
-                  : '',
+              ? _durationText
+              : '',
           style: const TextStyle(fontSize: 16.0),
         ),
       ],
@@ -150,8 +148,9 @@ class _PlayerWidgetState extends State<PlayerWidget> {
       });
     });
 
-    _playerStateChangeSubscription =
-        player.onPlayerStateChanged.listen((state) {
+    _playerStateChangeSubscription = player.onPlayerStateChanged.listen((
+      state,
+    ) {
       setState(() {
         _playerState = state;
       });

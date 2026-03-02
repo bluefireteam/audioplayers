@@ -10,8 +10,9 @@ import 'stream_route.dart';
 
 Future<void> main() async {
   final port = int.parse(Platform.environment['PORT'] ?? '8080');
-  final requestTimeoutMillis =
-      int.parse(Platform.environment['LATENCY'] ?? '0');
+  final requestTimeoutMillis = int.parse(
+    Platform.environment['LATENCY'] ?? '0',
+  );
   final isLogRequests =
       (Platform.environment['LOG_REQUESTS'] ?? 'false') == 'true';
 

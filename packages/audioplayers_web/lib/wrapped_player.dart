@@ -32,10 +32,7 @@ class WrappedPlayer {
   Future<void> setUrl(String url) async {
     if (_currentUrl == url) {
       eventStreamController.add(
-        const AudioEvent(
-          eventType: AudioEventType.prepared,
-          isPrepared: true,
-        ),
+        const AudioEvent(eventType: AudioEventType.prepared, isPrepared: true),
       );
       return;
     }
@@ -95,75 +92,59 @@ class WrappedPlayer {
   }
 
   void _setupStreams(web.HTMLAudioElement p) {
-    _playerLoadedDataSubscription = p.onLoadedData.listen(
-      (_) {
-        eventStreamController.add(
-          const AudioEvent(
-            eventType: AudioEventType.prepared,
-            isPrepared: true,
-          ),
-        );
-        eventStreamController.add(
-          AudioEvent(
-            eventType: AudioEventType.duration,
-            duration: p.duration.fromSecondsToDuration(),
-          ),
-        );
-      },
-      onError: eventStreamController.addError,
-    );
-    _playerPlaySubscription = p.onPlay.listen(
-      (_) {
-        eventStreamController.add(
-          AudioEvent(
-            eventType: AudioEventType.duration,
-            duration: p.duration.fromSecondsToDuration(),
-          ),
-        );
-      },
-      onError: eventStreamController.addError,
-    );
-    _playerSeekedSubscription = p.onSeeked.listen(
-      (_) {
-        eventStreamController.add(
-          const AudioEvent(eventType: AudioEventType.seekComplete),
-        );
-      },
-      onError: eventStreamController.addError,
-    );
-    _playerEndedSubscription = p.onEnded.listen(
-      (_) async {
-        if (_currentReleaseMode == ReleaseMode.release) {
-          await release();
-        } else {
-          await stop();
-        }
-        eventStreamController.add(
-          const AudioEvent(eventType: AudioEventType.complete),
-        );
-      },
-      onError: eventStreamController.addError,
-    );
-    _playerErrorSubscription = p.onError.listen(
-      (_) {
-        String platformMsg;
-        if (p.error != null) {
-          platformMsg = 'Failed to set source. For troubleshooting, see '
-              'https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md';
-        } else {
-          platformMsg = 'Unknown web error. See details.';
-        }
-        eventStreamController.addError(
-          PlatformException(
-            code: 'WebAudioError',
-            message: platformMsg,
-            details: '${p.error?.runtimeType}: '
-                '${p.error?.message} (Code: ${p.error?.code})',
-          ),
-        );
-      },
-      onError: eventStreamController.addError,
-    );
+    _playerLoadedDataSubscription = p.onLoadedData.listen((_) {
+      eventStreamController.add(
+        const AudioEvent(eventType: AudioEventType.prepared, isPrepared: true),
+      );
+      eventStreamController.add(
+        AudioEvent(
+          eventType: AudioEventType.duration,
+          duration: p.duration.fromSecondsToDuration(),
+        ),
+      );
+    }, onError: eventStreamController.addError);
+    _playerPlaySubscription = p.onPlay.listen((_) {
+      eventStreamController.add(
+        AudioEvent(
+          eventType: AudioEventType.duration,
+          duration: p.duration.fromSecondsToDuration(),
+        ),
+      );
+    }, onError: eventStreamController.addError);
+    _playerSeekedSubscription = p.onSeeked.listen((_) {
+      eventStreamController.add(
+        const AudioEvent(eventType: AudioEventType.seekComplete),
+      );
+    }, onError: eventStreamController.addError);
+    _playerEndedSubscription = p.onEnded.listen((_) async {
+      if (_currentReleaseMode == ReleaseMode.release) {
+        await release();
+      } else {
+        await stop();
+      }
+      eventStreamController.add(
+        const AudioEvent(eventType: AudioEventType.complete),
+      );
+    }, onError: eventStreamController.addError);
+    _playerErrorSubscription = p.onError.listen((_) {
+      String platformMsg;
+      if (p.error != null) {
+        platformMsg =
+            'Failed to set source. For troubleshooting, see '
+            'https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md';
+      } else {
+        platformMsg = 'Unknown web error. See details.';
+      }
+      eventStreamController.addError(
+        PlatformException(
+          code: 'WebAudioError',
+          message: platformMsg,
+          details:
+              '${p.error?.runtimeType}: '
+              '${p.error?.message} (Code: ${p.error?.code})',
+        ),
+      );
+    }, onError: eventStreamController.addError);
   }
 
   bool shouldLoop() => _currentReleaseMode == ReleaseMode.loop;

@@ -8,9 +8,6 @@ class Pad extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: width,
-      height: height,
-    );
+    return Container(width: width, height: height);
   }
 }

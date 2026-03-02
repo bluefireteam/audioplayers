@@ -4,11 +4,7 @@ class TxtBox extends StatefulWidget {
   final String value;
   final void Function(String) onChange;
 
-  const TxtBox({
-    required this.value,
-    required this.onChange,
-    super.key,
-  });
+  const TxtBox({required this.value, required this.onChange, super.key});
 
   @override
   State<TxtBox> createState() => _TxtBoxState();
@@ -20,9 +16,8 @@ class _TxtBoxState extends State<TxtBox> {
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController(
-      text: widget.value,
-    )..addListener(() => widget.onChange(_controller.text));
+    _controller = TextEditingController(text: widget.value)
+      ..addListener(() => widget.onChange(_controller.text));
   }
 
   @override

@@ -1,8 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-enum GlobalAudioEventType {
-  log,
-}
+enum GlobalAudioEventType { log }
 
 /// Event emitted from the platform implementation.
 @immutable
@@ -10,10 +8,7 @@ class GlobalAudioEvent {
   /// Creates an instance of [GlobalAudioEvent].
   ///
   /// The [eventType] argument is required.
-  const GlobalAudioEvent({
-    required this.eventType,
-    this.logMessage,
-  });
+  const GlobalAudioEvent({required this.eventType, this.logMessage});
 
   /// The type of the event.
   final GlobalAudioEventType eventType;
@@ -31,10 +26,7 @@ class GlobalAudioEvent {
   }
 
   @override
-  int get hashCode => Object.hash(
-        eventType,
-        logMessage,
-      );
+  int get hashCode => Object.hash(eventType, logMessage);
 
   @override
   String toString() {
