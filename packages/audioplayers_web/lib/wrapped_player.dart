@@ -96,7 +96,9 @@ class WrappedPlayer {
       (_) {
         eventStreamController.add(
           const AudioEvent(
-              eventType: AudioEventType.prepared, isPrepared: true),
+            eventType: AudioEventType.prepared,
+            isPrepared: true,
+          ),
         );
         eventStreamController.add(
           AudioEvent(
@@ -121,7 +123,9 @@ class WrappedPlayer {
     _playerSeekedSubscription = p.onSeeked.listen(
       (_) {
         eventStreamController.add(
-          const AudioEvent(eventType: AudioEventType.seekComplete),
+          const AudioEvent(
+            eventType: AudioEventType.seekComplete,
+          ),
         );
       },
       onError: eventStreamController.addError,
@@ -134,7 +138,9 @@ class WrappedPlayer {
           await stop();
         }
         eventStreamController.add(
-          const AudioEvent(eventType: AudioEventType.complete),
+          const AudioEvent(
+            eventType: AudioEventType.complete,
+          ),
         );
       },
       onError: eventStreamController.addError,
