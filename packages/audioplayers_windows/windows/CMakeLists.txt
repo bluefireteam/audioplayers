@@ -35,6 +35,7 @@ add_library(${PLUGIN_NAME} SHARED
   "audio_player.cpp"
   "audioplayers_helpers.h"
   "event_stream_handler.h"
+  "platform_thread_handler.h"   # NEW: Added platform thread handler
   "MediaEngineExtension.h"
   "MediaEngineExtension.cpp"
   "MediaFoundationHelpers.h"
