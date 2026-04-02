@@ -38,14 +38,17 @@ void main() async {
   group('Platform method channel', () {
     late AudioplayersPlatformInterface platform;
     late String playerId;
+    late Stream<AudioEvent> eventStream;
 
     setUp(() async {
       platform = AudioplayersPlatformInterface.instance;
       playerId = 'somePlayerId';
       await platform.create(playerId);
+      eventStream = platform.getEventStream(playerId);
     });
 
     tearDown(() async {
+      // Tear down is executed AFTER all expectations are fullfilled
       await platform.dispose(playerId);
     });
 
@@ -87,7 +90,8 @@ void main() async {
       //  although the error is emitted immediately.
       //  Further, the other future is not fulfilled and then mysteriously
       //  failing in later tests.
-      skip: isAndroid,
+      //  The feature works with audioplayers_android_exo.
+      skip: testIsAndroidMediaPlayer,
     );
 
     testWidgets('#create and #dispose', (tester) async {
@@ -303,14 +307,21 @@ void main() async {
     }
 
     testWidgets('Set same source twice (#1520)', (tester) async {
+      final td = wavUrl1TestData;
       for (var i = 0; i < 2; i++) {
+        if (i == 0) {
+          // We don't expect the duration event is emitted again,
+          // if the same source is set twice
+          tester.expectDurationInStream(
+            eventStream,
+            (Duration? actual) => actual != null,
+          );
+        }
+
         await tester.prepareSource(
           playerId: playerId,
           platform: platform,
-          testData: wavUrl1TestData,
-          // We don't expect the duration event is emitted again,
-          // if the same source is set twice
-          waitForDurationEvent: i == 0,
+          testData: td,
         );
       }
     });
@@ -319,14 +330,17 @@ void main() async {
   group('Platform event channel', () {
     late AudioplayersPlatformInterface platform;
     late String playerId;
+    late Stream<AudioEvent> eventStream;
 
     setUp(() async {
       platform = AudioplayersPlatformInterface.instance;
       playerId = 'somePlayerId';
       await platform.create(playerId);
+      eventStream = platform.getEventStream(playerId);
     });
 
     tearDown(() async {
+      // Tear down is executed AFTER all expectations are fullfilled
       await platform.dispose(playerId);
     });
 
@@ -336,28 +350,21 @@ void main() async {
           '#durationEvent ${td.source}',
           (tester) async {
             // Wait for duration before event is emitted.
-            final durationFuture = tester
-                .getDurationFromEvent(
-                  playerId: playerId,
-                  platform: platform,
-                )
-                .timeout(_defaultTimeout);
+            tester.expectDurationInStream(
+              eventStream,
+              (Duration? actual) => durationRangeMatcher(
+                actual,
+                td.duration,
+                deviation: Duration(
+                  milliseconds: td.isVBR || isWindows ? 100 : 1,
+                ),
+              ),
+            );
 
             await tester.prepareSource(
               playerId: playerId,
               platform: platform,
               testData: td,
-              waitForDurationEvent: false,
-            );
-
-            expect(
-              await durationFuture,
-              (Duration? actual) => durationRangeMatcher(
-                actual,
-                td.duration,
-                deviation:
-                    Duration(milliseconds: td.isVBR || isWindows ? 100 : 1),
-              ),
             );
           },
           skip: !canDetermineDuration(td),
@@ -374,14 +381,13 @@ void main() async {
             testData: td,
           );
 
-          final eventStream = platform.getEventStream(playerId);
-          final completeFuture = eventStream.firstWhere(
-            (event) => event.eventType == AudioEventType.complete,
+          expect(
+            eventStream.map((event) => event.eventType),
+            emitsThrough(AudioEventType.complete),
           );
 
           await platform.resume(playerId);
           await tester.pumpAndSettle(const Duration(seconds: 3));
-          await completeFuture.timeout(_defaultTimeout);
         });
       }
     }
@@ -395,77 +401,90 @@ void main() async {
     });
 
     testWidgets('Emit platform log', (tester) async {
-      final logFuture = platform
-          .getEventStream(playerId)
-          .firstWhere((event) => event.eventType == AudioEventType.log)
-          .then((event) => event.logMessage);
-
+      final eventStream = platform.getEventStream(playerId);
+      expect(
+        eventStream,
+        emitsThrough(
+          const AudioEvent(
+            eventType: AudioEventType.log,
+            logMessage: 'SomeLog',
+          ),
+        ),
+      );
       await platform.emitLog(playerId, 'SomeLog');
-
-      expect(await logFuture, 'SomeLog');
     });
 
     testWidgets('Emit global platform log', (tester) async {
       final global = GlobalAudioplayersPlatformInterface.instance;
-      final logCompleter = Completer<Object>();
 
-      /* final eventStreamSub = */
-      global
-          .getGlobalEventStream()
-          .where((event) => event.eventType == GlobalAudioEventType.log)
-          .map((event) => event.logMessage)
-          .listen(logCompleter.complete, onError: logCompleter.completeError);
+      final globalEventStream = global.getGlobalEventStream();
+      expect(
+        globalEventStream,
+        emitsThrough(
+          const GlobalAudioEvent(
+            eventType: GlobalAudioEventType.log,
+            logMessage: 'SomeGlobalLog',
+          ),
+        ),
+      );
 
       await global.emitGlobalLog('SomeGlobalLog');
-
-      final log = await logCompleter.future;
-      expect(log, 'SomeGlobalLog');
-      // FIXME: cancelling the global event stream leads to
-      // MissingPluginException on Android, if dispose app afterwards
-      // await eventStreamSub.cancel();
     });
 
     testWidgets('Emit platform error', (tester) async {
-      final errorCompleter = Completer<Object>();
-      final eventStreamSub = platform
-          .getEventStream(playerId)
-          .listen((_) {}, onError: errorCompleter.complete);
+      final eventStream = platform.getEventStream(playerId);
+      expect(
+        eventStream,
+        emitsThrough(
+          emitsError(
+            isA<PlatformException>()
+                .having(
+                  (PlatformException e) => e.code,
+                  'code',
+                  'SomeErrorCode',
+                )
+                .having(
+                  (PlatformException e) => e.message,
+                  'message',
+                  'SomeErrorMessage',
+                ),
+          ),
+        ),
+      );
 
       await platform.emitError(
         playerId,
         'SomeErrorCode',
         'SomeErrorMessage',
       );
-
-      final exception = await errorCompleter.future;
-      expect(exception, isInstanceOf<PlatformException>());
-      final platformException = exception as PlatformException;
-      expect(platformException.code, 'SomeErrorCode');
-      expect(platformException.message, 'SomeErrorMessage');
-      await eventStreamSub.cancel();
     });
 
     testWidgets('Emit global platform error', (tester) async {
       final global = GlobalAudioplayersPlatformInterface.instance;
-      final errorCompleter = Completer<Object>();
-
-      /* final eventStreamSub = */
-      global
-          .getGlobalEventStream()
-          .listen((_) {}, onError: errorCompleter.complete);
+      final globalEventStream = global.getGlobalEventStream();
+      expect(
+        globalEventStream,
+        emitsThrough(
+          emitsError(
+            isA<PlatformException>()
+                .having(
+                  (PlatformException e) => e.code,
+                  'code',
+                  'SomeGlobalErrorCode',
+                )
+                .having(
+                  (PlatformException e) => e.message,
+                  'message',
+                  'SomeGlobalErrorMessage',
+                ),
+          ),
+        ),
+      );
 
       await global.emitGlobalError(
         'SomeGlobalErrorCode',
         'SomeGlobalErrorMessage',
       );
-      final exception = await errorCompleter.future;
-      expect(exception, isInstanceOf<PlatformException>());
-      final platformException = exception as PlatformException;
-      expect(platformException.code, 'SomeGlobalErrorCode');
-      expect(platformException.message, 'SomeGlobalErrorMessage');
-      // FIXME: cancelling the global event stream leads to
-      // MissingPluginException on Android, if dispose app afterwards
-      // await eventStreamSub.cancel();
     });
   });
 }
@@ -475,24 +494,7 @@ extension on WidgetTester {
     required String playerId,
     required AudioplayersPlatformInterface platform,
     required LibSourceTestData testData,
-    bool waitForDurationEvent = true,
   }) async {
-    final Future<void>? durationFuture;
-
-    if (waitForDurationEvent &&
-        testData.duration != null &&
-        canDetermineDuration(testData)) {
-      // Need to wait for the duration event,
-      // otherwise it gets fired/received after the test has ended,
-      // and therefore then ends up being received in the next test.
-      durationFuture = getDurationFromEvent(
-        playerId: playerId,
-        platform: platform,
-      );
-    } else {
-      durationFuture = null;
-    }
-
     final eventStream = platform.getEventStream(playerId);
     final preparedFuture = eventStream
         .firstWhere(
@@ -521,22 +523,17 @@ extension on WidgetTester {
     // Wait simultaneously to ensure all errors are propagated through the same
     // future.
     await Future.wait([setSourceFuture, preparedFuture]);
-    if (durationFuture != null) {
-      await durationFuture;
-    }
   }
 
-  Future<Duration?> getDurationFromEvent({
-    required String playerId,
-    required AudioplayersPlatformInterface platform,
-  }) async {
-    final eventStream = platform.getEventStream(playerId);
-    final durationFuture = eventStream
-        .firstWhere(
-          (event) => event.eventType == AudioEventType.duration,
-        )
-        .then((event) => event.duration);
-    return durationFuture.timeout(_defaultTimeout);
+  void expectDurationInStream(Stream<AudioEvent> eventStream, dynamic matcher) {
+    expect(
+      eventStream,
+      emitsThrough(
+        isA<AudioEvent>()
+            .having((e) => e.eventType, 'eventType', AudioEventType.duration)
+            .having((e) => e.duration, 'duration', matcher),
+      ),
+    );
   }
 
   Future<void> expectSettingSourceFailure({

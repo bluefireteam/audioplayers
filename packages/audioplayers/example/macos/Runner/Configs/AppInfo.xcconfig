@@ -11,4 +11,4 @@ PRODUCT_NAME = AudioPlayers Example
 PRODUCT_BUNDLE_IDENTIFIER = xyz.luan.audioplayers.example
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2024 xyz.luan.audioplayers. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2025 xyz.luan.audioplayers. All rights reserved.

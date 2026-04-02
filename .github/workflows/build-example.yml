@@ -9,9 +9,8 @@ on:
         type: choice
         options:
           - 'any'
+          - '3.35.x'
           - '3.32.x'
-          - '3.29.x'
-          - '3.27.x'
       flutter_channel:
         description: 'Flutter Channel'
         required: false
@@ -61,7 +60,7 @@ on:
     inputs:
       flutter_version:
         required: false
-        default: '3.32.4'
+        default: '3.35.7'
         type: string
       flutter_channel:
         required: false
@@ -138,7 +137,7 @@ jobs:
         run: flutter build apk --release
 
   ios:
-    runs-on: macos-14
+    runs-on: macos-latest
     timeout-minutes: 30
     if: inputs.enable_ios
     steps:
@@ -154,7 +153,7 @@ jobs:
         run: flutter build ios --release --no-codesign
 
   macos:
-    runs-on: macos-14
+    runs-on: macos-latest
     timeout-minutes: 30
     if: inputs.enable_macos
     steps:

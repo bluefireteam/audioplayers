@@ -11,7 +11,7 @@ jobs:
   call-min-flutter-test:
     uses: ./.github/workflows/test.yml
     with:
-      flutter_version: '3.27.4'
+      flutter_version: '3.32.8'
       fatal_warnings: false
       enable_android: ${{ github.event.pull_request.draft == false }}
       enable_web: ${{ github.event.pull_request.draft == false }}
