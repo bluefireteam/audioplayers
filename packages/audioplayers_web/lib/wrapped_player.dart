@@ -18,6 +18,8 @@ class WrappedPlayer {
   bool _isPlaying = false;
 
   web.HTMLAudioElement? player;
+  web.AudioContext? _audioContext;
+  web.MediaElementAudioSourceNode? _sourceNode;
   web.StereoPannerNode? _stereoPanner;
   StreamSubscription? _playerEndedSubscription;
   StreamSubscription? _playerLoadedDataSubscription;
@@ -39,7 +41,7 @@ class WrappedPlayer {
     }
     _currentUrl = url;
 
-    release();
+    await release();
     recreateNode();
     if (_isPlaying) {
       await resume();
@@ -79,12 +81,14 @@ class WrappedPlayer {
 
     _setupStreams(p);
 
-    // setup stereo panning
-    final audioContext = web.AudioContext();
-    final source = audioContext.createMediaElementSource(player!);
-    _stereoPanner = audioContext.createStereoPanner();
+    // Reuse or create AudioContext (Safari limits concurrent contexts)
+    _audioContext ??= web.AudioContext();
+
+    final source = _audioContext!.createMediaElementSource(p);
+    _sourceNode = source;
+    _stereoPanner = _audioContext!.createStereoPanner();
     source.connect(_stereoPanner!);
-    _stereoPanner?.connect(audioContext.destination);
+    _stereoPanner?.connect(_audioContext!.destination);
 
     // Preload the source
     p.load();
@@ -128,11 +132,11 @@ class WrappedPlayer {
       onError: eventStreamController.addError,
     );
     _playerEndedSubscription = p.onEnded.listen(
-      (_) {
+      (_) async {
         if (_currentReleaseMode == ReleaseMode.release) {
-          release();
+          await release();
         } else {
-          stop();
+          await stop();
         }
         eventStreamController.add(
           const AudioEvent(eventType: AudioEventType.complete),
@@ -169,23 +173,29 @@ class WrappedPlayer {
     player?.loop = shouldLoop();
   }
 
-  void release() {
-    stop();
+  Future<void> release() async {
+    pause();
+    // Need to reset pausedAt, otherwise resume will start at the old position
+    // after release.
+    _pausedAt = null;
+
+    _sourceNode?.disconnect();
+    _sourceNode = null;
     // Release `AudioElement` correctly (#966)
     player?.src = '';
     player?.remove();
     player = null;
     _stereoPanner = null;
 
-    _playerLoadedDataSubscription?.cancel();
+    await _playerLoadedDataSubscription?.cancel();
     _playerLoadedDataSubscription = null;
-    _playerEndedSubscription?.cancel();
+    await _playerEndedSubscription?.cancel();
     _playerEndedSubscription = null;
-    _playerSeekedSubscription?.cancel();
+    await _playerSeekedSubscription?.cancel();
     _playerSeekedSubscription = null;
-    _playerPlaySubscription?.cancel();
+    await _playerPlaySubscription?.cancel();
     _playerPlaySubscription = null;
-    _playerErrorSubscription?.cancel();
+    await _playerErrorSubscription?.cancel();
     _playerErrorSubscription = null;
   }
 
@@ -197,6 +207,12 @@ class WrappedPlayer {
     if (player == null) {
       recreateNode();
     }
+
+    // Safari requires explicit resume after user gesture
+    if (_audioContext != null && _audioContext!.state == 'suspended') {
+      await _audioContext!.resume().toDart;
+    }
+
     player?.currentTime = position;
     await player?.play().toDart;
   }
@@ -213,10 +229,14 @@ class WrappedPlayer {
     player?.pause();
   }
 
-  void stop() {
+  Future<void> stop() async {
     pause();
     _pausedAt = 0;
-    player?.currentTime = 0;
+    if (_currentReleaseMode == ReleaseMode.release) {
+      await release();
+    } else {
+      player?.currentTime = 0;
+    }
   }
 
   void seek(int position) {
@@ -235,7 +255,9 @@ class WrappedPlayer {
   }
 
   Future<void> dispose() async {
-    release();
-    eventStreamController.close();
+    await release();
+    await _audioContext?.close().toDart;
+    _audioContext = null;
+    await eventStreamController.close();
   }
 }

@@ -3,6 +3,52 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2026-03-01
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`audioplayers` - `v6.6.0`](#audioplayers---v660)
+ - [`audioplayers_android_exo` - `v0.1.3`](#audioplayers_android_exo---v013)
+ - [`audioplayers_darwin` - `v6.4.0`](#audioplayers_darwin---v640)
+ - [`audioplayers_web` - `v5.2.0`](#audioplayers_web---v520)
+ - [`audioplayers_windows` - `v4.3.0`](#audioplayers_windows---v430)
+
+---
+
+#### `audioplayers` - `v6.6.0`
+
+ - **PERF**: Option to set PlayerMode for AudioPools ([#1963](https://github.com/bluefireteam/audioplayers/issues/1963)). ([a97caa12](https://github.com/bluefireteam/audioplayers/commit/a97caa12a8fbdbc75ea246d8683c57f406266369))
+ - **FIX**(android): FileNotFoundException after application cache got cleared ([#1922](https://github.com/bluefireteam/audioplayers/issues/1922)). ([0e3bca2b](https://github.com/bluefireteam/audioplayers/commit/0e3bca2ba330268b2839130cf27cd34bea3835ef))
+ - **FEAT**: Async swift code, align release functionality, align Android initialization error ([#1964](https://github.com/bluefireteam/audioplayers/issues/1964)). ([65c8f373](https://github.com/bluefireteam/audioplayers/commit/65c8f37314e7e023814bb77c9474c8a076f288cb))
+
+#### `audioplayers_android_exo` - `v0.1.3`
+
+ - **FEAT**: Async swift code, align release functionality, align Android initialization error ([#1964](https://github.com/bluefireteam/audioplayers/issues/1964)). ([65c8f373](https://github.com/bluefireteam/audioplayers/commit/65c8f37314e7e023814bb77c9474c8a076f288cb))
+
+#### `audioplayers_darwin` - `v6.4.0`
+
+ - **FIX**: Memory leak on darwin ([#1969](https://github.com/bluefireteam/audioplayers/issues/1969)). ([95e52604](https://github.com/bluefireteam/audioplayers/commit/95e5260460f242865062fa7fd79add6ef788bb7e))
+ - **FEAT**: Async swift code, align release functionality, align Android initialization error ([#1964](https://github.com/bluefireteam/audioplayers/issues/1964)). ([65c8f373](https://github.com/bluefireteam/audioplayers/commit/65c8f37314e7e023814bb77c9474c8a076f288cb))
+
+#### `audioplayers_web` - `v5.2.0`
+
+ - **FIX**(web): Reset pausedAt on release ([#1972](https://github.com/bluefireteam/audioplayers/issues/1972)) ([#1973](https://github.com/bluefireteam/audioplayers/issues/1973)). ([09b6bb66](https://github.com/bluefireteam/audioplayers/commit/09b6bb667e250690d0c9ad5db52d2d543ccecf48))
+ - **FIX**: Web safari audio context reuse ([#1972](https://github.com/bluefireteam/audioplayers/issues/1972)). ([bd698bb0](https://github.com/bluefireteam/audioplayers/commit/bd698bb0e985d11bdfe142c9036b7ba387357a8c))
+ - **FEAT**: Async swift code, align release functionality, align Android initialization error ([#1964](https://github.com/bluefireteam/audioplayers/issues/1964)). ([65c8f373](https://github.com/bluefireteam/audioplayers/commit/65c8f37314e7e023814bb77c9474c8a076f288cb))
+
+#### `audioplayers_windows` - `v4.3.0`
+
+ - **FEAT**: Async swift code, align release functionality, align Android initialization error ([#1964](https://github.com/bluefireteam/audioplayers/issues/1964)). ([65c8f373](https://github.com/bluefireteam/audioplayers/commit/65c8f37314e7e023814bb77c9474c8a076f288cb))
+
+
 ## 2025-09-03
 
 ### Changes

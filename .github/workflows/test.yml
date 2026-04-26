@@ -9,9 +9,9 @@ on:
         type: choice
         options:
           - 'any'
-          - '3.32.x'
-          - '3.29.x'
-          - '3.27.x'
+          - '3.41.x'
+          - '3.38.x'
+          - '3.35.x'
       flutter_channel:
         description: 'Flutter Channel'
         required: false
@@ -67,7 +67,7 @@ on:
     inputs:
       flutter_version:
         required: false
-        default: '3.32.4'
+        default: '3.41.2'
         type: string
       flutter_channel:
         required: false
@@ -107,7 +107,7 @@ on:
         type: boolean
 
 jobs:
-  test:
+  analyze:
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -124,8 +124,9 @@ jobs:
 
       - run: melos format --set-exit-if-changed
       - run: flutter analyze ${{ inputs.fatal_warnings && '--fatal-infos' || '--no-fatal-warnings' }}
-      - run: melos run test
-
+        # Need to reset git staged changes to avoid conflicts on checkout.
+        # This can happen, when execute for multiple Flutter versions, but each generates/migrates different files tied to their version.
+      - run: git reset --hard
       - name: Lint Code Base
         uses: super-linter/super-linter/slim@v5
         env:
@@ -141,6 +142,19 @@ jobs:
         run: |
           docker run --rm --workdir=/work --volume=$PWD:/work mtgto/swift-format:5.8 \
            lint --parallel --strict --recursive packages/audioplayers_darwin
+
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ inputs.flutter_version }}
+          channel: ${{ inputs.flutter_channel }}
+      - uses: bluefireteam/melos-action@v3
+      - run: melos run test
 
   web:
     runs-on: ubuntu-latest
@@ -201,15 +215,15 @@ jobs:
       - uses: bluefireteam/melos-action@v3
       - name: Setup Android Emulator
         timeout-minutes: 10
-        run: bash ./scripts/ci/setup-android.sh 21 default
+        run: bash ./scripts/ci/setup-android.sh 24 default
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         run: |
           ( cd server; dart run bin/server.dart ) &
-          flutter test integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true --dart-define TEST_FEATURE_LOW_LATENCY=false --dart-define TEST_FEATURE_BYTES_SOURCE=false --dart-define TEST_FEATURE_PLAYBACK_RATE=false
-          flutter test integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true --dart-define TEST_FEATURE_LOW_LATENCY=false --dart-define TEST_FEATURE_BYTES_SOURCE=false --dart-define TEST_FEATURE_PLAYBACK_RATE=false
-          flutter test integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true --dart-define TEST_FEATURE_LOW_LATENCY=false --dart-define TEST_FEATURE_BYTES_SOURCE=false --dart-define TEST_FEATURE_PLAYBACK_RATE=false
+          flutter test integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true --dart-define TEST_FEATURE_LOW_LATENCY=false --dart-define TEST_FEATURE_BYTES_SOURCE=false --dart-define TEST_FEATURE_PLAYBACK_RATE=false --dart-define TEST_ANDROID_MEDIAPLAYER=true
+          flutter test integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true --dart-define TEST_FEATURE_LOW_LATENCY=false --dart-define TEST_FEATURE_BYTES_SOURCE=false --dart-define TEST_FEATURE_PLAYBACK_RATE=false --dart-define TEST_ANDROID_MEDIAPLAYER=true
+          flutter test integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true --dart-define TEST_FEATURE_LOW_LATENCY=false --dart-define TEST_FEATURE_BYTES_SOURCE=false --dart-define TEST_FEATURE_PLAYBACK_RATE=false --dart-define TEST_ANDROID_MEDIAPLAYER=true
 
   android-exo:
     runs-on: ubuntu-latest
@@ -228,7 +242,7 @@ jobs:
       - uses: bluefireteam/melos-action@v3
       - name: Setup Android Emulator
         timeout-minutes: 10
-        run: bash ./scripts/ci/setup-android.sh 30
+        run: bash ./scripts/ci/setup-android.sh 35
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
@@ -251,22 +265,23 @@ jobs:
       - uses: bluefireteam/melos-action@v3
       - name: Setup Android Emulator
         timeout-minutes: 10
-        run: bash ./scripts/ci/setup-android.sh 30
+        run: bash ./scripts/ci/setup-android.sh 35
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         run: |
           ( cd server; dart run bin/server.dart ) &
-          flutter test integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
-          flutter test integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
-          flutter test integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
+          flutter test integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true --dart-define TEST_ANDROID_MEDIAPLAYER=true
+          flutter test integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true --dart-define TEST_ANDROID_MEDIAPLAYER=true
+          flutter test integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true --dart-define TEST_ANDROID_MEDIAPLAYER=true
       - name: Run Android unit tests
         working-directory: ./packages/audioplayers/example/android
-        run: ./gradlew test
+        # TODO: Use `./gradlew test`, when https://github.com/flutter/flutter/issues/169336 is fixed.
+        run: ./gradlew testDebugUnitTest
 
   ios-min:
     # Run lib tests only to ensure compatibility with iOS 16.
-    runs-on: macos-13
+    runs-on: macos-latest
     timeout-minutes: 60
     if: inputs.enable_min_version && inputs.enable_ios
     steps:
@@ -280,17 +295,16 @@ jobs:
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
         run: |
-          sudo xcode-select -switch /Applications/Xcode_14.3.1.app/Contents/Developer
+          xcodes runtimes install "iOS 16.4"
           UDID=$(xcrun simctl create test-se-16-4 com.apple.CoreSimulator.SimDeviceType.iPhone-SE-3rd-generation com.apple.CoreSimulator.SimRuntime.iOS-16-4)
           xcrun simctl list devices
           echo "Using simulator $UDID"
           xcrun simctl boot "${UDID:?No Simulator with this name iPhone found}"
-          sudo xcode-select -switch /Applications/Xcode_15.2.app/Contents/Developer
           ( cd server; dart run bin/server.dart ) &
           flutter test -d $UDID integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
 
   ios:
-    runs-on: macos-14
+    runs-on: macos-26
     timeout-minutes: 60
     if: inputs.enable_ios
     steps:
@@ -306,7 +320,7 @@ jobs:
         working-directory: ./packages/audioplayers/example
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         run: |
-          UDID=$(xcrun simctl create test-se-17-2 com.apple.CoreSimulator.SimDeviceType.iPhone-SE-3rd-generation com.apple.CoreSimulator.SimRuntime.iOS-17-2)
+          UDID=$(xcrun simctl create test-se-26-2 com.apple.CoreSimulator.SimDeviceType.iPhone-SE-3rd-generation com.apple.CoreSimulator.SimRuntime.iOS-26-2)
           xcrun simctl list devices
           echo "Using simulator $UDID"
           xcrun simctl boot "${UDID:?No Simulator with this name iPhone found}"
@@ -317,7 +331,7 @@ jobs:
 
   # Remove as soon as support for cocoapods is removed at Flutter
   ios-pods:
-    runs-on: macos-14
+    runs-on: macos-latest
     timeout-minutes: 30
     if: inputs.enable_ios
     steps:
@@ -334,8 +348,7 @@ jobs:
         run: flutter build ios --release --no-codesign
 
   macos-min:
-    # TODO: Run lib tests only to ensure compatibility with macOS 13, once tests for macOS 14 succeed.
-    runs-on: macos-13
+    runs-on: macos-14
     timeout-minutes: 30
     if: inputs.enable_min_version && inputs.enable_macos
     steps:
@@ -351,12 +364,10 @@ jobs:
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         run: |
           ( cd server; dart run bin/server.dart ) &
-          flutter test -d macos integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
           flutter test -d macos integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
-          flutter test -d macos integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
 
   macos:
-    runs-on: macos-14
+    runs-on: macos-latest
     timeout-minutes: 30
     if: inputs.enable_macos
     steps:
@@ -379,7 +390,7 @@ jobs:
 
   # Remove as soon as support for cocoapods is removed at Flutter
   macos-pods:
-    runs-on: macos-14
+    runs-on: macos-latest
     timeout-minutes: 30
     if: inputs.enable_macos
     steps:
@@ -406,8 +417,6 @@ jobs:
           flutter-version: ${{ inputs.flutter_version }}
           channel: ${{ inputs.flutter_channel }}
       - uses: bluefireteam/melos-action@v3
-      - name: Start audio server
-        run: net start audiosrv
       - name: Download virtual audio device
         # Download has to be done before setting the system date time.
         timeout-minutes: 1

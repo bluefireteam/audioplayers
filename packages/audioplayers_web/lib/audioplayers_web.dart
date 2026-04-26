@@ -60,7 +60,7 @@ class WebAudioplayersPlatform extends AudioplayersPlatformInterface {
 
   @override
   Future<void> release(String playerId) async {
-    getPlayer(playerId).release();
+    await getPlayer(playerId).release();
   }
 
   @override
@@ -137,7 +137,7 @@ class WebAudioplayersPlatform extends AudioplayersPlatformInterface {
 
   @override
   Future<void> stop(String playerId) async {
-    getPlayer(playerId).stop();
+    await getPlayer(playerId).stop();
   }
 
   @override
