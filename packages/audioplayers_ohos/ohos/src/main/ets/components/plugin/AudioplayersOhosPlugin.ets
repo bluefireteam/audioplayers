@@ -63,7 +63,7 @@ class GlobalMethodCallHandler implements MethodCallHandler {
 
   onMethodCall(call: MethodCall, result: MethodResult): void {
     const args = call.args as Record<string, Object>;
-    console.error(`🎵 OHOS Plugin: Global method called: ${call.method}, args: ${JSON.stringify(args)}`);
+    console.info(`🎵 OHOS Plugin: Global method called: ${call.method}, args: ${JSON.stringify(args)}`);
 
     switch (call.method) {
       case "init":
@@ -125,7 +125,7 @@ export default class AudioplayersOhosPlugin implements FlutterPlugin, MethodCall
   onMethodCall(call: MethodCall, result: MethodResult): void {
     const args = call.args as Record<string, Object>;
 
-    console.error(`🎵 OHOS Plugin: Player method called: ${call.method}, args: ${JSON.stringify(args)}`);
+    console.info(`🎵 OHOS Plugin: Player method called: ${call.method}, args: ${JSON.stringify(args)}`);
 
     // 处理播放器方法 - 使用 call.argument() 方法获取参数
     const playerId = call.argument('playerId') as string;
@@ -191,12 +191,12 @@ export default class AudioplayersOhosPlugin implements FlutterPlugin, MethodCall
       eventData.forEach((value, key) => {
         eventObj[key] = value;
       });
-      console.log(`🎵 Sending event: ${JSON.stringify(eventObj)}`);
+      console.info(`🎵 Sending event: ${JSON.stringify(eventObj)}`);
       eventHandler.sendEvent(eventObj);
     });
 
     this.players.set(playerId, player);
-    console.error(`🎵 OHOS Plugin: Created player ${playerId}`);
+    console.info(`🎵 OHOS Plugin: Created player ${playerId}`);
     result.success(null);
   }
 
@@ -206,7 +206,7 @@ export default class AudioplayersOhosPlugin implements FlutterPlugin, MethodCall
       player.release().then(() => {
         this.players.delete(playerId);
         this.playerEventHandlers.delete(playerId);
-        console.error(`🎵 OHOS Plugin: Disposed player ${playerId}`);
+        console.info(`🎵 OHOS Plugin: Disposed player ${playerId}`);
         result.success(null);
       }).catch((err: Error) => {
         result.error('500', 'Failed to dispose player', err.message);
@@ -217,7 +217,7 @@ export default class AudioplayersOhosPlugin implements FlutterPlugin, MethodCall
   }
 
   handleGlobalInit(result: MethodResult): void {
-    console.error(`🎵 OHOS Plugin: Global init called`);
+    console.info(`🎵 OHOS Plugin: Global init called`);
     // 清理所有现有播放器
     this.players.forEach((player: OHOSAudioPlayer, playerId: string) => {
       player.release().catch((err: Error) => {
@@ -229,21 +229,21 @@ export default class AudioplayersOhosPlugin implements FlutterPlugin, MethodCall
   }
 
   handleSetAudioContext(args: Record<string, Object>, result: MethodResult): void {
-    console.error(`🎵 OHOS Plugin: setAudioContext called with args: ${JSON.stringify(args)}`);
+    console.info(`🎵 OHOS Plugin: setAudioContext called with args: ${JSON.stringify(args)}`);
     // OHOS 暂不支持全局音频上下文设置
     result.success(null);
   }
 
   private handlePlayerMethod(call: MethodCall, player: OHOSAudioPlayer, result: MethodResult): void {
     const args = call.args as Record<string, Object>;
-    console.error(`🎵 OHOS Plugin: handlePlayerMethod - method: ${call.method}, args: ${JSON.stringify(args)}`);
+    console.info(`🎵 OHOS Plugin: handlePlayerMethod - method: ${call.method}, args: ${JSON.stringify(args)}`);
 
     switch (call.method) {
       case "setSourceUrl":
         const url = call.argument('url') as string;
         const isLocal = call.argument('isLocal') as boolean;
         const mimeType = call.argument('mimeType') as string;
-        console.error(`🎵 OHOS Plugin: setSourceUrl - url: ${url}, isLocal: ${isLocal}, mimeType: ${mimeType}`);
+        console.info(`🎵 OHOS Plugin: setSourceUrl - url: ${url}, isLocal: ${isLocal}, mimeType: ${mimeType}`);
         player.setSourceUrl(url, isLocal).then(() => result.success(null)).catch((err: Error) => {
           result.error('500', 'Failed to set source URL', err.message);
         });

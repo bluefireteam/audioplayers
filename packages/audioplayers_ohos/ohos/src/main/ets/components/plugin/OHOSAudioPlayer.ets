@@ -1,6 +1,9 @@
 import { media } from '@kit.MediaKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { fileIo } from '@kit.CoreFileKit';
+import backgroundTaskManager from '@ohos.resourceschedule.backgroundTaskManager';
+import wantAgent, { WantAgent } from '@ohos.app.ability.wantAgent';
+import { common } from '@kit.AbilityKit';
 
 class AudioEventData {
   playerId?: string;
@@ -19,6 +22,7 @@ export class OHOSAudioPlayer {
   private eventCallback: AudioEventCallback | null = null;
   private isInitialized: boolean = false;
   private currentUrl: string = '';
+  private isBackgroundTaskRunning: boolean = false;
 
   constructor(eventCallback: AudioEventCallback) {
     this.eventCallback = eventCallback;
@@ -28,7 +32,7 @@ export class OHOSAudioPlayer {
   private async createPlayer() {
     try {
       this.player = await media.createAVPlayer();
-      console.log('AVPlayer created successfully.');
+      console.info('AVPlayer created successfully.');
       this.setupEventListeners();
       this.isInitialized = true;
     } catch (error) {
@@ -46,13 +50,13 @@ export class OHOSAudioPlayer {
 
     // 状态变化监听
     this.player.on('stateChange', (state: string) => {
-      console.log(`🎵 AVPlayer state changed to: ${state}`);
+      console.info(`🎵 AVPlayer state changed to: ${state}`);
       const eventData = new AudioEventData();
       eventData.state = state;
 
       switch (state) {
         case 'prepared':
-          console.log(`🎵 Sending audio.onPrepared event`);
+          console.info(`🎵 Sending audio.onPrepared event`);
           this.eventCallback?.('audio.onPrepared', eventData);
           break;
         case 'playing':
@@ -97,7 +101,7 @@ export class OHOSAudioPlayer {
 
     // 准备完成监听 - 使用正确的事件名称
     this.player.on('durationUpdate', (duration: number) => {
-      console.log(`AVPlayer duration updated: ${duration}`);
+      console.info(`AVPlayer duration updated: ${duration}`);
       const eventData = new AudioEventData();
       eventData.duration = duration;
       this.eventCallback?.('audio.onDuration', eventData);
@@ -106,12 +110,12 @@ export class OHOSAudioPlayer {
 
   async setSourceUrl(url: string, isLocal: boolean = false) {
     if (!this.player || !this.isInitialized) {
-      console.error('🎵 Player not initialized.');
+      console.error('Player not initialized.');
       return;
     }
 
     try {
-      console.error(`🎵 Setting source URL: ${url}, current state: ${this.player.state}`);
+      console.info(`🎵 Setting source URL: ${url}, current state: ${this.player.state}`);
       this.currentUrl = url;
 
       // OHOS AVPlayer 状态机要求：
@@ -122,7 +126,7 @@ export class OHOSAudioPlayer {
 
       // 如果不是 idle 状态，需要重新创建播放器
       if (this.player.state !== 'idle') {
-        console.error(`🎵 Recreating player from state: ${this.player.state}`);
+        console.info(`🎵 Recreating player from state: ${this.player.state}`);
 
         // 先停止播放器
         if (this.player.state === 'playing' || this.player.state === 'paused') {
@@ -143,33 +147,33 @@ export class OHOSAudioPlayer {
         // 对于本地文件，需要使用文件描述符格式
         if (isLocal) {
           try {
-            console.error(`🎵 Opening local file: ${url}`);
+            console.info(`🎵 Opening local file: ${url}`);
 
             // 打开文件获取文件描述符
             const file = fileIo.openSync(url, fileIo.OpenMode.READ_ONLY);
             sourceUrl = `fd://${file.fd}`;
 
-            console.error(`🎵 Converted to fd URL: ${sourceUrl}`);
+            console.info(`🎵 Converted to fd URL: ${sourceUrl}`);
           } catch (fileError) {
             console.error(`🎵 Failed to open file: ${fileError.message}`);
             throw new Error(`Failed to open file: ${fileError.message}`);
           }
         }
 
-        console.error(`🎵 Setting URL on idle player: ${sourceUrl}`);
+        console.info(`🎵 Setting URL on idle player: ${sourceUrl}`);
 
         // 设置 URL
         this.player.url = sourceUrl;
-        console.error(`🎵 URL set, current state: ${this.player.state}`);
+        console.info(`🎵 URL set, current state: ${this.player.state}`);
 
         // 等待一个短暂的时间让状态可能发生变化
         await new Promise<void>(resolve => setTimeout(resolve, 100));
-        console.error(`🎵 After wait, current state: ${this.player.state}`);
+        console.info(`🎵 After wait, current state: ${this.player.state}`);
 
         // 如果状态仍然是 idle，我们可能需要手动触发状态变化
         // 在某些 OHOS 版本中，可能需要调用其他方法
         if (this.player.state === 'idle') {
-          console.error(`🎵 Player still in idle state, trying alternative approach...`);
+          console.info(`🎵 Player still in idle state, trying alternative approach...`);
 
           // 尝试重新创建播放器并立即设置 URL
           await this.player.release();
@@ -177,20 +181,20 @@ export class OHOSAudioPlayer {
 
           if (this.player) {
             this.player.url = url;
-            console.error(`🎵 URL set on new player, state: ${this.player.state}`);
+            console.info(`🎵 URL set on new player, state: ${this.player.state}`);
 
             // 再次等待
             await new Promise<void>(resolve => setTimeout(resolve, 100));
-            console.error(`🎵 After second wait, state: ${this.player.state}`);
+            console.info(`🎵 After second wait, state: ${this.player.state}`);
           }
         }
 
         // 现在尝试 prepare()
         if (this.player) {
           try {
-            console.error(`🎵 Attempting prepare() with state: ${this.player.state}`);
+            console.info(`🎵 Attempting prepare() with state: ${this.player.state}`);
             await this.player.prepare();
-            console.error('🎵 Source URL set and prepared successfully.');
+            console.info('🎵 Source URL set and prepared successfully.');
           } catch (prepareError) {
             let err = prepareError as BusinessError;
             console.error(`🎵 Prepare still failed: ${err.code}, ${err.message}`);
@@ -198,11 +202,11 @@ export class OHOSAudioPlayer {
           }
         }
       } else {
-        console.error(`🎵 Player not in idle state after recreation: ${this.player?.state}`);
+        console.error(`Player not in idle state after recreation: ${this.player?.state}`);
       }
     } catch (error) {
       let err = error as BusinessError;
-      console.error(`🎵 Failed to set source: ${err.code}, ${err.message}`);
+      console.error(`Failed to set source: ${err.code}, ${err.message}`);
       const errorData = new AudioEventData();
       errorData.code = err.code;
       errorData.message = err.message;
@@ -217,14 +221,15 @@ export class OHOSAudioPlayer {
     }
 
     try {
-      console.log(`Current player state: ${this.player.state}`);
+      console.info(`Current player state: ${this.player.state}`);
 
       // 根据当前状态决定操作
       if (this.player.state === 'prepared' || this.player.state === 'paused' || this.player.state === 'stopped') {
+        await this.startBackgroundTask();
         await this.player.play();
-        console.log('Playing audio.');
+        console.info('Playing audio.');
       } else if (this.player.state === 'playing') {
-        console.log('Audio is already playing.');
+        console.info('Audio is already playing.');
       } else {
         console.warn(`Cannot play from state: ${this.player.state}`);
       }
@@ -247,9 +252,9 @@ export class OHOSAudioPlayer {
     try {
       if (this.player.state === 'playing') {
         await this.player.pause();
-        console.log('Audio paused.');
+        console.info('Audio paused.');
       } else {
-        console.log(`Cannot pause from state: ${this.player.state}`);
+        console.info(`Cannot pause from state: ${this.player.state}`);
       }
     } catch (error) {
       let err = error as BusinessError;
@@ -268,12 +273,13 @@ export class OHOSAudioPlayer {
     }
 
     try {
-      console.error(`🎵 Resume called, current state: ${this.player.state}`);
+      console.info(`🎵 Resume called, current state: ${this.player.state}`);
       if (this.player.state === 'paused' || this.player.state === 'prepared') {
+        await this.startBackgroundTask();
         await this.player.play();
-        console.error('🎵 Audio resumed/started.');
+        console.info('🎵 Audio resumed/started.');
       } else {
-        console.error(`🎵 Cannot resume from state: ${this.player.state}`);
+        console.info(`🎵 Cannot resume from state: ${this.player.state}`);
       }
     } catch (error) {
       let err = error as BusinessError;
@@ -294,9 +300,10 @@ export class OHOSAudioPlayer {
     try {
       if (this.player.state === 'playing' || this.player.state === 'paused') {
         await this.player.stop();
-        console.log('Audio stopped.');
+        await this.stopBackgroundTask();
+        console.info('Audio stopped.');
       } else {
-        console.log(`Cannot stop from state: ${this.player.state}`);
+        console.info(`Cannot stop from state: ${this.player.state}`);
       }
     } catch (error) {
       let err = error as BusinessError;
@@ -317,10 +324,11 @@ export class OHOSAudioPlayer {
         this.player.off('timeUpdate');
         this.player.off('durationUpdate');
 
+        await this.stopBackgroundTask();
         await this.player.release();
         this.player = null;
         this.isInitialized = false;
-        console.log('Player released.');
+        console.info('Player released.');
       } catch (error) {
         let err = error as BusinessError;
         console.error(`Failed to release player: ${err.code}, ${err.message}`);
@@ -337,7 +345,7 @@ export class OHOSAudioPlayer {
     try {
       if (this.player.state === 'prepared' || this.player.state === 'playing' || this.player.state === 'paused') {
         await this.player.seek(position);
-        console.log(`Seeked to position: ${position}`);
+        console.info(`Seeked to position: ${position}`);
       } else {
         console.warn(`Cannot seek from state: ${this.player.state}`);
       }
@@ -363,7 +371,7 @@ export class OHOSAudioPlayer {
         usage: 2, // STREAM_USAGE_MEDIA
         rendererFlags: 0
       };
-      console.log(`Volume set to: ${volume}`);
+      console.info(`Volume set to: ${volume}`);
     } catch (error) {
       let err = error as BusinessError;
       console.error(`Failed to set volume: ${err.code}, ${err.message}`);
@@ -384,7 +392,7 @@ export class OHOSAudioPlayer {
       // AVPlayer 支持播放速率设置
       if (this.player.state === 'playing' || this.player.state === 'paused') {
         // 注意：实际的播放速率设置可能需要不同的API
-        console.log(`Playback rate set to: ${rate}`);
+        console.info(`Playback rate set to: ${rate}`);
       } else {
         console.warn(`Cannot set playback rate from state: ${this.player.state}`);
       }
@@ -421,5 +429,62 @@ export class OHOSAudioPlayer {
 
   isReady(): boolean {
     return this.isInitialized && this.player !== null;
+  }
+
+  /**
+   * 启动后台长时任务，防止应用进入后台时音频被挂起
+   */
+  private async startBackgroundTask(): Promise<void> {
+    if (this.isBackgroundTaskRunning) return;
+
+    try {
+      const context = (globalThis as Record<string, Object>)['abilityContext'] as common.UIAbilityContext;
+      if (!context) {
+        console.info('No ability context available for background task');
+        return;
+      }
+
+      const wantAgentInfo: wantAgent.WantAgentInfo = {
+        wants: [{
+          bundleName: context.abilityInfo.bundleName,
+          abilityName: context.abilityInfo.name
+        }],
+        actionType: wantAgent.OperationType.START_ABILITY,
+        requestCode: 0,
+        wantAgentFlags: [wantAgent.WantAgentFlags.UPDATE_PRESENT_FLAG]
+      };
+
+      const agent: WantAgent = await wantAgent.getWantAgent(wantAgentInfo);
+      await backgroundTaskManager.startBackgroundRunning(
+        context,
+        backgroundTaskManager.BackgroundMode.AUDIO_PLAYBACK,
+        agent
+      );
+
+      this.isBackgroundTaskRunning = true;
+      console.info('Background audio task started');
+    } catch (error) {
+      let err = error as BusinessError;
+      console.error(`Failed to start background task: ${err.code}, ${err.message}`);
+    }
+  }
+
+  /**
+   * 停止后台长时任务
+   */
+  private async stopBackgroundTask(): Promise<void> {
+    if (!this.isBackgroundTaskRunning) return;
+
+    try {
+      const context = (globalThis as Record<string, Object>)['abilityContext'] as common.UIAbilityContext;
+      if (!context) return;
+
+      await backgroundTaskManager.stopBackgroundRunning(context);
+      this.isBackgroundTaskRunning = false;
+      console.info('Background audio task stopped');
+    } catch (error) {
+      let err = error as BusinessError;
+      console.error(`Failed to stop background task: ${err.code}, ${err.message}`);
+    }
   }
 }
