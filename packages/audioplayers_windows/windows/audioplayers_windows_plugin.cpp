@@ -50,6 +50,9 @@ class AudioplayersWindowsPlugin : public Plugin {
   static inline BinaryMessenger* binaryMessenger;
   static inline std::unique_ptr<MethodChannel<EncodableValue>> methods{};
   static inline std::unique_ptr<MethodChannel<EncodableValue>> globalMethods{};
+  static inline std::unique_ptr<EventChannel<EncodableValue>>
+      globalEventChannel{};
+  // Non-owning pointer: valid only while the stream handler is registered.
   static inline EventStreamHandler<>* globalEvents{};
 
   // Called when a method is called on this plugin's channel from Dart.
@@ -70,6 +73,9 @@ class AudioplayersWindowsPlugin : public Plugin {
 // static
 void AudioplayersWindowsPlugin::RegisterWithRegistrar(
     PluginRegistrarWindows* registrar) {
+  globalEvents = nullptr;
+  globalEventChannel.reset();
+
   binaryMessenger = registrar->messenger();
   methods = std::make_unique<MethodChannel<EncodableValue>>(
       binaryMessenger, "xyz.luan/audioplayers",
@@ -77,7 +83,7 @@ void AudioplayersWindowsPlugin::RegisterWithRegistrar(
   globalMethods = std::make_unique<MethodChannel<EncodableValue>>(
       binaryMessenger, "xyz.luan/audioplayers.global",
       &StandardMethodCodec::GetInstance());
-  auto _globalEventChannel = std::make_unique<EventChannel<EncodableValue>>(
+  globalEventChannel = std::make_unique<EventChannel<EncodableValue>>(
       binaryMessenger, "xyz.luan/audioplayers.global/events",
       &StandardMethodCodec::GetInstance());
 
@@ -94,14 +100,19 @@ void AudioplayersWindowsPlugin::RegisterWithRegistrar(
       });
   auto globalEventHandler = std::make_unique<EventStreamHandler<>>();
   globalEvents = globalEventHandler.get();
-  _globalEventChannel->SetStreamHandler(std::move(globalEventHandler));
+  globalEventChannel->SetStreamHandler(std::move(globalEventHandler));
 
   registrar->AddPlugin(std::move(plugin));
 }
 
 AudioplayersWindowsPlugin::AudioplayersWindowsPlugin() {}
 
-AudioplayersWindowsPlugin::~AudioplayersWindowsPlugin() {}
+AudioplayersWindowsPlugin::~AudioplayersWindowsPlugin() {
+  // Avoid calling SetStreamHandler(nullptr) during teardown because
+  // BinaryMessenger may already be destroyed.
+  globalEvents = nullptr;
+  globalEventChannel.reset();
+}
 
 void AudioplayersWindowsPlugin::HandleGlobalMethodCall(
     const MethodCall<EncodableValue>& method_call,
@@ -124,7 +135,6 @@ void AudioplayersWindowsPlugin::HandleGlobalMethodCall(
     if (globalEvents) {
       globalEvents->Error(code, message, nullptr);
     }
-    result->Success();
   } else {
     result->NotImplemented();
     return;
