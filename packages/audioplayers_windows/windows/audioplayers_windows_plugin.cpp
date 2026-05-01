@@ -50,7 +50,7 @@ class AudioplayersWindowsPlugin : public Plugin {
   static inline BinaryMessenger* binaryMessenger;
   static inline std::unique_ptr<MethodChannel<EncodableValue>> methods{};
   static inline std::unique_ptr<MethodChannel<EncodableValue>> globalMethods{};
-  static inline std::unique_ptr<EventStreamHandler<>> globalEvents{};
+  static inline EventStreamHandler<>* globalEvents{};
 
   // Called when a method is called on this plugin's channel from Dart.
   void HandleMethodCall(const MethodCall<EncodableValue>& method_call,
@@ -92,11 +92,9 @@ void AudioplayersWindowsPlugin::RegisterWithRegistrar(
       [plugin_pointer = plugin.get()](const auto& call, auto result) {
         plugin_pointer->HandleGlobalMethodCall(call, std::move(result));
       });
-  globalEvents = std::make_unique<EventStreamHandler<>>();
-  auto _obj_stm_handle =
-      static_cast<StreamHandler<EncodableValue>*>(globalEvents.get());
-  std::unique_ptr<StreamHandler<EncodableValue>> _ptr{_obj_stm_handle};
-  _globalEventChannel->SetStreamHandler(std::move(_ptr));
+  auto globalEventHandler = std::make_unique<EventStreamHandler<>>();
+  globalEvents = globalEventHandler.get();
+  _globalEventChannel->SetStreamHandler(std::move(globalEventHandler));
 
   registrar->AddPlugin(std::move(plugin));
 }
@@ -123,7 +121,9 @@ void AudioplayersWindowsPlugin::HandleGlobalMethodCall(
   } else if (method_call.method_name().compare("emitError") == 0) {
     auto code = GetArgument<std::string>("code", args, std::string());
     auto message = GetArgument<std::string>("message", args, std::string());
-    globalEvents->Error(code, message, nullptr);
+    if (globalEvents) {
+      globalEvents->Error(code, message, nullptr);
+    }
     result->Success();
   } else {
     result->NotImplemented();
@@ -279,11 +279,13 @@ AudioPlayer* AudioplayersWindowsPlugin::GetPlayer(std::string playerId) {
 }
 
 void AudioplayersWindowsPlugin::OnGlobalLog(const std::string& message) {
-  globalEvents->Success(std::make_unique<flutter::EncodableValue>(
-      flutter::EncodableMap({{flutter::EncodableValue("event"),
-                              flutter::EncodableValue("audio.onLog")},
-                             {flutter::EncodableValue("value"),
-                              flutter::EncodableValue(message)}})));
+  if (globalEvents) {
+    globalEvents->Success(std::make_unique<flutter::EncodableValue>(
+        flutter::EncodableMap({{flutter::EncodableValue("event"),
+                                flutter::EncodableValue("audio.onLog")},
+                               {flutter::EncodableValue("value"),
+                                flutter::EncodableValue(message)}})));
+  }
 }
 
 }  // namespace
