@@ -20,6 +20,7 @@ class WrappedPlayer {
   web.HTMLAudioElement? player;
   web.AudioContext? _audioContext;
   web.MediaElementAudioSourceNode? _sourceNode;
+  web.GainNode? _gainNode;
   web.StereoPannerNode? _stereoPanner;
   StreamSubscription? _playerEndedSubscription;
   StreamSubscription? _playerLoadedDataSubscription;
@@ -50,7 +51,7 @@ class WrappedPlayer {
 
   set volume(double volume) {
     _currentVolume = volume;
-    player?.volume = volume;
+    _gainNode?.gain.value = volume;
   }
 
   set balance(double balance) {
@@ -76,7 +77,6 @@ class WrappedPlayer {
     // See: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
     p.crossOrigin = 'anonymous';
     p.loop = shouldLoop();
-    p.volume = _currentVolume;
     p.playbackRate = _currentPlaybackRate;
 
     _setupStreams(p);
@@ -86,8 +86,11 @@ class WrappedPlayer {
 
     final source = _audioContext!.createMediaElementSource(p);
     _sourceNode = source;
+    _gainNode = _audioContext!.createGain();
+    _gainNode!.gain.value = _currentVolume;
     _stereoPanner = _audioContext!.createStereoPanner();
-    source.connect(_stereoPanner!);
+    source.connect(_gainNode!);
+    _gainNode!.connect(_stereoPanner!);
     _stereoPanner?.connect(_audioContext!.destination);
 
     // Preload the source
@@ -181,6 +184,8 @@ class WrappedPlayer {
 
     _sourceNode?.disconnect();
     _sourceNode = null;
+    _gainNode?.disconnect();
+    _gainNode = null;
     // Release `AudioElement` correctly (#966)
     player?.src = '';
     player?.remove();
