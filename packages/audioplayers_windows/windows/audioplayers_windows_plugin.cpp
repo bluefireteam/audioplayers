@@ -17,6 +17,7 @@
 
 #include "audio_player.h"
 #include "audioplayers_helpers.h"
+#include "platform_thread_handler.h"  // NEW: Include platform thread handler
 
 namespace {
 
@@ -51,6 +52,9 @@ class AudioplayersWindowsPlugin : public Plugin {
   static inline std::unique_ptr<MethodChannel<EncodableValue>> methods{};
   static inline std::unique_ptr<MethodChannel<EncodableValue>> globalMethods{};
   static inline std::unique_ptr<EventStreamHandler<>> globalEvents{};
+  
+  // NEW: Store event channels to prevent them from being destroyed
+  static inline std::map<std::string, std::unique_ptr<EventChannel<EncodableValue>>> playerEventChannels{};
 
   // Called when a method is called on this plugin's channel from Dart.
   void HandleMethodCall(const MethodCall<EncodableValue>& method_call,
@@ -70,6 +74,12 @@ class AudioplayersWindowsPlugin : public Plugin {
 // static
 void AudioplayersWindowsPlugin::RegisterWithRegistrar(
     PluginRegistrarWindows* registrar) {
+  
+  // NEW: Initialize platform thread handler FIRST (must be on platform thread)
+  if (!audioplayers::PlatformThreadHandler::Initialize()) {
+    OutputDebugStringA("[AudioPlayers] ERROR: Failed to initialize PlatformThreadHandler\n");
+  }
+  
   binaryMessenger = registrar->messenger();
   methods = std::make_unique<MethodChannel<EncodableValue>>(
       binaryMessenger, "xyz.luan/audioplayers",
@@ -103,7 +113,13 @@ void AudioplayersWindowsPlugin::RegisterWithRegistrar(
 
 AudioplayersWindowsPlugin::AudioplayersWindowsPlugin() {}
 
-AudioplayersWindowsPlugin::~AudioplayersWindowsPlugin() {}
+AudioplayersWindowsPlugin::~AudioplayersWindowsPlugin() {
+  // NEW: Cleanup platform thread handler
+  audioplayers::PlatformThreadHandler::Shutdown();
+  
+  // Clear event channels
+  playerEventChannels.clear();
+}
 
 void AudioplayersWindowsPlugin::HandleGlobalMethodCall(
     const MethodCall<EncodableValue>& method_call,
@@ -115,6 +131,7 @@ void AudioplayersWindowsPlugin::HandleGlobalMethodCall(
       entry.second->Dispose();
     }
     audioPlayers.clear();
+    playerEventChannels.clear();  // NEW: Also clear event channels
   } else if (method_call.method_name().compare("setAudioContext") == 0) {
     this->OnGlobalLog("Setting AudioContext is not supported on Windows");
   } else if (method_call.method_name().compare("emitLog") == 0) {
@@ -247,6 +264,7 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
   } else if (method_call.method_name().compare("dispose") == 0) {
     player->Dispose();
     audioPlayers.erase(playerId);
+    playerEventChannels.erase(playerId);  // NEW: Also remove event channel
   } else {
     result->NotImplemented();
     return;
@@ -255,6 +273,7 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
 }
 
 void AudioplayersWindowsPlugin::CreatePlayer(std::string playerId) {
+  // NEW: Create and store event channel to keep it alive
   auto eventChannel = std::make_unique<EventChannel<EncodableValue>>(
       binaryMessenger, "xyz.luan/audioplayers/events/" + playerId,
       &StandardMethodCodec::GetInstance());
@@ -264,6 +283,9 @@ void AudioplayersWindowsPlugin::CreatePlayer(std::string playerId) {
       static_cast<StreamHandler<EncodableValue>*>(eventHandler);
   std::unique_ptr<StreamHandler<EncodableValue>> _ptr{_obj_stm_handle};
   eventChannel->SetStreamHandler(std::move(_ptr));
+  
+  // NEW: Store the event channel
+  playerEventChannels[playerId] = std::move(eventChannel);
 
   auto player =
       std::make_unique<AudioPlayer>(playerId, methods.get(), eventHandler);
