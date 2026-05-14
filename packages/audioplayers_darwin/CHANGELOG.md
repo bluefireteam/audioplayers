@@ -1,3 +1,8 @@
+## 6.4.0
+
+ - **FIX**: Memory leak on darwin ([#1969](https://github.com/bluefireteam/audioplayers/issues/1969)). ([95e52604](https://github.com/bluefireteam/audioplayers/commit/95e5260460f242865062fa7fd79add6ef788bb7e))
+ - **FEAT**: Async swift code, align release functionality, align Android initialization error ([#1964](https://github.com/bluefireteam/audioplayers/issues/1964)). ([65c8f373](https://github.com/bluefireteam/audioplayers/commit/65c8f37314e7e023814bb77c9474c8a076f288cb))
+
 ## 6.3.0
 
  - **FIX**: Migrate to Melos v7 and Pub Workspaces ([#1929](https://github.com/bluefireteam/audioplayers/issues/1929)). ([9d0bfe0b](https://github.com/bluefireteam/audioplayers/commit/9d0bfe0be5cba0ce4fb3a75912b41117a8996bfe))
