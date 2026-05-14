@@ -11,9 +11,12 @@
 #include <flutter/plugin_registrar_windows.h>
 #include <flutter/standard_method_codec.h>
 
+#include <iostream>
 #include <map>
 #include <memory>
 #include <sstream>
+#include <string>
+#include <unordered_map>
 
 #include "audio_player.h"
 #include "audioplayers_helpers.h"
@@ -47,10 +50,20 @@ class AudioplayersWindowsPlugin : public Plugin {
  private:
   std::map<std::string, std::unique_ptr<AudioPlayer>> audioPlayers;
 
-  static inline BinaryMessenger* binaryMessenger;
-  static inline std::unique_ptr<MethodChannel<EncodableValue>> methods{};
-  static inline std::unique_ptr<MethodChannel<EncodableValue>> globalMethods{};
-  static inline std::unique_ptr<EventStreamHandler<>> globalEvents{};
+  BinaryMessenger* binaryMessenger;
+  std::unique_ptr<MethodChannel<EncodableValue>> methods{};
+  std::unique_ptr<MethodChannel<EncodableValue>> globalMethods{};
+
+  // Event channels and handlers must be kept alive
+  std::unique_ptr<EventChannel<EncodableValue>> globalEventChannel{};
+  EventStreamHandler<>* globalEvents = nullptr;  // Owned by globalEventChannel
+
+  // Map to keep player event channels alive
+  std::map<std::string, std::unique_ptr<EventChannel<EncodableValue>>>
+      playerEventChannels;
+  // Map to keep player event handlers alive
+  std::map<std::string, std::unique_ptr<EventStreamHandler<EncodableValue>>>
+      playerEventHandlers;
 
   // Called when a method is called on this plugin's channel from Dart.
   void HandleMethodCall(const MethodCall<EncodableValue>& method_call,
@@ -70,33 +83,36 @@ class AudioplayersWindowsPlugin : public Plugin {
 // static
 void AudioplayersWindowsPlugin::RegisterWithRegistrar(
     PluginRegistrarWindows* registrar) {
-  binaryMessenger = registrar->messenger();
-  methods = std::make_unique<MethodChannel<EncodableValue>>(
-      binaryMessenger, "xyz.luan/audioplayers",
-      &StandardMethodCodec::GetInstance());
-  globalMethods = std::make_unique<MethodChannel<EncodableValue>>(
-      binaryMessenger, "xyz.luan/audioplayers.global",
-      &StandardMethodCodec::GetInstance());
-  auto _globalEventChannel = std::make_unique<EventChannel<EncodableValue>>(
-      binaryMessenger, "xyz.luan/audioplayers.global/events",
-      &StandardMethodCodec::GetInstance());
-
   auto plugin = std::make_unique<AudioplayersWindowsPlugin>();
 
-  methods->SetMethodCallHandler(
+  plugin->binaryMessenger = registrar->messenger();
+
+  plugin->methods = std::make_unique<MethodChannel<EncodableValue>>(
+      plugin->binaryMessenger, "xyz.luan/audioplayers",
+      &StandardMethodCodec::GetInstance());
+
+  plugin->globalMethods = std::make_unique<MethodChannel<EncodableValue>>(
+      plugin->binaryMessenger, "xyz.luan/audioplayers.global",
+      &StandardMethodCodec::GetInstance());
+
+  plugin->globalEventChannel = std::make_unique<EventChannel<EncodableValue>>(
+      plugin->binaryMessenger, "xyz.luan/audioplayers.global/events",
+      &StandardMethodCodec::GetInstance());
+
+  plugin->methods->SetMethodCallHandler(
       [plugin_pointer = plugin.get()](const auto& call, auto result) {
         plugin_pointer->HandleMethodCall(call, std::move(result));
       });
 
-  globalMethods->SetMethodCallHandler(
+  plugin->globalMethods->SetMethodCallHandler(
       [plugin_pointer = plugin.get()](const auto& call, auto result) {
         plugin_pointer->HandleGlobalMethodCall(call, std::move(result));
       });
-  globalEvents = std::make_unique<EventStreamHandler<>>();
-  auto _obj_stm_handle =
-      static_cast<StreamHandler<EncodableValue>*>(globalEvents.get());
-  std::unique_ptr<StreamHandler<EncodableValue>> _ptr{_obj_stm_handle};
-  _globalEventChannel->SetStreamHandler(std::move(_ptr));
+
+  auto handler = std::make_unique<EventStreamHandler<EncodableValue>>();
+  plugin->globalEvents = handler.get();
+
+  plugin->globalEventChannel->SetStreamHandler(std::move(handler));
 
   registrar->AddPlugin(std::move(plugin));
 }
@@ -123,7 +139,9 @@ void AudioplayersWindowsPlugin::HandleGlobalMethodCall(
   } else if (method_call.method_name().compare("emitError") == 0) {
     auto code = GetArgument<std::string>("code", args, std::string());
     auto message = GetArgument<std::string>("message", args, std::string());
-    globalEvents->Error(code, message, nullptr);
+    if (globalEvents) {
+      globalEvents->Error(code, message, nullptr);
+    }
     result->Success();
   } else {
     result->NotImplemented();
@@ -247,6 +265,8 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
   } else if (method_call.method_name().compare("dispose") == 0) {
     player->Dispose();
     audioPlayers.erase(playerId);
+    playerEventChannels.erase(playerId);
+    playerEventHandlers.erase(playerId);
   } else {
     result->NotImplemented();
     return;
@@ -259,15 +279,17 @@ void AudioplayersWindowsPlugin::CreatePlayer(std::string playerId) {
       binaryMessenger, "xyz.luan/audioplayers/events/" + playerId,
       &StandardMethodCodec::GetInstance());
 
-  auto eventHandler = new EventStreamHandler<>();
-  auto _obj_stm_handle =
-      static_cast<StreamHandler<EncodableValue>*>(eventHandler);
-  std::unique_ptr<StreamHandler<EncodableValue>> _ptr{_obj_stm_handle};
-  eventChannel->SetStreamHandler(std::move(_ptr));
+  auto eventHandler = std::make_unique<EventStreamHandler<EncodableValue>>();
+  EventStreamHandler<EncodableValue>* eventHandlerPtr = eventHandler.get();
+  eventChannel->SetStreamHandler(std::move(eventHandler));
 
   auto player =
-      std::make_unique<AudioPlayer>(playerId, methods.get(), eventHandler);
+      std::make_unique<AudioPlayer>(playerId, methods.get(), eventHandlerPtr);
   audioPlayers.insert(std::make_pair(playerId, std::move(player)));
+
+  // Keep the event channel and handler alive as long as the plugin/player
+  // exists
+  playerEventChannels[playerId] = std::move(eventChannel);
 }
 
 AudioPlayer* AudioplayersWindowsPlugin::GetPlayer(std::string playerId) {
@@ -279,18 +301,37 @@ AudioPlayer* AudioplayersWindowsPlugin::GetPlayer(std::string playerId) {
 }
 
 void AudioplayersWindowsPlugin::OnGlobalLog(const std::string& message) {
-  globalEvents->Success(std::make_unique<flutter::EncodableValue>(
-      flutter::EncodableMap({{flutter::EncodableValue("event"),
-                              flutter::EncodableValue("audio.onLog")},
-                             {flutter::EncodableValue("value"),
-                              flutter::EncodableValue(message)}})));
+  if (globalEvents) {
+    globalEvents->Success(std::make_unique<flutter::EncodableValue>(
+        flutter::EncodableMap({{flutter::EncodableValue("event"),
+                                flutter::EncodableValue("audio.onLog")},
+                               {flutter::EncodableValue("value"),
+                                flutter::EncodableValue(message)}})));
+  }
 }
 
 }  // namespace
 
 void AudioplayersWindowsPluginRegisterWithRegistrar(
     FlutterDesktopPluginRegistrarRef registrar) {
-  AudioplayersWindowsPlugin::RegisterWithRegistrar(
+  if (!registrar) {
+    std::cerr << "====== Audioplayers: Error - C-API Registrar is NULL!"
+              << std::endl;
+    std::cerr.flush();
+    return;
+  }
+
+  auto* plugin_registrar =
       PluginRegistrarManager::GetInstance()
-          ->GetRegistrar<PluginRegistrarWindows>(registrar));
+          ->GetRegistrar<PluginRegistrarWindows>(registrar);
+
+  if (plugin_registrar) {
+    std::cout.flush();
+    AudioplayersWindowsPlugin::RegisterWithRegistrar(plugin_registrar);
+  } else {
+    std::cerr
+        << "====== Audioplayers: Failed to get plugin registrar from manager"
+        << std::endl;
+    std::cerr.flush();
+  }
 }
