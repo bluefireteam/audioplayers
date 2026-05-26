@@ -135,8 +135,20 @@ class ExoPlayerWrapper(
 
     @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
     override fun setVolume(leftVolume: Float, rightVolume: Float) {
+        // AdaptiveChannelMixingAudioProcessor looks up the matrix by the
+        // *source's* channel count at queueInput time. Register an entry for
+        // both mono (channelCount = 1) and stereo (channelCount = 2) inputs,
+        // otherwise mono sources fall through `matrixByInputChannelCount[1] == null`
+        // and play back at full volume regardless of the requested level.
         this.channelMixingAudioProcessor.putChannelMixingMatrix(
             ChannelMixingMatrix(2, 2, floatArrayOf(leftVolume, 0f, 0f, rightVolume)),
+        )
+        // For mono input, balance has no meaning — average left/right into a
+        // single scalar so callers that pass differing left/right volumes
+        // still produce a sensible perceived level.
+        val monoVolume = (leftVolume + rightVolume) / 2f
+        this.channelMixingAudioProcessor.putChannelMixingMatrix(
+            ChannelMixingMatrix(1, 1, floatArrayOf(monoVolume)),
         )
     }
 
