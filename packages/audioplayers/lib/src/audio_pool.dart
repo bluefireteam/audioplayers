@@ -151,16 +151,12 @@ class AudioPool {
 
     return _lock.synchronized(() async {
       final player = await _createNewOrReserveAnAvailablePlayer();
-      currentPlayers[player.playerId] = player;
       duration = await player.getDuration();
 
-      final removedPlayer = currentPlayers.remove(player.playerId);
-      if (removedPlayer != null) {
-        if (availablePlayers.length >= maxPlayers) {
-          await removedPlayer.dispose();
-        } else {
-          availablePlayers.add(removedPlayer);
-        }
+      if (availablePlayers.length >= maxPlayers) {
+        await player.dispose();
+      } else {
+        availablePlayers.add(player);
       }
 
       return duration;
