@@ -44,6 +44,9 @@ class AudioPool {
   /// Whether the players in this pool use low latency mode.
   final PlayerMode playerMode;
 
+  @visibleForTesting
+  Duration? duration;
+
   /// Lock to synchronize access to the pool.
   final Lock _lock = Lock();
 
@@ -106,10 +109,7 @@ class AudioPool {
   /// You must dispose the audio player yourself if using PlayerMode.lowLatency.
   Future<StopFunction> start({double volume = 1.0}) async {
     return _lock.synchronized(() async {
-      if (availablePlayers.isEmpty) {
-        availablePlayers.add(await _createNewAudioPlayer());
-      }
-      final player = availablePlayers.removeAt(0);
+      final player = await _createNewOrReserveAnAvailablePlayer();
       currentPlayers[player.playerId] = player;
       await player.setVolume(volume);
       await player.resume();
@@ -139,6 +139,30 @@ class AudioPool {
     });
   }
 
+  /// Returns the duration of the audio.
+  ///
+  /// If the duration is requested for the first time it will use the pool to
+  /// get or create a player and get the duration from it. Subsequent calls will
+  /// return the duration immediately.
+  Future<Duration?> getDuration() async {
+    if (duration != null) {
+      return duration;
+    }
+
+    return _lock.synchronized(() async {
+      final player = await _createNewOrReserveAnAvailablePlayer();
+      duration = await player.getDuration();
+
+      if (availablePlayers.length >= maxPlayers) {
+        await player.dispose();
+      } else {
+        availablePlayers.add(player);
+      }
+
+      return duration;
+    });
+  }
+
   Future<AudioPlayer> _createNewAudioPlayer() async {
     final player = AudioPlayer()..audioCache = audioCache;
 
@@ -150,6 +174,13 @@ class AudioPool {
     await player.setSource(source);
     await player.setReleaseMode(ReleaseMode.stop);
     return player;
+  }
+
+  Future<AudioPlayer> _createNewOrReserveAnAvailablePlayer() async {
+    if (availablePlayers.isEmpty) {
+      return _createNewAudioPlayer();
+    }
+    return availablePlayers.removeAt(0);
   }
 
   /// Disposes the audio pool. Then it cannot be used anymore.
