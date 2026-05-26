@@ -61,9 +61,6 @@ class AudioplayersWindowsPlugin : public Plugin {
   // Map to keep player event channels alive
   std::map<std::string, std::unique_ptr<EventChannel<EncodableValue>>>
       playerEventChannels;
-  // Map to keep player event handlers alive
-  std::map<std::string, std::unique_ptr<EventStreamHandler<EncodableValue>>>
-      playerEventHandlers;
 
   // Called when a method is called on this plugin's channel from Dart.
   void HandleMethodCall(const MethodCall<EncodableValue>& method_call,
@@ -266,7 +263,6 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
     player->Dispose();
     audioPlayers.erase(playerId);
     playerEventChannels.erase(playerId);
-    playerEventHandlers.erase(playerId);
   } else {
     result->NotImplemented();
     return;
