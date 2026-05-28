@@ -1,3 +1,8 @@
+## 6.7.0
+
+ - **FIX**: Always check if file exists when playing from cache ([#1980](https://github.com/bluefireteam/audioplayers/issues/1980)). ([a1a5f4e6](https://github.com/bluefireteam/audioplayers/commit/a1a5f4e65c8e58f50330333d2e4f43faeca4ffe9))
+ - **FEAT**: Get duration from AudioPool ([#1954](https://github.com/bluefireteam/audioplayers/issues/1954)). ([c042e20e](https://github.com/bluefireteam/audioplayers/commit/c042e20e70df090d2c452c8a3cc32964498de7eb))
+
 ## 6.6.0
 
  - **PERF**: Option to set PlayerMode for AudioPools ([#1963](https://github.com/bluefireteam/audioplayers/issues/1963)). ([a97caa12](https://github.com/bluefireteam/audioplayers/commit/a97caa12a8fbdbc75ea246d8683c57f406266369))

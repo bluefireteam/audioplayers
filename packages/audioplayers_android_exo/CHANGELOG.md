@@ -1,3 +1,7 @@
+## 0.1.3+1
+
+ - **FIX**(audioplayers_android_exo): apply setVolume to mono audio sources ([#1987](https://github.com/bluefireteam/audioplayers/issues/1987)). ([c3f8fab0](https://github.com/bluefireteam/audioplayers/commit/c3f8fab0d9e6c7d72fe477accda31daecd5f60c6))
+
 ## 0.1.3
 
  - **FEAT**: Async swift code, align release functionality, align Android initialization error ([#1964](https://github.com/bluefireteam/audioplayers/issues/1964)). ([65c8f373](https://github.com/bluefireteam/audioplayers/commit/65c8f37314e7e023814bb77c9474c8a076f288cb))
