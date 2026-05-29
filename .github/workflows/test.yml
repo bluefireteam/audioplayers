@@ -9,8 +9,7 @@ on:
         type: choice
         options:
           - 'any'
-          - '3.35.x'
-          - '3.32.x'
+          - '3.44.x'
       flutter_channel:
         description: 'Flutter Channel'
         required: false
@@ -66,7 +65,7 @@ on:
     inputs:
       flutter_version:
         required: false
-        default: '3.35.7'
+        default: '3.44.0'
         type: string
       flutter_channel:
         required: false
@@ -106,7 +105,7 @@ on:
         type: boolean
 
 jobs:
-  test:
+  analyze:
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -123,8 +122,9 @@ jobs:
 
       - run: melos format --set-exit-if-changed
       - run: flutter analyze ${{ inputs.fatal_warnings && '--fatal-infos' || '--no-fatal-warnings' }}
-      - run: melos run test
-
+        # Need to reset git staged changes to avoid conflicts on checkout.
+        # This can happen, when execute for multiple Flutter versions, but each generates/migrates different files tied to their version.
+      - run: git reset --hard
       - name: Lint Code Base
         uses: super-linter/super-linter/slim@v5
         env:
@@ -140,6 +140,19 @@ jobs:
         run: |
           docker run --rm --workdir=/work --volume=$PWD:/work mtgto/swift-format:5.8 \
            lint --parallel --strict --recursive packages/audioplayers_darwin
+
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ inputs.flutter_version }}
+          channel: ${{ inputs.flutter_channel }}
+      - uses: bluefireteam/melos-action@v3
+      - run: melos run test
 
   web:
     runs-on: ubuntu-latest
@@ -354,7 +367,8 @@ jobs:
   macos:
     runs-on: macos-latest
     timeout-minutes: 30
-    if: inputs.enable_macos
+    # Temporary disable because of https://github.com/flutter/flutter/issues/176850
+    if: false && inputs.enable_macos
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2

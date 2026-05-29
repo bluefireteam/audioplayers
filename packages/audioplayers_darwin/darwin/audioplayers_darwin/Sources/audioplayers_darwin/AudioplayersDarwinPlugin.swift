@@ -73,7 +73,10 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
   }
 
   public func detachFromEngine(for registrar: FlutterPluginRegistrar) {
-    Task { @MainActor in
+    Task { @MainActor [weak self] in
+      guard let self = self else {
+        return
+      }
       await disposePlayers()
       self.globalMethods.setMethodCallHandler(nil)
       self.globalEvents.dispose()

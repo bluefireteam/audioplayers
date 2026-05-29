@@ -1,6 +1,15 @@
-## 4.2.2
+
+## 4.3.2
 
 - **FIX**: Fixed app crash on startup on Windows with missing Media Feature Pack
+
+## 4.3.1
+
+ - **FIX**(windows): Refactor static globals to instance members ([#1970](https://github.com/bluefireteam/audioplayers/issues/1970)). ([992d5074](https://github.com/bluefireteam/audioplayers/commit/992d50748e6d32a0a292d4f32d0905b7eca02ad1))
+
+## 4.3.0
+
+ - **FEAT**: Async swift code, align release functionality, align Android initialization error ([#1964](https://github.com/bluefireteam/audioplayers/issues/1964)). ([65c8f373](https://github.com/bluefireteam/audioplayers/commit/65c8f37314e7e023814bb77c9474c8a076f288cb))
 
 ## 4.2.1
 

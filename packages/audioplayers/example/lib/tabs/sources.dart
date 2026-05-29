@@ -5,7 +5,7 @@ import 'package:audioplayers_example/components/btn.dart';
 import 'package:audioplayers_example/components/drop_down.dart';
 import 'package:audioplayers_example/components/tab_content.dart';
 import 'package:audioplayers_example/utils.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:file_selector/file_selector.dart' as file_selector;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -383,11 +383,10 @@ class _SourceDialogState extends State<_SourceDialog> {
             Expanded(child: Text(path)),
             TextButton.icon(
               onPressed: () async {
-                final result = await FilePicker.platform.pickFiles();
-                final path = result?.files.single.path;
-                if (path != null) {
+                final file = await file_selector.openFile();
+                if (file != null) {
                   setState(() {
-                    this.path = path;
+                    path = file.path;
                   });
                 }
               },
