@@ -1,3 +1,7 @@
+## 5.2.1
+
+ - **FIX**(web): Use GainNode for volume control to fix Safari compatibility ([#1978](https://github.com/bluefireteam/audioplayers/issues/1978)). ([a3d7e3f8](https://github.com/bluefireteam/audioplayers/commit/a3d7e3f8ab1d2bdab854a9650b6d77207e4324dc))
+
 ## 5.2.0
 
  - **FIX**(web): Reset pausedAt on release ([#1972](https://github.com/bluefireteam/audioplayers/issues/1972)) ([#1973](https://github.com/bluefireteam/audioplayers/issues/1973)). ([09b6bb66](https://github.com/bluefireteam/audioplayers/commit/09b6bb667e250690d0c9ad5db52d2d543ccecf48))
