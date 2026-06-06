@@ -173,9 +173,11 @@ void main() async {
         final playerStates = players.map((player) => player.state);
         expect(
           playerStates,
-          everyElement((playerState) =>
-              playerState != PlayerState.stopped &&
-              playerState != PlayerState.paused),
+          everyElement(
+            (playerState) =>
+                playerState != PlayerState.stopped &&
+                playerState != PlayerState.paused,
+          ),
         );
         await Future.wait<void>(iterator.map((i) => players[i].stop()));
         await Future.wait(players.map((p) => p.dispose()));
