@@ -11,7 +11,8 @@ jobs:
   call-min-flutter-test:
     uses: ./.github/workflows/test.yml
     with:
-      flutter_version: '3.35.7'
+      # Currently the same as max supported version, to support AGP 9.
+      flutter_version: '3.44.0'
       fatal_warnings: false
       enable_android: ${{ github.event.pull_request.draft == false }}
       enable_web: ${{ github.event.pull_request.draft == false }}
