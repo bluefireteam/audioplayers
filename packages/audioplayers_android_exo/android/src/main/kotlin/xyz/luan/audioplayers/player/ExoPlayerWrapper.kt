@@ -62,6 +62,10 @@ class ExoPlayerWrapper(
                 Player.STATE_ENDED -> wrappedPlayer.onCompletion()
             }
         }
+
+        override fun onIsPlayingChanged(isPlaying: Boolean) {
+            wrappedPlayer.onPlayingStateUpdate(isPlaying)
+        }
     }
 
     private var player: ExoPlayer

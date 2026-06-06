@@ -253,6 +253,12 @@ mixin EventChannelAudioplayersPlatform
                   ? Duration(milliseconds: millis)
                   : Duration.zero,
             );
+          case 'audio.onPlayingStateUpdate':
+            final isPlaying = map.getBool('value');
+            return AudioEvent(
+              eventType: AudioEventType.playingStateUpdate,
+              isPlaying: isPlaying,
+            );
           case 'audio.onComplete':
             return const AudioEvent(eventType: AudioEventType.complete);
           case 'audio.onSeekComplete':
