@@ -58,14 +58,19 @@ class MediaPlayerWrapper(
     override fun start() {
         // Setting playback rate instead of mediaPlayer.start().
         setRate(wrappedPlayer.rate)
+        // Manually invoke playing state update, as there does not exist a suitable event in MediaPlayer.
+        wrappedPlayer.onPlayingStateUpdate(true)
     }
 
     override fun pause() {
         mediaPlayer.pause()
+        // Manually invoke playing state update, as there does not exist a suitable event in MediaPlayer.
+        wrappedPlayer.onPlayingStateUpdate(false)
     }
 
     override fun stop() {
         mediaPlayer.stop()
+        wrappedPlayer.onPlayingStateUpdate(false)
     }
 
     override fun release() {
@@ -90,6 +95,7 @@ class MediaPlayerWrapper(
 
     override fun reset() {
         mediaPlayer.reset()
+        wrappedPlayer.onPlayingStateUpdate(false)
     }
 
     override fun isLiveStream(): Boolean {

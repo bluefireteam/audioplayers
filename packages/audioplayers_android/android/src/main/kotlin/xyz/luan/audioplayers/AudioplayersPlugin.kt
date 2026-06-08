@@ -228,6 +228,10 @@ class AudioplayersPlugin : FlutterPlugin {
         player.eventHandler.success("audio.onComplete")
     }
 
+    fun handlePlayingStateUpdate(player: WrappedPlayer, isPlaying: Boolean) {
+        player.eventHandler.success("audio.onPlayingStateUpdate", hashMapOf("value" to isPlaying))
+    }
+
     fun handlePrepared(player: WrappedPlayer, isPrepared: Boolean) {
         player.eventHandler.success("audio.onPrepared", hashMapOf("value" to isPrepared))
     }
