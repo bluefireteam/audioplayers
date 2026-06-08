@@ -34,17 +34,20 @@ class MediaEngineCallbackHelper
       std::function<void()> onLoadedCB,
       MediaEngineWrapper::ErrorCB errorCB,
       MediaEngineWrapper::BufferingStateChangeCB bufferingStateChangeCB,
+      MediaEngineWrapper::PlayingStateChangeCB playingStateUpdateCB,
       std::function<void()> playbackEndedCB,
       std::function<void()> seekCompletedCB)
       : m_onLoadedCB(onLoadedCB),
         m_errorCB(errorCB),
         m_bufferingStateChangeCB(bufferingStateChangeCB),
+        m_playingStateUpdateCB(playingStateUpdateCB),
         m_playbackEndedCB(playbackEndedCB),
         m_seekCompletedCB(seekCompletedCB) {
     // Ensure that callbacks are valid
     THROW_HR_IF(E_INVALIDARG, !m_onLoadedCB);
     THROW_HR_IF(E_INVALIDARG, !m_errorCB);
     THROW_HR_IF(E_INVALIDARG, !m_bufferingStateChangeCB);
+    THROW_HR_IF(E_INVALIDARG, !m_playingStateUpdateCB);
     THROW_HR_IF(E_INVALIDARG, !m_playbackEndedCB);
     THROW_HR_IF(E_INVALIDARG, !m_seekCompletedCB);
   }
@@ -56,6 +59,7 @@ class MediaEngineCallbackHelper
     m_onLoadedCB = nullptr;
     m_errorCB = nullptr;
     m_bufferingStateChangeCB = nullptr;
+    m_playingStateUpdateCB = nullptr;
     m_playbackEndedCB = nullptr;
     m_seekCompletedCB = nullptr;
   }
@@ -82,6 +86,12 @@ class MediaEngineCallbackHelper
         m_bufferingStateChangeCB(
             MediaEngineWrapper::BufferingState::HAVE_NOTHING);
         break;
+      case MF_MEDIA_ENGINE_EVENT_PLAYING:
+        m_playingStateUpdateCB(true);
+        break;
+      case MF_MEDIA_ENGINE_EVENT_PAUSE:
+        m_playingStateUpdateCB(false);
+        break;
       case MF_MEDIA_ENGINE_EVENT_ENDED:
         m_playbackEndedCB();
         break;
@@ -101,6 +111,7 @@ class MediaEngineCallbackHelper
   std::function<void()> m_onLoadedCB;
   MediaEngineWrapper::ErrorCB m_errorCB;
   MediaEngineWrapper::BufferingStateChangeCB m_bufferingStateChangeCB;
+  MediaEngineWrapper::PlayingStateChangeCB m_playingStateUpdateCB;
   std::function<void()> m_playbackEndedCB;
   std::function<void()> m_seekCompletedCB;
   bool m_detached = false;
@@ -284,7 +295,9 @@ void MediaEngineWrapper::CreateMediaEngine() {
       [&]() { this->OnLoaded(); },
       [&](MF_MEDIA_ENGINE_ERR error, HRESULT hr) { this->OnError(error, hr); },
       [&](BufferingState state) { this->OnBufferingStateChange(state); },
-      [&]() { this->OnPlaybackEnded(); }, [&]() { this->OnSeekCompleted(); });
+      [&](bool isPlaying) { this->OnPlayingStateUpdate(isPlaying); },
+      [&]() { this->OnPlaybackEnded(); },
+      [&]() { this->OnSeekCompleted(); });
   THROW_IF_FAILED(creationAttributes->SetUnknown(MF_MEDIA_ENGINE_CALLBACK,
                                                  m_callbackHelper.get()));
   THROW_IF_FAILED(
@@ -342,6 +355,12 @@ void MediaEngineWrapper::OnError(MF_MEDIA_ENGINE_ERR error, HRESULT hr) {
 void MediaEngineWrapper::OnBufferingStateChange(BufferingState state) {
   if (m_bufferingStateChangeCB) {
     m_bufferingStateChangeCB(state);
+  }
+}
+
+void MediaEngineWrapper::OnPlayingStateUpdate(bool isPlaying) {
+  if (m_playingStateUpdateCB) {
+    m_playingStateUpdateCB(isPlaying);
   }
 }
 
