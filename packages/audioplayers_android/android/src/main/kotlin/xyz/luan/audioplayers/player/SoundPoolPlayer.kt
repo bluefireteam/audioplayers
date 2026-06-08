@@ -58,6 +58,7 @@ class SoundPoolPlayer(
         streamId?.let {
             soundPool.stop(it)
             streamId = null
+            wrappedPlayer.onPlayingStateUpdate(false)
         }
     }
 
@@ -83,7 +84,10 @@ class SoundPoolPlayer(
     }
 
     override fun pause() {
-        streamId?.let { soundPool.pause(it) }
+        streamId?.let {
+            soundPool.pause(it)
+            wrappedPlayer.onPlayingStateUpdate(false)
+        }
     }
 
     override fun updateContext(context: AudioContextAndroid) {
