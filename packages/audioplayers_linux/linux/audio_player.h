@@ -112,6 +112,8 @@ class AudioPlayer {
 
   void OnSeekCompleted();
 
+  void OnPlayingStateUpdate(bool isPlaying);
+
   void OnPlaybackEnded();
 
   void OnPrepared(bool isPrepared);
