@@ -1,9 +1,7 @@
-import 'package:flutter/foundation.dart';
+import 'dart:io';
 
-const testFeatureLowLatency = bool.fromEnvironment(
-  'TEST_FEATURE_LOW_LATENCY',
-  defaultValue: true,
-);
+import 'package:flutter/foundation.dart';
+import 'package:pubspec_parse/pubspec_parse.dart';
 
 const testIsAndroidMediaPlayer = bool.fromEnvironment(
   'TEST_ANDROID_MEDIAPLAYER',
@@ -23,11 +21,16 @@ class PlatformFeatures {
     hasErrorEvent: false,
   );
 
-  static const _androidPlatformFeatures = PlatformFeatures(
-    hasRecordingActive: false,
-    // ignore: avoid_redundant_argument_values
-    hasLowLatency: testFeatureLowLatency,
-  );
+  factory PlatformFeatures._androidPlatformFeatures() {
+    final pubspec = File('pubspec.yaml').readAsStringSync();
+    final parsed = Pubspec.parse(pubspec);
+    final usesExoPlayer =
+        parsed.dependencies.containsKey('audioplayers_android_exo');
+    return PlatformFeatures(
+      hasRecordingActive: false,
+      hasLowLatency: !usesExoPlayer,
+    );
+  }
 
   static const _iosPlatformFeatures = PlatformFeatures(
     hasDataUriSource: false,
@@ -136,7 +139,8 @@ class PlatformFeatures {
     _instance ??= kIsWeb
         ? _webPlatformFeatures
         : switch (defaultTargetPlatform) {
-            TargetPlatform.android => _androidPlatformFeatures,
+            TargetPlatform.android =>
+              PlatformFeatures._androidPlatformFeatures(),
             TargetPlatform.iOS => _iosPlatformFeatures,
             TargetPlatform.macOS => _macPlatformFeatures,
             TargetPlatform.linux => _linuxPlatformFeatures,
