@@ -1,6 +1,5 @@
-import 'dart:io';
-
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:pubspec_parse/pubspec_parse.dart';
 
 /// Specify supported features for a platform.
@@ -19,10 +18,10 @@ class PlatformFeatures {
 
   static bool? _usesAndroidMediaPlayer;
 
-  static bool usesAndroidMediaPlayerImpl() {
+  static Future<bool> usesAndroidMediaPlayerImpl() async {
     if (_usesAndroidMediaPlayer == null) {
-      final pubspec = File('pubspec.yaml').readAsStringSync();
-      final parsed = Pubspec.parse(pubspec);
+      final yamlContent = await rootBundle.loadString('pubspec.yaml');
+      final parsed = Pubspec.parse(yamlContent);
       // This line should check for 'audioplayers_android' as soon as
       // 'audioplayers_android_exo' becomes the default implementation.
       _usesAndroidMediaPlayer =
@@ -31,9 +30,10 @@ class PlatformFeatures {
     return _usesAndroidMediaPlayer!;
   }
 
-  factory PlatformFeatures._androidPlatformFeatures() => PlatformFeatures(
+  static Future<PlatformFeatures> _getAndroidPlatformFeatures() async =>
+      PlatformFeatures(
         hasRecordingActive: false,
-        hasLowLatency: usesAndroidMediaPlayerImpl(),
+        hasLowLatency: await usesAndroidMediaPlayerImpl(),
       );
 
   static const _iosPlatformFeatures = PlatformFeatures(
@@ -139,18 +139,25 @@ class PlatformFeatures {
 
   static PlatformFeatures? _instance;
 
-  factory PlatformFeatures.instance() {
+  static Future<void> ensureInitialized() async {
     _instance ??= kIsWeb
         ? _webPlatformFeatures
         : switch (defaultTargetPlatform) {
-            TargetPlatform.android =>
-              PlatformFeatures._androidPlatformFeatures(),
+            TargetPlatform.android => await _getAndroidPlatformFeatures(),
             TargetPlatform.iOS => _iosPlatformFeatures,
             TargetPlatform.macOS => _macPlatformFeatures,
             TargetPlatform.linux => _linuxPlatformFeatures,
             TargetPlatform.windows => _windowsPlatformFeatures,
             _ => const PlatformFeatures(),
           };
+  }
+
+  factory PlatformFeatures.instance() {
+    if (_instance == null) {
+      throw Exception(
+          'Make sure you call "PlatformFeatures.ensureInitialized()" before '
+          'accessing the instance.');
+    }
     return _instance!;
   }
 }

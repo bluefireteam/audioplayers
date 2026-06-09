@@ -15,6 +15,7 @@ import 'test_utils.dart';
 
 void main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  await PlatformFeatures.ensureInitialized();
   final features = PlatformFeatures.instance();
   final isAndroid = !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
   final audioTestDataList = await getAudioTestDataList();

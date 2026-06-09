@@ -33,7 +33,10 @@ bool canDetermineDuration(SourceTestData td) {
 
 void main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  await PlatformFeatures.ensureInitialized();
   final features = PlatformFeatures.instance();
+  final usesAndroidMediaPlayerImplementation =
+      isAndroid && await PlatformFeatures.usesAndroidMediaPlayerImpl();
   final audioTestDataList = await getAudioTestDataList();
 
   group('Platform method channel', () {
@@ -95,7 +98,7 @@ void main() async {
       //  Further, the other future is not fulfilled and then mysteriously
       //  failing in later tests.
       //  The feature works with audioplayers_android_exo.
-      skip: isAndroid && PlatformFeatures.usesAndroidMediaPlayerImpl(),
+      skip: usesAndroidMediaPlayerImplementation,
     );
 
     testWidgets('#create and #dispose', (tester) async {
