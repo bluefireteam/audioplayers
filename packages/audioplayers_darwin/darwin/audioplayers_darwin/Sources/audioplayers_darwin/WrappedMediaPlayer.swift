@@ -29,6 +29,7 @@ enum ReleaseMode: String {
 
   private var completionObserver: TimeObserver?
   private var playerItemStatusObservation: NSKeyValueObservation?
+  private var playerStatusObservation: NSKeyValueObservation?
 
   init(
     reference: AudioplayersDarwinPlugin,
@@ -190,6 +191,12 @@ enum ReleaseMode: String {
 
     playerItem.audioTimePitchAlgorithm = AVAudioTimePitchAlgorithm.timeDomain
     return playerItem
+  }
+
+  private func setUpPlayerObservation(
+    _ player: AVPlayer
+  ) {
+  // TODO
   }
 
   private func setUpPlayerItemStatusObservation(
