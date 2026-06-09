@@ -1,10 +1,5 @@
 import 'package:flutter/foundation.dart';
 
-const testFeatureBytesSource = bool.fromEnvironment(
-  'TEST_FEATURE_BYTES_SOURCE',
-  defaultValue: true,
-);
-
 const testFeaturePlaybackRate = bool.fromEnvironment(
   'TEST_FEATURE_PLAYBACK_RATE',
   defaultValue: true,
@@ -21,7 +16,7 @@ const testIsAndroidMediaPlayer = bool.fromEnvironment(
 
 /// Specify supported features for a platform.
 class PlatformFeatures {
-  static const webPlatformFeatures = PlatformFeatures(
+  static const _webPlatformFeatures = PlatformFeatures(
     hasPlaylistSourceType: false,
     hasLowLatency: false,
     hasForceSpeaker: false,
@@ -33,17 +28,15 @@ class PlatformFeatures {
     hasErrorEvent: false,
   );
 
-  static const androidPlatformFeatures = PlatformFeatures(
+  static const _androidPlatformFeatures = PlatformFeatures(
     hasRecordingActive: false,
-    // ignore: avoid_redundant_argument_values
-    hasBytesSource: testFeatureBytesSource,
     // ignore: avoid_redundant_argument_values
     hasPlaybackRate: testFeaturePlaybackRate,
     // ignore: avoid_redundant_argument_values
     hasLowLatency: testFeatureLowLatency,
   );
 
-  static const iosPlatformFeatures = PlatformFeatures(
+  static const _iosPlatformFeatures = PlatformFeatures(
     hasDataUriSource: false,
     hasBytesSource: false,
     hasPlaylistSourceType: false,
@@ -51,7 +44,7 @@ class PlatformFeatures {
     hasBalance: false,
   );
 
-  static const macPlatformFeatures = PlatformFeatures(
+  static const _macPlatformFeatures = PlatformFeatures(
     hasDataUriSource: false,
     hasBytesSource: false,
     hasPlaylistSourceType: false,
@@ -65,7 +58,7 @@ class PlatformFeatures {
     hasBalance: false,
   );
 
-  static const linuxPlatformFeatures = PlatformFeatures(
+  static const _linuxPlatformFeatures = PlatformFeatures(
     hasDataUriSource: false,
     hasBytesSource: false,
     hasLowLatency: false,
@@ -80,7 +73,7 @@ class PlatformFeatures {
     hasPlayingRoute: false,
   );
 
-  static const windowsPlatformFeatures = PlatformFeatures(
+  static const _windowsPlatformFeatures = PlatformFeatures(
     hasDataUriSource: false,
     hasPlaylistSourceType: false,
     hasLowLatency: false,
@@ -144,19 +137,19 @@ class PlatformFeatures {
     this.hasErrorEvent = true,
   });
 
+  static PlatformFeatures? _instance;
+
   factory PlatformFeatures.instance() {
-    return kIsWeb
-        ? webPlatformFeatures
-        : defaultTargetPlatform == TargetPlatform.android
-            ? androidPlatformFeatures
-            : defaultTargetPlatform == TargetPlatform.iOS
-                ? iosPlatformFeatures
-                : defaultTargetPlatform == TargetPlatform.macOS
-                    ? macPlatformFeatures
-                    : defaultTargetPlatform == TargetPlatform.linux
-                        ? linuxPlatformFeatures
-                        : defaultTargetPlatform == TargetPlatform.windows
-                            ? windowsPlatformFeatures
-                            : const PlatformFeatures();
+    _instance ??= kIsWeb
+        ? _webPlatformFeatures
+        : switch (defaultTargetPlatform) {
+            TargetPlatform.android => _androidPlatformFeatures,
+            TargetPlatform.iOS => _iosPlatformFeatures,
+            TargetPlatform.macOS => _macPlatformFeatures,
+            TargetPlatform.linux => _linuxPlatformFeatures,
+            TargetPlatform.windows => _windowsPlatformFeatures,
+            _ => const PlatformFeatures(),
+          };
+    return _instance!;
   }
 }
