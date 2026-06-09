@@ -3,10 +3,6 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:pubspec_parse/pubspec_parse.dart';
 
-const testIsAndroidMediaPlayer = bool.fromEnvironment(
-  'TEST_ANDROID_MEDIAPLAYER',
-);
-
 /// Specify supported features for a platform.
 class PlatformFeatures {
   static const _webPlatformFeatures = PlatformFeatures(
@@ -21,16 +17,24 @@ class PlatformFeatures {
     hasErrorEvent: false,
   );
 
-  factory PlatformFeatures._androidPlatformFeatures() {
-    final pubspec = File('pubspec.yaml').readAsStringSync();
-    final parsed = Pubspec.parse(pubspec);
-    final usesExoPlayer =
-        parsed.dependencies.containsKey('audioplayers_android_exo');
-    return PlatformFeatures(
-      hasRecordingActive: false,
-      hasLowLatency: !usesExoPlayer,
-    );
+  static bool? _usesAndroidMediaPlayer;
+
+  static bool usesAndroidMediaPlayerImpl() {
+    if (_usesAndroidMediaPlayer == null) {
+      final pubspec = File('pubspec.yaml').readAsStringSync();
+      final parsed = Pubspec.parse(pubspec);
+      // This line should check for 'audioplayers_android' as soon as
+      // 'audioplayers_android_exo' becomes the default implementation.
+      _usesAndroidMediaPlayer =
+          !parsed.dependencies.containsKey('audioplayers_android_exo');
+    }
+    return _usesAndroidMediaPlayer!;
   }
+
+  factory PlatformFeatures._androidPlatformFeatures() => PlatformFeatures(
+        hasRecordingActive: false,
+        hasLowLatency: usesAndroidMediaPlayerImpl(),
+      );
 
   static const _iosPlatformFeatures = PlatformFeatures(
     hasDataUriSource: false,
