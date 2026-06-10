@@ -112,7 +112,7 @@ class WrappedPlayer internal constructor(
                 field = value
                 player?.let {
                     shouldSeekTo = try {
-                        it.getCurrentPosition()
+                        it.getCurrentPosition() ?: -1
                     } catch (e: Exception) {
                         -1
                     }

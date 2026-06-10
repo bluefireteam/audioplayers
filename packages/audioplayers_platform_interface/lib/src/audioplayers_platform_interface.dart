@@ -36,7 +36,8 @@ abstract class AudioplayersPlatformInterface extends PlatformInterface
   /// Default no-op so platform implementations that don't support
   /// configuring the back buffer keep working unchanged.
   @override
-  Future<void> setBackBufferDuration(String playerId, Duration? duration);
+  Future<void> setBackBufferDuration(String playerId, Duration? duration) =>
+      Future.value();
 }
 
 abstract class MethodChannelAudioplayersPlatformInterface {
