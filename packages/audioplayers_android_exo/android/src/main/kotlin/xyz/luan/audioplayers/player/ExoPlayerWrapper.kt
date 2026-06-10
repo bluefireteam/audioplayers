@@ -173,6 +173,13 @@ class ExoPlayerWrapper(
             builder.build(),
             false,
         )
+        // Parity with MediaPlayerWrapper, which maps `stayAwake` to
+        // MediaPlayer.setWakeMode(PARTIAL_WAKE_LOCK). WAKE_MODE_NETWORK also
+        // holds a WifiLock so network streams keep buffering while the screen
+        // is off; for local sources it behaves like WAKE_MODE_LOCAL.
+        player.setWakeMode(
+            if (context.stayAwake) C.WAKE_MODE_NETWORK else C.WAKE_MODE_NONE,
+        )
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
