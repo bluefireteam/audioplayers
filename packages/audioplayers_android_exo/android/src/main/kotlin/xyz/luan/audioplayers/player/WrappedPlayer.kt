@@ -256,6 +256,16 @@ class WrappedPlayer internal constructor(
         // TODO(luan): expose this as a stream
     }
 
+    /**
+     * The player left its prepared state and needs [PlayerWrapper.prepare] before it can
+     * play again, e.g. after a playback error. Resetting [prepared] also notifies the Dart
+     * side (`audio.onPrepared` with `value: false`), which otherwise would still consider
+     * the player prepared after an error.
+     */
+    fun onIdle() {
+        prepared = false
+    }
+
     fun onSeekComplete() {
         ref.handleSeekComplete(this)
     }
