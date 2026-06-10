@@ -189,6 +189,7 @@ class SoundPoolPlayer(
                 wrappedPlayer.rate,
             )
         }
+        wrappedPlayer.onPlayingStateUpdate(true)
     }
 
     override fun prepare() {
