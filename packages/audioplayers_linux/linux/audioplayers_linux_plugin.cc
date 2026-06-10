@@ -181,7 +181,7 @@ static void audioplayers_linux_plugin_handle_method_call(
       result = optPosition.has_value() ? fl_value_new_int(optPosition.value())
                                        : nullptr;
     } else if (strcmp(method, "setBackBufferDuration") == 0) {
-        // No-op: GStreamer manages its buffer internally.
+      // No-op: GStreamer manages its buffer internally.
     } else if (strcmp(method, "setPlaybackRate") == 0) {
       auto flPlaybackRate = fl_value_lookup_string(args, "playbackRate");
       double playbackRate =
