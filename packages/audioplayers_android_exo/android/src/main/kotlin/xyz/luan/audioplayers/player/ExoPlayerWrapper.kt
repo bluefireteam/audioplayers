@@ -89,9 +89,24 @@ class ExoPlayerWrapper(
             }
         }
 
-        return ExoPlayer.Builder(appContext).setRenderersFactory(renderersFactory).build().apply {
-            addListener(ExoPlayerListener(wrappedPlayer))
-        }
+        return ExoPlayer.Builder(appContext)
+            .setRenderersFactory(renderersFactory)
+            .apply {
+                // Media3 enables its wake lock by default while playing when no wake
+                // mode is set, but never the wifi lock. `stayAwake` upgrades to
+                // WAKE_MODE_NETWORK (wake + wifi lock, held only while playing) so
+                // network playback survives the screen turning off. Like the
+                // MediaPlayer implementation of `audioplayers_android`, this is
+                // one-way: WAKE_MODE_NONE is never set, as that would disable the
+                // default wake lock. Requires the `android.permission.WAKE_LOCK`
+                // permission.
+                if (wrappedPlayer.context.stayAwake) {
+                    setWakeMode(C.WAKE_MODE_NETWORK)
+                }
+            }
+            .build().apply {
+                addListener(ExoPlayerListener(wrappedPlayer))
+            }
     }
 
     override fun getDuration(): Int? {
@@ -164,6 +179,7 @@ class ExoPlayerWrapper(
         }
     }
 
+    @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
     override fun updateContext(context: AudioContextAndroid) {
         val builder = AudioAttributes.Builder()
         builder.setContentType(context.contentType)
@@ -173,6 +189,10 @@ class ExoPlayerWrapper(
             builder.build(),
             false,
         )
+        // One-way upgrade, see createPlayer for rationale.
+        if (context.stayAwake) {
+            player.setWakeMode(C.WAKE_MODE_NETWORK)
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
