@@ -69,6 +69,13 @@ class MediaPlayerWrapper(
     }
 
     override fun release() {
+        // Remove all listeners to avoid memory leaks
+        mediaPlayer.setOnPreparedListener(null)
+        mediaPlayer.setOnCompletionListener(null)
+        mediaPlayer.setOnSeekCompleteListener(null)
+        mediaPlayer.setOnErrorListener(null)
+        mediaPlayer.setOnBufferingUpdateListener(null)
+
         mediaPlayer.reset()
         mediaPlayer.release()
     }
