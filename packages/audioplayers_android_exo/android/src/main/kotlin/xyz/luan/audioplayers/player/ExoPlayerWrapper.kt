@@ -17,6 +17,7 @@ import androidx.media3.common.audio.BaseAudioProcessor
 import androidx.media3.common.audio.ChannelMixingMatrix
 import androidx.media3.datasource.ByteArrayDataSource
 import androidx.media3.datasource.DataSource
+import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.audio.AudioSink
@@ -33,6 +34,11 @@ class ExoPlayerWrapper(
     private val wrappedPlayer: WrappedPlayer,
     appContext: Context,
 ) : PlayerWrapper {
+
+    companion object {
+        /** How much already-played media to retain, enabling fast/offline seek-backs. */
+        private const val BACK_BUFFER_DURATION_MS = 30_000
+    }
 
     class ExoPlayerListener(private val wrappedPlayer: WrappedPlayer) : androidx.media3.common.Player.Listener {
         override fun onPlayerError(error: PlaybackException) {
@@ -89,9 +95,22 @@ class ExoPlayerWrapper(
             }
         }
 
-        return ExoPlayer.Builder(appContext).setRenderersFactory(renderersFactory).build().apply {
-            addListener(ExoPlayerListener(wrappedPlayer))
-        }
+        // DefaultLoadControl discards media as soon as it has been played
+        // (back buffer of 0): any seek backwards — even a 10s rewind — drops
+        // the whole buffer and re-fetches from the network. Retaining a short
+        // back buffer makes small rewinds instant and lets them work offline
+        // once the content is buffered. ~30s of audio is well under 1 MB.
+        val loadControl = DefaultLoadControl.Builder()
+            .setBackBuffer(BACK_BUFFER_DURATION_MS, true)
+            .build()
+
+        return ExoPlayer.Builder(appContext)
+            .setRenderersFactory(renderersFactory)
+            .setLoadControl(loadControl)
+            .build()
+            .apply {
+                addListener(ExoPlayerListener(wrappedPlayer))
+            }
     }
 
     override fun getDuration(): Int? {
