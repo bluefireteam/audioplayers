@@ -23,12 +23,14 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   pub_semver: ^2.2.0
+  pubspec_parse: ^1.5.0
 
 flutter:
   uses-material-design: true
 
   assets:
     - assets/
+    - pubspec.yaml
 
 environment:
   sdk: ^3.6.0
