@@ -1,3 +1,8 @@
+
+## 4.3.2
+
+- **FIX**: Fixed app crash on startup on Windows with missing Media Feature Pack
+
 ## 4.3.1
 
  - **FIX**(windows): Refactor static globals to instance members ([#1970](https://github.com/bluefireteam/audioplayers/issues/1970)). ([992d5074](https://github.com/bluefireteam/audioplayers/commit/992d50748e6d32a0a292d4f32d0905b7eca02ad1))

@@ -104,6 +104,7 @@ class AudioPlayer {
   winrt::com_ptr<media::MediaEngineWrapper> m_mediaEngineWrapper;
 
   bool _isInitialized = false;
+  bool m_mediaFoundationFailed = false;
   ReleaseMode _releaseMode = ReleaseMode::release;
   std::string _url{};
 
