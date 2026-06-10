@@ -96,6 +96,37 @@ class WrappedPlayer internal constructor(
     var playing = false
     var shouldSeekTo = -1
 
+    /**
+     * How much already-played media to retain in the buffer (enables fast and
+     * offline backwards seeks within the window). 0 keeps the platform
+     * default (ExoPlayer discards played media right away).
+     *
+     * ExoPlayer's LoadControl can only be set at construction time, so
+     * changing the value re-creates the player — mirroring how the
+     * MediaPlayer implementation handles `playerMode` changes (playback may
+     * pause briefly when changed mid-play).
+     */
+    var backBufferDurationMs: Int = 0
+        set(value) {
+            if (field != value) {
+                field = value
+                player?.let {
+                    shouldSeekTo = try {
+                        it.getCurrentPosition()
+                    } catch (e: Exception) {
+                        -1
+                    }
+                    prepared = false
+                    it.dispose()
+                }
+                player = createPlayer()
+                source?.let {
+                    player?.setSource(it)
+                    player?.configAndPrepare()
+                }
+            }
+        }
+
     private val focusManager = FocusManager.create(
         this,
         onGranted = {

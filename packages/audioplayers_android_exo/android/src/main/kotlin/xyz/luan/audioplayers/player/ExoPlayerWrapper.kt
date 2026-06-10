@@ -35,11 +35,6 @@ class ExoPlayerWrapper(
     appContext: Context,
 ) : PlayerWrapper {
 
-    companion object {
-        /** How much already-played media to retain, enabling fast/offline seek-backs. */
-        private const val BACK_BUFFER_DURATION_MS = 30_000
-    }
-
     class ExoPlayerListener(private val wrappedPlayer: WrappedPlayer) : androidx.media3.common.Player.Listener {
         override fun onPlayerError(error: PlaybackException) {
             if (error.errorCode == PlaybackException.ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED ||
@@ -97,11 +92,12 @@ class ExoPlayerWrapper(
 
         // DefaultLoadControl discards media as soon as it has been played
         // (back buffer of 0): any seek backwards — even a 10s rewind — drops
-        // the whole buffer and re-fetches from the network. Retaining a short
-        // back buffer makes small rewinds instant and lets them work offline
-        // once the content is buffered. ~30s of audio is well under 1 MB.
+        // the whole buffer and re-fetches from the network. Apps can opt into
+        // retaining a window of played media via setBackBufferDuration, which
+        // makes small rewinds instant and lets them work offline once the
+        // content is buffered. 0 keeps the platform default.
         val loadControl = DefaultLoadControl.Builder()
-            .setBackBuffer(BACK_BUFFER_DURATION_MS, true)
+            .setBackBuffer(wrappedPlayer.backBufferDurationMs, true)
             .build()
 
         return ExoPlayer.Builder(appContext)
