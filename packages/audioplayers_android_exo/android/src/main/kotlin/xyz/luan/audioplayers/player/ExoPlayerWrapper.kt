@@ -17,6 +17,7 @@ import androidx.media3.common.audio.BaseAudioProcessor
 import androidx.media3.common.audio.ChannelMixingMatrix
 import androidx.media3.datasource.ByteArrayDataSource
 import androidx.media3.datasource.DataSource
+import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.audio.AudioSink
@@ -89,9 +90,23 @@ class ExoPlayerWrapper(
             }
         }
 
-        return ExoPlayer.Builder(appContext).setRenderersFactory(renderersFactory).build().apply {
-            addListener(ExoPlayerListener(wrappedPlayer))
-        }
+        // DefaultLoadControl discards media as soon as it has been played
+        // (back buffer of 0): any seek backwards — even a 10s rewind — drops
+        // the whole buffer and re-fetches from the network. Apps can opt into
+        // retaining a window of played media via setBackBufferDuration, which
+        // makes small rewinds instant and lets them work offline once the
+        // content is buffered. 0 keeps the platform default.
+        val loadControl = DefaultLoadControl.Builder()
+            .setBackBuffer(wrappedPlayer.backBufferDurationMs, true)
+            .build()
+
+        return ExoPlayer.Builder(appContext)
+            .setRenderersFactory(renderersFactory)
+            .setLoadControl(loadControl)
+            .build()
+            .apply {
+                addListener(ExoPlayerListener(wrappedPlayer))
+            }
     }
 
     override fun getDuration(): Int? {
