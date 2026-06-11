@@ -114,6 +114,8 @@ class AudioPlayer {
   void OnMediaStateChange(
       media::MediaEngineWrapper::BufferingState bufferingState);
 
+  void OnPlayingStateUpdate(bool isPlaying);
+
   void OnPlaybackEnded();
 
   void OnDurationUpdate();

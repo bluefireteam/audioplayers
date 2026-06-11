@@ -302,6 +302,10 @@ class WrappedPlayer internal constructor(
         ref.handleComplete(this)
     }
 
+    fun onPlayingStateUpdate(isPlaying: Boolean) {
+        ref.handlePlayingStateUpdate(this, isPlaying)
+    }
+
     @Suppress("UNUSED_PARAMETER")
     fun onBuffering(percent: Int) {
         // TODO(luan): expose this as a stream

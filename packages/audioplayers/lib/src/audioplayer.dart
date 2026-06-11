@@ -20,6 +20,7 @@ const _uuid = Uuid();
 class AudioPlayer {
   static final global = GlobalAudioScope();
   static Duration preparationTimeout = const Duration(seconds: 30);
+  static Duration playingStateUpdateTimeout = const Duration(seconds: 30);
   static Duration seekingTimeout = const Duration(seconds: 30);
 
   final _platform = AudioplayersPlatformInterface.instance;
@@ -69,16 +70,23 @@ class AudioPlayer {
 
   PlayerState get state => _playerState;
 
-  /// The current playback state.
+  /// The current playback and desired state.
   /// It is only set, when the corresponding action succeeds.
   set state(PlayerState state) {
+    _setPlayerState(state);
+    desiredState = state;
+  }
+
+  /// Set the player state only.
+  /// This method purposely does not change the desired player state.
+  void _setPlayerState(PlayerState state) {
     if (_playerState == PlayerState.disposed) {
       throw Exception('AudioPlayer has been disposed');
     }
     if (!_playerStateController.isClosed) {
       _playerStateController.add(state);
     }
-    _playerState = desiredState = state;
+    _playerState = state;
   }
 
   PositionUpdater? _positionUpdater;
@@ -89,6 +97,7 @@ class AudioPlayer {
   final creatingCompleter = Completer<void>();
 
   late final StreamSubscription _onPlayerCompleteStreamSubscription;
+  late final StreamSubscription _onPlayingStateUpdateSubscription;
 
   late final StreamSubscription _onLogStreamSubscription;
 
@@ -131,6 +140,12 @@ class AudioPlayer {
   Stream<void> get onPlayerComplete =>
       eventStream.where((event) => event.eventType == AudioEventType.complete);
 
+  /// Stream of updates on the playing state.
+  @visibleForTesting
+  Stream<bool> get onPlayingStateUpdate => eventStream
+      .where((event) => event.eventType == AudioEventType.playingStateUpdate)
+      .map((event) => event.isPlaying!);
+
   /// Stream of seek completions.
   ///
   /// An event is going to be sent as soon as the audio seek is finished.
@@ -165,6 +180,36 @@ class AudioPlayer {
       },
       onError: (Object _, [StackTrace? __]) {
         /* Errors are already handled via log stream */
+      },
+    );
+    // Playing state could change from external sources (e.g. system controls).
+    _onPlayingStateUpdateSubscription = onPlayingStateUpdate.listen(
+      (isPlaying) async {
+        final updatedState = isPlaying
+            ? PlayerState.playing
+            : desiredState == PlayerState.playing
+                // Fall back to paused, if desired state was playing,
+                // but received a non-playing (pause, stop, dispose) event.
+                ? PlayerState.paused
+                : desiredState;
+        if (state != updatedState) {
+          // When the user triggers a state change (e.g. starts playing),
+          // while a (system) event is received to pause / reset, it is expected
+          // that the desired state (of the user) is still valid and will be
+          // triggered after THIS event.
+          final isPlayerStateCurrentlyChanging = desiredState != state;
+          _setPlayerState(updatedState);
+          if (!isPlayerStateCurrentlyChanging) {
+            // If the user didn't request any change, then can also set it as
+            // desired state.
+            desiredState = updatedState;
+          }
+          if (isPlaying) {
+            _positionUpdater?.start();
+          } else {
+            await _positionUpdater?.stopAndUpdate();
+          }
+        }
       },
     );
     _create();
@@ -241,11 +286,11 @@ class AudioPlayer {
   Future<void> pause() async {
     desiredState = PlayerState.paused;
     await creatingCompleter.future;
-    if (desiredState == PlayerState.paused) {
-      await _platform.pause(playerId);
-      state = PlayerState.paused;
-      await _positionUpdater?.stopAndUpdate();
-    }
+    await _completePlayingStateUpdate(
+      () => _platform.pause(playerId),
+      playerState: PlayerState.paused,
+    );
+    // Playing state is set via _onPlayingStateUpdateSubscription
   }
 
   /// Stops the audio that is currently playing.
@@ -255,11 +300,11 @@ class AudioPlayer {
   Future<void> stop() async {
     desiredState = PlayerState.stopped;
     await creatingCompleter.future;
-    if (desiredState == PlayerState.stopped) {
-      await _platform.stop(playerId);
-      state = PlayerState.stopped;
-      await _positionUpdater?.stopAndUpdate();
-    }
+    await _completePlayingStateUpdate(
+      () => _platform.stop(playerId),
+      playerState: PlayerState.stopped,
+    );
+    // Playing state is set via _onPlayingStateUpdateSubscription
   }
 
   /// Resumes the audio that has been paused or stopped.
@@ -271,11 +316,11 @@ class AudioPlayer {
   /// Resume without setting the desired state.
   Future<void> _resume() async {
     await creatingCompleter.future;
-    if (desiredState == PlayerState.playing) {
-      await _platform.resume(playerId);
-      state = PlayerState.playing;
-      _positionUpdater?.start();
-    }
+    await _completePlayingStateUpdate(
+      () => _platform.resume(playerId),
+      playerState: PlayerState.playing,
+    );
+    // Playing state is set via _onPlayingStateUpdateSubscription
   }
 
   /// Releases the resources associated with this media player.
@@ -370,6 +415,66 @@ class AudioPlayer {
 
     // Share position once after finished loading
     await _positionUpdater?.update();
+  }
+
+  /// Track playing state update.
+  Completer<void>? _playingStateUpdateCompleter;
+
+  Future<void> _completePlayingStateUpdate(
+    Future<void> Function() applyPlayingState, {
+    required PlayerState playerState,
+  }) async {
+    if (desiredState != playerState) {
+      // The desired state is not the state requested from the method.
+      // It is therefor obsolete and handled by another method.
+      return;
+    }
+
+    // Complete previous state update, no matter which event was emitted,
+    // as waiting for a new event now.
+    _playingStateUpdateCompleter?.complete();
+
+    if (state == playerState) {
+      // The desired state is already the state requested from the method.
+      _playingStateUpdateCompleter = null;
+      return;
+    }
+
+    if (playerState != PlayerState.playing && state != PlayerState.playing) {
+      // If both, the desiredState and the actual state are not "playing"
+      // states, the isPlaying event would never be emitted, as its already
+      // in the "not playing" state.
+      // Then just await setting the method, but not the event completer.
+      _playingStateUpdateCompleter = null;
+      await applyPlayingState();
+      // Check if the desired state is still the methods playerState after
+      // awaiting the applyPlayingState:
+      if (playerState == desiredState) {
+        state = playerState;
+      }
+      return;
+    }
+
+    final completer = _playingStateUpdateCompleter = Completer();
+    onPlayingStateUpdate.first
+        .then((value) {
+          completer.complete();
+          if (_playingStateUpdateCompleter == completer) {
+            _playingStateUpdateCompleter = null;
+          }
+        })
+        .timeout(AudioPlayer.playingStateUpdateTimeout)
+        .onError((e, st) {
+          if (e != null) {
+            completer.completeError(e, st);
+            if (_playingStateUpdateCompleter == completer) {
+              _playingStateUpdateCompleter = null;
+            }
+          }
+        });
+    // Wait simultaneously to ensure all errors are propagated through the same
+    // future.
+    await Future.wait([applyPlayingState(), completer.future]);
   }
 
   /// Sets the URL to a remote link.
@@ -502,6 +607,7 @@ class AudioPlayer {
       if (_positionUpdater != null) _positionUpdater!.dispose(),
       if (!_playerStateController.isClosed) _playerStateController.close(),
       _onPlayerCompleteStreamSubscription.cancel(),
+      _onPlayingStateUpdateSubscription.cancel(),
       _onLogStreamSubscription.cancel(),
       _eventStreamSubscription.cancel(),
       _eventStreamController.close(),
