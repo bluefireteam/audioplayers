@@ -70,16 +70,23 @@ class AudioPlayer {
 
   PlayerState get state => _playerState;
 
-  /// The current playback state.
+  /// The current playback and desired state.
   /// It is only set, when the corresponding action succeeds.
   set state(PlayerState state) {
+    _setPlayerState(state);
+    desiredState = state;
+  }
+
+  /// Set the player state only.
+  /// This method purposely does not change the desired player state.
+  void _setPlayerState(PlayerState state) {
     if (_playerState == PlayerState.disposed) {
       throw Exception('AudioPlayer has been disposed');
     }
     if (!_playerStateController.isClosed) {
       _playerStateController.add(state);
     }
-    _playerState = desiredState = state;
+    _playerState = state;
   }
 
   PositionUpdater? _positionUpdater;
@@ -186,7 +193,17 @@ class AudioPlayer {
                 ? PlayerState.paused
                 : desiredState;
         if (state != updatedState) {
-          state = updatedState;
+          // When the user triggers a state change (e.g. starts playing),
+          // while a (system) event is received to pause / reset, it is expected
+          // that the desired state (of the user) is still valid and will be
+          // triggered after THIS event.
+          final isPlayerStateCurrentlyChanging = desiredState != state;
+          _setPlayerState(updatedState);
+          if (!isPlayerStateCurrentlyChanging) {
+            // If the user didn't request any change, then can also set it as
+            // desired state.
+            desiredState = updatedState;
+          }
           if (isPlaying) {
             _positionUpdater?.start();
           } else {
