@@ -58,6 +58,7 @@ enum ReleaseMode: String {
     isLocal: Bool,
     mimeType: String? = nil
   ) async throws {
+    setUpPlayerObservation(player)
     let playbackStatus = player.currentItem?.status
 
     if self.url != url || playbackStatus == .failed || playbackStatus == nil {
@@ -75,6 +76,7 @@ enum ReleaseMode: String {
       if playbackStatus == .readyToPlay {
         self.eventHandler.onPrepared(isPrepared: true)
       }
+      removePlayerObservation(player)
     }
   }
 
@@ -150,6 +152,7 @@ enum ReleaseMode: String {
 
   func dispose() async {
     await release()
+    removePlayerObservation(player)
     self.eventHandler.dispose()
   }
 
@@ -193,10 +196,18 @@ enum ReleaseMode: String {
     return playerItem
   }
 
-  private func setUpPlayerObservation(
-    _ player: AVPlayer
-  ) {
-  // TODO
+  private func setUpPlayerObservation(_ player: AVPlayer) {
+    player.addObserver(self, forKeyPath: "rate", options: [.initial, .new], context: nil)
+  }
+
+  private func removePlayerObservation(_ player: AVPlayer) {
+    player.removeObserver(self, forKeyPath: "rate")
+  }
+
+  override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+    if keyPath == "rate" {
+      self.eventHandler.onPlayingStateUpdate(isPlaying: player.rate != 0)
+    }
   }
 
   private func setUpPlayerItemStatusObservation(
