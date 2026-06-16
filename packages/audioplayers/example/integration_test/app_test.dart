@@ -10,10 +10,10 @@ import 'app/tabs/source_tab.dart';
 import 'app/tabs/stream_tab.dart';
 import 'platform_features.dart';
 
-void main() {
-  final features = PlatformFeatures.instance();
-
+void main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  await PlatformFeatures.ensureInitialized();
+  final features = PlatformFeatures.instance();
 
   group('end-to-end test', () {
     testWidgets('verify app is launched', (WidgetTester tester) async {
