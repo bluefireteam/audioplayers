@@ -139,8 +139,7 @@ void AudioPlayer::OnMediaError(MF_MEDIA_ENGINE_ERR error, HRESULT hr) {
   }
 }
 
-void AudioPlayer::OnError(const std::string& code,
-                          const std::string& message) {
+void AudioPlayer::OnError(const std::string& code, const std::string& message) {
   if (this->_eventHandler) {
     this->_eventHandler->Error(code, message, nullptr);
   }

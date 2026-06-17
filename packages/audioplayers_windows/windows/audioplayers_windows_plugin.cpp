@@ -155,7 +155,8 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
 
   auto playerId = GetArgument<std::string>("playerId", args, std::string());
   if (playerId.empty()) {
-    result->Error("WindowsAudioError", "Call missing mandatory parameter playerId.");
+    result->Error("WindowsAudioError",
+                  "Call missing mandatory parameter playerId.");
     return;
   }
 
@@ -199,7 +200,8 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
                                                   std::vector<uint8_t>{});
 
     if (data.empty()) {
-      result->Error("WindowsAudioError", "Null bytes received on setSourceBytes");
+      result->Error("WindowsAudioError",
+                    "Null bytes received on setSourceBytes");
       return;
     }
 
