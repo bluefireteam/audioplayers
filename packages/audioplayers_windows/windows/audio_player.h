@@ -93,6 +93,9 @@ class AudioPlayer {
   void OnLog(const std::string& message);
 
   void OnError(const std::string& code,
+               const std::string& message);
+
+  void OnError(const std::string& code,
                const std::string& message,
                const flutter::EncodableValue& details);
 
