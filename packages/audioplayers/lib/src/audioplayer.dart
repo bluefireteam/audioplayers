@@ -194,15 +194,25 @@ class AudioPlayer {
                 : desiredState;
         if (state != updatedState) {
           // When the user triggers a state change (e.g. starts playing),
-          // while a (system) event is received to pause / reset, it is expected
-          // that the desired state (of the user) is still valid and will be
-          // triggered after THIS event.
-          final isPlayerStateCurrentlyChanging = desiredState != state;
+          // the desiredState is set accordingly.
+          // Therefore the action is triggered by AP, if the desiredState differs from the current `state`.
+          // Then only the player state is set.
+          //
+          // On the other hand the action can be triggerd by the system (e.g. system controls etc.).
+          // Then the desiredState also needs to be updated to the system value.
+          final isTriggeredBySystem = desiredState == state;
           _setPlayerState(updatedState);
-          if (!isPlayerStateCurrentlyChanging) {
-            // If the user didn't request any change, then can also set it as
+          if (isTriggeredBySystem) {
+            // If AP didn't request any change, then can also set it as
             // desired state.
             desiredState = updatedState;
+          } else {
+            // Do not override the current desiredState, if it already differs,
+            // as the expected state might come with the next state update.
+            if (updatedState != desiredState) {
+              AudioLogger.log(
+                  'Updated Playing State ($updatedState) did not match desired state ($desiredState).');
+            }
           }
           if (isPlaying) {
             _positionUpdater?.start();
@@ -401,6 +411,12 @@ class AudioPlayer {
   /// This can happen immediately after [setSource] has finished or it needs to
   /// wait for the [AudioEvent] [AudioEventType.prepared] to arrive.
   Future<void> _completePrepared(Future<void> Function() setSource) async {
+    // Reset playing state on new source
+    _playingStateUpdateCompleter?.complete();
+    _playingStateUpdateCompleter = null;
+    // TODO: check if good idea to do that:
+    _setPlayerState(PlayerState.stopped);
+
     await creatingCompleter.future;
 
     final preparedFuture = _onPrepared
