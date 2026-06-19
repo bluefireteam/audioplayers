@@ -16,7 +16,7 @@ enum ReleaseMode: String {
   case loop
 }
 
-@MainActor class WrappedMediaPlayer {
+@MainActor class WrappedMediaPlayer: NSObject {
   private(set) var eventHandler: AudioPlayersStreamHandler
   private(set) var isPlaying: Bool
   var releaseMode: ReleaseMode

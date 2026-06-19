@@ -437,7 +437,7 @@ class AudioPlayersStreamHandler: NSObject, FlutterStreamHandler {
   }
 
   func onPlayingStateUpdate(isPlaying: Bool) {
-    sendEvent(["event": "audio.onPlayingStateUpdate", "value": isPlaying] as [String: Any]])
+    sendEvent(["event": "audio.onPlayingStateUpdate", "value": isPlaying] as [String: Any])
   }
 
   func onComplete() {
