@@ -219,9 +219,9 @@ jobs:
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         run: |
           ( cd server; dart run bin/server.dart ) &
-          flutter test integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true --dart-define TEST_FEATURE_LOW_LATENCY=false --dart-define TEST_FEATURE_BYTES_SOURCE=false --dart-define TEST_FEATURE_PLAYBACK_RATE=false --dart-define TEST_ANDROID_MEDIAPLAYER=true
-          flutter test integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true --dart-define TEST_FEATURE_LOW_LATENCY=false --dart-define TEST_FEATURE_BYTES_SOURCE=false --dart-define TEST_FEATURE_PLAYBACK_RATE=false --dart-define TEST_ANDROID_MEDIAPLAYER=true
-          flutter test integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true --dart-define TEST_FEATURE_LOW_LATENCY=false --dart-define TEST_FEATURE_BYTES_SOURCE=false --dart-define TEST_FEATURE_PLAYBACK_RATE=false --dart-define TEST_ANDROID_MEDIAPLAYER=true
+          flutter test integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
+          flutter test integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
+          flutter test integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
 
   android-exo:
     runs-on: ubuntu-latest
@@ -229,6 +229,12 @@ jobs:
     if: inputs.enable_android
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-java@v5
+        with:
+          # Android SDK 36 needs JDK 21
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'gradle'
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ inputs.flutter_version }}
@@ -246,9 +252,9 @@ jobs:
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         run: |
           ( cd server; dart run bin/server.dart ) &
-          flutter test integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true --dart-define TEST_FEATURE_LOW_LATENCY=false
-          flutter test integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true --dart-define TEST_FEATURE_LOW_LATENCY=false
-          flutter test integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true --dart-define TEST_FEATURE_LOW_LATENCY=false
+          flutter test integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
+          flutter test integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
+          flutter test integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
 
   android:
     runs-on: ubuntu-latest
@@ -256,6 +262,12 @@ jobs:
     if: inputs.enable_android
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-java@v5
+        with:
+          # Android SDK 36 needs JDK 21
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'gradle'
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ inputs.flutter_version }}
@@ -269,9 +281,9 @@ jobs:
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         run: |
           ( cd server; dart run bin/server.dart ) &
-          flutter test integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true --dart-define TEST_ANDROID_MEDIAPLAYER=true
-          flutter test integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true --dart-define TEST_ANDROID_MEDIAPLAYER=true
-          flutter test integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true --dart-define TEST_ANDROID_MEDIAPLAYER=true
+          flutter test integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
+          flutter test integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
+          flutter test integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
       - name: Run Android unit tests
         working-directory: ./packages/audioplayers/example/android
         # TODO: Use `./gradlew test`, when https://github.com/flutter/flutter/issues/169336 is fixed.
@@ -367,8 +379,7 @@ jobs:
   macos:
     runs-on: macos-latest
     timeout-minutes: 30
-    # Temporary disable because of https://github.com/flutter/flutter/issues/176850
-    if: false && inputs.enable_macos
+    if: inputs.enable_macos
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2

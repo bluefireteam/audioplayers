@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 set(PROJECT_NAME "audioplayers_windows")
-set(WIL_VERSION "1.0.210803.1")
+cmake_policy(VERSION 3.15...3.24)
+set(WIL_VERSION "1.0.260126.7")
 project(${PROJECT_NAME} LANGUAGES CXX)
 include(FetchContent)
 

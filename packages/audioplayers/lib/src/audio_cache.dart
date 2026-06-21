@@ -132,7 +132,10 @@ class AudioCache {
     // by the system when the storage is almost full
     // Android: https://developer.android.com/training/data-storage/app-specific#internal-remove-cache
     // iOS: https://developer.apple.com/documentation/foundation/using-the-file-system-effectively#Store-short-lived-files
-    if (!needsFetch && !fileSystem.file(loadedFiles[fileName]).existsSync()) {
+    // Web: Uses a data uri, the content is not present on the file system.
+    if (!kIsWeb &&
+        !needsFetch &&
+        !fileSystem.file(loadedFiles[fileName]).existsSync()) {
       needsFetch = true;
     }
 
