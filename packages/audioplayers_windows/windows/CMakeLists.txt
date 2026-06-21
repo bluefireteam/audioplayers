@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 set(PROJECT_NAME "audioplayers_windows")
 cmake_policy(VERSION 3.15...3.24)
-set(WIL_VERSION "1.0.260126.7")
+set(WIL_VERSION "1.0.210803.1")
 project(${PROJECT_NAME} LANGUAGES CXX)
 include(FetchContent)
 
@@ -57,7 +57,6 @@ target_link_libraries(${PLUGIN_NAME} PRIVATE shlwapi Mfplat.lib)
 
 target_link_libraries(${PLUGIN_NAME} PRIVATE delayimp.lib)
 target_link_options(${PLUGIN_NAME} PRIVATE "/DELAYLOAD:Mfplat.dll")
-target_link_options(${PLUGIN_NAME} PRIVATE "/DELAYLOAD:mfreadwrite.dll")
 
 # List of absolute paths to libraries that should be bundled with the plugin
 set(audioplayers_windows_bundled_libraries
