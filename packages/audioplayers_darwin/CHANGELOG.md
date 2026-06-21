@@ -1,3 +1,7 @@
+## 6.5.0
+
+ - **FEAT**(android): Compatibility with Built-In Kotlin ([#1991](https://github.com/bluefireteam/audioplayers/issues/1991)). ([687218b9](https://github.com/bluefireteam/audioplayers/commit/687218b96682a7bcadd9490572db692dbc9a2f07))
+
 ## 6.4.0
 
  - **FIX**: Memory leak on darwin ([#1969](https://github.com/bluefireteam/audioplayers/issues/1969)). ([95e52604](https://github.com/bluefireteam/audioplayers/commit/95e5260460f242865062fa7fd79add6ef788bb7e))
