@@ -1,3 +1,8 @@
+## 6.8.0
+
+ - **FIX**(windows): Update to C++23 & Windows Implementation Lib ([#2004](https://github.com/bluefireteam/audioplayers/issues/2004)). ([faa84312](https://github.com/bluefireteam/audioplayers/commit/faa843121c89625a5469dd517d39aae3a50cd1b8))
+ - **FEAT**(android): Compatibility with Built-In Kotlin ([#1991](https://github.com/bluefireteam/audioplayers/issues/1991)). ([687218b9](https://github.com/bluefireteam/audioplayers/commit/687218b96682a7bcadd9490572db692dbc9a2f07))
+
 ## 6.7.1
 
  - **FIX**(web): Exclude web from rechecking cache ([#1993](https://github.com/bluefireteam/audioplayers/issues/1993)). ([7c8da3d5](https://github.com/bluefireteam/audioplayers/commit/7c8da3d595ef9d6adbc0e1b8a753c7ba548451d6))
