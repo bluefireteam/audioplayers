@@ -1,3 +1,7 @@
+## 4.5.0
+
+- **FIX**: Fixed app crash on startup on Windows with missing Media Feature Pack
+
 ## 4.4.0
 
  - **FIX**(windows): Update to C++23 & Windows Implementation Lib ([#2004](https://github.com/bluefireteam/audioplayers/issues/2004)). ([faa84312](https://github.com/bluefireteam/audioplayers/commit/faa843121c89625a5469dd517d39aae3a50cd1b8))
