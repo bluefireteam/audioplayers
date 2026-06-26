@@ -24,6 +24,32 @@ This package will be automatically included in your app when you do, so you do n
 
 ## Setup for Windows
 
+### Flutter
+
 Please follow the Flutter guide to [set up Flutter on Windows](https://docs.flutter.dev/get-started/install/windows#windows-setup).
+
+### Requirements
+
+With **Visual Studio 18 (2026)**, Audioplayers is depending on libraries, which require [CMP0091 NEW policy](https://cmake.org/cmake/help/latest/policy/CMP0091.html#policy:CMP0091).
+Therefore, we recommend changing your `windows/CMakeLists.txt` as follows:
+
+```diff
+-cmake_minimum_required(VERSION 3.14)
++cmake_minimum_required(VERSION 3.15)
+
+# ...
+
+-cmake_policy(VERSION 3.14...3.25)
++cmake_policy(VERSION 3.15...3.25)
+```
+
+Alternatively apply the CMP0091 policy before the first occurrence of `project()`:
+
+```diff
++cmake_policy(SET CMP0091 NEW)
+project(my_project_name LANGUAGES CXX)
+```
+
+### Optional
 
 Optionally you can add the individual component `NuGet package manager` inside **Visual Studio** or **Visual Studio Build Tools**, otherwise it will be downloaded while building.
