@@ -420,7 +420,10 @@ class AudioPlayer {
     await creatingCompleter.future;
 
     final preparedFuture = _onPrepared
-        .firstWhere((isPrepared) => isPrepared)
+        .firstWhere(
+          (isPrepared) => isPrepared,
+          orElse: () => throw Exception('Stream closed before it got prepared'),
+        )
         .timeout(AudioPlayer.preparationTimeout);
     // Need to await the setting the source to propagate immediate errors.
     final setSourceFuture = setSource();
