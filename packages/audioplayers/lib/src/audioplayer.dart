@@ -343,6 +343,23 @@ class AudioPlayer {
     return _platform.setPlaybackRate(playerId, playbackRate);
   }
 
+  /// Sets how much already-played media to retain in the buffer, enabling
+  /// fast backwards seeks within that window without re-fetching the media —
+  /// including offline, once the content is buffered (useful for the typical
+  /// "rewind 10 seconds" button).
+  ///
+  /// Pass `null` to restore the platform default.
+  ///
+  /// Currently only effective on Android when using the ExoPlayer
+  /// implementation (`audioplayers_android_exo`), where changing the value
+  /// re-creates the underlying player (a brief pause may be noticeable if
+  /// called during playback — prefer setting it before playing). Other
+  /// platforms manage their buffers internally and ignore this call.
+  Future<void> setBackBufferDuration(Duration? duration) async {
+    await creatingCompleter.future;
+    return _platform.setBackBufferDuration(playerId, duration);
+  }
+
   /// Sets the audio source for this player.
   ///
   /// This will delegate to one of the specific methods below depending on

@@ -77,6 +77,30 @@ void main() {
       expect(call.args, {'playerId': 'p1'});
     });
 
+    test('#setBackBufferDuration', () async {
+      await platform.setBackBufferDuration(
+        'p1',
+        const Duration(seconds: 30),
+      );
+      final call = popLastCall();
+      expect(call.method, 'setBackBufferDuration');
+      expect(call.args, {
+        'playerId': 'p1',
+        'backBufferDurationMs': 30000,
+      });
+    });
+
+    test('#setBackBufferDuration with null restores the platform default',
+        () async {
+      await platform.setBackBufferDuration('p1', null);
+      final call = popLastCall();
+      expect(call.method, 'setBackBufferDuration');
+      expect(call.args, {
+        'playerId': 'p1',
+        'backBufferDurationMs': null,
+      });
+    });
+
     test('#getDuration', () async {
       final duration = await platform.getDuration('p1');
       final call = popLastCall();

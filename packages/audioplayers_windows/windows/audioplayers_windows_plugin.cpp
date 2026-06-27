@@ -221,6 +221,8 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
                         ? EncodableValue(std::monostate{})
                         : EncodableValue(ConvertSecondsToMs(position)));
     return;
+  } else if (method_call.method_name().compare("setBackBufferDuration") == 0) {
+    // No-op: the media foundation player manages its buffer internally.
   } else if (method_call.method_name().compare("setPlaybackRate") == 0) {
     auto playbackRate = GetArgument<double>("playbackRate", args, 1.0);
     player->SetPlaybackSpeed(playbackRate);
