@@ -56,7 +56,10 @@ class ExoPlayerWrapper(
 
         override fun onPlaybackStateChanged(playbackState: Int) {
             when (playbackState) {
-                Player.STATE_IDLE -> {} // TODO(gustl22): may can use or leave as no-op
+                // IDLE is reached on creation, after stop()/release() and after a playback
+                // error. In all cases the player needs prepare() before it can play again,
+                // so the wrapper must no longer report itself as prepared.
+                Player.STATE_IDLE -> wrappedPlayer.onIdle()
                 Player.STATE_BUFFERING -> wrappedPlayer.onBuffering(0)
                 Player.STATE_READY -> wrappedPlayer.onPrepared()
                 Player.STATE_ENDED -> wrappedPlayer.onCompletion()
