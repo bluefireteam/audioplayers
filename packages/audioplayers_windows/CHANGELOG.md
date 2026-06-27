@@ -1,3 +1,7 @@
+## 4.5.0
+
+- **FIX**: Fixed app crash on startup on Windows with missing Media Feature Pack
+
 ## 4.4.1
 
  - **FIX**(windows): Compatibility with Visual Studio 18 (2026) ([#2011](https://github.com/bluefireteam/audioplayers/issues/2011)). ([ae5f4b96](https://github.com/bluefireteam/audioplayers/commit/ae5f4b965ef886f08b903a7a9386bc283db458c5))\
