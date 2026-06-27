@@ -1,6 +1,7 @@
 ## 4.4.1
 
- - **FIX**(windows): Compatibility with Visual Studio 18 (2026) ([#2011](https://github.com/bluefireteam/audioplayers/issues/2011)). ([ae5f4b96](https://github.com/bluefireteam/audioplayers/commit/ae5f4b965ef886f08b903a7a9386bc283db458c5))
+ - **FIX**(windows): Compatibility with Visual Studio 18 (2026) ([#2011](https://github.com/bluefireteam/audioplayers/issues/2011)). ([ae5f4b96](https://github.com/bluefireteam/audioplayers/commit/ae5f4b965ef886f08b903a7a9386bc283db458c5))\
+   Pay attention to the new [Windows platform requirements](https://github.com/bluefireteam/audioplayers/blob/main/packages/audioplayers_windows/README.md#requirements).
 
 ## 4.4.0
 

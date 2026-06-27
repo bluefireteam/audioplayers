@@ -23,11 +23,13 @@ Packages with other changes:
 #### `audioplayers` - `v6.8.1`
 
  - **FIX**: Avoid throwing a StateError in AudioPlayer._completePrepared ([#2010](https://github.com/bluefireteam/audioplayers/issues/2010)). ([d8a4f395](https://github.com/bluefireteam/audioplayers/commit/d8a4f395b5710b566da205dfd15f68bb5d93d7a3))
- - **FIX**(windows): Compatibility with Visual Studio 18 (2026) ([#2011](https://github.com/bluefireteam/audioplayers/issues/2011)). ([ae5f4b96](https://github.com/bluefireteam/audioplayers/commit/ae5f4b965ef886f08b903a7a9386bc283db458c5))
+ - **FIX**(windows): Compatibility with Visual Studio 18 (2026) ([#2011](https://github.com/bluefireteam/audioplayers/issues/2011)). ([ae5f4b96](https://github.com/bluefireteam/audioplayers/commit/ae5f4b965ef886f08b903a7a9386bc283db458c5))\
+   Pay attention to the new [Windows platform requirements](https://github.com/bluefireteam/audioplayers/blob/main/packages/audioplayers_windows/README.md#requirements).
 
 #### `audioplayers_windows` - `v4.4.1`
 
- - **FIX**(windows): Compatibility with Visual Studio 18 (2026) ([#2011](https://github.com/bluefireteam/audioplayers/issues/2011)). ([ae5f4b96](https://github.com/bluefireteam/audioplayers/commit/ae5f4b965ef886f08b903a7a9386bc283db458c5))
+ - **FIX**(windows): Compatibility with Visual Studio 18 (2026) ([#2011](https://github.com/bluefireteam/audioplayers/issues/2011)). ([ae5f4b96](https://github.com/bluefireteam/audioplayers/commit/ae5f4b965ef886f08b903a7a9386bc283db458c5))\
+   Pay attention to the new [Windows platform requirements](https://github.com/bluefireteam/audioplayers/blob/main/packages/audioplayers_windows/README.md#requirements).
 
 
 ## 2026-06-22
