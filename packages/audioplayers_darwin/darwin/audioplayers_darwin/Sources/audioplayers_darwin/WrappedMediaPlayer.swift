@@ -51,6 +51,8 @@ enum ReleaseMode: String {
     self.volume = volume
     self.releaseMode = releaseMode
     self.url = url
+    super.init()
+    setUpPlayerObservation(player)
   }
 
   func setSourceUrl(
@@ -58,7 +60,6 @@ enum ReleaseMode: String {
     isLocal: Bool,
     mimeType: String? = nil
   ) async throws {
-    setUpPlayerObservation(player)
     let playbackStatus = player.currentItem?.status
 
     if self.url != url || playbackStatus == .failed || playbackStatus == nil {
@@ -76,7 +77,6 @@ enum ReleaseMode: String {
       if playbackStatus == .readyToPlay {
         self.eventHandler.onPrepared(isPrepared: true)
       }
-      removePlayerObservation(player)
     }
   }
 
