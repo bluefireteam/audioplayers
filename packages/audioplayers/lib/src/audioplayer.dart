@@ -219,6 +219,19 @@ class AudioPlayer {
           } else {
             await _positionUpdater?.stopAndUpdate();
           }
+          // Complete _playingStateUpdateCompleter AFTER:
+          // - setting the new state
+          // - updating the position
+          // to ensure everything is up to date after
+          // _completePlayingStateUpdate.
+          _playingStateUpdateCompleter?.complete();
+          _playingStateUpdateCompleter = null;
+        }
+      },
+      onError: (Object? e, StackTrace? st) {
+        if (e != null) {
+          _playingStateUpdateCompleter?.completeError(e, st);
+          _playingStateUpdateCompleter = null;
         }
       },
     );
@@ -474,26 +487,13 @@ class AudioPlayer {
       return;
     }
 
+    // The completer is completed by _onPlayingStateUpdateSubscription
     final completer = _playingStateUpdateCompleter = Completer();
-    onPlayingStateUpdate.first
-        .then((value) {
-          completer.complete();
-          if (_playingStateUpdateCompleter == completer) {
-            _playingStateUpdateCompleter = null;
-          }
-        })
-        .timeout(AudioPlayer.playingStateUpdateTimeout)
-        .onError((e, st) {
-          if (e != null) {
-            completer.completeError(e, st);
-            if (_playingStateUpdateCompleter == completer) {
-              _playingStateUpdateCompleter = null;
-            }
-          }
-        });
+
     // Wait simultaneously to ensure all errors are propagated through the same
     // future.
-    await Future.wait([applyPlayingState(), completer.future]);
+    await Future.wait([applyPlayingState(), completer.future])
+        .timeout(AudioPlayer.playingStateUpdateTimeout);
   }
 
   /// Sets the URL to a remote link.
