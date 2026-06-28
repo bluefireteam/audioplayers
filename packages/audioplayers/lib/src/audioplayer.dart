@@ -7,6 +7,7 @@ import 'package:audioplayers_platform_interface/audioplayers_platform_interface.
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:synchronized/synchronized.dart';
 import 'package:uuid/uuid.dart';
 
 const _uuid = Uuid();
@@ -98,6 +99,7 @@ class AudioPlayer {
 
   late final StreamSubscription _onPlayerCompleteStreamSubscription;
   late final StreamSubscription _onPlayingStateUpdateSubscription;
+  final Lock _onPlayingStateUpdateLock = Lock();
 
   late final StreamSubscription _onLogStreamSubscription;
 
@@ -185,48 +187,50 @@ class AudioPlayer {
     // Playing state could change from external sources (e.g. system controls).
     _onPlayingStateUpdateSubscription = onPlayingStateUpdate.listen(
       (isPlaying) async {
-        final updatedState = isPlaying
-            ? PlayerState.playing
-            : desiredState == PlayerState.playing
-                // Fall back to paused, if desired state was playing,
-                // but received a non-playing (pause, stop, dispose) event.
-                ? PlayerState.paused
-                : desiredState;
-        if (state != updatedState) {
-          // When the user triggers a state change (e.g. starts playing),
-          // the desiredState is set accordingly.
-          // Therefore the action is triggered by AP, if the desiredState differs from the current `state`.
-          // Then only the player state is set.
-          //
-          // On the other hand the action can be triggerd by the system (e.g. system controls, an interrupting call, etc.).
-          // Then the desiredState also needs to be updated to the system value.
-          final isTriggeredBySystem = desiredState == state;
-          _setPlayerState(updatedState);
-          if (isTriggeredBySystem) {
-            // If AP didn't request any change, then can also set it as
-            // desired state.
-            desiredState = updatedState;
-          } else {
-            // Do not override the current desiredState, if it already differs,
-            // as the expected state might come with the next state update.
-            if (updatedState != desiredState) {
-              AudioLogger.log(
-                  'Updated Playing State ($updatedState) did not match desired state ($desiredState).');
+        _onPlayingStateUpdateLock.synchronized(() async {
+          final updatedState = isPlaying
+              ? PlayerState.playing
+              : desiredState == PlayerState.playing
+                  // Fall back to paused, if desired state was playing,
+                  // but received a non-playing (pause, stop, dispose) event.
+                  ? PlayerState.paused
+                  : desiredState;
+          if (state != updatedState) {
+            // When the user triggers a state change (e.g. starts playing),
+            // the desiredState is set accordingly.
+            // Therefore the action is triggered by AP, if the desiredState differs from the current `state`.
+            // Then only the player state is set.
+            //
+            // On the other hand the action can be triggerd by the system (e.g. system controls, an interrupting call, etc.).
+            // Then the desiredState also needs to be updated to the system value.
+            final isTriggeredBySystem = desiredState == state;
+            _setPlayerState(updatedState);
+            if (isTriggeredBySystem) {
+              // If AP didn't request any change, then can also set it as
+              // desired state.
+              desiredState = updatedState;
+            } else {
+              // Do not override the current desiredState, if it already differs,
+              // as the expected state might come with the next state update.
+              if (updatedState != desiredState) {
+                AudioLogger.log(
+                    'Updated Playing State ($updatedState) did not match desired state ($desiredState).');
+              }
             }
+            if (isPlaying) {
+              _positionUpdater?.start();
+            } else {
+              await _positionUpdater?.stopAndUpdate();
+            }
+            // Complete _playingStateUpdateCompleter AFTER:
+            // - setting the new state
+            // - updating the position
+            // to ensure everything is up to date after
+            // _completePlayingStateUpdate.
+            _playingStateUpdateCompleter?.complete();
+            _playingStateUpdateCompleter = null;
           }
-          if (isPlaying) {
-            _positionUpdater?.start();
-          } else {
-            await _positionUpdater?.stopAndUpdate();
-          }
-          // Complete _playingStateUpdateCompleter AFTER:
-          // - setting the new state
-          // - updating the position
-          // to ensure everything is up to date after
-          // _completePlayingStateUpdate.
-          _playingStateUpdateCompleter?.complete();
-          _playingStateUpdateCompleter = null;
-        }
+        });
       },
       onError: (Object? e, StackTrace? st) {
         if (e != null) {
