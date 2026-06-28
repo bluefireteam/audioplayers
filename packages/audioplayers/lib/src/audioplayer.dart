@@ -201,7 +201,7 @@ class AudioPlayer {
     // Playing state could change from external sources (e.g. system controls).
     _onPlayingStateUpdateSubscription = onPlayingStateUpdate.listen(
       (isPlaying) async {
-        _onPlayingStateUpdateLock.synchronized(() async {
+        await _onPlayingStateUpdateLock.synchronized(() async {
           final updatedState = isPlaying
               ? PlayerState.playing
               : desiredState == PlayerState.playing
