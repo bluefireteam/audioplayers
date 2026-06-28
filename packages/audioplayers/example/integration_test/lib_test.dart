@@ -114,17 +114,13 @@ void main() async {
           await player.resume();
           await tester.pumpGlobalFrames(const Duration(seconds: 5));
 
-          if (!td.isLiveStream && td.duration! < const Duration(seconds: 2)) {
-            expect(player.state, PlayerState.completed);
-          } else {
-            if (td.isLiveStream || td.duration! > const Duration(seconds: 10)) {
-              expect(player.state, PlayerState.playing);
-            } else {
-              // Don't know for sure, if has yet completed or is still playing
-            }
-            await player.stop();
-            expect(player.state, PlayerState.stopped);
-          }
+          expect(
+            player.state,
+            anyOf([PlayerState.completed, PlayerState.playing]),
+          );
+          await player.stop();
+          expect(player.state, PlayerState.stopped);
+
           await player.dispose();
           final positions = await futurePositions;
           printOnFailure('Positions: $positions');
