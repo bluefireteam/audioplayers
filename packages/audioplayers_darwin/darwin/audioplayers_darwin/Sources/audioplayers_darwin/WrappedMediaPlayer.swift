@@ -16,7 +16,7 @@ enum ReleaseMode: String {
   case loop
 }
 
-@MainActor class WrappedMediaPlayer {
+@MainActor class WrappedMediaPlayer: NSObject {
   private(set) var eventHandler: AudioPlayersStreamHandler
   private(set) var isPlaying: Bool
   var releaseMode: ReleaseMode
@@ -29,6 +29,7 @@ enum ReleaseMode: String {
 
   private var completionObserver: TimeObserver?
   private var playerItemStatusObservation: NSKeyValueObservation?
+  private var playerStatusObservation: NSKeyValueObservation?
 
   init(
     reference: AudioplayersDarwinPlugin,
@@ -50,6 +51,8 @@ enum ReleaseMode: String {
     self.volume = volume
     self.releaseMode = releaseMode
     self.url = url
+    super.init()
+    setUpPlayerObservation(player)
   }
 
   func setSourceUrl(
@@ -149,6 +152,7 @@ enum ReleaseMode: String {
 
   func dispose() async {
     await release()
+    removePlayerObservation(player)
     self.eventHandler.dispose()
   }
 
@@ -190,6 +194,20 @@ enum ReleaseMode: String {
 
     playerItem.audioTimePitchAlgorithm = AVAudioTimePitchAlgorithm.timeDomain
     return playerItem
+  }
+
+  private func setUpPlayerObservation(_ player: AVPlayer) {
+    player.addObserver(self, forKeyPath: "rate", options: [.initial, .new], context: nil)
+  }
+
+  private func removePlayerObservation(_ player: AVPlayer) {
+    player.removeObserver(self, forKeyPath: "rate")
+  }
+
+  override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+    if keyPath == "rate" {
+      self.eventHandler.onPlayingStateUpdate(isPlaying: player.rate != 0)
+    }
   }
 
   private func setUpPlayerItemStatusObservation(

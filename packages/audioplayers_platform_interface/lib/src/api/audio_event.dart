@@ -6,6 +6,7 @@ enum AudioEventType {
   seekComplete,
   complete,
   prepared,
+  playingStateUpdate,
 }
 
 /// Event emitted from the platform implementation.
@@ -19,6 +20,7 @@ class AudioEvent {
     this.duration,
     this.logMessage,
     this.isPrepared,
+    this.isPlaying,
   });
 
   /// The type of the event.
@@ -32,6 +34,9 @@ class AudioEvent {
 
   /// Whether the source is prepared to be played.
   final bool? isPrepared;
+
+  /// Whether the audio has started or stopped playing.
+  final bool? isPlaying;
 
   @override
   bool operator ==(Object other) {

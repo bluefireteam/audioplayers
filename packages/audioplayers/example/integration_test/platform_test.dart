@@ -6,7 +6,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:pub_semver/pub_semver.dart';
 
 import 'lib/lib_source_test_data.dart';
 import 'platform_features.dart';
@@ -67,16 +66,6 @@ void main() async {
             testData: invalidAssetTestData,
           ),
         );
-
-        // TODO(gustl22): remove when min supported Flutter version is 3.41.0
-        if (isLinux &&
-            FlutterVersion.version != null &&
-            Version.parse(FlutterVersion.version!) < Version.parse('3.41.0')) {
-          // Flutter throws a second failure event for invalid files on Linux.
-          // If not caught, it would be randomly thrown in the following tests.
-          final nextEvent = platform.getEventStream(playerId).first;
-          await tester.expectSettingSourceFailure(future: nextEvent);
-        }
       },
     );
 

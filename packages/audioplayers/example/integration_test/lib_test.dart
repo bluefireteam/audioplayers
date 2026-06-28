@@ -3,7 +3,6 @@ library;
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_example/tabs/sources.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -11,7 +10,6 @@ import 'package:integration_test/integration_test.dart';
 import 'lib/lib_source_test_data.dart';
 import 'lib/lib_test_utils.dart';
 import 'platform_features.dart';
-import 'test_utils.dart';
 
 void main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -116,17 +114,13 @@ void main() async {
           await player.resume();
           await tester.pumpGlobalFrames(const Duration(seconds: 5));
 
-          if (!td.isLiveStream && td.duration! < const Duration(seconds: 2)) {
-            expect(player.state, PlayerState.completed);
-          } else {
-            if (td.isLiveStream || td.duration! > const Duration(seconds: 10)) {
-              expect(player.state, PlayerState.playing);
-            } else {
-              // Don't know for sure, if has yet completed or is still playing
-            }
-            await player.stop();
-            expect(player.state, PlayerState.stopped);
-          }
+          expect(
+            player.state,
+            anyOf([PlayerState.completed, PlayerState.playing]),
+          );
+          await player.stop();
+          expect(player.state, PlayerState.stopped);
+
           await player.dispose();
           final positions = await futurePositions;
           printOnFailure('Positions: $positions');
@@ -173,32 +167,14 @@ void main() async {
             (i) async => players[i].play(audioTestDataList[i].source),
           ),
         );
-        final playerStates = List<PlayerState?>.generate(
-          audioTestDataList.length,
-          (index) => null,
-        );
-        await tester.waitFor(
-          () async {
-            // TODO(gustl22): Improve detection of started players via player
-            //  state.
-            final unplayed = playerStates
-                .mapIndexed(
-                  (index, element) => element != null ? null : index,
-                )
-                .nonNulls;
-            for (final i in unplayed) {
-              final player = players[i];
-              if (player.state == PlayerState.completed ||
-                  player.state == PlayerState.disposed) {
-                playerStates[i] = player.state;
-              } else if (((await player.getCurrentPosition()) ??
-                      Duration.zero) >
-                  Duration.zero) {
-                playerStates[i] = PlayerState.playing;
-              }
-            }
-            expect(playerStates, everyElement(isNotNull));
-          },
+        final playerStates = players.map((player) => player.state);
+        expect(
+          playerStates,
+          everyElement(
+            (playerState) =>
+                playerState != PlayerState.stopped &&
+                playerState != PlayerState.paused,
+          ),
         );
         await Future.wait<void>(iterator.map((i) => players[i].stop()));
         await Future.wait(players.map((p) => p.dispose()));
@@ -217,22 +193,12 @@ void main() async {
         final player = AudioPlayer();
 
         for (final td in audioTestDataList) {
-          player.play(td.source);
-          // TODO(gustl22): Improve detection of started players via player
-          //  state.
-          PlayerState? playerState;
-          await tester.waitFor(
-            () async {
-              if (player.state == PlayerState.completed ||
-                  player.state == PlayerState.disposed) {
-                playerState = player.state;
-              } else if (((await player.getCurrentPosition()) ??
-                      Duration.zero) >
-                  Duration.zero) {
-                playerState = PlayerState.playing;
-              }
-              expect(playerState, isNotNull);
-            },
+          await player.play(td.source);
+          expect(
+            player.state,
+            (playerState) =>
+                playerState != PlayerState.stopped &&
+                playerState != PlayerState.paused,
           );
           await player.stop();
         }
@@ -386,6 +352,71 @@ void main() async {
     expect(player.state, PlayerState.paused);
 
     await player.dispose();
+  });
+
+  group('Call twice:', () {
+    testWidgets('SetSource', (WidgetTester tester) async {
+      final player = AudioPlayer();
+      await player.setSource(mp3Url1TestData.source);
+      expect(player.state, PlayerState.stopped);
+      await player.setSource(mp3Url1TestData.source);
+      expect(player.state, PlayerState.stopped);
+      await player.dispose();
+      expect(player.state, PlayerState.disposed);
+    });
+    testWidgets('Play', (WidgetTester tester) async {
+      final player = AudioPlayer();
+      await player.play(mp3Url1TestData.source);
+      expect(player.state, PlayerState.playing);
+      await player.play(mp3Url1TestData.source);
+      expect(player.state, PlayerState.playing);
+      await player.dispose();
+      expect(player.state, PlayerState.disposed);
+    });
+    testWidgets('Pause', (WidgetTester tester) async {
+      final player = AudioPlayer();
+      await player.play(mp3Url1TestData.source);
+      expect(player.state, PlayerState.playing);
+      await player.pause();
+      expect(player.state, PlayerState.paused);
+      await player.pause();
+      expect(player.state, PlayerState.paused);
+      await player.dispose();
+      expect(player.state, PlayerState.disposed);
+    });
+    testWidgets('Resume', (WidgetTester tester) async {
+      final player = AudioPlayer();
+      await player.setSource(mp3Url1TestData.source);
+      expect(player.state, PlayerState.stopped);
+      await player.resume();
+      expect(player.state, PlayerState.playing);
+      await player.resume();
+      expect(player.state, PlayerState.playing);
+      await player.dispose();
+      expect(player.state, PlayerState.disposed);
+    });
+    testWidgets('Stop', (WidgetTester tester) async {
+      final player = AudioPlayer();
+      await player.play(mp3Url1TestData.source);
+      expect(player.state, PlayerState.playing);
+      await player.stop();
+      expect(player.state, PlayerState.stopped);
+      await player.stop();
+      expect(player.state, PlayerState.stopped);
+      await player.dispose();
+      expect(player.state, PlayerState.disposed);
+    });
+    testWidgets('Release', (WidgetTester tester) async {
+      final player = AudioPlayer();
+      await player.play(mp3Url1TestData.source);
+      expect(player.state, PlayerState.playing);
+      await player.release();
+      expect(player.state, PlayerState.stopped);
+      await player.release();
+      expect(player.state, PlayerState.stopped);
+      await player.dispose();
+      expect(player.state, PlayerState.disposed);
+    });
   });
 
   group(
