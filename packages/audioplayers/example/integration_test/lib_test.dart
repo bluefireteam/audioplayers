@@ -1,8 +1,6 @@
 @Timeout(Duration(minutes: 5))
 library;
 
-import 'dart:async';
-
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_example/tabs/sources.dart';
 import 'package:flutter/foundation.dart';
