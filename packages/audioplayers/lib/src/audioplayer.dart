@@ -212,11 +212,14 @@ class AudioPlayer {
           if (state != updatedState) {
             // When the user triggers a state change (e.g. starts playing),
             // the desiredState is set accordingly.
-            // Therefore the action is triggered by AP, if the desiredState differs from the current `state`.
+            // Therefore the action is triggered by AP, if the desiredState
+            // differs from the current `state`.
             // Then only the player state is set.
             //
-            // On the other hand the action can be triggerd by the system (e.g. system controls, an interrupting call, etc.).
-            // Then the desiredState also needs to be updated to the system value.
+            // On the other hand the action can be triggerd by the system
+            // (e.g. system controls, an interrupting call, etc.).
+            // Then the desiredState also needs to be updated to the system
+            // value.
             final isTriggeredBySystem = desiredState == state;
             _setPlayerState(updatedState);
             if (isTriggeredBySystem) {
@@ -224,11 +227,14 @@ class AudioPlayer {
               // desired state.
               desiredState = updatedState;
             } else {
-              // Do not override the current desiredState, if it already differs,
+              // Do not override the current desiredState, if it already
+              // differs,
               // as the expected state might come with the next state update.
               if (updatedState != desiredState) {
                 AudioLogger.log(
-                    'Updated Playing State ($updatedState) did not match desired state ($desiredState).');
+                  'Updated Playing State ($updatedState) did not match desired'
+                  ' state ($desiredState).',
+                );
               }
             }
             if (isPlaying) {

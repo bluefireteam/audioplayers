@@ -135,7 +135,7 @@ class WrappedPlayer {
     );
 
     _playerPauseSubscription = p.onPause.listen(
-          (_) {
+      (_) {
         eventStreamController.add(
           const AudioEvent(
             eventType: AudioEventType.playingStateUpdate,
