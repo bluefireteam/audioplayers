@@ -133,7 +133,26 @@ void main() async {
               interval: const Duration(milliseconds: 100),
             );
           }
-          final futurePositions = player.onPositionChanged.toList();
+          final positionsStream = player.onPositionChanged;
+          expectLater(positionsStream, neverEmits(null));
+          Future futureExpectations;
+          if (td.isLiveStream) {
+            // TODO(gustl22): Live streams may have zero or null as initial
+            //  position. This should be consistent across all platforms.
+            futureExpectations = expectLater(
+              positionsStream,
+              emitsThrough(greaterThan(Duration.zero)),
+            );
+          } else {
+            futureExpectations = expectLater(
+              positionsStream,
+              emitsInOrder([
+                Duration.zero,
+                emitsThrough(greaterThan(Duration.zero)),
+                emitsThrough(Duration.zero),
+              ]),
+            );
+          }
 
           await player.setReleaseMode(ReleaseMode.stop);
           await player.setSource(td.source);
@@ -147,18 +166,9 @@ void main() async {
           await player.stop();
           expect(player.state, PlayerState.stopped);
 
+          await futureExpectations;
+
           await player.dispose();
-          final positions = await futurePositions;
-          printOnFailure('Positions: $positions');
-          expect(positions, isNot(contains(null)));
-          expect(positions, contains(greaterThan(Duration.zero)));
-          if (td.isLiveStream) {
-            // TODO(gustl22): Live streams may have zero or null as initial
-            //  position. This should be consistent across all platforms.
-          } else {
-            expect(positions.first, Duration.zero);
-            expect(positions.last, Duration.zero);
-          }
         },
         timeout: const Timeout(Duration(seconds: 30)),
         skip:
