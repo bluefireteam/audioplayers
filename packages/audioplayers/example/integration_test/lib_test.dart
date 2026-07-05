@@ -136,15 +136,16 @@ void main() async {
           final positionsStream = player.onPositionChanged;
 
           expectLater(positionsStream, neverEmits(null));
+          Future futureExpectations;
           if (td.isLiveStream) {
             // TODO(gustl22): Live streams may have zero or null as initial
             //  position. This should be consistent across all platforms.
-            expectLater(
+            futureExpectations = expectLater(
               positionsStream,
               emitsThrough(greaterThan(Duration.zero)),
             );
           } else {
-            expectLater(
+            futureExpectations = expectLater(
               positionsStream,
               emitsInOrder([
                 Duration.zero,
@@ -166,13 +167,8 @@ void main() async {
           await player.stop();
           expect(player.state, PlayerState.stopped);
 
-          await tester.pumpAndSettle();
-
-          addTearDown(() async {
-            // Do not call dispose until the test has finished,
-            // as expectLater is not awaited.
-            await player.dispose();
-          });
+          await futureExpectations;
+          await player.dispose();
         },
         timeout: const Timeout(Duration(seconds: 30)),
         skip:
