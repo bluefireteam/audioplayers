@@ -1,4 +1,5 @@
 import AVKit
+import Combine
 
 private let defaultPlaybackRate: Double = 1.0
 
@@ -16,7 +17,7 @@ enum ReleaseMode: String {
   case loop
 }
 
-@MainActor class WrappedMediaPlayer: NSObject {
+@MainActor class WrappedMediaPlayer {
   private(set) var eventHandler: AudioPlayersStreamHandler
   private(set) var isPlaying: Bool
   var releaseMode: ReleaseMode
@@ -51,7 +52,6 @@ enum ReleaseMode: String {
     self.volume = volume
     self.releaseMode = releaseMode
     self.url = url
-    super.init()
     setUpPlayerObservation(player)
   }
 
@@ -194,18 +194,27 @@ enum ReleaseMode: String {
     return playerItem
   }
 
+  private var cancellables = Set<AnyCancellable>()
+
   private func setUpPlayerObservation(_ player: AVPlayer) {
-    player.addObserver(self, forKeyPath: "rate", options: [.initial, .new], context: nil)
+    player.publisher(for: \.timeControlStatus)
+      .removeDuplicates()
+      .receive(on: DispatchQueue.main)
+      .sink{ status in
+        switch(status) {
+          case .paused:
+            self.eventHandler.onPlayingStateUpdate(isPlaying: false)
+          case .playing:
+            self.eventHandler.onPlayingStateUpdate(isPlaying: true)
+          @unknown default:
+            break
+        }
+      }
+      .store(in: &cancellables)
   }
 
   private func removePlayerObservation(_ player: AVPlayer) {
-    player.removeObserver(self, forKeyPath: "rate")
-  }
-
-  override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
-    if keyPath == "rate" {
-      self.eventHandler.onPlayingStateUpdate(isPlaying: player.rate != 0)
-    }
+    cancellables.removeAll()
   }
 
   private func setUpPlayerItemStatusObservation(
