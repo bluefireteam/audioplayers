@@ -236,13 +236,16 @@ class AudioPlayer {
             } else {
               await _positionUpdater?.stopAndUpdate();
             }
-            // Complete _playingStateUpdateCompleter AFTER:
-            // - setting the new state
-            // - updating the position
-            // to ensure everything is up to date after
-            // _completePlayingStateUpdate.
-            _playingStateUpdateCompleter?.complete();
-            _playingStateUpdateCompleter = null;
+
+            if (!isTriggeredBySystem && (updatedState == desiredState)) {
+              // Complete _playingStateUpdateCompleter AFTER:
+              // - setting the new state
+              // - updating the position
+              // to ensure everything is up to date after
+              // _completePlayingStateUpdate.
+              _playingStateUpdateCompleter?.complete();
+              _playingStateUpdateCompleter = null;
+            }
           }
         });
       },
@@ -340,6 +343,11 @@ class AudioPlayer {
   /// from the last point.
   Future<void> stop() async {
     desiredState = PlayerState.stopped;
+    await _stopWithoutDesire();
+  }
+
+  /// Stop without changing the desired state.
+  Future<void> _stopWithoutDesire() async {
     await creatingCompleter.future;
     await _completePlayingStateUpdate(
       () => _platform.stop(playerId),
@@ -451,8 +459,11 @@ class AudioPlayer {
     // Reset playing state on new source
     _playingStateUpdateCompleter?.complete();
     _playingStateUpdateCompleter = null;
-    // TODO: check if good idea to do that:
-    _setPlayerState(PlayerState.stopped);
+    if (state == PlayerState.playing) {
+      // Stop the player, so a new source can be set.
+      // The desire might still to play the source, after it has been set.
+      await _stopWithoutDesire();
+    }
 
     await creatingCompleter.future;
 
