@@ -1,6 +1,8 @@
 @Timeout(Duration(minutes: 5))
 library;
 
+import 'dart:async';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_example/tabs/sources.dart';
 import 'package:flutter/foundation.dart';
@@ -166,7 +168,16 @@ void main() async {
           await player.stop();
           expect(player.state, PlayerState.stopped);
 
-          await futureExpectations;
+          await futureExpectations.timeout(
+            const Duration(seconds: 15),
+            onTimeout: () async {
+              final positions = await positionsStream.toList();
+              printOnFailure(positions.toString());
+              throw TimeoutException(
+                'Did not emit the expected positions in time.',
+              );
+            },
+          );
 
           await player.dispose();
         },
