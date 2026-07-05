@@ -46,7 +46,7 @@ void main() {
       expect(urlSource?.url, 'internet.com/file.mp3');
 
       await player.dispose();
-      expect(platform.popCall().method, 'stop');
+      // "stop" isn't called, if already in stopped state.
       expect(platform.popCall().method, 'release');
       expect(platform.popLastCall().method, 'dispose');
       expect(player.source, null);
