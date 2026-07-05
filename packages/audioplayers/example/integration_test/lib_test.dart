@@ -136,17 +136,17 @@ void main() async {
             );
           }
           final positionsStream = player.onPositionChanged;
+
           expectLater(positionsStream, neverEmits(null));
-          Future futureExpectations;
           if (td.isLiveStream) {
             // TODO(gustl22): Live streams may have zero or null as initial
             //  position. This should be consistent across all platforms.
-            futureExpectations = expectLater(
+            expectLater(
               positionsStream,
               emitsThrough(greaterThan(Duration.zero)),
             );
           } else {
-            futureExpectations = expectLater(
+            expectLater(
               positionsStream,
               emitsInOrder([
                 Duration.zero,
@@ -168,16 +168,7 @@ void main() async {
           await player.stop();
           expect(player.state, PlayerState.stopped);
 
-          await futureExpectations.timeout(
-            const Duration(seconds: 15),
-            onTimeout: () async {
-              final positions = await positionsStream.toList();
-              printOnFailure(positions.toString());
-              throw TimeoutException(
-                'Did not emit the expected positions in time.',
-              );
-            },
-          );
+          await tester.pumpAndSettle();
 
           await player.dispose();
         },
