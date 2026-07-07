@@ -116,9 +116,6 @@ gboolean AudioPlayer::OnBusMessage(GstBus* bus,
     case GST_MESSAGE_EOS:
       data->OnPlaybackEnded();
       break;
-    case GST_MESSAGE_STREAM_START:
-      data->OnPlayingStateUpdate(true);
-      break;
     case GST_MESSAGE_DURATION_CHANGED:
       data->OnDurationUpdate();
       break;
@@ -126,6 +123,9 @@ gboolean AudioPlayer::OnBusMessage(GstBus* bus,
       if (!data->_isSeekCompleted) {
         data->OnSeekCompleted();
         data->_isSeekCompleted = true;
+      } else {
+        // Update duration the first time.
+        data->OnDurationUpdate();
       }
       break;
     default:
@@ -184,30 +184,24 @@ void AudioPlayer::OnMediaStateChange(GstObject* src,
   }
 
   if (src == GST_OBJECT(playbin)) {
-    if (*new_state == GST_STATE_READY) {
-      // Need to set to pause state, in order to make player functional
-      GstStateChangeReturn ret =
-          gst_element_set_state(playbin, GST_STATE_PAUSED);
-      if (ret == GST_STATE_CHANGE_FAILURE) {
-        // Only use [OnLog] as error is handled via [OnMediaError].
-        gchar const* errorDescription =
-            "OnMediaStateChange -> GST_STATE_CHANGE_FAILURE:"
-            "Unable to set the pipeline from GST_STATE_READY to "
-            "GST_STATE_PAUSED.";
-        this->OnLog(errorDescription);
+    if (*new_state < GST_STATE_PAUSED) {
+      if (*new_state == GST_STATE_READY) {
+        // Need to set to pause state, in order to make player functional
+        GstStateChangeReturn ret =
+            gst_element_set_state(playbin, GST_STATE_PAUSED);
+        if (ret == GST_STATE_CHANGE_FAILURE) {
+          // Only use [OnLog] as error is handled via [OnMediaError].
+          gchar const* errorDescription =
+              "OnMediaStateChange -> GST_STATE_CHANGE_FAILURE:"
+              "Unable to set the pipeline from GST_STATE_READY to "
+              "GST_STATE_PAUSED.";
+          this->OnLog(errorDescription);
+        }
       }
       if (this->_isInitialized) {
         this->_isInitialized = false;
       }
-    } else if (*old_state == GST_STATE_PAUSED &&
-               *new_state == GST_STATE_PLAYING) {
-      OnDurationUpdate();
-      // TODO: check, if GST_MESSAGE_STREAM_START is more precise than GST_STATE_PLAYING event and also can occur externally.
-      // OnPlayingStateUpdate(true);
-    } else if (*old_state == GST_STATE_PLAYING &&
-               *new_state == GST_STATE_PAUSED) {
-      OnPlayingStateUpdate(false);
-    } else if (*new_state >= GST_STATE_PAUSED) {
+    } else {
       if (!this->_isInitialized) {
         this->_isInitialized = true;
         this->OnPrepared(true);
@@ -215,8 +209,13 @@ void AudioPlayer::OnMediaStateChange(GstObject* src,
           Resume();
         }
       }
-    } else if (this->_isInitialized) {
-      this->_isInitialized = false;
+
+      if (*old_state == GST_STATE_PAUSED && *new_state == GST_STATE_PLAYING) {
+        OnPlayingStateUpdate(true);
+      } else if (*old_state == GST_STATE_PLAYING &&
+                 *new_state == GST_STATE_PAUSED) {
+        OnPlayingStateUpdate(false);
+      }
     }
   }
 }
@@ -253,7 +252,8 @@ void AudioPlayer::OnSeekCompleted() {
 void AudioPlayer::OnPlayingStateUpdate(bool isPlaying) {
   if (this->_eventChannel) {
     g_autoptr(FlValue) map = fl_value_new_map();
-    fl_value_set_string(map, "event", fl_value_new_string("audio.onPlayingStateUpdate"));
+    fl_value_set_string(map, "event",
+                        fl_value_new_string("audio.onPlayingStateUpdate"));
     fl_value_set_string(map, "value", fl_value_new_bool(isPlaying));
     fl_event_channel_send(this->_eventChannel, map, nullptr, nullptr);
   }

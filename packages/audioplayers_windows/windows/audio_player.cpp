@@ -32,8 +32,8 @@ AudioPlayer::AudioPlayer(
                            std::placeholders::_1, std::placeholders::_2);
   auto onBufferingStateChanged =
       std::bind(&AudioPlayer::OnMediaStateChange, this, std::placeholders::_1);
-  auto onPlayingStateUpdateCB =
-    std::bind(&AudioPlayer::OnPlayingStateUpdate, this, std::placeholders::_1);
+  auto onPlayingStateUpdateCB = std::bind(&AudioPlayer::OnPlayingStateUpdate,
+                                          this, std::placeholders::_1);
   auto onPlaybackEndedCB = std::bind(&AudioPlayer::OnPlaybackEnded, this);
   auto onSeekCompletedCB = std::bind(&AudioPlayer::OnSeekCompleted, this);
   auto onLoadedCB = std::bind(&AudioPlayer::SendInitialized, this);
@@ -175,11 +175,12 @@ void AudioPlayer::OnPrepared(bool isPrepared) {
 
 void AudioPlayer::OnPlayingStateUpdate(bool isPlaying) {
   if (this->_eventHandler) {
-    this->_eventHandler->Success(std::make_unique<flutter::EncodableValue>(
-        flutter::EncodableMap({{flutter::EncodableValue("event"),
-                                flutter::EncodableValue("audio.onPlayingStateUpdate")},
-                               {flutter::EncodableValue("value"),
-                                flutter::EncodableValue(isPlaying)}})));
+    this->_eventHandler->Success(
+        std::make_unique<flutter::EncodableValue>(flutter::EncodableMap(
+            {{flutter::EncodableValue("event"),
+              flutter::EncodableValue("audio.onPlayingStateUpdate")},
+             {flutter::EncodableValue("value"),
+              flutter::EncodableValue(isPlaying)}})));
   }
 }
 
