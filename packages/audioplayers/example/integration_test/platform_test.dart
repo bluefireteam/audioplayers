@@ -17,19 +17,6 @@ const _defaultTimeout = Duration(seconds: 30);
 final isLinux = !kIsWeb && defaultTargetPlatform == TargetPlatform.linux;
 final isAndroid = !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
 
-bool canDetermineDuration(SourceTestData td) {
-  // TODO(gustl22): cannot determine duration for VBR on Linux
-  // FIXME(gustl22): duration event is not emitted for short duration
-  // WAV on Linux (only platform tests, may be a race condition).
-  if (td.duration == null) {
-    return true;
-  }
-  if (isLinux) {
-    return !(td.isVBR || td.duration! < const Duration(seconds: 5));
-  }
-  return true;
-}
-
 void main() async {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   binding.defaultTestTimeout = const Timeout(Duration(minutes: 5));
@@ -136,9 +123,6 @@ void main() async {
             ),
           );
         },
-        // FIXME(gustl22): determines wrong initial position for m3u8 on Linux
-        skip: !canDetermineDuration(td) ||
-            isLinux && td.source == m3u8UrlTestData.source,
       );
     }
 
@@ -341,7 +325,6 @@ void main() async {
               testData: td,
             );
           },
-          skip: !canDetermineDuration(td),
         );
       }
     }

@@ -123,9 +123,15 @@ gboolean AudioPlayer::OnBusMessage(GstBus* bus,
       if (!data->_isSeekCompleted) {
         data->OnSeekCompleted();
         data->_isSeekCompleted = true;
-      } else {
-        // Update duration the first time.
+      }
+
+      if (!data->_isInitialized) {
+        data->_isInitialized = true;
         data->OnDurationUpdate();
+        data->OnPrepared(true);
+        if (data->_isPlaying) {
+          data->Resume();
+        }
       }
       break;
     default:
@@ -202,14 +208,6 @@ void AudioPlayer::OnMediaStateChange(GstObject* src,
         this->_isInitialized = false;
       }
     } else {
-      if (!this->_isInitialized) {
-        this->_isInitialized = true;
-        this->OnPrepared(true);
-        if (this->_isPlaying) {
-          Resume();
-        }
-      }
-
       if (*old_state == GST_STATE_PAUSED && *new_state == GST_STATE_PLAYING) {
         OnPlayingStateUpdate(true);
       } else if (*old_state == GST_STATE_PLAYING &&
