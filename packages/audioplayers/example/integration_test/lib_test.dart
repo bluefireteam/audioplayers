@@ -168,6 +168,8 @@ void main() async {
           expect(player.state, PlayerState.stopped);
 
           await futureExpectations;
+
+          await tester.pumpAndSettle();
           await player.dispose();
         },
         timeout: const Timeout(Duration(seconds: 30)),
