@@ -1,6 +1,3 @@
-@Timeout(Duration(minutes: 5))
-library;
-
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_example/tabs/sources.dart';
 import 'package:flutter/foundation.dart';
@@ -180,7 +177,6 @@ void main() async {
                 (isAndroid &&
                     !td.isLiveStream &&
                     td.duration! < const Duration(seconds: 1)),
-        timeout: const Timeout(Duration(minutes: 2)),
       );
     }
 
