@@ -164,7 +164,7 @@ void main() async {
           await player.stop();
           expect(player.state, PlayerState.stopped);
 
-          await futureExpectations;
+          await futureExpectations.timeout(const Duration(seconds: 10));
 
           await player.dispose();
         },
