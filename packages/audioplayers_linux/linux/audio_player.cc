@@ -90,9 +90,6 @@ void AudioPlayer::ReleaseMediaSource() {
   if (playbinState > GST_STATE_NULL) {
     gst_element_set_state(playbin, GST_STATE_NULL);
   }
-
-  // As the playingStateUpdate event is not emitted in time, before the resources are released, we trigger it manually.
-  OnPlayingStateUpdate(false);
 }
 
 gboolean AudioPlayer::OnBusMessage(GstBus* bus,
