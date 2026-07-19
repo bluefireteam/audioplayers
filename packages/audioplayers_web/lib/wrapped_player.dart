@@ -136,11 +136,6 @@ class WrappedPlayer {
     );
     _playerEndedSubscription = p.onEnded.listen(
       (_) async {
-        if (_currentReleaseMode == ReleaseMode.release) {
-          await release();
-        } else {
-          await stop();
-        }
         eventStreamController.add(
           const AudioEvent(eventType: AudioEventType.complete),
         );
@@ -237,11 +232,7 @@ class WrappedPlayer {
   Future<void> stop() async {
     pause();
     _pausedAt = 0;
-    if (_currentReleaseMode == ReleaseMode.release) {
-      await release();
-    } else {
-      player?.currentTime = 0;
-    }
+    player?.currentTime = 0;
   }
 
   void seek(int position) {

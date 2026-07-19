@@ -86,6 +86,30 @@ void main() async {
     skip: !features.hasBytesSource,
   );
 
+  group('ReleaseMode', () {
+    for (final td in audioTestDataList) {
+      if (features.hasReleaseModeRelease && !td.isLiveStream) {
+        testWidgets('#release ${td.source}', (tester) async {
+          final player = AudioPlayer();
+          await player.setReleaseMode(ReleaseMode.release);
+
+          await player.play(td.source);
+
+          if (td.duration! < const Duration(seconds: 2)) {
+            await tester.pumpPlatform(const Duration(seconds: 3));
+            // No need to call stop, as it should be released by now
+          } else {
+            await tester.pumpPlatform(const Duration(seconds: 1));
+            await player.stop();
+          }
+          // TODO(Gustl22): test if source was released
+          expect(await player.getDuration(), null);
+          expect(await player.getCurrentPosition(), null);
+        });
+      }
+    }
+  });
+
   group('AP events', () {
     late AudioPlayer player;
 

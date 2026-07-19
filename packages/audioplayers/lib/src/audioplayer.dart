@@ -157,10 +157,24 @@ class AudioPlayer {
     );
     _onPlayerCompleteStreamSubscription = onPlayerComplete.listen(
       (_) async {
-        state = PlayerState.completed;
-        if (releaseMode == ReleaseMode.release) {
-          _source = null;
+        if (state == PlayerState.disposed) {
+          return;
         }
+        state = PlayerState.completed;
+        if (releaseMode != ReleaseMode.loop) {
+          await _platform.stop(this.playerId);
+          if (state == PlayerState.disposed) {
+            return;
+          }
+          if (releaseMode == ReleaseMode.release) {
+            await _platform.release(this.playerId);
+            if (state == PlayerState.disposed) {
+              return;
+            }
+            _source = null;
+          }
+        }
+        // Need to call AFTER stop, to take the zero position into account.
         await _positionUpdater?.stopAndUpdate();
       },
       onError: (Object _, [StackTrace? __]) {
@@ -260,6 +274,10 @@ class AudioPlayer {
       state = PlayerState.stopped;
       await _positionUpdater?.stopAndUpdate();
     }
+    if (releaseMode == ReleaseMode.release) {
+      await _platform.release(playerId);
+      _source = null;
+    }
   }
 
   /// Resumes the audio that has been paused or stopped.
@@ -284,9 +302,12 @@ class AudioPlayer {
   /// call [resume] or change the source.
   Future<void> release() async {
     await stop();
-    await _platform.release(playerId);
-    // Stop state already set in stop()
-    _source = null;
+    if (releaseMode != ReleaseMode.release) {
+      // If ReleaseMode.release, otherwise `stop` already releases the resource.
+      await _platform.release(playerId);
+      // Stop state already set in stop()
+      _source = null;
+    }
   }
 
   /// Moves the cursor to the desired position.

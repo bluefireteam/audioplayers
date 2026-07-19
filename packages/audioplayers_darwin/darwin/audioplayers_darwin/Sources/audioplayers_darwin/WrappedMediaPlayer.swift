@@ -133,9 +133,7 @@ enum ReleaseMode: String {
 
   func stop() async {
     pause()
-    if releaseMode == ReleaseMode.release {
-      await release()
-    } else if (getCurrentPosition() ?? 0) != 0 {
+    if (getCurrentPosition() ?? 0) != 0 {
       await seek(time: toCMTime(millis: 0))
     }
   }
@@ -276,13 +274,9 @@ enum ReleaseMode: String {
     reference.controlAudioSession()
     eventHandler.onComplete()
 
-    await seek(time: toCMTime(millis: 0))
     if self.releaseMode == ReleaseMode.loop {
+      await seek(time: toCMTime(millis: 0))
       self.resume()
-    } else if self.releaseMode == ReleaseMode.release {
-      await self.release()
-    } else {
-      self.isPlaying = false
     }
   }
 }

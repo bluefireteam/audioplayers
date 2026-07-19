@@ -181,8 +181,6 @@ void AudioPlayer::OnPlaybackEnded() {
   }
   if (GetReleaseMode() == ReleaseMode::loop) {
     Play();
-  } else {
-    Stop();
   }
 }
 
@@ -280,11 +278,7 @@ void AudioPlayer::Pause() {
 
 void AudioPlayer::Stop() {
   Pause();
-  if (GetReleaseMode() == ReleaseMode::release) {
-    ReleaseMediaSource();
-  } else {
-    SeekTo(0);
-  }
+  SeekTo(0);
 }
 
 void AudioPlayer::Resume() {

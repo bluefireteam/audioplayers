@@ -251,8 +251,6 @@ void AudioPlayer::OnPlaybackEnded() {
   }
   if (GetReleaseMode() == ReleaseMode::loop) {
     Play();
-  } else {
-    Stop();
   }
 }
 
@@ -413,17 +411,13 @@ void AudioPlayer::Stop() {
     return;
   }
 
-  if (GetReleaseMode() == ReleaseMode::release) {
-    ReleaseMediaSource();
-  } else {
-    SetPosition(0);
-    // Block thread to wait for state, as it is not expected to be waited to
-    // "seek complete" event on the dart side.
-    GstStateChangeReturn ret =
-        gst_element_get_state(playbin, NULL, NULL, GST_CLOCK_TIME_NONE);
-    if (ret == GST_STATE_CHANGE_FAILURE) {
-      throw "Unable to seek playback to '0' while stopping the player.";
-    }
+  SetPosition(0);
+  // Block thread to wait for state, as it is not expected to be waited to
+  // "seek complete" event on the dart side.
+  GstStateChangeReturn ret =
+      gst_element_get_state(playbin, NULL, NULL, GST_CLOCK_TIME_NONE);
+  if (ret == GST_STATE_CHANGE_FAILURE) {
+    throw "Unable to seek playback to '0' while stopping the player.";
   }
 }
 

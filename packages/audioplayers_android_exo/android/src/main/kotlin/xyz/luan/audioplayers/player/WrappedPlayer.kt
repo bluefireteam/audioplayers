@@ -186,13 +186,9 @@ class WrappedPlayer internal constructor(
         if (released) {
             return
         }
-        if (releaseMode != ReleaseMode.RELEASE) {
-            pause()
-            if (prepared) {
-                player?.stop()
-            }
-        } else {
-            release()
+        pause()
+        if (prepared) {
+            player?.stop()
         }
     }
 
@@ -245,9 +241,6 @@ class WrappedPlayer internal constructor(
     }
 
     fun onCompletion() {
-        if (releaseMode != ReleaseMode.LOOP) {
-            stop()
-        }
         ref.handleComplete(this)
     }
 

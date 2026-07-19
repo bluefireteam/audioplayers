@@ -229,20 +229,16 @@ class WrappedPlayer internal constructor(
         if (released) {
             return
         }
-        if (releaseMode != ReleaseMode.RELEASE) {
-            pause()
-            if (prepared) {
-                if (player?.isLiveStream() == true) {
-                    player?.stop()
-                    prepared = false
-                    player?.prepare()
-                } else {
-                    // MediaPlayer does not allow to call player.seekTo after calling player.stop
-                    seek(0)
-                }
+        pause()
+        if (prepared) {
+            if (player?.isLiveStream() == true) {
+                player?.stop()
+                prepared = false
+                player?.prepare()
+            } else {
+                // MediaPlayer does not allow to call player.seekTo after calling player.stop
+                seek(0)
             }
-        } else {
-            release()
         }
     }
 
@@ -296,9 +292,6 @@ class WrappedPlayer internal constructor(
     }
 
     fun onCompletion() {
-        if (releaseMode != ReleaseMode.LOOP) {
-            stop()
-        }
         ref.handleComplete(this)
     }
 
