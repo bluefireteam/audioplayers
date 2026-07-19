@@ -205,10 +205,10 @@ class AudioPlayer {
         final updatedState = isPlaying
             ? PlayerState.playing
             : desiredState == PlayerState.playing
-        // Fall back to paused, if desired state was playing,
-        // but received a non-playing (pause, stop, dispose) event.
-            ? PlayerState.paused
-            : desiredState;
+                // Fall back to paused, if desired state was playing,
+                // but received a non-playing (pause, stop, dispose) event.
+                ? PlayerState.paused
+                : desiredState;
         if (state != updatedState) {
           // When the user triggers a state change (e.g. starts playing),
           // the desiredState is set accordingly.
@@ -233,7 +233,7 @@ class AudioPlayer {
             if (updatedState != desiredState) {
               AudioLogger.log(
                 'Updated Playing State ($updatedState) did not match desired'
-                    ' state ($desiredState).',
+                ' state ($desiredState).',
               );
             }
           }
