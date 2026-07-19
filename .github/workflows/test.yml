@@ -313,11 +313,7 @@ jobs:
 
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
-        # Upgrade xcodes to at least 2.0.3, because of https://github.com/XcodesOrg/xcodes/issues/485
-        # See: https://github.com/actions/runner-images/blob/main/images/macos/macos-26-arm64-Readme.md#tools
         run: |
-          bew update && brew upgrade xcodes
-          xcodes version
           xcodes runtimes install "iOS 16.4"
           UDID=$(xcrun simctl create test-se-16-4 com.apple.CoreSimulator.SimDeviceType.iPhone-SE-3rd-generation com.apple.CoreSimulator.SimRuntime.iOS-16-4)
           xcrun simctl list devices
