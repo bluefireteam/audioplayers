@@ -200,14 +200,14 @@ enum ReleaseMode: String {
     player.publisher(for: \.timeControlStatus)
       .removeDuplicates()
       .receive(on: DispatchQueue.main)
-      .sink{ status in
-        switch(status) {
-          case .paused:
-            self.eventHandler.onPlayingStateUpdate(isPlaying: false)
-          case .playing:
-            self.eventHandler.onPlayingStateUpdate(isPlaying: true)
-          @unknown default:
-            break
+      .sink { status in
+        switch (status) {
+        case .paused:
+          self.eventHandler.onPlayingStateUpdate(isPlaying: false)
+        case .playing:
+          self.eventHandler.onPlayingStateUpdate(isPlaying: true)
+        @unknown default:
+          break
         }
       }
       .store(in: &cancellables)
