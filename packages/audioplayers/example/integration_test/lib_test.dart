@@ -14,7 +14,9 @@ import 'platform_features.dart';
 import 'test_utils.dart';
 
 void main() async {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  binding.defaultTestTimeout = const Timeout(Duration(minutes: 5));
+
   await PlatformFeatures.ensureInitialized();
   final features = PlatformFeatures.instance();
   final isAndroid = !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
@@ -140,6 +142,7 @@ void main() async {
             expect(positions.last, Duration.zero);
           }
         },
+        timeout: const Timeout(Duration(seconds: 30)),
         skip:
             // FIXME(gustl22): [FLAKY] macos 13 fails on live streams.
             (isMacOS && td.isLiveStream) ||

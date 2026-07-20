@@ -11,7 +11,9 @@ import 'app/tabs/stream_tab.dart';
 import 'platform_features.dart';
 
 void main() async {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  binding.defaultTestTimeout = const Timeout(Duration(minutes: 5));
+
   await PlatformFeatures.ensureInitialized();
   final features = PlatformFeatures.instance();
 
