@@ -349,6 +349,15 @@ class AudioPlayer {
   Future<void> stop() async {
     desiredState = PlayerState.stopped;
     await _stopWithoutDesire();
+    if (releaseMode == ReleaseMode.release) {
+      await _platform.release(playerId);
+      _source = null;
+    }
+    // Update position, once the async platform stop has finished.
+    // The position update in 'onPlayingStateUpdateSubscription' sometimes is
+    // not sufficient, as seeking to 0 still takes place asynchronously after
+    // the player has emitted the pause/stop event.
+    _positionUpdater?.update();
   }
 
   /// Stop without changing the desired state.
@@ -358,10 +367,7 @@ class AudioPlayer {
       () => _platform.stop(playerId),
       playerState: PlayerState.stopped,
     );
-    if (releaseMode == ReleaseMode.release) {
-      await _platform.release(playerId);
-      _source = null;
-    }
+    // Playing state is set via _onPlayingStateUpdateSubscription
   }
 
   /// Resumes the audio that has been paused or stopped.

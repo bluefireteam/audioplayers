@@ -201,7 +201,7 @@ enum ReleaseMode: String {
       .removeDuplicates()
       .receive(on: DispatchQueue.main)
       .sink { status in
-        switch (status) {
+        switch status {
         case .paused:
           self.eventHandler.onPlayingStateUpdate(isPlaying: false)
         case .playing:
