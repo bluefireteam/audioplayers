@@ -357,7 +357,7 @@ class AudioPlayer {
     // The position update in 'onPlayingStateUpdateSubscription' sometimes is
     // not sufficient, as seeking to 0 still takes place asynchronously after
     // the player has emitted the pause/stop event.
-    _positionUpdater?.update();
+    await _positionUpdater?.update();
   }
 
   /// Stop without changing the desired state.
