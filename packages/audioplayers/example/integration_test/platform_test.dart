@@ -35,6 +35,9 @@ void main() async {
       isAndroid && await PlatformFeatures.usesAndroidMediaPlayerImpl();
   final audioTestDataList = await getAudioTestDataList();
 
+  // Ensure global platform scope is initialized.
+  await AudioPlayer.global.ensureInitialized();
+
   group('Platform method channel', () {
     late AudioplayersPlatformInterface platform;
     late String playerId;
