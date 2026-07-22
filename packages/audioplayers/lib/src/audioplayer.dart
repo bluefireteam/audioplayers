@@ -472,7 +472,7 @@ class AudioPlayer {
     _playingStateUpdateCompleter = null;
     if (state == PlayerState.playing) {
       // Stop the player, so a new source can be set.
-      // The desire might still to play the source, after it has been set.
+      // The desire might still be to play the source, after it has been set.
       await _stopWithoutDesire();
     }
 
