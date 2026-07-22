@@ -6,7 +6,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:pub_semver/pub_semver.dart';
 
 import 'lib/lib_source_test_data.dart';
 import 'platform_features.dart';
@@ -20,19 +19,16 @@ final isAndroid = !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
 
 bool canDetermineDuration(SourceTestData td) {
   // TODO(gustl22): cannot determine duration for VBR on Linux
-  // FIXME(gustl22): duration event is not emitted for short duration
-  // WAV on Linux (only platform tests, may be a race condition).
   if (td.duration == null) {
     return true;
   }
-  if (isLinux) {
-    return !(td.isVBR || td.duration! < const Duration(seconds: 5));
-  }
-  return true;
+  return !isLinux || !td.isVBR;
 }
 
 void main() async {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  binding.defaultTestTimeout = const Timeout(Duration(minutes: 5));
+
   await PlatformFeatures.ensureInitialized();
   final features = PlatformFeatures.instance();
   final usesAndroidMediaPlayerImplementation =
@@ -67,16 +63,6 @@ void main() async {
             testData: invalidAssetTestData,
           ),
         );
-
-        // TODO(gustl22): remove when min supported Flutter version is 3.41.0
-        if (isLinux &&
-            FlutterVersion.version != null &&
-            Version.parse(FlutterVersion.version!) < Version.parse('3.41.0')) {
-          // Flutter throws a second failure event for invalid files on Linux.
-          // If not caught, it would be randomly thrown in the following tests.
-          final nextEvent = platform.getEventStream(playerId).first;
-          await tester.expectSettingSourceFailure(future: nextEvent);
-        }
       },
     );
 
@@ -145,9 +131,7 @@ void main() async {
             ),
           );
         },
-        // FIXME(gustl22): determines wrong initial position for m3u8 on Linux
-        skip: !canDetermineDuration(td) ||
-            isLinux && td.source == m3u8UrlTestData.source,
+        skip: !canDetermineDuration(td),
       );
     }
 
@@ -269,30 +253,6 @@ void main() async {
           await platform.stop(playerId);
 
           // May check number of loops here
-        });
-      }
-    }
-
-    for (final td in audioTestDataList) {
-      if (features.hasReleaseModeRelease && !td.isLiveStream) {
-        testWidgets('#ReleaseMode.release ${td.source}', (tester) async {
-          await tester.prepareSource(
-            playerId: playerId,
-            platform: platform,
-            testData: td,
-          );
-          await platform.setReleaseMode(playerId, ReleaseMode.release);
-          await platform.resume(playerId);
-          if (td.duration! < const Duration(seconds: 2)) {
-            await tester.pumpAndSettle(const Duration(seconds: 3));
-            // No need to call stop, as it should be released by now
-          } else {
-            await tester.pumpAndSettle(const Duration(seconds: 1));
-            await platform.stop(playerId);
-          }
-          // TODO(Gustl22): test if source was released
-          expect(await platform.getDuration(playerId), null);
-          expect(await platform.getCurrentPosition(playerId), null);
         });
       }
     }

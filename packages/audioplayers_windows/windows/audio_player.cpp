@@ -49,6 +49,8 @@ AudioPlayer::AudioPlayer(
                              std::placeholders::_1, std::placeholders::_2);
     auto onBufferingStateChanged = std::bind(&AudioPlayer::OnMediaStateChange,
                                              this, std::placeholders::_1);
+    auto onPlayingStateUpdateCB = std::bind(&AudioPlayer::OnPlayingStateUpdate,
+                                            this, std::placeholders::_1);
     auto onPlaybackEndedCB = std::bind(&AudioPlayer::OnPlaybackEnded, this);
     auto onSeekCompletedCB = std::bind(&AudioPlayer::OnSeekCompleted, this);
     auto onLoadedCB = std::bind(&AudioPlayer::SendInitialized, this);
@@ -56,8 +58,8 @@ AudioPlayer::AudioPlayer(
     // Create and initialize the MediaEngineWrapper which manages media
     // playback
     m_mediaEngineWrapper = winrt::make_self<media::MediaEngineWrapper>(
-        onLoadedCB, onError, onBufferingStateChanged, onPlaybackEndedCB,
-        onSeekCompletedCB);
+        onLoadedCB, onError, onBufferingStateChanged, onPlayingStateUpdateCB,
+        onPlaybackEndedCB, onSeekCompletedCB);
 
     m_mediaEngineWrapper->Initialize();
   } catch (...) {
@@ -208,6 +210,17 @@ void AudioPlayer::OnPrepared(bool isPrepared) {
   }
 }
 
+void AudioPlayer::OnPlayingStateUpdate(bool isPlaying) {
+  if (this->_eventHandler) {
+    this->_eventHandler->Success(
+        std::make_unique<flutter::EncodableValue>(flutter::EncodableMap(
+            {{flutter::EncodableValue("event"),
+              flutter::EncodableValue("audio.onPlayingStateUpdate")},
+             {flutter::EncodableValue("value"),
+              flutter::EncodableValue(isPlaying)}})));
+  }
+}
+
 void AudioPlayer::OnPlaybackEnded() {
   if (this->_eventHandler) {
     this->_eventHandler->Success(std::make_unique<flutter::EncodableValue>(
@@ -218,8 +231,6 @@ void AudioPlayer::OnPlaybackEnded() {
   }
   if (GetReleaseMode() == ReleaseMode::loop) {
     Play();
-  } else {
-    Stop();
   }
 }
 
@@ -344,11 +355,7 @@ void AudioPlayer::Stop() {
   if (m_mediaFoundationFailed || !m_mediaEngineWrapper)
     return;
   Pause();
-  if (GetReleaseMode() == ReleaseMode::release) {
-    ReleaseMediaSource();
-  } else {
-    SeekTo(0);
-  }
+  SeekTo(0);
 }
 
 void AudioPlayer::Resume() {

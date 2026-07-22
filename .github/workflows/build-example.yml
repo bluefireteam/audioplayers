@@ -59,7 +59,7 @@ on:
     inputs:
       flutter_version:
         required: false
-        default: '3.44.0'
+        default: '3.44.6'
         type: string
       flutter_channel:
         required: false

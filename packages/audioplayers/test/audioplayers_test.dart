@@ -46,7 +46,7 @@ void main() {
       expect(urlSource?.url, 'internet.com/file.mp3');
 
       await player.dispose();
-      expect(platform.popCall().method, 'stop');
+      // "stop" isn't called, if already in stopped state.
       expect(platform.popCall().method, 'release');
       expect(platform.popLastCall().method, 'dispose');
       expect(player.source, null);
@@ -139,20 +139,25 @@ void main() {
           eventType: AudioEventType.log,
           logMessage: 'someLogMessage',
         ),
-        const AudioEvent(
-          eventType: AudioEventType.complete,
-        ),
-        const AudioEvent(
-          eventType: AudioEventType.seekComplete,
-        ),
+        const AudioEvent(eventType: AudioEventType.complete),
+        const AudioEvent(eventType: AudioEventType.seekComplete),
       ];
 
-      expect(
+      final expected = expectLater(
         player.eventStream,
-        emitsInOrder(audioEvents),
+        emitsInOrder([
+          ...audioEvents,
+          // Playing state is emitted via stop after complete.
+          const AudioEvent(
+            eventType: AudioEventType.playingStateUpdate,
+            isPlaying: false,
+          ),
+        ]),
       );
 
       audioEvents.forEach(platform.eventStreamControllers['p1']!.add);
+      await expected;
+
       await platform.eventStreamControllers['p1']!.close();
     });
   });
