@@ -30,8 +30,6 @@ enum ReleaseMode: String {
 
   private var completionObserver: TimeObserver?
   private var playerItemStatusObservation: NSKeyValueObservation?
-  private var playerStatusObservation: NSKeyValueObservation?
-
   init(
     reference: AudioplayersDarwinPlugin,
     eventHandler: AudioPlayersStreamHandler,
