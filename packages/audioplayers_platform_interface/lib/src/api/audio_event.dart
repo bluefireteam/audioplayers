@@ -46,6 +46,7 @@ class AudioEvent {
             eventType == other.eventType &&
             duration == other.duration &&
             logMessage == other.logMessage &&
+            isPlaying == other.isPlaying &&
             isPrepared == other.isPrepared;
   }
 
@@ -54,6 +55,7 @@ class AudioEvent {
         eventType,
         duration,
         logMessage,
+        isPlaying,
         isPrepared,
       );
 
@@ -63,6 +65,7 @@ class AudioEvent {
         'eventType: $eventType, '
         'duration: $duration, '
         'logMessage: $logMessage, '
+        'isPlaying: $isPlaying, '
         'isPrepared: $isPrepared'
         ')';
   }
