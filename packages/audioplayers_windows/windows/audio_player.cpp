@@ -25,13 +25,13 @@ AudioPlayer::AudioPlayer(
     : _playerId(playerId),
       _methodChannel(methodChannel),
       _eventHandler(eventHandler) {
-    m_mfPlatform.Startup();
+  m_mfPlatform.Startup();
 
   // Callbacks invoked by the media engine wrapper
   auto onError = std::bind(&AudioPlayer::OnMediaError, this,
-                            std::placeholders::_1, std::placeholders::_2);
-  auto onBufferingStateChanged = std::bind(&AudioPlayer::OnMediaStateChange,
-                                            this, std::placeholders::_1);
+                           std::placeholders::_1, std::placeholders::_2);
+  auto onBufferingStateChanged =
+      std::bind(&AudioPlayer::OnMediaStateChange, this, std::placeholders::_1);
   auto onPlayingStateUpdateCB = std::bind(&AudioPlayer::OnPlayingStateUpdate,
                                           this, std::placeholders::_1);
   auto onPlaybackEndedCB = std::bind(&AudioPlayer::OnPlaybackEnded, this);

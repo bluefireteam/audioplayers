@@ -133,7 +133,7 @@ void AudioplayersWindowsPlugin::CheckMediaPackSupport() {
     FreeLibrary(hMfplat);
   if (hMfreadwrite)
     FreeLibrary(hMfreadwrite);
-} 
+}
 
 void AudioplayersWindowsPlugin::HandleGlobalMethodCall(
     const MethodCall<EncodableValue>& method_call,
@@ -143,10 +143,14 @@ void AudioplayersWindowsPlugin::HandleGlobalMethodCall(
   if (method_call.method_name().compare("init") == 0) {
     CheckMediaPackSupport();
     if (!isMediaPackSupported) {
-      // Just log without returning an error: the global channel works fine nontheless.
+      // Just log without returning an error: the global channel works fine
+      // nontheless.
       if (globalEvents) {
-        globalEvents->Error("WindowsAudioError",  "Media Feature Pack not found. Please install it from "
-                    "Windows Settings > Optional Features.", nullptr);
+        globalEvents->Error(
+            "WindowsAudioError",
+            "Media Feature Pack not found. Please install it from "
+            "Windows Settings > Optional Features.",
+            nullptr);
       }
     }
 
@@ -177,7 +181,6 @@ void AudioplayersWindowsPlugin::HandleGlobalMethodCall(
 void AudioplayersWindowsPlugin::HandleMethodCall(
     const MethodCall<EncodableValue>& method_call,
     std::unique_ptr<MethodResult<EncodableValue>> result) {
-
   auto args = method_call.arguments();
 
   auto playerId = GetArgument<std::string>("playerId", args, std::string());
@@ -207,10 +210,9 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
           "WindowsAudioError",
           "Player has not yet been created or has already been disposed.");
     } else {
-      result->Error(
-          "WindowsAudioError",
-          "Media Feature Pack not found. Please install it from "
-          "Windows Settings > Optional Features.");
+      result->Error("WindowsAudioError",
+                    "Media Feature Pack not found. Please install it from "
+                    "Windows Settings > Optional Features.");
     }
     return;
   }
