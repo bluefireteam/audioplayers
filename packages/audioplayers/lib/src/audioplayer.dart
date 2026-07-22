@@ -504,7 +504,7 @@ class AudioPlayer {
   }) async {
     if (desiredState != playerState) {
       // The desired state is not the state requested from the method.
-      // It is therefor obsolete and handled by another method.
+      // It is therefore obsolete and handled by another method.
       return;
     }
 
