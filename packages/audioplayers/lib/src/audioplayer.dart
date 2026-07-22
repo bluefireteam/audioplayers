@@ -216,7 +216,7 @@ class AudioPlayer {
           // differs from the current `state`.
           // Then only the player state is set.
           //
-          // On the other hand the action can be triggerd by the system
+          // On the other hand the action can be triggered by the system
           // (e.g. system controls, an interrupting call, etc.).
           // Then the desiredState also needs to be updated to the system
           // value.
