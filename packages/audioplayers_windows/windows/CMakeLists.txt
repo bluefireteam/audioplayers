@@ -54,9 +54,9 @@ target_compile_definitions(${PLUGIN_NAME} PRIVATE FLUTTER_PLUGIN_IMPL)
 target_include_directories(${PLUGIN_NAME} INTERFACE
   "${CMAKE_CURRENT_SOURCE_DIR}/include")
 target_link_libraries(${PLUGIN_NAME} PRIVATE flutter flutter_wrapper_plugin)
-target_link_libraries(${PLUGIN_NAME} PRIVATE shlwapi Mfplat.lib)
+target_link_libraries(${PLUGIN_NAME} PRIVATE shlwapi Mfplat)
 
-target_link_libraries(${PLUGIN_NAME} PRIVATE delayimp.lib)
+target_link_libraries(${PLUGIN_NAME} PRIVATE delayimp)
 target_link_options(${PLUGIN_NAME} PRIVATE "/DELAYLOAD:Mfplat.dll")
 
 # List of absolute paths to libraries that should be bundled with the plugin

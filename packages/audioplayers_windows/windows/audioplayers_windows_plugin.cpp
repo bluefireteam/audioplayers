@@ -76,9 +76,9 @@ class AudioplayersWindowsPlugin : public Plugin {
 
   void OnGlobalLog(const std::string& message);
 
-  bool isMediaPackSupported = false;
+  bool isMediaFoundationSupported = false;
 
-  void CheckMediaPackSupport();
+  void CheckMediaFoundationSupport();
 };
 
 // static
@@ -123,12 +123,12 @@ AudioplayersWindowsPlugin::AudioplayersWindowsPlugin() {}
 AudioplayersWindowsPlugin::~AudioplayersWindowsPlugin() {}
 
 // Test if on Windows N without Media Feature Pack installed
-void AudioplayersWindowsPlugin::CheckMediaPackSupport() {
+void AudioplayersWindowsPlugin::CheckMediaFoundationSupport() {
   HMODULE hMfplat =
       LoadLibraryEx(L"Mfplat.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
   HMODULE hMfreadwrite =
       LoadLibraryEx(L"mfreadwrite.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
-  isMediaPackSupported = hMfplat && hMfreadwrite;
+  isMediaFoundationSupported = hMfplat && hMfreadwrite;
   if (hMfplat)
     FreeLibrary(hMfplat);
   if (hMfreadwrite)
@@ -141,8 +141,8 @@ void AudioplayersWindowsPlugin::HandleGlobalMethodCall(
   auto args = method_call.arguments();
 
   if (method_call.method_name().compare("init") == 0) {
-    CheckMediaPackSupport();
-    if (!isMediaPackSupported) {
+    CheckMediaFoundationSupport();
+    if (!isMediaFoundationSupported) {
       // Just log without returning an error: the global channel works fine
       // nontheless.
       if (globalEvents) {
@@ -200,12 +200,12 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
   if (!player) {
     if (method_call.method_name().compare("dispose") == 0) {
       // If no player is available, still can dispose the event channel,
-      // e.g. when isMediaPackSupported is false.
+      // e.g. when isMediaFoundationSupported is false.
       playerEventChannels.erase(playerId);
       result->Success();
       return;
     }
-    if (isMediaPackSupported) {
+    if (isMediaFoundationSupported) {
       result->Error(
           "WindowsAudioError",
           "Player has not yet been created or has already been disposed.");
@@ -318,7 +318,7 @@ void AudioplayersWindowsPlugin::CreatePlayer(std::string playerId) {
   EventStreamHandler<EncodableValue>* eventHandlerPtr = eventHandler.get();
   eventChannel->SetStreamHandler(std::move(eventHandler));
 
-  if (isMediaPackSupported) {
+  if (isMediaFoundationSupported) {
     auto player =
         std::make_unique<AudioPlayer>(playerId, methods.get(), eventHandlerPtr);
     audioPlayers.insert(std::make_pair(playerId, std::move(player)));

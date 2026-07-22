@@ -38,8 +38,7 @@ AudioPlayer::AudioPlayer(
   auto onSeekCompletedCB = std::bind(&AudioPlayer::OnSeekCompleted, this);
   auto onLoadedCB = std::bind(&AudioPlayer::SendInitialized, this);
 
-  // Create and initialize the MediaEngineWrapper which manages media
-  // playback
+  // Create and initialize the MediaEngineWrapper which manages media playback
   m_mediaEngineWrapper = winrt::make_self<media::MediaEngineWrapper>(
       onLoadedCB, onError, onBufferingStateChanged, onPlayingStateUpdateCB,
       onPlaybackEndedCB, onSeekCompletedCB);
