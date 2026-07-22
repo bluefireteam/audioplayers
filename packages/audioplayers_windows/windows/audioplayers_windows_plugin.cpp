@@ -75,6 +75,10 @@ class AudioplayersWindowsPlugin : public Plugin {
   AudioPlayer* GetPlayer(std::string playerId);
 
   void OnGlobalLog(const std::string& message);
+
+  bool isMediaPackSupported = false;
+
+  void CheckMediaPackSupport();
 };
 
 // static
@@ -118,12 +122,34 @@ AudioplayersWindowsPlugin::AudioplayersWindowsPlugin() {}
 
 AudioplayersWindowsPlugin::~AudioplayersWindowsPlugin() {}
 
+// Test if on Windows N without Media Feature Pack installed
+void AudioplayersWindowsPlugin::CheckMediaPackSupport() {
+  HMODULE hMfplat =
+      LoadLibraryEx(L"Mfplat.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
+  HMODULE hMfreadwrite =
+      LoadLibraryEx(L"mfreadwrite.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
+  isMediaPackSupported = hMfplat && hMfreadwrite;
+  if (hMfplat)
+    FreeLibrary(hMfplat);
+  if (hMfreadwrite)
+    FreeLibrary(hMfreadwrite);
+} 
+
 void AudioplayersWindowsPlugin::HandleGlobalMethodCall(
     const MethodCall<EncodableValue>& method_call,
     std::unique_ptr<MethodResult<EncodableValue>> result) {
   auto args = method_call.arguments();
 
   if (method_call.method_name().compare("init") == 0) {
+    CheckMediaPackSupport();
+    if (!isMediaPackSupported) {
+      // Just log without returning an error: the global channel works fine nontheless.
+      if (globalEvents) {
+        globalEvents->Error("WindowsAudioError",  "Media Feature Pack not found. Please install it from "
+                    "Windows Settings > Optional Features.", nullptr);
+      }
+    }
+
     for (const auto& entry : audioPlayers) {
       entry.second->Dispose();
     }
@@ -151,6 +177,7 @@ void AudioplayersWindowsPlugin::HandleGlobalMethodCall(
 void AudioplayersWindowsPlugin::HandleMethodCall(
     const MethodCall<EncodableValue>& method_call,
     std::unique_ptr<MethodResult<EncodableValue>> result) {
+
   auto args = method_call.arguments();
 
   auto playerId = GetArgument<std::string>("playerId", args, std::string());
@@ -168,9 +195,23 @@ void AudioplayersWindowsPlugin::HandleMethodCall(
 
   auto player = GetPlayer(playerId);
   if (!player) {
-    result->Error(
-        "WindowsAudioError",
-        "Player has not yet been created or has already been disposed.");
+    if (method_call.method_name().compare("dispose") == 0) {
+      // If no player is available, still can dispose the event channel,
+      // e.g. when isMediaPackSupported is false.
+      playerEventChannels.erase(playerId);
+      result->Success();
+      return;
+    }
+    if (isMediaPackSupported) {
+      result->Error(
+          "WindowsAudioError",
+          "Player has not yet been created or has already been disposed.");
+    } else {
+      result->Error(
+          "WindowsAudioError",
+          "Media Feature Pack not found. Please install it from "
+          "Windows Settings > Optional Features.");
+    }
     return;
   }
 
@@ -275,9 +316,11 @@ void AudioplayersWindowsPlugin::CreatePlayer(std::string playerId) {
   EventStreamHandler<EncodableValue>* eventHandlerPtr = eventHandler.get();
   eventChannel->SetStreamHandler(std::move(eventHandler));
 
-  auto player =
-      std::make_unique<AudioPlayer>(playerId, methods.get(), eventHandlerPtr);
-  audioPlayers.insert(std::make_pair(playerId, std::move(player)));
+  if (isMediaPackSupported) {
+    auto player =
+        std::make_unique<AudioPlayer>(playerId, methods.get(), eventHandlerPtr);
+    audioPlayers.insert(std::make_pair(playerId, std::move(player)));
+  }
 
   // Keep the event channel and handler alive as long as the plugin/player
   // exists
