@@ -17,6 +17,12 @@ Pod::Spec.new do |s|
   s.osx.dependency 'FlutterMacOS'
   s.ios.deployment_target = '13.0'
   s.osx.deployment_target = '10.15'
+  # Pin the Swift language mode: without it, newer Xcode images compile the pod
+  # in their default (Swift 6) mode, where recent SDKs no longer expose the
+  # Swift 4.2-era nested refinements (AVAudioSession.Category.playback etc.),
+  # breaking AudioContext.swift with "has no member" / typedef degradation
+  # errors. See https://github.com/bluefireteam/audioplayers/issues/1955
+  s.swift_version = '5.0'
 
   # Flutter.framework does not contain a i386 slice.
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386' }

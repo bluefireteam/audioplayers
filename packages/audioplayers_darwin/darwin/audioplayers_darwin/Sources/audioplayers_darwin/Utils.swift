@@ -18,7 +18,10 @@ func toCMTime(millis: Double) -> CMTime {
 }
 
 func toCMTime(millis: Float) -> CMTime {
-  return CMTimeMakeWithSeconds(Float64(millis) / 1000, preferredTimescale: Int32(NSEC_PER_SEC))
+  // The Swift-native initializer instead of CMTimeMakeWithSeconds: recent SDKs
+  // (e.g. iPhoneOS 26.4) drop the `preferredTimescale:` label from the C shim,
+  // while CMTime(seconds:preferredTimescale:) is stable across all SDKs.
+  return CMTime(seconds: Float64(millis) / 1000, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
 }
 
 func fromCMTime(time: CMTime) -> Int {
