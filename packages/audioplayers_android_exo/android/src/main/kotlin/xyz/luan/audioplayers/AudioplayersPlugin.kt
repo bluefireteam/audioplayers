@@ -38,7 +38,7 @@ class AudioplayersPlugin : FlutterPlugin {
     }
 
     override fun onDetachedFromEngine(binding: FlutterPluginBinding) {
-        players.values.forEach { it.dispose() }
+        for (player in players.values) player.dispose()
         players.clear()
         globalEvents.dispose()
     }
@@ -58,7 +58,7 @@ class AudioplayersPlugin : FlutterPlugin {
     private fun globalMethodHandler(call: MethodCall, response: MethodChannel.Result) {
         when (call.method) {
             "init" -> {
-                players.values.forEach { it.dispose() }
+                for (player in players.values) player.dispose()
                 players.clear()
             }
 
