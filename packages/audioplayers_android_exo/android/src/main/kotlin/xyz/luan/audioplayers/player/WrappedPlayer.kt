@@ -19,6 +19,7 @@ class WrappedPlayer internal constructor(
     init {
         createPlayer().also {
             player = it
+            it.updateContext(context)
         }
     }
     var source: Source? = null
