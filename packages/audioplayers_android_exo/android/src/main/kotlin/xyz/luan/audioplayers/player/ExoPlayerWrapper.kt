@@ -74,6 +74,9 @@ class ExoPlayerWrapper(
     private var channelMixingAudioProcessor = AdaptiveChannelMixingAudioProcessor()
     private lateinit var audioSink: AudioSink
 
+    private var stayAwake = false
+    private var isNetworkSource = false
+
     init {
         player = createPlayer(appContext)
     }
@@ -177,11 +180,16 @@ class ExoPlayerWrapper(
             builder.build(),
             false,
         )
+        stayAwake = context.stayAwake
+        updateWakeMode()
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
     @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
     override fun setSource(source: Source) {
+        isNetworkSource = source is UrlSource && !source.isLocal &&
+            Uri.parse(source.url).scheme?.lowercase() in setOf("http", "https")
+        updateWakeMode()
         player.clearMediaItems()
         if (source is UrlSource) {
             player.setMediaItem(MediaItem.fromUri(source.url))
@@ -197,6 +205,17 @@ class ExoPlayerWrapper(
 
     override fun prepare() {
         player.prepare()
+    }
+
+    /**
+     * WAKE_MODE_LOCAL is what Media3 applies by default, so `stayAwake: false` keeps that behavior.
+     * `stayAwake` additionally takes a wifi lock (WAKE_MODE_NETWORK), but only for remote sources,
+     * as it costs battery for nothing on local ones. Both locks are only held while playing.
+     * Requires the `android.permission.WAKE_LOCK` permission.
+     */
+    @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
+    private fun updateWakeMode() {
+        player.setWakeMode(if (stayAwake && isNetworkSource) C.WAKE_MODE_NETWORK else C.WAKE_MODE_LOCAL)
     }
 }
 
