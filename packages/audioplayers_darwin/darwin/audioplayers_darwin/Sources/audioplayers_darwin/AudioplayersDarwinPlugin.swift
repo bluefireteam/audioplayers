@@ -280,6 +280,8 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
       let currentPosition = player.getCurrentPosition()
       result(currentPosition)
       return
+    } else if method == "setBackBufferDuration" {
+      // No-op: AVPlayer manages its buffer internally.
     } else if method == "setPlaybackRate" {
       guard let playbackRate = args["playbackRate"] as? Double else {
         result(
