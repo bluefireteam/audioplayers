@@ -111,7 +111,9 @@ void main() {
       expect(player.playbackRate, 0.3);
       expect(platform.popLastCall().method, 'setPlaybackRate');
 
+      // ignore: deprecated_member_use
       await player.setPlayerMode(PlayerMode.lowLatency);
+      // ignore: deprecated_member_use
       expect(player.mode, PlayerMode.lowLatency);
       expect(platform.popLastCall().method, 'setPlayerMode');
 

@@ -64,38 +64,6 @@ Future<void> testControlsTab(
     await tester.stop();
   }
 
-  // Test all features in low latency mode:
-  final isBytesSource = audioSourceTestData.sourceKey.contains('bytes');
-  if (features.hasLowLatency &&
-      !audioSourceTestData.isLiveStream &&
-      !isBytesSource) {
-    await tester.testPlayerMode(PlayerMode.lowLatency);
-
-    // Test resume
-    await tester.resume();
-    await tester.pump(const Duration(seconds: 1));
-    // Test pause
-    await tester.scrollToAndTap(const Key('control-pause'));
-    await tester.resume();
-    await tester.pump(const Duration(seconds: 1));
-    await tester.stop();
-
-    // Test volume
-    await tester.testVolume('0.5');
-    await tester.testVolume('1.0');
-
-    // Test release mode: loop
-    await tester.testReleaseMode(ReleaseMode.loop);
-    await tester.pump(const Duration(seconds: 3));
-    await tester.stop();
-    await tester.testReleaseMode(ReleaseMode.stop, isResume: false);
-    await tester.pumpAndSettle();
-
-    // Reset to media player
-    await tester.testPlayerMode(PlayerMode.mediaPlayer);
-    await tester.pumpAndSettle();
-  }
-
   if (!audioSourceTestData.isLiveStream &&
       audioSourceTestData.duration! < const Duration(seconds: 2)) {
     final isAndroid =
@@ -206,20 +174,6 @@ extension ControlsWidgetTester on WidgetTester {
     if (isResume) {
       await resume();
     }
-  }
-
-  Future<void> testPlayerMode(PlayerMode mode) async {
-    printWithTimeOnFailure('Test Player Mode: ${mode.name}');
-    final st = StackTrace.current.toString();
-
-    await scrollToAndTap(Key('control-player-mode-${mode.name}'));
-    await waitFor(
-      () async => expectEnumToggleHasSelected(
-        const Key('control-player-mode'),
-        matcher: equals(mode),
-      ),
-      stackTrace: st,
-    );
   }
 
   Future<void> testReleaseMode(ReleaseMode mode, {bool isResume = true}) async {

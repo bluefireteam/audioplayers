@@ -9,7 +9,7 @@ flutter:
   plugin:
     platforms:
       android:
-        default_package: audioplayers_android
+        default_package: audioplayers_android_exo
       ios:
         default_package: audioplayers_darwin
       linux:
@@ -22,7 +22,7 @@ flutter:
         default_package: audioplayers_windows
 
 dependencies:
-  audioplayers_android: ^5.3.0
+  audioplayers_android_exo: ^0.1.4
   audioplayers_darwin: ^6.5.0
   audioplayers_linux: ^4.3.0
   audioplayers_platform_interface: ^7.2.0

@@ -22,10 +22,10 @@ class PlatformFeatures {
     if (_usesAndroidMediaPlayer == null) {
       final yamlContent = await rootBundle.loadString('pubspec.yaml');
       final parsed = Pubspec.parse(yamlContent);
-      // This line should check for 'audioplayers_android' as soon as
-      // 'audioplayers_android_exo' becomes the default implementation.
+      // 'audioplayers_android_exo' is the default implementation,
+      // 'audioplayers_android' has to be added explicitly to override it.
       _usesAndroidMediaPlayer =
-          !parsed.dependencies.containsKey('audioplayers_android_exo');
+          parsed.dependencies.containsKey('audioplayers_android');
     }
     return _usesAndroidMediaPlayer!;
   }
