@@ -32,14 +32,16 @@ AudioPlayer::AudioPlayer(
                            std::placeholders::_1, std::placeholders::_2);
   auto onBufferingStateChanged =
       std::bind(&AudioPlayer::OnMediaStateChange, this, std::placeholders::_1);
+  auto onPlayingStateUpdateCB = std::bind(&AudioPlayer::OnPlayingStateUpdate,
+                                          this, std::placeholders::_1);
   auto onPlaybackEndedCB = std::bind(&AudioPlayer::OnPlaybackEnded, this);
   auto onSeekCompletedCB = std::bind(&AudioPlayer::OnSeekCompleted, this);
   auto onLoadedCB = std::bind(&AudioPlayer::SendInitialized, this);
 
   // Create and initialize the MediaEngineWrapper which manages media playback
   m_mediaEngineWrapper = winrt::make_self<media::MediaEngineWrapper>(
-      onLoadedCB, onError, onBufferingStateChanged, onPlaybackEndedCB,
-      onSeekCompletedCB);
+      onLoadedCB, onError, onBufferingStateChanged, onPlayingStateUpdateCB,
+      onPlaybackEndedCB, onSeekCompletedCB);
 
   m_mediaEngineWrapper->Initialize();
 }
@@ -116,7 +118,7 @@ void AudioPlayer::SetSourceBytes(std::vector<uint8_t> bytes) {
     m_mediaEngineWrapper->SetMediaSource(mediaSource.get());
   } catch (...) {
     // Forward errors to event stream, as this is called asynchronously
-    this->OnError("WindowsAudioError", "Error setting bytes", nullptr);
+    this->OnError("WindowsAudioError", "Error setting bytes");
   }
 }
 
@@ -139,11 +141,17 @@ void AudioPlayer::OnMediaError(MF_MEDIA_ENGINE_ERR error, HRESULT hr) {
   }
 }
 
+void AudioPlayer::OnError(const std::string& code, const std::string& message) {
+  if (this->_eventHandler) {
+    this->_eventHandler->Error(code, message, nullptr);
+  }
+}
+
 void AudioPlayer::OnError(const std::string& code,
                           const std::string& message,
                           const flutter::EncodableValue& details) {
   if (this->_eventHandler) {
-    this->_eventHandler->Error(code, message, details);
+    this->_eventHandler->Error(code, message, &details);
   }
 }
 
@@ -165,6 +173,17 @@ void AudioPlayer::OnPrepared(bool isPrepared) {
   }
 }
 
+void AudioPlayer::OnPlayingStateUpdate(bool isPlaying) {
+  if (this->_eventHandler) {
+    this->_eventHandler->Success(
+        std::make_unique<flutter::EncodableValue>(flutter::EncodableMap(
+            {{flutter::EncodableValue("event"),
+              flutter::EncodableValue("audio.onPlayingStateUpdate")},
+             {flutter::EncodableValue("value"),
+              flutter::EncodableValue(isPlaying)}})));
+  }
+}
+
 void AudioPlayer::OnPlaybackEnded() {
   if (this->_eventHandler) {
     this->_eventHandler->Success(std::make_unique<flutter::EncodableValue>(
@@ -175,8 +194,6 @@ void AudioPlayer::OnPlaybackEnded() {
   }
   if (GetReleaseMode() == ReleaseMode::loop) {
     Play();
-  } else {
-    Stop();
   }
 }
 
@@ -274,11 +291,7 @@ void AudioPlayer::Pause() {
 
 void AudioPlayer::Stop() {
   Pause();
-  if (GetReleaseMode() == ReleaseMode::release) {
-    ReleaseMediaSource();
-  } else {
-    SeekTo(0);
-  }
+  SeekTo(0);
 }
 
 void AudioPlayer::Resume() {

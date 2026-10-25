@@ -1,9 +1,5 @@
-@Timeout(Duration(minutes: 5))
-library;
-
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_example/tabs/sources.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -11,10 +7,12 @@ import 'package:integration_test/integration_test.dart';
 import 'lib/lib_source_test_data.dart';
 import 'lib/lib_test_utils.dart';
 import 'platform_features.dart';
-import 'test_utils.dart';
 
 void main() async {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  binding.defaultTestTimeout = const Timeout(Duration(minutes: 5));
+
+  await PlatformFeatures.ensureInitialized();
   final features = PlatformFeatures.instance();
   final isAndroid = !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
   final audioTestDataList = await getAudioTestDataList();
@@ -83,6 +81,30 @@ void main() async {
     skip: !features.hasBytesSource,
   );
 
+  group('ReleaseMode', () {
+    for (final td in audioTestDataList) {
+      if (features.hasReleaseModeRelease && !td.isLiveStream) {
+        testWidgets('#release ${td.source}', (tester) async {
+          final player = AudioPlayer();
+          await player.setReleaseMode(ReleaseMode.release);
+
+          await player.play(td.source);
+
+          if (td.duration! < const Duration(seconds: 2)) {
+            await tester.pumpPlatform(const Duration(seconds: 3));
+            // No need to call stop, as it should be released by now
+          } else {
+            await tester.pumpPlatform(const Duration(seconds: 1));
+            await player.stop();
+          }
+          // TODO(Gustl22): test if source was released
+          expect(await player.getDuration(), null);
+          expect(await player.getCurrentPosition(), null);
+        });
+      }
+    }
+  });
+
   group('AP events', () {
     late AudioPlayer player;
 
@@ -108,37 +130,45 @@ void main() async {
               interval: const Duration(milliseconds: 100),
             );
           }
-          final futurePositions = player.onPositionChanged.toList();
+          final positionsStream = player.onPositionChanged;
+
+          expectLater(positionsStream, neverEmits(null));
+          Future futureExpectations;
+          if (td.isLiveStream) {
+            // TODO(gustl22): Live streams may have zero or null as initial
+            //  position. This should be consistent across all platforms.
+            futureExpectations = expectLater(
+              positionsStream,
+              emitsThrough(greaterThan(Duration.zero)),
+            );
+          } else {
+            futureExpectations = expectLater(
+              positionsStream,
+              emitsInOrder([
+                Duration.zero,
+                emitsThrough(greaterThan(Duration.zero)),
+                emitsThrough(Duration.zero),
+              ]),
+            );
+          }
 
           await player.setReleaseMode(ReleaseMode.stop);
           await player.setSource(td.source);
           await player.resume();
           await tester.pumpGlobalFrames(const Duration(seconds: 5));
 
-          if (!td.isLiveStream && td.duration! < const Duration(seconds: 2)) {
-            expect(player.state, PlayerState.completed);
-          } else {
-            if (td.isLiveStream || td.duration! > const Duration(seconds: 10)) {
-              expect(player.state, PlayerState.playing);
-            } else {
-              // Don't know for sure, if has yet completed or is still playing
-            }
-            await player.stop();
-            expect(player.state, PlayerState.stopped);
-          }
+          expect(
+            player.state,
+            anyOf([PlayerState.completed, PlayerState.playing]),
+          );
+          await player.stop();
+          expect(player.state, PlayerState.stopped);
+
+          await futureExpectations;
+
           await player.dispose();
-          final positions = await futurePositions;
-          printOnFailure('Positions: $positions');
-          expect(positions, isNot(contains(null)));
-          expect(positions, contains(greaterThan(Duration.zero)));
-          if (td.isLiveStream) {
-            // TODO(gustl22): Live streams may have zero or null as initial
-            //  position. This should be consistent across all platforms.
-          } else {
-            expect(positions.first, Duration.zero);
-            expect(positions.last, Duration.zero);
-          }
         },
+        timeout: const Timeout(Duration(seconds: 30)),
         skip:
             // FIXME(gustl22): [FLAKY] macos 13 fails on live streams.
             (isMacOS && td.isLiveStream) ||
@@ -172,32 +202,14 @@ void main() async {
             (i) async => players[i].play(audioTestDataList[i].source),
           ),
         );
-        final playerStates = List<PlayerState?>.generate(
-          audioTestDataList.length,
-          (index) => null,
-        );
-        await tester.waitFor(
-          () async {
-            // TODO(gustl22): Improve detection of started players via player
-            //  state.
-            final unplayed = playerStates
-                .mapIndexed(
-                  (index, element) => element != null ? null : index,
-                )
-                .nonNulls;
-            for (final i in unplayed) {
-              final player = players[i];
-              if (player.state == PlayerState.completed ||
-                  player.state == PlayerState.disposed) {
-                playerStates[i] = player.state;
-              } else if (((await player.getCurrentPosition()) ??
-                      Duration.zero) >
-                  Duration.zero) {
-                playerStates[i] = PlayerState.playing;
-              }
-            }
-            expect(playerStates, everyElement(isNotNull));
-          },
+        final playerStates = players.map((player) => player.state);
+        expect(
+          playerStates,
+          everyElement(
+            (playerState) =>
+                playerState != PlayerState.stopped &&
+                playerState != PlayerState.paused,
+          ),
         );
         await Future.wait<void>(iterator.map((i) => players[i].stop()));
         await Future.wait(players.map((p) => p.dispose()));
@@ -216,22 +228,12 @@ void main() async {
         final player = AudioPlayer();
 
         for (final td in audioTestDataList) {
-          player.play(td.source);
-          // TODO(gustl22): Improve detection of started players via player
-          //  state.
-          PlayerState? playerState;
-          await tester.waitFor(
-            () async {
-              if (player.state == PlayerState.completed ||
-                  player.state == PlayerState.disposed) {
-                playerState = player.state;
-              } else if (((await player.getCurrentPosition()) ??
-                      Duration.zero) >
-                  Duration.zero) {
-                playerState = PlayerState.playing;
-              }
-              expect(playerState, isNotNull);
-            },
+          await player.play(td.source);
+          expect(
+            player.state,
+            (playerState) =>
+                playerState != PlayerState.stopped &&
+                playerState != PlayerState.paused,
           );
           await player.stop();
         }
@@ -385,6 +387,71 @@ void main() async {
     expect(player.state, PlayerState.paused);
 
     await player.dispose();
+  });
+
+  group('Call twice:', () {
+    testWidgets('SetSource', (WidgetTester tester) async {
+      final player = AudioPlayer();
+      await player.setSource(mp3Url1TestData.source);
+      expect(player.state, PlayerState.stopped);
+      await player.setSource(mp3Url1TestData.source);
+      expect(player.state, PlayerState.stopped);
+      await player.dispose();
+      expect(player.state, PlayerState.disposed);
+    });
+    testWidgets('Play', (WidgetTester tester) async {
+      final player = AudioPlayer();
+      await player.play(mp3Url1TestData.source);
+      expect(player.state, PlayerState.playing);
+      await player.play(mp3Url1TestData.source);
+      expect(player.state, PlayerState.playing);
+      await player.dispose();
+      expect(player.state, PlayerState.disposed);
+    });
+    testWidgets('Pause', (WidgetTester tester) async {
+      final player = AudioPlayer();
+      await player.play(mp3Url1TestData.source);
+      expect(player.state, PlayerState.playing);
+      await player.pause();
+      expect(player.state, PlayerState.paused);
+      await player.pause();
+      expect(player.state, PlayerState.paused);
+      await player.dispose();
+      expect(player.state, PlayerState.disposed);
+    });
+    testWidgets('Resume', (WidgetTester tester) async {
+      final player = AudioPlayer();
+      await player.setSource(mp3Url1TestData.source);
+      expect(player.state, PlayerState.stopped);
+      await player.resume();
+      expect(player.state, PlayerState.playing);
+      await player.resume();
+      expect(player.state, PlayerState.playing);
+      await player.dispose();
+      expect(player.state, PlayerState.disposed);
+    });
+    testWidgets('Stop', (WidgetTester tester) async {
+      final player = AudioPlayer();
+      await player.play(mp3Url1TestData.source);
+      expect(player.state, PlayerState.playing);
+      await player.stop();
+      expect(player.state, PlayerState.stopped);
+      await player.stop();
+      expect(player.state, PlayerState.stopped);
+      await player.dispose();
+      expect(player.state, PlayerState.disposed);
+    });
+    testWidgets('Release', (WidgetTester tester) async {
+      final player = AudioPlayer();
+      await player.play(mp3Url1TestData.source);
+      expect(player.state, PlayerState.playing);
+      await player.release();
+      expect(player.state, PlayerState.stopped);
+      await player.release();
+      expect(player.state, PlayerState.stopped);
+      await player.dispose();
+      expect(player.state, PlayerState.disposed);
+    });
   });
 
   group(

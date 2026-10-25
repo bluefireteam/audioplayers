@@ -18,15 +18,18 @@ class MediaEngineWrapper
 
   enum class BufferingState { HAVE_NOTHING = 0, HAVE_ENOUGH = 1 };
   using BufferingStateChangeCB = std::function<void(BufferingState)>;
+  using PlayingStateChangeCB = std::function<void(bool)>;
 
   MediaEngineWrapper(std::function<void()> initializedCB,
                      ErrorCB errorCB,
                      BufferingStateChangeCB bufferingStateChangeCB,
+                     PlayingStateChangeCB playingStateUpdateCB,
                      std::function<void()> playbackEndedCB,
                      std::function<void()> seekCompletedCB)
       : m_initializedCB(initializedCB),
         m_errorCB(errorCB),
         m_bufferingStateChangeCB(bufferingStateChangeCB),
+        m_playingStateUpdateCB(playingStateUpdateCB),
         m_playbackEndedCB(playbackEndedCB),
         m_seekCompletedCB(seekCompletedCB) {}
   ~MediaEngineWrapper() {}
@@ -66,6 +69,7 @@ class MediaEngineWrapper
   std::function<void()> m_initializedCB;
   ErrorCB m_errorCB;
   BufferingStateChangeCB m_bufferingStateChangeCB;
+  PlayingStateChangeCB m_playingStateUpdateCB;
   std::function<void()> m_playbackEndedCB;
   std::function<void()> m_seekCompletedCB;
   MFPlatformRef m_platformRef;
@@ -76,6 +80,7 @@ class MediaEngineWrapper
   void OnLoaded();
   void OnError(MF_MEDIA_ENGINE_ERR error, HRESULT hr);
   void OnBufferingStateChange(BufferingState state);
+  void OnPlayingStateUpdate(bool isPlaying);
   void OnPlaybackEnded();
   void OnSeekCompleted();
 };

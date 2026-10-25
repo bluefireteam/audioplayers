@@ -1,5 +1,7 @@
 # Project-level configuration.
-cmake_minimum_required(VERSION 3.14)
+# Audioplayers uses libraries, which require CMP0091 NEW policy: https://cmake.org/cmake/help/latest/policy/CMP0091.html#policy:CMP0091
+# So one can either raise the minimum required version to 3.15 (which enables this by default), or set `cmake_policy(SET CMP0091 NEW)`.
+cmake_minimum_required(VERSION 3.15)
 project(audioplayers_example LANGUAGES CXX)
 
 # The name of the executable created for the application. Change this to change
@@ -8,7 +10,7 @@ set(BINARY_NAME "audioplayers_example")
 
 # Explicitly opt in to modern CMake behaviors to avoid warnings with recent
 # versions of CMake.
-cmake_policy(VERSION 3.14...3.25)
+cmake_policy(VERSION 3.15...3.25)
 
 # Define build configuration option.
 get_property(IS_MULTICONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
