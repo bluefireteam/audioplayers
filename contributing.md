@@ -56,10 +56,10 @@ dependency_overrides:
     git:
       url: https://github.com/bluefireteam/audioplayers.git
       path: 'packages/audioplayers_linux'
-  audioplayers_android:
+  audioplayers_android_exo:
     git:
       url: https://github.com/bluefireteam/audioplayers.git
-      path: 'packages/audioplayers_android'
+      path: 'packages/audioplayers_android_exo'
   audioplayers_darwin:
     git:
       url: https://github.com/bluefireteam/audioplayers.git

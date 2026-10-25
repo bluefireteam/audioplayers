@@ -164,20 +164,24 @@ The release mode is controlling what happens when the playback ends. There are 3
 **Note**: there are caveats when looping audio without gaps. Depending on the file format and platform, when audioplayers uses the native implementation of the "looping" feature, there will be gaps between plays, which might not be noticeable for non-continuous SFX but will definitely be noticeable for looping songs. Please check out the Gapless Loop section on our [Troubleshooting Guide](https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md) for more details.
 
 
-### Player Mode
+### Player Mode (deprecated)
+
+**Note**: the Player Mode (`PlayerMode`, `setPlayerMode`, `AudioPool.playerMode`) is deprecated and will be removed in a future release, as low latency mode is only supported by the deprecated `audioplayers_android` package.
 
 The Player Mode represents what kind of native SDK is used to playback audio, when multiple options are available (currently only relevant for Android). There are 2 options:
 
 1. `.mediaPlayer` (default): for long media files or streams.
-1. `.lowLatency`: for short audio files, since it reduces the impacts on visuals or UI performance.
+1. `.lowLatency`: for short audio files, since it reduces the impacts on visuals or UI performance (only supported by `audioplayers_android`).
+
+The default Android implementation `audioplayers_android_exo` always uses `.mediaPlayer`.
+For short sound effects, consider using an `AudioPool` instead.
+If you need a low latency experience on all platforms, e.g. for games, have a look at [flutter_soloud](https://pub.dev/packages/flutter_soloud).
 
 **Note**: on low latency mode, these features are NOT available:
 - get duration & duration event
 - get position & position event
 - playback completion event (this means you are responsible for stopping the player)
 - seeking & seek completion event
-
-Normally you want to use `.mediaPlayer` unless you care about performance and your audios are short (i.e. for sound effects in games).
 
 ## Logs
 

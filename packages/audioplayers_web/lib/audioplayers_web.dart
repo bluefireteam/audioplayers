@@ -89,6 +89,7 @@ class WebAudioplayersPlatform extends AudioplayersPlatformInterface {
   @override
   Future<void> setPlayerMode(
     String playerId,
+    // ignore: deprecated_member_use
     PlayerMode playerMode,
   ) async {
     // no-op: web doesn't have multiple modes

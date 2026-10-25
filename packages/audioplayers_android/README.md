@@ -14,10 +14,23 @@
   <a title="Melos" href="https://github.com/invertase/melos"><img src="https://img.shields.io/badge/maintained%20with-melos-f700ff.svg"/></a>
 </p>
 
-The Android implementation of [`audioplayers`](https://pub.dev/packages/audioplayers).
+The Android implementation of [`audioplayers`](https://pub.dev/packages/audioplayers), based on the Android
+[`MediaPlayer`](https://developer.android.com/reference/android/media/MediaPlayer) and
+[`SoundPool`](https://developer.android.com/reference/android/media/SoundPool).
+
+> [!WARNING]
+> This package is **deprecated** in favor of [`audioplayers_android_exo`](https://pub.dev/packages/audioplayers_android_exo),
+> which is based on [Media3 ExoPlayer](https://developer.android.com/media/media3/exoplayer) and is now the default Android implementation of `audioplayers`.
+> It only receives critical fixes and will be discontinued in a future release.
 
 ## Usage
 
-This package is [endorsed](https://flutter.dev/docs/development/packages-and-plugins/developing-packages#endorsed-federated-plugin),
-which means you can simply use `audioplayers` normally. 
-This package will be automatically included in your app when you do, so you do not need to add it to your `pubspec.yaml`.
+This package is [not endorsed](https://flutter.dev/docs/development/packages-and-plugins/developing-packages#non-endorsed-federated-plugin) anymore.
+If you still need it (e.g. for `PlayerMode.lowLatency`), you can override the default Android implementation
+by adding `audioplayers_android` to your app's `pubspec.yaml`:
+
+```yaml
+dependencies:
+  audioplayers: any
+  audioplayers_android: any
+```

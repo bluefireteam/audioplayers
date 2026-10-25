@@ -42,6 +42,11 @@ class AudioPool {
   final int maxPlayers;
 
   /// Whether the players in this pool use low latency mode.
+  @Deprecated(
+    'Player modes are deprecated, as low latency mode is only supported by '
+    'the deprecated `audioplayers_android` package. '
+    'This will be removed in a future release.',
+  )
   final PlayerMode playerMode;
 
   @visibleForTesting
@@ -55,6 +60,7 @@ class AudioPool {
     required this.maxPlayers,
     required this.source,
     required this.audioContext,
+    // ignore: deprecated_consistency, deprecated_member_use
     this.playerMode = PlayerMode.mediaPlayer,
     AudioCache? audioCache,
   }) : audioCache = audioCache ?? AudioCache.instance;
@@ -68,6 +74,11 @@ class AudioPool {
     AudioCache? audioCache,
     AudioContext? audioContext,
     int minPlayers = 1,
+    @Deprecated(
+      'Player modes are deprecated, as low latency mode is only supported by '
+      'the deprecated `audioplayers_android` package. '
+      'This will be removed in a future release.',
+    )
     PlayerMode playerMode = PlayerMode.mediaPlayer,
   }) async {
     final instance = AudioPool._(
@@ -94,6 +105,11 @@ class AudioPool {
     required int maxPlayers,
     AudioCache? audioCache,
     int minPlayers = 1,
+    @Deprecated(
+      'Player modes are deprecated, as low latency mode is only supported by '
+      'the deprecated `audioplayers_android` package. '
+      'This will be removed in a future release.',
+    )
     PlayerMode playerMode = PlayerMode.mediaPlayer,
   }) async {
     return create(
@@ -131,6 +147,7 @@ class AudioPool {
         });
       }
 
+      // ignore: deprecated_member_use
       if (playerMode != PlayerMode.lowLatency) {
         subscription = player.onPlayerComplete.listen((_) => stop());
       }
