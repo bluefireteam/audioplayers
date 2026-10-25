@@ -149,6 +149,11 @@ class AudioplayersPlugin : FlutterPlugin {
                     player.rate = rate.toFloat()
                 }
 
+                "setBackBufferDuration" -> {
+                    // null restores the platform default (no back buffer).
+                    player.backBufferDurationMs = call.argument<Int>("backBufferDurationMs") ?: 0
+                }
+
                 "getDuration" -> {
                     response.success(player.getDuration())
                     return

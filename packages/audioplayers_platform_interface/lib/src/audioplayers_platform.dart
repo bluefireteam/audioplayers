@@ -125,6 +125,15 @@ mixin MethodChannelAudioplayersPlatform
   }
 
   @override
+  Future<void> setBackBufferDuration(String playerId, Duration? duration) {
+    return _call(
+      'setBackBufferDuration',
+      playerId,
+      <String, dynamic>{'backBufferDurationMs': duration?.inMilliseconds},
+    );
+  }
+
+  @override
   Future<void> setReleaseMode(String playerId, ReleaseMode releaseMode) {
     return _call(
       'setReleaseMode',
