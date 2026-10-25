@@ -42,6 +42,12 @@ class FakeAudioplayersPlatform extends AudioplayersPlatformInterface {
   @override
   Future<void> dispose(String playerId) async {
     calls.add(FakeCall(id: playerId, method: 'dispose'));
+    eventStreamControllers[playerId]?.add(
+      const AudioEvent(
+        eventType: AudioEventType.playingStateUpdate,
+        isPlaying: false,
+      ),
+    );
     eventStreamControllers[playerId]?.close();
   }
 
@@ -70,16 +76,34 @@ class FakeAudioplayersPlatform extends AudioplayersPlatformInterface {
   @override
   Future<void> pause(String playerId) async {
     calls.add(FakeCall(id: playerId, method: 'pause'));
+    eventStreamControllers[playerId]?.add(
+      const AudioEvent(
+        eventType: AudioEventType.playingStateUpdate,
+        isPlaying: false,
+      ),
+    );
   }
 
   @override
   Future<void> release(String playerId) async {
     calls.add(FakeCall(id: playerId, method: 'release'));
+    eventStreamControllers[playerId]?.add(
+      const AudioEvent(
+        eventType: AudioEventType.playingStateUpdate,
+        isPlaying: false,
+      ),
+    );
   }
 
   @override
   Future<void> resume(String playerId) async {
     calls.add(FakeCall(id: playerId, method: 'resume'));
+    eventStreamControllers[playerId]?.add(
+      const AudioEvent(
+        eventType: AudioEventType.playingStateUpdate,
+        isPlaying: true,
+      ),
+    );
   }
 
   @override
@@ -156,6 +180,12 @@ class FakeAudioplayersPlatform extends AudioplayersPlatformInterface {
   @override
   Future<void> stop(String playerId) async {
     calls.add(FakeCall(id: playerId, method: 'stop'));
+    eventStreamControllers[playerId]?.add(
+      const AudioEvent(
+        eventType: AudioEventType.playingStateUpdate,
+        isPlaying: false,
+      ),
+    );
   }
 
   @override
