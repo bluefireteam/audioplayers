@@ -11,6 +11,13 @@ class MediaPlayerWrapper(
 ) : PlayerWrapper {
     private val mediaPlayer = createMediaPlayer(wrappedPlayer)
 
+    /**
+     * The speed last written to the native PlaybackParams. A rate set while
+     * the player is paused only reaches the Dart-side field, so [start] uses
+     * this to know when the native params must be re-synced.
+     */
+    private var appliedRate = 1.0f
+
     private fun createMediaPlayer(wrappedPlayer: WrappedPlayer): MediaPlayer {
         val mediaPlayer = MediaPlayer().apply {
             setOnPreparedListener { wrappedPlayer.onPrepared() }
@@ -39,6 +46,7 @@ class MediaPlayerWrapper(
     override fun setRate(rate: Float) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             mediaPlayer.playbackParams = mediaPlayer.playbackParams.setSpeed(rate)
+            appliedRate = rate
         } else if (rate == 1.0f) {
             mediaPlayer.start()
         } else {
@@ -52,6 +60,10 @@ class MediaPlayerWrapper(
 
     override fun setSource(source: Source) {
         reset()
+        // reset() reverts the native player to default audio attributes
+        // (USAGE_MEDIA); reapply the configured context so a new source keeps
+        // the stream the app chose (alarm, notification, ...).
+        wrappedPlayer.context.setAttributesOnPlayer(mediaPlayer)
         source.setForMediaPlayer(mediaPlayer)
     }
 
@@ -60,8 +72,30 @@ class MediaPlayerWrapper(
     }
 
     override fun start() {
-        // Setting playback rate instead of mediaPlayer.start().
-        setRate(wrappedPlayer.rate)
+        val rate = wrappedPlayer.rate
+        if (rate == 0.0f) {
+            // A zero rate stages a paused player; keep the previous behavior.
+            setRate(rate)
+            return
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (rate != 1.0f || appliedRate != 1.0f) {
+                // Re-sync the native params first: a rate changed while paused
+                // is only stored Dart-side, and the old start-by-setting-params
+                // behavior implicitly performed this sync on every start.
+                mediaPlayer.playbackParams = mediaPlayer.playbackParams.setSpeed(rate)
+                appliedRate = rate
+            }
+        } else if (rate != 1.0f) {
+            error("Changing the playback rate is only available for Android M/23+ or using LOW_LATENCY mode.")
+        }
+        // Start explicitly. Starting playback only as a side effect of
+        // setting PlaybackParams is not implemented by some OEM media
+        // frameworks: the call succeeds, but nothing plays and no error or
+        // event is ever emitted. start() is a no-op if the params write
+        // already started playback.
+        mediaPlayer.start()
+        wrappedPlayer.onPlayingStateUpdate(true)
     }
 
     override fun pause() {
@@ -97,6 +131,8 @@ class MediaPlayerWrapper(
 
     override fun reset() {
         mediaPlayer.reset()
+        // reset() reverts the native player, including its PlaybackParams.
+        appliedRate = 1.0f
         wrappedPlayer.onPlayingStateUpdate(false)
     }
 
