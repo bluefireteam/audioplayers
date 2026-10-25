@@ -45,7 +45,15 @@ class AudioContextConfig {
   /// including audio playback.
   /// You can set this flag to keep your audio playing even when locked.
   ///
-  /// On Android, this sets the player "wake mode" to `PARTIAL_WAKE_LOCK`.
+  /// On Android, this requires the `android.permission.WAKE_LOCK` permission
+  /// in your app's manifest.
+  ///  * With `audioplayers_android` (MediaPlayer), this sets the player
+  ///    "wake mode" to `PARTIAL_WAKE_LOCK`.
+  ///  * With `audioplayers_android_exo` (ExoPlayer), a partial wake lock is
+  ///    already held while playing by default. Setting this flag additionally
+  ///    holds a wifi lock while playing a remote URL (`setSourceUrl`), so
+  ///    streaming keeps working with the screen off. Without the permission,
+  ///    Media3 only logs a warning and acquires neither lock.
   ///
   /// On iOS, this will happen automatically as long as:
   ///  * the category is [AVAudioSessionCategory.playAndRecord] (thus setting
