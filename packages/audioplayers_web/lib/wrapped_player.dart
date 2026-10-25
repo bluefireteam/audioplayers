@@ -25,6 +25,7 @@ class WrappedPlayer {
   StreamSubscription? _playerEndedSubscription;
   StreamSubscription? _playerLoadedDataSubscription;
   StreamSubscription? _playerPlaySubscription;
+  StreamSubscription? _playerPauseSubscription;
   StreamSubscription? _playerSeekedSubscription;
   StreamSubscription? _playerErrorSubscription;
 
@@ -123,9 +124,28 @@ class WrappedPlayer {
             duration: p.duration.fromSecondsToDuration(),
           ),
         );
+        eventStreamController.add(
+          const AudioEvent(
+            eventType: AudioEventType.playingStateUpdate,
+            isPlaying: true,
+          ),
+        );
       },
       onError: eventStreamController.addError,
     );
+
+    _playerPauseSubscription = p.onPause.listen(
+      (_) {
+        eventStreamController.add(
+          const AudioEvent(
+            eventType: AudioEventType.playingStateUpdate,
+            isPlaying: false,
+          ),
+        );
+      },
+      onError: eventStreamController.addError,
+    );
+
     _playerSeekedSubscription = p.onSeeked.listen(
       (_) {
         eventStreamController.add(
@@ -136,11 +156,6 @@ class WrappedPlayer {
     );
     _playerEndedSubscription = p.onEnded.listen(
       (_) async {
-        if (_currentReleaseMode == ReleaseMode.release) {
-          await release();
-        } else {
-          await stop();
-        }
         eventStreamController.add(
           const AudioEvent(eventType: AudioEventType.complete),
         );
@@ -200,6 +215,8 @@ class WrappedPlayer {
     _playerSeekedSubscription = null;
     await _playerPlaySubscription?.cancel();
     _playerPlaySubscription = null;
+    await _playerPauseSubscription?.cancel();
+    _playerPauseSubscription = null;
     await _playerErrorSubscription?.cancel();
     _playerErrorSubscription = null;
   }
@@ -237,11 +254,7 @@ class WrappedPlayer {
   Future<void> stop() async {
     pause();
     _pausedAt = 0;
-    if (_currentReleaseMode == ReleaseMode.release) {
-      await release();
-    } else {
-      player?.currentTime = 0;
-    }
+    player?.currentTime = 0;
   }
 
   void seek(int position) {

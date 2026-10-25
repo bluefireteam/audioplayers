@@ -1,1 +1,5 @@
+analyzer:
+  exclude:
+    - build/**
+    - android/**
 include: package:flame_lint/analysis_options.yaml

@@ -1,3 +1,7 @@
+## 5.3.0
+
+ - **FEAT**(android): Compatibility with Built-In Kotlin ([#1991](https://github.com/bluefireteam/audioplayers/issues/1991)). ([687218b9](https://github.com/bluefireteam/audioplayers/commit/687218b96682a7bcadd9490572db692dbc9a2f07))
+
 ## 5.2.1
 
  - **FIX**(web): Use GainNode for volume control to fix Safari compatibility ([#1978](https://github.com/bluefireteam/audioplayers/issues/1978)). ([a3d7e3f8](https://github.com/bluefireteam/audioplayers/commit/a3d7e3f8ab1d2bdab854a9650b6d77207e4324dc))

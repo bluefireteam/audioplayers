@@ -4,3 +4,5 @@ pubspec.lock
 .dart_tool/
 pubspec_overrides.yaml
 .flutter-plugins-dependencies
+# Widget Preview related
+.widget_preview/

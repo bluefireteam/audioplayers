@@ -10,10 +10,12 @@ import 'app/tabs/source_tab.dart';
 import 'app/tabs/stream_tab.dart';
 import 'platform_features.dart';
 
-void main() {
-  final features = PlatformFeatures.instance();
+void main() async {
+  final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  binding.defaultTestTimeout = const Timeout(Duration(minutes: 5));
 
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  await PlatformFeatures.ensureInitialized();
+  final features = PlatformFeatures.instance();
 
   group('end-to-end test', () {
     testWidgets('verify app is launched', (WidgetTester tester) async {

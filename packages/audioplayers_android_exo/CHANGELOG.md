@@ -1,3 +1,7 @@
+## 0.1.4
+
+ - **FEAT**(android): Compatibility with Built-In Kotlin ([#1991](https://github.com/bluefireteam/audioplayers/issues/1991)). ([687218b9](https://github.com/bluefireteam/audioplayers/commit/687218b96682a7bcadd9490572db692dbc9a2f07))
+
 ## 0.1.3+1
 
  - **FIX**(audioplayers_android_exo): apply setVolume to mono audio sources ([#1987](https://github.com/bluefireteam/audioplayers/issues/1987)). ([c3f8fab0](https://github.com/bluefireteam/audioplayers/commit/c3f8fab0d9e6c7d72fe477accda31daecd5f60c6))

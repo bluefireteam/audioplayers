@@ -123,6 +123,13 @@ gboolean AudioPlayer::OnBusMessage(GstBus* bus,
       if (!data->_isSeekCompleted) {
         data->OnSeekCompleted();
         data->_isSeekCompleted = true;
+        break;
+      }
+
+      if (!data->_isInitialized) {
+        data->_isInitialized = true;
+        data->OnDurationUpdate();
+        data->OnPrepared(true);
       }
       break;
     default:
@@ -181,34 +188,30 @@ void AudioPlayer::OnMediaStateChange(GstObject* src,
   }
 
   if (src == GST_OBJECT(playbin)) {
-    if (*new_state == GST_STATE_READY) {
-      // Need to set to pause state, in order to make player functional
-      GstStateChangeReturn ret =
-          gst_element_set_state(playbin, GST_STATE_PAUSED);
-      if (ret == GST_STATE_CHANGE_FAILURE) {
-        // Only use [OnLog] as error is handled via [OnMediaError].
-        gchar const* errorDescription =
-            "OnMediaStateChange -> GST_STATE_CHANGE_FAILURE:"
-            "Unable to set the pipeline from GST_STATE_READY to "
-            "GST_STATE_PAUSED.";
-        this->OnLog(errorDescription);
+    if (*new_state < GST_STATE_PAUSED) {
+      if (*new_state == GST_STATE_READY) {
+        // Need to set to pause state, in order to make player functional
+        GstStateChangeReturn ret =
+            gst_element_set_state(playbin, GST_STATE_PAUSED);
+        if (ret == GST_STATE_CHANGE_FAILURE) {
+          // Only use [OnLog] as error is handled via [OnMediaError].
+          gchar const* errorDescription =
+              "OnMediaStateChange -> GST_STATE_CHANGE_FAILURE:"
+              "Unable to set the pipeline from GST_STATE_READY to "
+              "GST_STATE_PAUSED.";
+          this->OnLog(errorDescription);
+        }
       }
       if (this->_isInitialized) {
         this->_isInitialized = false;
       }
-    } else if (*old_state == GST_STATE_PAUSED &&
-               *new_state == GST_STATE_PLAYING) {
-      OnDurationUpdate();
-    } else if (*new_state >= GST_STATE_PAUSED) {
-      if (!this->_isInitialized) {
-        this->_isInitialized = true;
-        this->OnPrepared(true);
-        if (this->_isPlaying) {
-          Resume();
-        }
+    } else {
+      if (*old_state == GST_STATE_PAUSED && *new_state == GST_STATE_PLAYING) {
+        OnPlayingStateUpdate(true);
+      } else if (*old_state == GST_STATE_PLAYING &&
+                 *new_state == GST_STATE_PAUSED) {
+        OnPlayingStateUpdate(false);
       }
-    } else if (this->_isInitialized) {
-      this->_isInitialized = false;
     }
   }
 }
@@ -242,6 +245,16 @@ void AudioPlayer::OnSeekCompleted() {
   }
 }
 
+void AudioPlayer::OnPlayingStateUpdate(bool isPlaying) {
+  if (this->_eventChannel) {
+    g_autoptr(FlValue) map = fl_value_new_map();
+    fl_value_set_string(map, "event",
+                        fl_value_new_string("audio.onPlayingStateUpdate"));
+    fl_value_set_string(map, "value", fl_value_new_bool(isPlaying));
+    fl_event_channel_send(this->_eventChannel, map, nullptr, nullptr);
+  }
+}
+
 void AudioPlayer::OnPlaybackEnded() {
   if (this->_eventChannel) {
     g_autoptr(FlValue) map = fl_value_new_map();
@@ -251,8 +264,6 @@ void AudioPlayer::OnPlaybackEnded() {
   }
   if (GetReleaseMode() == ReleaseMode::loop) {
     Play();
-  } else {
-    Stop();
   }
 }
 
@@ -413,17 +424,13 @@ void AudioPlayer::Stop() {
     return;
   }
 
-  if (GetReleaseMode() == ReleaseMode::release) {
-    ReleaseMediaSource();
-  } else {
-    SetPosition(0);
-    // Block thread to wait for state, as it is not expected to be waited to
-    // "seek complete" event on the dart side.
-    GstStateChangeReturn ret =
-        gst_element_get_state(playbin, NULL, NULL, GST_CLOCK_TIME_NONE);
-    if (ret == GST_STATE_CHANGE_FAILURE) {
-      throw "Unable to seek playback to '0' while stopping the player.";
-    }
+  SetPosition(0);
+  // Block thread to wait for state, as it is not expected to be waited to
+  // "seek complete" event on the dart side.
+  GstStateChangeReturn ret =
+      gst_element_get_state(playbin, NULL, NULL, GST_CLOCK_TIME_NONE);
+  if (ret == GST_STATE_CHANGE_FAILURE) {
+    throw "Unable to seek playback to '0' while stopping the player.";
   }
 }
 

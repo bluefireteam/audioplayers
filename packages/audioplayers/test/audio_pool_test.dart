@@ -28,7 +28,7 @@ void main() {
 
       expect((pool.source as AssetSource).path, 'audio.mp3');
       expect(pool.audioCache.loadedFiles.keys.first, 'audio.mp3');
-      stop();
+      await stop();
       expect((pool.source as AssetSource).path, 'audio.mp3');
     });
 
