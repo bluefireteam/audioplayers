@@ -51,9 +51,9 @@ class AudioContextConfig {
   ///    "wake mode" to `PARTIAL_WAKE_LOCK`.
   ///  * With `audioplayers_android_exo` (ExoPlayer), a partial wake lock is
   ///    already held while playing by default. Setting this flag additionally
-  ///    holds a wifi lock while playing a remote (http/https) URL, so streaming
-  ///    keeps working with the screen off. Without the permission, Media3 only
-  ///    logs a warning and acquires neither lock.
+  ///    holds a wifi lock while playing a remote URL (`setSourceUrl`), so
+  ///    streaming keeps working with the screen off. Without the permission,
+  ///    Media3 only logs a warning and acquires neither lock.
   ///
   /// On iOS, this will happen automatically as long as:
   ///  * the category is [AVAudioSessionCategory.playAndRecord] (thus setting

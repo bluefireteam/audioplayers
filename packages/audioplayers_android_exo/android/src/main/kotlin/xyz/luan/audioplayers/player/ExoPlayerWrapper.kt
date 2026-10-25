@@ -72,9 +72,6 @@ class ExoPlayerWrapper(
     private var channelMixingAudioProcessor = AdaptiveChannelMixingAudioProcessor()
     private lateinit var audioSink: AudioSink
 
-    private var stayAwake = false
-    private var isNetworkSource = false
-
     init {
         player = createPlayer(appContext)
     }
@@ -176,13 +173,10 @@ class ExoPlayerWrapper(
             builder.build(),
             false,
         )
-        stayAwake = context.stayAwake
         updateWakeMode()
     }
 
     override fun setSource(source: Source) {
-        isNetworkSource = source is UrlSource && !source.isLocal &&
-            Uri.parse(source.url).scheme?.lowercase() in setOf("http", "https")
         updateWakeMode()
         player.clearMediaItems()
         if (source is UrlSource) {
@@ -207,9 +201,10 @@ class ExoPlayerWrapper(
      * as it costs battery for nothing on local ones. Both locks are only held while playing.
      * Requires the `android.permission.WAKE_LOCK` permission.
      */
-    @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
     private fun updateWakeMode() {
-        player.setWakeMode(if (stayAwake && isNetworkSource) C.WAKE_MODE_NETWORK else C.WAKE_MODE_LOCAL)
+        val source = wrappedPlayer.source
+        val isRemote = source is UrlSource && !source.isLocal
+        player.setWakeMode(if (wrappedPlayer.context.stayAwake && isRemote) C.WAKE_MODE_NETWORK else C.WAKE_MODE_LOCAL)
     }
 }
 
