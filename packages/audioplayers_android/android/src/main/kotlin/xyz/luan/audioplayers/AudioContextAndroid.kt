@@ -15,7 +15,7 @@ import java.util.*
 
 data class AudioContextAndroid(
     val isSpeakerphoneOn: Boolean,
-    val stayAwake: Boolean,
+    val wakeMode: Int,
     val contentType: Int,
     val usageType: Int,
     val audioFocus: Int,
@@ -24,7 +24,7 @@ data class AudioContextAndroid(
     @SuppressLint("InlinedApi") // we are just using numerical constants
     constructor() : this(
         isSpeakerphoneOn = false,
-        stayAwake = false,
+        wakeMode = WAKE_MODE_NONE,
         contentType = CONTENT_TYPE_MUSIC,
         usageType = USAGE_MEDIA,
         audioFocus = AudioManager.AUDIOFOCUS_GAIN,
@@ -57,13 +57,20 @@ data class AudioContextAndroid(
         }
     }
 
-    override fun hashCode() = Objects.hash(isSpeakerphoneOn, stayAwake, contentType, usageType, audioFocus, audioMode)
+    override fun hashCode() = Objects.hash(isSpeakerphoneOn, wakeMode, contentType, usageType, audioFocus, audioMode)
 
     override fun equals(other: Any?) = (other is AudioContextAndroid) &&
         isSpeakerphoneOn == other.isSpeakerphoneOn &&
-        stayAwake == other.stayAwake &&
+        wakeMode == other.wakeMode &&
         contentType == other.contentType &&
         usageType == other.usageType &&
         audioFocus == other.audioFocus &&
         audioMode == other.audioMode
+
+    companion object {
+        // Values match Media3's C.WAKE_MODE_NONE, C.WAKE_MODE_LOCAL and C.WAKE_MODE_NETWORK.
+        const val WAKE_MODE_NONE = 0
+        const val WAKE_MODE_LOCAL = 1
+        const val WAKE_MODE_NETWORK = 2
+    }
 }

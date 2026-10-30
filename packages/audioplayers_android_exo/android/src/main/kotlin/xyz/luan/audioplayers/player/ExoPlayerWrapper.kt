@@ -196,15 +196,16 @@ class ExoPlayerWrapper(
     }
 
     /**
-     * WAKE_MODE_LOCAL is what Media3 applies by default, so `stayAwake: false` keeps that behavior.
-     * `stayAwake` additionally takes a wifi lock (WAKE_MODE_NETWORK), but only for remote sources,
-     * as it costs battery for nothing on local ones. Both locks are only held while playing.
+     * The wake mode values of [AudioContextAndroid] match Media3's `C.WAKE_MODE_*` constants.
+     * [C.WAKE_MODE_NETWORK] additionally takes a wifi lock, which costs battery for nothing on local
+     * sources, so these fall back to [C.WAKE_MODE_LOCAL]. Locks are only held while playing.
      * Requires the `android.permission.WAKE_LOCK` permission.
      */
     private fun updateWakeMode() {
         val source = wrappedPlayer.source
         val isRemote = source is UrlSource && !source.isLocal
-        player.setWakeMode(if (wrappedPlayer.context.stayAwake && isRemote) C.WAKE_MODE_NETWORK else C.WAKE_MODE_LOCAL)
+        val wakeMode = wrappedPlayer.context.wakeMode
+        player.setWakeMode(if (wakeMode == C.WAKE_MODE_NETWORK && !isRemote) C.WAKE_MODE_LOCAL else wakeMode)
     }
 }
 

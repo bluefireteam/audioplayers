@@ -269,7 +269,7 @@ fun String.toConstantCase(): String {
 private fun MethodCall.audioContext(): AudioContextAndroid {
     return AudioContextAndroid(
         isSpeakerphoneOn = argument<Boolean>("isSpeakerphoneOn") ?: error("isSpeakerphoneOn is required"),
-        stayAwake = argument<Boolean>("stayAwake") ?: error("stayAwake is required"),
+        wakeMode = argument<Int>("wakeMode") ?: error("wakeMode is required"),
         contentType = argument<Int>("contentType") ?: error("contentType is required"),
         usageType = argument<Int>("usageType") ?: error("usageType is required"),
         audioFocus = argument<Int>("audioFocus") ?: error("audioFocus is required"),

@@ -83,7 +83,9 @@ class AudioContextAndroid {
   /// application, see [AndroidAudioMode].
   final AndroidAudioMode audioMode;
 
-  final bool stayAwake;
+  /// Whether the device is kept awake while playing, see [AndroidWakeMode].
+  final AndroidWakeMode wakeMode;
+
   final AndroidContentType contentType;
   final AndroidUsageType usageType;
   final AndroidAudioFocus audioFocus;
@@ -92,7 +94,7 @@ class AudioContextAndroid {
   const AudioContextAndroid({
     this.isSpeakerphoneOn = false,
     this.audioMode = AndroidAudioMode.normal,
-    this.stayAwake = false,
+    this.wakeMode = AndroidWakeMode.none,
     this.contentType = AndroidContentType.music,
     this.usageType = AndroidUsageType.media,
     this.audioFocus = AndroidAudioFocus.gain,
@@ -101,7 +103,7 @@ class AudioContextAndroid {
   AudioContextAndroid copy({
     bool? isSpeakerphoneOn,
     AndroidAudioMode? audioMode,
-    bool? stayAwake,
+    AndroidWakeMode? wakeMode,
     AndroidContentType? contentType,
     AndroidUsageType? usageType,
     AndroidAudioFocus? audioFocus,
@@ -109,7 +111,7 @@ class AudioContextAndroid {
     return AudioContextAndroid(
       isSpeakerphoneOn: isSpeakerphoneOn ?? this.isSpeakerphoneOn,
       audioMode: audioMode ?? this.audioMode,
-      stayAwake: stayAwake ?? this.stayAwake,
+      wakeMode: wakeMode ?? this.wakeMode,
       contentType: contentType ?? this.contentType,
       usageType: usageType ?? this.usageType,
       audioFocus: audioFocus ?? this.audioFocus,
@@ -120,7 +122,7 @@ class AudioContextAndroid {
     return <String, dynamic>{
       'isSpeakerphoneOn': isSpeakerphoneOn,
       'audioMode': audioMode.value,
-      'stayAwake': stayAwake,
+      'wakeMode': wakeMode.value,
       'contentType': contentType.value,
       'usageType': usageType.value,
       'audioFocus': audioFocus.value,
@@ -134,7 +136,7 @@ class AudioContextAndroid {
             runtimeType == other.runtimeType &&
             isSpeakerphoneOn == other.isSpeakerphoneOn &&
             audioMode == other.audioMode &&
-            stayAwake == other.stayAwake &&
+            wakeMode == other.wakeMode &&
             contentType == other.contentType &&
             usageType == other.usageType &&
             audioFocus == other.audioFocus;
@@ -144,7 +146,7 @@ class AudioContextAndroid {
   int get hashCode => Object.hash(
         isSpeakerphoneOn,
         audioMode,
-        stayAwake,
+        wakeMode,
         contentType,
         usageType,
         audioFocus,
@@ -155,7 +157,7 @@ class AudioContextAndroid {
     return 'AudioContextAndroid('
         'isSpeakerphoneOn: $isSpeakerphoneOn, '
         'audioMode: $audioMode, '
-        'stayAwake: $stayAwake, '
+        'wakeMode: $wakeMode, '
         'contentType: $contentType, '
         'usageType: $usageType, '
         'audioFocus: $audioFocus'
@@ -480,6 +482,37 @@ enum AndroidAudioMode {
   const AndroidAudioMode(this.value);
 
   factory AndroidAudioMode.fromInt(int value) {
+    return values.firstWhere((e) => e.value == value);
+  }
+
+  final int value;
+}
+
+/// Whether and how the device is kept awake while audio is playing, e.g. when
+/// the screen is turned off.
+///
+/// The wake mode requires the `android.permission.WAKE_LOCK` permission in your
+/// app's manifest. The values match the `C.WAKE_MODE_*` constants of Media3.
+enum AndroidWakeMode {
+  /// No wake lock is held, so playback may stop when the screen is turned off.
+  none(0),
+
+  /// A partial wake lock is held while playing, which keeps the CPU running
+  /// when the screen is turned off.
+  /// Use this when playing local media, or when playing streamed media while
+  /// the device is not using wifi.
+  local(1),
+
+  /// Like [local], but additionally holds a wifi lock while playing a remote
+  /// URL, so streaming keeps working when the screen is turned off.
+  ///
+  /// With `audioplayers_android` (MediaPlayer), this behaves like [local], as
+  /// no wifi lock is held.
+  network(2);
+
+  const AndroidWakeMode(this.value);
+
+  factory AndroidWakeMode.fromInt(int value) {
     return values.firstWhere((e) => e.value == value);
   }
 

@@ -45,15 +45,12 @@ class AudioContextConfig {
   /// including audio playback.
   /// You can set this flag to keep your audio playing even when locked.
   ///
-  /// On Android, this requires the `android.permission.WAKE_LOCK` permission
-  /// in your app's manifest.
-  ///  * With `audioplayers_android` (MediaPlayer), this sets the player
-  ///    "wake mode" to `PARTIAL_WAKE_LOCK`.
-  ///  * With `audioplayers_android_exo` (ExoPlayer), a partial wake lock is
-  ///    already held while playing by default. Setting this flag additionally
-  ///    holds a wifi lock while playing a remote URL (`setSourceUrl`), so
-  ///    streaming keeps working with the screen off. Without the permission,
-  ///    Media3 only logs a warning and acquires neither lock.
+  /// On Android, this sets the [AudioContextAndroid.wakeMode] to
+  /// [AndroidWakeMode.local], which holds a partial wake lock while playing,
+  /// and otherwise to [AndroidWakeMode.none]. This requires the
+  /// `android.permission.WAKE_LOCK` permission in your app's manifest.
+  /// To also hold a wifi lock while streaming, create a custom
+  /// [AudioContextAndroid] with [AndroidWakeMode.network].
   ///
   /// On iOS, this will happen automatically as long as:
   ///  * the category is [AVAudioSessionCategory.playAndRecord] (thus setting
@@ -93,7 +90,7 @@ class AudioContextConfig {
   AudioContextAndroid buildAndroid() {
     return AudioContextAndroid(
       isSpeakerphoneOn: route == AudioContextConfigRoute.speaker,
-      stayAwake: stayAwake,
+      wakeMode: stayAwake ? AndroidWakeMode.local : AndroidWakeMode.none,
       usageType: respectSilence
           ? AndroidUsageType.notificationRingtone
           : (route == AudioContextConfigRoute.earpiece

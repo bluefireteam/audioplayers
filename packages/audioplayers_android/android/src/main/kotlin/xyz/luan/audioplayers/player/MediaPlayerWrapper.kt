@@ -86,7 +86,8 @@ class MediaPlayerWrapper(
 
     override fun updateContext(context: AudioContextAndroid) {
         context.setAttributesOnPlayer(mediaPlayer)
-        if (context.stayAwake) {
+        // MediaPlayer has no wifi lock, so WAKE_MODE_NETWORK behaves like WAKE_MODE_LOCAL.
+        if (context.wakeMode != AudioContextAndroid.WAKE_MODE_NONE) {
             mediaPlayer.setWakeMode(wrappedPlayer.applicationContext, PowerManager.PARTIAL_WAKE_LOCK)
         }
     }
