@@ -44,7 +44,7 @@ void main() {
           android: const AudioContextAndroid(
             isSpeakerphoneOn: false,
             audioMode: AndroidAudioMode.normal,
-            stayAwake: false,
+            wakeMode: AndroidWakeMode.none,
             contentType: AndroidContentType.music,
             usageType: AndroidUsageType.media,
             audioFocus: AndroidAudioFocus.gain,
