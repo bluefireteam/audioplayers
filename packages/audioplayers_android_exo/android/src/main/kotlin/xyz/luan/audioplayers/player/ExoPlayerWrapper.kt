@@ -173,9 +173,11 @@ class ExoPlayerWrapper(
             builder.build(),
             false,
         )
+        updateWakeMode()
     }
 
     override fun setSource(source: Source) {
+        updateWakeMode()
         player.clearMediaItems()
         if (source is UrlSource) {
             player.setMediaItem(MediaItem.fromUri(source.url))
@@ -191,6 +193,19 @@ class ExoPlayerWrapper(
 
     override fun prepare() {
         player.prepare()
+    }
+
+    /**
+     * The wake mode values of [AudioContextAndroid] match Media3's `C.WAKE_MODE_*` constants.
+     * [C.WAKE_MODE_NETWORK] additionally takes a wifi lock, which costs battery for nothing on local
+     * sources, so these fall back to [C.WAKE_MODE_LOCAL]. Locks are only held while playing.
+     * Requires the `android.permission.WAKE_LOCK` permission.
+     */
+    private fun updateWakeMode() {
+        val source = wrappedPlayer.source
+        val isRemote = source is UrlSource && !source.isLocal
+        val wakeMode = wrappedPlayer.context.wakeMode
+        player.setWakeMode(if (wakeMode == C.WAKE_MODE_NETWORK && !isRemote) C.WAKE_MODE_LOCAL else wakeMode)
     }
 }
 

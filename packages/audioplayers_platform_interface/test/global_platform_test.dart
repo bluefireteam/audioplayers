@@ -73,7 +73,7 @@ void main() {
       expect(call.args, {
         'isSpeakerphoneOn': false,
         'audioMode': 0,
-        'stayAwake': false,
+        'wakeMode': 0,
         'contentType': 2,
         'usageType': 1,
         'audioFocus': 1,
