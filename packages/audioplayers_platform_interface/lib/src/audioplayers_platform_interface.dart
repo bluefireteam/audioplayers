@@ -111,6 +111,11 @@ abstract class MethodChannelAudioplayersPlatformInterface {
     AudioContext audioContext,
   );
 
+  @Deprecated(
+    'Player modes are deprecated, as low latency mode is only supported by '
+    'the deprecated `audioplayers_android` package. '
+    'This will be removed in a future release.',
+  )
   Future<void> setPlayerMode(
     String playerId,
     PlayerMode playerMode,
