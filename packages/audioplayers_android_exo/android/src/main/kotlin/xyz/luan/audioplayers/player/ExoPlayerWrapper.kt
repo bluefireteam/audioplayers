@@ -203,9 +203,9 @@ class ExoPlayerWrapper(
      */
     private fun updateWakeMode() {
         val source = wrappedPlayer.source
-        val isRemote = source is UrlSource && !source.isLocal
+        val isLocal = source !is UrlSource || source.isLocal
         val wakeMode = wrappedPlayer.context.wakeMode
-        player.setWakeMode(if (wakeMode == C.WAKE_MODE_NETWORK && !isRemote) C.WAKE_MODE_LOCAL else wakeMode)
+        player.setWakeMode(if (wakeMode == C.WAKE_MODE_NETWORK && isLocal) C.WAKE_MODE_LOCAL else wakeMode)
     }
 }
 
