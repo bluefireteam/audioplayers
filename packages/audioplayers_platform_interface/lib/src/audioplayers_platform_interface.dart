@@ -32,6 +32,12 @@ abstract class AudioplayersPlatformInterface extends PlatformInterface
   /// class that extends [AudioplayersPlatformInterface] when they register
   /// themselves.
   static AudioplayersPlatformInterface instance = AudioplayersPlatform();
+
+  /// Default no-op so platform implementations that don't support
+  /// configuring the back buffer keep working unchanged.
+  @override
+  Future<void> setBackBufferDuration(String playerId, Duration? duration) =>
+      Future.value();
 }
 
 abstract class MethodChannelAudioplayersPlatformInterface {
@@ -87,6 +93,15 @@ abstract class MethodChannelAudioplayersPlatformInterface {
   /// iOS and macOS have limits between 0.5 and 2x
   /// Android SDK version should be 23 or higher
   Future<void> setPlaybackRate(String playerId, double playbackRate);
+
+  /// Sets how much already-played media to retain in the buffer, enabling
+  /// fast (and, once buffered, offline) backwards seeks within that window.
+  ///
+  /// A null [duration] restores the platform default.
+  /// Currently only effective on Android when using the ExoPlayer
+  /// implementation (`audioplayers_android_exo`); other platforms manage
+  /// their buffers internally and ignore this call.
+  Future<void> setBackBufferDuration(String playerId, Duration? duration);
 
   /// Configures the player to read the audio from a URL.
   ///
