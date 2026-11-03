@@ -206,6 +206,34 @@ void main() async {
       expect(await platform.getCurrentPosition(playerId), 0);
     });
 
+    testWidgets(
+      'Apply playbackRate set while paused on resume',
+      (tester) async {
+        await tester.prepareSource(
+          playerId: playerId,
+          platform: platform,
+          testData: mp3Url1TestData,
+        );
+        await platform.resume(playerId);
+        await tester.pump(const Duration(seconds: 1));
+        await platform.pause(playerId);
+
+        await platform.setPlaybackRate(playerId, 0.5);
+        final positionBefore = (await platform.getCurrentPosition(playerId))!;
+        await platform.resume(playerId);
+        await tester.pump(const Duration(seconds: 2));
+        final positionAfter = (await platform.getCurrentPosition(playerId))!;
+        await platform.stop(playerId);
+
+        // Playing 2 seconds at half speed advances ~1 second, at normal speed
+        // it would advance ~2 seconds.
+        final progressed = positionAfter - positionBefore;
+        expect(progressed, greaterThan(0));
+        expect(progressed, lessThan(1600));
+      },
+      skip: !features.hasPlaybackRate,
+    );
+
     for (final td in audioTestDataList) {
       if (features.hasSeek && !td.isLiveStream) {
         testWidgets('#seek with millisecond precision ${td.source}',
