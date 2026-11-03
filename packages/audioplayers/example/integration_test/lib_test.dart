@@ -322,6 +322,7 @@ void main() async {
       (WidgetTester tester) async {
         final player = AudioPlayer();
         await player.setReleaseMode(ReleaseMode.stop);
+        // ignore: deprecated_member_use
         player.setPlayerMode(PlayerMode.lowLatency);
 
         final td = wavUrl1TestData;
@@ -462,6 +463,7 @@ void main() async {
       testWidgets('Released wrong source on LOW_LATENCY (#1672)',
           (WidgetTester tester) async {
         var player = AudioPlayer()
+          // ignore: deprecated_member_use
           ..setPlayerMode(PlayerMode.lowLatency)
           ..setReleaseMode(ReleaseMode.stop);
 
@@ -474,6 +476,7 @@ void main() async {
         await player.stop();
 
         player = AudioPlayer()
+          // ignore: deprecated_member_use
           ..setPlayerMode(PlayerMode.lowLatency)
           ..setReleaseMode(ReleaseMode.stop);
 

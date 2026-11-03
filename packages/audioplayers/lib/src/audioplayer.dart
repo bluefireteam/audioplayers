@@ -53,8 +53,14 @@ class AudioPlayer {
 
   /// Current mode of the audio player. Can be updated at any time, but is going
   /// to take effect only at the next time you play the audio.
+  // ignore: deprecated_member_use
   PlayerMode _mode = PlayerMode.mediaPlayer;
 
+  @Deprecated(
+    'Player modes are deprecated, as low latency mode is only supported by '
+    'the deprecated `audioplayers_android` package. '
+    'This will be removed in a future release.',
+  )
   PlayerMode get mode => _mode;
 
   ReleaseMode _releaseMode = ReleaseMode.release;
@@ -292,6 +298,11 @@ class AudioPlayer {
     double? balance,
     AudioContext? ctx,
     Duration? position,
+    @Deprecated(
+      'Player modes are deprecated, as low latency mode is only supported by '
+      'the deprecated `audioplayers_android` package. '
+      'This will be removed in a future release.',
+    )
     PlayerMode? mode,
   }) async {
     desiredState = PlayerState.playing;
@@ -322,6 +333,11 @@ class AudioPlayer {
     return _platform.setAudioContext(playerId, ctx);
   }
 
+  @Deprecated(
+    'Player modes are deprecated, as low latency mode is only supported by '
+    'the deprecated `audioplayers_android` package. '
+    'This will be removed in a future release.',
+  )
   Future<void> setPlayerMode(PlayerMode mode) async {
     _mode = mode;
     await creatingCompleter.future;

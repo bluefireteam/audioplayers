@@ -233,7 +233,7 @@ jobs:
           flutter test ${{ inputs.verbose && '--verbose' || '' }} integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
           flutter test ${{ inputs.verbose && '--verbose' || '' }} integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
 
-  android-exo:
+  android-legacy:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     if: inputs.enable_android
@@ -249,9 +249,9 @@ jobs:
         with:
           flutter-version: ${{ inputs.flutter_version }}
           channel: ${{ inputs.flutter_channel }}
-      - name: Override endorsed plugin with audioplayers_android_exo
+      - name: Override endorsed plugin with deprecated audioplayers_android
         run: |
-          dart pub add "audioplayers_android_exo:{path: ../../audioplayers_android_exo}"
+          dart pub add "audioplayers_android:{path: ../../audioplayers_android}"
         working-directory: ./packages/audioplayers/example
       - uses: bluefireteam/melos-action@v3
       - name: Setup Android Emulator

@@ -8,20 +8,17 @@ If you would like to assist us implement a missing feature, please browse the [i
 
 ### Media3 ExoPlayer
 
-We are going to switch from the internal [Android MediaPlayer](https://developer.android.com/reference/android/media/MediaPlayer) to the recommended [Media3 ExoPlayer](https://developer.android.com/media/media3).
-We still endorse the old media player until we are sure, the Media3 implementation fulfills all the needs.
+The endorsed Android implementation [`audioplayers_android_exo`](https://github.com/bluefireteam/audioplayers/blob/main/packages/audioplayers_android_exo/README.md) is based on the recommended [Media3 ExoPlayer](https://developer.android.com/media/media3).
 
-You already can try the Media3 implementation by adding `audioplayers_android_exo` to your apps `pubspec.yaml`.
-This [overrides](https://docs.flutter.dev/packages-and-plugins/developing-packages#non-endorsed-federated-plugin) our endorsed Android plugin implementation `audioplayers_android`:
+The previous implementation [`audioplayers_android`](https://github.com/bluefireteam/audioplayers/blob/main/packages/audioplayers_android/README.md), based on the [Android MediaPlayer](https://developer.android.com/reference/android/media/MediaPlayer) and [SoundPool](https://developer.android.com/reference/android/media/SoundPool), is **deprecated**.
+If you still need it, you can [override](https://docs.flutter.dev/packages-and-plugins/developing-packages#non-endorsed-federated-plugin) the endorsed implementation by adding `audioplayers_android` to your app's `pubspec.yaml`:
 
 ```yaml
 dependencies:
   # ...
   audioplayers: any
-  audioplayers_android_exo: any
+  audioplayers_android: any
 ```
-
-For more, see the [audioplayers_android_exo](https://github.com/bluefireteam/audioplayers/blob/main/packages/audioplayers_android_exo/README.md) package.
 
 ### Support for old SDKs
 
@@ -32,7 +29,7 @@ This mean that, audioplayers should work on older devices, but we can't give any
 
 ## Main Features
 
-Note: LLM means Low Latency Mode.
+Note: LLM means Low Latency Mode, which is deprecated and only available with the deprecated `audioplayers_android` package.
 
 <table width="70%">
     <thead style="font-size: 1.5em">
@@ -54,7 +51,7 @@ Note: LLM means Low Latency Mode.
         <tr><td colspan="7"><strong>Audio Config</strong></td></tr>
         <tr><td>set url</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr>
         <tr><td>audio cache (pre-load)</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr>
-        <tr><td>low latency mode</td><td>SDK >=21 (except `audioplayers_android_exo`) </td><td>no</td><td>no</td><td>no</td><td>no</td><td>no</td></tr>
+        <tr><td>low latency mode (deprecated)</td><td>only `audioplayers_android`</td><td>no</td><td>no</td><td>no</td><td>no</td><td>no</td></tr>
         <tr><td colspan="7"><strong>Audio Control Commands</strong></td></tr>
         <tr><td>resume / pause / stop</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr>
         <tr><td>release</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr>
