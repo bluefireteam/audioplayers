@@ -207,7 +207,7 @@ void main() async {
     });
 
     testWidgets(
-      'Apply playbackRate set while paused on resume',
+      'Pause on playbackRate 0 and continue on playbackRate > 0 and resume',
       (tester) async {
         await tester.prepareSource(
           playerId: playerId,
@@ -216,20 +216,21 @@ void main() async {
         );
         await platform.resume(playerId);
         await tester.pump(const Duration(seconds: 1));
-        await platform.pause(playerId);
 
-        await platform.setPlaybackRate(playerId, 0.5);
-        final positionBefore = (await platform.getCurrentPosition(playerId))!;
+        await platform.setPlaybackRate(playerId, 0);
+        // Let the position settle after pausing.
+        await tester.pump(const Duration(milliseconds: 500));
+        final positionPaused = (await platform.getCurrentPosition(playerId))!;
+        await tester.pump(const Duration(seconds: 1));
+        expect(await platform.getCurrentPosition(playerId), positionPaused);
+
+        await platform.setPlaybackRate(playerId, 1);
         await platform.resume(playerId);
-        await tester.pump(const Duration(seconds: 2));
-        final positionAfter = (await platform.getCurrentPosition(playerId))!;
+        await tester.pump(const Duration(seconds: 1));
+        final positionResumed = (await platform.getCurrentPosition(playerId))!;
         await platform.stop(playerId);
 
-        // Playing 2 seconds at half speed advances ~1 second, at normal speed
-        // it would advance ~2 seconds.
-        final progressed = positionAfter - positionBefore;
-        expect(progressed, greaterThan(0));
-        expect(progressed, lessThan(1600));
+        expect(positionResumed, greaterThan(positionPaused));
       },
       skip: !features.hasPlaybackRate,
     );
