@@ -390,6 +390,35 @@ void main() async {
     await player.dispose();
   });
 
+  testWidgets(
+    'Pause on playbackRate 0 and resume only with playbackRate > 0',
+    (WidgetTester tester) async {
+      final player = AudioPlayer();
+      await player.play(mp3Url1TestData.source);
+      expect(player.state, PlayerState.playing);
+
+      // A rate of 0 pauses the player.
+      await player.setPlaybackRate(0);
+      expect(player.state, PlayerState.paused);
+
+      // Resuming has no effect while the rate is 0.
+      await player.resume();
+      await tester.pump(const Duration(seconds: 1));
+      expect(player.state, PlayerState.paused);
+
+      // Setting a rate while paused does not resume (#468).
+      await player.setPlaybackRate(1);
+      await tester.pump(const Duration(seconds: 1));
+      expect(player.state, PlayerState.paused);
+
+      await player.resume();
+      expect(player.state, PlayerState.playing);
+
+      await player.dispose();
+    },
+    skip: !features.hasPlaybackRate,
+  );
+
   group('Call twice:', () {
     testWidgets('SetSource', (WidgetTester tester) async {
       final player = AudioPlayer();
