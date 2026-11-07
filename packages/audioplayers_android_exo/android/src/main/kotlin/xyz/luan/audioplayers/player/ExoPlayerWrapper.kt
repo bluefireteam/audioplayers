@@ -107,7 +107,7 @@ class ExoPlayerWrapper(
     }
 
     override fun start() {
-        setRate(wrappedPlayer.rate)
+        player.play()
     }
 
     override fun pause() {
@@ -153,15 +153,12 @@ class ExoPlayerWrapper(
     }
 
     /**
-     * Only called while playing. Media3 requires a speed > 0, so a rate of 0 pauses playback
-     * (like Android's MediaPlayer does) and any other rate resumes it.
+     * Can be called in any state, as setting the speed does not start playback.
+     * Media3 requires a speed > 0, a rate of 0 is handled by [WrappedPlayer.rate] by pausing.
      */
     override fun setRate(rate: Float) {
         if (rate > 0f) {
             player.setPlaybackSpeed(rate)
-            player.play()
-        } else {
-            player.pause()
         }
     }
 
