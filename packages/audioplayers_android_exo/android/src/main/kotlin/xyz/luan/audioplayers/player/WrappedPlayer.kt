@@ -65,7 +65,10 @@ class WrappedPlayer internal constructor(
         set(value) {
             if (field != value) {
                 field = value
-                if (playing) {
+                if (value == 0f) {
+                    // Media3 only supports speeds > 0, so a rate of 0 pauses the player.
+                    pause()
+                } else if (!released) {
                     player?.setRate(value)
                 }
             }
@@ -280,6 +283,7 @@ class WrappedPlayer internal constructor(
     private fun PlayerWrapper.configAndPrepare() {
         setVolumeAndBalance(volume, balance)
         setLooping(isLooping)
+        setRate(rate)
         prepare()
     }
 

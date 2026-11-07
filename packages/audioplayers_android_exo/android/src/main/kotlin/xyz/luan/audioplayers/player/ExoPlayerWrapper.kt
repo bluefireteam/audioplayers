@@ -152,8 +152,14 @@ class ExoPlayerWrapper(
         )
     }
 
+    /**
+     * Can be called in any state, as setting the speed does not start playback.
+     * Media3 requires a speed > 0, a rate of 0 is handled by [WrappedPlayer.rate] by pausing.
+     */
     override fun setRate(rate: Float) {
-        player.setPlaybackSpeed(rate)
+        if (rate > 0f) {
+            player.setPlaybackSpeed(rate)
+        }
     }
 
     override fun setLooping(looping: Boolean) {

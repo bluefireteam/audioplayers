@@ -84,8 +84,11 @@ abstract class MethodChannelAudioplayersPlatformInterface {
 
   /// Sets the playback rate.
   ///
+  /// A rate of 1.0 is normal speed, 2.0 double speed and 0.5 half speed.
+  /// A rate of 0.0 pauses playback. Setting a rate must not resume a paused
+  /// player.
+  ///
   /// iOS and macOS have limits between 0.5 and 2x
-  /// Android SDK version should be 23 or higher
   Future<void> setPlaybackRate(String playerId, double playbackRate);
 
   /// Configures the player to read the audio from a URL.

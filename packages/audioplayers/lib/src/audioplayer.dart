@@ -395,6 +395,15 @@ class AudioPlayer {
   /// Resume without setting the desired state.
   Future<void> _resume() async {
     await creatingCompleter.future;
+    if (_playbackRate == 0) {
+      // A playback rate of 0 pauses the player, so it cannot be resumed.
+      desiredState = state;
+      AudioLogger.log(
+        'Cannot resume with a playback rate of 0. '
+        'Set a playback rate greater than 0 first.',
+      );
+      return;
+    }
     await _completePlayingStateUpdate(
       () => _platform.resume(playerId),
       playerState: PlayerState.playing,
@@ -460,13 +469,20 @@ class AudioPlayer {
     return _platform.setReleaseMode(playerId, releaseMode);
   }
 
-  /// Sets the playback rate - call this after first calling play() or resume().
+  /// Sets the playback rate.
+  ///
+  /// A rate of 1.0 is normal speed, 2.0 double speed and 0.5 half speed.
+  /// A rate of 0.0 pauses the player. While the rate is 0.0, [resume] has no
+  /// effect, so set a rate greater than 0.0 and then call [resume] to continue.
+  /// Setting a rate does not resume a paused player.
   ///
   /// iOS and macOS have limits between 0.5 and 2x
-  /// Android SDK version should be 23 or higher
   Future<void> setPlaybackRate(double playbackRate) async {
     _playbackRate = playbackRate;
     await creatingCompleter.future;
+    if (playbackRate == 0 && desiredState == PlayerState.playing) {
+      await pause();
+    }
     return _platform.setPlaybackRate(playerId, playbackRate);
   }
 
