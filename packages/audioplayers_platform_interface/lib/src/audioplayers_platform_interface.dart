@@ -85,8 +85,9 @@ abstract class MethodChannelAudioplayersPlatformInterface {
   /// Sets the playback rate.
   ///
   /// A rate of 1.0 is normal speed, 2.0 double speed and 0.5 half speed.
-  /// A rate of 0.0 pauses playback. Setting a rate must not resume a paused
-  /// player.
+  /// A rate of 0.0 must not throw. The `AudioPlayer` pauses the player before
+  /// setting a rate of 0.0, and does not resume it while the rate is 0.0.
+  /// Setting a rate must not resume a paused player.
   ///
   /// iOS and macOS have limits between 0.5 and 2x
   Future<void> setPlaybackRate(String playerId, double playbackRate);

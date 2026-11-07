@@ -305,7 +305,10 @@ class AudioPlayer {
     )
     PlayerMode? mode,
   }) async {
-    desiredState = PlayerState.playing;
+    final canResume = _canResume();
+    if (canResume) {
+      desiredState = PlayerState.playing;
+    }
 
     if (mode != null) {
       await setPlayerMode(mode);
@@ -325,7 +328,10 @@ class AudioPlayer {
       await seek(position);
     }
 
-    await _resume();
+    // The playback rate may have been set to 0 in the meantime.
+    if (canResume && _playbackRate != 0) {
+      await _resume();
+    }
   }
 
   Future<void> setAudioContext(AudioContext ctx) async {
@@ -388,22 +394,30 @@ class AudioPlayer {
 
   /// Resumes the audio that has been paused or stopped.
   Future<void> resume() async {
+    // Check before setting the desired state, to not interfere with pending
+    // state updates, e.g. the pause triggered by setting a rate of 0.
+    if (!_canResume()) {
+      return;
+    }
     desiredState = PlayerState.playing;
     await _resume();
+  }
+
+  /// A playback rate of 0 pauses the player, so it cannot be resumed.
+  bool _canResume() {
+    if (_playbackRate != 0) {
+      return true;
+    }
+    AudioLogger.log(
+      'Cannot resume with a playback rate of 0. '
+      'Set a playback rate greater than 0 first.',
+    );
+    return false;
   }
 
   /// Resume without setting the desired state.
   Future<void> _resume() async {
     await creatingCompleter.future;
-    if (_playbackRate == 0) {
-      // A playback rate of 0 pauses the player, so it cannot be resumed.
-      desiredState = state;
-      AudioLogger.log(
-        'Cannot resume with a playback rate of 0. '
-        'Set a playback rate greater than 0 first.',
-      );
-      return;
-    }
     await _completePlayingStateUpdate(
       () => _platform.resume(playerId),
       playerState: PlayerState.playing,
@@ -482,6 +496,10 @@ class AudioPlayer {
     await creatingCompleter.future;
     if (playbackRate == 0 && desiredState == PlayerState.playing) {
       await pause();
+      if (_playbackRate != playbackRate) {
+        // The rate was changed while pausing, so this rate got obsolete.
+        return;
+      }
     }
     return _platform.setPlaybackRate(playerId, playbackRate);
   }

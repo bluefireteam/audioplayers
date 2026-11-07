@@ -63,6 +63,8 @@ class WrappedPlayer internal constructor(
 
     var rate = 1.0f
         set(value) {
+            // Validate before caching, as an invalid rate would also fail on the next prepare.
+            require(value >= 0f) { "Playback rate must not be negative, but was $value." }
             if (field != value) {
                 field = value
                 if (value == 0f) {
