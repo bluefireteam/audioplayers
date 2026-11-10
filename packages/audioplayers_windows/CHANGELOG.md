@@ -1,3 +1,12 @@
+## 5.0.0-dev.0
+
+> Note: This release has breaking changes.
+
+ - **REFACTOR**: Handle common ReleaseMode.release logic in Dart ([#2017](https://github.com/bluefireteam/audioplayers/issues/2017)). ([6efd636b](https://github.com/bluefireteam/audioplayers/commit/6efd636b639ff144abfcf2423ee13aa7e2dc2239))
+ - **FIX**(windows): Crash on app startup when Media Feature Pack is not installed on Windows N ([#2019](https://github.com/bluefireteam/audioplayers/issues/2019)). ([cd475c76](https://github.com/bluefireteam/audioplayers/commit/cd475c760b2e730c4306c1f102f3ac6f4313109e))
+ - **FEAT**: Support Flutter v3.47.x, update CI ([#2028](https://github.com/bluefireteam/audioplayers/issues/2028)). ([9041a491](https://github.com/bluefireteam/audioplayers/commit/9041a491aedc90754a465835cddc36943eddc0a0))
+ - **BREAKING** **FEAT**: Add PlayingStateUpdate event ([#1995](https://github.com/bluefireteam/audioplayers/issues/1995)). ([fa6ec8e8](https://github.com/bluefireteam/audioplayers/commit/fa6ec8e8112f1d73fdae843e24a59ad2553c2f66))
+
 ## 4.4.1
 
  - **FIX**(windows): Compatibility with Visual Studio 18 (2026) ([#2011](https://github.com/bluefireteam/audioplayers/issues/2011)). ([ae5f4b96](https://github.com/bluefireteam/audioplayers/commit/ae5f4b965ef886f08b903a7a9386bc283db458c5))\

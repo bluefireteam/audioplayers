@@ -3,6 +3,93 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2026-11-10
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - [`audioplayers` - `v7.0.0-dev.0`](#audioplayers---v700-dev0)
+ - [`audioplayers_android` - `v6.0.0-dev.0`](#audioplayers_android---v600-dev0)
+ - [`audioplayers_android_exo` - `v0.2.0-dev.0`](#audioplayers_android_exo---v020-dev0)
+ - [`audioplayers_darwin` - `v7.0.0-dev.0`](#audioplayers_darwin---v700-dev0)
+ - [`audioplayers_linux` - `v5.0.0-dev.0`](#audioplayers_linux---v500-dev0)
+ - [`audioplayers_platform_interface` - `v8.0.0-dev.0`](#audioplayers_platform_interface---v800-dev0)
+ - [`audioplayers_web` - `v6.0.0-dev.0`](#audioplayers_web---v600-dev0)
+ - [`audioplayers_windows` - `v5.0.0-dev.0`](#audioplayers_windows---v500-dev0)
+
+Packages with other changes:
+
+ - There are no other changes in this release.
+
+---
+
+#### `audioplayers` - `v7.0.0-dev.0`
+
+ - **REFACTOR**: Handle common ReleaseMode.release logic in Dart ([#2017](https://github.com/bluefireteam/audioplayers/issues/2017)). ([6efd636b](https://github.com/bluefireteam/audioplayers/commit/6efd636b639ff144abfcf2423ee13aa7e2dc2239))
+ - **FIX**(android_exo): Differentiate playback rate from playback status ([#2036](https://github.com/bluefireteam/audioplayers/issues/2036)). ([91750730](https://github.com/bluefireteam/audioplayers/commit/917507301a90289ecd34809da9302fefb782a8f2))
+ - **FIX**(windows): Crash on app startup when Media Feature Pack is not installed on Windows N ([#2019](https://github.com/bluefireteam/audioplayers/issues/2019)). ([cd475c76](https://github.com/bluefireteam/audioplayers/commit/cd475c760b2e730c4306c1f102f3ac6f4313109e))
+ - **FEAT**: Support Flutter v3.47.x, update CI ([#2028](https://github.com/bluefireteam/audioplayers/issues/2028)). ([9041a491](https://github.com/bluefireteam/audioplayers/commit/9041a491aedc90754a465835cddc36943eddc0a0))
+ - **BREAKING** **FEAT**(android): Make audioplayers_android_exo the default on Android  ([#2031](https://github.com/bluefireteam/audioplayers/issues/2031)). ([df3a0ced](https://github.com/bluefireteam/audioplayers/commit/df3a0cedbc478eb2f5ecb197e56458925e4bce1a))
+ - **BREAKING** **FEAT**(android): Replace AudioContextAndroid.stayAwake with wakeMode ([#2033](https://github.com/bluefireteam/audioplayers/issues/2033)). ([8b96fc58](https://github.com/bluefireteam/audioplayers/commit/8b96fc58157769cedb62dc3d9674dbeb6e004463))
+ - **BREAKING** **FEAT**: Add PlayingStateUpdate event ([#1995](https://github.com/bluefireteam/audioplayers/issues/1995)). ([fa6ec8e8](https://github.com/bluefireteam/audioplayers/commit/fa6ec8e8112f1d73fdae843e24a59ad2553c2f66))
+
+#### `audioplayers_android` - `v6.0.0-dev.0`
+
+ - **REFACTOR**: Handle common ReleaseMode.release logic in Dart ([#2017](https://github.com/bluefireteam/audioplayers/issues/2017)). ([6efd636b](https://github.com/bluefireteam/audioplayers/commit/6efd636b639ff144abfcf2423ee13aa7e2dc2239))
+ - **FEAT**: Support Flutter v3.47.x, update CI ([#2028](https://github.com/bluefireteam/audioplayers/issues/2028)). ([9041a491](https://github.com/bluefireteam/audioplayers/commit/9041a491aedc90754a465835cddc36943eddc0a0))
+ - **BREAKING** **FEAT**(android): Make audioplayers_android_exo the default on Android  ([#2031](https://github.com/bluefireteam/audioplayers/issues/2031)). ([df3a0ced](https://github.com/bluefireteam/audioplayers/commit/df3a0cedbc478eb2f5ecb197e56458925e4bce1a))
+ - **BREAKING** **FEAT**(android): Replace AudioContextAndroid.stayAwake with wakeMode ([#2033](https://github.com/bluefireteam/audioplayers/issues/2033)). ([8b96fc58](https://github.com/bluefireteam/audioplayers/commit/8b96fc58157769cedb62dc3d9674dbeb6e004463))
+ - **BREAKING** **FEAT**: Add PlayingStateUpdate event ([#1995](https://github.com/bluefireteam/audioplayers/issues/1995)). ([fa6ec8e8](https://github.com/bluefireteam/audioplayers/commit/fa6ec8e8112f1d73fdae843e24a59ad2553c2f66))
+
+#### `audioplayers_android_exo` - `v0.2.0-dev.0`
+
+ - **REFACTOR**: Handle common ReleaseMode.release logic in Dart ([#2017](https://github.com/bluefireteam/audioplayers/issues/2017)). ([6efd636b](https://github.com/bluefireteam/audioplayers/commit/6efd636b639ff144abfcf2423ee13aa7e2dc2239))
+ - **FIX**(android_exo): Differentiate playback rate from playback status ([#2036](https://github.com/bluefireteam/audioplayers/issues/2036)). ([91750730](https://github.com/bluefireteam/audioplayers/commit/917507301a90289ecd34809da9302fefb782a8f2))
+ - **FEAT**: Support Flutter v3.47.x, update CI ([#2028](https://github.com/bluefireteam/audioplayers/issues/2028)). ([9041a491](https://github.com/bluefireteam/audioplayers/commit/9041a491aedc90754a465835cddc36943eddc0a0))
+ - **BREAKING** **FEAT**(android): Make audioplayers_android_exo the default on Android  ([#2031](https://github.com/bluefireteam/audioplayers/issues/2031)). ([df3a0ced](https://github.com/bluefireteam/audioplayers/commit/df3a0cedbc478eb2f5ecb197e56458925e4bce1a))
+ - **BREAKING** **FEAT**(android): Replace AudioContextAndroid.stayAwake with wakeMode ([#2033](https://github.com/bluefireteam/audioplayers/issues/2033)). ([8b96fc58](https://github.com/bluefireteam/audioplayers/commit/8b96fc58157769cedb62dc3d9674dbeb6e004463))
+ - **BREAKING** **FEAT**: Add PlayingStateUpdate event ([#1995](https://github.com/bluefireteam/audioplayers/issues/1995)). ([fa6ec8e8](https://github.com/bluefireteam/audioplayers/commit/fa6ec8e8112f1d73fdae843e24a59ad2553c2f66))
+
+#### `audioplayers_darwin` - `v7.0.0-dev.0`
+
+ - **REFACTOR**: Handle common ReleaseMode.release logic in Dart ([#2017](https://github.com/bluefireteam/audioplayers/issues/2017)). ([6efd636b](https://github.com/bluefireteam/audioplayers/commit/6efd636b639ff144abfcf2423ee13aa7e2dc2239))
+ - **FIX**(darwin): Add FlutterFramework dependency to Package.swift ([#2039](https://github.com/bluefireteam/audioplayers/issues/2039)). ([5160604f](https://github.com/bluefireteam/audioplayers/commit/5160604ff61aa640de7d99a325394a50a16febb3))
+ - **FIX**(darwin): Add missing swift_version to podspec ([#2030](https://github.com/bluefireteam/audioplayers/issues/2030)). ([7358eba5](https://github.com/bluefireteam/audioplayers/commit/7358eba581cb7ee3d0f048ff5170bb605776c9f3))
+ - **FEAT**: Support Flutter v3.47.x, update CI ([#2028](https://github.com/bluefireteam/audioplayers/issues/2028)). ([9041a491](https://github.com/bluefireteam/audioplayers/commit/9041a491aedc90754a465835cddc36943eddc0a0))
+ - **BREAKING** **FEAT**: Add PlayingStateUpdate event ([#1995](https://github.com/bluefireteam/audioplayers/issues/1995)). ([fa6ec8e8](https://github.com/bluefireteam/audioplayers/commit/fa6ec8e8112f1d73fdae843e24a59ad2553c2f66))
+
+#### `audioplayers_linux` - `v5.0.0-dev.0`
+
+ - **REFACTOR**: Handle common ReleaseMode.release logic in Dart ([#2017](https://github.com/bluefireteam/audioplayers/issues/2017)). ([6efd636b](https://github.com/bluefireteam/audioplayers/commit/6efd636b639ff144abfcf2423ee13aa7e2dc2239))
+ - **FEAT**: Support Flutter v3.47.x, update CI ([#2028](https://github.com/bluefireteam/audioplayers/issues/2028)). ([9041a491](https://github.com/bluefireteam/audioplayers/commit/9041a491aedc90754a465835cddc36943eddc0a0))
+ - **BREAKING** **FEAT**: Add PlayingStateUpdate event ([#1995](https://github.com/bluefireteam/audioplayers/issues/1995)). ([fa6ec8e8](https://github.com/bluefireteam/audioplayers/commit/fa6ec8e8112f1d73fdae843e24a59ad2553c2f66))
+
+#### `audioplayers_platform_interface` - `v8.0.0-dev.0`
+
+ - **FIX**(android_exo): Differentiate playback rate from playback status ([#2036](https://github.com/bluefireteam/audioplayers/issues/2036)). ([91750730](https://github.com/bluefireteam/audioplayers/commit/917507301a90289ecd34809da9302fefb782a8f2))
+ - **FEAT**: Support Flutter v3.47.x, update CI ([#2028](https://github.com/bluefireteam/audioplayers/issues/2028)). ([9041a491](https://github.com/bluefireteam/audioplayers/commit/9041a491aedc90754a465835cddc36943eddc0a0))
+ - **BREAKING** **FEAT**(android): Make audioplayers_android_exo the default on Android  ([#2031](https://github.com/bluefireteam/audioplayers/issues/2031)). ([df3a0ced](https://github.com/bluefireteam/audioplayers/commit/df3a0cedbc478eb2f5ecb197e56458925e4bce1a))
+ - **BREAKING** **FEAT**(android): Replace AudioContextAndroid.stayAwake with wakeMode ([#2033](https://github.com/bluefireteam/audioplayers/issues/2033)). ([8b96fc58](https://github.com/bluefireteam/audioplayers/commit/8b96fc58157769cedb62dc3d9674dbeb6e004463))
+ - **BREAKING** **FEAT**: Add PlayingStateUpdate event ([#1995](https://github.com/bluefireteam/audioplayers/issues/1995)). ([fa6ec8e8](https://github.com/bluefireteam/audioplayers/commit/fa6ec8e8112f1d73fdae843e24a59ad2553c2f66))
+
+#### `audioplayers_web` - `v6.0.0-dev.0`
+
+ - **REFACTOR**: Handle common ReleaseMode.release logic in Dart ([#2017](https://github.com/bluefireteam/audioplayers/issues/2017)). ([6efd636b](https://github.com/bluefireteam/audioplayers/commit/6efd636b639ff144abfcf2423ee13aa7e2dc2239))
+ - **FEAT**: Support Flutter v3.47.x, update CI ([#2028](https://github.com/bluefireteam/audioplayers/issues/2028)). ([9041a491](https://github.com/bluefireteam/audioplayers/commit/9041a491aedc90754a465835cddc36943eddc0a0))
+ - **BREAKING** **FEAT**(android): Make audioplayers_android_exo the default on Android  ([#2031](https://github.com/bluefireteam/audioplayers/issues/2031)). ([df3a0ced](https://github.com/bluefireteam/audioplayers/commit/df3a0cedbc478eb2f5ecb197e56458925e4bce1a))
+ - **BREAKING** **FEAT**: Add PlayingStateUpdate event ([#1995](https://github.com/bluefireteam/audioplayers/issues/1995)). ([fa6ec8e8](https://github.com/bluefireteam/audioplayers/commit/fa6ec8e8112f1d73fdae843e24a59ad2553c2f66))
+
+#### `audioplayers_windows` - `v5.0.0-dev.0`
+
+ - **REFACTOR**: Handle common ReleaseMode.release logic in Dart ([#2017](https://github.com/bluefireteam/audioplayers/issues/2017)). ([6efd636b](https://github.com/bluefireteam/audioplayers/commit/6efd636b639ff144abfcf2423ee13aa7e2dc2239))
+ - **FIX**(windows): Crash on app startup when Media Feature Pack is not installed on Windows N ([#2019](https://github.com/bluefireteam/audioplayers/issues/2019)). ([cd475c76](https://github.com/bluefireteam/audioplayers/commit/cd475c760b2e730c4306c1f102f3ac6f4313109e))
+ - **FEAT**: Support Flutter v3.47.x, update CI ([#2028](https://github.com/bluefireteam/audioplayers/issues/2028)). ([9041a491](https://github.com/bluefireteam/audioplayers/commit/9041a491aedc90754a465835cddc36943eddc0a0))
+ - **BREAKING** **FEAT**: Add PlayingStateUpdate event ([#1995](https://github.com/bluefireteam/audioplayers/issues/1995)). ([fa6ec8e8](https://github.com/bluefireteam/audioplayers/commit/fa6ec8e8112f1d73fdae843e24a59ad2553c2f66))
+
+
 ## 2026-06-27
 
 ### Changes
