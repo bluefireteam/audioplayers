@@ -56,6 +56,20 @@ abstract class FocusManager {
                 onGranted()
             }
 
+            AudioManager.AUDIOFOCUS_REQUEST_FAILED -> {
+                // The system refused focus (restrictive audio policy, e.g. on
+                // TV boxes or OEM POS firmware). Silently discarding the play
+                // request wedged the player: `playing` stayed true, so every
+                // later resume() no-oped with no error and no event. Roll the
+                // flag back so a retry can work, and surface the failure.
+                player.playing = false
+                player.handleError(
+                    "AndroidAudioError",
+                    "Audio focus request was denied by the system; playback was not started.",
+                    null,
+                )
+            }
+
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
                 onLoss(true)
             }
