@@ -13,7 +13,7 @@ Packages with breaking changes:
 
  - [`audioplayers` - `v7.0.0-dev.0`](#audioplayers---v700-dev0)
  - [`audioplayers_android` - `v6.0.0-dev.0`](#audioplayers_android---v600-dev0)
- - [`audioplayers_android_exo` - `v0.2.0-dev.0`](#audioplayers_android_exo---v020-dev0)
+ - [`audioplayers_android_exo` - `v1.0.0-dev.0`](#audioplayers_android_exo---v100-dev0)
  - [`audioplayers_darwin` - `v7.0.0-dev.0`](#audioplayers_darwin---v700-dev0)
  - [`audioplayers_linux` - `v5.0.0-dev.0`](#audioplayers_linux---v500-dev0)
  - [`audioplayers_platform_interface` - `v8.0.0-dev.0`](#audioplayers_platform_interface---v800-dev0)
@@ -44,7 +44,7 @@ Packages with other changes:
  - **BREAKING** **FEAT**(android): Replace AudioContextAndroid.stayAwake with wakeMode ([#2033](https://github.com/bluefireteam/audioplayers/issues/2033)). ([8b96fc58](https://github.com/bluefireteam/audioplayers/commit/8b96fc58157769cedb62dc3d9674dbeb6e004463))
  - **BREAKING** **FEAT**: Add PlayingStateUpdate event ([#1995](https://github.com/bluefireteam/audioplayers/issues/1995)). ([fa6ec8e8](https://github.com/bluefireteam/audioplayers/commit/fa6ec8e8112f1d73fdae843e24a59ad2553c2f66))
 
-#### `audioplayers_android_exo` - `v0.2.0-dev.0`
+#### `audioplayers_android_exo` - `v1.0.0-dev.0`
 
  - **REFACTOR**: Handle common ReleaseMode.release logic in Dart ([#2017](https://github.com/bluefireteam/audioplayers/issues/2017)). ([6efd636b](https://github.com/bluefireteam/audioplayers/commit/6efd636b639ff144abfcf2423ee13aa7e2dc2239))
  - **FIX**(android_exo): Differentiate playback rate from playback status ([#2036](https://github.com/bluefireteam/audioplayers/issues/2036)). ([91750730](https://github.com/bluefireteam/audioplayers/commit/917507301a90289ecd34809da9302fefb782a8f2))
