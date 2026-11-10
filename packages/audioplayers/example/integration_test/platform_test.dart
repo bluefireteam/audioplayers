@@ -206,6 +206,35 @@ void main() async {
       expect(await platform.getCurrentPosition(playerId), 0);
     });
 
+    testWidgets(
+      'Pause on playbackRate 0 and continue on playbackRate > 0 and resume',
+      (tester) async {
+        await tester.prepareSource(
+          playerId: playerId,
+          platform: platform,
+          testData: mp3Url1TestData,
+        );
+        await platform.resume(playerId);
+        await tester.pump(const Duration(seconds: 1));
+
+        await platform.setPlaybackRate(playerId, 0);
+        // Let the position settle after pausing.
+        await tester.pump(const Duration(milliseconds: 500));
+        final positionPaused = (await platform.getCurrentPosition(playerId))!;
+        await tester.pump(const Duration(seconds: 1));
+        expect(await platform.getCurrentPosition(playerId), positionPaused);
+
+        await platform.setPlaybackRate(playerId, 1);
+        await platform.resume(playerId);
+        await tester.pump(const Duration(seconds: 1));
+        final positionResumed = (await platform.getCurrentPosition(playerId))!;
+        await platform.stop(playerId);
+
+        expect(positionResumed, greaterThan(positionPaused));
+      },
+      skip: !features.hasPlaybackRate,
+    );
+
     for (final td in audioTestDataList) {
       if (features.hasSeek && !td.isLiveStream) {
         testWidgets('#seek with millisecond precision ${td.source}',
