@@ -7,6 +7,10 @@
  - **BREAKING** **FEAT**(android): Make audioplayers_android_exo the default on Android  ([#2031](https://github.com/bluefireteam/audioplayers/issues/2031)). ([df3a0ced](https://github.com/bluefireteam/audioplayers/commit/df3a0cedbc478eb2f5ecb197e56458925e4bce1a))
  - **BREAKING** **FEAT**: Add PlayingStateUpdate event ([#1995](https://github.com/bluefireteam/audioplayers/issues/1995)). ([fa6ec8e8](https://github.com/bluefireteam/audioplayers/commit/fa6ec8e8112f1d73fdae843e24a59ad2553c2f66))
 
+### Migration instructions
+
+ - `resume` / `play` and `pause` / `stop` now complete once playback has actually started / stopped. Platform implementations must emit `audio.onPlayingStateUpdate`. See [migration guide](https://github.com/bluefireteam/audioplayers/blob/main/migration_guide.md#playing-state-is-reported-by-the-platform-1995).
+
 ## 5.3.0
 
  - **FEAT**(android): Compatibility with Built-In Kotlin ([#1991](https://github.com/bluefireteam/audioplayers/issues/1991)). ([687218b9](https://github.com/bluefireteam/audioplayers/commit/687218b96682a7bcadd9490572db692dbc9a2f07))

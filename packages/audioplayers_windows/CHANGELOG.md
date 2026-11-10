@@ -7,6 +7,10 @@
  - **FEAT**: Support Flutter v3.47.x, update CI ([#2028](https://github.com/bluefireteam/audioplayers/issues/2028)). ([9041a491](https://github.com/bluefireteam/audioplayers/commit/9041a491aedc90754a465835cddc36943eddc0a0))
  - **BREAKING** **FEAT**: Add PlayingStateUpdate event ([#1995](https://github.com/bluefireteam/audioplayers/issues/1995)). ([fa6ec8e8](https://github.com/bluefireteam/audioplayers/commit/fa6ec8e8112f1d73fdae843e24a59ad2553c2f66))
 
+### Migration instructions
+
+ - `resume` / `play` and `pause` / `stop` now complete once playback has actually started / stopped. Platform implementations must emit `audio.onPlayingStateUpdate`. See [migration guide](https://github.com/bluefireteam/audioplayers/blob/main/migration_guide.md#playing-state-is-reported-by-the-platform-1995).
+
 ## 4.4.1
 
  - **FIX**(windows): Compatibility with Visual Studio 18 (2026) ([#2011](https://github.com/bluefireteam/audioplayers/issues/2011)). ([ae5f4b96](https://github.com/bluefireteam/audioplayers/commit/ae5f4b965ef886f08b903a7a9386bc283db458c5))\

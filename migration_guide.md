@@ -1,5 +1,70 @@
 # Migration Guide
 
+## Migrate from v6 to v7
+
+### `audioplayers_android_exo` is the default on Android ([#2031](https://github.com/bluefireteam/audioplayers/pull/2031))
+
+The Android implementation is now based on [Media3 ExoPlayer](https://developer.android.com/media/media3/exoplayer)
+(`audioplayers_android_exo`). The former `audioplayers_android` (`MediaPlayer` / `SoundPool`) is deprecated.
+
+- **Most apps:** nothing to do, the new implementation is picked up automatically.
+- **Apps already depending on `audioplayers_android_exo`:** remove it from your `pubspec.yaml`, it is included now.
+- **Opt out (temporarily):** add `audioplayers_android` to your app's `pubspec.yaml` to keep the old implementation,
+  and please [open an issue](https://github.com/bluefireteam/audioplayers/issues) for any regression you encounter:
+
+  ```yaml
+  dependencies:
+    audioplayers: ^7.0.0
+    audioplayers_android: ^6.0.0
+  ```
+
+- **`PlayerMode` is deprecated** (`PlayerMode`, `AudioPlayer.setPlayerMode`, `AudioPlayer.mode`,
+  `AudioPlayer.play(mode: ...)`, `AudioPool.playerMode`), as `PlayerMode.lowLatency` was only supported by
+  `audioplayers_android`. On `audioplayers_android_exo`, it falls back to `PlayerMode.mediaPlayer` (the default).
+  Remove any usage:
+
+  ```dart
+  // Before
+  await player.setPlayerMode(PlayerMode.lowLatency);
+  await player.play(AssetSource('sfx/click.wav'));
+
+  // After
+  await player.play(AssetSource('sfx/click.wav'));
+  ```
+
+  For short, frequently played sounds use an `AudioPool`
+  (`await AudioPool.createFromAsset(path: 'sfx/click.wav', maxPlayers: 4)`), or for very low latency (e.g. games)
+  consider [`flutter_soloud`](https://pub.dev/packages/flutter_soloud).
+
+### `AudioContextAndroid.stayAwake` is replaced by `wakeMode` ([#2033](https://github.com/bluefireteam/audioplayers/pull/2033))
+
+| Before                                     | After                                                                                                       |
+|--------------------------------------------|-------------------------------------------------------------------------------------------------------------|
+| `AudioContextAndroid(stayAwake: true)`     | `AudioContextAndroid(wakeMode: AndroidWakeMode.local)` (or `AndroidWakeMode.network` to also hold a wifi lock while streaming) |
+| `AudioContextAndroid(stayAwake: false)`    | `AudioContextAndroid(wakeMode: AndroidWakeMode.none)`                                                       |
+| `audioContextAndroid.copy(stayAwake: ...)` | `audioContextAndroid.copy(wakeMode: ...)`                                                                   |
+| `AudioContextConfig(stayAwake: ...)`       | unchanged (`true` maps to `local`, `false` to `none`)                                                       |
+
+The default is `AndroidWakeMode.none`. If playback must continue with the screen turned off, set a wake mode other
+than `none` and add the `android.permission.WAKE_LOCK` permission to your `AndroidManifest.xml`.
+
+### Playing state is reported by the platform ([#1995](https://github.com/bluefireteam/audioplayers/pull/1995))
+
+The native players now emit a `PlayingStateUpdate` event, so `AudioPlayer.state` reflects the actual playback state:
+
+- `resume()` / `play()` complete once playback has actually started, `pause()` / `stop()` once it has actually stopped.
+  If you relied on these calls returning immediately, don't `await` them or adjust your timing logic.
+- The player state also changes when playback is started or stopped from outside the app (e.g. by the system or via
+  media controls), so listen to `onPlayerStateChanged` instead of tracking the state yourself.
+
+**Federated platform implementations** must emit the event whenever the native player starts or stops playing:
+
+```
+{ "event": "audio.onPlayingStateUpdate", "value": <bool isPlaying> }
+```
+
+Otherwise `resume()`, `pause()` and `stop()` fail after `AudioPlayer.playingStateUpdateTimeout` (30 seconds by default).
+
 ## Migrate from v1 to higher versions
 
 We recommend following the migration instructions for the breaking changes in the [changelog](CHANGELOG.md).
