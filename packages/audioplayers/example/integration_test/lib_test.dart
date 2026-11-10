@@ -322,6 +322,7 @@ void main() async {
       (WidgetTester tester) async {
         final player = AudioPlayer();
         await player.setReleaseMode(ReleaseMode.stop);
+        // ignore: deprecated_member_use
         player.setPlayerMode(PlayerMode.lowLatency);
 
         final td = wavUrl1TestData;
@@ -388,6 +389,35 @@ void main() async {
 
     await player.dispose();
   });
+
+  testWidgets(
+    'Pause on playbackRate 0 and resume only with playbackRate > 0',
+    (WidgetTester tester) async {
+      final player = AudioPlayer();
+      await player.play(mp3Url1TestData.source);
+      expect(player.state, PlayerState.playing);
+
+      // A rate of 0 pauses the player.
+      await player.setPlaybackRate(0);
+      expect(player.state, PlayerState.paused);
+
+      // Resuming has no effect while the rate is 0.
+      await player.resume();
+      await tester.pump(const Duration(seconds: 1));
+      expect(player.state, PlayerState.paused);
+
+      // Setting a rate while paused does not resume (#468).
+      await player.setPlaybackRate(1);
+      await tester.pump(const Duration(seconds: 1));
+      expect(player.state, PlayerState.paused);
+
+      await player.resume();
+      expect(player.state, PlayerState.playing);
+
+      await player.dispose();
+    },
+    skip: !features.hasPlaybackRate,
+  );
 
   group('Call twice:', () {
     testWidgets('SetSource', (WidgetTester tester) async {
@@ -462,6 +492,7 @@ void main() async {
       testWidgets('Released wrong source on LOW_LATENCY (#1672)',
           (WidgetTester tester) async {
         var player = AudioPlayer()
+          // ignore: deprecated_member_use
           ..setPlayerMode(PlayerMode.lowLatency)
           ..setReleaseMode(ReleaseMode.stop);
 
@@ -474,6 +505,7 @@ void main() async {
         await player.stop();
 
         player = AudioPlayer()
+          // ignore: deprecated_member_use
           ..setPlayerMode(PlayerMode.lowLatency)
           ..setReleaseMode(ReleaseMode.stop);
 

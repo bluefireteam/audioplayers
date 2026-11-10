@@ -163,22 +163,6 @@ The release mode is controlling what happens when the playback ends. There are 3
 
 **Note**: there are caveats when looping audio without gaps. Depending on the file format and platform, when audioplayers uses the native implementation of the "looping" feature, there will be gaps between plays, which might not be noticeable for non-continuous SFX but will definitely be noticeable for looping songs. Please check out the Gapless Loop section on our [Troubleshooting Guide](https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md) for more details.
 
-
-### Player Mode
-
-The Player Mode represents what kind of native SDK is used to playback audio, when multiple options are available (currently only relevant for Android). There are 2 options:
-
-1. `.mediaPlayer` (default): for long media files or streams.
-1. `.lowLatency`: for short audio files, since it reduces the impacts on visuals or UI performance.
-
-**Note**: on low latency mode, these features are NOT available:
-- get duration & duration event
-- get position & position event
-- playback completion event (this means you are responsible for stopping the player)
-- seeking & seek completion event
-
-Normally you want to use `.mediaPlayer` unless you care about performance and your audios are short (i.e. for sound effects in games).
-
 ## Logs
 
 You can globally control the amount of log messages that are emitted by this package:

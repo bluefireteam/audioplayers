@@ -84,8 +84,12 @@ abstract class MethodChannelAudioplayersPlatformInterface {
 
   /// Sets the playback rate.
   ///
+  /// A rate of 1.0 is normal speed, 2.0 double speed and 0.5 half speed.
+  /// A rate of 0.0 must not throw. The `AudioPlayer` pauses the player before
+  /// setting a rate of 0.0, and does not resume it while the rate is 0.0.
+  /// Setting a rate must not resume a paused player.
+  ///
   /// iOS and macOS have limits between 0.5 and 2x
-  /// Android SDK version should be 23 or higher
   Future<void> setPlaybackRate(String playerId, double playbackRate);
 
   /// Configures the player to read the audio from a URL.
@@ -111,6 +115,11 @@ abstract class MethodChannelAudioplayersPlatformInterface {
     AudioContext audioContext,
   );
 
+  @Deprecated(
+    'Player modes are deprecated, as low latency mode is only supported by '
+    'the deprecated `audioplayers_android` package. '
+    'This will be removed in a future release.',
+  )
   Future<void> setPlayerMode(
     String playerId,
     PlayerMode playerMode,

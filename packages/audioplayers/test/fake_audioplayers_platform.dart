@@ -134,6 +134,7 @@ class FakeAudioplayersPlatform extends AudioplayersPlatformInterface {
   }
 
   @override
+  // ignore: deprecated_member_use
   Future<void> setPlayerMode(String playerId, PlayerMode playerMode) async {
     calls.add(
       FakeCall(id: playerId, method: 'setPlayerMode', value: playerMode),

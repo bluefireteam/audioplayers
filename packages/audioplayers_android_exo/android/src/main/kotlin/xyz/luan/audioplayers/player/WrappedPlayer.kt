@@ -19,6 +19,7 @@ class WrappedPlayer internal constructor(
     init {
         createPlayer().also {
             player = it
+            it.updateContext(context)
         }
     }
     var source: Source? = null
@@ -62,9 +63,14 @@ class WrappedPlayer internal constructor(
 
     var rate = 1.0f
         set(value) {
+            // Validate before caching, as an invalid rate would also fail on the next prepare.
+            require(value >= 0f) { "Playback rate must not be negative, but was $value." }
             if (field != value) {
                 field = value
-                if (playing) {
+                if (value == 0f) {
+                    // Media3 only supports speeds > 0, so a rate of 0 pauses the player.
+                    pause()
+                } else if (!released) {
                     player?.setRate(value)
                 }
             }
@@ -289,6 +295,7 @@ class WrappedPlayer internal constructor(
     private fun PlayerWrapper.configAndPrepare() {
         setVolumeAndBalance(volume, balance)
         setLooping(isLooping)
+        setRate(rate)
         prepare()
     }
 

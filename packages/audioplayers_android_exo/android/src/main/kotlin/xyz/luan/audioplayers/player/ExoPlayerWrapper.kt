@@ -155,8 +155,14 @@ class ExoPlayerWrapper(
         )
     }
 
+    /**
+     * Can be called in any state, as setting the speed does not start playback.
+     * Media3 requires a speed > 0, a rate of 0 is handled by [WrappedPlayer.rate] by pausing.
+     */
     override fun setRate(rate: Float) {
-        player.setPlaybackSpeed(rate)
+        if (rate != 0f) {
+            player.setPlaybackSpeed(rate)
+        }
     }
 
     override fun setLooping(looping: Boolean) {
@@ -176,9 +182,11 @@ class ExoPlayerWrapper(
             builder.build(),
             false,
         )
+        updateWakeMode()
     }
 
     override fun setSource(source: Source) {
+        updateWakeMode()
         player.clearMediaItems()
         if (source is UrlSource) {
             player.setMediaItem(MediaItem.fromUri(source.url))
@@ -194,6 +202,19 @@ class ExoPlayerWrapper(
 
     override fun prepare() {
         player.prepare()
+    }
+
+    /**
+     * The wake mode values of [AudioContextAndroid] match Media3's `C.WAKE_MODE_*` constants.
+     * [C.WAKE_MODE_NETWORK] additionally takes a wifi lock, which costs battery for nothing on local
+     * sources, so these fall back to [C.WAKE_MODE_LOCAL]. Locks are only held while playing.
+     * Requires the `android.permission.WAKE_LOCK` permission.
+     */
+    private fun updateWakeMode() {
+        val source = wrappedPlayer.source
+        val isLocal = source !is UrlSource || source.isLocal
+        val wakeMode = wrappedPlayer.context.wakeMode
+        player.setWakeMode(if (wakeMode == C.WAKE_MODE_NETWORK && isLocal) C.WAKE_MODE_LOCAL else wakeMode)
     }
 }
 

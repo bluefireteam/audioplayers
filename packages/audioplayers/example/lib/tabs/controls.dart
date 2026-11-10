@@ -111,22 +111,6 @@ class _ControlsTabState extends State<ControlsTab>
           }).toList(),
         ),
         WrappedListTile(
-          leading: const Text('Player Mode'),
-          children: [
-            EnumTgl<PlayerMode>(
-              key: const Key('control-player-mode'),
-              options: {
-                for (final e in PlayerMode.values)
-                  'control-player-mode-${e.name}': e,
-              },
-              selected: widget.player.mode,
-              onChange: (playerMode) async {
-                await _update(() => widget.player.setPlayerMode(playerMode));
-              },
-            ),
-          ],
-        ),
-        WrappedListTile(
           leading: const Text('Release Mode'),
           children: [
             EnumTgl<ReleaseMode>(

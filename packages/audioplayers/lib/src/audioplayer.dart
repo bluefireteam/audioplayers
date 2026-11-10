@@ -53,8 +53,14 @@ class AudioPlayer {
 
   /// Current mode of the audio player. Can be updated at any time, but is going
   /// to take effect only at the next time you play the audio.
+  // ignore: deprecated_member_use
   PlayerMode _mode = PlayerMode.mediaPlayer;
 
+  @Deprecated(
+    'Player modes are deprecated, as low latency mode is only supported by '
+    'the deprecated `audioplayers_android` package. '
+    'This will be removed in a future release.',
+  )
   PlayerMode get mode => _mode;
 
   ReleaseMode _releaseMode = ReleaseMode.release;
@@ -292,9 +298,17 @@ class AudioPlayer {
     double? balance,
     AudioContext? ctx,
     Duration? position,
+    @Deprecated(
+      'Player modes are deprecated, as low latency mode is only supported by '
+      'the deprecated `audioplayers_android` package. '
+      'This will be removed in a future release.',
+    )
     PlayerMode? mode,
   }) async {
-    desiredState = PlayerState.playing;
+    final canResume = _canResume();
+    if (canResume) {
+      desiredState = PlayerState.playing;
+    }
 
     if (mode != null) {
       await setPlayerMode(mode);
@@ -314,7 +328,10 @@ class AudioPlayer {
       await seek(position);
     }
 
-    await _resume();
+    // The playback rate may have been set to 0 in the meantime.
+    if (canResume && _playbackRate != 0) {
+      await _resume();
+    }
   }
 
   Future<void> setAudioContext(AudioContext ctx) async {
@@ -322,6 +339,11 @@ class AudioPlayer {
     return _platform.setAudioContext(playerId, ctx);
   }
 
+  @Deprecated(
+    'Player modes are deprecated, as low latency mode is only supported by '
+    'the deprecated `audioplayers_android` package. '
+    'This will be removed in a future release.',
+  )
   Future<void> setPlayerMode(PlayerMode mode) async {
     _mode = mode;
     await creatingCompleter.future;
@@ -372,8 +394,25 @@ class AudioPlayer {
 
   /// Resumes the audio that has been paused or stopped.
   Future<void> resume() async {
+    // Check before setting the desired state, to not interfere with pending
+    // state updates, e.g. the pause triggered by setting a rate of 0.
+    if (!_canResume()) {
+      return;
+    }
     desiredState = PlayerState.playing;
     await _resume();
+  }
+
+  /// A playback rate of 0 pauses the player, so it cannot be resumed.
+  bool _canResume() {
+    if (_playbackRate != 0) {
+      return true;
+    }
+    AudioLogger.log(
+      'Cannot resume with a playback rate of 0. '
+      'Set a playback rate greater than 0 first.',
+    );
+    return false;
   }
 
   /// Resume without setting the desired state.
@@ -444,13 +483,24 @@ class AudioPlayer {
     return _platform.setReleaseMode(playerId, releaseMode);
   }
 
-  /// Sets the playback rate - call this after first calling play() or resume().
+  /// Sets the playback rate.
+  ///
+  /// A rate of 1.0 is normal speed, 2.0 double speed and 0.5 half speed.
+  /// A rate of 0.0 pauses the player. While the rate is 0.0, [resume] has no
+  /// effect, so set a rate greater than 0.0 and then call [resume] to continue.
+  /// Setting a rate does not resume a paused player.
   ///
   /// iOS and macOS have limits between 0.5 and 2x
-  /// Android SDK version should be 23 or higher
   Future<void> setPlaybackRate(double playbackRate) async {
     _playbackRate = playbackRate;
     await creatingCompleter.future;
+    if (playbackRate == 0 && desiredState == PlayerState.playing) {
+      await pause();
+      if (_playbackRate != playbackRate) {
+        // The rate was changed while pausing, so this rate got obsolete.
+        return;
+      }
+    }
     return _platform.setPlaybackRate(playerId, playbackRate);
   }
 

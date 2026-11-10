@@ -167,10 +167,9 @@ class AudioplayersPlugin : FlutterPlugin {
                 "setPlayerMode" -> {
                     val playerMode = call.enumArgument<PlayerMode>("playerMode") ?: error("playerMode is required")
                     if (playerMode == PlayerMode.LOW_LATENCY) {
-                        player.handleError(
-                            "AndroidAudioError",
-                            "PlayerMode LowLatency is not supported for Exoplayer",
-                            null,
+                        player.handleLog(
+                            "PlayerMode.lowLatency is deprecated and not supported by audioplayers_android_exo, " +
+                                "falling back to PlayerMode.mediaPlayer.",
                         )
                     }
                 }
@@ -271,7 +270,7 @@ fun String.toConstantCase(): String {
 private fun MethodCall.audioContext(): AudioContextAndroid {
     return AudioContextAndroid(
         isSpeakerphoneOn = argument<Boolean>("isSpeakerphoneOn") ?: error("isSpeakerphoneOn is required"),
-        stayAwake = argument<Boolean>("stayAwake") ?: error("stayAwake is required"),
+        wakeMode = argument<Int>("wakeMode") ?: error("wakeMode is required"),
         contentType = argument<Int>("contentType") ?: error("contentType is required"),
         usageType = argument<Int>("usageType") ?: error("usageType is required"),
         audioFocus = argument<Int>("audioFocus") ?: error("audioFocus is required"),

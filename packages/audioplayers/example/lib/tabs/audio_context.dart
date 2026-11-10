@@ -191,11 +191,13 @@ class AudioContextTabState extends State<AudioContextTab>
             audioContext.android.copy(isSpeakerphoneOn: value),
           ),
         ),
-        Cbx(
-          'stayAwake',
-          value: audioContext.android.stayAwake,
-          ({value}) => updateAudioContextAndroid(
-            audioContext.android.copy(stayAwake: value),
+        LabeledDropDown<AndroidWakeMode>(
+          label: 'wakeMode',
+          key: const Key('wakeMode'),
+          options: {for (final e in AndroidWakeMode.values) e: e.name},
+          selected: audioContext.android.wakeMode,
+          onChange: (v) => updateAudioContextAndroid(
+            audioContext.android.copy(wakeMode: v),
           ),
         ),
         LabeledDropDown<AndroidContentType>(
