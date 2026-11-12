@@ -301,7 +301,10 @@ enum ReleaseMode: String {
 
     if self.releaseMode == ReleaseMode.loop {
       await seek(time: toCMTime(millis: 0))
-      self.resume()
+      // The player may have been paused or stopped while seeking.
+      if isPlaying {
+        self.resume()
+      }
     }
   }
 }
