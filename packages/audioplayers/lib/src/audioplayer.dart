@@ -226,7 +226,10 @@ class AudioPlayer {
           // (e.g. system controls, an interrupting call, etc.).
           // Then the desiredState also needs to be updated to the system
           // value.
-          final isTriggeredBySystem = desiredState == state;
+          // An event arriving while a requested update is still pending
+          // belongs to that request, e.g. a loop restart before a stop.
+          final isTriggeredBySystem =
+              desiredState == state && _playingStateUpdateCompleter == null;
           _setPlayerState(updatedState);
           if (isTriggeredBySystem) {
             // If AP didn't request any change, then can also set it as
