@@ -1,6 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_example/components/dlg.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 extension StateExt<T extends StatefulWidget> on State<T> {
   void toast(String message, {Key? textKey}) {
