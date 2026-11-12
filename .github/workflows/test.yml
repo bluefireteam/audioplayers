@@ -228,6 +228,8 @@ jobs:
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
+        env:
+          FLUTTER_TEST_BEFORE_RETRY: bash ../../../scripts/ci/start-android-emulator.sh
         run: |
           ( cd server; dart run bin/server.dart ) &
           bash ../../../scripts/ci/flutter-test-retry.sh ${{ inputs.verbose && '--verbose' || '' }} integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
@@ -261,6 +263,8 @@ jobs:
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
+        env:
+          FLUTTER_TEST_BEFORE_RETRY: bash ../../../scripts/ci/start-android-emulator.sh
         run: |
           ( cd server; dart run bin/server.dart ) &
           bash ../../../scripts/ci/flutter-test-retry.sh ${{ inputs.verbose && '--verbose' || '' }} integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
@@ -290,6 +294,8 @@ jobs:
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
+        env:
+          FLUTTER_TEST_BEFORE_RETRY: bash ../../../scripts/ci/start-android-emulator.sh
         run: |
           ( cd server; dart run bin/server.dart ) &
           bash ../../../scripts/ci/flutter-test-retry.sh ${{ inputs.verbose && '--verbose' || '' }} integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
