@@ -163,4 +163,48 @@ void main() {
       await platform.eventStreamControllers['p1']!.close();
     });
   });
+
+  group('AudioPlayer playing state', () {
+    test('#stop completes when a loop restart is reported before the stop',
+        () async {
+      platform = _LoopRestartingAudioplayersPlatform();
+      AudioplayersPlatformInterface.instance = platform;
+      final player = await createPlayer(playerId: 'p1');
+      player.positionUpdater = TimerPositionUpdater(
+        getPosition: () => Future.delayed(
+          const Duration(milliseconds: 10),
+          () => Duration.zero,
+        ),
+        interval: const Duration(minutes: 1),
+      );
+      await player.setReleaseMode(ReleaseMode.loop);
+      await player.play(UrlSource('internet.com/file.mp3'));
+      expect(player.state, PlayerState.playing);
+
+      await player.stop().timeout(const Duration(seconds: 1));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      expect(player.desiredState, PlayerState.stopped);
+      expect(player.state, PlayerState.stopped);
+    });
+  });
+}
+
+class _LoopRestartingAudioplayersPlatform extends FakeAudioplayersPlatform {
+  @override
+  Future<void> stop(String playerId) async {
+    eventStreamControllers[playerId]!
+      ..add(
+        const AudioEvent(
+          eventType: AudioEventType.playingStateUpdate,
+          isPlaying: false,
+        ),
+      )
+      ..add(
+        const AudioEvent(
+          eventType: AudioEventType.playingStateUpdate,
+          isPlaying: true,
+        ),
+      );
+    await super.stop(playerId);
+  }
 }
