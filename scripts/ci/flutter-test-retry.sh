@@ -6,11 +6,17 @@
 # When FLUTTER_TEST_TIMEOUT is set (in seconds), an attempt that takes longer
 # is stopped and retried as well, e.g. when the app never attaches to the test
 # runner on the iOS simulator.
+#
+# When FLUTTER_TEST_BEFORE_RETRY is set, it is run before retrying, e.g. to
+# restart an emulator that crashed.
 set -o pipefail
 
 timeout_seconds=${FLUTTER_TEST_TIMEOUT:-0}
 log=$(mktemp)
 for attempt in 1 2; do
+  if [ "$attempt" -gt 1 ] && [ -n "$FLUTTER_TEST_BEFORE_RETRY" ]; then
+    bash -c "$FLUTTER_TEST_BEFORE_RETRY"
+  fi
   perl -e 'alarm shift; exec @ARGV' "$timeout_seconds" flutter test "$@" 2>&1 | tee "$log"
   code=$?
   if [ "$code" -eq 0 ]; then
