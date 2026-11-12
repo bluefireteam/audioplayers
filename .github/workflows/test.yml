@@ -490,6 +490,13 @@ jobs:
         run: |
           sudo apt install -y libunwind-dev
           sudo apt-get install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev gstreamer1.0-plugins-good gstreamer1.0-plugins-bad
+      - name: Set up virtual audio device
+        # Without an audio server GStreamer falls back to the OpenAL sink, which aborts the app since Flutter 3.50.0.
+        run: |
+          sudo apt-get install -y pulseaudio
+          pulseaudio --start --exit-idle-time=-1
+          pactl load-module module-null-sink sink_name=virtual_speaker
+          pactl set-default-sink virtual_speaker
 
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
