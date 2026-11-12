@@ -262,7 +262,9 @@ void AudioPlayer::OnPlaybackEnded() {
     fl_value_set_string(map, "value", fl_value_new_bool(true));
     fl_event_channel_send(this->_eventChannel, map, nullptr, nullptr);
   }
-  if (GetReleaseMode() == ReleaseMode::loop) {
+  // The end of stream message may arrive after the player was paused or
+  // stopped, in which case it must not be restarted.
+  if (GetReleaseMode() == ReleaseMode::loop && _isPlaying) {
     Play();
   }
 }
