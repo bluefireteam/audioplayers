@@ -7,7 +7,7 @@ Also check out our live [web app](https://bluefireteam.github.io/audioplayers/).
 import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   runApp(const MaterialApp(home: _SimpleExampleApp()));
