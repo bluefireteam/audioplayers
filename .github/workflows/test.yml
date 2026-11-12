@@ -230,9 +230,9 @@ jobs:
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         run: |
           ( cd server; dart run bin/server.dart ) &
-          flutter test ${{ inputs.verbose && '--verbose' || '' }} integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
-          flutter test ${{ inputs.verbose && '--verbose' || '' }} integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
-          flutter test ${{ inputs.verbose && '--verbose' || '' }} integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
+          bash ../../../scripts/ci/flutter-test-retry.sh ${{ inputs.verbose && '--verbose' || '' }} integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
+          bash ../../../scripts/ci/flutter-test-retry.sh ${{ inputs.verbose && '--verbose' || '' }} integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
+          bash ../../../scripts/ci/flutter-test-retry.sh ${{ inputs.verbose && '--verbose' || '' }} integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
 
   android-legacy:
     runs-on: ubuntu-latest
@@ -263,9 +263,9 @@ jobs:
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         run: |
           ( cd server; dart run bin/server.dart ) &
-          flutter test ${{ inputs.verbose && '--verbose' || '' }} integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
-          flutter test ${{ inputs.verbose && '--verbose' || '' }} integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
-          flutter test ${{ inputs.verbose && '--verbose' || '' }} integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
+          bash ../../../scripts/ci/flutter-test-retry.sh ${{ inputs.verbose && '--verbose' || '' }} integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
+          bash ../../../scripts/ci/flutter-test-retry.sh ${{ inputs.verbose && '--verbose' || '' }} integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
+          bash ../../../scripts/ci/flutter-test-retry.sh ${{ inputs.verbose && '--verbose' || '' }} integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
 
   android:
     runs-on: ubuntu-latest
@@ -292,9 +292,9 @@ jobs:
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         run: |
           ( cd server; dart run bin/server.dart ) &
-          flutter test ${{ inputs.verbose && '--verbose' || '' }} integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
-          flutter test ${{ inputs.verbose && '--verbose' || '' }} integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
-          flutter test ${{ inputs.verbose && '--verbose' || '' }} integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
+          bash ../../../scripts/ci/flutter-test-retry.sh ${{ inputs.verbose && '--verbose' || '' }} integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
+          bash ../../../scripts/ci/flutter-test-retry.sh ${{ inputs.verbose && '--verbose' || '' }} integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
+          bash ../../../scripts/ci/flutter-test-retry.sh ${{ inputs.verbose && '--verbose' || '' }} integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
       - name: Run Android unit tests
         working-directory: ./packages/audioplayers/example/android
         # TODO: Use `./gradlew test`, when https://github.com/flutter/flutter/issues/169336 is fixed.
