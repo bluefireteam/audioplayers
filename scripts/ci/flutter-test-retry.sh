@@ -9,6 +9,13 @@
 #
 # When FLUTTER_TEST_BEFORE_RETRY is set, it is run before retrying, e.g. to
 # restart an emulator that crashed.
+#
+# Remove this script once the issues that make it necessary are solved:
+# - iOS simulator never starts the test execution after the build:
+#   https://github.com/flutter/flutter/issues/181771
+# - Android emulator fails to start the Dart Development Service or to connect
+#   to the VM Service, or never starts the test execution after the build: no
+#   upstream issue is known yet.
 set -o pipefail
 
 timeout_seconds=${FLUTTER_TEST_TIMEOUT:-0}
