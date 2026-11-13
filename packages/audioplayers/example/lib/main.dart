@@ -9,7 +9,7 @@ import 'package:audioplayers_example/tabs/logger.dart';
 import 'package:audioplayers_example/tabs/sources.dart';
 import 'package:audioplayers_example/tabs/streams.dart';
 import 'package:audioplayers_example/utils.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 const defaultPlayerCount = 4;
 

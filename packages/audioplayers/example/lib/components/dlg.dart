@@ -1,5 +1,5 @@
 import 'package:audioplayers_example/components/btn.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class SimpleDlg extends StatelessWidget {
   final String message;

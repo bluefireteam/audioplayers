@@ -163,4 +163,74 @@ void main() {
       await platform.eventStreamControllers['p1']!.close();
     });
   });
+
+  group('AudioPlayer playing state', () {
+    PositionUpdater slowPositionUpdater() => TimerPositionUpdater(
+          getPosition: () => Future.delayed(
+            const Duration(milliseconds: 10),
+            () => Duration.zero,
+          ),
+          interval: const Duration(minutes: 1),
+        );
+
+    test('system pause and play in quick succession keeps playing', () async {
+      final player = await createPlayer(playerId: 'p1');
+      player.positionUpdater = slowPositionUpdater();
+      await player.play(UrlSource('internet.com/file.mp3'));
+      expect(player.state, PlayerState.playing);
+
+      platform.eventStreamControllers['p1']!
+        ..add(
+          const AudioEvent(
+            eventType: AudioEventType.playingStateUpdate,
+            isPlaying: false,
+          ),
+        )
+        ..add(
+          const AudioEvent(
+            eventType: AudioEventType.playingStateUpdate,
+            isPlaying: true,
+          ),
+        );
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      expect(player.desiredState, PlayerState.playing);
+      expect(player.state, PlayerState.playing);
+    });
+
+    test('#stop completes when a loop restart is reported before the stop',
+        () async {
+      platform = _LoopRestartingAudioplayersPlatform();
+      AudioplayersPlatformInterface.instance = platform;
+      final player = await createPlayer(playerId: 'p1');
+      player.positionUpdater = slowPositionUpdater();
+      await player.setReleaseMode(ReleaseMode.loop);
+      await player.play(UrlSource('internet.com/file.mp3'));
+      expect(player.state, PlayerState.playing);
+
+      await player.stop().timeout(const Duration(seconds: 1));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      expect(player.desiredState, PlayerState.stopped);
+      expect(player.state, PlayerState.stopped);
+    });
+  });
+}
+
+class _LoopRestartingAudioplayersPlatform extends FakeAudioplayersPlatform {
+  @override
+  Future<void> stop(String playerId) async {
+    eventStreamControllers[playerId]!
+      ..add(
+        const AudioEvent(
+          eventType: AudioEventType.playingStateUpdate,
+          isPlaying: false,
+        ),
+      )
+      ..add(
+        const AudioEvent(
+          eventType: AudioEventType.playingStateUpdate,
+          isPlaying: true,
+        ),
+      );
+    await super.stop(playerId);
+  }
 }

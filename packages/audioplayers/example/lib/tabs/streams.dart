@@ -3,7 +3,7 @@ import 'package:audioplayers_example/components/player_widget.dart';
 import 'package:audioplayers_example/components/properties_widget.dart';
 import 'package:audioplayers_example/components/stream_widget.dart';
 import 'package:audioplayers_example/components/tab_content.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class StreamsTab extends StatelessWidget {
   final AudioPlayer player;
