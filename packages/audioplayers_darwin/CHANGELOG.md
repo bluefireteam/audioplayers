@@ -1,3 +1,17 @@
+## 7.0.0-dev.0
+
+> Note: This release has breaking changes.
+
+ - **REFACTOR**: Handle common ReleaseMode.release logic in Dart ([#2017](https://github.com/bluefireteam/audioplayers/issues/2017)). ([6efd636b](https://github.com/bluefireteam/audioplayers/commit/6efd636b639ff144abfcf2423ee13aa7e2dc2239))
+ - **FIX**(darwin): Add FlutterFramework dependency to Package.swift ([#2039](https://github.com/bluefireteam/audioplayers/issues/2039)). ([5160604f](https://github.com/bluefireteam/audioplayers/commit/5160604ff61aa640de7d99a325394a50a16febb3))
+ - **FIX**(darwin): Add missing swift_version to podspec ([#2030](https://github.com/bluefireteam/audioplayers/issues/2030)). ([7358eba5](https://github.com/bluefireteam/audioplayers/commit/7358eba581cb7ee3d0f048ff5170bb605776c9f3))
+ - **FEAT**: Support Flutter v3.47.x, update CI ([#2028](https://github.com/bluefireteam/audioplayers/issues/2028)). ([9041a491](https://github.com/bluefireteam/audioplayers/commit/9041a491aedc90754a465835cddc36943eddc0a0))
+ - **BREAKING** **FEAT**: Add PlayingStateUpdate event ([#1995](https://github.com/bluefireteam/audioplayers/issues/1995)). ([fa6ec8e8](https://github.com/bluefireteam/audioplayers/commit/fa6ec8e8112f1d73fdae843e24a59ad2553c2f66))
+
+### Migration instructions
+
+ - `resume` / `play` and `pause` / `stop` now complete once playback has actually started / stopped. Platform implementations must emit `audio.onPlayingStateUpdate`. See [migration guide](https://github.com/bluefireteam/audioplayers/blob/main/migration_guide.md#playing-state-is-reported-by-the-platform-1995).
+
 ## 6.5.0
 
  - **FEAT**(android): Compatibility with Built-In Kotlin ([#1991](https://github.com/bluefireteam/audioplayers/issues/1991)). ([687218b9](https://github.com/bluefireteam/audioplayers/commit/687218b96682a7bcadd9490572db692dbc9a2f07))

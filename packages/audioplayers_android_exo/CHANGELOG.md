@@ -1,3 +1,20 @@
+## 1.0.0-dev.0
+
+> Note: This release has breaking changes.
+
+ - **REFACTOR**: Handle common ReleaseMode.release logic in Dart ([#2017](https://github.com/bluefireteam/audioplayers/issues/2017)). ([6efd636b](https://github.com/bluefireteam/audioplayers/commit/6efd636b639ff144abfcf2423ee13aa7e2dc2239))
+ - **FIX**(android_exo): Differentiate playback rate from playback status ([#2036](https://github.com/bluefireteam/audioplayers/issues/2036)). ([91750730](https://github.com/bluefireteam/audioplayers/commit/917507301a90289ecd34809da9302fefb782a8f2))
+ - **FEAT**: Support Flutter v3.47.x, update CI ([#2028](https://github.com/bluefireteam/audioplayers/issues/2028)). ([9041a491](https://github.com/bluefireteam/audioplayers/commit/9041a491aedc90754a465835cddc36943eddc0a0))
+ - **BREAKING** **FEAT**(android): Make audioplayers_android_exo the default on Android  ([#2031](https://github.com/bluefireteam/audioplayers/issues/2031)). ([df3a0ced](https://github.com/bluefireteam/audioplayers/commit/df3a0cedbc478eb2f5ecb197e56458925e4bce1a))
+ - **BREAKING** **FEAT**(android): Replace AudioContextAndroid.stayAwake with wakeMode ([#2033](https://github.com/bluefireteam/audioplayers/issues/2033)). ([8b96fc58](https://github.com/bluefireteam/audioplayers/commit/8b96fc58157769cedb62dc3d9674dbeb6e004463))
+ - **BREAKING** **FEAT**: Add PlayingStateUpdate event ([#1995](https://github.com/bluefireteam/audioplayers/issues/1995)). ([fa6ec8e8](https://github.com/bluefireteam/audioplayers/commit/fa6ec8e8112f1d73fdae843e24a59ad2553c2f66))
+
+### Migration instructions
+
+ - `audioplayers_android_exo` is now the default Android implementation; `audioplayers_android` and `PlayerMode` are deprecated. Remove `PlayerMode` usages, or add `audioplayers_android` to your `pubspec.yaml` to opt out. See [migration guide](https://github.com/bluefireteam/audioplayers/blob/main/migration_guide.md#audioplayers_android_exo-is-the-default-on-android-2031).
+ - Replace `AudioContextAndroid(stayAwake: true / false)` with `AudioContextAndroid(wakeMode: AndroidWakeMode.local / AndroidWakeMode.none)`. The default is now `none`. See [migration guide](https://github.com/bluefireteam/audioplayers/blob/main/migration_guide.md#audiocontextandroidstayawake-is-replaced-by-wakemode-2033).
+ - `resume` / `play` and `pause` / `stop` now complete once playback has actually started / stopped. Platform implementations must emit `audio.onPlayingStateUpdate`. See [migration guide](https://github.com/bluefireteam/audioplayers/blob/main/migration_guide.md#playing-state-is-reported-by-the-platform-1995).
+
 ## 0.1.4
 
  - **FEAT**(android): Compatibility with Built-In Kotlin ([#1991](https://github.com/bluefireteam/audioplayers/issues/1991)). ([687218b9](https://github.com/bluefireteam/audioplayers/commit/687218b96682a7bcadd9490572db692dbc9a2f07))
