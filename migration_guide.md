@@ -4,70 +4,106 @@
 
 ### `audioplayers_android_exo` is the default on Android ([#2031](https://github.com/bluefireteam/audioplayers/pull/2031))
 
-The Android implementation is now based on [Media3 ExoPlayer](https://developer.android.com/media/media3/exoplayer)
-(`audioplayers_android_exo`). The former `audioplayers_android` (`MediaPlayer` / `SoundPool`) is deprecated.
+The Android implementation is now based on [Media3 ExoPlayer](https://developer.android.com/media/media3/exoplayer).
+If you already depend on `audioplayers_android_exo`, remove it from your `pubspec.yaml`, it is included now.
 
-- **Most apps:** nothing to do, the new implementation is picked up automatically.
-- **Apps already depending on `audioplayers_android_exo`:** remove it from your `pubspec.yaml`, it is included now.
-- **Opt out (temporarily):** add `audioplayers_android` to your app's `pubspec.yaml` to keep the old implementation,
-  and please [open an issue](https://github.com/bluefireteam/audioplayers/issues) for any regression you encounter:
+The player mode API (`PlayerMode`, `setPlayerMode`, `mode`, `AudioPool.playerMode`) is deprecated, as
+`PlayerMode.lowLatency` has no effect anymore. You have the following options:
 
-  ```yaml
-  dependencies:
-    audioplayers: ^7.0.0
-    audioplayers_android: ^6.0.0
-  ```
+#### 1. Remove the player mode (recommended)
 
-- **`PlayerMode` is deprecated** (`PlayerMode`, `AudioPlayer.setPlayerMode`, `AudioPlayer.mode`,
-  `AudioPlayer.play(mode: ...)`, `AudioPool.playerMode`), as `PlayerMode.lowLatency` was only supported by
-  `audioplayers_android`. On `audioplayers_android_exo`, it falls back to `PlayerMode.mediaPlayer` (the default).
-  Remove any usage:
+```dart
+// Before
+await player.setPlayerMode(PlayerMode.lowLatency);
+await player.play(AssetSource('sfx/click.wav'));
 
-  ```dart
-  // Before
-  await player.setPlayerMode(PlayerMode.lowLatency);
-  await player.play(AssetSource('sfx/click.wav'));
+// After
+await player.play(AssetSource('sfx/click.wav'));
+```
 
-  // After
-  await player.play(AssetSource('sfx/click.wav'));
-  ```
+#### 2. Use an `AudioPool`
 
-  For short, frequently played sounds use an `AudioPool`
-  (`await AudioPool.createFromAsset(path: 'sfx/click.wav', maxPlayers: 4)`), or for very low latency (e.g. games)
-  consider [`flutter_soloud`](https://pub.dev/packages/flutter_soloud).
+For short, frequently played sound effects:
+
+```dart
+final pool = await AudioPool.createFromAsset(path: 'sfx/click.wav', maxPlayers: 4);
+final stop = await pool.start();
+```
+
+#### 3. Switch to `flutter_soloud`
+
+If you need an even lower latency, e.g. for games, have a look at [`flutter_soloud`](https://pub.dev/packages/flutter_soloud).
+
+#### 4. Opt out: keep using the deprecated `audioplayers_android`
+
+```yaml
+dependencies:
+  audioplayers: ^7.0.0
+  audioplayers_android: ^6.0.0
+```
+
+Please [open an issue](https://github.com/bluefireteam/audioplayers/issues) for any regression, so we can fix it
+before `audioplayers_android` is discontinued.
 
 ### `AudioContextAndroid.stayAwake` is replaced by `wakeMode` ([#2033](https://github.com/bluefireteam/audioplayers/pull/2033))
 
-| Before                                     | After                                                                                                       |
-|--------------------------------------------|-------------------------------------------------------------------------------------------------------------|
-| `AudioContextAndroid(stayAwake: true)`     | `AudioContextAndroid(wakeMode: AndroidWakeMode.local)` (or `AndroidWakeMode.network` to also hold a wifi lock while streaming) |
-| `AudioContextAndroid(stayAwake: false)`    | `AudioContextAndroid(wakeMode: AndroidWakeMode.none)`                                                       |
-| `audioContextAndroid.copy(stayAwake: ...)` | `audioContextAndroid.copy(wakeMode: ...)`                                                                   |
-| `AudioContextConfig(stayAwake: ...)`       | unchanged (`true` maps to `local`, `false` to `none`)                                                       |
+- `AudioContextAndroid(stayAwake: true)` → `AudioContextAndroid(wakeMode: AndroidWakeMode.local)`
+  (or `AndroidWakeMode.network` to also keep wifi awake while streaming)
+- `AudioContextAndroid(stayAwake: false)` → `AudioContextAndroid(wakeMode: AndroidWakeMode.none)`
+- `AudioContextConfig(stayAwake: ...)` is unchanged.
 
-The default is `AndroidWakeMode.none`. If playback must continue with the screen turned off, set a wake mode other
-than `none` and add the `android.permission.WAKE_LOCK` permission to your `AndroidManifest.xml`.
+The default is now `none`. Wake modes other than `none` require the `android.permission.WAKE_LOCK` permission.
 
 ### Playing state is reported by the platform ([#1995](https://github.com/bluefireteam/audioplayers/pull/1995))
 
-The native players now emit a `PlayingStateUpdate` event, so `AudioPlayer.state` reflects the actual playback state:
+`resume()` / `play()` and `pause()` / `stop()` now complete once playback has actually started / stopped.
 
-- `resume()` / `play()` complete once playback has actually started, `pause()` / `stop()` once it has actually stopped.
-  If you relied on these calls returning immediately, don't `await` them or adjust your timing logic.
-- The player state also changes when playback is started or stopped from outside the app (e.g. by the system or via
-  media controls), so listen to `onPlayerStateChanged` instead of tracking the state yourself.
+**Federated platform implementations** must emit `audio.onPlayingStateUpdate` (`value: <bool isPlaying>`) whenever
+the native player starts or stops playing.
 
-**Federated platform implementations** must emit the event whenever the native player starts or stops playing:
+## Migrate from v5 to v6
 
-```
-{ "event": "audio.onPlayingStateUpdate", "value": <bool isPlaying> }
-```
+- Minimum Flutter version is 3.13.0 ([#1612](https://github.com/bluefireteam/audioplayers/pull/1612)).
+- Methods deprecated in v4 are removed, see [v3 to v4](#migrate-from-v3-to-v4) ([#1583](https://github.com/bluefireteam/audioplayers/pull/1583)).
+- `AudioContextConfig(duckAudio: true)` → `AudioContextConfig(focus: AudioContextConfigFocus.duckOthers)` ([#1720](https://github.com/bluefireteam/audioplayers/pull/1720)).
+- `AudioContextIOS(options: [...])` → `AudioContextIOS(options: {...})`, and `AudioContext` / `AudioContextIOS` are no longer `const` ([#1591](https://github.com/bluefireteam/audioplayers/pull/1591)).
+- Position updates are handled in Dart, configurable via `AudioPlayer.positionUpdater`.
+  Platform implementations no longer emit `AudioEventType.position` ([#1664](https://github.com/bluefireteam/audioplayers/pull/1664)).
 
-Otherwise `resume()`, `pause()` and `stop()` fail after `AudioPlayer.playingStateUpdateTimeout` (30 seconds by default).
+## Migrate from v4 to v5
 
-## Migrate from v1 to higher versions
+- Minimum Dart version is 3.0.0, minimum Flutter version is 3.10.0 ([#1529](https://github.com/bluefireteam/audioplayers/pull/1529)).
+- The audio output defaults to the system preferences ([#1563](https://github.com/bluefireteam/audioplayers/pull/1563)).
+  To keep the previous behavior, set `AudioContextConfig(route: AudioContextConfigRoute.speaker, stayAwake: true)`.
 
-We recommend following the migration instructions for the breaking changes in the [changelog](CHANGELOG.md).
+## Migrate from v3 to v4
+
+| Before                                             | After                                        |
+|----------------------------------------------------|----------------------------------------------|
+| `AudioPlayer.global.changeLogLevel(LogLevel.info)` | `AudioLogger.logLevel = AudioLogLevel.info`  |
+| `AudioPlayer.global.logLevel`                      | `AudioLogger.logLevel`                       |
+| `AudioPlayer.global.log()`                         | `AudioLogger.log()` or `AudioLogger.error()` |
+| `AudioPlayer.global.info()`                        | `AudioLogger.log()`                          |
+| `AudioPlayer.global.error()`                       | `AudioLogger.error()`                        |
+| `GlobalPlatformInterface`                          | `GlobalAudioScope`                           |
+| `AudioPlayer.global.setGlobalAudioContext()`       | `AudioPlayer.global.setAudioContext()`       |
+| `ForPlayer<>`                                      | _removed_                                    |
+
+**Federated platform implementations:** import `package:audioplayers_platform_interface/audioplayers_platform_interface.dart`
+and see [#1352](https://github.com/bluefireteam/audioplayers/pull/1352),
+[#1442](https://github.com/bluefireteam/audioplayers/pull/1442) and
+[#1443](https://github.com/bluefireteam/audioplayers/pull/1443) for renamed classes.
+
+## Migrate from v2 to v3
+
+- `PlayerMode.lowLatency` takes its presets from the `AudioContext`, e.g. set
+  `AudioContextAndroid(usageType: AndroidUsageType.game)` ([#1388](https://github.com/bluefireteam/audioplayers/pull/1388)).
+- `logger_platform_interface.dart` is renamed to `global_platform_interface.dart` ([#1385](https://github.com/bluefireteam/audioplayers/pull/1385)).
+
+## Migrate from v1 to v2
+
+- `AudioContextIOS(defaultToSpeaker: true)` → `AudioContextIOS(options: [AVAudioSessionOptions.defaultToSpeaker])` ([#1374](https://github.com/bluefireteam/audioplayers/pull/1374)).
+- `AudioCache.clear` takes the file name as `String` instead of a `Uri` (v1.2.0, [#1347](https://github.com/bluefireteam/audioplayers/pull/1347)).
 
 ## Migrate from v0 to v1
 
