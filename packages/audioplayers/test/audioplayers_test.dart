@@ -197,9 +197,18 @@ void main() {
       expect(player.state, PlayerState.playing);
     });
 
-    test('#stop completes when a loop restart is reported before the stop',
-        () async {
-      platform = _LoopRestartingAudioplayersPlatform();
+    const pausedEvent = AudioEvent(
+      eventType: AudioEventType.playingStateUpdate,
+      isPlaying: false,
+    );
+    const playingEvent = AudioEvent(
+      eventType: AudioEventType.playingStateUpdate,
+      isPlaying: true,
+    );
+    const completeEvent = AudioEvent(eventType: AudioEventType.complete);
+
+    Future<void> testStopWhileLooping(List<AudioEvent> stopEvents) async {
+      platform = _LoopingAudioplayersPlatform(stopEvents);
       AudioplayersPlatformInterface.instance = platform;
       final player = await createPlayer(playerId: 'p1');
       player.positionUpdater = slowPositionUpdater();
@@ -211,26 +220,36 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 50));
       expect(player.desiredState, PlayerState.stopped);
       expect(player.state, PlayerState.stopped);
-    });
+    }
+
+    test(
+      '#stop completes when a loop restart is reported before the stop',
+      () => testStopWhileLooping([pausedEvent, playingEvent, pausedEvent]),
+    );
+
+    test(
+      '#stop completes when the loop ends right before the stop',
+      () => testStopWhileLooping([pausedEvent, completeEvent]),
+    );
+
+    test(
+      '#stop completes when the loop end is reported before the pause',
+      () => testStopWhileLooping([completeEvent, pausedEvent]),
+    );
   });
 }
 
-class _LoopRestartingAudioplayersPlatform extends FakeAudioplayersPlatform {
+/// Reports the given [stopEvents] instead of the regular stop events, to
+/// simulate events of a loop iteration that are still on their way to Dart
+/// when the stop is handled.
+class _LoopingAudioplayersPlatform extends FakeAudioplayersPlatform {
+  final List<AudioEvent> stopEvents;
+
+  _LoopingAudioplayersPlatform(this.stopEvents);
+
   @override
   Future<void> stop(String playerId) async {
-    eventStreamControllers[playerId]!
-      ..add(
-        const AudioEvent(
-          eventType: AudioEventType.playingStateUpdate,
-          isPlaying: false,
-        ),
-      )
-      ..add(
-        const AudioEvent(
-          eventType: AudioEventType.playingStateUpdate,
-          isPlaying: true,
-        ),
-      );
-    await super.stop(playerId);
+    calls.add(FakeCall(id: playerId, method: 'stop'));
+    stopEvents.forEach(eventStreamControllers[playerId]!.add);
   }
 }

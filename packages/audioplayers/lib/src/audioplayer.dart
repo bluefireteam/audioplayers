@@ -181,6 +181,14 @@ class AudioPlayer {
         if (state == PlayerState.disposed) {
           return;
         }
+        // The completion can still be on its way when a stop or pause was
+        // requested, e.g. when stopping while a loop restarts. Then the
+        // pending request takes precedence, otherwise its desired state would
+        // be overridden and the state update would never complete.
+        if (_playingStateUpdateCompleter != null &&
+            desiredState != PlayerState.playing) {
+          return;
+        }
         state = PlayerState.completed;
         if (releaseMode != ReleaseMode.loop) {
           await _platform.stop(this.playerId);
