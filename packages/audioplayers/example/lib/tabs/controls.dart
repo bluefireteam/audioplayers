@@ -5,7 +5,7 @@ import 'package:audioplayers_example/components/tab_content.dart';
 import 'package:audioplayers_example/components/tgl.dart';
 import 'package:audioplayers_example/components/txt.dart';
 import 'package:audioplayers_example/utils.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class ControlsTab extends StatefulWidget {
   final AudioPlayer player;

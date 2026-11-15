@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 class TabContent extends StatelessWidget {
   final List<Widget> children;
