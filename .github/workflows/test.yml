@@ -57,6 +57,11 @@ on:
         required: false
         default: true
         type: boolean
+      enable_pods:
+        description: 'Build with CocoaPods'
+        required: false
+        default: true
+        type: boolean
       enable_min_version:
         description: 'Test Platform min version'
         required: false
@@ -103,6 +108,10 @@ on:
         default: true
         type: boolean
       enable_macos:
+        required: false
+        default: true
+        type: boolean
+      enable_pods:
         required: false
         default: true
         type: boolean
@@ -213,7 +222,7 @@ jobs:
 
   android-min:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 45
     if: inputs.enable_min_version && inputs.enable_android
     steps:
       - uses: actions/checkout@v4
@@ -229,7 +238,7 @@ jobs:
         working-directory: ./packages/audioplayers/example
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         env:
-          FLUTTER_TEST_TIMEOUT: 900
+          FLUTTER_TEST_TIMEOUT: 600
           FLUTTER_TEST_BEFORE_RETRY: bash ../../../scripts/ci/start-android-emulator.sh
         run: |
           ( cd server; dart run bin/server.dart ) &
@@ -239,7 +248,7 @@ jobs:
 
   android-legacy:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 45
     if: inputs.enable_android
     steps:
       - uses: actions/checkout@v4
@@ -265,7 +274,7 @@ jobs:
         working-directory: ./packages/audioplayers/example
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         env:
-          FLUTTER_TEST_TIMEOUT: 900
+          FLUTTER_TEST_TIMEOUT: 600
           FLUTTER_TEST_BEFORE_RETRY: bash ../../../scripts/ci/start-android-emulator.sh
         run: |
           ( cd server; dart run bin/server.dart ) &
@@ -275,7 +284,7 @@ jobs:
 
   android:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 45
     if: inputs.enable_android
     steps:
       - uses: actions/checkout@v4
@@ -297,7 +306,7 @@ jobs:
         working-directory: ./packages/audioplayers/example
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         env:
-          FLUTTER_TEST_TIMEOUT: 900
+          FLUTTER_TEST_TIMEOUT: 600
           FLUTTER_TEST_BEFORE_RETRY: bash ../../../scripts/ci/start-android-emulator.sh
         run: |
           ( cd server; dart run bin/server.dart ) &
@@ -337,7 +346,7 @@ jobs:
 
   ios:
     runs-on: macos-26
-    timeout-minutes: 90
+    timeout-minutes: 45
     if: inputs.enable_ios
     steps:
       - uses: actions/checkout@v4
@@ -352,7 +361,7 @@ jobs:
         working-directory: ./packages/audioplayers/example
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         env:
-          FLUTTER_TEST_TIMEOUT: 1200
+          FLUTTER_TEST_TIMEOUT: 720
         run: |
           UDID=$(xcrun simctl create test-se-26-2 com.apple.CoreSimulator.SimDeviceType.iPhone-SE-3rd-generation com.apple.CoreSimulator.SimRuntime.iOS-26-2)
           xcrun simctl list devices
@@ -367,7 +376,7 @@ jobs:
   ios-pods:
     runs-on: macos-latest
     timeout-minutes: 30
-    if: inputs.enable_ios
+    if: inputs.enable_pods && inputs.enable_ios
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
@@ -426,7 +435,7 @@ jobs:
   macos-pods:
     runs-on: macos-latest
     timeout-minutes: 30
-    if: inputs.enable_macos
+    if: inputs.enable_pods && inputs.enable_macos
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
