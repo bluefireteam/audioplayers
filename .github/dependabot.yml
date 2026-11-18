@@ -1,0 +1,51 @@
+# Weekly dependency updates: one grouped PR per ecosystem (incl. major bumps).
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 1
+    groups:
+      github-actions:
+        patterns: ["*"]
+    commit-message:
+      prefix: ci
+
+  # Pub workspace: root pubspec.yaml + pubspec.lock cover all packages
+  - package-ecosystem: pub
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 1
+    versioning-strategy: increase
+    groups:
+      pub:
+        patterns: ["*"]
+    commit-message:
+      prefix: chore
+
+  - package-ecosystem: gradle
+    directories:
+      - /packages/audioplayers_android/android
+      - /packages/audioplayers_android_exo/android
+      - /packages/audioplayers/example/android
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 1
+    groups:
+      gradle:
+        patterns: ["*"]
+    commit-message:
+      prefix: chore
+
+  - package-ecosystem: swift
+    directory: /packages/audioplayers_darwin/darwin/audioplayers_darwin
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 1
+    groups:
+      swift:
+        patterns: ["*"]
+    commit-message:
+      prefix: chore
