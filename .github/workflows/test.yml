@@ -149,7 +149,7 @@ jobs:
         uses: super-linter/super-linter/slim@v9
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VALIDATE_ALL_CODEBASE: false
+          VALIDATE_ALL_CODEBASE: true
           DEFAULT_BRANCH: main
           # Use the linter configs in the repository root, e.g. .clang-format
           LINTER_RULES_PATH: .
