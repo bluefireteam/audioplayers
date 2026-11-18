@@ -38,14 +38,3 @@ updates:
         patterns: ["*"]
     commit-message:
       prefix: chore
-
-  - package-ecosystem: swift
-    directory: /packages/audioplayers_darwin/darwin/audioplayers_darwin
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 1
-    groups:
-      swift:
-        patterns: ["*"]
-    commit-message:
-      prefix: chore
