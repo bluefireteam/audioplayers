@@ -12,13 +12,9 @@ The player mode API (`PlayerMode`, `setPlayerMode`, `mode`, `AudioPool.playerMod
 
 #### 1. Remove the player mode (recommended)
 
-```dart
-// Before
-await player.setPlayerMode(PlayerMode.lowLatency);
-await player.play(AssetSource('sfx/click.wav'));
-
-// After
-await player.play(AssetSource('sfx/click.wav'));
+```diff
+- await player.setPlayerMode(PlayerMode.lowLatency);
+  await player.play(AssetSource('sfx/click.wav'));
 ```
 
 #### 2. Use an `AudioPool`
@@ -32,7 +28,7 @@ final stop = await pool.start();
 
 #### 3. Switch to `flutter_soloud`
 
-If you need an even lower latency, e.g. for games, have a look at [`flutter_soloud`](https://pub.dev/packages/flutter_soloud).
+If you need an even lower latency, e.g. for games, have a look at [flutter_soloud](https://pub.dev/packages/flutter_soloud).
 
 #### 4. Opt out: keep using the deprecated `audioplayers_android`
 
@@ -42,8 +38,7 @@ dependencies:
   audioplayers_android: ^6.0.0
 ```
 
-Please [open an issue](https://github.com/bluefireteam/audioplayers/issues) for any regression, so we can fix it
-before `audioplayers_android` is discontinued.
+Please [open an issue](https://github.com/bluefireteam/audioplayers/issues) for any potential regression.
 
 ### `AudioContextAndroid.stayAwake` is replaced by `wakeMode` ([#2033](https://github.com/bluefireteam/audioplayers/pull/2033))
 
