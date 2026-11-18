@@ -7,6 +7,11 @@ on:
       - synchronize
       - ready_for_review
 
+# Cancel superseded runs, so that they don't block the limited macOS runners.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   call-min-flutter-test:
     uses: ./.github/workflows/test.yml
@@ -14,6 +19,8 @@ jobs:
       # Min supported version, to support AGP 9.
       flutter_version: '3.44.6'
       fatal_warnings: false
+      # Building with CocoaPods on the latest Flutter version is sufficient.
+      enable_pods: false
       enable_android: ${{ github.event.pull_request.draft == false }}
       enable_web: ${{ github.event.pull_request.draft == false }}
       enable_ios: ${{ github.event.pull_request.draft == false }}
