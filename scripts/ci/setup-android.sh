@@ -1,4 +1,4 @@
-#!/usr/bin/env
+#!/usr/bin/env bash
 set -e
 
 ANDROID_SDK_VERSION=${1:-35} # Default to 30 if no version is provided
@@ -40,9 +40,4 @@ echo "List available AVDs"
 echo "Install platform tools"
 "$ANDROID_CMDLINE_TOOLS"/sdkmanager "platform-tools"
 
-# Start Emulator
-echo "Starting emulator"
-nohup "$ANDROID_HOME"/emulator/emulator -avd emu -no-audio -no-snapshot -no-window &
-"$ANDROID_HOME"/platform-tools/adb wait-for-device shell "while [[ -z \$(getprop sys.boot_completed) ]]; do sleep 1; done; input keyevent 82"
-"$ANDROID_HOME"/platform-tools/adb devices
-echo "Emulator started"
+bash "$(dirname "$0")/start-android-emulator.sh"

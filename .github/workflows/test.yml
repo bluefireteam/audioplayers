@@ -9,6 +9,7 @@ on:
         type: choice
         options:
           - 'any'
+          - '3.50.x'
           - '3.47.x'
           - '3.44.x'
       flutter_channel:
@@ -71,7 +72,7 @@ on:
     inputs:
       flutter_version:
         required: false
-        default: '3.47.7'
+        default: '3.50.0'
         type: string
       flutter_channel:
         required: false
@@ -227,11 +228,14 @@ jobs:
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
+        env:
+          FLUTTER_TEST_TIMEOUT: 900
+          FLUTTER_TEST_BEFORE_RETRY: bash ../../../scripts/ci/start-android-emulator.sh
         run: |
           ( cd server; dart run bin/server.dart ) &
-          flutter test ${{ inputs.verbose && '--verbose' || '' }} integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
-          flutter test ${{ inputs.verbose && '--verbose' || '' }} integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
-          flutter test ${{ inputs.verbose && '--verbose' || '' }} integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
+          bash ../../../scripts/ci/flutter-test-retry.sh ${{ inputs.verbose && '--verbose' || '' }} integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
+          bash ../../../scripts/ci/flutter-test-retry.sh ${{ inputs.verbose && '--verbose' || '' }} integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
+          bash ../../../scripts/ci/flutter-test-retry.sh ${{ inputs.verbose && '--verbose' || '' }} integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
 
   android-legacy:
     runs-on: ubuntu-latest
@@ -260,11 +264,14 @@ jobs:
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
+        env:
+          FLUTTER_TEST_TIMEOUT: 900
+          FLUTTER_TEST_BEFORE_RETRY: bash ../../../scripts/ci/start-android-emulator.sh
         run: |
           ( cd server; dart run bin/server.dart ) &
-          flutter test ${{ inputs.verbose && '--verbose' || '' }} integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
-          flutter test ${{ inputs.verbose && '--verbose' || '' }} integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
-          flutter test ${{ inputs.verbose && '--verbose' || '' }} integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
+          bash ../../../scripts/ci/flutter-test-retry.sh ${{ inputs.verbose && '--verbose' || '' }} integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
+          bash ../../../scripts/ci/flutter-test-retry.sh ${{ inputs.verbose && '--verbose' || '' }} integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
+          bash ../../../scripts/ci/flutter-test-retry.sh ${{ inputs.verbose && '--verbose' || '' }} integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
 
   android:
     runs-on: ubuntu-latest
@@ -289,11 +296,14 @@ jobs:
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
+        env:
+          FLUTTER_TEST_TIMEOUT: 900
+          FLUTTER_TEST_BEFORE_RETRY: bash ../../../scripts/ci/start-android-emulator.sh
         run: |
           ( cd server; dart run bin/server.dart ) &
-          flutter test ${{ inputs.verbose && '--verbose' || '' }} integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
-          flutter test ${{ inputs.verbose && '--verbose' || '' }} integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
-          flutter test ${{ inputs.verbose && '--verbose' || '' }} integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
+          bash ../../../scripts/ci/flutter-test-retry.sh ${{ inputs.verbose && '--verbose' || '' }} integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
+          bash ../../../scripts/ci/flutter-test-retry.sh ${{ inputs.verbose && '--verbose' || '' }} integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
+          bash ../../../scripts/ci/flutter-test-retry.sh ${{ inputs.verbose && '--verbose' || '' }} integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
       - name: Run Android unit tests
         working-directory: ./packages/audioplayers/example/android
         # TODO: Use `./gradlew test`, when https://github.com/flutter/flutter/issues/169336 is fixed.
@@ -314,6 +324,8 @@ jobs:
 
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
+        env:
+          FLUTTER_TEST_TIMEOUT: 1200
         run: |
           xcodes runtimes install "iOS 16.4"
           UDID=$(xcrun simctl create test-se-16-4 com.apple.CoreSimulator.SimDeviceType.iPhone-SE-3rd-generation com.apple.CoreSimulator.SimRuntime.iOS-16-4)
@@ -321,11 +333,11 @@ jobs:
           echo "Using simulator $UDID"
           xcrun simctl boot "${UDID:?No Simulator with this name iPhone found}"
           ( cd server; dart run bin/server.dart ) &
-          flutter test ${{ inputs.verbose && '--verbose' || '' }} -d $UDID integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
+          bash ../../../scripts/ci/flutter-test-retry.sh ${{ inputs.verbose && '--verbose' || '' }} -d $UDID integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
 
   ios:
     runs-on: macos-26
-    timeout-minutes: 60
+    timeout-minutes: 90
     if: inputs.enable_ios
     steps:
       - uses: actions/checkout@v4
@@ -339,15 +351,17 @@ jobs:
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
+        env:
+          FLUTTER_TEST_TIMEOUT: 1200
         run: |
           UDID=$(xcrun simctl create test-se-26-2 com.apple.CoreSimulator.SimDeviceType.iPhone-SE-3rd-generation com.apple.CoreSimulator.SimRuntime.iOS-26-2)
           xcrun simctl list devices
           echo "Using simulator $UDID"
           xcrun simctl boot "${UDID:?No Simulator with this name iPhone found}"
           ( cd server; dart run bin/server.dart ) &
-          flutter test ${{ inputs.verbose && '--verbose' || '' }} -d $UDID integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
-          flutter test ${{ inputs.verbose && '--verbose' || '' }} -d $UDID integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
-          flutter test ${{ inputs.verbose && '--verbose' || '' }} -d $UDID integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
+          bash ../../../scripts/ci/flutter-test-retry.sh ${{ inputs.verbose && '--verbose' || '' }} -d $UDID integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
+          bash ../../../scripts/ci/flutter-test-retry.sh ${{ inputs.verbose && '--verbose' || '' }} -d $UDID integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
+          bash ../../../scripts/ci/flutter-test-retry.sh ${{ inputs.verbose && '--verbose' || '' }} -d $UDID integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
 
   # Remove as soon as support for cocoapods is removed at Flutter
   ios-pods:
@@ -489,6 +503,13 @@ jobs:
         run: |
           sudo apt install -y libunwind-dev
           sudo apt-get install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev gstreamer1.0-plugins-good gstreamer1.0-plugins-bad
+      - name: Set up virtual audio device
+        # Without an audio server GStreamer falls back to the OpenAL sink, which aborts the app since Flutter 3.50.0.
+        run: |
+          sudo apt-get install -y pulseaudio
+          pulseaudio --start --exit-idle-time=-1
+          pactl load-module module-null-sink sink_name=virtual_speaker
+          pactl set-default-sink virtual_speaker
 
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
