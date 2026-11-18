@@ -18,7 +18,6 @@ jobs:
       upload_pages_artifact: true
   
   call-test:
-    needs: call-build-example
     uses: ./.github/workflows/test.yml
     with:
       enable_min_version: true
