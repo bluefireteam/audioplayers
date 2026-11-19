@@ -2,7 +2,7 @@ group 'xyz.luan.audioplayers'
 version '1.0-SNAPSHOT'
 
 buildscript {
-    def kotlin_version = '2.0.0'
+    def kotlin_version = '2.4.21'
     repositories {
         google()
         mavenCentral()
@@ -61,8 +61,8 @@ allprojects {
 }
 
 dependencies {
-    def coroutines_version = "1.10.2"
-    implementation "androidx.core:core-ktx:1.16.0"
+    def coroutines_version = "1.11.0"
+    implementation "androidx.core:core-ktx:1.19.1"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
 }
