@@ -146,7 +146,7 @@ jobs:
         # This can happen, when execute for multiple Flutter versions, but each generates/migrates different files tied to their version.
       - run: git reset --hard
       - name: Lint Code Base
-        uses: super-linter/super-linter/slim@v5
+        uses: super-linter/super-linter/slim@v9
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_ALL_CODEBASE: false
