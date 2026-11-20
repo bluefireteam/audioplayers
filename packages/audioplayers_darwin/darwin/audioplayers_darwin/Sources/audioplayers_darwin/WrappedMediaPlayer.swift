@@ -17,6 +17,32 @@ enum ReleaseMode: String {
   case loop
 }
 
+/// A one-shot claim shared by the two arms of the player item status
+/// observation set up in `setUpPlayerItemStatusObservation` below.
+///
+/// KVO callouts for `AVPlayerItem.status` arrive on whichever thread produced
+/// the transition (a field crash report had one on a background thread and the
+/// next on the main queue), so a plain `Bool` would not actually exclude the
+/// second resume this exists to exclude.
+///
+/// `@unchecked Sendable` because the only mutable state is `claimed`, and every
+/// read and write of it happens under `lock`.
+private final class OneShotResumeLatch: @unchecked Sendable {
+  private let lock = NSLock()
+  private var claimed = false
+
+  /// `true` for the first caller only; every later caller gets `false`.
+  func claim() -> Bool {
+    lock.lock()
+    defer { lock.unlock() }
+    if claimed {
+      return false
+    }
+    claimed = true
+    return true
+  }
+}
+
 @MainActor class WrappedMediaPlayer {
   private(set) var eventHandler: AudioPlayersStreamHandler
   private(set) var isPlaying: Bool
@@ -215,9 +241,26 @@ enum ReleaseMode: String {
     cancellables.removeAll()
   }
 
+  // The `.readyToPlay` arm used to resume the continuation WITHOUT tearing the
+  // observation down: the teardown only ran after the `await` returned, one
+  // MainActor hop later. A media services reset landing inside that hop fails
+  // every AVPlayer in the process, forces the item to `.failed`, re-enters the
+  // still live observation and resumes the SAME continuation a second time,
+  // which the Swift runtime makes fatal by design.
+  //
+  // Two changes, both inside this function:
+  //   1. the `.readyToPlay` arm invalidates BEFORE it resumes, which is what
+  //      the `.failed` arm already did via `reset()`. This is the sufficient
+  //      fix.
+  //   2. a one-shot latch guards BOTH arms. Belt and braces rather than a
+  //      proven need: a double callout within a single flush is not excluded by
+  //      the evidence, and the latch closes that case for two lines per arm.
+  //
+  // Related: #1982, which reports continuation misuse in this function.
   private func setUpPlayerItemStatusObservation(
     _ playerItem: AVPlayerItem
   ) async throws {
+    let resumeLatch = OneShotResumeLatch()
     try await withCheckedThrowingContinuation { continuation in
       playerItemStatusObservation = playerItem.observe(\AVPlayerItem.status) {
         [weak self] (playerItem, change) in
@@ -229,8 +272,18 @@ enum ReleaseMode: String {
 
         switch status {
         case .readyToPlay:
+          guard resumeLatch.claim() else {
+            return
+          }
+          // Tear the observation down BEFORE resuming, so that a status change
+          // arriving before the awaiting body runs cannot re-enter it.
+          self.playerItemStatusObservation?.invalidate()
+          self.playerItemStatusObservation = nil
           continuation.resume()
         case .failed:
+          guard resumeLatch.claim() else {
+            return
+          }
           self.reset()
           continuation.resume(throwing: AudioPlayerError.error("Failed to set playerItem"))
         default:
