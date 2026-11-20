@@ -153,6 +153,10 @@ class AudioplayersPlugin : FlutterPlugin {
                     player.rate = rate.toFloat()
                 }
 
+                "setBackBufferDuration" -> {
+                    // No-op: MediaPlayer manages its buffer internally.
+                }
+
                 "getDuration" -> {
                     response.success(player.getDuration())
                     return
