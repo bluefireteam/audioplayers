@@ -51,6 +51,7 @@ class AudioplayersWindowsPlugin : public Plugin {
   std::map<std::string, std::unique_ptr<AudioPlayer>> audioPlayers;
 
   BinaryMessenger* binaryMessenger;
+  PluginRegistrarWindows* registrar;
   std::unique_ptr<MethodChannel<EncodableValue>> methods{};
   std::unique_ptr<MethodChannel<EncodableValue>> globalMethods{};
 
@@ -87,6 +88,7 @@ void AudioplayersWindowsPlugin::RegisterWithRegistrar(
   auto plugin = std::make_unique<AudioplayersWindowsPlugin>();
 
   plugin->binaryMessenger = registrar->messenger();
+  plugin->registrar = registrar;
 
   plugin->methods = std::make_unique<MethodChannel<EncodableValue>>(
       plugin->binaryMessenger, "xyz.luan/audioplayers",
@@ -110,7 +112,7 @@ void AudioplayersWindowsPlugin::RegisterWithRegistrar(
         plugin_pointer->HandleGlobalMethodCall(call, std::move(result));
       });
 
-  auto handler = std::make_unique<EventStreamHandler<EncodableValue>>();
+  auto handler = std::make_unique<EventStreamHandler<EncodableValue>>(registrar);
   plugin->globalEvents = handler.get();
 
   plugin->globalEventChannel->SetStreamHandler(std::move(handler));
@@ -314,7 +316,7 @@ void AudioplayersWindowsPlugin::CreatePlayer(std::string playerId) {
       binaryMessenger, "xyz.luan/audioplayers/events/" + playerId,
       &StandardMethodCodec::GetInstance());
 
-  auto eventHandler = std::make_unique<EventStreamHandler<EncodableValue>>();
+  auto eventHandler = std::make_unique<EventStreamHandler<EncodableValue>>(registrar);
   EventStreamHandler<EncodableValue>* eventHandlerPtr = eventHandler.get();
   eventChannel->SetStreamHandler(std::move(eventHandler));
 
