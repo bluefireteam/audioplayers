@@ -292,6 +292,14 @@ class WrappedPlayer internal constructor(
     }
 
     fun onCompletion() {
+        if (!isLooping) {
+            // MediaPlayer is now in PlaybackCompleted: it is no longer
+            // playing. With the flag left set, every later play() was a
+            // silent no-op until an explicit stop() or pause(), and the
+            // audio focus taken for this playback was never given back.
+            playing = false
+            focusManager.handleStop()
+        }
         ref.handleComplete(this)
     }
 
@@ -341,6 +349,9 @@ class WrappedPlayer internal constructor(
             // When an error occurs, reset player to not [prepared].
             // Then no functions will be called, which end up in an illegal player state.
             prepared = false
+            // The native player is no longer playing either; with the flag
+            // left set, every later play() would be a silent no-op.
+            playing = false
             handleError("AndroidAudioError", whatMsg, extraMsg)
         }
         return false
