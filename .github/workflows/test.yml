@@ -371,6 +371,11 @@ jobs:
           bash ../../../scripts/ci/flutter-test-retry.sh ${{ inputs.verbose && '--verbose' || '' }} -d $UDID integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
           bash ../../../scripts/ci/flutter-test-retry.sh ${{ inputs.verbose && '--verbose' || '' }} -d $UDID integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
           bash ../../../scripts/ci/flutter-test-retry.sh ${{ inputs.verbose && '--verbose' || '' }} -d $UDID integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
+      - name: Run iOS unit tests
+        working-directory: ./packages/audioplayers/example
+        run: |
+          flutter build ios --debug --simulator --config-only
+          xcodebuild test -workspace ios/Runner.xcworkspace -scheme Runner -configuration Debug             -destination "platform=iOS Simulator,name=test-se-26-2" -only-testing:RunnerTests
 
   # Remove as soon as support for cocoapods is removed at Flutter
   ios-pods:
@@ -422,6 +427,11 @@ jobs:
       - run: flutter config --enable-swift-package-manager
       - uses: bluefireteam/melos-action@v3
 
+      - name: Run macOS unit tests
+        working-directory: ./packages/audioplayers/example
+        run: |
+          flutter build macos --debug --config-only
+          xcodebuild test -workspace macos/Runner.xcworkspace -scheme Runner -configuration Debug -only-testing:RunnerTests
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
@@ -520,6 +530,11 @@ jobs:
           pactl load-module module-null-sink sink_name=virtual_speaker
           pactl set-default-sink virtual_speaker
 
+      - name: Run Linux unit tests
+        working-directory: ./packages/audioplayers/example
+        run: |
+          flutter build linux --debug
+          ./build/linux/x64/debug/plugins/audioplayers_linux/audioplayers_linux_test
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031

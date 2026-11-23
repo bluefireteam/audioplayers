@@ -39,6 +39,8 @@ class AudioPlayer {
 
   ReleaseMode GetReleaseMode();
 
+  bool IsPlaying();
+
   void Play();
 
   void Pause();
@@ -69,6 +71,10 @@ class AudioPlayer {
                GError** error);
 
   void OnLog(const gchar* message);
+
+  // Handles the end of stream message of the bus.
+  // Visible for testing.
+  void OnPlaybackEnded();
 
   virtual ~AudioPlayer();
 
@@ -113,8 +119,6 @@ class AudioPlayer {
   void OnSeekCompleted();
 
   void OnPlayingStateUpdate(bool isPlaying);
-
-  void OnPlaybackEnded();
 
   void OnPrepared(bool isPrepared);
 };

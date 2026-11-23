@@ -15,7 +15,7 @@ let channelName = "xyz.luan/audioplayers"
 let globalChannelName = "xyz.luan/audioplayers.global"
 
 public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
-  var registrar: FlutterPluginRegistrar
+  private let avFactory: WrappedAVObjectFactory
   var binaryMessenger: FlutterBinaryMessenger
   var methods: FlutterMethodChannel
   var globalMethods: FlutterMethodChannel
@@ -25,16 +25,16 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
   var players = [String: WrappedMediaPlayer]()
 
   init(
-    registrar: FlutterPluginRegistrar,
-    binaryMessenger: FlutterBinaryMessenger,
-    methodChannel: FlutterMethodChannel,
-    globalMethodChannel: FlutterMethodChannel,
-    globalEventChannel: FlutterEventChannel
+    avFactory: WrappedAVObjectFactory,
+    binaryMessenger: FlutterBinaryMessenger
   ) {
-    self.registrar = registrar
+    self.avFactory = avFactory
     self.binaryMessenger = binaryMessenger
-    self.methods = methodChannel
-    self.globalMethods = globalMethodChannel
+    self.methods = FlutterMethodChannel(name: channelName, binaryMessenger: binaryMessenger)
+    self.globalMethods = FlutterMethodChannel(
+      name: globalChannelName, binaryMessenger: binaryMessenger)
+    let globalEventChannel = FlutterEventChannel(
+      name: globalChannelName + "/events", binaryMessenger: binaryMessenger)
     self.globalEvents = GlobalAudioPlayersStreamHandler(channel: globalEventChannel)
 
     do {
@@ -49,6 +49,11 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
   }
 
   public static func register(with registrar: FlutterPluginRegistrar) {
+    let instance = AudioplayersDarwinPlugin(registrar: registrar)
+    registrar.addMethodCallDelegate(instance, channel: instance.methods)
+  }
+
+  convenience init(registrar: FlutterPluginRegistrar) {
     // apparently there is a bug in Flutter causing some inconsistency between Flutter and FlutterMacOS
     // See: https://github.com/flutter/flutter/issues/118103
     #if os(iOS)
@@ -56,20 +61,7 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
     #else
       let binaryMessenger = registrar.messenger
     #endif
-
-    let methods = FlutterMethodChannel(name: channelName, binaryMessenger: binaryMessenger)
-    let globalMethods = FlutterMethodChannel(
-      name: globalChannelName, binaryMessenger: binaryMessenger)
-    let globalEvents = FlutterEventChannel(
-      name: globalChannelName + "/events", binaryMessenger: binaryMessenger)
-
-    let instance = AudioplayersDarwinPlugin(
-      registrar: registrar,
-      binaryMessenger: binaryMessenger,
-      methodChannel: methods,
-      globalMethodChannel: globalMethods,
-      globalEventChannel: globalEvents)
-    registrar.addMethodCallDelegate(instance, channel: methods)
+    self.init(avFactory: DefaultAVFactory(), binaryMessenger: binaryMessenger)
   }
 
   public func detachFromEngine(for registrar: FlutterPluginRegistrar) {
@@ -373,7 +365,8 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
 
     let newPlayer = WrappedMediaPlayer(
       reference: self,
-      eventHandler: eventHandler
+      eventHandler: eventHandler,
+      player: avFactory.player()
     )
     players[playerId] = newPlayer
   }
