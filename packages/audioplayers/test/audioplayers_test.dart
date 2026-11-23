@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -164,38 +166,15 @@ void main() {
     });
   });
 
+  /// Tests in this group control every step on their own: native events are
+  /// only emitted, native calls only return and position updates only finish
+  /// when the test says so. [pumpEventQueue] lets the Dart side process
+  /// everything up to the next step. This makes the order of events and their
+  /// processing the same on every run, without depending on any timings.
   group('AudioPlayer playing state', () {
-    PositionUpdater slowPositionUpdater() => TimerPositionUpdater(
-          getPosition: () => Future.delayed(
-            const Duration(milliseconds: 10),
-            () => Duration.zero,
-          ),
-          interval: const Duration(minutes: 1),
-        );
-
-    test('system pause and play in quick succession keeps playing', () async {
-      final player = await createPlayer(playerId: 'p1');
-      player.positionUpdater = slowPositionUpdater();
-      await player.play(UrlSource('internet.com/file.mp3'));
-      expect(player.state, PlayerState.playing);
-
-      platform.eventStreamControllers['p1']!
-        ..add(
-          const AudioEvent(
-            eventType: AudioEventType.playingStateUpdate,
-            isPlaying: false,
-          ),
-        )
-        ..add(
-          const AudioEvent(
-            eventType: AudioEventType.playingStateUpdate,
-            isPlaying: true,
-          ),
-        );
-      await Future<void>.delayed(const Duration(milliseconds: 50));
-      expect(player.desiredState, PlayerState.playing);
-      expect(player.state, PlayerState.playing);
-    });
+    late _StepAudioplayersPlatform platform;
+    late _StepPositionUpdater positionUpdater;
+    late AudioPlayer player;
 
     const pausedEvent = AudioEvent(
       eventType: AudioEventType.playingStateUpdate,
@@ -207,49 +186,209 @@ void main() {
     );
     const completeEvent = AudioEvent(eventType: AudioEventType.complete);
 
-    Future<void> testStopWhileLooping(List<AudioEvent> stopEvents) async {
-      platform = _LoopingAudioplayersPlatform(stopEvents);
+    void emit(AudioEvent event) =>
+        platform.eventStreamControllers['p1']!.add(event);
+
+    setUp(() async {
+      platform = _StepAudioplayersPlatform();
       AudioplayersPlatformInterface.instance = platform;
-      final player = await createPlayer(playerId: 'p1');
-      player.positionUpdater = slowPositionUpdater();
+      player = AudioPlayer(playerId: 'p1');
+      await player.creatingCompleter.future;
+      positionUpdater = _StepPositionUpdater();
+      player.positionUpdater = positionUpdater;
+
       await player.setReleaseMode(ReleaseMode.loop);
       await player.play(UrlSource('internet.com/file.mp3'));
       expect(player.state, PlayerState.playing);
+      expect(player.desiredState, PlayerState.playing);
+      platform.clear();
+      positionUpdater.hold();
+    });
 
-      await player.stop().timeout(const Duration(seconds: 1));
-      await Future<void>.delayed(const Duration(milliseconds: 50));
+    tearDown(() async {
+      // Do not leave any step pending, e.g. when a test failed.
+      positionUpdater.release();
+      platform.pendingStop?.complete();
+      await pumpEventQueue();
+    });
+
+    /// Calls [AudioPlayer.stop] and runs until the native stop was called,
+    /// which is held until [_StepAudioplayersPlatform.finishStop].
+    Future<bool Function()> startStop() async {
+      var isStopped = false;
+      player.stop().then((_) => isStopped = true);
+      await pumpEventQueue();
+      expect(platform.popLastCall().method, 'stop');
+      expect(isStopped, isFalse);
+      expect(player.desiredState, PlayerState.stopped);
+      expect(player.state, PlayerState.playing);
+      return () => isStopped;
+    }
+
+    /// Emits the event of the native stop and lets the native call return.
+    Future<void> finishStop(bool Function() isStopped) async {
+      emit(pausedEvent);
+      platform.finishStop();
+      await pumpEventQueue();
+      positionUpdater.release();
+      await pumpEventQueue();
+
+      expect(isStopped(), isTrue, reason: 'stop() did not complete');
       expect(player.desiredState, PlayerState.stopped);
       expect(player.state, PlayerState.stopped);
     }
 
-    test(
-      '#stop completes when a loop restart is reported before the stop',
-      () => testStopWhileLooping([pausedEvent, playingEvent, pausedEvent]),
-    );
+    test('system pause and play in quick succession keeps playing', () async {
+      // The play event arrives while the pause is still being processed.
+      emit(pausedEvent);
+      await pumpEventQueue();
+      expect(positionUpdater.pendingUpdates, 1);
+      expect(player.state, PlayerState.paused);
+      expect(player.desiredState, PlayerState.paused);
 
-    test(
-      '#stop completes when the loop ends right before the stop',
-      () => testStopWhileLooping([pausedEvent, completeEvent]),
-    );
+      emit(playingEvent);
+      await pumpEventQueue();
+      positionUpdater.release();
+      await pumpEventQueue();
 
-    test(
-      '#stop completes when the loop end is reported before the pause',
-      () => testStopWhileLooping([completeEvent, pausedEvent]),
-    );
+      expect(player.desiredState, PlayerState.playing);
+      expect(player.state, PlayerState.playing);
+      expect(platform.calls, isEmpty);
+    });
+
+    test('#stop completes when a loop restart is reported before the stop',
+        () async {
+      final isStopped = await startStop();
+
+      // The loop end, which is still processed when the restart arrives.
+      emit(pausedEvent);
+      await pumpEventQueue();
+      expect(positionUpdater.pendingUpdates, 1);
+      expect(player.state, PlayerState.stopped);
+
+      // The restart of the loop, which was emitted before the stop.
+      emit(playingEvent);
+      await pumpEventQueue();
+      expect(player.state, PlayerState.playing);
+      expect(
+        player.desiredState,
+        PlayerState.stopped,
+        reason: 'the late restart must not override the requested stop',
+      );
+
+      await finishStop(isStopped);
+    });
+
+    test('#stop completes when the loop end is reported before the pause',
+        () async {
+      final isStopped = await startStop();
+
+      emit(completeEvent);
+      await pumpEventQueue();
+      expect(player.state, PlayerState.playing);
+      expect(
+        player.desiredState,
+        PlayerState.stopped,
+        reason: 'the late completion must not override the requested stop',
+      );
+
+      await finishStop(isStopped);
+    });
+
+    test('#stop completes when the loop ends right before the stop', () async {
+      final isStopped = await startStop();
+
+      // The pause of the loop end, which is still processed when the
+      // completion arrives.
+      emit(pausedEvent);
+      await pumpEventQueue();
+      expect(positionUpdater.pendingUpdates, 1);
+      expect(player.state, PlayerState.stopped);
+
+      emit(completeEvent);
+      await pumpEventQueue();
+      expect(
+        player.desiredState,
+        PlayerState.stopped,
+        reason: 'the late completion must not override the requested stop',
+      );
+
+      platform.finishStop();
+      positionUpdater.release();
+      await pumpEventQueue();
+
+      expect(isStopped(), isTrue, reason: 'stop() did not complete');
+      expect(player.desiredState, PlayerState.stopped);
+      expect(player.state, PlayerState.stopped);
+    });
+
+    test('loop completion without a pending request is still reported',
+        () async {
+      emit(completeEvent);
+      await pumpEventQueue();
+      expect(player.state, PlayerState.completed);
+      expect(player.desiredState, PlayerState.completed);
+      // A looping player is not stopped natively.
+      expect(platform.calls, isEmpty);
+    });
   });
 }
 
-/// Reports the given [stopEvents] instead of the regular stop events, to
-/// simulate events of a loop iteration that are still on their way to Dart
-/// when the stop is handled.
-class _LoopingAudioplayersPlatform extends FakeAudioplayersPlatform {
-  final List<AudioEvent> stopEvents;
-
-  _LoopingAudioplayersPlatform(this.stopEvents);
+/// Holds every native stop call until [finishStop] is called and does not
+/// emit any events on its own, so the test decides when they arrive.
+class _StepAudioplayersPlatform extends FakeAudioplayersPlatform {
+  Completer<void>? pendingStop;
 
   @override
-  Future<void> stop(String playerId) async {
+  Future<void> stop(String playerId) {
     calls.add(FakeCall(id: playerId, method: 'stop'));
-    stopEvents.forEach(eventStreamControllers[playerId]!.add);
+    return (pendingStop = Completer<void>()).future;
   }
+
+  void finishStop() {
+    pendingStop!.complete();
+    pendingStop = null;
+  }
+}
+
+/// Holds every position update between [hold] and [release]. A player event
+/// listener waits for the position update before completing a requested state
+/// update, which keeps the listener suspended at this point.
+class _StepPositionUpdater extends PositionUpdater {
+  final _pending = <Completer<Duration?>>[];
+  var _isHeld = false;
+
+  _StepPositionUpdater() : super(getPosition: _noPosition);
+
+  static Future<Duration?> _noPosition() async => null;
+
+  int get pendingUpdates => _pending.length;
+
+  @override
+  Future<void> update() {
+    if (!_isHeld) {
+      return Future.value();
+    }
+    final completer = Completer<Duration?>();
+    _pending.add(completer);
+    return completer.future;
+  }
+
+  /// Holds all following position updates.
+  void hold() => _isHeld = true;
+
+  /// Finishes all pending and following position updates.
+  void release() {
+    _isHeld = false;
+    for (final completer in _pending) {
+      completer.complete();
+    }
+    _pending.clear();
+  }
+
+  @override
+  void start() {}
+
+  @override
+  void stop() {}
 }
