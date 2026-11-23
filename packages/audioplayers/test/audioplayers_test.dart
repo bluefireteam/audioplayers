@@ -163,4 +163,93 @@ void main() {
       await platform.eventStreamControllers['p1']!.close();
     });
   });
+
+  group('AudioPlayer playing state', () {
+    PositionUpdater slowPositionUpdater() => TimerPositionUpdater(
+          getPosition: () => Future.delayed(
+            const Duration(milliseconds: 10),
+            () => Duration.zero,
+          ),
+          interval: const Duration(minutes: 1),
+        );
+
+    test('system pause and play in quick succession keeps playing', () async {
+      final player = await createPlayer(playerId: 'p1');
+      player.positionUpdater = slowPositionUpdater();
+      await player.play(UrlSource('internet.com/file.mp3'));
+      expect(player.state, PlayerState.playing);
+
+      platform.eventStreamControllers['p1']!
+        ..add(
+          const AudioEvent(
+            eventType: AudioEventType.playingStateUpdate,
+            isPlaying: false,
+          ),
+        )
+        ..add(
+          const AudioEvent(
+            eventType: AudioEventType.playingStateUpdate,
+            isPlaying: true,
+          ),
+        );
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      expect(player.desiredState, PlayerState.playing);
+      expect(player.state, PlayerState.playing);
+    });
+
+    const pausedEvent = AudioEvent(
+      eventType: AudioEventType.playingStateUpdate,
+      isPlaying: false,
+    );
+    const playingEvent = AudioEvent(
+      eventType: AudioEventType.playingStateUpdate,
+      isPlaying: true,
+    );
+    const completeEvent = AudioEvent(eventType: AudioEventType.complete);
+
+    Future<void> testStopWhileLooping(List<AudioEvent> stopEvents) async {
+      platform = _LoopingAudioplayersPlatform(stopEvents);
+      AudioplayersPlatformInterface.instance = platform;
+      final player = await createPlayer(playerId: 'p1');
+      player.positionUpdater = slowPositionUpdater();
+      await player.setReleaseMode(ReleaseMode.loop);
+      await player.play(UrlSource('internet.com/file.mp3'));
+      expect(player.state, PlayerState.playing);
+
+      await player.stop().timeout(const Duration(seconds: 1));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      expect(player.desiredState, PlayerState.stopped);
+      expect(player.state, PlayerState.stopped);
+    }
+
+    test(
+      '#stop completes when a loop restart is reported before the stop',
+      () => testStopWhileLooping([pausedEvent, playingEvent, pausedEvent]),
+    );
+
+    test(
+      '#stop completes when the loop ends right before the stop',
+      () => testStopWhileLooping([pausedEvent, completeEvent]),
+    );
+
+    test(
+      '#stop completes when the loop end is reported before the pause',
+      () => testStopWhileLooping([completeEvent, pausedEvent]),
+    );
+  });
+}
+
+/// Reports the given [stopEvents] instead of the regular stop events, to
+/// simulate events of a loop iteration that are still on their way to Dart
+/// when the stop is handled.
+class _LoopingAudioplayersPlatform extends FakeAudioplayersPlatform {
+  final List<AudioEvent> stopEvents;
+
+  _LoopingAudioplayersPlatform(this.stopEvents);
+
+  @override
+  Future<void> stop(String playerId) async {
+    calls.add(FakeCall(id: playerId, method: 'stop'));
+    stopEvents.forEach(eventStreamControllers[playerId]!.add);
+  }
 }
