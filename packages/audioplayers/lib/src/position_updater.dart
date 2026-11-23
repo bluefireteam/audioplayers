@@ -78,6 +78,13 @@ class FramePositionUpdater extends PositionUpdater {
 
   @override
   void start() {
+    if (_isRunning) {
+      // A frame-callback chain is already running. Starting another one would
+      // leave the previous chain uncancelled (its callback id gets
+      // overwritten), stacking an extra `getPosition` call per frame on every
+      // call to `start()`.
+      return;
+    }
     _isRunning = true;
     _tick(null);
   }
