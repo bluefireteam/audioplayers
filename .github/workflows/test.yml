@@ -57,6 +57,11 @@ on:
         required: false
         default: true
         type: boolean
+      enable_pods:
+        description: 'Build with CocoaPods'
+        required: false
+        default: true
+        type: boolean
       enable_min_version:
         description: 'Test Platform min version'
         required: false
@@ -106,6 +111,10 @@ on:
         required: false
         default: true
         type: boolean
+      enable_pods:
+        required: false
+        default: true
+        type: boolean
       enable_min_version:
         required: false
         default: false
@@ -121,7 +130,7 @@ jobs:
     timeout-minutes: 30
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           # Full git history needed for `super-linter`
           fetch-depth: 0
@@ -157,7 +166,7 @@ jobs:
     timeout-minutes: 30
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ inputs.flutter_version }}
@@ -170,13 +179,13 @@ jobs:
     timeout-minutes: 30
     if: inputs.enable_web
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ inputs.flutter_version }}
           channel: ${{ inputs.flutter_channel }}
       - uses: bluefireteam/melos-action@v3
-      - uses: nanasess/setup-chromedriver@v2
+      - uses: nanasess/setup-chromedriver@v3
 
       - name: Run Flutter integration tests
         working-directory: ./packages/audioplayers/example
@@ -213,10 +222,10 @@ jobs:
 
   android-min:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 45
     if: inputs.enable_min_version && inputs.enable_android
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ inputs.flutter_version }}
@@ -229,7 +238,7 @@ jobs:
         working-directory: ./packages/audioplayers/example
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         env:
-          FLUTTER_TEST_TIMEOUT: 900
+          FLUTTER_TEST_TIMEOUT: 600
           FLUTTER_TEST_BEFORE_RETRY: bash ../../../scripts/ci/start-android-emulator.sh
         run: |
           ( cd server; dart run bin/server.dart ) &
@@ -239,11 +248,11 @@ jobs:
 
   android-legacy:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 45
     if: inputs.enable_android
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
         with:
           # Android SDK 36 needs JDK 21
           java-version: '21'
@@ -265,7 +274,7 @@ jobs:
         working-directory: ./packages/audioplayers/example
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         env:
-          FLUTTER_TEST_TIMEOUT: 900
+          FLUTTER_TEST_TIMEOUT: 600
           FLUTTER_TEST_BEFORE_RETRY: bash ../../../scripts/ci/start-android-emulator.sh
         run: |
           ( cd server; dart run bin/server.dart ) &
@@ -275,11 +284,11 @@ jobs:
 
   android:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 45
     if: inputs.enable_android
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
         with:
           # Android SDK 36 needs JDK 21
           java-version: '21'
@@ -297,7 +306,7 @@ jobs:
         working-directory: ./packages/audioplayers/example
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         env:
-          FLUTTER_TEST_TIMEOUT: 900
+          FLUTTER_TEST_TIMEOUT: 600
           FLUTTER_TEST_BEFORE_RETRY: bash ../../../scripts/ci/start-android-emulator.sh
         run: |
           ( cd server; dart run bin/server.dart ) &
@@ -315,7 +324,7 @@ jobs:
     timeout-minutes: 60
     if: inputs.enable_min_version && inputs.enable_ios
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ inputs.flutter_version }}
@@ -337,10 +346,10 @@ jobs:
 
   ios:
     runs-on: macos-26
-    timeout-minutes: 90
+    timeout-minutes: 45
     if: inputs.enable_ios
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ inputs.flutter_version }}
@@ -352,7 +361,7 @@ jobs:
         working-directory: ./packages/audioplayers/example
         # Need to execute lib and app tests one by one, see: https://github.com/flutter/flutter/issues/101031
         env:
-          FLUTTER_TEST_TIMEOUT: 1200
+          FLUTTER_TEST_TIMEOUT: 720
         run: |
           UDID=$(xcrun simctl create test-se-26-2 com.apple.CoreSimulator.SimDeviceType.iPhone-SE-3rd-generation com.apple.CoreSimulator.SimRuntime.iOS-26-2)
           xcrun simctl list devices
@@ -367,9 +376,9 @@ jobs:
   ios-pods:
     runs-on: macos-latest
     timeout-minutes: 30
-    if: inputs.enable_ios
+    if: inputs.enable_pods && inputs.enable_ios
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ inputs.flutter_version }}
@@ -386,7 +395,7 @@ jobs:
     timeout-minutes: 30
     if: inputs.enable_min_version && inputs.enable_macos
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ inputs.flutter_version }}
@@ -405,7 +414,7 @@ jobs:
     timeout-minutes: 30
     if: inputs.enable_macos
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ inputs.flutter_version }}
@@ -426,9 +435,9 @@ jobs:
   macos-pods:
     runs-on: macos-latest
     timeout-minutes: 30
-    if: inputs.enable_macos
+    if: inputs.enable_pods && inputs.enable_macos
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ inputs.flutter_version }}
@@ -445,7 +454,7 @@ jobs:
     timeout-minutes: 30
     if: inputs.enable_windows
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ inputs.flutter_version }}
@@ -488,7 +497,7 @@ jobs:
     timeout-minutes: 30
     if: inputs.enable_linux
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ inputs.flutter_version }}
