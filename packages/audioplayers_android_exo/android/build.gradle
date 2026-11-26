@@ -2,7 +2,7 @@ group 'xyz.luan.audioplayers'
 version '1.0-SNAPSHOT'
 
 buildscript {
-    def kotlin_version = '2.0.0'
+    def kotlin_version = '2.4.21'
     repositories {
         google()
         mavenCentral()
@@ -61,7 +61,7 @@ allprojects {
 }
 
 dependencies {
-    def coroutines_version = "1.10.2"
+    def coroutines_version = "1.11.0"
     def exoplayer_version = "1.9.0"
     implementation "androidx.media3:media3-exoplayer:${exoplayer_version}"
     implementation "androidx.media3:media3-exoplayer-hls:${exoplayer_version}"
