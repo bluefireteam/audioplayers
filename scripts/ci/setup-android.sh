@@ -26,6 +26,21 @@ echo "ANDROID_CMDLINE_TOOLS: $ANDROID_CMDLINE_TOOLS"
 echo "Install Android Emulator"
 "$ANDROID_CMDLINE_TOOLS"/sdkmanager --install "emulator"
 
+# Replace the latest emulator with 37.2.13, as the network of API 35 images is
+# unreachable with emulator 37.3.10.
+EMULATOR_BUILD=16740729
+EMULATOR_SHA1=f41f9e31eb5ca64926603c03265c50bbc0ff4172
+echo "Install Android Emulator build $EMULATOR_BUILD"
+emulator_zip=$(mktemp --suffix=.zip)
+curl -fsSL -o "$emulator_zip" "https://dl.google.com/android/repository/emulator-linux_x64-$EMULATOR_BUILD.zip"
+echo "$EMULATOR_SHA1  $emulator_zip" | sha1sum -c -
+mv "$ANDROID_HOME/emulator/package.xml" "$emulator_zip.package.xml"
+rm -rf "$ANDROID_HOME/emulator"
+unzip -q "$emulator_zip" -d "$ANDROID_HOME"
+mv "$emulator_zip.package.xml" "$ANDROID_HOME/emulator/package.xml"
+rm "$emulator_zip"
+grep "^Pkg.Revision=" "$ANDROID_HOME/emulator/source.properties"
+
 AVD_IMAGE="system-images;android-$ANDROID_SDK_VERSION;$ANDROID_SYSTEM_IMAGE_SOURCE;$ANDROID_ABI"
 
 echo "Install Android System Image: $AVD_IMAGE"
