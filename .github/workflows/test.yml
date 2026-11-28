@@ -375,7 +375,7 @@ jobs:
         working-directory: ./packages/audioplayers/example
         run: |
           flutter build ios --debug --simulator --config-only
-          xcodebuild test -workspace ios/Runner.xcworkspace -scheme Runner -configuration Debug -destination "platform=iOS Simulator,name=test-se-26-2" -only-testing:RunnerTests
+          xcodebuild test -workspace ios/Runner.xcworkspace -scheme Runner -configuration Debug -destination "platform=iOS Simulator,name=test-se-26-2,OS=26.2" -only-testing:RunnerTests
 
   # Remove as soon as support for cocoapods is removed at Flutter
   ios-pods:
