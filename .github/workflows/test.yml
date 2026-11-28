@@ -245,6 +245,14 @@ jobs:
           bash ../../../scripts/ci/flutter-test-retry.sh ${{ inputs.verbose && '--verbose' || '' }} integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
           bash ../../../scripts/ci/flutter-test-retry.sh ${{ inputs.verbose && '--verbose' || '' }} integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
           bash ../../../scripts/ci/flutter-test-retry.sh ${{ inputs.verbose && '--verbose' || '' }} integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
+      - name: Print Android logs
+        if: failure()
+        run: |
+          log_dir="$RUNNER_TEMP/android-logs"
+          sudo dmesg -T --level=emerg,alert,crit,err,warn > "$log_dir/dmesg.log" || true
+          echo "::group::Emulator output"; cat "$log_dir/emulator.log" || true; echo "::endgroup::"
+          echo "::group::Logcat warnings and errors (last 3000 lines)"; tail -n 3000 "$log_dir/logcat.log" || true; echo "::endgroup::"
+          echo "::group::Host kernel warnings and errors (last 300 lines)"; tail -n 300 "$log_dir/dmesg.log" || true; echo "::endgroup::"
 
   android-legacy:
     runs-on: ubuntu-latest
@@ -281,6 +289,14 @@ jobs:
           bash ../../../scripts/ci/flutter-test-retry.sh ${{ inputs.verbose && '--verbose' || '' }} integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
           bash ../../../scripts/ci/flutter-test-retry.sh ${{ inputs.verbose && '--verbose' || '' }} integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
           bash ../../../scripts/ci/flutter-test-retry.sh ${{ inputs.verbose && '--verbose' || '' }} integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
+      - name: Print Android logs
+        if: failure()
+        run: |
+          log_dir="$RUNNER_TEMP/android-logs"
+          sudo dmesg -T --level=emerg,alert,crit,err,warn > "$log_dir/dmesg.log" || true
+          echo "::group::Emulator output"; cat "$log_dir/emulator.log" || true; echo "::endgroup::"
+          echo "::group::Logcat warnings and errors (last 3000 lines)"; tail -n 3000 "$log_dir/logcat.log" || true; echo "::endgroup::"
+          echo "::group::Host kernel warnings and errors (last 300 lines)"; tail -n 300 "$log_dir/dmesg.log" || true; echo "::endgroup::"
 
   android:
     runs-on: ubuntu-latest
@@ -313,6 +329,14 @@ jobs:
           bash ../../../scripts/ci/flutter-test-retry.sh ${{ inputs.verbose && '--verbose' || '' }} integration_test/platform_test.dart --dart-define USE_LOCAL_SERVER=true
           bash ../../../scripts/ci/flutter-test-retry.sh ${{ inputs.verbose && '--verbose' || '' }} integration_test/lib_test.dart --dart-define USE_LOCAL_SERVER=true
           bash ../../../scripts/ci/flutter-test-retry.sh ${{ inputs.verbose && '--verbose' || '' }} integration_test/app_test.dart --dart-define USE_LOCAL_SERVER=true
+      - name: Print Android logs
+        if: failure()
+        run: |
+          log_dir="$RUNNER_TEMP/android-logs"
+          sudo dmesg -T --level=emerg,alert,crit,err,warn > "$log_dir/dmesg.log" || true
+          echo "::group::Emulator output"; cat "$log_dir/emulator.log" || true; echo "::endgroup::"
+          echo "::group::Logcat warnings and errors (last 3000 lines)"; tail -n 3000 "$log_dir/logcat.log" || true; echo "::endgroup::"
+          echo "::group::Host kernel warnings and errors (last 300 lines)"; tail -n 300 "$log_dir/dmesg.log" || true; echo "::endgroup::"
       - name: Run Android unit tests
         working-directory: ./packages/audioplayers/example/android
         # TODO: Use `./gradlew test`, when https://github.com/flutter/flutter/issues/169336 is fixed.
