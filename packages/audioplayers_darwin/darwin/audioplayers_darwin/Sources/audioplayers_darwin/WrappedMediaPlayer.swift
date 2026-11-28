@@ -122,10 +122,10 @@ enum ReleaseMode: String {
   }
 
   func seek(time: CMTime) async {
-    guard let currentItem = player.currentItem else {
+    guard player.currentItem != nil else {
       return
     }
-    await currentItem.seek(to: time)
+    await player.seek(to: time)
     if !self.isPlaying {
       self.player.pause()
     }

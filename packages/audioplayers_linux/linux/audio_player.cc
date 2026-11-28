@@ -301,6 +301,10 @@ ReleaseMode AudioPlayer::GetReleaseMode() {
   return _releaseMode;
 }
 
+bool AudioPlayer::IsPlaying() {
+  return _isPlaying;
+}
+
 void AudioPlayer::SetVolume(double volume) {
   if (volume > 1) {
     volume = 1;

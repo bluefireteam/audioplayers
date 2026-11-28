@@ -8,10 +8,14 @@ include(FetchContent)
 # not be changed
 set(PLUGIN_NAME "${PROJECT_NAME}_plugin")
 
-add_library(${PLUGIN_NAME} SHARED
+list(APPEND PLUGIN_SOURCES
   "audioplayers_linux_plugin.cc"
   "audio_player.h"
   "audio_player.cc"
+)
+
+add_library(${PLUGIN_NAME} SHARED
+  ${PLUGIN_SOURCES}
 )
 apply_standard_settings(${PLUGIN_NAME})
 set_target_properties(${PLUGIN_NAME} PROPERTIES CXX_VISIBILITY_PRESET hidden)
@@ -44,6 +48,45 @@ target_compile_definitions(${PLUGIN_NAME} PRIVATE FLUTTER_PLUGIN_IMPL)
 target_include_directories(${PLUGIN_NAME} INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 target_link_libraries(${PLUGIN_NAME} PRIVATE flutter)
 target_link_libraries(${PLUGIN_NAME} PRIVATE PkgConfig::GTK)
+
+# === Tests ===
+# These unit tests can be run from a terminal after building the example:
+# build/linux/x64/debug/plugins/audioplayers_linux/audioplayers_linux_test
+
+# Only enable test builds when building the example (which sets this variable)
+# so that plugin clients aren't building the tests.
+if (${include_${PROJECT_NAME}_tests})
+  set(TEST_RUNNER "${PROJECT_NAME}_test")
+  enable_testing()
+
+  # Add the Google Test dependency.
+  FetchContent_Declare(
+    googletest
+    URL https://github.com/google/googletest/archive/refs/tags/v1.17.0.zip
+  )
+  # Prevent overriding the parent project's compiler/linker settings
+  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+  # Disable install commands for gtest so it doesn't end up in the bundle.
+  set(INSTALL_GTEST OFF CACHE BOOL "Disable installation of googletest" FORCE)
+  FetchContent_MakeAvailable(googletest)
+
+  # The plugin's exported API is not very useful for unit testing, so build the
+  # sources directly into the test binary rather than using the shared library.
+  add_executable(${TEST_RUNNER}
+    test/audio_player_test.cc
+    ${PLUGIN_SOURCES}
+  )
+  apply_standard_settings(${TEST_RUNNER})
+  target_compile_features(${TEST_RUNNER} PRIVATE cxx_std_17)
+  target_link_libraries(${TEST_RUNNER} PRIVATE ${GST_APP_LIBRARIES})
+  target_link_libraries(${TEST_RUNNER} PRIVATE flutter)
+  target_link_libraries(${TEST_RUNNER} PRIVATE PkgConfig::GTK)
+  target_link_libraries(${TEST_RUNNER} PRIVATE gtest_main)
+
+  # Enable automatic test discovery.
+  include(GoogleTest)
+  gtest_discover_tests(${TEST_RUNNER})
+endif()
 
 # List of absolute paths to libraries that should be bundled with the plugin
 set(audioplayers_linux_bundled_libraries

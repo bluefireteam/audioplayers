@@ -21,7 +21,8 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		331C80D8294CF71000263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C80D7294CF71000263BE5 /* RunnerTests.swift */; };
+		331C80D8294CF71000263BE5 /* AudioplayersDarwinPluginTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C80D7294CF71000263BE5 /* AudioplayersDarwinPluginTests.swift */; };
+		78C1A0042F2A000100A1B2C3 /* TestClasses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78C1A0032F2A000100A1B2C3 /* TestClasses.swift */; };
 		335BBD1B22A9A15E00E9071D /* GeneratedPluginRegistrant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 335BBD1A22A9A15E00E9071D /* GeneratedPluginRegistrant.swift */; };
 		33CC10F12044A3C60003C045 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33CC10F02044A3C60003C045 /* AppDelegate.swift */; };
 		33CC10F32044A3C60003C045 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 33CC10F22044A3C60003C045 /* Assets.xcassets */; };
@@ -62,7 +63,8 @@
 
 /* Begin PBXFileReference section */
 		331C80D5294CF71000263BE5 /* RunnerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RunnerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		331C80D7294CF71000263BE5 /* RunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunnerTests.swift; sourceTree = "<group>"; };
+		331C80D7294CF71000263BE5 /* AudioplayersDarwinPluginTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AudioplayersDarwinPluginTests.swift; path = ../../../audioplayers_darwin/darwin/RunnerTests/AudioplayersDarwinPluginTests.swift; sourceTree = SOURCE_ROOT; };
+		78C1A0032F2A000100A1B2C3 /* TestClasses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TestClasses.swift; path = ../../../audioplayers_darwin/darwin/RunnerTests/TestClasses.swift; sourceTree = SOURCE_ROOT; };
 		333000ED22D3DE5D00554162 /* Warnings.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Warnings.xcconfig; sourceTree = "<group>"; };
 		335BBD1A22A9A15E00E9071D /* GeneratedPluginRegistrant.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GeneratedPluginRegistrant.swift; sourceTree = "<group>"; };
 		33CC10ED2044A3C60003C045 /* AudioPlayers Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "AudioPlayers Example.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -104,9 +106,10 @@
 		331C80D6294CF71000263BE5 /* RunnerTests */ = {
 			isa = PBXGroup;
 			children = (
-				331C80D7294CF71000263BE5 /* RunnerTests.swift */,
+				331C80D7294CF71000263BE5 /* AudioplayersDarwinPluginTests.swift */,
+				78C1A0032F2A000100A1B2C3 /* TestClasses.swift */,
 			);
-			path = RunnerTests;
+			name = RunnerTests;
 			sourceTree = "<group>";
 		};
 		33BA886A226E78AF003329D5 /* Configs */ = {
@@ -346,7 +349,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				331C80D8294CF71000263BE5 /* RunnerTests.swift in Sources */,
+				331C80D8294CF71000263BE5 /* AudioplayersDarwinPluginTests.swift in Sources */,
+				78C1A0042F2A000100A1B2C3 /* TestClasses.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -398,7 +402,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = xyz.luan.audioplayersExample.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AudioPlayers Example.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/audioplayers_example";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AudioPlayers Example.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/AudioPlayers Example";
 			};
 			name = Debug;
 		};
@@ -412,7 +416,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = xyz.luan.audioplayersExample.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AudioPlayers Example.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/audioplayers_example";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AudioPlayers Example.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/AudioPlayers Example";
 			};
 			name = Release;
 		};
@@ -426,7 +430,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = xyz.luan.audioplayersExample.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AudioPlayers Example.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/audioplayers_example";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AudioPlayers Example.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/AudioPlayers Example";
 			};
 			name = Profile;
 		};
