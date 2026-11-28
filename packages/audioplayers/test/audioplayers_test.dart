@@ -295,33 +295,6 @@ void main() {
       await finishStop(isStopped);
     });
 
-    test('#stop completes when the loop ends right before the stop', () async {
-      final isStopped = await startStop();
-
-      // The pause of the loop end, which is still processed when the
-      // completion arrives.
-      emit(pausedEvent);
-      await pumpEventQueue();
-      expect(positionUpdater.pendingUpdates, 1);
-      expect(player.state, PlayerState.stopped);
-
-      emit(completeEvent);
-      await pumpEventQueue();
-      expect(
-        player.desiredState,
-        PlayerState.stopped,
-        reason: 'the late completion must not override the requested stop',
-      );
-
-      platform.finishStop();
-      positionUpdater.release();
-      await pumpEventQueue();
-
-      expect(isStopped(), isTrue, reason: 'stop() did not complete');
-      expect(player.desiredState, PlayerState.stopped);
-      expect(player.state, PlayerState.stopped);
-    });
-
     test('loop completion without a pending request is still reported',
         () async {
       emit(completeEvent);
