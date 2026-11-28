@@ -24,6 +24,22 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
   var globalContext = AudioContext()
   var players = [String: WrappedMediaPlayer]()
 
+  public static func register(with registrar: FlutterPluginRegistrar) {
+    let instance = AudioplayersDarwinPlugin(registrar: registrar)
+    registrar.addMethodCallDelegate(instance, channel: instance.methods)
+  }
+
+  convenience init(registrar: FlutterPluginRegistrar) {
+    // apparently there is a bug in Flutter causing some inconsistency between Flutter and FlutterMacOS
+    // See: https://github.com/flutter/flutter/issues/118103
+    #if os(iOS)
+      let binaryMessenger = registrar.messenger()
+    #else
+      let binaryMessenger = registrar.messenger
+    #endif
+    self.init(avFactory: DefaultAVFactory(), binaryMessenger: binaryMessenger)
+  }
+
   init(
     avFactory: WrappedAVObjectFactory,
     binaryMessenger: FlutterBinaryMessenger
@@ -46,22 +62,6 @@ public class AudioplayersDarwinPlugin: NSObject, FlutterPlugin {
     super.init()
 
     self.globalMethods.setMethodCallHandler(handleGlobalMethodCall)
-  }
-
-  public static func register(with registrar: FlutterPluginRegistrar) {
-    let instance = AudioplayersDarwinPlugin(registrar: registrar)
-    registrar.addMethodCallDelegate(instance, channel: instance.methods)
-  }
-
-  convenience init(registrar: FlutterPluginRegistrar) {
-    // apparently there is a bug in Flutter causing some inconsistency between Flutter and FlutterMacOS
-    // See: https://github.com/flutter/flutter/issues/118103
-    #if os(iOS)
-      let binaryMessenger = registrar.messenger()
-    #else
-      let binaryMessenger = registrar.messenger
-    #endif
-    self.init(avFactory: DefaultAVFactory(), binaryMessenger: binaryMessenger)
   }
 
   public func detachFromEngine(for registrar: FlutterPluginRegistrar) {
