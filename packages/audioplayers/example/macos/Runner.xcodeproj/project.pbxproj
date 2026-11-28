@@ -402,7 +402,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = xyz.luan.audioplayersExample.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AudioPlayers Example.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/audioplayers_example";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AudioPlayers Example.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/AudioPlayers Example";
 			};
 			name = Debug;
 		};
@@ -416,7 +416,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = xyz.luan.audioplayersExample.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AudioPlayers Example.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/audioplayers_example";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AudioPlayers Example.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/AudioPlayers Example";
 			};
 			name = Release;
 		};
@@ -430,7 +430,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = xyz.luan.audioplayersExample.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AudioPlayers Example.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/audioplayers_example";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AudioPlayers Example.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/AudioPlayers Example";
 			};
 			name = Profile;
 		};
