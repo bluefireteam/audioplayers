@@ -12,9 +12,6 @@ class AudioPlayerTest : public ::testing::Test {
  protected:
   void SetUp() override {
     player = std::make_unique<AudioPlayer>("p1", nullptr, nullptr);
-    player->SetReleaseMode(ReleaseMode::loop);
-    player->Resume();
-    ASSERT_TRUE(player->IsPlaying());
   }
 
   void TearDown() override { player->Dispose(); }
@@ -22,21 +19,32 @@ class AudioPlayerTest : public ::testing::Test {
   std::unique_ptr<AudioPlayer> player;
 };
 
-TEST_F(AudioPlayerTest, LoopRestartsAtEndOfStream) {
+// A player in loop mode, which is playing.
+class LoopingAudioPlayerTest : public AudioPlayerTest {
+ protected:
+  void SetUp() override {
+    AudioPlayerTest::SetUp();
+    player->SetReleaseMode(ReleaseMode::loop);
+    player->Resume();
+    ASSERT_TRUE(player->IsPlaying());
+  }
+};
+
+TEST_F(LoopingAudioPlayerTest, RestartsAtEndOfStream) {
   player->OnPlaybackEnded();
 
   EXPECT_TRUE(player->IsPlaying());
 }
 
 // The end of stream message can be dispatched after a stop was handled.
-TEST_F(AudioPlayerTest, LoopDoesNotRestartAfterStop) {
+TEST_F(LoopingAudioPlayerTest, DoesNotRestartAfterStop) {
   player->Stop();
   player->OnPlaybackEnded();
 
   EXPECT_FALSE(player->IsPlaying());
 }
 
-TEST_F(AudioPlayerTest, LoopDoesNotRestartAfterPause) {
+TEST_F(LoopingAudioPlayerTest, DoesNotRestartAfterPause) {
   player->Pause();
   player->OnPlaybackEnded();
 
