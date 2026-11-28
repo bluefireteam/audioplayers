@@ -13,6 +13,8 @@ private let playerId = "p1"
 
 /// The player plays a silent file, and the seek to the start of the loop is held until the test
 /// forwards it, so the loop restarts at the same step on every run.
+// The time limit is only available on newer platform versions.
+@available(macOS 13.0, iOS 16.0, *)
 @Suite(.timeLimit(.minutes(1)))
 @MainActor struct AudioplayersDarwinPluginTests {
 
