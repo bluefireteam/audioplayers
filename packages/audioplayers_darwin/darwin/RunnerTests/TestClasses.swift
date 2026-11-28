@@ -8,39 +8,29 @@ import AVFoundation
   import FlutterMacOS
 #endif
 
-/// An AVPlayer subclass that does not play, but records play requests, and holds every seek until
-/// `finishSeeks` is called.
-final class StubAVPlayer: AVPlayer {
-  private(set) var playCount = 0
-  private var stubRate: Float = 0
-  private var pendingSeeks: [@Sendable (Bool) -> Void] = []
+/// An AVPlayer subclass that holds seeks while `holdsSeeks` is set, until `finishSeeks` forwards
+/// them to the player.
+final class InspectableAVPlayer: AVPlayer {
+  /// Whether seeks are held until `finishSeeks` is called.
+  var holdsSeeks = false
+  private var heldSeeks: [(time: CMTime, completionHandler: @Sendable (Bool) -> Void)] = []
   private var seekWaiters: [(count: Int, continuation: CheckedContinuation<Void, Never>)] = []
 
-  override func play() {
-    playCount += 1
-  }
-
-  override func playImmediately(atRate rate: Float) {
-    playCount += 1
-  }
-
-  // Setting the rate of an AVPlayer would start the playback.
-  override var rate: Float {
-    get { stubRate }
-    set { stubRate = newValue }
-  }
-
   override func seek(to time: CMTime, completionHandler: @escaping @Sendable (Bool) -> Void) {
-    pendingSeeks.append(completionHandler)
-    let pendingCount = pendingSeeks.count
-    let readyWaiters = seekWaiters.filter { $0.count <= pendingCount }
-    seekWaiters.removeAll { $0.count <= pendingCount }
+    guard holdsSeeks else {
+      super.seek(to: time, completionHandler: completionHandler)
+      return
+    }
+    heldSeeks.append((time: time, completionHandler: completionHandler))
+    let heldCount = heldSeeks.count
+    let readyWaiters = seekWaiters.filter { $0.count <= heldCount }
+    seekWaiters.removeAll { $0.count <= heldCount }
     readyWaiters.forEach { $0.continuation.resume() }
   }
 
-  /// Waits until the given number of seeks is pending.
-  func waitForPendingSeeks(count: Int) async {
-    if pendingSeeks.count >= count {
+  /// Waits until the given number of seeks is held.
+  func waitForHeldSeeks(count: Int) async {
+    if heldSeeks.count >= count {
       return
     }
     await withCheckedContinuation { continuation in
@@ -48,18 +38,21 @@ final class StubAVPlayer: AVPlayer {
     }
   }
 
-  /// Finishes all pending seeks.
+  /// Stops holding seeks and forwards the held seeks to the player.
   func finishSeeks() {
-    let seeks = pendingSeeks
-    pendingSeeks.removeAll()
-    seeks.forEach { $0(true) }
+    holdsSeeks = false
+    let seeks = heldSeeks
+    heldSeeks.removeAll()
+    for seek in seeks {
+      super.seek(to: seek.time, completionHandler: seek.completionHandler)
+    }
   }
 }
 
 final class StubAVFactory: WrappedAVObjectFactory {
   let avPlayer: AVPlayer
 
-  init(player: AVPlayer = StubAVPlayer()) {
+  init(player: AVPlayer = InspectableAVPlayer()) {
     self.avPlayer = player
   }
 
