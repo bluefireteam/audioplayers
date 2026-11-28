@@ -8,7 +8,7 @@ include(FetchContent)
 # not be changed
 set(PLUGIN_NAME "${PROJECT_NAME}_plugin")
 
-set(PLUGIN_SOURCES
+list(APPEND PLUGIN_SOURCES
   "audioplayers_linux_plugin.cc"
   "audio_player.h"
   "audio_player.cc"
@@ -78,16 +78,10 @@ if (${include_${PROJECT_NAME}_tests})
   )
   apply_standard_settings(${TEST_RUNNER})
   target_compile_features(${TEST_RUNNER} PRIVATE cxx_std_17)
-  target_include_directories(${TEST_RUNNER} PRIVATE
-    "${CMAKE_CURRENT_SOURCE_DIR}"
-    "${CMAKE_CURRENT_SOURCE_DIR}/include"
-    ${GST_INCLUDE_DIRS}
-    ${GLIB_INCLUDE_DIRS}
-  )
-  target_link_libraries(${TEST_RUNNER} PRIVATE ${GST_APP_LIBRARIES} ${GLIB_LIBRARIES})
+  target_link_libraries(${TEST_RUNNER} PRIVATE ${GST_APP_LIBRARIES})
   target_link_libraries(${TEST_RUNNER} PRIVATE flutter)
   target_link_libraries(${TEST_RUNNER} PRIVATE PkgConfig::GTK)
-  target_link_libraries(${TEST_RUNNER} PRIVATE gtest_main gmock)
+  target_link_libraries(${TEST_RUNNER} PRIVATE gtest_main)
 
   # Enable automatic test discovery.
   include(GoogleTest)
